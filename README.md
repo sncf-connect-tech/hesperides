@@ -41,7 +41,7 @@ $ java -jar hesperides-1.0.0-SNAPSHOT.jar server PATH_TO_YOUR_HESPERIDES_YML_FIL
 Documentation:
 =====
 
-Available online at <https://github.com/voyages-sncf-technologies/hesperides-gui/docs>
+Available online at <https://cdn.rawgit.com/voyages-sncf-technologies/hesperides-gui/master/docs/index.html>
 
 Development:
 =====
