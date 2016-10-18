@@ -1,0 +1,23 @@
+0.1
+
+Refonte de l'architecture en eventsourcing
+
+0.0.4
+
+Par défaut les champs ne sont plus "HTML escaped"
+
+0.0.3
+
+Ajout des fonctions de copy de plateformes et de briques applicatives
+
+0.0.2
+
+Ajout de la possibilité d'utiliser des properties avec des '.'
+
+0.0.1
+
+Services CRUD de base pour :
+- Applications
+- Properties
+- Contexts
+- Templates

@@ -1,0 +1,9 @@
+{
+    "name": "instance.sh",
+    "namespace": "technos.nodejs.0",
+    "filename": "{{INSTANCE_NAME}}.sh",
+    "location": "{{HOME}}/{{INSTANCE_NAME}}",
+    "content": "some_content",
+    "rights":null,
+    "version_id": 1
+}

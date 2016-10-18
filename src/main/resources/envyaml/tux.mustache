@@ -1,0 +1,18 @@
+TUX:
+{{#components}}
+    - NAME: {{{name}}}
+    HOSTS:
+    {{#hosts}}
+        - NAME: {{{name}}}
+        INSTANCES:
+        {{#instances}}
+            - NAME: {{{name}}}
+            IP: {{{ip}}}
+            PORTS:
+            {{#ports}}
+                - NAME: {{{name}}}
+                NUMBER: {{{number}}}
+            {{/ports}}
+        {{/instances}}
+    {{/hosts}}
+{{/components}}

@@ -1,0 +1,19 @@
+{
+"_source": "hesnamespace",
+"query": {
+"bool": {
+"must": [
+{{#wildcards}}
+    {
+    "wildcard": {
+    "hesnamespace.namespace": "{{value}}"
+    }
+    }{{^last}},{{/last}}
+{{/wildcards}}
+]
+}
+},
+"from": 0,
+"size": 100,
+"sort": []
+}

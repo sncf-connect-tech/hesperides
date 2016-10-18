@@ -1,0 +1,17 @@
+{
+    "_source": ["hesnamespace", "name"],
+   "query": {
+      "bool": {
+         "must": [
+            {
+               "term": {
+                  "vsctcontexts.hesnamespace.untouched": "some_namespace"
+               }
+            }
+         ]
+      }
+   },
+   "from": 0,
+   "size": 100,
+   "sort": []
+}

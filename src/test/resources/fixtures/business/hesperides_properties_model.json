@@ -1,0 +1,32 @@
+{
+    "key_value_properties":[
+        {
+            "name":"name",
+            "comment":"some comment",
+            "required":false,
+            "defaultValue":null,
+            "pattern":null,
+            "password":false
+        }
+    ],
+    "iterable_properties":[
+        {
+            "name":"iterable",
+            "comment":"some comment",
+            "required":false,
+            "defaultValue":null,
+            "pattern":null,
+            "fields":[
+                {
+                    "name":"name",
+                    "comment":"comment",
+                    "required":false,
+                    "defaultValue":null,
+                    "pattern":null,
+                    "password":false
+                }
+            ],
+            "password":false
+        }
+    ]
+}

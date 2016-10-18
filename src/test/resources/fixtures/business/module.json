@@ -1,0 +1,13 @@
+{
+    "name": "my_module",
+    "version": "the_version",
+    "working_copy": true,
+    "technos" :[
+        {
+            "name": "name",
+            "version": "version",
+            "working_copy": true
+        }
+    ],
+    "version_id": 2
+}

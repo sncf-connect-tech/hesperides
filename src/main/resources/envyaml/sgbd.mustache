@@ -1,0 +1,27 @@
+SGBD:
+{{#components}}
+    - NAME: {{{name}}}
+    USER: {{{user}}}
+    HOME: {{{home}}}
+    TYPE_TECHNO: {{{typeTechno}}}
+    HOSTS:
+    {{#hosts}}
+        - NAME: {{{name}}}
+        FQDN: {{{fqdn}}}
+        INSTANCES:
+        {{#instances}}
+            - NAME: {{{name}}}
+            PORTS:
+            {{#ports}}
+                - NAME: {{{name}}}
+                NUMBER: {{{number}}}
+            {{/ports}}
+            SCHEMAS:
+            {{#schemas}}
+                - NAME: {{{name}}}
+                LOGIN: {{{login}}}
+                PASSWORD: {{{password}}}
+            {{/schemas}}
+        {{/instances}}
+    {{/hosts}}
+{{/components}}

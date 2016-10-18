@@ -1,0 +1,17 @@
+{
+    "properties": {
+        "hesnamespace": {
+            "type": "multi_field",
+            "fields": {
+                "namespace": {
+                    "type": "string",
+                    "analyzer": "namespace_analyzer"
+                },
+                "untouched": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                }
+            }
+        }
+    }
+}
