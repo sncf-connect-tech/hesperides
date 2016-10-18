@@ -147,6 +147,14 @@ public class ModulesAggregate extends SingleThreadAggregate implements Modules {
     }
 
     /**
+     * Get a set containing all template
+     * @return an {@link java.util.Set} of {@link Template}s
+     */
+    public Collection<Template> getAll() {
+        return templateRegistry.all();
+    }
+
+    /**
      * Get a set containing all modules (moduels are unique)
      * @return an {@link java.util.Set} of {@link Module}s
      */

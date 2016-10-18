@@ -58,13 +58,17 @@ public class TemplateTest {
     @Test
     public void shouldGeneratePropertiesModel() {
         /* TemplateSlurper is tested somewhere else, here we only test that PropertiesModel embraces All fields */
-        final Template hesperidesTemplate = new Template("technos.nodejs.0", "instance.sh", "{{prop_filename}}", "{{prop_location}}", "{{prop_content}}", null, 1L);
+        final Template hesperidesTemplate = new Template("technos.nodejs.0", "instance.sh", "{{prop_filename}}", "{{prop_location}}", "{{prop_content}};withSomeWhiteSpace={{  prop_with_whitespaces    }};withSomeTabs = {{\t\t   prop_with_some_tabs_at_start_and_end \t  }}", null, 1L);
 
         HesperidesPropertiesModel model = hesperidesTemplate.generatePropertiesModel();
 
         assertThat(model.hasProperty("prop_content")).isTrue();
         assertThat(model.hasProperty("prop_filename")).isTrue();
         assertThat(model.hasProperty("prop_location")).isTrue();
+
+        // Testing clean property names
+        assertThat(model.hasProperty("prop_with_whitespaces"));
+        assertThat(model.hasProperty("prop_with_some_tabs_at_start_and_end")).isTrue();
     }
 
     static String readFile(String path)

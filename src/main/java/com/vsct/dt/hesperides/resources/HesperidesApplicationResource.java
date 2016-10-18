@@ -373,7 +373,12 @@ public final class HesperidesApplicationResource extends BaseResource {
                 .build();
 
         //Filter properties to remove null or empty valorisations
-        Properties propertiesCleaned = properties.makeCopyWithoutNullOrEmptyValorisations();
+        Properties propertiesCleaned;
+        if (path.equals("#")) {
+            propertiesCleaned = properties;
+        } else {
+            propertiesCleaned = properties.makeCopyWithoutNullOrEmptyValorisations();
+        }
 
         return propertiesConverter.toProperties(
                 applications.createOrUpdatePropertiesInPlatform(platformKey, path,

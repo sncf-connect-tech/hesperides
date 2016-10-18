@@ -31,6 +31,8 @@ import com.vsct.dt.hesperides.templating.models.annotation.HesperidesAnnotationC
 import com.vsct.dt.hesperides.templating.models.annotation.HesperidesCommentAnnotation;
 import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -50,6 +52,8 @@ public class Property {
     private String defaultValue;
     private String pattern;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Property.class);
+
     public Property(final DefaultCode code) {
         /* Bad but no other way for now */
         /* TO DO BIG WARNING */
@@ -58,7 +62,9 @@ public class Property {
             f.setAccessible(true);
             String nameAndCommentString = (String) f.get(code);
             String[] fields = nameAndCommentString.split("[|]", 2);
-            this.name = fields[0];
+
+            // We trim the name : Hesperides should ignore tabs, whitespaces on property names
+            this.name = fields[0].trim();
 
             // Second field can be comment (old way) or annotation (new way).
             if (fields.length > 1) {
@@ -115,13 +121,17 @@ public class Property {
             if (this.pattern == null) {
                 this.pattern = "";
             }
-        } catch (final IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (final NoSuchFieldException e) {
-            e.printStackTrace();
+        } catch (final IllegalAccessException | NoSuchFieldException e) {
+            LOGGER.debug(e.toString());
             throw new RuntimeException(e);
         }
+    }
+
+    @JsonCreator
+    public Property(@JsonProperty("name") final String name,
+                    @JsonProperty("comment") final String comment) {
+        this.name = name;
+        this.comment = comment;
     }
 
     /**
@@ -445,13 +455,6 @@ public class Property {
         return new TemporaryValueProperty(result, result == null ? 0 : result.length());
     }
 
-    @JsonCreator
-    public Property(@JsonProperty("name") final String name,
-                    @JsonProperty("comment") final String comment) {
-        this.name = name;
-        this.comment = comment;
-    }
-
     public final String getName() {
         return name;
     }
@@ -475,7 +478,6 @@ public class Property {
     public boolean isPassword() {
         return password;
     }
-
 
     @Override
     public int hashCode() {

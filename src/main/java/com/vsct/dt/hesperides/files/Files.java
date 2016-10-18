@@ -261,7 +261,7 @@ public class Files {
         hesperidesPlatformPredefinedScope.addAll(instance.generatePredefinedScope());
 
         //Generate the mustache scope correpsonding to the instance chosen and the properties path of the platform
-        MustacheScope mustacheScope = properties.toMustacheScope(instance.getKeyValues(), hesperidesPlatformPredefinedScope);
+        MustacheScope mustacheScope = properties.toMustacheScope(instance.getKeyValues(), hesperidesPlatformPredefinedScope, true);
 
         //Find the template
         ModuleKey moduleKey = new ModuleKey(

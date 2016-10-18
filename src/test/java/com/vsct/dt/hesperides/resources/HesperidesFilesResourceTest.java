@@ -21,6 +21,7 @@
 
 package com.vsct.dt.hesperides.resources;
 
+import com.github.mustachejava.Code;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.TemplateContext;
 import com.github.mustachejava.codes.DefaultCode;
@@ -40,15 +41,13 @@ import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
+import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
-import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
-import com.vsct.dt.hesperides.templating.platform.InstanceData;
-import com.vsct.dt.hesperides.templating.platform.PlatformData;
-import com.vsct.dt.hesperides.templating.platform.PropertiesData;
+import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.testing.junit.ResourceTestRule;
@@ -58,6 +57,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -510,6 +510,89 @@ public class HesperidesFilesResourceTest {
                     template.getName(), model);
 
         assertThat(content).isEqualTo("prop1=\nprop2=truc machin chose");
+    }
+
+    @Test
+    public void should_get_generated_file_with_empty_instance_valuation() throws Exception {
+
+        PlatformKey platformKey = PlatformKey.withName("CUR1")
+                .withApplicationName("RAC")
+                .build();
+
+        // Appel 1
+        String propertiesPath = "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY";
+
+        InstanceData instance = InstanceData.withInstanceName("TOTO")
+                .withKeyValue(ImmutableSet.of())
+                .build();
+
+        ApplicationModuleData module = ApplicationModuleData.withApplicationName("EuronetWS")
+                .withVersion("1.0.0.0")
+                .withPath(propertiesPath)
+                .withId(1)
+                .withInstances(ImmutableSet.of(instance))
+                .isWorkingcopy()
+                .build();
+
+        PlatformData platform = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(ImmutableSet.of(module))
+                .withVersion(11L)
+                .build();
+
+        when(applicationsAggregate.getPlatform(platformKey)).thenReturn(Optional.of(platform));
+
+
+        Set<KeyValueValorisationData> prop = new HashSet<>();
+
+        prop.add(new KeyValueValorisationData("put_value_here","this_is_working"));
+        prop.add(new KeyValueValorisationData("instance_prop","{{instance_var}}"));
+
+        // Appel 2 getProperties()
+        PropertiesData platformGlobalProperties = new PropertiesData(prop, ImmutableSet.of());
+
+        when(applicationsAggregate.getProperties(platformKey, "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY#EuronetWS#1.0.0.0#WORKINGCOPY")).thenReturn(platformGlobalProperties);
+        when(applicationsAggregate.getProperties(platformKey, "#")).thenReturn(platformGlobalProperties);
+
+        when(applicationsAggregate.getSecuredProperties(platformKey, "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY#EuronetWS#1.0.0.0#WORKINGCOPY", model)).thenReturn(platformGlobalProperties);
+        when(applicationsAggregate.getSecuredProperties(platformKey, "#", model)).thenReturn(platformGlobalProperties);
+
+        // Appel 3 modules.getTemplate()
+        String templateName = "TitiEtRominet";
+
+        Template template = new Template("modules#EuronetWS#1.0.0.0#WORKINGCOPY", templateName, "truc.txt",
+                "/tmp", "test_instance=[{{instance_prop}}][{{put_value_here}}]", null, 2);
+
+        KeyValuePropertyModel prop1 = new KeyValuePropertyModel(createProperty("instance_prop"));
+        KeyValuePropertyModel prop2 = new KeyValuePropertyModel(createProperty("put_value_here"));
+
+        ModuleKey moduleKey = new ModuleKey(
+                "EuronetWS",
+                new HesperidesVersion("1.0.0.0", true));
+
+        when(modulesAggregate.getTemplate(moduleKey, templateName)).thenReturn(Optional.of(template));
+
+        // Appel 4 modules.getModel)
+        HesperidesPropertiesModel templateModel = new HesperidesPropertiesModel(ImmutableSet.of(prop1, prop2),
+                ImmutableSet.of());
+
+        when(modulesAggregate.getModel(moduleKey)).thenReturn(Optional.of(templateModel));
+
+        Files hesperidesFiles = new Files(applicationsAggregate, modulesAggregate, templatePackages);
+
+        String content = hesperidesFiles.getFile(
+                platformKey.getApplicationName(),
+                platformKey.getName(),
+                propertiesPath,
+                moduleKey.getName(),
+                module.getVersion(),
+                module.isWorkingCopy(),
+                instance.getName(),
+                template.getNamespace(),
+                template.getName(), model);
+
+        assertThat(content).isEqualTo("test_instance=[][this_is_working]");
     }
 
     private static final ValueCode createProperty(final String value) throws NoSuchFieldException, IllegalAccessException {

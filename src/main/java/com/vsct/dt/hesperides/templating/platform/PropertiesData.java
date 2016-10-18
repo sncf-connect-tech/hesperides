@@ -27,7 +27,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.applications.MustacheScope.InjectableMustacheScope;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import io.dropwizard.jackson.JsonSnakeCase;
 
@@ -59,6 +61,10 @@ public final class PropertiesData {
     }
 
     public MustacheScope toMustacheScope(Set<KeyValueValorisationData> instanceValorisations, Set<KeyValueValorisationData> platformValorisations) {
+        return toMustacheScope(instanceValorisations, platformValorisations, false);
+    }
+
+    public MustacheScope toMustacheScope(Set<KeyValueValorisationData> instanceValorisations, Set<KeyValueValorisationData> platformValorisations, Boolean buildingFile) {
         if(instanceValorisations == null){
             instanceValorisations = new HashSet<>();
         }
@@ -94,7 +100,7 @@ public final class PropertiesData {
         injectableKeyValueValorisations.replaceAll((key, value) -> value.replace("$", "\\$"));
         injectableInstanceProperties.replaceAll((key, value) -> value.replace("$", "\\$"));
 
-        MustacheScope mustacheScope = MustacheScope.from(valorisations)
+        InjectableMustacheScope injectable = MustacheScope.from(valorisations)
                 /* First re-inject keyValueValorisations, so they can refer to themselves */
                 .inject(injectableKeyValueValorisations)
                 /* Do it a second time in case global properties where referring to themselves */
@@ -102,8 +108,22 @@ public final class PropertiesData {
                 /* Finally inject instance valorisations */
                 .inject(injectableInstanceProperties)
                 /* Do it a third time in case instances properties where referring to global properties */
-                .inject(injectableKeyValueValorisations)
-                .create();
+                .inject(injectableKeyValueValorisations);
+
+        MustacheScope mustacheScope = injectable.create();
+
+        if (mustacheScope.getMissingKeyValueProperties().size() > 0 && buildingFile) {
+
+            Map<String, String> missing_valuation = new HashMap<>();
+
+            Set<KeyValuePropertyModel> missing = mustacheScope.getMissingKeyValueProperties();
+
+            missing.stream().forEach(prop -> {
+                missing_valuation.put(prop.getName(), "");
+            });
+
+            mustacheScope = injectable.inject(missing_valuation).create();
+        }
 
         return mustacheScope;
     }

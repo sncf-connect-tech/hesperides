@@ -30,7 +30,7 @@ import com.vsct.dt.hesperides.templating.Template;
 public final class TemplateMapper {
 
     public static TemplateIndexation asTemplateIndexation(final Template template) {
-        return new TemplateIndexation(template.getNamespace(), template.getName(), template.getFilename(), template.getLocation(), template.getContent());
+        return new TemplateIndexation(template.getNamespace(), template.getName(), template.getFilename(), template.getLocation());
     }
 
     ;

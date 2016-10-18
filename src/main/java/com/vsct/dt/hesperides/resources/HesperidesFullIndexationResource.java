@@ -24,9 +24,7 @@ package com.vsct.dt.hesperides.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.indexation.ElasticSearchIndexationExecutor;
-import com.vsct.dt.hesperides.indexation.command.IndexNewModuleCommand;
-import com.vsct.dt.hesperides.indexation.command.IndexNewPlatformCommand;
-import com.vsct.dt.hesperides.indexation.command.IndexNewTemplateCommand;
+import com.vsct.dt.hesperides.indexation.command.*;
 import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.PlatformMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
@@ -40,6 +38,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * Created by william_montaz on 04/02/2015.
@@ -76,37 +75,13 @@ public class HesperidesFullIndexationResource {
         LOGGER.info("RELOADING INDEX");
         elasticSearchIndexationExecutor.reset();
 
-        templatePackages.withAll(templateValueObject -> {
-            elasticSearchIndexationExecutor.index(
-                    new IndexNewTemplateCommand(
-                            TemplateMapper.asTemplateIndexation(templateValueObject)
-                    )
-            );
-        });
+        elasticSearchIndexationExecutor.index(new IndexNewTemplateCommandBulk(templatePackages.getAll().stream().map(template -> TemplateMapper.asTemplateIndexation(template)).collect(Collectors.toList())));
 
-        modules.withAll(moduleValueObject -> {
-            elasticSearchIndexationExecutor.index(
-                    new IndexNewModuleCommand(
-                            ModuleMapper.toModuleIndexation(moduleValueObject)
-                    )
-            );
-        });
+        elasticSearchIndexationExecutor.index(new IndexNewModuleCommandBulk(modules.getAllModules().stream().map(module -> ModuleMapper.toModuleIndexation(module)).collect(Collectors.toList())));
 
-        modules.withAllTemplates(templateValueObject -> {
-            elasticSearchIndexationExecutor.index(
-                    new IndexNewTemplateCommand(
-                            TemplateMapper.asTemplateIndexation(templateValueObject)
-                    )
-            );
-        });
+        elasticSearchIndexationExecutor.index(new IndexNewTemplateCommandBulk(modules.getAll().stream().map(template -> TemplateMapper.asTemplateIndexation(template)).collect(Collectors.toList())));
 
-        applications.withAllPlatforms(platformValueObject -> {
-            elasticSearchIndexationExecutor.index(
-                    new IndexNewPlatformCommand(
-                            PlatformMapper.asPlatformIndexation(platformValueObject)
-                    )
-            );
-        });
+        elasticSearchIndexationExecutor.index(new IndexNewPlatformCommandBulk(applications.getAll().stream().map(app -> PlatformMapper.asPlatformIndexation(app)).collect(Collectors.toList())));
 
     }
 

@@ -52,7 +52,7 @@ public class DeleteIndexedTemplateCommandTest {
 
     @Test
     public void shouldCallDeleteOnTemplatesUrlUsingTemplateId() throws IOException {
-        TemplateIndexation hesperidesTemplate = new TemplateIndexation("namespace", "name", null, null, null);
+        TemplateIndexation hesperidesTemplate = new TemplateIndexation("namespace", "name", null, null);
 
         new DeleteIndexedTemplateCommand("namespace", "name").index(elasticSearchClient);
 

@@ -41,19 +41,16 @@ public final class TemplateIndexation extends Data {
     private final String namespace;
     private final String filename;
     private final String location;
-    private final String content;
 
     @JsonCreator
     public TemplateIndexation(@JsonProperty("hesnamespace") final String namespace,
                               @JsonProperty("name") final String name,
                               @JsonProperty("filename") final String filename,
-                              @JsonProperty("location") final String location,
-                              @JsonProperty("content") final String content) {
+                              @JsonProperty("location") final String location) {
         this.namespace = namespace;
         this.name = name;
         this.location = location;
         this.filename = filename;
-        this.content = content;
     }
 
     public String getName() {
@@ -73,13 +70,10 @@ public final class TemplateIndexation extends Data {
         return location;
     }
 
-    public String getContent() {
-        return content;
-    }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, namespace, filename, location, content);
+        return Objects.hash(name, namespace, filename, location);
     }
 
     @Override
@@ -94,8 +88,7 @@ public final class TemplateIndexation extends Data {
         return Objects.equals(this.name, other.name)
                 && Objects.equals(this.namespace, other.namespace)
                 && Objects.equals(this.filename, other.filename)
-                && Objects.equals(this.location, other.location)
-                && Objects.equals(this.content, other.content);
+                && Objects.equals(this.location, other.location);
     }
 
     @Override

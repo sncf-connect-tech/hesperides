@@ -46,7 +46,7 @@ public final class DeleteIndexedTemplateCommand implements ElasticSearchIndexati
     @Override
     public Void index(final ElasticSearchClient elasticSearchClient) {
         /* Not very efficient and safe way to get the id */
-        TemplateIndexation template = new TemplateIndexation(namespace, name, null, null, null);
+        TemplateIndexation template = new TemplateIndexation(namespace, name, null, null);
         String url = String.format("/templates/%1$s", template.getId());
         elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_TEMPLATE_READER).delete(url);
 

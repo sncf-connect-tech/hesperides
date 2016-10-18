@@ -153,6 +153,15 @@ public class ApplicationsAggregate extends SingleThreadAggregate implements Appl
                 .forEach(valueObject -> consumer.accept(valueObject));
     }
 
+
+    /**
+     * Get a set containing all platforms
+     * @return an {@link java.util.Set} of {@link PlatformData}s
+     */
+    public Collection<PlatformData> getAll() {
+        return platformRegistry.getAllPlatforms();
+    }
+
     /**
      * Get an application with its name.
      * The application is not actually stored so we create it by assembling all the platforms corresponding to that application

@@ -39,6 +39,7 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -92,6 +93,14 @@ public class TemplatePackagesAggregate extends SingleThreadAggregate implements 
     public void withAll(Consumer<Template> consumer) {
         templateRegistry.all().stream()
                 .forEach(valueObject -> consumer.accept(valueObject));
+    }
+
+    /**
+     * Get a set containing all template
+     * @return an {@link java.util.Set} of {@link Template}s
+     */
+    public Collection<Template> getAll() {
+        return templateRegistry.all();
     }
 
     /**

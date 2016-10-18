@@ -52,7 +52,7 @@ public class UpdateIndexedTemplateCommandTest {
 
     @Test
     public void shouldSendBodyJSONTemplateToUpdateUrlWithTemplateID() throws JsonProcessingException {
-        TemplateIndexation hesperidesTemplate = new TemplateIndexation("namespace", "name", null, null, null);
+        TemplateIndexation hesperidesTemplate = new TemplateIndexation("namespace", "name", null, null);
         new UpdateIndexedTemplateCommand(hesperidesTemplate).index(elasticSearchClient);
 
         verify(executer).post("/templates/" + hesperidesTemplate.getId() + "/_update?fields=_source", MAPPER.writeValueAsString(DocWrapper.of(hesperidesTemplate)));

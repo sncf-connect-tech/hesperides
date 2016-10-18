@@ -494,10 +494,43 @@ public class HesperidesApplicationResourceTest {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .post(Properties.class, MAPPER.writeValueAsString(properties));
 
-
-
         //Check that service is called with cleaned properties
         verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "some_path",
+                propertiesCleaned, 1L, comment);
+    }
+
+    @Test
+    public void should_save_null_valuation_on_global() throws JsonProcessingException {
+        Set<KeyValueValorisation> keyValueProperties = Sets.newHashSet();
+        keyValueProperties.add(new KeyValueValorisation("name1", "value"));
+        keyValueProperties.add(new KeyValueValorisation("name2", ""));
+        keyValueProperties.add(new KeyValueValorisation("name3", ""));
+        keyValueProperties.add(new KeyValueValorisation("name5", "value"));
+
+        Set<KeyValueValorisationData> keyValuePropertiesCleaned = Sets.newHashSet();
+        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name1", "value"));
+        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name2", ""));
+        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name3", ""));
+        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name5", "value"));
+
+        Properties properties = new Properties(keyValueProperties, Sets.newHashSet());
+        PropertiesData propertiesCleaned = new PropertiesData(keyValuePropertiesCleaned, Sets.newHashSet());
+
+        PlatformKey platformKey = PlatformKey.withName("my_pltfm")
+                .withApplicationName("my_app")
+                .build();
+
+        when(applications.createOrUpdatePropertiesInPlatform(platformKey, "#", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
+
+        withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("path", "#")
+                .queryParam("platform_vid", "1")
+                .queryParam("comment", "Test comment")
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .post(Properties.class, MAPPER.writeValueAsString(properties));
+
+        //Check that service is called with cleaned properties
+        verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "#",
                 propertiesCleaned, 1L, comment);
     }
 

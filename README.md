@@ -16,11 +16,6 @@ elasticSearch 1.7.5
 
 redis 3.0
 
-You can use docker-compose file to mount an elasticsearch and redis locally :
-```shell
-$ docker-compose up
-```
-
 Build:
 =====
 
@@ -46,7 +41,7 @@ $ java -jar hesperides-1.0.0-SNAPSHOT.jar server PATH_TO_YOUR_HESPERIDES_YML_FIL
 Documentation:
 =====
 
-Available online at http://monsitehesperides.com/docs
+Available online at <https://github.com/voyages-sncf-technologies/hesperides-gui/docs>
 
 Development:
 =====

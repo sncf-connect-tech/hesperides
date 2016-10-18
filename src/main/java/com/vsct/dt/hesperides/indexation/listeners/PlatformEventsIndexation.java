@@ -23,6 +23,7 @@ package com.vsct.dt.hesperides.indexation.listeners;
 
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.applications.PlatformCreatedEvent;
+import com.vsct.dt.hesperides.applications.PlatformCreatedFromExistingEvent;
 import com.vsct.dt.hesperides.applications.PlatformDeletedEvent;
 import com.vsct.dt.hesperides.applications.PlatformUpdatedEvent;
 import com.vsct.dt.hesperides.indexation.ElasticSearchIndexationExecutor;
@@ -31,6 +32,8 @@ import com.vsct.dt.hesperides.indexation.command.IndexNewPlatformCommand;
 import com.vsct.dt.hesperides.indexation.command.UpdateIndexedPlatformCommand;
 import com.vsct.dt.hesperides.indexation.mapper.PlatformMapper;
 import com.vsct.dt.hesperides.indexation.model.PlatformIndexation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by william_montaz on 22/01/2015.
@@ -38,6 +41,7 @@ import com.vsct.dt.hesperides.indexation.model.PlatformIndexation;
 public class PlatformEventsIndexation {
 
     private final ElasticSearchIndexationExecutor indexer;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformEventsIndexation.class);
 
     public PlatformEventsIndexation(final ElasticSearchIndexationExecutor indexer) {
         this.indexer = indexer;
@@ -49,7 +53,16 @@ public class PlatformEventsIndexation {
         PlatformIndexation platformIndexation = PlatformMapper.asPlatformIndexation(event.getPlatform());
 
         this.indexer.index(new IndexNewPlatformCommand(platformIndexation));
+        LOGGER.debug("Indexing new platform : [" + platformIndexation.getApplicationName() + "-" + platformIndexation.getPlatformName() + "]");
+    }
 
+    @Subscribe
+    public void createPlatformFrom(final PlatformCreatedFromExistingEvent event) {
+
+        PlatformIndexation platformIndexation = PlatformMapper.asPlatformIndexation(event.getPlatform());
+
+        this.indexer.index(new IndexNewPlatformCommand(platformIndexation));
+        LOGGER.debug("Indexing new platform : [" + platformIndexation.getApplicationName() + "-" + platformIndexation.getPlatformName() + "] from [" + event.getOriginPlatform().getApplicationName() + "-" + event.getOriginPlatform().getPlatformName() + "]");
     }
 
     @Subscribe
@@ -58,12 +71,13 @@ public class PlatformEventsIndexation {
         PlatformIndexation platformIndexation = PlatformMapper.asPlatformIndexation(event.getPlatform());
 
         this.indexer.index(new UpdateIndexedPlatformCommand(platformIndexation));
-
+        LOGGER.debug("Updating platform : [" + platformIndexation.getApplicationName() + "-" + platformIndexation.getPlatformName() + "]");
     }
 
     @Subscribe
     public void deletePlatform(final PlatformDeletedEvent event){
         this.indexer.index(new DeletePlatformCommand(event));
+        LOGGER.debug("Deleting platform platform : [" + event.getApplicationName() + "-" + event.getPlatformName() + "]");
     }
 
 }

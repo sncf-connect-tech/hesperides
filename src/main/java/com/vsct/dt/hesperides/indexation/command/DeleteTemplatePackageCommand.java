@@ -51,7 +51,7 @@ public class DeleteTemplatePackageCommand implements ElasticSearchIndexationComm
         //Reduce to templates having exactly the same namespace
         searchResults.stream().forEach(templateInfo -> {
             /* Not very efficient and safe way to get the id */
-            TemplateIndexation template = new TemplateIndexation(templateInfo.getNamespace(), templateInfo.getName(), null, null, null);
+            TemplateIndexation template = new TemplateIndexation(templateInfo.getNamespace(), templateInfo.getName(), null, null);
             String templateurl = String.format("/templates/%1$s", template.getId());
             elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_TEMPLATE_READER).delete(templateurl);
         });

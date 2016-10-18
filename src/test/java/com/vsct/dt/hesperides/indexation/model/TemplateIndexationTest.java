@@ -45,8 +45,7 @@ public class TemplateIndexationTest {
                 "technos.nodejs.0",
                 "instance.sh",
                 "{{INSTANCE_NAME}}.sh",
-                "{{HOME}}/{{INSTANCE_NAME}}",
-                "some_content"
+                "{{HOME}}/{{INSTANCE_NAME}}"
         );
 
         assertThat(MAPPER.writeValueAsString(hesperidesTemplateIndexation)).isEqualTo(flattenJSON("fixtures/indexation/template.json"));
@@ -58,8 +57,7 @@ public class TemplateIndexationTest {
                 "technos.nodejs.0",
                 "instance.sh",
                 "{{INSTANCE_NAME}}.sh",
-                "{{HOME}}/{{INSTANCE_NAME}}",
-                "some_content"
+                "{{HOME}}/{{INSTANCE_NAME}}"
         );
 
         assertThat(DeepEquals.deepEquals(MAPPER.readValue(fixture("fixtures/indexation/template.json"), TemplateIndexation.class), hesperidesTemplateIndexation)).isTrue();

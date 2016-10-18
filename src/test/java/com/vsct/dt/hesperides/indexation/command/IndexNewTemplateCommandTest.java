@@ -51,7 +51,7 @@ public class IndexNewTemplateCommandTest {
 
     @Test
     public void shouldSendJSONBodySringToTemplateUrlWithTemplateId() throws JsonProcessingException {
-        TemplateIndexation hesperidesTemplate = new TemplateIndexation("namespace", "name", null, null, null);
+        TemplateIndexation hesperidesTemplate = new TemplateIndexation("namespace", "name", null, null);
 
         new IndexNewTemplateCommand(hesperidesTemplate).index(elasticSearchClient);
 

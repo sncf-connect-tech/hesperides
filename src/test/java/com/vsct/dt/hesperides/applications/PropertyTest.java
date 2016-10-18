@@ -240,7 +240,7 @@ public class PropertyTest {
             new Property(code);
             fail("Need raise error");
         } catch (ModelAnnotationException e) {
-            assertThat(e.getMessage()).isEqualTo("Invalid annotation name at 35 for property 'codeName' with annotation '@e' !");
+            assertThat(e.getMessage()).isEqualTo("Invalid annotation name at 32 for property 'codeName' with annotation '@e' !");
         }
     }
 }
