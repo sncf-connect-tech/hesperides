@@ -36,8 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by william_montaz on 22/01/2015.
  */
-public abstract class SingleThreadAggregate implements Managed {
-
+public abstract class SingleThreadAggregate implements Managed, StoragePrefixInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleThreadAggregate.class);
 
     /**
@@ -52,22 +51,9 @@ public abstract class SingleThreadAggregate implements Managed {
     private final EventBus   eventBus;
 
     /**
-     * Convenient bus to implement replayability
-     * The aggregate will only have to specify methods used to replay events
-     * and use the @Subscribe annotation
-     * It will automatically be registered on the replayBus for replay
-     */
-    protected EventBus replayBus = new EventBus();
-
-    /**
      * Convenient class that wraps the thread executor of the aggregate
      */
     private final ExecutorService singleThreadPool;
-
-    /**
-     * Describe state of the aggregate. when it is replaying, the events are not stored
-     */
-    protected AtomicBoolean isReplaying = new AtomicBoolean(false);
 
     /**
      * Describes if the aggregate allows write operations.
@@ -79,6 +65,19 @@ public abstract class SingleThreadAggregate implements Managed {
      * UserProvider used to get user information
      */
     private UserProvider userProvider;
+
+    /**
+     * Describe state of the aggregate. when it is replaying, the events are not stored
+     */
+    protected AtomicBoolean isReplaying = new AtomicBoolean(false);
+
+    /**
+     * Convenient bus to implement replayability
+     * The aggregate will only have to specify methods used to replay events
+     * and use the @Subscribe annotation
+     * It will automatically be registered on the replayBus for replay
+     */
+    protected EventBus replayBus = new EventBus();
 
     /**
      * Default user provider that can be changed later
@@ -106,18 +105,6 @@ public abstract class SingleThreadAggregate implements Managed {
         this.userProvider = userProvider;
     }
 
-    protected void replay() throws StoreReadingException {
-        isReplaying.set(true);
-        replayBus.register(this);
-        Set<String> streams = store.getStreamsLike(getStreamPrefix() + "-*");
-        for (final String stream : streams) {
-            store.withEvents(stream, Long.MAX_VALUE, event -> replayBus.post(event));
-        }
-        isReplaying.set(false);
-        //Release replayBus
-        replayBus.unregister(this);
-    }
-
     /**
      * Used to manipulate state and perform atomic write operations, being sure no else modifies the state concurently
      * Commands are executed in order, they produce events that are stored and then dispatched
@@ -130,7 +117,9 @@ public abstract class SingleThreadAggregate implements Managed {
         //Execute command and try to store the resulting event
         Future<T> future = this.singleThreadPool.submit(() -> {
                     //If we go multi instance that's where we can synchronize state with event store
-                    //We are simple isntance so dont do it
+                    //We are simple instance so dont do it
+                    final String key = getStreamPrefix() + "-" + entityName;
+
                     try {
 
                         if (writable.get() == false) {
@@ -140,12 +129,13 @@ public abstract class SingleThreadAggregate implements Managed {
                         T event = command.apply();
 
                         if (isReplaying.get() == false) {
-                            store.store(getStreamPrefix() + "-" + entityName, event, userInfo);
+                            store.store(key, event, userInfo, command);
                             eventBus.post(event);
+                        } else {
+                            command.complete();
                         }
 
                         return event;
-
                     } catch(HesperidesException e) {
                         //avoid blocking state with HesperidesExceptions
                         LOGGER.info("HesperidesException has been sent by command for entity '{}'. We dont block the state", entityName);
@@ -187,11 +177,6 @@ public abstract class SingleThreadAggregate implements Managed {
         return writable.get();
     }
 
-    /* Not intended to be used intensly */
-    public void setUserProvider(UserProvider userProvider) {
-        this.userProvider = userProvider;
-    }
-
     /**
      * Aggregate managed by DropWizard
      * Start requires replaying the events
@@ -200,7 +185,7 @@ public abstract class SingleThreadAggregate implements Managed {
      */
     @Override
     public void start() throws Exception {
-        this.replay();
+        // Nothing
     }
 
     /**
@@ -211,8 +196,55 @@ public abstract class SingleThreadAggregate implements Managed {
      */
     @Override
     public void stop() throws Exception {
-
+        // Nothing
     }
 
-    protected abstract String getStreamPrefix();
+    protected EventBus getEventBus() {
+        return eventBus;
+    }
+
+    protected void replay(final String stream) throws StoreReadingException {
+        isReplaying.set(true);
+        replayBus.register(this);
+
+        LOGGER.debug("Replay event for key '{}' from scratch.", stream);
+
+        store.withEvents(stream, Long.MAX_VALUE, event -> replayBus.post(event));
+
+        isReplaying.set(false);
+        //Release replayBus
+        replayBus.unregister(this);
+    }
+
+    protected void replay(final String stream, final long start, final long stop) throws StoreReadingException {
+        isReplaying.set(true);
+        replayBus.register(this);
+
+        LOGGER.debug("Replay event for key '{}' from {} to {}.", stream, start, stop);
+
+        store.withEvents(stream, start, stop, event -> replayBus.post(event));
+
+        isReplaying.set(false);
+        //Release replayBus
+        replayBus.unregister(this);
+    }
+
+    /**
+     * Allow to regenerate cache at startup.
+     */
+    public void regenerateCache() {
+        final Set<String> listStream = store.getStreamsLike(getStreamPrefix() + "-*");
+
+        for (String key : listStream) {
+            LOGGER.info("Regenerate cache for stream {}.", key);
+
+            clearCacheInDatabase(key);
+
+            replay(key);
+        }
+    }
+
+    protected void clearCacheInDatabase(final String key) {
+        store.clearCache(key);
+    }
 }

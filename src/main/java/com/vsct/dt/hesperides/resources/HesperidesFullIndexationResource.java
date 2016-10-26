@@ -28,9 +28,11 @@ import com.vsct.dt.hesperides.indexation.command.*;
 import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.PlatformMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
+import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.wordnik.swagger.annotations.ApiOperation;
+import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +72,31 @@ public class HesperidesFullIndexationResource {
     @POST
     @Timed
     @ApiOperation("Reindex all applications, modules, templates...")
-    public void resetIndex() throws IOException {
+    public void resetIndex(@Auth final User user) throws IOException {
+        resetIndex(user.getUsername());
+    }
 
-        LOGGER.info("RELOADING INDEX");
+    /**
+     * Internal call for reindexation
+     *
+     * @throws IOException
+     */
+    public void resetIndex() throws IOException {
+        resetIndex((String) null);
+    }
+
+    /**
+     * Internal call for reindexation
+     * @param username
+     * @throws IOException
+     */
+    private void resetIndex(final String username) throws IOException {
+        if (username == null) {
+            LOGGER.info("RELOADING INDEX START at startup");
+        } else {
+            LOGGER.info("RELOADING INDEX START by {}", username);
+        }
+
         elasticSearchIndexationExecutor.reset();
 
         elasticSearchIndexationExecutor.index(new IndexNewTemplateCommandBulk(templatePackages.getAll().stream().map(template -> TemplateMapper.asTemplateIndexation(template)).collect(Collectors.toList())));
@@ -83,6 +107,6 @@ public class HesperidesFullIndexationResource {
 
         elasticSearchIndexationExecutor.index(new IndexNewPlatformCommandBulk(applications.getAll().stream().map(app -> PlatformMapper.asPlatformIndexation(app)).collect(Collectors.toList())));
 
+        LOGGER.info("RELOADING INDEX START");
     }
-
 }

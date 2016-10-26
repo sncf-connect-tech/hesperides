@@ -22,7 +22,7 @@
 package com.vsct.dt.hesperides.indexation.mapper;
 
 import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 
 /**
  * Created by william_montaz on 29/10/2014.

@@ -25,7 +25,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.events.EventData;
 import com.vsct.dt.hesperides.events.Events;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.storage.Event;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
@@ -35,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by tidiane_sidibe on 01/03/2016.

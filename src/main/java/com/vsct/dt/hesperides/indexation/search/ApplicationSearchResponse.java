@@ -23,7 +23,6 @@ package com.vsct.dt.hesperides.indexation.search;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.jackson.JsonSnakeCase;
 
 /**
  * Value Object representing the response of an elasticsearch for application

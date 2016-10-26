@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.templating;
+package com.vsct.dt.hesperides.templating.modules.template;
 
 import com.fasterxml.jackson.annotation.*;
 import com.vsct.dt.hesperides.storage.DomainVersionable;

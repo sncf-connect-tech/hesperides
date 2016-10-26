@@ -29,7 +29,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import io.dropwizard.jackson.JsonSnakeCase;
 
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
 

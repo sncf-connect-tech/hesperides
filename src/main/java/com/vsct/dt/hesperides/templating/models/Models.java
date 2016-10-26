@@ -21,23 +21,23 @@
 
 package com.vsct.dt.hesperides.templating.models;
 
-import com.vsct.dt.hesperides.templating.TemplateRegistry;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
 
 /**
  * Created by william_montaz on 10/12/2014.
  */
 public class Models {
 
-    private final TemplateRegistry templateRegistry;
+    private final TemplateRegistryInterface templateRegistry;
 
-    public Models(final TemplateRegistry templateRegistry) {
+    public Models(final TemplateRegistryInterface templateRegistry) {
         this.templateRegistry = templateRegistry;
     }
 
     public HesperidesPropertiesModel getPropertiesModel(final String namespace) {
-        return templateRegistry.getAllForNamespace(namespace).stream().map(template -> {
-            return template.generatePropertiesModel();
-        }).reduce(HesperidesPropertiesModel.empty(), (a, b) -> a.merge(b));
+        return templateRegistry.getAllTemplatesForNamespace(namespace).stream().map(template ->
+            template.generatePropertiesModel()
+        ).reduce(HesperidesPropertiesModel.empty(), (a, b) -> a.merge(b));
     }
 
 }

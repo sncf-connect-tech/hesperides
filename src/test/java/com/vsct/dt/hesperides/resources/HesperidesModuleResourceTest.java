@@ -34,8 +34,8 @@ import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearchResponse;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.templating.Template;
-import com.vsct.dt.hesperides.templating.TemplateData;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
@@ -167,7 +167,7 @@ public class HesperidesModuleResourceTest {
         Module[] moduleArray = {module};
         when(modules.getAllModules()).thenReturn(Arrays.asList(moduleArray));
 
-        String[] awaitedResponseList = {"release"};
+        String[] awaitedResponseList = {Release.LC};
 
         assert(Arrays.equals(
                 withoutAuth("/modules/module_name/module_version").get(List.class).toArray(), awaitedResponseList));

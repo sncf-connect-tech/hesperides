@@ -26,10 +26,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.Lists;
+import com.vsct.dt.hesperides.util.Release;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 import io.dropwizard.jackson.JsonSnakeCase;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -115,6 +115,6 @@ public final class ModuleIndexation extends Data {
     }
 
     public static String getNamespace(String moduleName, String moduleVersion, boolean isWorkingCopy) {
-        return "modules#" + moduleName + "#" + moduleVersion + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+        return "modules#" + moduleName + "#" + moduleVersion + "#" + (isWorkingCopy ? WorkingCopy.UC : Release.TEXT);
     }
 }

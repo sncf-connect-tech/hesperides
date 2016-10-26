@@ -31,7 +31,15 @@ public class PlatformKey {
     private String name;
     private String applicationName;
 
-    private PlatformKey(){}
+    private PlatformKey() {
+        // Nothing
+    }
+
+    public PlatformKey(final String entityName) {
+        final String[] keys = entityName.split("-", 2);
+        this.applicationName = keys[0];
+        this.name = keys[1];
+    }
 
     public PlatformKey(String applicationName, String platformName){
         this.name = platformName;
@@ -51,11 +59,10 @@ public class PlatformKey {
     }
 
     public String getEntityName() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(applicationName);
-        builder.append("-");
-        builder.append(name);
-        return builder.toString();
+        String builder = applicationName +
+                "-" +
+                name;
+        return builder;
     }
 
     @Override

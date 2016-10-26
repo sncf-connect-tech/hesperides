@@ -163,26 +163,26 @@ public class PermissionAwareApplicationsProxy implements Applications  {
     }
 
     @Override
-    public Integer getAllPlatformsCount() {
+    public int getAllPlatformsCount() {
         //No security needed to read informations
         return this.applicationsAggregate.getAllPlatformsCount();
     }
 
     @Override
-    public Integer getAllApplicationsCount() {
+    public int getAllApplicationsCount() {
         //No security needed to read informations
         return this.applicationsAggregate.getAllApplicationsCount();
     }
 
     @Override
-    public Integer getAllModulesCount() {
+    public int getAllModulesCount() {
         //No security needed to read informations
         return this.applicationsAggregate.getAllModulesCount();
     }
 
     @Override
     public Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector) {
-        //No security needed to read informations
+        // No security needed to read informations
         return this.applicationsAggregate.getApplicationsFromSelector(selector);
     }
 

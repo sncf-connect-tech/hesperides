@@ -24,6 +24,6 @@ package com.vsct.dt.hesperides.storage;
 /**
  * Created by william on 12/11/2014.
  */
-public interface HesperidesCommand<T> {
+public interface HesperidesCommand<T> extends EventStoreCallback {
     T apply();
 }

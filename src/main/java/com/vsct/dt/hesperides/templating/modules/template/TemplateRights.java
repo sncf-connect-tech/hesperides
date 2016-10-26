@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.templating;
+package com.vsct.dt.hesperides.templating.modules.template;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,29 +30,29 @@ import io.dropwizard.jackson.JsonSnakeCase;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
-public class TemplateFileRights {
-    private final Boolean read;
-    private final Boolean write;
-    private final Boolean execute;
+public class TemplateRights {
+    private final TemplateFileRights user;
+    private final TemplateFileRights group;
+    private final TemplateFileRights other;
 
-    public TemplateFileRights(
-            @JsonProperty("read") final Boolean read,
-            @JsonProperty("write") final Boolean write,
-            @JsonProperty("execute") final Boolean execute) {
-        this.read = read;
-        this.write = write;
-        this.execute = execute;
+    public TemplateRights(
+            @JsonProperty("user") final TemplateFileRights user,
+            @JsonProperty("group") final TemplateFileRights group,
+            @JsonProperty("other") final TemplateFileRights other) {
+        this.user = user;
+        this.group = group;
+        this.other = other;
     }
 
-    public Boolean isRead() {
-        return read;
+    public TemplateFileRights getUser() {
+        return user;
     }
 
-    public Boolean isWrite() {
-        return write;
+    public TemplateFileRights getGroup() {
+        return group;
     }
 
-    public Boolean isExecute() {
-        return execute;
+    public TemplateFileRights getOther() {
+        return other;
     }
 }

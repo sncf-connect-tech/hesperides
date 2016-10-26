@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.dropwizard.jackson.JsonSnakeCase;
 
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**

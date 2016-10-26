@@ -24,7 +24,7 @@ package com.vsct.dt.hesperides.templating.modules;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 
 import java.util.Set;
 

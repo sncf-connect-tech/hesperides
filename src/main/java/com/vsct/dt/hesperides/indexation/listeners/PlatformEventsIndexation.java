@@ -22,10 +22,10 @@
 package com.vsct.dt.hesperides.indexation.listeners;
 
 import com.google.common.eventbus.Subscribe;
-import com.vsct.dt.hesperides.applications.PlatformCreatedEvent;
-import com.vsct.dt.hesperides.applications.PlatformCreatedFromExistingEvent;
-import com.vsct.dt.hesperides.applications.PlatformDeletedEvent;
-import com.vsct.dt.hesperides.applications.PlatformUpdatedEvent;
+
+import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.applications.event.PlatformEventBuilderInterface;
+
 import com.vsct.dt.hesperides.indexation.ElasticSearchIndexationExecutor;
 import com.vsct.dt.hesperides.indexation.command.DeletePlatformCommand;
 import com.vsct.dt.hesperides.indexation.command.IndexNewPlatformCommand;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by william_montaz on 22/01/2015.
  */
-public class PlatformEventsIndexation {
+public class PlatformEventsIndexation implements PlatformEventBuilderInterface {
 
     private final ElasticSearchIndexationExecutor indexer;
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformEventsIndexation.class);
@@ -48,7 +48,8 @@ public class PlatformEventsIndexation {
     }
 
     @Subscribe
-    public void createPlatform(final PlatformCreatedEvent event) {
+    @Override
+    public void replayPlatformCreatedEvent(final PlatformCreatedEvent event) {
 
         PlatformIndexation platformIndexation = PlatformMapper.asPlatformIndexation(event.getPlatform());
 
@@ -66,7 +67,8 @@ public class PlatformEventsIndexation {
     }
 
     @Subscribe
-    public void updatePlatform(final PlatformUpdatedEvent event) {
+    @Override
+    public void replayPlatformUpdatedEvent(final PlatformUpdatedEvent event) {
 
         PlatformIndexation platformIndexation = PlatformMapper.asPlatformIndexation(event.getPlatform());
 
@@ -74,10 +76,26 @@ public class PlatformEventsIndexation {
         LOGGER.debug("Updating platform : [" + platformIndexation.getApplicationName() + "-" + platformIndexation.getPlatformName() + "]");
     }
 
+    @Override
+    public void replayPropertiesSavedEvent(PropertiesSavedEvent event) {
+
+    }
+
     @Subscribe
-    public void deletePlatform(final PlatformDeletedEvent event){
+    @Override
+    public void replayPlateformeDeletedEvent(final PlatformDeletedEvent event){
         this.indexer.index(new DeletePlatformCommand(event));
         LOGGER.debug("Deleting platform platform : [" + event.getApplicationName() + "-" + event.getPlatformName() + "]");
+    }
+
+    @Override
+    public void replaySnapshotTakenEvent(PlatformSnapshotEvent event) {
+
+    }
+
+    @Override
+    public void replaySnapshotRestoredEvent(PlatformSnapshotRestoreEvent event) {
+
     }
 
 }

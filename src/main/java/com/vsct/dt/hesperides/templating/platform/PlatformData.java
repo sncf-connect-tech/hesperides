@@ -24,7 +24,6 @@ package com.vsct.dt.hesperides.templating.platform;
 import com.google.common.collect.ImmutableSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 import static com.google.common.base.Preconditions.checkArgument;
 

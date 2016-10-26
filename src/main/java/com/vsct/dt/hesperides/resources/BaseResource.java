@@ -33,10 +33,6 @@ import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
  */
 public abstract class BaseResource {
 
-    final protected <T> Response entityOrNotFound(final Optional<T> optional) {
-        return optional.map(t -> Response.ok(t).build()).orElseThrow(() -> new MissingResourceException("Requested entity is missing"));
-    }
-
     final protected <E, T> Response entityWithConverterOrNotFound(final Optional<T> optional, ResponseConverter<T, E> converter) {
         return optional.map(t -> Response.ok(converter.convert(t)).build()).orElseThrow(() -> new MissingResourceException("Requested entity is missing"));
     }

@@ -26,7 +26,6 @@ import com.google.common.eventbus.EventBus;
 import com.vsct.dt.hesperides.storage.Event;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
-import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import io.dropwizard.jackson.Jackson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,17 +34,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 /**
  * The aggregator for events.
  *
  * Created by tidiane_sidibe on 01/03/2016.
  */
-public class EventsAggregate extends SingleThreadAggregate implements Events{
+public class EventsAggregate extends SingleThreadAggregate implements Events {
 
     protected final EventStore eventStore;
     private final ObjectMapper MAPPER = Jackson.newObjectMapper();
@@ -65,12 +61,6 @@ public class EventsAggregate extends SingleThreadAggregate implements Events{
                 eventsConfiguration.getPoolMaxSize(),
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(eventsConfiguration.getQueueCapacity()));
-    }
-
-    @Override
-    protected String getStreamPrefix() {
-        // events have no prefix
-        return "";
     }
 
     @Override
@@ -105,5 +95,15 @@ public class EventsAggregate extends SingleThreadAggregate implements Events{
         }
 
         return results;
+    }
+
+    @Override
+    public String getStreamPrefix() {
+        return null;
+    }
+
+    @Override
+    public void regenerateCache() {
+        // TODO
     }
 }

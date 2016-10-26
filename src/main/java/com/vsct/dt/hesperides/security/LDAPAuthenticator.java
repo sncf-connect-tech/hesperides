@@ -34,7 +34,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 import java.util.Hashtable;
 
 /**
@@ -149,7 +148,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, configuration.getUri().toString());
+        env.put(Context.PROVIDER_URL, configuration.getUri());
         env.put("com.sun.jndi.ldap.connect.timeout", String.valueOf(configuration.getConnectTimeout().toMilliseconds()));
         env.put("com.sun.jndi.ldap.read.timeout", String.valueOf(configuration.getReadTimeout().toMilliseconds()));
         env.put("com.sun.jndi.ldap.connect.pool", "true");

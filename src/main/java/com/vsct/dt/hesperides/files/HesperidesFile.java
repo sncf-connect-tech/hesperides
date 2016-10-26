@@ -21,8 +21,6 @@
 
 package com.vsct.dt.hesperides.files;
 
-import com.vsct.dt.hesperides.templating.TemplateRights;
-
 import java.util.Objects;
 
 /**

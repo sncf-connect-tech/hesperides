@@ -63,21 +63,21 @@ public interface Applications {
 
     InstanceModel getInstanceModel(PlatformKey platformKey, String propertiesPath);
 
-    Integer getAllPlatformsCount();
+    int getAllPlatformsCount();
 
-    Integer getAllApplicationsCount();
+    int getAllApplicationsCount();
 
-    Integer getAllModulesCount();
+    int getAllModulesCount();
 
     Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector);
 
     void delete(PlatformKey key);
 
-    public long takeSnapshot(PlatformKey key);
+    long takeSnapshot(PlatformKey key);
 
-    public List<Long> getSnapshots(PlatformKey key);
+    List<Long> getSnapshots(PlatformKey key);
 
-    public PlatformData restoreSnapshot(PlatformKey key, long timestamp);
+    PlatformData restoreSnapshot(PlatformKey key, long timestamp);
 
-    public UserContext getUserContext();
+    UserContext getUserContext();
 }

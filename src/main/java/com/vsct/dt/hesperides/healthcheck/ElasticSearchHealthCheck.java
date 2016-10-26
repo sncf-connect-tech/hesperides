@@ -48,7 +48,7 @@ public final class ElasticSearchHealthCheck extends HealthCheck {
 
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != 200) {
-                // TODO parser la reponse et verifier le status du cluster : green, yellow, red...
+                // TODO Check server's response : green, yellow, red...
                 return Result.unhealthy("Hesperides can't access ElasticSearch " + this.httpHost.getHostName() + ":" + this.httpHost.getPort() + ", status code is " + statusCode + ", " + response.getStatusLine().getReasonPhrase());
             }
             return Result.healthy();

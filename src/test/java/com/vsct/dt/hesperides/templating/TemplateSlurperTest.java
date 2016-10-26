@@ -26,6 +26,7 @@ import com.google.common.io.ByteStreams;
 import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateSlurper;
 import org.junit.Test;
 
 import java.io.IOException;

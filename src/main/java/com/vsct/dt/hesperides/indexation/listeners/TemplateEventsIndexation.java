@@ -29,16 +29,17 @@ import com.vsct.dt.hesperides.indexation.command.IndexNewTemplateCommand;
 import com.vsct.dt.hesperides.indexation.command.UpdateIndexedTemplateCommand;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
 import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.packages.TemplateCreatedEvent;
 import com.vsct.dt.hesperides.templating.packages.TemplateDeletedEvent;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageDeletedEvent;
 import com.vsct.dt.hesperides.templating.packages.TemplateUpdatedEvent;
+import com.vsct.dt.hesperides.templating.packages.event.TemplatePackageEventInterface;
 
 /**
  * Created by william_montaz on 22/01/2015.
  */
-public class TemplateEventsIndexation {
+public class TemplateEventsIndexation implements TemplatePackageEventInterface {
 
     private final ElasticSearchIndexationExecutor indexer;
 
@@ -47,7 +48,8 @@ public class TemplateEventsIndexation {
     }
 
     @Subscribe
-    public void createTempalte(final TemplateCreatedEvent event) {
+    @Override
+    public void replayTemplateCreatedEvent(final TemplateCreatedEvent event) {
         Template hesperidesTemplate = event.getCreated();
         TemplateIndexation template = TemplateMapper.asTemplateIndexation(hesperidesTemplate);
 
@@ -55,12 +57,14 @@ public class TemplateEventsIndexation {
     }
 
     @Subscribe
-    public void deleteTemplate(final TemplateDeletedEvent event) {
+    @Override
+    public void replayTemplateDeletedEvent(final TemplateDeletedEvent event) {
         this.indexer.index(new DeleteIndexedTemplateCommand(event.getNamespace(), event.getName()));
     }
 
     @Subscribe
-    public void updateTemplate(final TemplateUpdatedEvent event) {
+    @Override
+    public void replayTemplateUpdatedEvent(final TemplateUpdatedEvent event) {
         Template hesperidesTemplate = event.getUpdated();
         TemplateIndexation template = TemplateMapper.asTemplateIndexation(hesperidesTemplate);
 
@@ -68,7 +72,8 @@ public class TemplateEventsIndexation {
     }
 
     @Subscribe
-    public void deleteTemplatePackage(final TemplatePackageDeletedEvent event){
+    @Override
+    public void replayTemplatePackageDeletedEvent(final TemplatePackageDeletedEvent event){
         this.indexer.index(new DeleteTemplatePackageCommand(event));
     }
 }

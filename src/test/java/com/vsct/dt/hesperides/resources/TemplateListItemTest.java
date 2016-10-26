@@ -22,7 +22,7 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import io.dropwizard.jackson.Jackson;
 import org.junit.Test;
 

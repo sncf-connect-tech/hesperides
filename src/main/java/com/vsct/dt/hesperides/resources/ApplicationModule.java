@@ -123,8 +123,4 @@ public final class ApplicationModule {
         result = 31 * result + path.hashCode();
         return result;
     }
-
-    public String getPropertiesPath() {
-        return this.getPath() + "#" + this.getName() + "#" + this.getVersion() + "#" + (this.isWorkingCopy() ? "WORKINGCOPY" : "RELEASE");
-    }
 }

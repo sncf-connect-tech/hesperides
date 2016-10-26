@@ -1,24 +1,3 @@
-/*
- *
- *  * This file is part of the Hesperides distribution.
- *  * (https://github.com/voyages-sncf-technologies/hesperides)
- *  * Copyright (c) 2016 VSCT.
- *  *
- *  * Hesperides is free software: you can redistribute it and/or modify
- *  * it under the terms of the GNU General Public License as
- *  * published by the Free Software Foundation, version 3.
- *  *
- *  * Hesperides is distributed in the hope that it will be useful, but
- *  * WITHOUT ANY WARRANTY; without even the implied warranty of
- *  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *  * General Public License for more details.
- *  *
- *  * You should have received a copy of the GNU General Public License
- *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 package com.vsct.dt.hesperides.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,13 +6,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.UniformInterfaceException;
-import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.applications.Applications;
+import com.vsct.dt.hesperides.applications.InstanceModel;
+import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.exception.runtime.IncoherentVersionException;
 import com.vsct.dt.hesperides.exception.runtime.OutOfDateVersionException;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.indexation.ESServiceException;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
+import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
@@ -43,7 +25,10 @@ import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
-import com.vsct.dt.hesperides.util.converter.*;
+import com.vsct.dt.hesperides.util.converter.ApplicationConverter;
+import com.vsct.dt.hesperides.util.converter.PlatformConverter;
+import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
+import com.vsct.dt.hesperides.util.converter.TimeStampedPlatformConverter;
 import com.vsct.dt.hesperides.util.converter.impl.*;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.basic.BasicAuthProvider;
@@ -56,7 +41,6 @@ import org.junit.Test;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -71,6 +55,7 @@ public class HesperidesApplicationResourceTest {
     private static final Applications applications = mock(Applications.class);
     private static final Modules modules = mock(Modules.class);
     private static final ApplicationSearch applicationSearch = mock(ApplicationSearch.class);
+    private static final ModuleSearch moduleSearch = mock(ModuleSearch.class);
 
     public static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
@@ -78,8 +63,7 @@ public class HesperidesApplicationResourceTest {
     public static final TimeStampedPlatformConverter TIME_CONVERTER = new DefaultTimeStampedPlatformConverter(PLATFORM_CONVERTER);
     public static final ApplicationConverter APPLI_CONVERTER = new DefaultApplicationConverter(PLATFORM_CONVERTER);
     private static final PropertiesConverter PROPERTIES_CONVERTER = new DefaultPropertiesConverter();
-
-    private final HesperidesPropertiesModel model = HesperidesPropertiesModel.empty();
+    private static final HesperidesModuleResource MODULE_RESOURCE = new HesperidesModuleResource(modules, moduleSearch);
 
     private final String comment = "Test comment";
 
@@ -88,7 +72,8 @@ public class HesperidesApplicationResourceTest {
             .addProvider(new BasicAuthProvider<>(
                     new SimpleAuthenticator(),
                     "AUTHENTICATION_PROVIDER"))
-            .addResource(new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER, APPLI_CONVERTER, PROPERTIES_CONVERTER, null))
+            .addResource(new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
+                    APPLI_CONVERTER, PROPERTIES_CONVERTER, MODULE_RESOURCE))
             .addProvider(new DefaultExceptionMapper())
             .addProvider(new DuplicateResourceExceptionMapper())
             .addProvider(new IncoherentVersionExceptionMapper())
@@ -100,7 +85,8 @@ public class HesperidesApplicationResourceTest {
     @ClassRule
     public static ResourceTestRule disabledAuthResources = ResourceTestRule.builder()
             .addProvider(new DisabledAuthProvider())
-            .addResource(new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER, APPLI_CONVERTER, PROPERTIES_CONVERTER, null))
+            .addResource(new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
+                    APPLI_CONVERTER, PROPERTIES_CONVERTER, MODULE_RESOURCE))
             .addProvider(new DefaultExceptionMapper())
             .addProvider(new DuplicateResourceExceptionMapper())
             .addProvider(new IncoherentVersionExceptionMapper())
@@ -415,13 +401,12 @@ public class HesperidesApplicationResourceTest {
                 .withApplicationName("my_app")
                 .build();
         when(applications.getProperties(platformKey, "some_path")).thenReturn(properties);
-        when(applications.getSecuredProperties(platformKey, "some_path", model)).thenReturn(properties);
 
-            assertThat(withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                    .queryParam("path", "some_path")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Properties.class))
-                    .isEqualTo(properties2);
+        assertThat(withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("path", "some_path")
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .get(Properties.class))
+                .isEqualTo(properties2);
     }
 
     @Test
@@ -494,43 +479,10 @@ public class HesperidesApplicationResourceTest {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .post(Properties.class, MAPPER.writeValueAsString(properties));
 
+
+
         //Check that service is called with cleaned properties
         verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "some_path",
-                propertiesCleaned, 1L, comment);
-    }
-
-    @Test
-    public void should_save_null_valuation_on_global() throws JsonProcessingException {
-        Set<KeyValueValorisation> keyValueProperties = Sets.newHashSet();
-        keyValueProperties.add(new KeyValueValorisation("name1", "value"));
-        keyValueProperties.add(new KeyValueValorisation("name2", ""));
-        keyValueProperties.add(new KeyValueValorisation("name3", ""));
-        keyValueProperties.add(new KeyValueValorisation("name5", "value"));
-
-        Set<KeyValueValorisationData> keyValuePropertiesCleaned = Sets.newHashSet();
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name1", "value"));
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name2", ""));
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name3", ""));
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name5", "value"));
-
-        Properties properties = new Properties(keyValueProperties, Sets.newHashSet());
-        PropertiesData propertiesCleaned = new PropertiesData(keyValuePropertiesCleaned, Sets.newHashSet());
-
-        PlatformKey platformKey = PlatformKey.withName("my_pltfm")
-                .withApplicationName("my_app")
-                .build();
-
-        when(applications.createOrUpdatePropertiesInPlatform(platformKey, "#", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
-
-        withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                .queryParam("path", "#")
-                .queryParam("platform_vid", "1")
-                .queryParam("comment", "Test comment")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Properties.class, MAPPER.writeValueAsString(properties));
-
-        //Check that service is called with cleaned properties
-        verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "#",
                 propertiesCleaned, 1L, comment);
     }
 
@@ -1094,15 +1046,15 @@ public class HesperidesApplicationResourceTest {
 
         PlatformData pltfm1 = builder1.build();
 
-        Set<KeyValueValorisationData> g_prop = new HashSet<KeyValueValorisationData>();
-        Set<KeyValueValorisationData> prop_1 = new HashSet<KeyValueValorisationData>();
-        Set<KeyValueValorisationData> prop_2 = new HashSet<KeyValueValorisationData>();
-        Set<KeyValueValorisationData> prop_3 = new HashSet<KeyValueValorisationData>();
+        Set<KeyValueValorisationData> g_prop = new HashSet<>();
+        Set<KeyValueValorisationData> prop_1 = new HashSet<>();
+        Set<KeyValueValorisationData> prop_2 = new HashSet<>();
+        Set<KeyValueValorisationData> prop_3 = new HashSet<>();
 
 
-        Set<KeyValuePropertyModel> model_1 = new HashSet<KeyValuePropertyModel>();
-        Set<KeyValuePropertyModel> model_2 = new HashSet<KeyValuePropertyModel>();
-        Set<KeyValuePropertyModel> model_3 = new HashSet<KeyValuePropertyModel>();
+        Set<KeyValuePropertyModel> model_1 = new HashSet<>();
+        Set<KeyValuePropertyModel> model_2 = new HashSet<>();
+        Set<KeyValuePropertyModel> model_3 = new HashSet<>();
 
         g_prop.add(new KeyValueValorisationData("first_global", "first_global_value"));
         g_prop.add(new KeyValueValorisationData("second_global", "second_global_value"));

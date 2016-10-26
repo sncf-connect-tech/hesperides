@@ -21,6 +21,9 @@
 
 package com.vsct.dt.hesperides.exception.wrapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
@@ -28,9 +31,11 @@ import javax.ws.rs.ext.ExceptionMapper;
  * Created by william_montaz on 09/01/2015.
  */
 public class DefaultExceptionMapper extends BaseExceptionMapper implements ExceptionMapper<Exception> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionMapper.class);
 
     @Override
     public Response toResponse(Exception exception) {
+        LOGGER.debug("Unexpected exception !", exception);
         return exceptionResponse(Response.Status.INTERNAL_SERVER_ERROR, exception);
     }
 

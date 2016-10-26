@@ -46,8 +46,13 @@ public class SingleThreadAggregateTest {
         }
 
         @Override
-        protected String getStreamPrefix() {
+        public String getStreamPrefix() {
             return "TEST";
+        }
+
+        @Override
+        public void regenerateCache() {
+            // Nothing
         }
     }
 
@@ -65,12 +70,12 @@ public class SingleThreadAggregateTest {
         Object event = new Object();
         when(command.apply()).thenReturn(event);
 
-        when(eventStore.store("TEST-stream", event, UserInfo.UNTRACKED)).thenReturn(event);
+        when(eventStore.store("TEST-stream", event, UserInfo.UNTRACKED, command)).thenReturn(event);
 
-        Object eventReturned = testAggregate.tryAtomic("stream", command);
+        testAggregate.tryAtomic("stream", command);
 
         verify(command).apply();
-        verify(eventStore).store("TEST-stream", event, UserInfo.UNTRACKED);
+        verify(eventStore).store("TEST-stream", event, UserInfo.UNTRACKED, command);
     }
 
     @Test
@@ -83,12 +88,12 @@ public class SingleThreadAggregateTest {
         when(command.apply()).thenReturn(event);
 
         UserInfo userInfo = new UserInfo(User.UNTRACKED.getUsername());
-        when(eventStore.store("TEST-stream", event, userInfo)).thenReturn(event);
+        when(eventStore.store("TEST-stream", event, userInfo, command)).thenReturn(event);
 
-        Object eventReturned = testAggregate.tryAtomic("stream", command);
+        testAggregate.tryAtomic("stream", command);
 
         verify(command).apply();
-        verify(eventStore).store("TEST-stream", event, UserInfo.UNTRACKED);
+        verify(eventStore).store("TEST-stream", event, UserInfo.UNTRACKED, command);
     }
 
     @Test
@@ -128,26 +133,6 @@ public class SingleThreadAggregateTest {
     }
 
     @Test
-    public void should_lock_state_when_eventstore_failed() {
-        AggregateTestImpl testAggregate = new AggregateTestImpl();
-
-        HesperidesCommand command = mock(HesperidesCommand.class);
-        Object event = new Object();
-        when(command.apply()).thenReturn(event);
-
-        when(eventStore.store("TEST-stream", event, UserInfo.UNTRACKED)).thenThrow(new RuntimeException());
-
-        try {
-            testAggregate.tryAtomic("stream", command);
-        } catch(Exception e) {
-            assertThat(testAggregate.isWritable()).isFalse();
-            return;
-        }
-
-        fail();
-    }
-
-    @Test
     public void should_lock_when_eventstore_throws_runtime() {
         AggregateTestImpl testAggregate = new AggregateTestImpl();
 
@@ -155,7 +140,7 @@ public class SingleThreadAggregateTest {
         Object event = new Object();
         when(command.apply()).thenReturn(event);
 
-        when(eventStore.store("TEST-stream", event, UserInfo.UNTRACKED)).thenThrow(new RuntimeException());
+        when(eventStore.store("TEST-stream", event, UserInfo.UNTRACKED, command)).thenThrow(new RuntimeException());
 
         try {
             testAggregate.tryAtomic("stream", command);

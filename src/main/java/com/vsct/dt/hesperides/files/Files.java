@@ -26,25 +26,27 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
 import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
-import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.applications.Applications;
+import com.vsct.dt.hesperides.applications.MustacheScope;
+import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.resources.KeyValueValorisation;
-import com.vsct.dt.hesperides.resources.Properties;
-import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
-import com.vsct.dt.hesperides.templating.TemplateFileRights;
-import com.vsct.dt.hesperides.templating.TemplateRights;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.modules.Techno;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateFileRights;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateRights;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesUtil;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
+import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.util.Asserts;
 import org.elasticsearch.common.collect.Sets;
@@ -64,7 +66,7 @@ import java.util.stream.Collectors;
  */
 public class Files {
 
-    private final Applications              applications;
+    private final Applications applications;
     private final ModulesAggregate          modules;
     private final TemplatePackagesAggregate templatePackages;
 
@@ -105,9 +107,18 @@ public class Files {
                 new HesperidesVersion(moduleVersion, isModuleWorkingCopy)
         );
 
-        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
+        ApplicationModuleData applicationModule = platform
+                .findModule(moduleName, moduleVersion, isModuleWorkingCopy, path)
+                .orElseThrow(() -> new MissingResourceException("There is no module "
+                        + moduleName + "/" + moduleVersion + "/"
+                        + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)
+                        + " defined for platform " + applicationName + "/" + platformName + " at path " + path));
 
-        Module module = modules.getModule(moduleKey).orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release")));
+        Module module = modules
+                .getModule(moduleKey)
+                .orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/"
+                        + moduleVersion + "/"
+                        + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)));
 
         List<Template> templates = modules.getAllTemplates(moduleKey);
 
@@ -147,7 +158,15 @@ public class Files {
 
     private String generatePropertiesPath(String path, String moduleName, String moduleVersion, boolean isModuleWorkingCopy) {
         StringBuilder propertiesPath = new StringBuilder();
-        return propertiesPath.append(path).append("#").append(moduleName).append("#").append(moduleVersion).append("#").append(isModuleWorkingCopy ? "WORKINGCOPY" : "RELEASE").toString();
+        return propertiesPath
+                .append(path)
+                .append("#")
+                .append(moduleName)
+                .append("#")
+                .append(moduleVersion)
+                .append("#")
+                .append(isModuleWorkingCopy ? WorkingCopy.UC : Release.UC)
+                .toString();
     }
 
     /**
@@ -250,10 +269,17 @@ public class Files {
 
         hesperidesPlatformPredefinedScope.addAll(platformGlobalProperties.getKeyValueProperties());
 
-        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
+        ApplicationModuleData applicationModule = platform
+                .findModule(moduleName, moduleVersion, isModuleWorkingCopy, path)
+                .orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/"
+                        + moduleVersion + "/" + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)
+                        + " defined for platform " + applicationName + "/" + platformName + " at path " + path));
 
         //Get the instance
-        InstanceData instance = applicationModule.getInstance(instanceName).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
+        InstanceData instance = applicationModule
+                .getInstance(instanceName)
+                .orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName
+                        + " in platform " + applicationName + "/" + platformName));
 
         Set<KeyValueValorisationData> hesperidesModulePredefinedScope = applicationModule.generateHesperidesPredefinedScope();
         hesperidesPlatformPredefinedScope.addAll(hesperidesModulePredefinedScope);
@@ -268,7 +294,7 @@ public class Files {
                 moduleName,
                 new HesperidesVersion(moduleVersion, isModuleWorkingCopy)
         );
-        
+
         Template template = manageModule(moduleName, moduleVersion, isModuleWorkingCopy, templateNamespace,
                 templateName, mustacheScope, moduleKey);
 
@@ -303,7 +329,8 @@ public class Files {
         if(templateNamespace.startsWith("modules")){
             template = modules.getTemplate(moduleKey, templateName).orElseThrow(()
                     -> new MissingResourceException("Could not find template " + templateName + " in module "
-                    + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release")));
+                    + moduleName + "/" + moduleVersion + "/"
+                    + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)));
         } else if(templateNamespace.startsWith("packages")) {
             template = templatePackages.getTemplate(templateNamespace, templateName).orElseThrow(() -> new MissingResourceException("Could not find template "+templateNamespace+"/"+templateName));
         }
@@ -393,8 +420,11 @@ public class Files {
         public Wrapper find(final String name, Object[] scopes) {
 
             String real_name = name.split("[|]")[0];
-            int length = scopes.length;
-            for (int i = 0; i < length; i++) {
+
+            // We must search from local scope to global scope in case of iterable properties.
+            int length = scopes.length - 1;
+            for (int i = length; i >= 0; i--) {
+
                 Object scope = scopes[i];
                 final int scope_index = i;
                 if (scope instanceof Map && ((Map) scope).containsKey(real_name)) {

@@ -22,13 +22,7 @@
 package com.vsct.dt.hesperides.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -41,8 +35,6 @@ public class HesperidesVersion {
 
     @JsonProperty(value = "working_copy")
     private boolean isWorkingCopy;
-
-    private HesperidesVersion(){}
 
     public HesperidesVersion(String versionName, boolean isworkingCopy) {
         this.versionName = versionName;

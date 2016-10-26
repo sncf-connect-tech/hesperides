@@ -23,32 +23,36 @@ package com.vsct.dt.hesperides.applications;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import io.dropwizard.jackson.Jackson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * Created by william_montaz on 22/04/2015.
  */
-public class SnapshotRegistry {
+public class SnapshotRegistry<A extends JedisCommands&MultiKeyCommands&AdvancedJedisCommands&ScriptingCommands&BasicCommands&ClusterCommands&Closeable> implements SnapshotRegistryInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisEventStore.class);
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
-    private final Pool<Jedis> connectionPool;
+    private final Pool<A> connectionPool;
 
-    public SnapshotRegistry(Pool<Jedis> connectionPool) {
+    public  SnapshotRegistry(Pool<A> connectionPool) {
         this.connectionPool = connectionPool;
     }
 
-    void createSnapshot(SnapshotKey key, Object snapshot) {
-        try (Jedis jedis = connectionPool.getResource()) {
+    @Override
+    public void createSnapshot(SnapshotKey key, Object snapshot) {
+        try (A jedis = connectionPool.getResource()) {
             jedis.set(key.getIdentifier(), MAPPER.writeValueAsString(snapshot));
         } catch (JsonProcessingException e) {
             LOGGER.error("A problem occured when trying to serialize snapshot object");
@@ -59,14 +63,21 @@ public class SnapshotRegistry {
         }
     }
 
-    Set<String> getKeys(String pattern) {
-        try (Jedis jedis = connectionPool.getResource()) {
+    @Override
+    public Set<String> getKeys(String pattern) {
+        try (A jedis = connectionPool.getResource()) {
             return jedis.keys(pattern);
+        } catch (IOException e) {
+            LOGGER.error("UNEXPECTED EXCEPTION WHILE RETREIVE KEYS {} ", pattern);
+            LOGGER.error(e.getMessage());
         }
+
+        return ImmutableSet.of();
     }
 
-    <U> Optional<U> getSnapshot(SnapshotKey snapshotKey, Class snapshotClass) {
-        try (Jedis jedis = connectionPool.getResource()) {
+    @Override
+    public <U> Optional<U> getSnapshot(SnapshotKey snapshotKey, Class snapshotClass) {
+        try (A jedis = connectionPool.getResource()) {
 
             String objectAsString = jedis.get(snapshotKey.getIdentifier());
             return Optional.of((U) MAPPER.readValue(objectAsString, snapshotClass));

@@ -25,8 +25,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.vsct.dt.hesperides.security.model.User;
-import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.Objects;
 

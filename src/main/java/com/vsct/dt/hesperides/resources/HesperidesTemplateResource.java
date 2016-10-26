@@ -27,8 +27,8 @@ import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.templating.Template;
-import com.vsct.dt.hesperides.templating.TemplateData;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
@@ -193,7 +193,7 @@ public class HesperidesTemplateResource extends BaseResource {
                 .keySet().stream()
                 .map(namespace -> {
                     String[] splits = namespace.split("#");
-                    return new TemplatePackageKey(splits[1], splits[2], splits[3].equals("WORKINGCOPY"));
+                    return new TemplatePackageKey(splits[1], splits[2], WorkingCopy.is(splits[3]));
                 }).sorted((technoA, technoB) -> {
                     int compareName = technoA.getName().compareTo(technoB.getName());
                     if (compareName != 0) {

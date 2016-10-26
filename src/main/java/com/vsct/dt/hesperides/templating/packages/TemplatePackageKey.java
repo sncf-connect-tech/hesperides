@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Strings;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
+import com.vsct.dt.hesperides.util.Release;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 
 import java.util.Objects;
 
@@ -60,6 +62,13 @@ public class TemplatePackageKey {
         this.workingCopy = version.isWorkingCopy();
     }
 
+    public TemplatePackageKey(final String namespace) {
+        final String[] item = namespace.split("#");
+        this.name = item[1];
+        this.versionName = item[2];
+        this.workingCopy = WorkingCopy.is(item[3]);
+    }
+
     @JsonProperty(value = "name")
     public String getName() {
         return name;
@@ -82,12 +91,12 @@ public class TemplatePackageKey {
 
     @JsonIgnore
     public String getNamespace() {
-        return "packages#" + name + "#" + versionName + "#" + (workingCopy ? "WORKINGCOPY" : "RELEASE");
+        return "packages#" + name + "#" + versionName + "#" + (workingCopy ? WorkingCopy.UC : Release.UC);
     }
 
     @JsonIgnore
     public String getEntityName() {
-        return name + "-" + versionName + "-" + (workingCopy ? "wc" : "release");
+        return name + "-" + versionName + "-" + (workingCopy ? WorkingCopy.SHORT : Release.LC);
     }
 
     @Override
@@ -126,12 +135,12 @@ public class TemplatePackageKey {
         return new Builder(name);
     }
 
-    public static interface IVersion {
-        public IBuild withVersion(HesperidesVersion version);
+    public interface IVersion {
+        IBuild withVersion(HesperidesVersion version);
     }
 
-    public static interface IBuild {
-        public TemplatePackageKey build();
+    public interface IBuild {
+        TemplatePackageKey build();
     }
 
     private static class Builder implements IVersion, IBuild {

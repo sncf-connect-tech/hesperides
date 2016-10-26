@@ -23,20 +23,27 @@ package com.vsct.dt.hesperides.templating.modules;
 
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
-import com.vsct.dt.hesperides.EventStoreMock;
+import com.vsct.dt.hesperides.HesperidesCacheParameter;
+import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
 import com.vsct.dt.hesperides.exception.runtime.IncoherentVersionException;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.exception.runtime.OutOfDateVersionException;
-import com.vsct.dt.hesperides.templating.Template;
-import com.vsct.dt.hesperides.templating.TemplateData;
+import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.RedisEventStore;
+import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
+import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
+import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,22 +55,32 @@ import static org.mockito.Mockito.mock;
  */
 public class ModulesAggregateTest {
 
-    EventBus       eventBus       = new EventBus();
-    EventStoreMock eventStoreMock = new EventStoreMock();
+    private final EventBus       eventBus       = new EventBus();
+    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private final TemplatePackagesAggregate templatePackages = mock(TemplatePackagesAggregate.class);
 
-    TemplatePackagesAggregate templatePackages = mock(TemplatePackagesAggregate.class);
-
-    ModulesAggregate modules;
+    private ModulesAggregate modulesWithEvent;
 
     @Before
     public void setUp() throws Exception {
-        modules = new ModulesAggregate(eventBus, eventStoreMock, templatePackages);
-        eventStoreMock.reset();
+        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
+        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
+
+        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
+        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
+        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
+
+        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
+        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
+
+        poolRedis.reset();
+        modulesWithEvent = new ModulesAggregate(eventBus, eventStore, templatePackages, hesperidesConfiguration);
     }
 
     @After
     public void checkUnwantedEvents() {
-        eventStoreMock.verifyUnexpectedEvents();
+        
     }
 
     /**
@@ -71,15 +88,13 @@ public class ModulesAggregateTest {
      */
     @Test
     public void should_create_working_copy_with_provided_technos_and_no_templates() {
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        Module module = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        Module module = modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
         assertThat(module.getName()).isEqualTo("my_module");
         assertThat(module.getVersion()).isEqualTo("the_version");
@@ -88,30 +103,29 @@ public class ModulesAggregateTest {
     }
 
     @Test
-    public void working_copy_creation_should_fire_a_module_created_event() {
+    public void working_copy_creation_should_fire_a_module_created_event() throws IOException, ClassNotFoundException {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        Module module = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        Module module = modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        eventStoreMock.checkSavedTheEventOnStream("module-my_module-the_version-wc", new ModuleCreatedEvent(module, Sets.newHashSet()));
+        poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
+                new ModuleCreatedEvent(module, Sets.newHashSet()));
     }
 
     @Test(expected = DuplicateResourceException.class)
     public void should_not_create_working_copy_if_it_already_exists(){
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
-        modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
     }
 
     /**
@@ -119,17 +133,15 @@ public class ModulesAggregateTest {
      */
     @Test
     public void should_return_module(){
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        Module module = modules.getModule(moduleKey).get();
+        Module module = modulesWithEvent.getModule(moduleKey).get();
 
         assertThat(module.getName()).isEqualTo("my_module");
         assertThat(module.getVersion()).isEqualTo("the_version");
@@ -144,7 +156,7 @@ public class ModulesAggregateTest {
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
-        Optional<Module> moduleOptional = modules.getModule(moduleKey);
+        Optional<Module> moduleOptional = modulesWithEvent.getModule(moduleKey);
 
         assertThat(moduleOptional.isPresent()).isFalse();
     }
@@ -154,93 +166,85 @@ public class ModulesAggregateTest {
      */
     @Test
     public void should_update_module_working_copy(){
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
         Module module = new Module(moduleKey, Sets.newHashSet(techno));
-        modules.createWorkingCopy(module);
+        modulesWithEvent.createWorkingCopy(module);
 
         Techno newTechno = new Techno("tomcat", "2", false);
 
         Module newModule = new Module(moduleKey, Sets.newHashSet(newTechno));
-        modules.updateWorkingCopy(newModule);
+        modulesWithEvent.updateWorkingCopy(newModule);
 
-        Module updated = modules.getModule(moduleKey).get();
+        Module updated = modulesWithEvent.getModule(moduleKey).get();
 
         assertThat(updated.getTechnos()).isEqualTo(Sets.newHashSet(newTechno));
     }
 
     @Test
-    public void should_fire_module_working_copy_updated_event(){
+    public void should_fire_module_working_copy_updated_event() throws IOException, ClassNotFoundException {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
-        eventStoreMock.reset();
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
         Techno newTechno = new Techno("tomcat", "2", false);
-        modules.updateWorkingCopy(new Module(moduleKey, Sets.newHashSet(newTechno)));
+        modulesWithEvent.updateWorkingCopy(new Module(moduleKey, Sets.newHashSet(newTechno)));
 
-        eventStoreMock.checkSavedTheEventOnStream("module-my_module-the_version-wc", new ModuleWorkingCopyUpdatedEvent(
-                new Module("my_module", "the_version", true, Sets.newHashSet(newTechno), 2L)
+        poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
+                new ModuleWorkingCopyUpdatedEvent(
+                    new Module("my_module", "the_version", true, Sets.newHashSet(newTechno), 2L)
         ));
     }
 
     @Test(expected = MissingResourceException.class)
     public void should_not_update_module_if_not_existing_at_first(){
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
-        modules.updateWorkingCopy(new Module(moduleKey, Sets.newHashSet()));
+        modulesWithEvent.updateWorkingCopy(new Module(moduleKey, Sets.newHashSet()));
     }
 
     @Test(expected = OutOfDateVersionException.class)
     public void should_not_update_module_if_providing_too_low_versionid(){
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
         //Update to increase version ID
-        modules.updateWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.updateWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
         Techno newTechno = new Techno("tomcat", "2", false);
         ModuleKey moduleKey2 = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
-        modules.updateWorkingCopy(new Module(moduleKey2, Sets.newHashSet(newTechno)));
+        modulesWithEvent.updateWorkingCopy(new Module(moduleKey2, Sets.newHashSet(newTechno)));
     }
 
     @Test(expected = IncoherentVersionException.class)
     public void should_not_update_module_if_providing_to_high_versionid(){
-        eventStoreMock.ignoreEvents();
-
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
 
-        modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
         Techno newTechno = new Techno("tomcat", "2", false);
         ModuleKey moduleKey2 = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
-        modules.updateWorkingCopy(new Module(moduleKey2, Sets.newHashSet(newTechno), 2L));
+        modulesWithEvent.updateWorkingCopy(new Module(moduleKey2, Sets.newHashSet(newTechno), 2L));
     }
 
     /**
@@ -249,8 +253,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_create_template_in_working_copy_if_it_does_not_already_exists() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("nom du template")
                 .withFilename("filename")
@@ -260,9 +262,9 @@ public class ModulesAggregateTest {
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        Template result = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        Template result = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         assertThat(result.getNamespace()).isEqualTo("modules#my_module#the_version#WORKINGCOPY");
         assertThat(result.getName()).isEqualTo("nom du template");
@@ -274,7 +276,7 @@ public class ModulesAggregateTest {
     }
 
     @Test
-    public void should_fire_template_created_event_when_creating_template(){
+    public void should_fire_template_created_event_when_creating_template() throws IOException, ClassNotFoundException {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("nom du template")
                 .withFilename("filename")
@@ -283,18 +285,18 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
-        eventStoreMock.reset();
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        Template result = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
-        eventStoreMock.checkSavedTheEventOnStream("module-my_module-the_version-wc", new ModuleTemplateCreatedEvent("my_module", "the_version", new Template("modules#my_module#the_version#WORKINGCOPY", "nom du template", "filename", "location", "content", null, 1L)));
+        poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
+                new ModuleTemplateCreatedEvent("my_module", "the_version",
+                        new Template("modules#my_module#the_version#WORKINGCOPY", "nom du template", "filename",
+                                "location", "content", null, 1L)));
     }
 
     @Test(expected = Exception.class)
     public void should_not_create_a_template_with_not_parseable_content() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("nom du template")
                 .withFilename("filename")
@@ -303,14 +305,14 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        Template result = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
     }
 
     @Test(expected = DuplicateResourceException.class)
     public void should_not_create_a_template_if_it_already_exists(){
-        eventStoreMock.ignoreEvents();
+        Techno techno = new Techno("tomcat", "1", false);
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("nom du template")
@@ -319,11 +321,12 @@ public class ModulesAggregateTest {
                 .withContent("content")
                 .withRights(null)
                 .build();
-        Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
     }
 
     /**
@@ -332,8 +335,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_update_template_in_working_copy_if_it_already_exists() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -342,9 +343,9 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         TemplateData templateDataUpdate = TemplateData.withTemplateName("template1")
                 .withFilename("new_filename")
@@ -354,7 +355,7 @@ public class ModulesAggregateTest {
                 .withVersionID(1L)
                 .build();
 
-        Template template = modules.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
+        Template template = modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
         assertThat(template.getNamespace()).isEqualTo("modules#my_module#the_version#WORKINGCOPY");
         assertThat(template.getName()).isEqualTo("template1");
         assertThat(template.getFilename()).isEqualTo("new_filename");
@@ -364,7 +365,7 @@ public class ModulesAggregateTest {
     }
 
     @Test
-    public void should_fire_template_updated_event_when_has_updated_a_template(){
+    public void should_fire_template_updated_event_when_has_updated_a_template() throws IOException, ClassNotFoundException {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -373,11 +374,9 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
-        eventStoreMock.reset();
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
-        eventStoreMock.reset();
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         TemplateData templateDataUpdate = TemplateData.withTemplateName("template1")
                 .withFilename("new_filename")
@@ -387,15 +386,16 @@ public class ModulesAggregateTest {
                 .withVersionID(1L)
                 .build();
 
-        Template template = modules.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
+        modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
 
-        eventStoreMock.checkSavedTheEventOnStream("module-my_module-the_version-wc", new ModuleTemplateUpdatedEvent("my_module", "the_version", new Template("modules#my_module#the_version#WORKINGCOPY", "template1", "new_filename", "new_location", "new_content", null, 2L)));
+        poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
+                new ModuleTemplateUpdatedEvent("my_module", "the_version",
+                        new Template("modules#my_module#the_version#WORKINGCOPY", "template1", "new_filename",
+                                "new_location", "new_content", null, 2L)));
     }
 
     @Test(expected = MissingResourceException.class)
     public void should_not_update_template_if_it_does_not_already_exists(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -404,15 +404,13 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.updateTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateData);
     }
 
     @Test(expected = Exception.class)
     public void should_not_update_a_template_with_invalid_content(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -421,9 +419,9 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         TemplateData templateDataUpdate = TemplateData.withTemplateName("template1")
                 .withFilename("new_filename")
@@ -433,13 +431,11 @@ public class ModulesAggregateTest {
                 .withVersionID(1L)
                 .build();
 
-        Template template = modules.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
+        modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
     }
 
     @Test(expected = OutOfDateVersionException.class)
     public void should_not_update_template_if_provided_version_id_is_too_low(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -448,12 +444,12 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         //Update to increase versionID
-        modules.updateTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateData);
 
         TemplateData templateDataUpdate = TemplateData.withTemplateName("template1")
                 .withFilename("new_filename")
@@ -463,13 +459,11 @@ public class ModulesAggregateTest {
                 .withVersionID(1L)
                 .build();
 
-        Template template = modules.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
+        modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
     }
 
     @Test(expected = IncoherentVersionException.class)
     public void should_not_update_template_if_version_id_is_too_high(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -478,9 +472,9 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         TemplateData templateDataUpdate = TemplateData.withTemplateName("template1")
                 .withFilename("new_filename")
@@ -490,7 +484,7 @@ public class ModulesAggregateTest {
                 .withVersionID(2L)
                 .build();
 
-        Template template = modules.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
+        modulesWithEvent.updateTemplateInWorkingCopy(moduleKey, templateDataUpdate);
     }
 
     /**
@@ -499,8 +493,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_delete_template_in_working_copy_if_it_already_exists() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -509,19 +501,19 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
-        modules.deleteTemplateInWorkingCopy(moduleKey, "template1");
+        modulesWithEvent.deleteTemplateInWorkingCopy(moduleKey, "template1");
 
-        Optional<Template> templateOptional = modules.getTemplate(moduleKey, "template1");
+        Optional<Template> templateOptional = modulesWithEvent.getTemplate(moduleKey, "template1");
 
         assertThat(templateOptional.isPresent()).isFalse();
     }
 
     @Test
-    public void should_fire_a_template_deleted_event_when_has_deleted_template() {
+    public void should_fire_a_template_deleted_event_when_has_deleted_template() throws IOException, ClassNotFoundException {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -530,26 +522,23 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
-        eventStoreMock.reset();
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
-        eventStoreMock.reset();
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
-        modules.deleteTemplateInWorkingCopy(moduleKey, "template1");
+        modulesWithEvent.deleteTemplateInWorkingCopy(moduleKey, "template1");
 
-        eventStoreMock.checkSavedTheEventOnStream("module-my_module-the_version-wc", new ModuleTemplateDeletedEvent("my_module", "the_version", "template1"));
+        poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
+                new ModuleTemplateDeletedEvent("my_module", "the_version", "template1"));
     }
 
     @Test(expected = MissingResourceException.class)
     public void should_throw_an_exception_when_deleting_a_non_existing_template(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.deleteTemplateInWorkingCopy(moduleKey, "template1");
+        modulesWithEvent.deleteTemplateInWorkingCopy(moduleKey, "template1");
     }
 
     /**
@@ -558,8 +547,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_return_all_templates_in_working_copy() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         ModuleWorkingCopyKey moduleKey2 = new ModuleWorkingCopyKey("my_other_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
@@ -581,15 +568,15 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
-        Module module2 = modules.createWorkingCopy(new Module(moduleKey2, Sets.newHashSet()));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey2, Sets.newHashSet()));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
-        modules.createTemplateInWorkingCopy(moduleKey, templateData2);
-        modules.createTemplateInWorkingCopy(moduleKey2, templateData3);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData2);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey2, templateData3);
 
-        List<Template> templatesFromSomeModule = modules.getAllTemplates(moduleKey);
-        List<Template> templatesFromSomeOtherModule = modules.getAllTemplates(moduleKey2);
+        List<Template> templatesFromSomeModule = modulesWithEvent.getAllTemplates(moduleKey);
+        List<Template> templatesFromSomeOtherModule = modulesWithEvent.getAllTemplates(moduleKey2);
 
         assertThat(templatesFromSomeModule.size()).isEqualTo(2);
         assertThat(templatesFromSomeOtherModule.size()).isEqualTo(1);
@@ -601,8 +588,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_return_template(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -611,11 +596,11 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
-        Template template = modules.getTemplate(moduleKey, "template1").get();
+        Template template = modulesWithEvent.getTemplate(moduleKey, "template1").get();
 
         assertThat(template.getNamespace()).isEqualTo("modules#my_module#the_version#WORKINGCOPY");
         assertThat(template.getName()).isEqualTo("template1");
@@ -627,13 +612,11 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_return_empty_option_if_getting_non_existing_template(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        Optional<Template> templateOptional = modules.getTemplate(moduleKey, "template1");
+        Optional<Template> templateOptional = modulesWithEvent.getTemplate(moduleKey, "template1");
 
         assertThat(templateOptional.isPresent()).isFalse();
     }
@@ -644,8 +627,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void create_working_copy_from_workingcopy_should_copy_templates_with_new_namespace() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");;
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -661,24 +642,24 @@ public class ModulesAggregateTest {
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData1);
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData2);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData1);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData2);
 
         ModuleWorkingCopyKey newModuleKey = new ModuleWorkingCopyKey("new_module", "new_version");
-        Module returnedModule = modules.createWorkingCopyFrom(newModuleKey, fromModuleKey);
+        Module returnedModule = modulesWithEvent.createWorkingCopyFrom(newModuleKey, fromModuleKey);
         assertThat(returnedModule.getName()).isEqualTo("new_module");
         assertThat(returnedModule.getVersion()).isEqualTo("new_version");
         assertThat(returnedModule.isWorkingCopy()).isTrue();
         assertThat(returnedModule.getTechnos()).isEqualTo(Sets.newHashSet(techno));
 
         //Workingcopy templates should still exist
-        List<Template> wcTemplates = modules.getAllTemplates(fromModuleKey);
+        List<Template> wcTemplates = modulesWithEvent.getAllTemplates(fromModuleKey);
         assertThat(wcTemplates.size()).isEqualTo(2);
 
         //New templates should have been created
-        List<Template> newTemplates = modules.getAllTemplates(newModuleKey);
+        List<Template> newTemplates = modulesWithEvent.getAllTemplates(newModuleKey);
 
         assertThat(newTemplates.size()).isEqualTo(2);
         for(int i = 0; i<2; i++) {
@@ -694,8 +675,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void create_working_copy_from_release_should_copy_templates_with_new_namespace() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -711,29 +690,29 @@ public class ModulesAggregateTest {
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData1);
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData2);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData1);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData2);
 
-        modules.createRelease(fromModuleKey, "release_version");
+        modulesWithEvent.createRelease(fromModuleKey, "release_version");
 
         ModuleKey releaseInfo = ModuleKey.withModuleName("my_module")
                 .withVersion(Release.of("release_version"))
                 .build();
         ModuleWorkingCopyKey newModuleKey = new ModuleWorkingCopyKey("new_module", "new_version");
-        Module returnedModule = modules.createWorkingCopyFrom(newModuleKey, releaseInfo);
+        Module returnedModule = modulesWithEvent.createWorkingCopyFrom(newModuleKey, releaseInfo);
         assertThat(returnedModule.getName()).isEqualTo("new_module");
         assertThat(returnedModule.getVersion()).isEqualTo("new_version");
         assertThat(returnedModule.isWorkingCopy()).isTrue();
         assertThat(returnedModule.getTechnos()).isEqualTo(Sets.newHashSet(techno));
 
         //Workingcopy templates should still exist
-        List<Template> wcTemplates = modules.getAllTemplates(fromModuleKey);
+        List<Template> wcTemplates = modulesWithEvent.getAllTemplates(fromModuleKey);
         assertThat(wcTemplates.size()).isEqualTo(2);
 
         //New templates should have been created
-        List<Template> newTemplates = modules.getAllTemplates(newModuleKey);
+        List<Template> newTemplates = modulesWithEvent.getAllTemplates(newModuleKey);
 
         assertThat(newTemplates.size()).isEqualTo(2);
         for(int i = 0; i<2; i++) {
@@ -749,26 +728,12 @@ public class ModulesAggregateTest {
 
     @Test(expected = DuplicateResourceException.class)
     public void should_throw_duplicate_ressource_exception_when_trying_to_create_existing_working_copy() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
-        TemplateData templateData1 = TemplateData.withTemplateName("template1")
-                .withFilename("filename")
-                .withLocation("location")
-                .withContent("content")
-                .withRights(null)
-                .build();
-        TemplateData templateData2 = TemplateData.withTemplateName("template2")
-                .withFilename("filename")
-                .withLocation("location")
-                .withContent("content")
-                .withRights(null)
-                .build();
 
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
 
-        modules.createWorkingCopyFrom(fromModuleKey, fromModuleKey);
+        modulesWithEvent.createWorkingCopyFrom(fromModuleKey, fromModuleKey);
     }
 
     /**
@@ -777,8 +742,6 @@ public class ModulesAggregateTest {
 
     @Test
     public void should_create_release_from_the_matching_working_copy_with_new_version() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -794,24 +757,24 @@ public class ModulesAggregateTest {
                 .build();
 
         Techno techno = new Techno("tomcat", "1", false);
-        Module zeModule = modules.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
 
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData1);
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData2);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData1);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData2);
 
-        Module returnedModule = modules.createRelease(fromModuleKey, "new_release_version");
+        Module returnedModule = modulesWithEvent.createRelease(fromModuleKey, "new_release_version");
         assertThat(returnedModule.getName()).isEqualTo("my_module");
         assertThat(returnedModule.getVersion()).isEqualTo("new_release_version");
         assertThat(returnedModule.isWorkingCopy()).isFalse();
         assertThat(returnedModule.getTechnos()).isEqualTo(Sets.newHashSet(techno));
 
         //Workingcopy templates should still exist
-        List<Template> wcTemplates = modules.getAllTemplates(fromModuleKey);
+        List<Template> wcTemplates = modulesWithEvent.getAllTemplates(fromModuleKey);
         assertThat(wcTemplates.size()).isEqualTo(2);
 
         //Release templates should have been created
         ModuleKey releaseInfo = ModuleKey.withModuleName("my_module").withVersion(Release.of("new_release_version")).build();
-        List<Template> releaseTemplates = modules.getAllTemplates(releaseInfo);
+        List<Template> releaseTemplates = modulesWithEvent.getAllTemplates(releaseInfo);
 
         assertThat(releaseTemplates.size()).isEqualTo(2);
         for(int i = 0; i<2; i++) {
@@ -827,8 +790,6 @@ public class ModulesAggregateTest {
 
     @Test(expected = DuplicateResourceException.class)
     public void should_throw_duplicate_ressource_exception_if_release_already_exists_when_creating_a_release() {
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         ModuleWorkingCopyKey fromModuleKey2 = new ModuleWorkingCopyKey("my_module", "the_version");
 
@@ -839,17 +800,15 @@ public class ModulesAggregateTest {
                 .withContent("content")
                 .withRights(null)
                 .build();
-        Module zeModule = modules.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet()));
-        modules.createTemplateInWorkingCopy(fromModuleKey, templateData1);
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet()));
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData1);
 
-        modules.createRelease(fromModuleKey, "version");
-        modules.createRelease(fromModuleKey, "version");
+        modulesWithEvent.createRelease(fromModuleKey, "version");
+        modulesWithEvent.createRelease(fromModuleKey, "version");
     }
 
     @Test
     public void should_delete_module_and_all_templates_related_to_module(){
-        eventStoreMock.ignoreEvents();
-
         ModuleWorkingCopyKey workingCopy = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -865,49 +824,49 @@ public class ModulesAggregateTest {
                 .withRights(null)
                 .build();
 
-        modules.createWorkingCopy(new Module(workingCopy, Sets.newHashSet()));
-        modules.createTemplateInWorkingCopy(workingCopy, templateData1);
-        modules.createTemplateInWorkingCopy(workingCopy, templateData2);
+        modulesWithEvent.createWorkingCopy(new Module(workingCopy, Sets.newHashSet()));
+        modulesWithEvent.createTemplateInWorkingCopy(workingCopy, templateData1);
+        modulesWithEvent.createTemplateInWorkingCopy(workingCopy, templateData2);
 
         //also create the release to test both deletions
         ModuleKey release = ModuleKey.withModuleName("my_module")
                 .withVersion(Release.of("the_version"))
                 .build();
-        modules.createRelease(workingCopy, "the_version");
+        modulesWithEvent.createRelease(workingCopy, "the_version");
 
-        assertThat(modules.getModule(workingCopy).isPresent()).isTrue();
-        assertThat(modules.getAllTemplates(workingCopy).size()).isEqualTo(2);
-        assertThat(modules.getModule(release).isPresent()).isTrue();
-        assertThat(modules.getAllTemplates(release).size()).isEqualTo(2);
+        assertThat(modulesWithEvent.getModule(workingCopy).isPresent()).isTrue();
+        assertThat(modulesWithEvent.getAllTemplates(workingCopy).size()).isEqualTo(2);
+        assertThat(modulesWithEvent.getModule(release).isPresent()).isTrue();
+        assertThat(modulesWithEvent.getAllTemplates(release).size()).isEqualTo(2);
 
-        modules.delete(workingCopy);
-        modules.delete(release);
+        modulesWithEvent.delete(workingCopy);
+        modulesWithEvent.delete(release);
 
-        assertThat(modules.getModule(workingCopy).isPresent()).isFalse();
-        assertThat(modules.getAllTemplates(workingCopy).size()).isEqualTo(0);
-        assertThat(modules.getModule(release).isPresent()).isFalse();
-        assertThat(modules.getAllTemplates(release).size()).isEqualTo(0);
+        assertThat(modulesWithEvent.getModule(workingCopy).isPresent()).isFalse();
+        assertThat(modulesWithEvent.getAllTemplates(workingCopy).size()).isEqualTo(0);
+        assertThat(modulesWithEvent.getModule(release).isPresent()).isFalse();
+        assertThat(modulesWithEvent.getAllTemplates(release).size()).isEqualTo(0);
     }
 
     @Test
-    public void deleting_module_should_fire_an_event(){
+    public void deleting_module_should_fire_an_event() throws IOException, ClassNotFoundException {
         ModuleKey workingCopy = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
-        modules.createWorkingCopy(new Module(workingCopy, Sets.newHashSet()));
-        eventStoreMock.reset();
+        modulesWithEvent.createWorkingCopy(new Module(workingCopy, Sets.newHashSet()));
 
-        modules.delete(workingCopy);
+        modulesWithEvent.delete(workingCopy);
 
-        eventStoreMock.checkSavedTheEventOnStream("module-my_module-the_version-wc", new ModuleDeletedEvent(workingCopy.getName(), workingCopy.getVersionName(), workingCopy.isWorkingCopy()));
+        poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
+                new ModuleDeletedEvent(workingCopy.getName(), workingCopy.getVersionName(),
+                        workingCopy.isWorkingCopy()));
     }
 
     @Test(expected = MissingResourceException.class)
     public void should_throw_exception_when_trying_to_delete_unknown_module(){
-        eventStoreMock.ignoreEvents();
         ModuleKey workingCopy = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
-        modules.delete(workingCopy);
+        modulesWithEvent.delete(workingCopy);
     }
 }
