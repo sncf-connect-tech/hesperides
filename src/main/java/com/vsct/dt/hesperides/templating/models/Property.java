@@ -64,7 +64,9 @@ public class Property {
             String[] fields = nameAndCommentString.split("[|]", 2);
 
             // We trim the name : Hesperides should ignore tabs, whitespaces on property names
-            this.name = fields[0].trim();
+            // Triming this is very dangerous, we need to see more further of avoiding values lost
+            // Already existing values are not retrieved correctly
+            this.name = fields[0];
 
             // Second field can be comment (old way) or annotation (new way).
             if (fields.length > 1) {
