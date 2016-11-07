@@ -256,4 +256,17 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
         // Now store snapshot
         store.storeSnapshot(redisKey, object, nbEventBeforePersiste);
     }
+
+    /**
+     * Store object in snapshot.
+     *
+     * @param platformKey key of cache (same as cache.get(K))
+     * @param object object
+     */
+    public void forceSaveSnapshot(final PlatformKey platformKey, final PlatformContainer object, final long nbEvent) {
+        final String redisKey = generateDbKey(platformKey);
+
+        // Now store snapshot
+        store.createSnapshot(redisKey, object, nbEvent);
+    }
 }
