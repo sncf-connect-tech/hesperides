@@ -28,8 +28,6 @@ import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.resources.KeyValueValorisation;
-import com.vsct.dt.hesperides.resources.Properties;
 import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
@@ -42,12 +40,9 @@ import com.vsct.dt.hesperides.templating.modules.Techno;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
-import com.vsct.dt.hesperides.util.HesperidesUtil;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.util.Asserts;
-import org.elasticsearch.common.collect.Sets;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -310,22 +305,21 @@ public class Files {
 
         HesperidesPropertiesModel templateModel
                 = modules.getModel(moduleKey).orElseThrow(() -> new MissingResourceException("Could not find module " + moduleKey));
-        boolean notFoundInScope;
+        boolean exists;
 
         for (KeyValuePropertyModel kvpm : templateModel.getKeyValueProperties()) {
-            notFoundInScope = notFoundProperty(kvpm.getName(), mustacheScope);
+            exists = isInScope(kvpm.getName(), mustacheScope);
 
-            if (kvpm.isRequired() && notFoundInScope) {
+            if (kvpm.isRequired() && !exists) {
                 throw new MissingResourceException(String.format("Property '%s' in template '%s/%s' must be set.",
                         kvpm.getName(), templateNamespace, templateName));
             }
 
-            if (!StringUtils.isEmpty(kvpm.getDefaultValue())
-                    && notFoundInScope) {
+            if (StringUtils.isNotEmpty(kvpm.getDefaultValue()) && !exists) {
                 mustacheScope.put(kvpm.getName(), kvpm.getDefaultValue());
             }
 
-            if (!StringUtils.isEmpty(kvpm.getPattern())) {
+            if (StringUtils.isNotEmpty(kvpm.getPattern())) {
                 String propVal = findProperty(kvpm.getName(), mustacheScope);
 
                 if (propVal != null) {
@@ -349,9 +343,9 @@ public class Files {
      * @param name property name.
      * @param mustacheScope scope
      *
-     * @return true if not found.
+     * @return true if found else otherwise.
      */
-    private static boolean notFoundProperty(final String name, final MustacheScope mustacheScope) {
+    private static boolean isInScope(final String name, final MustacheScope mustacheScope) {
         boolean found = false;
 
         for (String kvv : mustacheScope.keySet()) {
@@ -361,7 +355,7 @@ public class Files {
             }
         }
 
-        return !found;
+        return found;
     }
 
     /**
@@ -392,7 +386,9 @@ public class Files {
         @Override
         public Wrapper find(final String name, Object[] scopes) {
 
-            String real_name = name.split("[|]")[0];
+            // We trim this to let mustach ignore whitespaces on properties name
+            String real_name = name.split("[|]")[0].trim();
+
             int length = scopes.length;
             for (int i = 0; i < length; i++) {
                 Object scope = scopes[i];

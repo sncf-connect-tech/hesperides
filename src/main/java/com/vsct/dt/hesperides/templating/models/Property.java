@@ -41,6 +41,7 @@ import java.util.Objects;
 
 /**
  * Created by william_montaz on 11/07/14.
+ * Updated by Tidiane SIDIBE on 09/11/2016 : Add whitespaces ignoring on properties name
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"name", "comment", "required", "defaultValue", "pattern"})
@@ -54,6 +55,10 @@ public class Property {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Property.class);
 
+    /**
+     * Constructor from mustache codes
+     * @param code : mustache code
+     */
     public Property(final DefaultCode code) {
         /* Bad but no other way for now */
         /* TO DO BIG WARNING */
@@ -63,10 +68,10 @@ public class Property {
             String nameAndCommentString = (String) f.get(code);
             String[] fields = nameAndCommentString.split("[|]", 2);
 
-            // We trim the name : Hesperides should ignore tabs, whitespaces on property names
-            // Triming this is very dangerous, we need to see more further of avoiding values lost
-            // Already existing values are not retrieved correctly
-            this.name = fields[0];
+            // We trim this for letting hesperides ignore the whitespaces on properties in the templates
+            // Ex. {{ db.user.login  }} should be treated as {{db.user.login}}
+            // This has impact to valorsiation's name and mustach templates
+            this.name = fields[0].trim();
 
             // Second field can be comment (old way) or annotation (new way).
             if (fields.length > 1) {
@@ -129,10 +134,21 @@ public class Property {
         }
     }
 
+    /**
+     * Constructor from name and comment
+     * Ex. {{hello|I am the comment}}
+     *
+     * @param name : the name
+     * @param comment : the comment
+     */
     @JsonCreator
     public Property(@JsonProperty("name") final String name,
                     @JsonProperty("comment") final String comment) {
-        this.name = name;
+
+        // We trim this for letting hesperides ignore the whitespaces on properties in the templates
+        // Ex. {{ db.user.login  }} should be treated as {{db.user.login}}
+        // This has impact to valorsiation's name and mustach templates
+        this.name = name.trim();
         this.comment = comment;
     }
 
