@@ -71,8 +71,7 @@ public final class KeyValueValorisation extends Valorisation {
 
     public String getValue() {
         //This helps to deal with old values that have been set to null
-        if (value == null) return "";
-        else return value;
+        return (value == null) ? "" : value;
     }
 
     @Override
@@ -82,7 +81,10 @@ public final class KeyValueValorisation extends Valorisation {
 
     private String injectMapOfKeyValueInTemplateString(String value, final Map<String, String> context) {
         return replaceWithPattern(value, valorisation_templating_pattern, captured -> {
+
+            // TODO : this should be trimed as in KeyValueValorisationData ?
             String capture = captured.group(1);
+
             String replacement = context.get(capture);
             if (replacement == null) {
                 return captured.group();

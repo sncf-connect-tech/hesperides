@@ -77,14 +77,13 @@ public class MustacheScope implements Map<String, Object> {
 
     public Set<KeyValuePropertyModel> getMissingKeyValueProperties() {
         return getMissingKeyValueProperties(scope);
-
-
     }
 
     private Set<KeyValuePropertyModel> getMissingKeyValueProperties(Map<String, Object> scope){
         /* Iterate through the scope. There can be string scope object or lists (depending if it comes from KeyValue or Iterable properties) */
         Set<KeyValuePropertyModel> missingKeyValueProperties = new HashSet<>();
         for (Map.Entry<String, Object> entry : scope.entrySet()) {
+
             Object scopeObject = entry.getValue();
             if (scopeObject instanceof String) {
                 String value = (String) scopeObject;
@@ -109,14 +108,22 @@ public class MustacheScope implements Map<String, Object> {
     public static class InjectableMustacheScope {
 
         private final Set<ValorisationData> valorisations;
+
         private InjectableMustacheScope(Set<ValorisationData> valorisations) {
             Preconditions.checkNotNull(valorisations);
             this.valorisations = valorisations;
         }
 
         public InjectableMustacheScope inject(Map<String, String> injectedValues) {
-            if(injectedValues == null || injectedValues.size() == 0) return this;
-            Set<ValorisationData> injectedValorisations = valorisations.stream().map(valorisation -> valorisation.inject(injectedValues)).collect(Collectors.toSet());
+
+            if(injectedValues == null || injectedValues.size() == 0){
+                return this;
+            }
+
+            Set<ValorisationData> injectedValorisations = valorisations.stream().map(valorisation -> {
+                return valorisation.inject(injectedValues);
+            }).collect(Collectors.toSet());
+
             return new InjectableMustacheScope(injectedValorisations);
         }
 

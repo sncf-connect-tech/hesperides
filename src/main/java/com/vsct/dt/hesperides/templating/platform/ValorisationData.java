@@ -42,6 +42,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by william_montaz on 28/07/2015.
+ *
+ * Modified by tidiane_sidibe on 10/11/2016 : Adding whitespaces ignoring when using global properties
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(using = ValorisationData.JacksonDeserializer.class)
@@ -53,12 +55,12 @@ public class ValorisationData {
     @JsonCreator
     public ValorisationData(@JsonProperty("name") final String name) {
         checkNotNull(!Strings.isNullOrEmpty(name), "A valorisation name should not be empty or null");
-        this.name = name;
+        this.name = name.trim();
     }
 
     @JsonProperty("name")
     public String getName() {
-        return name;
+        return name.trim();
     }
 
     public MustacheScopeEntry<String, Object> toMustacheScopeEntry(){
