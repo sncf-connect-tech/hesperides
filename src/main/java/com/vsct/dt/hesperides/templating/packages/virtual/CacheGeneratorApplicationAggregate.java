@@ -149,6 +149,24 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
         increaseCounter(new PlatformKey(event.getApplicationName(), event.getPlatformName()));
     }
 
+    @Subscribe
+    @Override
+    public void replaySnapshotTakenEvent(final PlatformSnapshotEvent event) {
+        super.replaySnapshotTakenEvent(event);
+
+        increaseCounter(new PlatformKey(event.getApplicationName(), event.getPlatformName()));
+    }
+
+    @Subscribe
+    @Override
+    public void replaySnapshotRestoredEvent(final PlatformSnapshotRestoreEvent event) {
+        super.replaySnapshotRestoredEvent(event);
+
+        final PlatformData ptfData = event.getSnapshot().getPlatform();
+
+        increaseCounter(new PlatformKey(ptfData.getApplicationName(), ptfData.getPlatformName()));
+    }
+
     public void clear() {
         this.virtualPlatformRegistry.clear();
     }
