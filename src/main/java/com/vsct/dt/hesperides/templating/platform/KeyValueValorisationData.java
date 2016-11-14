@@ -60,8 +60,7 @@ public final class KeyValueValorisationData extends ValorisationData {
 
     public String getValue() {
         //This helps to deal with old values that have been set to null
-        if (value == null) return "";
-        else return value;
+        return (value == null) ? "" : value;
     }
 
     @Override

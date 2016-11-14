@@ -82,8 +82,9 @@ public final class KeyValueValorisation extends Valorisation {
     private String injectMapOfKeyValueInTemplateString(String value, final Map<String, String> context) {
         return replaceWithPattern(value, valorisation_templating_pattern, captured -> {
 
-            // TODO : this should be trimed as in KeyValueValorisationData ?
-            String capture = captured.group(1);
+            // This is trimed to let hesperides reuse global properties event if they are
+            // used in valuations with some whitespaces
+            String capture = captured.group(1).trim();
 
             String replacement = context.get(capture);
             if (replacement == null) {

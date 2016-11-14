@@ -55,7 +55,10 @@ public class ValorisationData {
     @JsonCreator
     public ValorisationData(@JsonProperty("name") final String name) {
         checkNotNull(!Strings.isNullOrEmpty(name), "A valorisation name should not be empty or null");
-        this.name = name.trim();
+
+        // At this point, name should not be null, but it's seems to be tha case for some stored data !
+        // So we trim only if not null !
+        this.name = (name != null) ? name.trim() : name;
     }
 
     @JsonProperty("name")
