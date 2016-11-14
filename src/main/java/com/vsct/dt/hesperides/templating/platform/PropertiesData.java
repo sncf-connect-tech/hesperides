@@ -92,6 +92,7 @@ public final class PropertiesData {
         /* Prepare what will be injected in the values */
         Map<String, String> injectableKeyValueValorisations = keyValueProperties.stream().collect(Collectors.toMap(ValorisationData::getName, KeyValueValorisationData::getValue));
         Map<String, String> injectablePlatformValorisations = platformValorisations.stream().collect(Collectors.toMap(ValorisationData::getName, KeyValueValorisationData::getValue));
+
         /* Erase local valorisations by platform valorisations */
         injectableKeyValueValorisations.putAll(injectablePlatformValorisations);
 

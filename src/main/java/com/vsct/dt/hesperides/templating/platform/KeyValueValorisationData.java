@@ -37,6 +37,9 @@ import java.util.regex.Pattern;
 
 /**
  * Created by william_montaz on 10/07/14.
+ *
+ * Modified by tidiane_sidibe on 10/11/2016 : Adding whitespaces ignoring when using global properties
+ *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
@@ -57,8 +60,7 @@ public final class KeyValueValorisationData extends ValorisationData {
 
     public String getValue() {
         //This helps to deal with old values that have been set to null
-        if (value == null) return "";
-        else return value;
+        return (value == null) ? "" : value;
     }
 
     @Override
@@ -73,7 +75,12 @@ public final class KeyValueValorisationData extends ValorisationData {
 
     private String injectMapOfKeyValueInTemplateString(String value, final Map<String, String> context) {
         return replaceWithPattern(value, VALORISATION_TEMPLATING_PATTERN, captured -> {
-            String capture = captured.group(1);
+
+            // This is trimed to let hesperides reuse global properties event if they are
+            // used in valuations with some whitespaces
+            String capture = captured.group(1).trim();
+
+            // Find if there is a replacement if the context
             String replacement = context.get(capture);
             if (replacement == null) {
                 return captured.group();
