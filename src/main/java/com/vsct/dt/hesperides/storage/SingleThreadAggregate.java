@@ -229,6 +229,32 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
         replayBus.unregister(this);
     }
 
+    protected void replay(final String stream, final long start, final long stop, final long stopTimestamp) throws StoreReadingException {
+        isReplaying.set(true);
+        replayBus.register(this);
+
+        LOGGER.debug("Replay event for key '{}' until to timestamp '{}'.", stream, stopTimestamp);
+
+        store.withEvents(stream, start, stop, stopTimestamp, event -> replayBus.post(event));
+
+        isReplaying.set(false);
+        //Release replayBus
+        replayBus.unregister(this);
+    }
+
+    protected void replay(final String stream, final long stopTimestamp) throws StoreReadingException {
+        isReplaying.set(true);
+        replayBus.register(this);
+
+        LOGGER.debug("Replay event for key '{}' until to timestamp '{}'.", stream, stopTimestamp);
+
+        store.withEvents(stream, stopTimestamp, event -> replayBus.post(event));
+
+        isReplaying.set(false);
+        //Release replayBus
+        replayBus.unregister(this);
+    }
+
     /**
      * Allow to regenerate cache at startup.
      */

@@ -148,6 +148,61 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
+    public HesperidesSnapshotItem findSnapshot(final String streamName, final long offset, final EventTester<Event> ev) {
+        return execute(snapshotPool, new RedisCommand<HesperidesSnapshotItem, A>() {
+            @Override
+            public HesperidesSnapshotItem execute(final A jedis) throws Throwable {
+                final String redisKey = String.format("snapshotevents-%s", streamName);
+
+                if (jedis.exists(streamName) && jedis.exists(redisKey)) {
+                    final long lastIndex = jedis.llen(streamName) - 1;
+
+                    long currentEventIndex;
+                    long selectedCacheIndex = 0;
+
+                    // Check event that jump to ev.increment
+                    for (currentEventIndex = 0; currentEventIndex <= lastIndex; currentEventIndex += offset) {
+                        final List<String> binaryEvents = jedis.lrange(streamName, currentEventIndex, currentEventIndex);
+
+                        final Event event = MAPPER.readValue(binaryEvents.get(0), Event.class);
+
+                        if (ev.test(event)) {
+                            break;
+                        }
+                    }
+
+                    // E.g. we stop to event #8000
+                    // Cache index to event #8000 is #79
+                    // But #8000 is rejected, we must reject cache #79 an get cache #78
+                    selectedCacheIndex = ((currentEventIndex / offset) - 1) - 1;
+
+                    final List<String> lastCache = jedis.lrange(redisKey, selectedCacheIndex, selectedCacheIndex);
+
+                    final HesperidesSnapshotCacheEntry cache
+                            = MAPPER.readValue(lastCache.get(0), HesperidesSnapshotCacheEntry.class);
+
+                    Object object = MAPPER.readValue(cache.getData(), Class.forName(cache.getCacheType()));
+
+                    return new HesperidesSnapshotItem(object, cache.getNbEvents(), currentEventIndex);
+                }
+
+                return null;
+            }
+
+            @Override
+            public void error(final Throwable e) {
+                if (e instanceof ClassNotFoundException || e instanceof IOException) {
+                    LOGGER.error("Could not deserialize the snapshot '{}' cache.", streamName);
+                    // Don't bock cause Hesperides could be work
+                    LOGGER.error("Stacktrace : ", e);
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    @Override
     public HesperidesSnapshotItem findLastSnapshot(final String streamName) {
         return execute(snapshotPool, new RedisCommand<HesperidesSnapshotItem, A>() {
             @Override
@@ -242,25 +297,38 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public void withEvents(final String streamName, final long stopTimestamp, final Consumer<Object> eventConsumer) throws StoreReadingException {
+    public void withEvents(final String streamName, final long stopTimestamp,
+                           final Consumer<Object> eventConsumer) throws StoreReadingException {
         long len;
 
         try (A jedis = dataPool.getResource()) {
 
             len = jedis.llen(streamName);
 
-            LOGGER.debug("{} events to restore for stream {}", len, streamName);
+            withEvents(streamName, 0, len, stopTimestamp, eventConsumer);
+        } catch (StoreReadingException | IOException e) {
+            e.printStackTrace();
+            throw new StoreReadingException(e);
+        }
+    }
 
-            long start = System.nanoTime();
+    @Override
+    public void withEvents(final String streamName, final long start, final long stop, final long stopTimestamp,
+                           final Consumer<Object> eventConsumer) throws StoreReadingException {
+        try (A jedis = dataPool.getResource()) {
+            LOGGER.debug("{} events to restore for stream {}", stop - start, streamName);
+
+            final long startTime = System.nanoTime();
 
             int indexEvent;
-            int indexBatch;
+            long indexBatch;
             int counter = 0;
             long startIO;
             long stopIO;
 
             long ioAccumulator = 0, serializationAccumulator = 0, processingAccumulator = 0;
-            for (indexBatch = 0; indexBatch < len; indexBatch = indexBatch + BATCH_SIZE) {
+
+            for (indexBatch = start; indexBatch < stop; indexBatch = indexBatch + BATCH_SIZE) {
 
                 startIO = System.nanoTime();
 
@@ -285,6 +353,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     if (event.getTimestamp() > stopTimestamp) {
                         //No need to go beyong this point in time
+                        indexBatch = stop;
                         break;
                     }
 
@@ -304,9 +373,9 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
             }
 
             if (LOGGER.isDebugEnabled()) {
-                long stop = System.nanoTime();
+                final long stopTime = System.nanoTime();
 
-                long durationMs = (stop - start) / 1000000;
+                long durationMs = (stopTime - startTime) / 1000000;
 
                 double frequency = ((double) counter / durationMs) * 1000;
 
@@ -321,7 +390,8 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public void withEvents(String streamName, long start, long stop, Consumer<Object> eventConsumer) throws StoreReadingException {
+    public void withEvents(final String streamName, final long start, final long stop,
+                           final Consumer<Object> eventConsumer) throws StoreReadingException {
         try (A jedis = dataPool.getResource()) {
 
             LOGGER.debug("{} events to restore for stream {}", stop - start, streamName);
@@ -357,7 +427,8 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public List<Event> getEventsList(final String streamName, final int page, final int size) throws StoreReadingException{
+    public List<Event> getEventsList(final String streamName, final int page, final int size)
+            throws StoreReadingException {
 
         try (A jedis = dataPool.getResource()){
 

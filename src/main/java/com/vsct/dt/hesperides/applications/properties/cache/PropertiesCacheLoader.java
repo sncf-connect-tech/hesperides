@@ -45,6 +45,6 @@ public class PropertiesCacheLoader extends AbstractPropertiesCacheLoader<Platfor
 
     @Override
     public PlatformContainer load(final PlatformKey key) throws Exception {
-        return loadProperties(key, Long.MAX_VALUE, true);
+        return loadProperties(key, Long.MAX_VALUE);
     }
 }

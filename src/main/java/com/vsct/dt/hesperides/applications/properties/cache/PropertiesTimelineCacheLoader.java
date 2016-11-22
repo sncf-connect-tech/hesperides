@@ -34,8 +34,8 @@ public class PropertiesTimelineCacheLoader extends AbstractPropertiesCacheLoader
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesTimelineCacheLoader.class);
 
-    public PropertiesTimelineCacheLoader(final EventStore store) {
-        super(store, Long.MAX_VALUE);
+    public PropertiesTimelineCacheLoader(final EventStore store, final long nbEventBeforePersiste) {
+        super(store, nbEventBeforePersiste);
     }
 
     @Override
@@ -45,6 +45,6 @@ public class PropertiesTimelineCacheLoader extends AbstractPropertiesCacheLoader
 
     @Override
     public PlatformContainer load(final PlatformTimelineKey key) throws Exception {
-        return loadProperties(key.getPlatformKey(), key.getTimestamp(), false);
+        return loadProperties(key.getPlatformKey(), key.getTimestamp());
     }
 }

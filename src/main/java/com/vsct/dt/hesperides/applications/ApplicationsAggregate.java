@@ -121,6 +121,6 @@ public class ApplicationsAggregate extends AbstractApplicationsAggregate {
 
     @Override
     public void regenerateCache() {
-        // TODO
+        // Nothing
     }
 }

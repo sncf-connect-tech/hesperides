@@ -98,6 +98,10 @@ public class VirtualApplicationsAggregate extends AbstractApplicationsAggregate 
         super.replay(stream, start, stop);
     }
 
+    public void replay(final String stream, final long start, final long stop, final long stopTimestamp) {
+        super.replay(stream, start, stop, stopTimestamp);
+    }
+
     @Override
     public void regenerateCache() {
         // Nothing

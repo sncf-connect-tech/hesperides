@@ -82,7 +82,7 @@ class PlatformRegistry implements PropertiesRegistryInterface, PlatformRegistryI
         this.propertiesCacheLoader = new PropertiesCacheLoader(store, nbEventBeforePersiste);
 
         this.cacheTimelineProperties = HesperidesCacheBuilder.newBuilder(configTimeLine, (key, value) -> ((PlatformContainer) value).getProperties().size())
-                .build(new PropertiesTimelineCacheLoader(store));
+                .build(new PropertiesTimelineCacheLoader(store, nbEventBeforePersiste));
 
         this.cache = HesperidesCacheBuilder.newBuilder(config)
                 .build(this.propertiesCacheLoader);

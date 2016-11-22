@@ -63,16 +63,17 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      *
      * @param key key
      * @param timestamp timestamp
-     * @param useSnapshot if read/write snapshot
      *
      * @return properties
      *
      * @throws Exception if not found.
      */
-    protected PlatformContainer loadProperties(final PlatformKey key, final long timestamp,
-                                               final boolean useSnapshot) throws Exception {
-        getLogger().debug("Load properties with key '{}' on timestamp '{}'.", key, timestamp);
-
+    protected PlatformContainer loadProperties(final PlatformKey key, final long timestamp) throws Exception {
+        if (timestamp == Long.MAX_VALUE) {
+            getLogger().debug("Load properties with key '{}'.", key);
+        } else {
+            getLogger().debug("Load properties with key '{}' on timestamp '{}'.", key, timestamp);
+        }
         // Redis key pattern to search all application platform
         final String redisKey = generateDbKey(key);
 
@@ -80,10 +81,12 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
         PlatformContainer propertiesBuilder;
         HesperidesSnapshotItem hesperidesSnapshotItem;
 
-        if (useSnapshot) {
+        if (timestamp == Long.MAX_VALUE) {
+            // In case of max value, we get last snapshot
             hesperidesSnapshotItem = store.findLastSnapshot(redisKey);
         } else {
-            hesperidesSnapshotItem = null;
+            hesperidesSnapshotItem = store.findSnapshot(redisKey, nbEventBeforePersiste,
+                    e -> e.getTimestamp() > timestamp);
         }
 
         if (hesperidesSnapshotItem == null
@@ -98,19 +101,20 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
         } else {
             propertiesBuilder = (PlatformContainer) hesperidesSnapshotItem.getSnapshot();
 
-            if (hesperidesSnapshotItem.getCurrentNbEvents() > hesperidesSnapshotItem.getNbEvents()) {
-                final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(
-                        store,
-                        propertiesBuilder.getPlatform(),
-                        propertiesBuilder.getProperties());
+            final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(
+                    store,
+                    propertiesBuilder.getPlatform(),
+                    propertiesBuilder.getProperties());
+            final long start = hesperidesSnapshotItem.getNbEvents();
+            final long stop = hesperidesSnapshotItem.getCurrentNbEvents();
 
-                final long start = hesperidesSnapshotItem.getNbEvents();
-                final long stop = hesperidesSnapshotItem.getCurrentNbEvents();
-
+            if (timestamp == Long.MAX_VALUE) {
                 virtualApplicationsAggregate.replay(redisKey, start, stop);
-
-                updatePropertiesContainer(propertiesBuilder, virtualApplicationsAggregate);
+            } else if (hesperidesSnapshotItem.getCurrentNbEvents() > hesperidesSnapshotItem.getNbEvents()) {
+                virtualApplicationsAggregate.replay(redisKey, start, stop, timestamp);
             }
+
+            updatePropertiesContainer(propertiesBuilder, virtualApplicationsAggregate);
         }
 
         // Can't return null !!!!
@@ -205,7 +209,7 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
             getLogger().debug("Load platform from store associate with key '{}'.", platformRedisKey);
 
             try {
-                currentPlatform = loadProperties(ptfKey, Long.MAX_VALUE, true);
+                currentPlatform = loadProperties(ptfKey, Long.MAX_VALUE);
             } catch (Exception e) {
                 e.printStackTrace();
                 currentPlatform = null;
