@@ -56,6 +56,7 @@ import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorApplicationAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAggregate;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
 import com.vsct.dt.hesperides.util.ManageableJedisConnection;
 import com.vsct.dt.hesperides.util.ManageableJedisConnectionInterface;
 import com.vsct.dt.hesperides.util.converter.ApplicationConverter;
@@ -284,17 +285,12 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         JmxReporter reporter = JmxReporter.forRegistry(environment.metrics()).build();
         reporter.start();
 
-        if(hesperidesConfiguration.getElasticSearchConfiguration().reindexOnStartup()) {
-            /* Reset the index */
-            fullIndexationResource.resetIndex();
-        }
-
         if (hesperidesConfiguration.getCacheConfiguration().isGenerateCaheOnStartup()) {
-            //LOGGER.info("Regenerate cache for template package.");
-            //new CacheGeneratorTemplatePackagesAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+            LOGGER.info("Regenerate cache for template package.");
+            new CacheGeneratorTemplatePackagesAggregate(eventStore, hesperidesConfiguration).regenerateCache();
 
-            //LOGGER.info("Regenerate cache for module.");
-            //new CacheGeneratorModuleAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+            LOGGER.info("Regenerate cache for module.");
+            new CacheGeneratorModuleAggregate(eventStore, hesperidesConfiguration).regenerateCache();
 
             LOGGER.info("Regenerate cache for application.");
             new CacheGeneratorApplicationAggregate(eventStore, hesperidesConfiguration).regenerateCache();
@@ -302,5 +298,9 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
             LOGGER.info("All cache were regenerated successfully.");
         }
 
+        if(hesperidesConfiguration.getElasticSearchConfiguration().reindexOnStartup()) {
+            /* Reset the index */
+            fullIndexationResource.resetIndex();
+        }
     }
 }
