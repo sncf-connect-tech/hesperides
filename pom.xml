@@ -25,7 +25,7 @@
 
     <groupId>com.vsct.dt</groupId>
     <artifactId>hesperides</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <properties>
         <dropwizard.version>0.7.0</dropwizard.version>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.github.spullara.mustache.java</groupId>
             <artifactId>compiler</artifactId>
-            <version>0.9.1</version>
+            <version>0.9.4</version>
         </dependency>
 
         <!-- Redis client -->
@@ -261,9 +261,9 @@
 			<url>http://nexus.socrate.vsct.fr:50080/nexus/content/repositories/dt-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-	<scm>
-		<connection>scm:git:git@gitlab.socrate.vsct.fr:dt/hesperides.git</connection>
-		<developerConnection>scm:git:git@gitlab.socrate.vsct.fr:dt/hesperides.git</developerConnection>
-		<tag>0.2.6.1</tag>
-	</scm>
+    <scm>
+        <connection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</connection>
+        <developerConnection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
 </project>

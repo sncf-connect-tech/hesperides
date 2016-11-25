@@ -36,7 +36,7 @@ import java.util.Set;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
-@JsonPropertyOrder({"name", "version", "working_copy"})
+@JsonPropertyOrder({"name", "version", "working_copy", "properties_path", "path", "instances"})
 public final class ApplicationModule {
     /**
      * This id is used to detect module updates when version or path is changed
@@ -122,5 +122,10 @@ public final class ApplicationModule {
         result = 31 * result + (workingCopy ? 1 : 0);
         result = 31 * result + path.hashCode();
         return result;
+    }
+
+    @JsonProperty("properties_path")
+    public String getPropertiesPath() {
+        return this.getPath() + "#" + this.getName() + "#" + this.getVersion() + "#" + (this.isWorkingCopy() ? "WORKINGCOPY" : "RELEASE");
     }
 }

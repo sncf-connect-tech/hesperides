@@ -67,6 +67,7 @@ import static org.mockito.Mockito.mock;
 
 /**
  * Created by william_montaz on 03/09/14.
+ * Updated by Tidiane SIDIBE on 09/11/2016
  */
 public class FilesTest {
 
@@ -230,6 +231,12 @@ public class FilesTest {
             - a property named property.with.dots (wich is a specific requirement not handled at first by MustacheJava
             - a property named property.with.html.escapable (to make sure content is html escaped !)
 
+            Cases added for whitespaces ignoring
+            - a property named property.with.whitespaces.at.start
+            - a property named property.with.whitespaces.at.end
+            - a property named property.with.whitespaces.at.everywhere
+            - a property named property.with.whitespaces.and.default (witch makes use of @default on property with whitespaces)
+
            The property content will rely on an instance property to make sure thoose are injected
            Properties will use comment to be sure thoose are removed for generation
 
@@ -238,7 +245,10 @@ public class FilesTest {
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
                 .withFilename("filename")
                 .withLocation("location")
-                .withContent("{{no_comment}}, {{content|comment for content}}, {{property.with.dots|some comment here}}, {{property.with.html.escapable|and comment here}}")
+                .withContent(
+                        "{{no_comment}}, {{content|comment for content}}, {{property.with.dots|some comment here}}, {{property.with.html.escapable|and comment here}}" +
+                        "You know what ? {{         property.with.whitespaces.at.start|@comment \"Spaces at start\"}}, {{property.with.whitespaces.at.end   |@comment \"Spaces at end\"}}, {{  property named property.with.whitespaces.at.everywhere  | @comment \"Spaces everywhere\"}} and {{  property.with.whitespaces.and.default      | @comment \"Spaces at start and end with default value\" @default \"This is my default value!\"}}"
+                )
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
@@ -250,7 +260,10 @@ public class FilesTest {
                 new KeyValueValorisation("no_comment", "OK"),
                 new KeyValueValorisation("content", "the instance name is {{name}}"),
                 new KeyValueValorisation("property.with.dots", "I am dotted"),
-                new KeyValueValorisation("property.with.html.escapable", "I use escapable chars \"'")
+                new KeyValueValorisation("property.with.html.escapable", "I use escapable chars \"'"),
+                new KeyValueValorisation("      property.with.whitespaces.at.start", "I have spaces at start"),
+                new KeyValueValorisation("property.with.whitespaces.at.end      ", "I have spaces at end"),
+                new KeyValueValorisation("  property named property.with.whitespaces.at.everywhere      ", "I have spaces everywhere")
         ), Sets.newHashSet());
 
         /*
@@ -306,7 +319,7 @@ public class FilesTest {
         /* ACTUAL CALL */
         String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
 
-        assertThat(content).isEqualTo("OK, the instance name is SUPER_INSTANCE, I am dotted, I use escapable chars \"'");
+        assertThat(content).isEqualTo("OK, the instance name is SUPER_INSTANCE, I am dotted, I use escapable chars \"'You know what ? I have spaces at start, I have spaces at end, I have spaces everywhere and This is my default value!");
 
     }
 

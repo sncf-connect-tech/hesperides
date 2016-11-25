@@ -534,6 +534,37 @@ public class PropertiesTest {
     }
 
     @Test
+    public void get_instance_model_should_ignore_whitespaces_on_properties_names(){
+        // The valuations, simple
+        Set<KeyValueValorisationData> kvp = Sets.newHashSet();
+
+        kvp.add(new KeyValueValorisationData("name1", "value of name without space on instance property name {{instance}}"));
+        kvp.add(new KeyValueValorisationData("name2", "value of name with a space at the start of instance property name {{ instance}}"));
+        kvp.add(new KeyValueValorisationData("name3", "value of name with spaces at start and end of instance property name {{  instance   }}"));
+
+        //The valuations, iterable
+        IterableValorisationData.IterableValorisationItemData item1 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("field1", "value with spaces {{  instance }}")));
+        IterableValorisationData.IterableValorisationItemData item2 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties2", Sets.newHashSet(new KeyValueValorisationData("field1", "value without spaces {{instance}}")));
+
+        IterableValorisationData iv1 = new IterableValorisationData("iterable1", Lists.newArrayList(item1, item2));
+
+        IterableValorisationData.IterableValorisationItemData item3 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("field1", "value with spaces {{ otherInstance}}"), new KeyValueValorisationData("field2", "value with spaces {{ otherInstance  }}")));
+        IterableValorisationData.IterableValorisationItemData item4 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties2", Sets.newHashSet(new KeyValueValorisationData("field1", "value with spaces {{  otherInstance  }}"), new KeyValueValorisationData("field2", "value without spaces {{otherInstance}}")));
+
+        IterableValorisationData iv2 = new IterableValorisationData("iterable2", Lists.newArrayList(item3, item4));
+
+        // The properties
+        PropertiesData properties = new PropertiesData(kvp, Sets.newHashSet(iv1, iv2));
+
+        // Instance model
+        InstanceModel model = properties.generateInstanceModel(null);
+
+        assertThat(model.getKeys().size()).isEqualTo(2);
+        assertThat(model.getKeys().contains(new KeyValuePropertyModel("instance", ""))).isTrue();
+        assertThat(model.getKeys().contains(new KeyValuePropertyModel("otherInstance", ""))).isTrue();
+    }
+
+    @Test
     public void get_instance_model_should_return_model_with_keys_refering_to_themselves(){
         //Create the properties
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
@@ -551,8 +582,6 @@ public class PropertiesTest {
         assertThat(model.getKeys().size()).isEqualTo(2);
         assertThat(model.getKeys().contains(new KeyValuePropertyModel("name3", ""))).isTrue();
         assertThat(model.getKeys().contains(new KeyValuePropertyModel("key2", ""))).isTrue();
-
-
     }
 
     @Test
@@ -596,4 +625,42 @@ public class PropertiesTest {
         assertThat(model.getKeys().contains(new KeyValuePropertyModel("key8", ""))).isTrue();
     }
 
+    @Test
+    public void get_instance_model_should_not_produce_instance_properties_when_global_properties_already_exists_ignoring_whitespaces(){
+        // Valuations, simple
+        Set<KeyValueValorisationData> kvp = Sets.newHashSet();
+
+        kvp.add(new KeyValueValorisationData("name1", "value with space at start {{ global}}"));
+        kvp.add(new KeyValueValorisationData("name2", "value with space at end {{global }}"));
+        kvp.add(new KeyValueValorisationData("name3", "value with space everywhere {{ global }}"));
+        kvp.add(new KeyValueValorisationData("name4", "value with instance {{instance}}"));
+        kvp.add(new KeyValueValorisationData("name5", "value with instance with some spaces {{ instance }}")); // normally already tested
+
+        //The valuations, iterable
+        IterableValorisationData.IterableValorisationItemData item1 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("field1", "value with spaces {{  otherInstance }}")));
+        IterableValorisationData.IterableValorisationItemData item2 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties2", Sets.newHashSet(new KeyValueValorisationData("field1", "value without spaces {{instance }}")));
+
+        IterableValorisationData iv1 = new IterableValorisationData("iterable1", Lists.newArrayList(item1, item2));
+
+        IterableValorisationData.IterableValorisationItemData item3 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("field1", "value with spaces {{ global}}"), new KeyValueValorisationData("field2", "value with spaces {{ global  }}")));
+        IterableValorisationData.IterableValorisationItemData item4 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties2", Sets.newHashSet(new KeyValueValorisationData("field1", "value with spaces {{  global  }}"), new KeyValueValorisationData("field2", "value without spaces {{global}}")));
+
+        IterableValorisationData iv2 = new IterableValorisationData("iterable2", Lists.newArrayList(item3, item4));
+
+        // Properties
+        PropertiesData properties = new PropertiesData(kvp, Sets.newHashSet(iv1, iv2));
+
+        // Global properties
+        Set<KeyValueValorisationData> globals = Sets.newHashSet();
+        globals.add(new KeyValueValorisationData("  global      ", "global value")); //a little bit exaggerated, but can't trust users ;)
+
+        // Get instance model with globals
+        InstanceModel model = properties.generateInstanceModel(globals);
+
+        assertThat(model.getKeys().size()).isEqualTo(2);
+        assertThat(model.getKeys().contains(new KeyValuePropertyModel("instance", ""))).isTrue();
+        assertThat(model.getKeys().contains(new KeyValuePropertyModel("otherInstance", ""))).isTrue();
+        assertThat(model.getKeys().contains(new KeyValuePropertyModel("global", ""))).isFalse();
+
+    }
 }
