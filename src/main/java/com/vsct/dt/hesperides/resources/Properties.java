@@ -25,10 +25,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.vsct.dt.hesperides.exception.runtime.*;
+import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
+import com.vsct.dt.hesperides.templating.models.Property;
+import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
+import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
+import com.vsct.dt.hesperides.templating.platform.ValorisationData;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
+import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 /**
@@ -57,13 +66,32 @@ public final class Properties {
     }
 
     public Properties makeCopyWithoutNullOrEmptyValorisations() {
+        // For key value properties
         Set<KeyValueValorisation> keyValuePropertiesCleaned = this.keyValueProperties
                 .stream()
                 .filter(kvp -> kvp.getValue() != null && !kvp.getValue().isEmpty())
                 .collect(Collectors.toSet());
 
-        //don't handle iterable properties for now
-        return new Properties(keyValuePropertiesCleaned, this.getIterableProperties());
+        // For iterable properties
+        // TODO : Update this when multiple level implementation is available.
+        Set<IterableValorisation> iterablePropertiesCleaned = Sets.newHashSet();
+        for (IterableValorisation valorisation : this.iterableProperties){
+            List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList();
+            for (IterableValorisation.IterableValorisationItem item : valorisation.getIterableValorisationItems()){
+                Set<Valorisation> values = Sets.newHashSet();
+                for (Valorisation value : item.getValues() ){
+                    KeyValueValorisation _value = (KeyValueValorisation)value;
+                    if ( !_value.getValue().isEmpty()){
+                        values.add(new KeyValueValorisation(_value.getName(), _value.getValue()));
+                    }
+                }
+                items.add(new IterableValorisation.IterableValorisationItem(item.getTitle(), values));
+            }
+            iterablePropertiesCleaned.add(new IterableValorisation(valorisation.getName(), items));
+        }
+
+        // cleaned
+        return new Properties(keyValuePropertiesCleaned, iterablePropertiesCleaned);
     }
 
     public Set<KeyValueValorisation> getKeyValueProperties() {

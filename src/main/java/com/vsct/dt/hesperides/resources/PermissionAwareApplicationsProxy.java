@@ -247,7 +247,7 @@ public class PermissionAwareApplicationsProxy implements Applications  {
         // This is for hidding password on iterable property level 1.
 
         // Iterable properties multiple level is not yet implemented
-        // TODO : Update this when multiple level implemetation is available.
+        // TODO : Update this when multiple level implementation is available.
 
         Set<IterableValorisationData> iterableProperties = Sets.newHashSet();
         Set<IterablePropertyModel> iterablePropertyModels = model.getIterableProperties();

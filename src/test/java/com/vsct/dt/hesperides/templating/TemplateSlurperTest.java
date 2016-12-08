@@ -79,6 +79,8 @@ public class TemplateSlurperTest {
         for (IterablePropertyModel iterableProperties : propertiesModel.getIterableProperties()) {
             assertEquals(2, iterableProperties.getFields().size());
         }
+
+        
     }
 
 
