@@ -128,7 +128,7 @@ public class HesperidesFilesResourceTest {
         HesperidesFile file1 = new HesperidesFile("the_template_namespace", "the_template_name", "/some/location", "some_filename1.sh", null);
         HesperidesFile file2 = new HesperidesFile("the_template_namespace", "the_template_name", "/some/location", "some_filename2.sh", null);
 
-        when(files.getLocations("my_app", "my_pltfm", "the_path", "my_module", "the_module_version", true, "my_instance")).thenReturn(Sets.newHashSet(file1, file2));
+        when(files.getLocations("my_app", "my_pltfm", "the_path", "my_module", "the_module_version", true, "my_instance", false)).thenReturn(Sets.newHashSet(file1, file2));
 
         FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace");
         FileListItem fileListItem2 = new FileListItem("/some/location/some_filename2.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace");
@@ -144,7 +144,7 @@ public class HesperidesFilesResourceTest {
         //Same as the one above, but use some special characters for url generation
         HesperidesFile file1 = new HesperidesFile("templates#techno#1.0#RELEASE", "name with spaces", "/some/location", "some_filename1.sh", null);
 
-        when(files.getLocations("my app", "my pltfm", "the path", "my#module", "the#module#version", true, "my instance")).thenReturn(Sets.newHashSet(file1));
+        when(files.getLocations("my app", "my pltfm", "the path", "my#module", "the#module#version", true, "my instance", false)).thenReturn(Sets.newHashSet(file1));
 
         FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance/name%20with%20spaces?isWorkingCopy=true&template_namespace=templates%23techno%231.0%23RELEASE");
 
@@ -179,7 +179,7 @@ public class HesperidesFilesResourceTest {
     @Test(expected = UniformInterfaceException.class)
     public void should_get_generated_file_for_application_platform_path_module_infos_instance_filename_with_isWorkingcopy_and_template_namespace_params() throws Exception {
 
-        when(files.getFile("some_app", "some_pltfm", "a_given_path", "module_name", "module_version", true, "the_instance_name", "the_template_namespace", "the_filename", model)).thenReturn("Ze file content");
+        when(files.getFile("some_app", "some_pltfm", "a_given_path", "module_name", "module_version", true, "the_instance_name", "the_template_namespace", "the_filename", model, false)).thenReturn("Ze file content");
 
         assertThat(withoutAuth("/files/applications/some_app/platforms/some_pltfm/a_given_path/module_name/module_version/instances/the_instance_name/the_filename")
                 .queryParam("isWorkingCopy", "true")
@@ -426,7 +426,7 @@ public class HesperidesFilesResourceTest {
                     module.isWorkingCopy(),
                     instance.getName(),
                     template.getNamespace(),
-                    template.getName(), model);
+                    template.getName(), model, false);
             fail("An error must be occure");
         } catch (MissingResourceException e) {
             assertThat(e.getMessage()).isEqualTo(String.format("Property 'prop1' in template '%s/%s' must be set.", template.getNamespace(), template.getName()));
@@ -507,7 +507,7 @@ public class HesperidesFilesResourceTest {
                     module.isWorkingCopy(),
                     instance.getName(),
                     template.getNamespace(),
-                    template.getName(), model);
+                    template.getName(), model, false);
 
         assertThat(content).isEqualTo("prop1=\nprop2=truc machin chose");
     }
@@ -590,7 +590,7 @@ public class HesperidesFilesResourceTest {
                 module.isWorkingCopy(),
                 instance.getName(),
                 template.getNamespace(),
-                template.getName(), model);
+                template.getName(), model, false);
 
         assertThat(content).isEqualTo("test_instance=[][this_is_working]");
     }

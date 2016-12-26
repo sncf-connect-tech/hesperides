@@ -83,7 +83,7 @@ public class Files {
      * @param instanceName
      * @return
      */
-    public Set<HesperidesFile> getLocations(String applicationName, String platformName, String path, String moduleName, String moduleVersion, boolean isModuleWorkingCopy, String instanceName) {
+    public Set<HesperidesFile> getLocations(String applicationName, String platformName, String path, String moduleName, String moduleVersion, boolean isModuleWorkingCopy, String instanceName, Boolean simulate) {
 
         PlatformKey platformKey = PlatformKey.withName(platformName)
                 .withApplicationName(applicationName)
@@ -119,7 +119,7 @@ public class Files {
         }
 
         //Get the instance
-        InstanceData instance = applicationModule.getInstance(instanceName).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
+        InstanceData instance = applicationModule.getInstance(instanceName, simulate).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
 
         PropertiesData platformGlobalProperties = applications.getProperties(platformKey, "#");
 
@@ -230,7 +230,8 @@ public class Files {
                           boolean isModuleWorkingCopy,
                           String instanceName,
                           String templateNamespace,
-                          String templateName, HesperidesPropertiesModel model) {
+                          String templateName, HesperidesPropertiesModel model,
+                          Boolean simulate) {
 
         PlatformKey platformKey = PlatformKey.withName(platformName)
                 .withApplicationName(applicationName)
@@ -248,7 +249,7 @@ public class Files {
         ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
 
         //Get the instance
-        InstanceData instance = applicationModule.getInstance(instanceName).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
+        InstanceData instance = applicationModule.getInstance(instanceName, simulate).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
 
         Set<KeyValueValorisationData> hesperidesModulePredefinedScope = applicationModule.generateHesperidesPredefinedScope();
         hesperidesPlatformPredefinedScope.addAll(hesperidesModulePredefinedScope);
