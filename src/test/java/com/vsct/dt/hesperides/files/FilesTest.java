@@ -527,7 +527,7 @@ public class FilesTest {
         HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
 
         /* ACTUAL CALL */
-        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel);
+        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
 
         assertThat(content).isEqualTo(
                 "ferrari\n" +
@@ -602,7 +602,7 @@ public class FilesTest {
         HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
 
         /* ACTUAL CALL */
-        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel);
+        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
 
         // assertion is done on the @Test() annotation !
     }
@@ -672,7 +672,7 @@ public class FilesTest {
         HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
 
         /* ACTUAL CALL */
-        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel);
+        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
 
         // assertion is done on the @Test() annotation !
     }
