@@ -176,7 +176,7 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> fileSet = files.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> fileSet = files.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", false);
 
         assertThat(fileSet.size()).isEqualTo(3);
 
@@ -286,7 +286,7 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("OK, the instance name is SUPER_INSTANCE, I am dotted, I use escapable chars \"'You know what ? I have spaces at start, I have spaces at end, I have spaces everywhere and This is my default value!");
 
@@ -368,7 +368,7 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(globalProperties), 2L, comment);
 
         /* ACTUAL CALL */
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("global_property");
 
@@ -377,7 +377,7 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(emptyGlobalProperties), 3L, comment);
 
         /* ACTUAL CALL */
-        String content2 = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content2 = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content2).isEqualTo("local_property");
 
@@ -450,7 +450,7 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
         /* ACTUAL CALL */
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("ferrari\n" +
                 "300000\n" +
@@ -732,12 +732,12 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_app_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_app_name_the_pltfm_name_version");
 
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_app_name the_pltfm_name version");
     }
@@ -796,12 +796,12 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_module_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_module_name_the_module_version");
 
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = files.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_module_name the_module_version COMPONENT TECHNO");
     }
@@ -860,12 +860,12 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_instance_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_instance_name_location");
 
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = files.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_instance_name");
     }

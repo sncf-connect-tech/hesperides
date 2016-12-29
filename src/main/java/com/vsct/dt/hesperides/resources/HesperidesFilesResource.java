@@ -68,7 +68,8 @@ public class HesperidesFilesResource extends BaseResource {
                                           @PathParam("module_name") final String moduleName,
                                           @PathParam("module_version") final String moduleVersion,
                                           @PathParam("instance_name") final String instanceName,
-                                          @QueryParam("isWorkingCopy") final Boolean isWorkingCopy) throws Exception {
+                                          @QueryParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                          @QueryParam("simulate") final Boolean simulate) throws Exception {
 
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
@@ -78,7 +79,7 @@ public class HesperidesFilesResource extends BaseResource {
         checkQueryParameterNotEmpty("instance_name", instanceName);
         checkQueryParameterNotEmpty("isWorkingCopy", isWorkingCopy);
 
-        Set<HesperidesFile> locations = files.getLocations(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName);
+        Set<HesperidesFile> locations = files.getLocations(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, simulate == null ? false : simulate);
         return locations.stream().map(file -> {
             String url = null;
             try {
@@ -168,7 +169,8 @@ public class HesperidesFilesResource extends BaseResource {
                           @PathParam("instance_name") final String instanceName,
                           @PathParam("filename") final String filename,
                           @QueryParam("isWorkingCopy") final Boolean isWorkingCopy,
-                          @QueryParam("template_namespace") final String templateNamespace) throws Exception {
+                          @QueryParam("template_namespace") final String templateNamespace,
+                          @QueryParam("simulate") final Boolean simulate) throws Exception {
 
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
@@ -182,7 +184,7 @@ public class HesperidesFilesResource extends BaseResource {
 
         HesperidesPropertiesModel model = !isWorkingCopy ? this.moduleResource.getReleaseModel(user, moduleName, moduleVersion) : this.moduleResource.getWorkingCopyModel(user, moduleName, moduleVersion);
 
-        return files.getFile(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, templateNamespace, filename, model);
+        return files.getFile(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, templateNamespace, filename, model, simulate == null ? false : simulate);
     }
 
     private String getContentLocation(final String applicationName,
