@@ -28,11 +28,14 @@ import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
+import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
+import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.TemplateFileRights;
 import com.vsct.dt.hesperides.templating.TemplateRights;
+import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
@@ -42,11 +45,13 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -307,6 +312,7 @@ public class Files {
                 = modules.getModel(moduleKey).orElseThrow(() -> new MissingResourceException("Could not find module " + moduleKey));
         boolean exists;
 
+        // Taking care of key-value properties
         for (KeyValuePropertyModel kvpm : templateModel.getKeyValueProperties()) {
             exists = isInScope(kvpm.getName(), mustacheScope);
 
@@ -334,6 +340,48 @@ public class Files {
                 }
             }
         }
+
+        // Taking care of iterable properties
+        // TODO : Update this to make multiple level implementation available.
+        for (IterablePropertyModel itpm : templateModel.getIterableProperties()){
+            // Get the valuation for this
+            if (mustacheScope.keySet().contains(itpm.getName())){
+                ArrayList<MustacheScope> scopes = (ArrayList<MustacheScope>) mustacheScope.get(itpm.getName());
+
+                scopes.forEach(scope -> {
+
+                    itpm.getFields().forEach(p -> {
+                        // check if the property exists in scope.
+                        boolean _exists = isInScope(p.getName(), scope);
+
+                        // required but not existing
+                        if (!_exists && p.isRequired()){
+                            throw new MissingResourceException(String.format("Property '%s' in template '%s/%s' must be set.",
+                                    p.getName(), templateNamespace, templateName));
+                        }
+
+                        // has default value and not existing
+                        if (!_exists && StringUtils.isNotEmpty(p.getDefaultValue())){
+                            scope.put(p.getName(), p.getDefaultValue());
+                        }
+
+                        // has pattern
+                        if (StringUtils.isNotEmpty(p.getPattern())){
+                            // get the value
+                            String value = findProperty(p.getName(), scope);
+                            Pattern pattern = Pattern.compile(p.getPattern());
+                            Matcher matcher = pattern.matcher(value);
+                            if (!matcher.matches()){
+                                throw new MissingResourceException(String.format(
+                                        "Property '%s' in template '%s/%s' not match regular expression '%s'.",
+                                        p.getName(), templateNamespace, templateName, p.getPattern()));
+                            }
+                        }
+                    });
+                });
+            }
+        }
+
         return template;
     }
 
@@ -349,6 +397,7 @@ public class Files {
         boolean found = false;
 
         for (String kvv : mustacheScope.keySet()) {
+
             if (name.equals(kvv)) {
                 found = true;
                 break;
