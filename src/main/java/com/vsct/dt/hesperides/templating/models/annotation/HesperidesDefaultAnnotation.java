@@ -39,8 +39,6 @@ public class HesperidesDefaultAnnotation extends AbstractHesperidesAnnotation {
 
     @Override
     public boolean isValid() {
-        final String value = getValue();
-
-        return !(StringUtils.isEmpty(value) || StringUtils.isBlank(value));
+        return true;
     }
 }

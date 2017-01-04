@@ -98,12 +98,6 @@ public class PropertyTest {
         f.set(code, "codeName|Some comment @required");
         hesperidesProperty = new Property(code);
         assertThat(hesperidesProperty.isRequired()).isTrue();
-
-        code = new DefaultCode();
-        f.set(code, "codeName|@required @required");
-        hesperidesProperty = new Property(code);
-        assertThat(hesperidesProperty.isRequired()).isTrue();
-
     }
 
     @Test
@@ -146,12 +140,22 @@ public class PropertyTest {
 
         try {
             code = new DefaultCode();
+            f.set(code, "codeName|Some comment @required TRUE");
+            new Property(code);
+
+            fail("Need raise error");
+        } catch (ModelAnnotationException e) {
+            assertThat(e.getMessage()).isEqualTo("Annotation '@required' is not valid for property 'codeName': you probably provided a string value to an annotation that is simply a flag");
+        }
+
+        try {
+            code = new DefaultCode();
             f.set(code, "codeName|Some comment @default \"valeurParDefaut");
             new Property(code);
 
             fail("Need raise error");
         } catch (ModelAnnotationException e) {
-            assertThat(e.getMessage()).isEqualTo("Annotation '@default' is not valid for property 'codeName'. Please check it !");
+            assertThat(e.getMessage()).isEqualTo("Annotation '@default' for property 'codeName' cannot be empty");
         }
 
         try {
@@ -160,7 +164,7 @@ public class PropertyTest {
             new Property(code);
             fail("Need raise error");
         } catch (ModelAnnotationException e) {
-            assertThat(e.getMessage()).isEqualTo("Annotation '@default' is not valid for property 'codeName'. Please check it !");
+            assertThat(e.getMessage()).isEqualTo("Annotation '@default' for property 'codeName' cannot be empty");
         }
 
         try {
@@ -169,7 +173,7 @@ public class PropertyTest {
             new Property(code);
             fail("Need raise error");
         } catch (ModelAnnotationException e) {
-            assertThat(e.getMessage()).isEqualTo("Many annotation @default for property 'codeName'");
+            assertThat(e.getMessage()).isEqualTo("Duplicate annotations '@default' found for property 'codeName'");
         }
     }
 
@@ -207,7 +211,7 @@ public class PropertyTest {
             new Property(code);
             fail("Need raise error");
         } catch (ModelAnnotationException e) {
-            assertThat(e.getMessage()).isEqualTo("Many annotation @pattern for property 'codeName'");
+            assertThat(e.getMessage()).isEqualTo("Duplicate annotations '@pattern' found for property 'codeName'");
         }
     }
 
