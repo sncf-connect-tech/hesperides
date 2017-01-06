@@ -130,11 +130,12 @@ public class HesperidesFilesResourceTest {
 
         when(files.getLocations("my_app", "my_pltfm", "the_path", "my_module", "the_module_version", true, "my_instance", false)).thenReturn(Sets.newHashSet(file1, file2));
 
-        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace");
-        FileListItem fileListItem2 = new FileListItem("/some/location/some_filename2.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace");
+        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace&simulate=false");
+        FileListItem fileListItem2 = new FileListItem("/some/location/some_filename2.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace&simulate=false");
 
         assertThat(withoutAuth("/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance")
                 .queryParam("isWorkingCopy", "true")
+                .queryParam("simulate", "false")
                 .get(new GenericType<Set<FileListItem>>() {
         })).isEqualTo(Sets.newHashSet(fileListItem1, fileListItem2));
     }
@@ -146,10 +147,11 @@ public class HesperidesFilesResourceTest {
 
         when(files.getLocations("my app", "my pltfm", "the path", "my#module", "the#module#version", true, "my instance", false)).thenReturn(Sets.newHashSet(file1));
 
-        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance/name%20with%20spaces?isWorkingCopy=true&template_namespace=templates%23techno%231.0%23RELEASE");
+        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance/name%20with%20spaces?isWorkingCopy=true&template_namespace=templates%23techno%231.0%23RELEASE&simulate=false");
 
         assertThat(withoutAuth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance")
                 .queryParam("isWorkingCopy", "true")
+                .queryParam("simulate", "false")
                 .get(new GenericType<Set<FileListItem>>() {
                 })).isEqualTo(Sets.newHashSet(fileListItem1));
     }
