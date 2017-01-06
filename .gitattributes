@@ -1,0 +1,6 @@
+*.groovy text eol=lf -crlf
+*.java text eol=lf -crlf
+*.json text eol=lf -crlf
+*.mustache text eol=lf -crlf
+*.txt text eol=lf -crlf
+*.yml text eol=lf -crlf

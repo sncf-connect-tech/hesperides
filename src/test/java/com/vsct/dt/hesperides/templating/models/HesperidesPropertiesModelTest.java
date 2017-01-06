@@ -23,16 +23,24 @@ package com.vsct.dt.hesperides.templating.models;
 
 import com.cedarsoftware.util.DeepEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.MustacheFactory;
+import com.github.mustachejava.codes.DefaultMustache;
 import com.google.common.collect.Sets;
 import io.dropwizard.jackson.Jackson;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Set;
+
+import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
 
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
+
 
 /**
  * Created by william_montaz on 02/09/14.
@@ -73,8 +81,12 @@ public class HesperidesPropertiesModelTest {
     }
 
     @Test
-    public void shouldCreateModelFromCode() throws NoSuchFieldException, IllegalAccessException {
-        /* HARD to create mustache objetcs (constructors, private fields, etc...) */
+    public void shouldCreateModelFromCode() {
+        Property prop = createPropertyFromString("x|@default \"default\" @pattern \"pattern\" @password @comment \"comment\"");
+        assertThat("default").isEqualTo(prop.getDefaultValue());
+        assertThat("pattern").isEqualTo(prop.getPattern());
+        assertThat(prop.isPassword()).isTrue();
+        assertThat("comment").isEqualTo(prop.getComment());
     }
 
     @Test
@@ -105,5 +117,55 @@ public class HesperidesPropertiesModelTest {
         assertThat(merged).isEqualTo(afterMerge);
     }
 
+    @Test
+    public void requiredAndDefaultValueFail() {
+        try {
+            createPropertyFromString("x|@default \"DEFAULT\" @required");
+            failBecauseExceptionWasNotThrown(ModelAnnotationException.class);
+        } catch (ModelAnnotationException error) {
+            assertThat(error).hasMessage("Property 'x' canno't be @required and @default");
+        }
+    }
 
+    @Test
+    public void emptyDefaultOrPatternFail() {
+        try {
+            createPropertyFromString("x|@default \"\"");
+            failBecauseExceptionWasNotThrown(ModelAnnotationException.class);
+        } catch (ModelAnnotationException error) {
+            assertThat(error).hasMessage("Annotation '@default' for property 'x' cannot be empty");
+        }
+        try {
+            createPropertyFromString("x|@pattern \"\"");
+            failBecauseExceptionWasNotThrown(ModelAnnotationException.class);
+        } catch (ModelAnnotationException error) {
+            assertThat(error).hasMessage("Annotation '@pattern' for property 'x' cannot be empty");
+        }
+    }
+
+    @Test
+    public void duplicateAnnotationFail() {
+        try {
+            createPropertyFromString("x|@required @required");
+            failBecauseExceptionWasNotThrown(ModelAnnotationException.class);
+        } catch (ModelAnnotationException error) {
+            assertThat(error).hasMessage("Duplicate annotations '@required' found for property 'x'");
+        }
+    }
+
+    @Test
+    public void extraneousAnnotationValueFail() {
+        try {
+            createPropertyFromString("x|@required \"foo\"");
+            failBecauseExceptionWasNotThrown(ModelAnnotationException.class);
+        } catch (ModelAnnotationException error) {
+            assertThat(error).hasMessage("Annotation '@required' is not valid for property 'x': you probably provided a string value to an annotation that is simply a flag");
+        }
+    }
+
+    private Property createPropertyFromString(String template) {
+        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+        DefaultMustache defaultMustache = (DefaultMustache)mustacheFactory.compile(new StringReader(template), template);
+        return new Property(defaultMustache);
+    }
 }
