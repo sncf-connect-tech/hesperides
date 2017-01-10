@@ -27,14 +27,11 @@ package com.vsct.dt.hesperides.templating.models.annotation;
  * Created by emeric_martineau on 05/11/2015.
  */
 public interface HesperidesAnnotation {
-    /**
-     * Check if annotation is valid.
-     *
-     * @return true if valid.
-     */
-    boolean isValid();
+    boolean requireValue();
 
     String getValue();
+
+    void setValue(String value);
 
     String getName();
 }

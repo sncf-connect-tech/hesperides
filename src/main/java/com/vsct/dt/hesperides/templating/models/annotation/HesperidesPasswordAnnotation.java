@@ -21,26 +21,17 @@
 
 package com.vsct.dt.hesperides.templating.models.annotation;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Created by emeric_martineau on 05/11/2015.
  */
 public class HesperidesPasswordAnnotation extends AbstractHesperidesAnnotation {
-    /**
-     * Constructor.
-     *
-     * @param name  name of annotation
-     * @param value value of annotation
-     */
-    public HesperidesPasswordAnnotation(final String name, final String value) {
-        super(name, value);
+
+    public HesperidesPasswordAnnotation() {
+        super("password");
     }
 
     @Override
-    public boolean isValid() {
-        final String value = getValue();
-
-        return (StringUtils.isEmpty(value) || StringUtils.isBlank(value));
+    public boolean requireValue() {
+        return false;
     }
 }

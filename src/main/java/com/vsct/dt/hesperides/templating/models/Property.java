@@ -46,12 +46,12 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"name", "comment", "required", "defaultValue", "pattern"})
 public class Property {
-    private boolean password;
-    private String comment;
     private final String name;
-    private boolean required;
-    private String defaultValue;
-    private String pattern;
+    private boolean password = false;
+    private String comment = "";
+    private boolean required = false;
+    private String defaultValue = "";
+    private String pattern = "";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Property.class);
 
@@ -60,88 +60,79 @@ public class Property {
      * @param code : mustache code
      */
     public Property(final DefaultCode code) {
-        /* Bad but no other way for now */
-        /* TO DO BIG WARNING */
+        String[] fields = extractFields(code);
+
+        // We trim this for letting hesperides ignore the whitespaces on properties in the templates
+        // Ex. {{ db.user.login  }} should be treated as {{db.user.login}}
+        // This has impact to valorisation's name and mustache templates
+        this.name = fields[0].trim();
+
+        if (fields.length == 1) {
+            return;
+        }
+
+        List<HesperidesAnnotation> annotationList = extractAnnotations(fields[1], this.name);
+        for (HesperidesAnnotation annotation : annotationList) {
+            switch (annotation.getName()) {
+                case "comment" :
+                    if (!this.comment.equals("")) {
+                        throwDuplicateAnnotation("comment");
+                    }
+                    if (StringUtils.isBlank(annotation.getValue())) {
+                        throwEmptyNotAllowed("comment");
+                    }
+                    this.comment = annotation.getValue();
+                    break;
+                case "default" :
+                    if (this.required) {
+                        throwBothRequiredAndDefault();
+                    }
+                    if (!this.defaultValue.equals("")) {
+                        throwDuplicateAnnotation("default");
+                    }
+                    if (StringUtils.isBlank(annotation.getValue())) {
+                        throwEmptyNotAllowed("default");
+                    }
+                    this.defaultValue = annotation.getValue();
+                    break;
+                case "pattern" :
+                    if (!this.pattern.equals("")) {
+                        throwDuplicateAnnotation("pattern");
+                    }
+                    if (StringUtils.isBlank(annotation.getValue())) {
+                        throwEmptyNotAllowed("pattern");
+                    }
+                    this.pattern = annotation.getValue();
+                    break;
+                case "required" :
+                    if (!this.defaultValue.equals("")) {
+                        throwBothRequiredAndDefault();
+                    }
+                    if (this.required) {
+                        throwDuplicateAnnotation("required");
+                    }
+                    this.required = true;
+                    break;
+                case "password" :
+                    if (this.password) {
+                        throwDuplicateAnnotation("password");
+                    }
+                    this.password = true;
+                    break;
+                default:
+                    throw new ModelAnnotationException(
+                            String.format("Annotation '%s' is not managed by property but Hesperides know it !",
+                                    annotation.getName()));
+            }
+        }
+    }
+
+    private String[] extractFields(final DefaultCode code) {
         try {
             Field f = DefaultCode.class.getDeclaredField("name");
             f.setAccessible(true);
             String nameAndCommentString = (String) f.get(code);
-            String[] fields = nameAndCommentString.split("[|]", 2);
-
-            // We trim this for letting hesperides ignore the whitespaces on properties in the templates
-            // Ex. {{ db.user.login  }} should be treated as {{db.user.login}}
-            // This has impact to valorsiation's name and mustach templates
-            this.name = fields[0].trim();
-
-            // Second field can be comment (old way) or annotation (new way).
-            if (fields.length > 1) {
-
-                List<HesperidesAnnotation> annotationList = splitByAnnotation(fields[1], this.name, this.name.length());
-
-                for (HesperidesAnnotation annotation : annotationList) {
-                    if (!annotation.isValid()) {
-                        throw new ModelAnnotationException(
-                                String.format("Annotation '@%s' is not valid for property '%s': you probably provided a string value to an annotation that is simply a flag",
-                                        annotation.getName(), this.name));
-                    }
-
-                    switch (annotation.getName()) {
-                        case "default" :
-                            if (this.required) {
-                                throwBothRequiredAndDefault();
-                            }
-                            if (this.defaultValue != null) {
-                                throwDuplicateAnnotation(annotation.getName());
-                            }
-                            if (StringUtils.isBlank(annotation.getValue())) {
-                                throwEmptyNotAllowed("default");
-                            }
-                            this.defaultValue = annotation.getValue();
-                            break;
-                        case "pattern" :
-                            if (this.pattern != null) {
-                                throwDuplicateAnnotation(annotation.getName());
-                            }
-                            if (StringUtils.isBlank(annotation.getValue())) {
-                                throwEmptyNotAllowed("pattern");
-                            }
-                            this.pattern = annotation.getValue();
-                            break;
-                        case "required" :
-                            if (this.defaultValue != null) {
-                                throwBothRequiredAndDefault();
-                            }
-                            if (this.required) {
-                                throwDuplicateAnnotation(annotation.getName());
-                            }
-                            this.required = true;
-                            break;
-                        case "password" :
-                            if (this.password) {
-                                throwDuplicateAnnotation(annotation.getName());
-                            }
-                            this.password = true;
-                            break;
-                        case "comment" :
-                            manageComment(annotation);
-                            break;
-                        default:
-                            throw new ModelAnnotationException(
-                                    String.format("Annotation '%s' is not managed by property but Hesperides know it !",
-                                            annotation.getName()));
-                    }
-                }
-            } else {
-                this.comment = "";
-            }
-
-            if (this.defaultValue == null) {
-                this.defaultValue = "";
-            }
-
-            if (this.pattern == null) {
-                this.pattern = "";
-            }
+            return nameAndCommentString.split("[|]", 2);
         } catch (final IllegalAccessException | NoSuchFieldException e) {
             LOGGER.debug(e.toString());
             throw new RuntimeException(e);
@@ -182,283 +173,137 @@ public class Property {
     }
 
     /**
-     * Manage comment annotation.
+     * Extract annotations.
      *
-     * @param annotation annotation
-     */
-    private void manageComment(final HesperidesAnnotation annotation) {
-        String comment = annotation.getValue();
-
-        if (StringUtils.isNotBlank(comment)) {
-            if (this.comment != null) {
-                throw new ModelAnnotationException(String.format("Many annotation @comment for property '%s'", this.name));
-            }
-
-            this.comment = annotation.getValue().trim();
-        }
-    }
-
-    /**
-     * Get all annotation.
-     *
-     * @param str string after name of property
+     * @param fieldContent string after name of property
      * @param propertyName property name
-     * @param offset start position
      *
      * @return list of annotation
      */
-    static List<HesperidesAnnotation> splitByAnnotation(final String str, final String propertyName,
-                                                        final int offset) {
-        final List<HesperidesAnnotation> result = new ArrayList<>();
+    private static List<HesperidesAnnotation> extractAnnotations(String fieldContent, final String propertyName) {
+        final List<HesperidesAnnotation> extractedAnnotations = new ArrayList<>();
 
-        // Search '@' char but escape in string "" or ''
+        fieldContent = extractOldStyleComments(extractedAnnotations, fieldContent, propertyName);
 
-        final int len = str.length();
-        // Indicate first annotation position. -1 Mean that not init.
-        int lastAnnotationPos = -1;
-        // Current char
-        char currentChar;
-
-        // Current annotation name
-        TemporaryValueProperty annotation;
-        // Value of annotation
-        TemporaryValueProperty value;
+        final int len = fieldContent.length();
+        int currentWordStartingPos = -1;
 
         for (int index = 0; index < len; index++) {
-            currentChar = str.charAt(index);
-
-            if (currentChar == '@') {
-                // Not initiate
-                if (lastAnnotationPos == -1) {
-                    // We initiate it
-                    lastAnnotationPos = index;
-
-                    // Copy data like comment
-                    result.add(new HesperidesCommentAnnotation(str.substring(0, index)));
+            final char currentChar = fieldContent.charAt(index);
+            if (Character.isWhitespace(currentChar)) {
+                if (currentWordStartingPos != -1) {
+                    index += addAnnotation(extractedAnnotations, fieldContent.substring(currentWordStartingPos, index), fieldContent.substring(index, len), propertyName);
+                    currentWordStartingPos = -1;
                 }
-
-                // Old annotations can have email in comment
-                if (!isAnnotationValid(str, len, index)) {
-                    continue;
-                }
-
-                // Because before we have simple comment, we need check is not email address :-(
-                annotation = grabAnnotationName(str, len, index);
-
-                index += annotation.length();
-
-                // We are in annotation and data start by single or double quote.
-                value = grabAnnotationValue(str, len, index);
-
-                if (value == null) {
-                    // Error
-                    throw new ModelAnnotationException(
-                            String.format("Invalid parameter at %d for property '%s' with annotation '%s'!",
-                                    offset + index, propertyName, annotation));
-                }
-
-                HesperidesAnnotation annotationObj = HesperidesAnnotationConstructor.createAnnotationObject(
-                        annotation.getValue(), value.getValue());
-
-                index += value.length();
-
-                if (annotationObj == null) {
-                    if (result.size() == 1 && result.get(0) instanceof HesperidesCommentAnnotation) {
-                        result.remove(0);
-
-                        continue;
-                    }
-
-                    throw new ModelAnnotationException(
-                            String.format("Invalid annotation name at %d for property '%s' with annotation '%s' !",
-                                    offset + index, propertyName, annotation.getValue()));
-                }
-
-                result.add(annotationObj);
+            } else if (currentWordStartingPos == -1) {
+                currentWordStartingPos = index;
             }
         }
-
-        if (result.isEmpty()) {
-            // Copy data like comment
-            result.add(new HesperidesCommentAnnotation(str));
+        if (currentWordStartingPos != -1) {
+            addAnnotation(extractedAnnotations, fieldContent.substring(currentWordStartingPos, len), "", propertyName);
         }
 
-        return result;
+        if (extractedAnnotations.isEmpty()) {
+            throw new ModelAnnotationException(
+                    String.format("Property '%s' has a second field without any annotation", propertyName));
+        }
+
+        return extractedAnnotations;
     }
 
-    /**
-     * Check if it's an email address.
-     *
-     * @param str string after name of property
-     * @param len len string
-     * @param arobasePos arobase position
-     *
-     * @return true/false
-     */
-    private static boolean isAnnotationValid(final String str, final int len, final int arobasePos) {
-        // 1 - Check if before '@' found white space
-        if (arobasePos > 0 && !Character.isWhitespace(str.charAt(arobasePos - 1))) {
-            // Is not annotation
-            return false;
+    private static String extractOldStyleComments(final List<HesperidesAnnotation> extractedAnnotations, final String fieldContent, final String propertyName) {
+        final int len = fieldContent.length();
+        int index = 0;
+        while (index < len && Character.isWhitespace(fieldContent.charAt(index))) {
+            index++;
         }
-
-        if (arobasePos == len - 1) {
-            // Last char !
-            return false;
-        }
-
-        char currentChar;
-
-        // 2 - Found first whitespace
-        for (int index = arobasePos + 1; index < len; index++) {
-            // Annotation must be [a-zA-Z]
-            currentChar = str.charAt(index);
-
-            // If not A-Z or a-z break
-            if (!((currentChar > 0x40 && currentChar < 0x5B) || (currentChar > 0x60 && currentChar < 0x7B))) {
-                if (Character.isWhitespace(currentChar)) {
+        if (index < len && fieldContent.charAt(index) != '@') {
+            HesperidesCommentAnnotation commentAnnotation = new HesperidesCommentAnnotation();
+            int currentChar = fieldContent.charAt(index);
+            final int firstNonBlankCharIndex = index;
+            index++;
+            int lastNonBlankCharIndex = index;
+            while (index < len) {
+                final char nextChar = fieldContent.charAt(index);
+                if (Character.isWhitespace(currentChar) && nextChar == '@') { // stop comment when annotation start, but handle emails cases: toto@gouv.fr
                     break;
                 }
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Get value of annotation.
-     *
-     * @param str string
-     * @param len len string
-     * @param start position to start
-     *
-     * @return substring of str or empty string if no parameter. If null this is an error.
-     */
-    private static TemporaryValueProperty grabAnnotationValue(String str, int len, int start) {
-        if (start >= len) {
-            return new TemporaryValueProperty(null, 0);
-        }
-
-        // Skip blank
-        int startNonBlank = skipWhitespace(str, len, start);
-        char currentChar;
-
-        if (startNonBlank < (len - 1)) {
-            currentChar = str.charAt(startNonBlank);
-        } else {
-            currentChar = '\0';
-        }
-
-        if (currentChar == '@') {
-            // Is new annotation, stop.
-            return new TemporaryValueProperty("", 0);
-        }
-        if (currentChar == '"' || currentChar == '\'') {
-            return copyProtectedString(str, len, startNonBlank);
-        }
-        return copyFirstWord(str, len, startNonBlank);
-    }
-
-    /**
-     * Get protected string by simple or double quote.
-     *
-     * @param str string
-     * @param len len string
-     * @param start position to start
-     *
-     * @return substring of str without protection and escape char.
-     */
-    private static TemporaryValueProperty copyProtectedString(final String str, final int len, final int start) {
-        final char protectedChar = str.charAt(start);
-        StringBuilder sb = new StringBuilder(len - start);
-
-        for (int index = start + 1; index < len; index++) {
-            char currentChar = str.charAt(index);
-
-            if (currentChar == '\\') {
-                // Escape char
+                currentChar = nextChar;
                 index++;
-
-                // check if out of bound. For exemple -> "truc \
-                if (index < len) {
-                    sb.append(str.charAt(index));
+                if (!Character.isWhitespace(currentChar)) {
+                    lastNonBlankCharIndex = index;
                 }
-            } else if (currentChar == protectedChar) {
-                return new TemporaryValueProperty(sb.toString(), index - start);
-            } else {
-                sb.append(str.charAt(index));
+            }
+            commentAnnotation.setValue(fieldContent.substring(firstNonBlankCharIndex, lastNonBlankCharIndex));
+            extractedAnnotations.add(commentAnnotation);
+        }
+        return fieldContent.substring(index, len);
+    }
+
+    private static int addAnnotation(final List<HesperidesAnnotation> extractedAnnotations, String annotationName, final String remainingFieldContent, final String propertyName) {
+        if (annotationName.charAt(0) != '@') {
+            throw new ModelAnnotationException(
+                    String.format("Invalid annotation: expected character '@' but found '%s' for property '%s'", annotationName, propertyName));
+        }
+        annotationName = annotationName.substring(1, annotationName.length());
+        int offset = 0;
+        HesperidesAnnotation newAnnotation = HesperidesAnnotationConstructor.createAnnotationObject(annotationName, propertyName);
+        if (newAnnotation.requireValue()) {
+            AnnotationValue annotationValue = extractValueFromString(remainingFieldContent, annotationName, propertyName);
+            offset += annotationValue.endPosition;
+            newAnnotation.setValue(annotationValue.content);
+        }
+        extractedAnnotations.add(newAnnotation);
+        return offset;
+    }
+
+    private static AnnotationValue extractValueFromString(String remainingFieldContent, final String annotationName, final String propertyName) {
+        int firstNonBlankCharIndex = 0;
+        while (firstNonBlankCharIndex < remainingFieldContent.length() && Character.isWhitespace(remainingFieldContent.charAt(firstNonBlankCharIndex))) {
+            firstNonBlankCharIndex++;
+        }
+        if (firstNonBlankCharIndex == remainingFieldContent.length()) {
+            throw new ModelAnnotationException(
+                    String.format("Empty annotation '%s' in property '%s'", annotationName, propertyName));
+        }
+        final char firstNonBlankChar = remainingFieldContent.charAt(firstNonBlankCharIndex);
+        int index = firstNonBlankCharIndex + 1;
+        if (firstNonBlankChar != '"' && firstNonBlankChar != '\'') {
+            // Simple case: we look for the next whitespace character
+            while (index < remainingFieldContent.length() && !Character.isWhitespace(remainingFieldContent.charAt(index))) {
+                index++;
+            }
+            return new AnnotationValue(index, remainingFieldContent.substring(firstNonBlankCharIndex, index));
+        }
+        // Complex case: we have a value enclosed between " or '
+        boolean closingQuoteFound = false;
+        while (index < remainingFieldContent.length()) {
+            final char currentChar = remainingFieldContent.charAt(index);
+            index++;
+            if (currentChar == firstNonBlankChar) {
+                closingQuoteFound = true;
+                break;
+            } else if (currentChar == '\\' && index < remainingFieldContent.length() && remainingFieldContent.charAt(index) == firstNonBlankChar) {
+                // Tricky case of the escaped quote: not only do we want to go on reading the string, we also want to remove the backslash
+                final int len = remainingFieldContent.length();
+                remainingFieldContent = remainingFieldContent.substring(0, index - 1) + remainingFieldContent.substring(index, len);
             }
         }
-
-        return new TemporaryValueProperty(null, len - start);
-    }
-
-    /**
-     * Skip white space.
-     *
-     * @param str string
-     * @param len len string
-     * @param start position to start
-     *
-     * @return position of first non space char.
-     */
-    private static int skipWhitespace(final String str, final int len, final int start) {
-        int index;
-        // After annotation, we have whitespace.
-        boolean skipFirstWhitespace = true;
-
-        for (index = start; index < len && skipFirstWhitespace; index++) {
-            // Search blank char
-            skipFirstWhitespace = Character.isWhitespace(str.charAt(index));
+        if (!closingQuoteFound) {
+            throw new ModelAnnotationException(
+                    String.format("Non-closing '%s'-escaped value found for annotation '%s' in property '%s'", firstNonBlankChar, annotationName, propertyName));
         }
-
-        // Must decrement to have right position
-        return --index;
+        return new AnnotationValue(index, remainingFieldContent.substring(firstNonBlankCharIndex + 1, index - 1));
     }
 
-    /**
-     * Get annotation.
-     *
-     * @param str string
-     * @param len len string
-     * @param start position to start
-     *
-     * @return substring of str
-     */
-    private static TemporaryValueProperty grabAnnotationName(final String str, final int len, final int start) {
-        final TemporaryValueProperty tmp = copyFirstWord(str, len, start);
-        final String val = tmp.getValue().trim();
+    private static class AnnotationValue {
+        final int endPosition;
+        final String content;
 
-        return new TemporaryValueProperty(val, tmp.length());
-    }
-
-    /**
-     * Copy first word.
-     *
-     * @param str string
-     * @param len len string
-     * @param start position to start
-     *
-     * @return substring of str
-     */
-    private static TemporaryValueProperty copyFirstWord(final String str, final int len, final int start) {
-        // In fact, never return null cause @ is copied.
-        String result = null;
-        // Last char
-        final int lastCharPos = len - 1;
-
-        for (int index = start; index < len && result == null; index++) {
-            // Search blank char or if is last char
-            if (Character.isWhitespace(str.charAt(index))) {
-                result = str.substring(start, index);
-            } else if (index == lastCharPos) {
-                result = str.substring(start, index + 1);
-            }
+        private AnnotationValue(int endPosition, String content) {
+            this.endPosition = endPosition;
+            this.content = content;
         }
-
-        return new TemporaryValueProperty(result, result == null ? 0 : result.length());
     }
 
     public final String getName() {

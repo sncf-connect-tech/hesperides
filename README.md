@@ -54,4 +54,4 @@ To execute all the JUnit tests:
 
 To execute a single one:
 
-    mvn -Dtest=HesperidesPropertiesModelTest#shouldCreateModelFromCode test
+    mvn -Dtest=PropertyModelTest#shouldCreateModelFromCode test

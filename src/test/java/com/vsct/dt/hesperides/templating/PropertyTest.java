@@ -19,12 +19,13 @@
  *
  */
 
-package com.vsct.dt.hesperides.applications;
+package com.vsct.dt.hesperides.templating;
 
 import com.cedarsoftware.util.DeepEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.resources.IterableValorisation;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.Properties;
@@ -44,14 +45,9 @@ import java.util.Set;
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 
-/**
- * Created by william_montaz on 16/01/2015.
- */
-public class PropertiesTest {
+
+public class PropertyTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 

@@ -26,27 +26,12 @@ package com.vsct.dt.hesperides.templating.models.annotation;
  */
 public class HesperidesCommentAnnotation extends AbstractHesperidesAnnotation {
 
-    /**
-     * Constructor.
-     *
-     * @param value value of annotation
-     */
-    public HesperidesCommentAnnotation(final String value) {
-        super("comment", value);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param name  name of annotation
-     * @param value value of annotation
-     */
-    public HesperidesCommentAnnotation(final String name, final String value) {
-        super(name, value);
+    public HesperidesCommentAnnotation() {
+        super("comment");
     }
 
     @Override
-    public boolean isValid() {
+    public boolean requireValue() {
         return true;
     }
 }

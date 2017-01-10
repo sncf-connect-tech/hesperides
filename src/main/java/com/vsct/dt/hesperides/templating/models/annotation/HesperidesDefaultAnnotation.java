@@ -27,18 +27,13 @@ import org.apache.commons.lang.StringUtils;
  * Created by emeric_martineau on 05/11/2015.
  */
 public class HesperidesDefaultAnnotation extends AbstractHesperidesAnnotation {
-    /**
-     * Constructor.
-     *
-     * @param name  name of annotation
-     * @param value value of annotation
-     */
-    public HesperidesDefaultAnnotation(final String name, final String value) {
-        super(name, value);
+
+    public HesperidesDefaultAnnotation() {
+        super("default");
     }
 
     @Override
-    public boolean isValid() {
+    public boolean requireValue() {
         return true;
     }
 }

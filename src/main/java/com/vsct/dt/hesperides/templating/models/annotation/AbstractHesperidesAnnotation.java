@@ -27,42 +27,26 @@ package com.vsct.dt.hesperides.templating.models.annotation;
  * Created by emeric_martineau on 05/11/2015.
  */
 public abstract class AbstractHesperidesAnnotation implements HesperidesAnnotation {
-    /**
-     * Value of annotation (parameter).
-     */
-    private final String value;
 
-    /**
-     * Name of annotation.
-     */
     private final String name;
+    private String value;
 
-    /**
-     * Constructor.
-     *
-     * @param name name of annotation
-     * @param value value of annotation
-     */
-    public AbstractHesperidesAnnotation(final String name, final String value) {
-        this.value = value;
+
+    public AbstractHesperidesAnnotation(final String name) {
         this.name = name;
     }
 
-    /**
-     * Getter of value.
-     *
-     * @return value
-     */
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+
     @Override
     public String getValue() {
         return value;
     }
 
-    /**
-     * Getter of name.
-     *
-     * @return name
-     */
+
     @Override
     public String getName() {
         return name;
