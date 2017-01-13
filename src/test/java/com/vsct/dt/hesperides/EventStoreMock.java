@@ -21,14 +21,12 @@
 
 package com.vsct.dt.hesperides;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.vsct.dt.hesperides.storage.Event;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.StoreReadingException;
 import com.vsct.dt.hesperides.storage.UserInfo;
-import io.dropwizard.jackson.Jackson;
 
 import java.util.List;
 import java.util.Set;
