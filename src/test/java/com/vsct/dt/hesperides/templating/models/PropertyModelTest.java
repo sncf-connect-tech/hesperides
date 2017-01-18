@@ -199,6 +199,16 @@ public class PropertyModelTest {
         }
     }
 
+    @Test
+    public void invalidPatternFail() {
+        try {
+            createPropertyFromString("x|@pattern [");
+            failBecauseExceptionWasNotThrown(ModelAnnotationException.class);
+        } catch (ModelAnnotationException error) {
+            assertThat(error).hasMessageStartingWith("Invalid @pattern '[' : Unclosed character class near index 0");
+        }
+    }
+
     private Property createPropertyFromString(String template) {
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         DefaultMustache defaultMustache = (DefaultMustache)mustacheFactory.compile(new StringReader(template), template);
