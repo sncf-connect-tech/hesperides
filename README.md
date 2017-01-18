@@ -41,9 +41,17 @@ $ java -jar hesperides-1.0.0-SNAPSHOT.jar server PATH_TO_YOUR_HESPERIDES_YML_FIL
 Documentation:
 =====
 
-Available online at <https://cdn.rawgit.com/voyages-sncf-technologies/hesperides-gui/master/docs/index.html>
+Available online at <https://voyages-sncf-technologies.github.io/hesperides-gui/>
 
 Development:
 =====
 
 Do you have changes to contribute? Please see the Development page.
+
+To execute all the JUnit tests:
+
+    mvn test
+
+To execute a single one:
+
+    mvn -Dtest=PropertyModelTest#shouldCreateModelFromCode test

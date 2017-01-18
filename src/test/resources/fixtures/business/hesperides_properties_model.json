@@ -4,8 +4,8 @@
             "name":"name",
             "comment":"some comment",
             "required":false,
-            "defaultValue":null,
-            "pattern":null,
+            "defaultValue":"",
+            "pattern":"",
             "password":false
         }
     ],
@@ -14,15 +14,15 @@
             "name":"iterable",
             "comment":"some comment",
             "required":false,
-            "defaultValue":null,
-            "pattern":null,
+            "defaultValue":"",
+            "pattern":"",
             "fields":[
                 {
                     "name":"name",
                     "comment":"comment",
                     "required":false,
-                    "defaultValue":null,
-                    "pattern":null,
+                    "defaultValue":"",
+                    "pattern":"",
                     "password":false
                 }
             ],

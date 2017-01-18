@@ -25,15 +25,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
+import com.vsct.dt.hesperides.exception.runtime.*;
+import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
+import com.vsct.dt.hesperides.templating.models.Property;
+import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
+import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
+import com.vsct.dt.hesperides.templating.platform.ValorisationData;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 /**
@@ -52,59 +56,9 @@ public final class Properties {
 
     @JsonCreator
     public Properties(@JsonProperty("key_value_properties") final Set<KeyValueValorisation> keyValueProperties,
-                      @JsonProperty("iterable_properties") final Set<IterableValorisation> iterableProperties) {
-        checkDuplicateKeyInSet(keyValueProperties);
-        checkDuplicateIterableSet(iterableProperties);
-
+            @JsonProperty("iterable_properties") final Set<IterableValorisation> iterableProperties) {
         this.keyValueProperties = Sets.newHashSet(keyValueProperties);
         this.iterableProperties = Sets.newHashSet(iterableProperties);
-    }
-
-    /**
-     * Check if duplicate key exists.
-     *
-     * @param iterableProperties set iterable properties
-     */
-    private static void checkDuplicateIterableSet(
-            final Set<IterableValorisation> iterableProperties) {
-
-        // Clear duplicate key
-        final Map<String, Valorisation> presentKeys = new HashMap<>();
-
-        iterableProperties.stream().forEach(prop -> {
-            if (presentKeys.containsKey(prop.getName())) {
-                throw new DuplicateResourceException(String.format("Duplicate input key '%s'", prop.getName()));
-            }
-
-            presentKeys.put(prop.getName(), prop);
-
-            prop.getIterableValorisationItems().stream().forEach(item -> {
-                checkDuplicateKeyInSet(item.getValues());
-            });
-        });
-    }
-
-    /**
-     * Check if duplicate key exists.
-     *
-     * @param keyValueProperties set of properties
-     */
-    private static void checkDuplicateKeyInSet(
-            final Set<? extends Valorisation> keyValueProperties) {
-        // Clear duplicate key
-        final Map<String, Valorisation> presentKeys = new HashMap<>();
-
-        keyValueProperties.stream().forEach(k -> {
-            if (k instanceof IterableValorisation) {
-                final IterableValorisation iv = (IterableValorisation) k;
-
-                checkDuplicateIterableSet(ImmutableSet.of(iv));
-            } else if (presentKeys.containsKey(k.getName())) {
-                throw new DuplicateResourceException(String.format("Duplicate input key '%s'", k.getName()));
-            }
-
-            presentKeys.put(k.getName(), k);
-        });
     }
 
     public static Properties empty() {
@@ -112,13 +66,32 @@ public final class Properties {
     }
 
     public Properties makeCopyWithoutNullOrEmptyValorisations() {
+        // For key value properties
         Set<KeyValueValorisation> keyValuePropertiesCleaned = this.keyValueProperties
                 .stream()
                 .filter(kvp -> kvp.getValue() != null && !kvp.getValue().isEmpty())
                 .collect(Collectors.toSet());
 
-        //don't handle iterable properties for now
-        return new Properties(keyValuePropertiesCleaned, this.getIterableProperties());
+        // For iterable properties
+        // TODO : Update this when multiple level implementation is available.
+        Set<IterableValorisation> iterablePropertiesCleaned = Sets.newHashSet();
+        for (IterableValorisation valorisation : this.iterableProperties){
+            List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList();
+            for (IterableValorisation.IterableValorisationItem item : valorisation.getIterableValorisationItems()){
+                Set<Valorisation> values = Sets.newHashSet();
+                for (Valorisation value : item.getValues() ){
+                    KeyValueValorisation _value = (KeyValueValorisation)value;
+                    if ( !_value.getValue().isEmpty()){
+                        values.add(new KeyValueValorisation(_value.getName(), _value.getValue()));
+                    }
+                }
+                items.add(new IterableValorisation.IterableValorisationItem(item.getTitle(), values));
+            }
+            iterablePropertiesCleaned.add(new IterableValorisation(valorisation.getName(), items));
+        }
+
+        // cleaned
+        return new Properties(keyValuePropertiesCleaned, iterablePropertiesCleaned);
     }
 
     public Set<KeyValueValorisation> getKeyValueProperties() {

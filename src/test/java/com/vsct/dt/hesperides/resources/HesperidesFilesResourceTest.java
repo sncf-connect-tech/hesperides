@@ -21,7 +21,6 @@
 
 package com.vsct.dt.hesperides.resources;
 
-import com.github.mustachejava.Code;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.TemplateContext;
 import com.github.mustachejava.codes.DefaultCode;
@@ -38,13 +37,12 @@ import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.files.HesperidesFile;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
@@ -127,15 +125,16 @@ public class HesperidesFilesResourceTest {
         HesperidesFile file1 = new HesperidesFile("the_template_namespace", "the_template_name", "/some/location", "some_filename1.sh", null);
         HesperidesFile file2 = new HesperidesFile("the_template_namespace", "the_template_name", "/some/location", "some_filename2.sh", null);
 
-        when(files.getLocations("my_app", "my_pltfm", "the_path", "my_module", "the_module_version", true, "my_instance")).thenReturn(Sets.newHashSet(file1, file2));
+        when(files.getLocations("my_app", "my_pltfm", "the_path", "my_module", "the_module_version", true, "my_instance", false)).thenReturn(Sets.newHashSet(file1, file2));
 
-        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace");
-        FileListItem fileListItem2 = new FileListItem("/some/location/some_filename2.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace");
+        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace&simulate=false");
+        FileListItem fileListItem2 = new FileListItem("/some/location/some_filename2.sh", "/rest/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance/the_template_name?isWorkingCopy=true&template_namespace=the_template_namespace&simulate=false");
 
         assertThat(withoutAuth("/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance")
                 .queryParam("isWorkingCopy", "true")
+                .queryParam("simulate", "false")
                 .get(new GenericType<Set<FileListItem>>() {
-        })).isEqualTo(Sets.newHashSet(fileListItem1, fileListItem2));
+                })).isEqualTo(Sets.newHashSet(fileListItem1, fileListItem2));
     }
 
     @Test
@@ -143,12 +142,13 @@ public class HesperidesFilesResourceTest {
         //Same as the one above, but use some special characters for url generation
         HesperidesFile file1 = new HesperidesFile("templates#techno#1.0#RELEASE", "name with spaces", "/some/location", "some_filename1.sh", null);
 
-        when(files.getLocations("my app", "my pltfm", "the path", "my#module", "the#module#version", true, "my instance")).thenReturn(Sets.newHashSet(file1));
+        when(files.getLocations("my app", "my pltfm", "the path", "my#module", "the#module#version", true, "my instance", false)).thenReturn(Sets.newHashSet(file1));
 
-        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance/name%20with%20spaces?isWorkingCopy=true&template_namespace=templates%23techno%231.0%23RELEASE");
+        FileListItem fileListItem1 = new FileListItem("/some/location/some_filename1.sh", "/rest/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance/name%20with%20spaces?isWorkingCopy=true&template_namespace=templates%23techno%231.0%23RELEASE&simulate=false");
 
         assertThat(withoutAuth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance")
                 .queryParam("isWorkingCopy", "true")
+                .queryParam("simulate", "false")
                 .get(new GenericType<Set<FileListItem>>() {
                 })).isEqualTo(Sets.newHashSet(fileListItem1));
     }
@@ -178,7 +178,7 @@ public class HesperidesFilesResourceTest {
     @Test(expected = UniformInterfaceException.class)
     public void should_get_generated_file_for_application_platform_path_module_infos_instance_filename_with_isWorkingcopy_and_template_namespace_params() throws Exception {
 
-        when(files.getFile("some_app", "some_pltfm", "a_given_path", "module_name", "module_version", true, "the_instance_name", "the_template_namespace", "the_filename", model)).thenReturn("Ze file content");
+        when(files.getFile("some_app", "some_pltfm", "a_given_path", "module_name", "module_version", true, "the_instance_name", "the_template_namespace", "the_filename", model, false)).thenReturn("Ze file content");
 
         assertThat(withoutAuth("/files/applications/some_app/platforms/some_pltfm/a_given_path/module_name/module_version/instances/the_instance_name/the_filename")
                 .queryParam("isWorkingCopy", "true")
@@ -355,7 +355,8 @@ public class HesperidesFilesResourceTest {
             assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         }
     }
-    
+
+    @Test
     public void should_return_404_if_getting_file_with_required_property() throws NoSuchFieldException, IllegalAccessException {
         PlatformKey platformKey = PlatformKey.withName("CUR1")
                 .withApplicationName("RAC")
@@ -412,6 +413,7 @@ public class HesperidesFilesResourceTest {
                 ImmutableSet.of());
 
         when(modulesAggregate.getModel(moduleKey)).thenReturn(Optional.of(templateModel));
+        when(applicationsAggregate.getSecuredProperties(any(), any(), any())).thenReturn(platformGlobalProperties);
 
         Files hesperidesFiles = new Files(applicationsAggregate, modulesAggregate, templatePackages);
 
@@ -425,7 +427,7 @@ public class HesperidesFilesResourceTest {
                     module.isWorkingCopy(),
                     instance.getName(),
                     template.getNamespace(),
-                    template.getName(), model);
+                    template.getName(), model, false);
             fail("An error must be occure");
         } catch (MissingResourceException e) {
             assertThat(e.getMessage()).isEqualTo(String.format("Property 'prop1' in template '%s/%s' must be set.", template.getNamespace(), template.getName()));
@@ -498,15 +500,15 @@ public class HesperidesFilesResourceTest {
 
 
         String content = hesperidesFiles.getFile(
-                    platformKey.getApplicationName(),
-                    platformKey.getName(),
-                    propertiesPath,
-                    moduleKey.getName(),
-                    module.getVersion(),
-                    module.isWorkingCopy(),
-                    instance.getName(),
-                    template.getNamespace(),
-                    template.getName(), model);
+                platformKey.getApplicationName(),
+                platformKey.getName(),
+                propertiesPath,
+                moduleKey.getName(),
+                module.getVersion(),
+                module.isWorkingCopy(),
+                instance.getName(),
+                template.getNamespace(),
+                template.getName(), model, false);
 
         assertThat(content).isEqualTo("prop1=\nprop2=truc machin chose");
     }
@@ -589,9 +591,159 @@ public class HesperidesFilesResourceTest {
                 module.isWorkingCopy(),
                 instance.getName(),
                 template.getNamespace(),
-                template.getName(), model);
+                template.getName(), model, false);
 
         assertThat(content).isEqualTo("test_instance=[][this_is_working]");
+    }
+
+    @Test
+    public void should_return_404_if_instance_name_wrong() throws NoSuchFieldException, IllegalAccessException {
+        PlatformKey platformKey = PlatformKey.withName("CUR1")
+                .withApplicationName("RAC")
+                .build();
+
+        // Appel 1
+        String propertiesPath = "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY";
+
+        InstanceData instance = InstanceData.withInstanceName("TOTO")
+                .withKeyValue(ImmutableSet.of())
+                .build();
+
+        ApplicationModuleData module = ApplicationModuleData.withApplicationName("EuronetWS")
+                .withVersion("1.0.0.0")
+                .withPath(propertiesPath)
+                .withId(1)
+                .withInstances(ImmutableSet.of(instance))
+                .isWorkingcopy()
+                .build();
+
+        PlatformData platform = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(ImmutableSet.of(module))
+                .withVersion(11L)
+                .build();
+
+        when(applicationsAggregate.getPlatform(platformKey)).thenReturn(Optional.of(platform));
+
+        // Appel 2 getProperties()
+        PropertiesData platformGlobalProperties = new PropertiesData(ImmutableSet.of(), ImmutableSet.of());
+
+        when(applicationsAggregate.getProperties(platformKey, "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY#EuronetWS#1.0.0.0#WORKINGCOPY")).thenReturn(platformGlobalProperties);
+        when(applicationsAggregate.getProperties(platformKey, "#")).thenReturn(platformGlobalProperties);
+
+        when(applicationsAggregate.getSecuredProperties(platformKey, "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY#EuronetWS#1.0.0.0#WORKINGCOPY", model)).thenReturn(platformGlobalProperties);
+        when(applicationsAggregate.getSecuredProperties(platformKey, "#", model)).thenReturn(platformGlobalProperties);
+
+        // Appel 3 modules.getTemplate()
+        String templateName = "TitiEtRominet";
+
+        Template template = new Template("modules#EuronetWS#1.0.0.0#WORKINGCOPY", templateName, "truc.txt",
+                "/tmp", "prop1={{prop1|@required}}\n" +
+                "prop2={{prop2|@default 'truc machin chose' @comment \"cool !\"}}", null, 2);
+
+        ModuleKey moduleKey = new ModuleKey(
+                "EuronetWS",
+                new HesperidesVersion("1.0.0.0", true));
+
+        when(modulesAggregate.getTemplate(moduleKey, templateName)).thenReturn(Optional.of(template));
+
+        // Appel 4 modules.getModel)
+        HesperidesPropertiesModel templateModel = new HesperidesPropertiesModel(ImmutableSet.of(), ImmutableSet.of());
+
+        when(modulesAggregate.getModel(moduleKey)).thenReturn(Optional.of(templateModel));
+
+        Files hesperidesFiles = new Files(applicationsAggregate, modulesAggregate, templatePackages);
+
+
+        try {
+            hesperidesFiles.getFile(
+                    platformKey.getApplicationName(),
+                    platformKey.getName(),
+                    propertiesPath,
+                    moduleKey.getName(),
+                    module.getVersion(),
+                    module.isWorkingCopy(),
+                    "AYA",
+                    template.getNamespace(),
+                    template.getName(), model, false);
+            fail("An error must be occure");
+        } catch (MissingResourceException e) {
+            assertThat(e.getMessage()).isEqualTo(String.format("There is no instance AYA in platform %s/%s", platformKey.getApplicationName(), platformKey.getName()));
+        }
+    }
+
+    @Test
+    public void should_not_return_404_if_instance_name_wrong_and_simulate_true() throws NoSuchFieldException, IllegalAccessException {
+        PlatformKey platformKey = PlatformKey.withName("CUR1")
+                .withApplicationName("RAC")
+                .build();
+
+        // Appel 1
+        String propertiesPath = "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY";
+
+        InstanceData instance = InstanceData.withInstanceName("TOTO")
+                .withKeyValue(ImmutableSet.of())
+                .build();
+
+        ApplicationModuleData module = ApplicationModuleData.withApplicationName("EuronetWS")
+                .withVersion("1.0.0.0")
+                .withPath(propertiesPath)
+                .withId(1)
+                .withInstances(ImmutableSet.of(instance))
+                .isWorkingcopy()
+                .build();
+
+        PlatformData platform = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(ImmutableSet.of(module))
+                .withVersion(11L)
+                .build();
+
+        when(applicationsAggregate.getPlatform(platformKey)).thenReturn(Optional.of(platform));
+
+        // Appel 2 getProperties()
+        PropertiesData platformGlobalProperties = new PropertiesData(ImmutableSet.of(), ImmutableSet.of());
+
+        when(applicationsAggregate.getProperties(platformKey, "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY#EuronetWS#1.0.0.0#WORKINGCOPY")).thenReturn(platformGlobalProperties);
+        when(applicationsAggregate.getProperties(platformKey, "#")).thenReturn(platformGlobalProperties);
+
+        when(applicationsAggregate.getSecuredProperties(platformKey, "#WAS#EuronetWS#1.0.0.0#WORKINGCOPY#EuronetWS#1.0.0.0#WORKINGCOPY", model)).thenReturn(platformGlobalProperties);
+        when(applicationsAggregate.getSecuredProperties(platformKey, "#", model)).thenReturn(platformGlobalProperties);
+
+        // Appel 3 modules.getTemplate()
+        String templateName = "TitiEtRominet";
+
+        Template template = new Template("modules#EuronetWS#1.0.0.0#WORKINGCOPY", templateName, "truc.txt",
+                "/tmp", "{{hesperides.instance.name}}", null, 2);
+
+        ModuleKey moduleKey = new ModuleKey(
+                "EuronetWS",
+                new HesperidesVersion("1.0.0.0", true));
+
+        when(modulesAggregate.getTemplate(moduleKey, templateName)).thenReturn(Optional.of(template));
+
+        // Appel 4 modules.getModel)
+        HesperidesPropertiesModel templateModel = new HesperidesPropertiesModel(ImmutableSet.of(), ImmutableSet.of());
+
+        when(modulesAggregate.getModel(moduleKey)).thenReturn(Optional.of(templateModel));
+
+        Files hesperidesFiles = new Files(applicationsAggregate, modulesAggregate, templatePackages);
+
+        String simulateInstanceName = "test_hesperides_instance_name_in_fake_instance";
+
+        String content = hesperidesFiles.getFile(
+                platformKey.getApplicationName(),
+                platformKey.getName(),
+                propertiesPath,
+                moduleKey.getName(),
+                module.getVersion(),
+                module.isWorkingCopy(),
+                simulateInstanceName,
+                template.getNamespace(),
+                template.getName(), model, true);
+        assertThat(content).isEqualTo(simulateInstanceName);
     }
 
     private static final ValueCode createProperty(final String value) throws NoSuchFieldException, IllegalAccessException {

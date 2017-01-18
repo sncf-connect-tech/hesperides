@@ -120,9 +120,9 @@ public class MustacheScope implements Map<String, Object> {
                 return this;
             }
 
-            Set<ValorisationData> injectedValorisations = valorisations.stream().map(valorisation -> {
-                return valorisation.inject(injectedValues);
-            }).collect(Collectors.toSet());
+            Set<ValorisationData> injectedValorisations = valorisations.stream().map(valorisation ->
+                valorisation.inject(injectedValues)
+            ).collect(Collectors.toSet());
 
             return new InjectableMustacheScope(injectedValorisations);
         }

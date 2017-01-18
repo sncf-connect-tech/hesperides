@@ -167,13 +167,21 @@ public class ApplicationModuleData {
         return predefinedScope;
     }
 
-    public Optional<InstanceData> getInstance(String instanceName){
+    public Optional<InstanceData> getInstance(String instanceName, Boolean simulate_empty){
         for(InstanceData instance : instances){
             if(instance.getName().equals(instanceName)){
                 return Optional.of(instance);
             }
         }
+        if (simulate_empty) {
+            return Optional.of(InstanceData.withInstanceName(instanceName).withKeyValue(new HashSet<>()).build());
+        }
         return Optional.empty();
+    }
+
+
+    public Optional<InstanceData> getInstance(String instanceName){
+        return getInstance(instanceName, false);
     }
 
     public static IVersion withApplicationName(final String name) {

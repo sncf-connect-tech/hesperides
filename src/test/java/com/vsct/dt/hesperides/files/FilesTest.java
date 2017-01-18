@@ -30,6 +30,7 @@ import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
 import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
+import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.resources.IterableValorisation;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.Properties;
@@ -45,6 +46,7 @@ import com.vsct.dt.hesperides.templating.modules.Techno;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 
+import com.vsct.dt.hesperides.templating.modules.template.TemplateSlurper;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
@@ -207,7 +209,8 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> fileSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> fileSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
 
         assertThat(fileSet.size()).isEqualTo(3);
 
@@ -317,7 +320,8 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("OK, the instance name is SUPER_INSTANCE, I am dotted, I use escapable chars \"'You know what ? I have spaces at start, I have spaces at end, I have spaces everywhere and This is my default value!");
 
@@ -399,7 +403,8 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(globalProperties), 2L, comment);
 
         /* ACTUAL CALL */
-        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("global_property");
 
@@ -408,12 +413,12 @@ public class FilesTest {
                 PROPERTIES_CONVERTER.toPropertiesData(emptyGlobalProperties), 3L, comment);
 
         /* ACTUAL CALL */
-        String content2 = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content2 = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content2).isEqualTo("local_property");
 
     }
-
 
     @Test
     public void shouldGetTemplateContentWithIterableValorisations() throws Exception {
@@ -483,7 +488,8 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("ferrari\n" +
                 "300000\n" +
@@ -494,6 +500,226 @@ public class FilesTest {
                 "pierre\n");
 
     }
+
+    @Test
+    public void should_get_file_content_with_iterable_default_values() throws Exception {
+        String templateContent =
+                "{{#items}}\n" +
+                        "{{name}}\n" +
+                        "{{price|@default \"1003030\"}}\n" +
+                        "{{/items}}\n";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("ferrari", Sets.newHashSet(new KeyValueValorisation("name", "ferrari")));
+        IterableValorisation.IterableValorisationItem item2 = new IterableValorisation.IterableValorisationItem("triumph", Sets.newHashSet(new KeyValueValorisation("name", "triumph"), new KeyValueValorisation("price", "12000")));
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1, item2);
+        IterableValorisation val1 = new IterableValorisation("items", items);
+
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        /* ACTUAL CALL */
+        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate
+                .getNamespace(), "template_from_module", templateModel, false);
+
+        assertThat(content).isEqualTo(
+                "ferrari\n" +
+                        "1003030\n" +
+                        "triumph\n" +
+                        "12000\n");
+
+    }
+
+    @Test(expected = MissingResourceException.class)
+    public void should_fail_when_trying_to_get_file_content_with_unfilled_required_fields() throws Exception {
+        String templateContent =
+                "{{#items}}\n" +
+                        "{{name}}\n" +
+                        "{{price|@required}}\n" +
+                        "{{/items}}\n";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("ferrari", Sets.newHashSet(new KeyValueValorisation("name", "ferrari")));
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1);
+        IterableValorisation val1 = new IterableValorisation("items", items);
+
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        /* ACTUAL CALL */
+        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
+
+        // assertion is done on the @Test() annotation !
+    }
+
+    @Test(expected = MissingResourceException.class)
+    public void should_fail_when_trying_to_get_file_content_with_not_matching_pattern_field_value() throws Exception {
+        String templateContent =
+                "{{#items}}\n" +
+                        "{{name| @pattern \"[A-Za-z]+\"}}\n" +
+                        "{{price}}\n" +
+                        "{{/items}}\n";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("ferrari", Sets.newHashSet(new KeyValueValorisation("name", "ferrari1234")));
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1);
+        IterableValorisation val1 = new IterableValorisation("items", items);
+
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        /* ACTUAL CALL */
+        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
+
+        // assertion is done on the @Test() annotation !
+    }
+
 
     @Test
     public void file_generation_should_include_platform_information_in_the_mustache_scope(){
@@ -550,12 +776,14 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_app_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_app_name_the_pltfm_name_version");
 
-        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_app_name the_pltfm_name version");
     }
@@ -614,12 +842,14 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_module_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_module_name_the_module_version");
 
-        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version",
+                true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_module_name the_module_version COMPONENT TECHNO");
     }
@@ -678,12 +908,14 @@ public class FilesTest {
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name");
+        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_instance_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_instance_name_location");
 
-        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version",
+                true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_instance_name");
     }

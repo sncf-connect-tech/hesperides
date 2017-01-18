@@ -26,11 +26,10 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
 import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
-import com.vsct.dt.hesperides.applications.Applications;
-import com.vsct.dt.hesperides.applications.MustacheScope;
-import com.vsct.dt.hesperides.applications.PlatformKey;
+import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
+import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
@@ -43,14 +42,15 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
-import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
-import com.vsct.dt.hesperides.util.WorkingCopy;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  */
 public class Files {
 
-    private final Applications applications;
+    private final Applications              applications;
     private final ModulesAggregate          modules;
     private final TemplatePackagesAggregate templatePackages;
 
@@ -87,7 +87,7 @@ public class Files {
      * @param instanceName
      * @return
      */
-    public Set<HesperidesFile> getLocations(String applicationName, String platformName, String path, String moduleName, String moduleVersion, boolean isModuleWorkingCopy, String instanceName) {
+    public Set<HesperidesFile> getLocations(String applicationName, String platformName, String path, String moduleName, String moduleVersion, boolean isModuleWorkingCopy, String instanceName, Boolean simulate) {
 
         PlatformKey platformKey = PlatformKey.withName(platformName)
                 .withApplicationName(applicationName)
@@ -104,18 +104,9 @@ public class Files {
                 new HesperidesVersion(moduleVersion, isModuleWorkingCopy)
         );
 
-        ApplicationModuleData applicationModule = platform
-                .findModule(moduleName, moduleVersion, isModuleWorkingCopy, path)
-                .orElseThrow(() -> new MissingResourceException("There is no module "
-                        + moduleName + "/" + moduleVersion + "/"
-                        + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)
-                        + " defined for platform " + applicationName + "/" + platformName + " at path " + path));
+        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
 
-        Module module = modules
-                .getModule(moduleKey)
-                .orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/"
-                        + moduleVersion + "/"
-                        + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)));
+        Module module = modules.getModule(moduleKey).orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release")));
 
         List<Template> templates = modules.getAllTemplates(moduleKey);
 
@@ -132,7 +123,7 @@ public class Files {
         }
 
         //Get the instance
-        InstanceData instance = applicationModule.getInstance(instanceName).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
+        InstanceData instance = applicationModule.getInstance(instanceName, simulate).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
 
         PropertiesData platformGlobalProperties = applications.getProperties(platformKey, "#");
 
@@ -155,15 +146,7 @@ public class Files {
 
     private String generatePropertiesPath(String path, String moduleName, String moduleVersion, boolean isModuleWorkingCopy) {
         StringBuilder propertiesPath = new StringBuilder();
-        return propertiesPath
-                .append(path)
-                .append("#")
-                .append(moduleName)
-                .append("#")
-                .append(moduleVersion)
-                .append("#")
-                .append(isModuleWorkingCopy ? WorkingCopy.UC : Release.UC)
-                .toString();
+        return propertiesPath.append(path).append("#").append(moduleName).append("#").append(moduleVersion).append("#").append(isModuleWorkingCopy ? "WORKINGCOPY" : "RELEASE").toString();
     }
 
     /**
@@ -244,14 +227,15 @@ public class Files {
      * @return
      */
     public String getFile(String applicationName,
-                          String platformName,
-                          String path,
-                          String moduleName,
-                          String moduleVersion,
-                          boolean isModuleWorkingCopy,
-                          String instanceName,
-                          String templateNamespace,
-                          String templateName, HesperidesPropertiesModel model) {
+            String platformName,
+            String path,
+            String moduleName,
+            String moduleVersion,
+            boolean isModuleWorkingCopy,
+            String instanceName,
+            String templateNamespace,
+            String templateName, HesperidesPropertiesModel model,
+            Boolean simulate) {
 
         PlatformKey platformKey = PlatformKey.withName(platformName)
                 .withApplicationName(applicationName)
@@ -266,17 +250,10 @@ public class Files {
 
         hesperidesPlatformPredefinedScope.addAll(platformGlobalProperties.getKeyValueProperties());
 
-        ApplicationModuleData applicationModule = platform
-                .findModule(moduleName, moduleVersion, isModuleWorkingCopy, path)
-                .orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/"
-                        + moduleVersion + "/" + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)
-                        + " defined for platform " + applicationName + "/" + platformName + " at path " + path));
+        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
 
         //Get the instance
-        InstanceData instance = applicationModule
-                .getInstance(instanceName)
-                .orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName
-                        + " in platform " + applicationName + "/" + platformName));
+        InstanceData instance = applicationModule.getInstance(instanceName, simulate).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
 
         Set<KeyValueValorisationData> hesperidesModulePredefinedScope = applicationModule.generateHesperidesPredefinedScope();
         hesperidesPlatformPredefinedScope.addAll(hesperidesModulePredefinedScope);
@@ -318,16 +295,15 @@ public class Files {
      * @return
      */
     private Template manageModule(final String moduleName, final String moduleVersion,
-                                  final boolean isModuleWorkingCopy, final String templateNamespace,
-                                  final String templateName, final MustacheScope mustacheScope,
-                                  final ModuleKey moduleKey) {
+            final boolean isModuleWorkingCopy, final String templateNamespace,
+            final String templateName, final MustacheScope mustacheScope,
+            final ModuleKey moduleKey) {
         Template template = null;
 
         if(templateNamespace.startsWith("modules")){
             template = modules.getTemplate(moduleKey, templateName).orElseThrow(()
                     -> new MissingResourceException("Could not find template " + templateName + " in module "
-                    + moduleName + "/" + moduleVersion + "/"
-                    + (isModuleWorkingCopy ? WorkingCopy.TEXT : Release.TEXT)));
+                    + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release")));
         } else if(templateNamespace.startsWith("packages")) {
             template = templatePackages.getTemplate(templateNamespace, templateName).orElseThrow(() -> new MissingResourceException("Could not find template "+templateNamespace+"/"+templateName));
         }
@@ -336,6 +312,7 @@ public class Files {
                 = modules.getModel(moduleKey).orElseThrow(() -> new MissingResourceException("Could not find module " + moduleKey));
         boolean exists;
 
+        // Taking care of key-value properties
         for (KeyValuePropertyModel kvpm : templateModel.getKeyValueProperties()) {
             exists = isInScope(kvpm.getName(), mustacheScope);
 
@@ -363,6 +340,48 @@ public class Files {
                 }
             }
         }
+
+        // Taking care of iterable properties
+        // TODO : Update this to make multiple level implementation available.
+        for (IterablePropertyModel itpm : templateModel.getIterableProperties()){
+            // Get the valuation for this
+            if (mustacheScope.keySet().contains(itpm.getName())){
+                ArrayList<MustacheScope> scopes = (ArrayList<MustacheScope>) mustacheScope.get(itpm.getName());
+
+                scopes.forEach(scope -> {
+
+                    itpm.getFields().forEach(p -> {
+                        // check if the property exists in scope.
+                        boolean _exists = isInScope(p.getName(), scope);
+
+                        // required but not existing
+                        if (!_exists && p.isRequired()){
+                            throw new MissingResourceException(String.format("Property '%s' in template '%s/%s' must be set.",
+                                    p.getName(), templateNamespace, templateName));
+                        }
+
+                        // has default value and not existing
+                        if (!_exists && StringUtils.isNotEmpty(p.getDefaultValue())){
+                            scope.put(p.getName(), p.getDefaultValue());
+                        }
+
+                        // has pattern
+                        if (StringUtils.isNotEmpty(p.getPattern())){
+                            // get the value
+                            String value = findProperty(p.getName(), scope);
+                            Pattern pattern = Pattern.compile(p.getPattern());
+                            Matcher matcher = pattern.matcher(value);
+                            if (!matcher.matches()){
+                                throw new MissingResourceException(String.format(
+                                        "Property '%s' in template '%s/%s' not match regular expression '%s'.",
+                                        p.getName(), templateNamespace, templateName, p.getPattern()));
+                            }
+                        }
+                    });
+                });
+            }
+        }
+
         return template;
     }
 
@@ -378,6 +397,7 @@ public class Files {
         boolean found = false;
 
         for (String kvv : mustacheScope.keySet()) {
+
             if (name.equals(kvv)) {
                 found = true;
                 break;
@@ -414,11 +434,12 @@ public class Files {
 
         @Override
         public Wrapper find(final String name, Object[] scopes) {
-            String real_name = name.split("[|]")[0];
 
-            // We must search from local scope to global scope in case of iterable properties.
-            int length = scopes.length - 1;
-            for (int i = length; i >= 0; i--) {
+            // We trim this to let mustach ignore whitespaces on properties name
+            String real_name = name.split("[|]")[0].trim();
+
+            int length = scopes.length;
+            for (int i = 0; i < length; i++) {
                 Object scope = scopes[i];
                 final int scope_index = i;
                 if (scope instanceof Map && ((Map) scope).containsKey(real_name)) {

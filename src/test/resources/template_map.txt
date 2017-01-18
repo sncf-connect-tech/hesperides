@@ -1,8 +1,8 @@
 {{#map1}}
-com.hesperides.host={{host}}
+com.hesperides.host={{host|@default "localhost"}}
 com.hesperides.host={{port}}
 {{/map1}}
 {{#map2}}
-com.hesperides.login={{login}}
+com.hesperides.login={{login|@default "root"}}
 com.hesperides.password={{password}}
 {{/map2}}

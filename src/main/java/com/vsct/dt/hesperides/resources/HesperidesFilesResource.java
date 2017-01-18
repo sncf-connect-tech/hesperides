@@ -68,7 +68,8 @@ public class HesperidesFilesResource extends BaseResource {
                                           @PathParam("module_name") final String moduleName,
                                           @PathParam("module_version") final String moduleVersion,
                                           @PathParam("instance_name") final String instanceName,
-                                          @QueryParam("isWorkingCopy") final Boolean isWorkingCopy) throws Exception {
+                                          @QueryParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                          @QueryParam("simulate") final Boolean simulate) throws Exception {
 
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
@@ -78,11 +79,11 @@ public class HesperidesFilesResource extends BaseResource {
         checkQueryParameterNotEmpty("instance_name", instanceName);
         checkQueryParameterNotEmpty("isWorkingCopy", isWorkingCopy);
 
-        Set<HesperidesFile> locations = files.getLocations(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName);
+        Set<HesperidesFile> locations = files.getLocations(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, simulate == null ? false : simulate);
         return locations.stream().map(file -> {
             String url = null;
             try {
-                url = getContentLocation(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, file.getTemplateName(), file.getTemplateNamespace());
+                url = getContentLocation(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, file.getTemplateName(), file.getTemplateNamespace(), simulate);
             } catch (UnsupportedEncodingException e) {
                 //Wrapping to allow exception to get out of the closure
                 throw new RuntimeException(e);
@@ -168,7 +169,8 @@ public class HesperidesFilesResource extends BaseResource {
                           @PathParam("instance_name") final String instanceName,
                           @PathParam("filename") final String filename,
                           @QueryParam("isWorkingCopy") final Boolean isWorkingCopy,
-                          @QueryParam("template_namespace") final String templateNamespace) throws Exception {
+                          @QueryParam("template_namespace") final String templateNamespace,
+                          @QueryParam("simulate") final Boolean simulate) throws Exception {
 
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
@@ -182,7 +184,7 @@ public class HesperidesFilesResource extends BaseResource {
 
         HesperidesPropertiesModel model = !isWorkingCopy ? this.moduleResource.getReleaseModel(user, moduleName, moduleVersion) : this.moduleResource.getWorkingCopyModel(user, moduleName, moduleVersion);
 
-        return files.getFile(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, templateNamespace, filename, model);
+        return files.getFile(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, templateNamespace, filename, model, simulate == null ? false : simulate);
     }
 
     private String getContentLocation(final String applicationName,
@@ -193,8 +195,9 @@ public class HesperidesFilesResource extends BaseResource {
                                       final boolean isWorkingCopy,
                                       final String instanceName,
                                       final String fileName,
-                                      final String templateNamespace) throws UnsupportedEncodingException {
-        return String.format("/rest/files/applications/%1$s/platforms/%2$s/%3$s/%4$s/%5$s/instances/%6$s/%7$s?isWorkingCopy=%8$s&template_namespace=%9$s",
+                                      final String templateNamespace,
+                                      final boolean simulate) throws UnsupportedEncodingException {
+        return String.format("/rest/files/applications/%1$s/platforms/%2$s/%3$s/%4$s/%5$s/instances/%6$s/%7$s?isWorkingCopy=%8$s&template_namespace=%9$s&simulate=%10$s",
                 URLEncoder.encode(applicationName, "UTF-8").replace("+", "%20"),
                 URLEncoder.encode(platformName, "UTF-8").replace("+", "%20"),
                 URLEncoder.encode(path, "UTF-8").replace("+", "%20"),
@@ -203,7 +206,8 @@ public class HesperidesFilesResource extends BaseResource {
                 URLEncoder.encode(instanceName, "UTF-8").replace("+", "%20"),
                 URLEncoder.encode(fileName, "UTF-8").replace("+", "%20"),
                 isWorkingCopy,
-                URLEncoder.encode(templateNamespace, "UTF-8").replace("+", "%20")
+                URLEncoder.encode(templateNamespace, "UTF-8").replace("+", "%20"),
+                simulate
         );
     }
 }
