@@ -40,7 +40,6 @@ import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
-import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
@@ -69,8 +68,6 @@ import static org.mockito.Mockito.*;
 public class HesperidesFilesResourceTest {
 
     private static final Files files = mock(Files.class);
-    private static final Applications applications = mock(Applications.class);
-    private static final Modules modules = mock(Modules.class);
 
     private static final ApplicationsAggregate applicationsAggregate = mock(ApplicationsAggregate.class);
     private static final ModulesAggregate modulesAggregate = mock(ModulesAggregate.class);

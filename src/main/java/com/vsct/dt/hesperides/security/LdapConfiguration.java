@@ -58,6 +58,10 @@ public class LdapConfiguration {
 
     @NotEmpty
     @JsonProperty
+    private String techGroupName;
+
+    @NotEmpty
+    @JsonProperty
     private String adDomain;
 
     public String getUserNameAttribute() {
@@ -122,5 +126,13 @@ public class LdapConfiguration {
 
     public void setAdDomain(String adDomain) {
         this.adDomain = adDomain;
+    }
+
+    public String getTechGroupName() {
+        return techGroupName;
+    }
+
+    public void setTechGroupName(final String techGroupName) {
+        this.techGroupName = techGroupName;
     }
 }

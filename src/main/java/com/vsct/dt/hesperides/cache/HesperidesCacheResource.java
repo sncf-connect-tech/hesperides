@@ -20,6 +20,7 @@
 package com.vsct.dt.hesperides.cache;
 
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
+import com.vsct.dt.hesperides.exception.runtime.ForbiddenOperationException;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
@@ -27,15 +28,25 @@ import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import com.codahale.metrics.annotation.Timed;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
  * Created by emeric_martineau on 13/06/2016.
  */
 @Path("/cache")
+@Api("/cache")
+@Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
+@Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 public class HesperidesCacheResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesCacheResource.class);
 
@@ -53,6 +64,8 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/application/{application_name}/{application_version}")
+    @Timed
+    @ApiOperation("Remove an application from cache")
     public Response clearApplicationCache(@Auth final User user,
                                           @PathParam("application_name") final String applicationName,
                                           @PathParam("application_version") final String applicationVersion) {
@@ -66,7 +79,13 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/applications")
+    @Timed
+    @ApiOperation("Remove all applications from cache")
     public Response clearApplicationsCache(@Auth final User user) {
+        if (!user.isTechUser()) {
+            throw new ForbiddenOperationException("Only tech user can clear all applications cache.");
+        }
+
         LOGGER.info("Remove all application from memory cache by {}.", user.getUsername());
 
         this.applicationsAggregate.removeAllCache();
@@ -76,6 +95,8 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/module/{module_name}/{module_version}/workingcopy")
+    @Timed
+    @ApiOperation("Remove a workingcopy module from cache")
     public Response clearModuleWorkingcopyCache(@Auth final User user,
                                                 @PathParam("module_name") final String moduleName,
                                                 @PathParam("module_version") final String moduleVersion) {
@@ -89,7 +110,13 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/modules")
+    @Timed
+    @ApiOperation("Remove all modules from cache")
     public Response clearModulesCache(@Auth final User user) {
+        if (!user.isTechUser()) {
+            throw new ForbiddenOperationException("Only tech user can clear all modules cache.");
+        }
+
         LOGGER.info("Remove all modules from memory cache by {}.", user.getUsername());
 
         this.modulesAggregate.removeAllCache();
@@ -99,6 +126,8 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/module/{module_name}/{module_version}/release")
+    @Timed
+    @ApiOperation("Remove a released module from cache")
     public Response clearModuleReleaseCache(@Auth final User user,
                                                 @PathParam("module_name") final String moduleName,
                                                 @PathParam("module_version") final String moduleVersion) {
@@ -111,6 +140,8 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/template/package/{template_name}/{template_version}/workingcopy")
+    @Timed
+    @ApiOperation("Remove a workingcopy template package from cache")
     public Response clearTemplatePackageWorkingcopyCache(@Auth final User user,
                                                 @PathParam("template_name") final String templateName,
                                                 @PathParam("template_version") final String templateVersion) {
@@ -124,6 +155,8 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/template/package/{template_name}/{template_version}/release")
+    @Timed
+    @ApiOperation("Remove a released template package from cache")
     public Response clearTemplatePackageReleaseCache(@Auth final User user,
                                                      @PathParam("template_name") final String templateName,
                                                      @PathParam("template_version") final String templateVersion) {
@@ -137,7 +170,13 @@ public class HesperidesCacheResource {
 
     @DELETE
     @Path("/templates/packages")
+    @Timed
+    @ApiOperation("Remove all templates packages from cache")
     public Response clearTemplatesPackagesCache(@Auth final User user) {
+        if (!user.isTechUser()) {
+            throw new ForbiddenOperationException("Only tech user can clear all module templates packages cache.");
+        }
+
         LOGGER.info("Remove templates packages from memory cache by {}.",
                 user.getUsername());
 

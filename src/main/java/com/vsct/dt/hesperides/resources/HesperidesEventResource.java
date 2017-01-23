@@ -44,7 +44,6 @@ import java.util.List;
 @Path("/events")
 @Api("/events")
 public class HesperidesEventResource extends BaseResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesFilesResource.class);
     private final Events events;
     public HesperidesEventResource (final Events events){
         this.events = events;

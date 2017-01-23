@@ -45,8 +45,8 @@ public class PermissionAwareApplicationsProxyTest {
     UserContext                      userContext           = mock(UserContext.class);
     PermissionAwareApplicationsProxy applications          = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
 
-    User prodUser    = new User("prod", true);
-    User nonProdUser = new User("non_prod", false);
+    User prodUser    = new User("prod", true, false);
+    User nonProdUser = new User("non_prod", false, false);
 
     private final String comment = "Test comment";
 

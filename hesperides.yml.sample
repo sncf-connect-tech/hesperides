@@ -83,9 +83,10 @@ authenticatorType: none # allowed values : none, simple, LDAP
 #   connectTimeout: 1000ms
 #   readTimeout: 1000ms
 #   userNameAttribute: sAMAccountName
-#   userSearchBase: dc=groupevsc,dc=com
-#   roleSearchBase: ou=ARCHITECTURE,dc=groupevsc,dc=com
-#   prodGroupName: GG_A_HESPERIDES_PROD
+#   userSearchBase: dc=mother,dc=com
+#   roleSearchBase: ou=kikoo,dc=mother,dc=com
+#   prodGroupName: HESPERIDES_PROD_GROUP
+#   techGroupName: HESPERIDES_TECH_GROUP
 authenticationCachePolicy: maximumSize=10000, expireAfterAccess=10m 
 useDefaultUserWhenAuthentFails: false # allows you to bypass authent :true for development mode, false for production mode
 # settings to define 
