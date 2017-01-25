@@ -21,6 +21,11 @@
 
 package com.vsct.dt.hesperides.templating.models.annotation;
 
+import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
+
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 /**
  * Created by emeric_martineau on 05/11/2015.
  */
@@ -29,6 +34,18 @@ public class HesperidesPatternAnnotation extends AbstractHesperidesAnnotation {
     public HesperidesPatternAnnotation() {
         super("pattern");
     }
+
+    @Override
+    public void setValue(String value) {
+        try {
+            Pattern.compile(value);
+        } catch (PatternSyntaxException exception) {
+            throw new ModelAnnotationException(
+                String.format("Invalid @pattern '%s' : %s", value, exception.getMessage()));
+        }
+        this.value = value;
+    }
+
 
     @Override
     public boolean requireValue() {

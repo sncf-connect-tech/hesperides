@@ -29,7 +29,7 @@ package com.vsct.dt.hesperides.templating.models.annotation;
 public abstract class AbstractHesperidesAnnotation implements HesperidesAnnotation {
 
     private final String name;
-    private String value;
+    protected String value;
 
 
     public AbstractHesperidesAnnotation(final String name) {
