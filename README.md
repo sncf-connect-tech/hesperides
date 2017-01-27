@@ -49,11 +49,3 @@ Development:
 =====
 
 Do you have changes to contribute? Please see the Development page.
-
-To execute all the JUnit tests:
-
-    mvn test
-
-To execute a single one:
-
-    mvn -Dtest=PropertyModelTest#shouldCreateModelFromCode test
