@@ -83,7 +83,7 @@ public class HesperidesFilesResource extends BaseResource {
         return locations.stream().map(file -> {
             String url = null;
             try {
-                url = getContentLocation(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, file.getTemplateName(), file.getTemplateNamespace(), simulate);
+                url = getContentLocation(applicationName, platformName, path, moduleName, moduleVersion, isWorkingCopy, instanceName, file.getTemplateName(), file.getTemplateNamespace(), simulate == null ? false : simulate);
             } catch (UnsupportedEncodingException e) {
                 //Wrapping to allow exception to get out of the closure
                 throw new RuntimeException(e);
