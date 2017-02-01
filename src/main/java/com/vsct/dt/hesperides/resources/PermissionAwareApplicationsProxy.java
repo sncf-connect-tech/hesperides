@@ -276,8 +276,9 @@ public class PermissionAwareApplicationsProxy implements Applications  {
                     }
                     iterableValorisationItemDatas.add(new IterableValorisationData.IterableValorisationItemData(iterableValorisationItemData.getTitle(), values));
                 }
-
                 iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationItemDatas));
+            } else {
+                iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationData.getIterableValorisationItems()));
             }
         }
 
