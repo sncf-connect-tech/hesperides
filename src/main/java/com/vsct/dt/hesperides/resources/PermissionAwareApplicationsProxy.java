@@ -254,26 +254,31 @@ public class PermissionAwareApplicationsProxy implements Applications  {
 
         for (IterableValorisationData iterableValorisationData : properties.getIterableProperties()){
 
-            IterablePropertyModel subModel = iterablePropertyModels.stream().filter(iterablePropertyModel -> iterablePropertyModel.getName().trim().equals(iterableValorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", iterableValorisationData.getName())));
+            Optional<IterablePropertyModel> subModelOpt = iterablePropertyModels.stream().filter(iterablePropertyModel -> iterablePropertyModel.getName().trim().equals(iterableValorisationData.getName().trim())).findFirst();
 
-            // Checking the item data
-            List<IterableValorisationData.IterableValorisationItemData> iterableValorisationItemDatas = Lists.newArrayList();
-            for (IterableValorisationData.IterableValorisationItemData iterableValorisationItemData : iterableValorisationData.getIterableValorisationItems()){
+            if (subModelOpt.isPresent()) {
 
-                // Checking the valorisations
-                Set<ValorisationData> values = Sets.newHashSet();
-                for (ValorisationData valorisationData : iterableValorisationItemData.getValues() ){
-                    Property itModel = subModel.getFields().stream().filter(property -> property.getName().trim().equals(valorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", valorisationData.getName())));
-                    if ( itModel.isPassword() ){
-                        values.add(new KeyValueValorisationData(valorisationData.getName(), "********"));
-                    }else{
-                        values.add(valorisationData);
+                IterablePropertyModel subModel = subModelOpt.get();
+
+                // Checking the item data
+                List<IterableValorisationData.IterableValorisationItemData> iterableValorisationItemDatas = Lists.newArrayList();
+                for (IterableValorisationData.IterableValorisationItemData iterableValorisationItemData : iterableValorisationData.getIterableValorisationItems()) {
+
+                    // Checking the valorisations
+                    Set<ValorisationData> values = Sets.newHashSet();
+                    for (ValorisationData valorisationData : iterableValorisationItemData.getValues()) {
+                        Property itModel = subModel.getFields().stream().filter(property -> property.getName().trim().equals(valorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", valorisationData.getName())));
+                        if (itModel.isPassword()) {
+                            values.add(new KeyValueValorisationData(valorisationData.getName(), "********"));
+                        } else {
+                            values.add(valorisationData);
+                        }
                     }
+                    iterableValorisationItemDatas.add(new IterableValorisationData.IterableValorisationItemData(iterableValorisationItemData.getTitle(), values));
                 }
-                iterableValorisationItemDatas.add(new IterableValorisationData.IterableValorisationItemData(iterableValorisationItemData.getTitle(),values));
-            }
 
-            iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationItemDatas));
+                iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationItemDatas));
+            }
         }
 
         // Return the hidden properties
