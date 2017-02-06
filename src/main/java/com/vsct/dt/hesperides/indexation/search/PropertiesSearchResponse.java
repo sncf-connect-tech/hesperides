@@ -23,7 +23,6 @@ package com.vsct.dt.hesperides.indexation.search;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vsct.dt.hesperides.indexation.model.Data;
 
 /**
  * Created by william_montaz on 29/10/2014.

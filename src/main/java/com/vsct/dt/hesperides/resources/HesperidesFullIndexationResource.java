@@ -23,19 +23,27 @@ package com.vsct.dt.hesperides.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
+import com.vsct.dt.hesperides.exception.runtime.ForbiddenOperationException;
 import com.vsct.dt.hesperides.indexation.ElasticSearchIndexationExecutor;
 import com.vsct.dt.hesperides.indexation.command.*;
 import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.PlatformMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
+import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
+
+import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -44,6 +52,9 @@ import java.util.stream.Collectors;
  * Created by william_montaz on 04/02/2015.
  */
 @Path("/indexation")
+@Api("/indexation")
+@Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
+@Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 public class HesperidesFullIndexationResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesFullIndexationResource.class);
@@ -70,9 +81,33 @@ public class HesperidesFullIndexationResource {
     @POST
     @Timed
     @ApiOperation("Reindex all applications, modules, templates...")
-    public void resetIndex() throws IOException {
+    public void resetIndex(@Auth final User user) throws IOException {
+        reset(user);
+    }
 
-        LOGGER.info("RELOADING INDEX");
+    /**
+     * Internal call for reindexation
+     *
+     * @throws IOException
+     */
+    public void resetIndex() throws IOException {
+        reset(null);
+    }
+
+    /**
+     * Internal call for reindexation
+     * @param user
+     * @throws IOException
+     */
+    private void reset(final User user) throws IOException {
+        if (user == null) {
+            LOGGER.info("RELOADING INDEX START at startup");
+        } else if (!user.isTechUser()) {
+            throw new ForbiddenOperationException("Only tech user can reindex.");
+        } else {
+            LOGGER.info("RELOADING INDEX START by {}", user.getUsername());
+        }
+
         elasticSearchIndexationExecutor.reset();
 
         elasticSearchIndexationExecutor.index(new IndexNewTemplateCommandBulk(templatePackages.getAll().stream().map(template -> TemplateMapper.asTemplateIndexation(template)).collect(Collectors.toList())));
@@ -83,6 +118,6 @@ public class HesperidesFullIndexationResource {
 
         elasticSearchIndexationExecutor.index(new IndexNewPlatformCommandBulk(applications.getAll().stream().map(app -> PlatformMapper.asPlatformIndexation(app)).collect(Collectors.toList())));
 
+        LOGGER.info("RELOADING INDEX START");
     }
-
 }

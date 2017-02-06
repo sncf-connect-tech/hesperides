@@ -29,11 +29,14 @@ import java.util.Set;
 /**
  * Created by william_montaz on 29/01/2015.
  */
-public class RedisConfiguration {
+public class RedisConfiguration implements RedisConfigurationInterface {
 
     public enum Type {
         REDIS, SENTINEL
     }
+
+    @JsonProperty
+    private int timeout = Protocol.DEFAULT_TIMEOUT;
 
     @JsonProperty
     private Type type;
@@ -52,16 +55,7 @@ public class RedisConfiguration {
     @JsonProperty
     private Set<String> sentinels;
 
-    /* All */
-    @JsonProperty
-    private int retry;
-
-    @JsonProperty
-    private int waitBeforeRetryMs;
-
-    @JsonProperty
-    private int timeout = Protocol.DEFAULT_TIMEOUT;
-
+    @Override
     public String getHost() {
         return host;
     }
@@ -70,6 +64,7 @@ public class RedisConfiguration {
         this.host = host;
     }
 
+    @Override
     public int getPort() {
         return port;
     }
@@ -78,6 +73,7 @@ public class RedisConfiguration {
         this.port = port;
     }
 
+    @Override
     public String getMasterName() {
         return masterName;
     }
@@ -86,6 +82,7 @@ public class RedisConfiguration {
         this.masterName = masterName;
     }
 
+    @Override
     public Set<String> getSentinels() {
         return sentinels;
     }
@@ -94,26 +91,22 @@ public class RedisConfiguration {
         this.sentinels = sentinels;
     }
 
+    @Override
     public Type getType() {
         return type;
     }
 
+    @Override
     public int getRetry() {
-        return retry;
+        return 0;
     }
 
-    public void setRetry(int retry) {
-        this.retry = retry;
-    }
-
+    @Override
     public int getWaitBeforeRetryMs() {
-        return waitBeforeRetryMs;
+        return 0;
     }
 
-    public void setWaitBeforeRetryMs(int waitBeforeRetryMs) {
-        this.waitBeforeRetryMs = waitBeforeRetryMs;
-    }
-
+    @Override
     public int getTimeout() {
         return timeout;
     }

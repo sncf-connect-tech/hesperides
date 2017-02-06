@@ -25,6 +25,7 @@ import com.cedarsoftware.util.DeepEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import io.dropwizard.jackson.Jackson;
 import org.junit.Test;
 

@@ -28,8 +28,10 @@ import com.sun.jersey.api.model.Parameter;
 import com.sun.jersey.spi.inject.InjectableProvider;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
+import com.vsct.dt.hesperides.applications.SnapshotRegistry;
+import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
+import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
 import com.vsct.dt.hesperides.events.EventsAggregate;
-import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.healthcheck.AggregateHealthCheck;
@@ -49,12 +51,17 @@ import com.vsct.dt.hesperides.security.CorrectedCachingAuthenticator;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.util.ManageableJedisConnectionPool;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
-import com.vsct.dt.hesperides.applications.SnapshotRegistry;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
-import com.vsct.dt.hesperides.util.converter.*;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorApplicationAggregate;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAggregate;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
+import com.vsct.dt.hesperides.util.ManageableJedisConnection;
+import com.vsct.dt.hesperides.util.ManageableJedisConnectionInterface;
+import com.vsct.dt.hesperides.util.converter.ApplicationConverter;
+import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
+import com.vsct.dt.hesperides.util.converter.TimeStampedPlatformConverter;
 import com.vsct.dt.hesperides.util.converter.impl.DefaultApplicationConverter;
 import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
 import com.vsct.dt.hesperides.util.converter.impl.DefaultTimeStampedPlatformConverter;
@@ -123,7 +130,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         if (authenticator.isPresent()) {
             authProvider = new BasicAuthProviderWithUserContextHolder(
-                    new CorrectedCachingAuthenticator<BasicCredentials, User>(
+                    new CorrectedCachingAuthenticator<>(
                             environment.metrics(),
                             authenticator.get(),
                             hesperidesConfiguration.getAuthenticationCachePolicy()
@@ -140,11 +147,17 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         LOGGER.debug("Creating Redis connection pool");
 
         /* The Event Store, which is managed to properly close the connections */
+        // TODO best is abstract it in config file to allow MongoDB store or something else.
+        final ManageableJedisConnectionInterface manageableJedisConnectionPool = new ManageableJedisConnection(
+                hesperidesConfiguration.getRedisConfiguration());
+        final RedisEventStore eventStore;
 
-        ManageableJedisConnectionPool manageableJedisConnectionPool = ManageableJedisConnectionPool.createPool(hesperidesConfiguration.getRedisConfiguration());
-        int nRetry = hesperidesConfiguration.getRedisConfiguration().getRetry();
-        int waitBeforeRetryMs = hesperidesConfiguration.getRedisConfiguration().getWaitBeforeRetryMs();
-        RedisEventStore eventStore = new RedisEventStore(manageableJedisConnectionPool.getPool(), nRetry, waitBeforeRetryMs);
+
+        final ManageableJedisConnectionInterface snapshotManageableJedisConnectionPool
+                = new ManageableJedisConnection(
+                hesperidesConfiguration.getCacheConfiguration().getRedisConfiguration());
+
+        eventStore = new RedisEventStore(manageableJedisConnectionPool, snapshotManageableJedisConnectionPool);
         environment.lifecycle().manage(manageableJedisConnectionPool);
 
         LOGGER.debug("Creating Event Bus");
@@ -163,22 +176,25 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         TemplateSearch templateSearch = new TemplateSearch(elasticSearchClient);
 
         /* Registries (read part of the application) */
-        SnapshotRegistry snapshotRegistry = new SnapshotRegistry(manageableJedisConnectionPool.getPool());
+        SnapshotRegistryInterface snapshotRegistryInterface = new SnapshotRegistry(manageableJedisConnectionPool.getPool());
 
         /* Aggregates (write part of the application: events + method to read from registries) */
-        TemplatePackagesAggregate templatePackagesAggregate = new TemplatePackagesAggregate(eventBus, eventStore, userContext);
+        TemplatePackagesAggregate templatePackagesAggregate = new TemplatePackagesAggregate(eventBus, eventStore,
+                userContext, hesperidesConfiguration);
         environment.lifecycle().manage(templatePackagesAggregate);
 
-        ModulesAggregate modulesAggregate = new ModulesAggregate(eventBus, eventStore, templatePackagesAggregate, userContext);
+        ModulesAggregate modulesAggregate = new ModulesAggregate(eventBus, eventStore, templatePackagesAggregate,
+                userContext, hesperidesConfiguration);
         environment.lifecycle().manage(modulesAggregate);
 
-        ApplicationsAggregate applicationsAggregate = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistry, userContext);
+        ApplicationsAggregate applicationsAggregate = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface,
+                hesperidesConfiguration, userContext);
         environment.lifecycle().manage(applicationsAggregate);
 
         Applications permissionAwareApplications = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
-
         /* Events aggregate */
-        EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(), eventBus, eventStore);
+        EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(),
+                eventBus, eventStore);
         environment.lifecycle().manage(eventsAggregate);
 
         /* Service to generate files */
@@ -186,7 +202,11 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         LOGGER.debug("Loading indexation module");
         /* The indexer */
-        ElasticSearchIndexationExecutor elasticSearchIndexationExecutor = new ElasticSearchIndexationExecutor(elasticSearchClient, hesperidesConfiguration.getElasticSearchConfiguration().getRetry(), hesperidesConfiguration.getElasticSearchConfiguration().getWaitBeforeRetryMs());
+
+        ElasticSearchIndexationExecutor elasticSearchIndexationExecutor
+                = new ElasticSearchIndexationExecutor(elasticSearchClient,
+                hesperidesConfiguration.getElasticSearchConfiguration().getRetry(),
+                hesperidesConfiguration.getElasticSearchConfiguration().getWaitBeforeRetryMs());
         /*
          * Register indexation listeners
          */
@@ -201,13 +221,16 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         ApplicationConverter applicationConverter = new DefaultApplicationConverter();
         PropertiesConverter propertiesConverter = new DefaultPropertiesConverter();
 
-        HesperidesTemplateResource templateResource = new HesperidesTemplateResource(templatePackagesAggregate, templateSearch);
+        HesperidesTemplateResource templateResource = new HesperidesTemplateResource(templatePackagesAggregate,
+                templateSearch);
+
         environment.jersey().register(templateResource);
 
         HesperidesModuleResource moduleResource = new HesperidesModuleResource(modulesAggregate, moduleSearch);
         environment.jersey().register(moduleResource);
 
-        HesperidesApplicationResource applicationResource = new HesperidesApplicationResource(permissionAwareApplications, modulesAggregate,
+        HesperidesApplicationResource applicationResource = new HesperidesApplicationResource(
+                new PermissionAwareApplicationsProxy(applicationsAggregate, userContext), modulesAggregate,
                 applicationSearch, timeStampedPlatformConverter, applicationConverter,
                 propertiesConverter, moduleResource);
 
@@ -229,6 +252,10 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         // Events resource
         HesperidesEventResource eventResource = new HesperidesEventResource(eventsAggregate);
         environment.jersey().register(eventResource);
+
+        HesperidesCacheResource hesperidesCacheResource = new HesperidesCacheResource(templatePackagesAggregate,
+                modulesAggregate, applicationsAggregate);
+        environment.jersey().register(hesperidesCacheResource);
 
         // Users resource
         HesperidesUserResource userResource = new HesperidesUserResource();
@@ -258,10 +285,22 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         JmxReporter reporter = JmxReporter.forRegistry(environment.metrics()).build();
         reporter.start();
 
+        if (hesperidesConfiguration.getCacheConfiguration().isGenerateCaheOnStartup()) {
+            LOGGER.info("Regenerate cache for template package.");
+            new CacheGeneratorTemplatePackagesAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+
+            LOGGER.info("Regenerate cache for module.");
+            new CacheGeneratorModuleAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+
+            LOGGER.info("Regenerate cache for application.");
+            new CacheGeneratorApplicationAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+
+            LOGGER.info("All cache were regenerated successfully.");
+        }
+
         if(hesperidesConfiguration.getElasticSearchConfiguration().reindexOnStartup()) {
             /* Reset the index */
             fullIndexationResource.resetIndex();
         }
-
     }
 }

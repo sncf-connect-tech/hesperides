@@ -21,10 +21,7 @@
 
 package com.vsct.dt.hesperides.events;
 
-import com.vsct.dt.hesperides.storage.Event;
-
 import java.util.List;
-import java.util.Set;
 
 /**
  * Event aggragator interface.

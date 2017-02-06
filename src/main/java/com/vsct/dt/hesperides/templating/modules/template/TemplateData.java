@@ -18,8 +18,8 @@
  *
  *
  */
-
-package com.vsct.dt.hesperides.templating;
+ 
+package com.vsct.dt.hesperides.templating.modules.template;
 
 import com.google.common.base.Strings;
 

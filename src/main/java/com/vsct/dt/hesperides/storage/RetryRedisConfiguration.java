@@ -1,5 +1,4 @@
 /*
- *
  *  * This file is part of the Hesperides distribution.
  *  * (https://github.com/voyages-sncf-technologies/hesperides)
  *  * Copyright (c) 2016 VSCT.
@@ -16,43 +15,38 @@
  *  * You should have received a copy of the GNU General Public License
  *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *
  */
 
-package com.vsct.dt.hesperides.templating;
+package com.vsct.dt.hesperides.storage;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.jackson.JsonSnakeCase;
 
 /**
- * Created by emeric_martineau on 20/10/2015.
+ * Created by william_montaz on 29/01/2015.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonSnakeCase
-public class TemplateFileRights {
-    private final Boolean read;
-    private final Boolean write;
-    private final Boolean execute;
+public class RetryRedisConfiguration extends RedisConfiguration {
+    /* All */
+    @JsonProperty
+    private int retry;
 
-    public TemplateFileRights(
-            @JsonProperty("read") final Boolean read,
-            @JsonProperty("write") final Boolean write,
-            @JsonProperty("execute") final Boolean execute) {
-        this.read = read;
-        this.write = write;
-        this.execute = execute;
+    @JsonProperty
+    private int waitBeforeRetryMs;
+
+    @Override
+    public int getRetry() {
+        return retry;
     }
 
-    public Boolean isRead() {
-        return read;
+    public void setRetry(int retry) {
+        this.retry = retry;
     }
 
-    public Boolean isWrite() {
-        return write;
+    @Override
+    public int getWaitBeforeRetryMs() {
+        return waitBeforeRetryMs;
     }
 
-    public Boolean isExecute() {
-        return execute;
+    public void setWaitBeforeRetryMs(int waitBeforeRetryMs) {
+        this.waitBeforeRetryMs = waitBeforeRetryMs;
     }
 }

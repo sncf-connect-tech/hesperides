@@ -22,9 +22,11 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.vsct.dt.hesperides.applications.*;
-import com.vsct.dt.hesperides.exception.runtime.*;
-import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
+
+import com.vsct.dt.hesperides.applications.Applications;
+import com.vsct.dt.hesperides.applications.InstanceModel;
+import com.vsct.dt.hesperides.applications.PlatformKey;
+
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.security.UserContext;
 import com.vsct.dt.hesperides.security.model.User;
@@ -71,8 +73,8 @@ import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 @Api("/applications")
 public final class HesperidesApplicationResource extends BaseResource {
 
-    private final Applications  applications;
-    private final Modules   modules;
+    private final Applications applications;
+    private final Modules modules;
     private final ApplicationSearch applicationSearch;
     private final PlatformConverter platformConverter;
     private final PropertiesConverter propertiesConverter;
@@ -112,7 +114,8 @@ public final class HesperidesApplicationResource extends BaseResource {
         return Response.ok(this.applications.getApplicationsFromSelector(
                 data -> data.getModules().stream().anyMatch(
                         elem -> elem.getName().equals(module) && elem.getVersion().equals(version) &&
-                                ((elem.isWorkingCopy() && type.equals("workingcopy")) || (!elem.isWorkingCopy() && type.equals("release")))))).build();
+                                ((elem.isWorkingCopy() && WorkingCopy.is(type))
+                                        || (!elem.isWorkingCopy() && Release.is(type)))))).build();
     }
 
     @Path("/{application_name}/platforms/{platform_name}/global_properties_usage")
@@ -120,30 +123,35 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Retrieve global properties usage in application")
     public Response getGlobalPropertiesUsage(@Auth final User user, @PathParam("application_name") final String applicationName,
-                                @PathParam("platform_name") final String platformName) {
+                                             @PathParam("platform_name") final String platformName) {
 
 
-        Collection<PlatformData> l = this.applications.getApplicationsFromSelector(data -> data.getApplicationName().equals(applicationName) && data.getPlatformName().equals(platformName));
+        final Collection<PlatformData> listPlatform = this.applications.getApplicationsFromSelector(
+                data -> data.getApplicationName().equals(applicationName) && data.getPlatformName().equals(platformName));
 
-        PlatformData p = l.stream().findFirst().get();
+        final PlatformData firstPlatform = listPlatform.stream().findFirst().get();
 
-        Map<String, Set<HashMap>> usage = new HashMap<>();
+        final Map<String, Set<Map>> usage = new HashMap<>();
 
-        applications.getProperties(new PlatformKey(applicationName, platformName), "#").getKeyValueProperties().stream().forEach(globalProp -> {
+        applications
+                .getProperties(new PlatformKey(applicationName, platformName), "#")
+                .getKeyValueProperties()
+                .stream()
+                .forEach(globalProp -> {
 
-            Set<HashMap> buffer = new HashSet<HashMap>();
+            final Set<Map> buffer = new HashSet<>();
 
-            p.getModules().stream().forEach(elem -> {
+            firstPlatform.getModules().stream().forEach(elem -> {
 
-                PlatformKey currentPlatformKey = new PlatformKey(applicationName, platformName);
+                final PlatformKey currentPlatformKey = new PlatformKey(applicationName, platformName);
 
                 Optional<HesperidesPropertiesModel> oModel;
                 HesperidesPropertiesModel model;
 
-                if (!elem.isWorkingCopy()) {
-                    oModel = modules.getModel(new ModuleKey(elem.getName(), Release.of(elem.getVersion())));
-                } else {
+                if (elem.isWorkingCopy()) {
                     oModel = modules.getModel(new ModuleKey(elem.getName(), WorkingCopy.of(elem.getVersion())));
+                } else {
+                    oModel = modules.getModel(new ModuleKey(elem.getName(), Release.of(elem.getVersion())));
                 }
 
                 if (oModel.isPresent()) {
@@ -162,9 +170,14 @@ public final class HesperidesApplicationResource extends BaseResource {
                     model = null;
                 }
 
-                applications.getProperties(currentPlatformKey, elem.getPropertiesPath()).getKeyValueProperties().stream().forEach(prop -> {
+                applications
+                        .getProperties(currentPlatformKey, elem.getPropertiesPath())
+                        .getKeyValueProperties()
+                        .stream()
+                        .forEach(prop -> {
 
-                    if (prop.getName().equals(globalProp.getName()) || prop.getValue().contains("{{" + globalProp.getName() + "}}")) {
+                    if (prop.getName().equals(globalProp.getName())
+                            || prop.getValue().contains("{{" + globalProp.getName() + "}}")) {
 
                         if (model == null) {
 
@@ -174,7 +187,7 @@ public final class HesperidesApplicationResource extends BaseResource {
                             }});
                         } else {
 
-                            Boolean inModel = model.getKeyValueProperties().stream().anyMatch(mod ->
+                            boolean inModel = model.getKeyValueProperties().stream().anyMatch(mod ->
                                     prop.getName().equals(mod.getName()));
 
                             buffer.add(new HashMap() {{
@@ -185,7 +198,7 @@ public final class HesperidesApplicationResource extends BaseResource {
                     }
                 });
             });
-//            usage.put(globalProp.getName(), buffer.stream().distinct().collect(Collectors.toList()));
+
             usage.put(globalProp.getName(), buffer);
         });
 

@@ -22,12 +22,13 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.common.collect.ImmutableSet;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.templating.Template;
-import com.vsct.dt.hesperides.templating.TemplateData;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
@@ -103,7 +104,7 @@ public class HesperidesModuleResource extends BaseResource {
 
         return modules.getAllModules().stream()
                 .filter(e -> e.getName().equals(moduleName) && e.getVersion().equals(moduleVersion))
-                .map(e -> (e.isWorkingCopy() ? "workingcopy" : "release")).collect(Collectors.toList());
+                .map(e -> (e.isWorkingCopy() ? WorkingCopy.LC : Release.LC)).collect(Collectors.toList());
     }
 
     @Path("/{module_name}/{module_version}/{module_type}")
@@ -119,11 +120,15 @@ public class HesperidesModuleResource extends BaseResource {
         checkQueryParameterNotEmpty("module_type", moduleType);
 
         final ModuleKey moduleKey;
-        switch (moduleType) {
-            case "workincopy" : moduleKey=new ModuleKey(moduleName, WorkingCopy.of(moduleVersion)); break;
-            case "release" : moduleKey=new ModuleKey(moduleName, Release.of(moduleVersion)); break;
-            default : throw new MissingResourceException(moduleType + " is not a valid module type. Choose either workingcopy or release");
+
+        if (WorkingCopy.is(moduleType)) {
+            moduleKey = new ModuleKey(moduleName, WorkingCopy.of(moduleVersion));
+        } else if (Release.is(moduleType)) {
+            moduleKey = new ModuleKey(moduleName, Release.of(moduleVersion));
+        } else {
+            throw new MissingResourceException(moduleType + " is not a valid module type. Choose either workingcopy or release");
         }
+
         return modules.getModule(moduleKey).orElseThrow(() -> new MissingResourceException("Could not find module info for " + moduleKey));
     }
 
@@ -160,7 +165,14 @@ public class HesperidesModuleResource extends BaseResource {
                             searchResponse.getName(),
                             new HesperidesVersion(searchResponse.getVersion(), searchResponse.isWorkingCopy())
                     );
-                    return modules.getModule(moduleKey).get();
+
+                    Optional<Module> mod = modules.getModule(moduleKey);
+
+                    if (mod.isPresent()) {
+                        return modules.getModule(moduleKey).get();
+                    } else {
+                        return new Module("fake", "1.0", false, ImmutableSet.of(), 0);
+                    }
                 })
                 .collect(Collectors.toList());
     }

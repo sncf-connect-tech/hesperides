@@ -27,8 +27,8 @@ import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.templating.Template;
-import com.vsct.dt.hesperides.templating.TemplateData;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 /**
  * Created by william_montaz on 11/07/14.
  */
-@Path("/templates")
+@Path("/templates/packages")
 @Api("/templates")
 @Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
 @Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
@@ -67,7 +67,7 @@ public class HesperidesTemplateResource extends BaseResource {
         this.templateSearch = templateSearch;
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy/templates")
+    @Path("/{package_name}/{package_version}/workingcopy/templates")
     @GET
     @Timed
     @ApiOperation("Get all templates bundled in a package of a version workingcopy")
@@ -88,7 +88,7 @@ public class HesperidesTemplateResource extends BaseResource {
 
     }
 
-    @Path("/packages/{package_name}/{package_version}/release/templates")
+    @Path("/{package_name}/{package_version}/release/templates")
     @GET
     @Timed
     @ApiOperation("get all templates bundled in a package of a version release")
@@ -108,7 +108,7 @@ public class HesperidesTemplateResource extends BaseResource {
                 .collect(Collectors.toList());
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy")
+    @Path("/{package_name}/{package_version}/workingcopy")
     @DELETE
     @Timed
     @ApiOperation("Delete a template package working copy")
@@ -126,7 +126,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.ok().build();
     }
 
-    @Path("/packages/{package_name}/{package_version}/release")
+    @Path("/{package_name}/{package_version}/release")
     @DELETE
     @Timed
     @ApiOperation("Delete a template package release")
@@ -144,7 +144,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.ok().build();
     }
 
-    @Path("/packages/{package_name}/{package_version}/release/model")
+    @Path("/{package_name}/{package_version}/release/model")
     @GET
     @Timed
     @ApiOperation("get properties model for a release")
@@ -159,7 +159,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.status(200).entity(model).build();
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy/model")
+    @Path("/{package_name}/{package_version}/workingcopy/model")
     @GET
     @Timed
     @ApiOperation("Get properties model for a workingcopy")
@@ -174,7 +174,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.status(200).entity(model).build();
     }
 
-    @Path("/packages/perform_search")
+    @Path("/perform_search")
     @POST
     @Timed
     @ApiOperation("Get technos by tokens")
@@ -193,7 +193,7 @@ public class HesperidesTemplateResource extends BaseResource {
                 .keySet().stream()
                 .map(namespace -> {
                     String[] splits = namespace.split("#");
-                    return new TemplatePackageKey(splits[1], splits[2], splits[3].equals("WORKINGCOPY"));
+                    return new TemplatePackageKey(splits[1], splits[2], WorkingCopy.is(splits[3]));
                 }).sorted((technoA, technoB) -> {
                     int compareName = technoA.getName().compareTo(technoB.getName());
                     if (compareName != 0) {
@@ -205,7 +205,7 @@ public class HesperidesTemplateResource extends BaseResource {
                 }).collect(Collectors.toList());
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy/templates/{template_name}")
+    @Path("/{package_name}/{package_version}/workingcopy/templates/{template_name}")
     @GET
     @Timed
     @ApiOperation("Get template bundled in a package for a version workingcopy")
@@ -227,7 +227,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return template;
     }
 
-    @Path("/packages/{package_name}/{package_version}/release/templates/{template_name}")
+    @Path("/{package_name}/{package_version}/release/templates/{template_name}")
     @GET
     @Timed
     @ApiOperation("Get template bundled in a package for a version release")
@@ -249,7 +249,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return template;
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy/templates")
+    @Path("/{package_name}/{package_version}/workingcopy/templates")
     @PUT
     @Timed
     @ApiOperation("Update template in the workingcopy of a package")
@@ -277,7 +277,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return templatePackages.updateTemplateInWorkingCopy(packageInfo, templateData);
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy/templates")
+    @Path("/{package_name}/{package_version}/workingcopy/templates")
     @POST
     @Timed
     @ApiOperation("Create template in the workingcopy of a package")
@@ -305,7 +305,6 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(created).build();
     }
 
-    @Path("/packages")
     @POST
     @Timed
     @ApiOperation("Create a working copy from a release (to create a new working copy, just add a template")
@@ -331,7 +330,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(wc).build();
     }
 
-    @Path("/packages/{package_name}/{package_version}/workingcopy/templates/{template_name}")
+    @Path("/{package_name}/{package_version}/workingcopy/templates/{template_name}")
     @DELETE
     @Timed
     @ApiOperation("Delete template in the working copy of a version")
@@ -352,7 +351,7 @@ public class HesperidesTemplateResource extends BaseResource {
         return Response.status(ClientResponse.Status.OK).build();
     }
 
-    @Path("/packages/create_release")
+    @Path("/create_release")
     @POST
     @Timed
     @ApiOperation("Create a release from an existing workingcopy")

@@ -28,30 +28,29 @@ import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.resources.KeyValueValorisation;
-import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
-import com.vsct.dt.hesperides.templating.TemplateFileRights;
-import com.vsct.dt.hesperides.templating.TemplateRights;
-import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.modules.Techno;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateFileRights;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateRights;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
-import org.apache.commons.lang.ArrayUtils;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -228,15 +227,15 @@ public class Files {
      * @return
      */
     public String getFile(String applicationName,
-                          String platformName,
-                          String path,
-                          String moduleName,
-                          String moduleVersion,
-                          boolean isModuleWorkingCopy,
-                          String instanceName,
-                          String templateNamespace,
-                          String templateName, HesperidesPropertiesModel model,
-                          Boolean simulate) {
+            String platformName,
+            String path,
+            String moduleName,
+            String moduleVersion,
+            boolean isModuleWorkingCopy,
+            String instanceName,
+            String templateNamespace,
+            String templateName, HesperidesPropertiesModel model,
+            Boolean simulate) {
 
         PlatformKey platformKey = PlatformKey.withName(platformName)
                 .withApplicationName(applicationName)
@@ -269,7 +268,7 @@ public class Files {
                 moduleName,
                 new HesperidesVersion(moduleVersion, isModuleWorkingCopy)
         );
-        
+
         Template template = manageModule(moduleName, moduleVersion, isModuleWorkingCopy, templateNamespace,
                 templateName, mustacheScope, moduleKey);
 
@@ -296,9 +295,9 @@ public class Files {
      * @return
      */
     private Template manageModule(final String moduleName, final String moduleVersion,
-                                  final boolean isModuleWorkingCopy, final String templateNamespace,
-                                  final String templateName, final MustacheScope mustacheScope,
-                                  final ModuleKey moduleKey) {
+            final boolean isModuleWorkingCopy, final String templateNamespace,
+            final String templateName, final MustacheScope mustacheScope,
+            final ModuleKey moduleKey) {
         Template template = null;
 
         if(templateNamespace.startsWith("modules")){

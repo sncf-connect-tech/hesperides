@@ -23,15 +23,11 @@ package com.vsct.dt.hesperides.templating.modules;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
 import com.vsct.dt.hesperides.storage.DomainVersionable;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import io.dropwizard.jackson.JsonSnakeCase;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 

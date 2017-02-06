@@ -23,21 +23,24 @@ package com.vsct.dt.hesperides.applications;
 
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
-import com.vsct.dt.hesperides.EventStoreMock;
+import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.Properties;
+import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
 import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
-import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
+import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
+import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,24 +52,24 @@ import static org.mockito.Mockito.*;
  */
 public class ApplicationsAggregateTest {
     private static final PropertiesConverter PROPERTIES_CONVERTER = new DefaultPropertiesConverter();
+    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
 
-    EventBus         eventBus        = new EventBus();
-    EventStoreMock   eventStoreMock  = new EventStoreMock();
-    SnapshotRegistry snapshotRegistry = mock(SnapshotRegistry.class);
+    private EventBus         eventBus        = new EventBus();
+    private SnapshotRegistryInterface snapshotRegistryInterface = mock(SnapshotRegistry.class);
 
-    ApplicationsAggregate applications;
+    private ApplicationsAggregate applicationsWithEvent;
 
     private final String comment = "Test comment";
 
     @Before
     public void setUp() throws Exception {
-        applications = new ApplicationsAggregate(eventBus, eventStoreMock, snapshotRegistry);
-        eventStoreMock.reset();
+        applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface, new HesperidesConfiguration());
+        poolRedis.reset();
     }
 
     @After
     public void checkUnwantedEvents() {
-        eventStoreMock.verifyUnexpectedEvents();
     }
 
     /**
@@ -75,8 +78,6 @@ public class ApplicationsAggregateTest {
 
     @Test
     public void should_create_platform_if_not_already_existing_and_provide_id_to_every_module_that_does_not_have_one() {
-        eventStoreMock.ignoreEvents();
-
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
                 .withVersion("version")
@@ -133,7 +134,7 @@ public class ApplicationsAggregateTest {
                 .withVersion(1L)
                 .isProduction();
 
-        PlatformData pltfm = applications.createPlatform(builder1.build());
+        PlatformData pltfm = applicationsWithEvent.createPlatform(builder1.build());
 
         assertThat(pltfm.getPlatformName()).isEqualTo("a_pltfm");
         assertThat(pltfm.getApplicationName()).isEqualTo("an_app");
@@ -150,8 +151,6 @@ public class ApplicationsAggregateTest {
 
     @Test
     public void should_create_platform_from_an_existing_one (){
-        eventStoreMock.ignoreEvents();
-
         // Modules
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
@@ -182,7 +181,7 @@ public class ApplicationsAggregateTest {
                 .withVersion(1L)
                 .isProduction();
 
-        PlatformData fromPlatform = applications.createPlatform(builder1.build());
+        PlatformData fromPlatform = applicationsWithEvent.createPlatform(builder1.build());
 
         // Properties ( only the keyValues ones ! )
         Set<KeyValueValorisationData> keyValueProps = Sets.newHashSet();
@@ -197,8 +196,8 @@ public class ApplicationsAggregateTest {
         keyValueProps2.add( new KeyValueValorisationData("hisProp2", "valOfHisProp2"));
         keyValueProps2.add( new KeyValueValorisationData("hisProp3", "valOfHisProp3"));
 
-        applications.createOrUpdatePropertiesInPlatform(fromPlatform.getKey(), "#SOME_PATH", new PropertiesData(keyValueProps, Sets.newHashSet()), 1, comment);
-        applications.createOrUpdatePropertiesInPlatform(fromPlatform.getKey(), "#SOME_OTHER_PATH", new PropertiesData(keyValueProps2, Sets.newHashSet()), 2, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(fromPlatform.getKey(), "#SOME_PATH", new PropertiesData(keyValueProps, Sets.newHashSet()), 1, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(fromPlatform.getKey(), "#SOME_OTHER_PATH", new PropertiesData(keyValueProps2, Sets.newHashSet()), 2, comment);
 
         PlatformData platformToBeCreated = PlatformData.withPlatformName("myOtherPlatform")
                 .withApplicationName("myApp")
@@ -207,7 +206,7 @@ public class ApplicationsAggregateTest {
                 .withVersion(1L)
                 .isProduction().build();
 
-        PlatformData createdFromPlatform = applications.createPlatformFromExistingPlatform(platformToBeCreated, fromPlatform.getKey());
+        PlatformData createdFromPlatform = applicationsWithEvent.createPlatformFromExistingPlatform(platformToBeCreated, fromPlatform.getKey());
 
         // Check platform
         assertThat(createdFromPlatform).isNotNull();
@@ -221,19 +220,19 @@ public class ApplicationsAggregateTest {
         assertThat(createdIds).isEqualTo(Sets.newHashSet(1, 2));
 
         // Check properties
-        assertThat(applications.getProperties(createdFromPlatform.getKey(), "#SOME_PATH")).isNotNull();
-        assertThat(applications.getProperties(createdFromPlatform.getKey(), "#SOME_OTHER_PATH").getKeyValueProperties().size()).isEqualTo(keyValueProps2.size());
+        assertThat(applicationsWithEvent.getProperties(createdFromPlatform.getKey(), "#SOME_PATH")).isNotNull();
+        assertThat(applicationsWithEvent.getProperties(createdFromPlatform.getKey(), "#SOME_OTHER_PATH").getKeyValueProperties().size()).isEqualTo(keyValueProps2.size());
 
     }
 
     @Test
     public void should_fire_platform_created_event_when_a_platform_is_created(){
-
+// TODO
     }
 
     @Test
     public void should_not_create_platform_if_it_already_exists(){
-
+// TODO
     }
 
     /**
@@ -241,13 +240,11 @@ public class ApplicationsAggregateTest {
      */
     @Test
     public void should_update_platform_without_copying_properties_when_path_not_changed_and_no_copy_is_asked(){
-
+// TODO
     }
 
     @Test
     public void should_update_platform_by_providing_module_id_to_new_modules_only(){
-        eventStoreMock.ignoreEvents();
-
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
                 .withVersion("version")
@@ -313,7 +310,7 @@ public class ApplicationsAggregateTest {
                 .withVersion(1L)
                 .isProduction();
 
-        PlatformData pltfm = applications.createPlatform(builder1.build());
+        applicationsWithEvent.createPlatform(builder1.build());
 
         /*
         Updating the platfm, we remove module3 and add module 4, 5 and 6
@@ -327,7 +324,7 @@ public class ApplicationsAggregateTest {
                 .withVersion(1L)
                 .isProduction();
 
-        PlatformData updatedPltfm = applications.updatePlatform(builder2.build(), false);
+        PlatformData updatedPltfm = applicationsWithEvent.updatePlatform(builder2.build(), false);
 
         assertThat(updatedPltfm.getPlatformName()).isEqualTo("a_pltfm");
         assertThat(updatedPltfm.getApplicationName()).isEqualTo("an_app");
@@ -353,8 +350,6 @@ public class ApplicationsAggregateTest {
 
     @Test
     public void should_delete_plateform_and_related_properties(){
-        eventStoreMock.ignoreEvents();
-
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -363,24 +358,25 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet())
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
-        applications.createOrUpdatePropertiesInPlatform(key, "#SOME_PATH", new PropertiesData(Sets.newHashSet(), Sets.newHashSet()), 1, comment);
-        applications.createOrUpdatePropertiesInPlatform(key, "#SOME_OTHER_PATH", new PropertiesData(Sets.newHashSet(), Sets.newHashSet()), 2, comment);
+        applicationsWithEvent.createPlatform(builder2.build());
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, "#SOME_PATH", new PropertiesData(Sets.newHashSet(), Sets.newHashSet()), 1, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, "#SOME_OTHER_PATH", new PropertiesData(Sets.newHashSet(), Sets.newHashSet()), 2, comment);
 
-        assertThat(applications.getPlatform(key).isPresent()).isTrue();
-        assertThat(applications.getProperties(key, "#SOME_PATH")).isNotNull();
-        assertThat(applications.getProperties(key, "#SOME_OTHER_PATH")).isNotNull();
 
-        applications.delete(key);
-        assertThat(applications.getPlatform(key).isPresent()).isFalse();
-        assertThat(applications.getProperties(key, "#SOME_PATH").getIterableProperties().size()).isEqualTo(0);
-        assertThat(applications.getProperties(key, "#SOME_PATH").getKeyValueProperties().size()).isEqualTo(0);
-        assertThat(applications.getProperties(key, "#SOME_OTHER_PATH").getIterableProperties().size()).isEqualTo(0);
-        assertThat(applications.getProperties(key, "#SOME_OTHER_PATH").getKeyValueProperties().size()).isEqualTo(0);
+        assertThat(applicationsWithEvent.getPlatform(key).isPresent()).isTrue();
+        assertThat(applicationsWithEvent.getProperties(key, "#SOME_PATH")).isNotNull();
+        assertThat(applicationsWithEvent.getProperties(key, "#SOME_OTHER_PATH")).isNotNull();
+
+        applicationsWithEvent.delete(key);
+        assertThat(applicationsWithEvent.getPlatform(key).isPresent()).isFalse();
+        assertThat(applicationsWithEvent.getProperties(key, "#SOME_PATH").getIterableProperties().size()).isEqualTo(0);
+        assertThat(applicationsWithEvent.getProperties(key, "#SOME_PATH").getKeyValueProperties().size()).isEqualTo(0);
+        assertThat(applicationsWithEvent.getProperties(key, "#SOME_OTHER_PATH").getIterableProperties().size()).isEqualTo(0);
+        assertThat(applicationsWithEvent.getProperties(key, "#SOME_OTHER_PATH").getKeyValueProperties().size()).isEqualTo(0);
     }
 
     @Test
-    public void deleting_platform_should_fire_an_event(){
+    public void deleting_platform_should_fire_an_event() throws IOException, ClassNotFoundException {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -389,25 +385,24 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet())
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
-        eventStoreMock.reset();
+        applicationsWithEvent.createPlatform(builder2.build());
 
-        applications.delete(key);
+        applicationsWithEvent.delete(key);
 
-        eventStoreMock.checkSavedTheEventOnStream("platform-FOO-REL1", new PlatformDeletedEvent(key.getApplicationName(), key.getName()));
+        poolRedis.checkSavedLastEventOnStream("platform-FOO-REL1",
+                new PlatformDeletedEvent(key.getApplicationName(), key.getName()));
     }
 
     @Test(expected = MissingResourceException.class)
     public void should_throw_exception_when_trying_to_delete_unknown_paltform(){
-        eventStoreMock.ignoreEvents();
         PlatformKey key = new PlatformKey("FOO", "REL1");
-        applications.delete(key);
+        applicationsWithEvent.delete(key);
     }
 
     @Test
     public void snapshoting_platform_should_call_snapshot_service(){
-        eventStoreMock.ignoreEvents();
         PlatformKey key = new PlatformKey("FOO", "REL1");
+
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
                 .withVersion("version")
@@ -441,7 +436,7 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet(module1, module2, module3))
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
+        applicationsWithEvent.createPlatform(builder2.build());
 
         //Create some properties
         KeyValueValorisationData p1 = new KeyValueValorisationData("prop1", "value1");
@@ -453,12 +448,13 @@ public class ApplicationsAggregateTest {
         PropertiesData properties1 = new PropertiesData(Sets.newHashSet(p1, p2), Sets.newHashSet());
         PropertiesData properties2 = new PropertiesData(Sets.newHashSet(p3, p4), Sets.newHashSet());
         PropertiesData properties3 = new PropertiesData(Sets.newHashSet(p5, p6), Sets.newHashSet());
-        applications.createOrUpdatePropertiesInPlatform(key, module1.getPropertiesPath(), properties1, 1, comment);
-        applications.createOrUpdatePropertiesInPlatform(key, module2.getPropertiesPath(), properties2, 2, comment);
-        applications.createOrUpdatePropertiesInPlatform(key, "#SOME_PATH_FROM_OLDER_MODULE", properties3, 3, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, module1.getPropertiesPath(), properties1, 1, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, module2.getPropertiesPath(), properties2, 2, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, "#SOME_PATH_FROM_OLDER_MODULE", properties3, 3, comment);
+
         //We add no properties for module3, something like this can happen
 
-        long timestamp = applications.takeSnapshot(key);
+        long timestamp = applicationsWithEvent.takeSnapshot(key);
 
         Map<String, PropertiesData> properties = new HashMap<>();
         properties.put(module1.getPropertiesPath(), properties1);
@@ -466,12 +462,13 @@ public class ApplicationsAggregateTest {
         PlatformSnapshot snapshot = new PlatformSnapshot(builder2.build(), properties);
 
         PlatformSnapshotKey platformSnapshotKey = new PlatformSnapshotKey(timestamp, key);
-        verify(snapshotRegistry).createSnapshot(platformSnapshotKey, snapshot);
+        verify(snapshotRegistryInterface).createSnapshot(platformSnapshotKey, snapshot);
     }
 
     @Test
-    public void snapshoting_platform_should_fire_an_event(){
+    public void snapshoting_platform_should_fire_an_event() throws IOException, ClassNotFoundException {
         PlatformKey key = new PlatformKey("FOO", "REL1");
+
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
                 .withVersion("version")
@@ -496,8 +493,7 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet(module1, module2))
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
-        eventStoreMock.reset();
+        applicationsWithEvent.createPlatform(builder2.build());
 
         //Create some properties
         KeyValueValorisationData p1 = new KeyValueValorisationData("prop1", "value1");
@@ -509,28 +505,27 @@ public class ApplicationsAggregateTest {
         PropertiesData properties1 = new PropertiesData(Sets.newHashSet(p1, p2), Sets.newHashSet());
         PropertiesData properties2 = new PropertiesData(Sets.newHashSet(p3, p4), Sets.newHashSet());
         PropertiesData properties3 = new PropertiesData(Sets.newHashSet(p5, p6), Sets.newHashSet());
-        applications.createOrUpdatePropertiesInPlatform(key, module1.getPropertiesPath(), properties1, 1, comment);
-        eventStoreMock.reset();
-        applications.createOrUpdatePropertiesInPlatform(key, module2.getPropertiesPath(), properties2, 2, comment);
-        eventStoreMock.reset();
-        applications.createOrUpdatePropertiesInPlatform(key, "#SOME_PATH_FROM_OLDER_MODULE", properties3, 3, comment);
-        eventStoreMock.reset();
 
-        long timestamp = applications.takeSnapshot(key);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, module1.getPropertiesPath(), properties1, 1, comment);
 
-        eventStoreMock.checkSavedTheEventOnStream("platform-FOO-REL1", new PlatformSnapshotEvent(timestamp, "FOO", "REL1"));
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, module2.getPropertiesPath(), properties2, 2, comment);
+
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, "#SOME_PATH_FROM_OLDER_MODULE", properties3, 3, comment);
+
+        long timestamp = applicationsWithEvent.takeSnapshot(key);
+
+        poolRedis.checkSavedLastEventOnStream("platform-FOO-REL1",
+                new PlatformSnapshotEvent(timestamp, "FOO", "REL1"));
     }
 
     @Test(expected = MissingResourceException.class)
     public void should_throw_exception_when_trying_to_snapshot_unknown_platform(){
-        eventStoreMock.ignoreEvents();
         PlatformKey key = new PlatformKey("FOO", "REL1");
-        applications.takeSnapshot(key);
+        applicationsWithEvent.takeSnapshot(key);
     }
 
     @Test
     public void should_restore_snapshot_with_an_updated_version_id_when_platform_exists(){
-        eventStoreMock.ignoreEvents();
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -541,7 +536,7 @@ public class ApplicationsAggregateTest {
 
         PlatformData platform = builder2.build();
 
-        applications.createPlatform(platform);
+        applicationsWithEvent.createPlatform(platform);
 
         //Platform is created, id is 1
 
@@ -562,24 +557,23 @@ public class ApplicationsAggregateTest {
 
         PlatformSnapshotKey snapshotKey = new PlatformSnapshotKey(123456789, key);
         PlatformSnapshot snapshot = new PlatformSnapshot(platform, pathToProperties);
-        when(snapshotRegistry.getSnapshot(snapshotKey, PlatformSnapshot.class)).thenReturn(Optional.of(snapshot));
+        when(snapshotRegistryInterface.getSnapshot(snapshotKey, PlatformSnapshot.class)).thenReturn(Optional.of(snapshot));
 
-        PlatformData result = applications.restoreSnapshot(key, 123456789);
+        PlatformData result = applicationsWithEvent.restoreSnapshot(key, 123456789);
 
-        PlatformData stored = applications.getPlatform(key).get();
+        PlatformData stored = applicationsWithEvent.getPlatform(key).get();
 
         assertThat(result).isEqualTo(stored);
         assertThat(stored.getVersionID()).isEqualTo(2);
 
-        assertThat(applications.getProperties(key, "#PATH1")).isEqualTo(properties1);
-        assertThat(applications.getProperties(key, "#PATH2")).isEqualTo(properties2);
-        assertThat(applications.getProperties(key, "#PATH3")).isEqualTo(properties3);
+        assertThat(applicationsWithEvent.getProperties(key, "#PATH1")).isEqualTo(properties1);
+        assertThat(applicationsWithEvent.getProperties(key, "#PATH2")).isEqualTo(properties2);
+        assertThat(applicationsWithEvent.getProperties(key, "#PATH3")).isEqualTo(properties3);
 
     }
 
     @Test
     public void should_restore_snapshot_with_version_id_at_1_when_platform_was_deleted(){
-        eventStoreMock.ignoreEvents();
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -588,8 +582,8 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet())
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
-        applications.delete(key);
+        applicationsWithEvent.createPlatform(builder2.build());
+        applicationsWithEvent.delete(key);
 
         //Platform is created, id is 1
 
@@ -610,17 +604,17 @@ public class ApplicationsAggregateTest {
 
         PlatformSnapshotKey snapshotKey = new PlatformSnapshotKey(123456789, key);
         PlatformSnapshot snapshot = new PlatformSnapshot(builder2.build(), pathToProperties);
-        when(snapshotRegistry.getSnapshot(snapshotKey, PlatformSnapshot.class)).thenReturn(Optional.of(snapshot));
+        when(snapshotRegistryInterface.getSnapshot(snapshotKey, PlatformSnapshot.class)).thenReturn(Optional.of(snapshot));
 
-        applications.restoreSnapshot(key, 123456789);
+        applicationsWithEvent.restoreSnapshot(key, 123456789);
 
-        PlatformData stored = applications.getPlatform(key).get();
+        PlatformData stored = applicationsWithEvent.getPlatform(key).get();
 
         assertThat(stored.getVersionID()).isEqualTo(1);
     }
 
     @Test
-    public void should_fire_an_event_when_restoring_a_snapshot(){
+    public void should_fire_an_event_when_restoring_a_snapshot() throws IOException, ClassNotFoundException {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -629,8 +623,8 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet())
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
-        eventStoreMock.reset();
+        applicationsWithEvent.createPlatform(builder2.build());
+        poolRedis.reset();
 
         //Platform is created, id is 1
 
@@ -651,19 +645,18 @@ public class ApplicationsAggregateTest {
 
         PlatformSnapshotKey snapshotKey = new PlatformSnapshotKey(123456789, key);
         PlatformSnapshot snapshot = new PlatformSnapshot(builder2.build(), pathToProperties);
-        when(snapshotRegistry.getSnapshot(snapshotKey, PlatformSnapshot.class)).thenReturn(Optional.of(snapshot));
+        when(snapshotRegistryInterface.getSnapshot(snapshotKey, PlatformSnapshot.class)).thenReturn(Optional.of(snapshot));
 
-        applications.restoreSnapshot(key, 123456789);
+        applicationsWithEvent.restoreSnapshot(key, 123456789);
 
-        eventStoreMock.checkSavedTheEventOnStream("platform-FOO-REL1", new PlatformSnapshotRestoreEvent(123456789, snapshot));
+        poolRedis.checkSavedLastEventOnStream("platform-FOO-REL1",
+                new PlatformSnapshotRestoreEvent(123456789, snapshot));
     }
 
     //This will not test a lot the structure of the instance properties itself, since it is already tested in PropertiesTest
     //We will just check the presence of one property
     @Test
     public void get_instance_model_should_return_the_instance_model_for_a_given_platform_and_properties_path(){
-        eventStoreMock.ignoreEvents();
-
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -672,15 +665,15 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet())
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
+        applicationsWithEvent.createPlatform(builder2.build());
 
         KeyValueValorisationData p1 = new KeyValueValorisationData("prop1", "{{instance.property}}");
         PropertiesData properties = new PropertiesData(Sets.newHashSet(p1), Sets.newHashSet());
 
-        applications.createOrUpdatePropertiesInPlatform(key, "#some#path", properties, 1, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, "#some#path", properties, 1, comment);
 
         //Get the isntance model
-        InstanceModel model = applications.getInstanceModel(key, "#some#path");
+        InstanceModel model = applicationsWithEvent.getInstanceModel(key, "#some#path");
 
         assertThat(model.getKeys().size()).isEqualTo(1);
         assertThat(model.getKeys().iterator().next().getName()).isEqualTo("instance.property");
@@ -689,15 +682,13 @@ public class ApplicationsAggregateTest {
     @Test(expected = MissingResourceException.class)
     public void get_instance_model_should_throw_missing_ressource_exception_when_platform_is_missing(){
         PlatformKey key = new PlatformKey("FOO", "REL1");
-        applications.getInstanceModel(key, "#some#path");
+        applicationsWithEvent.getInstanceModel(key, "#some#path");
     }
 
     //This will not test a lot the structure of the instance properties itself, since it is already tested in PropertiesTest
     //We will just check the presence of one property coming from the global scope
     @Test
     public void get_instance_model_should_also_include_platform_global_properties(){
-        eventStoreMock.ignoreEvents();
-
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -706,24 +697,22 @@ public class ApplicationsAggregateTest {
                 .withModules(Sets.newHashSet())
                 .withVersion(1L);
 
-        applications.createPlatform(builder2.build());
+        applicationsWithEvent.createPlatform(builder2.build());
 
         KeyValueValorisation p1 = new KeyValueValorisation("prop1", "{{instance.property.from.global}}");
         Properties properties = new Properties(Sets.newHashSet(p1), Sets.newHashSet());
 
-        applications.createOrUpdatePropertiesInPlatform(key, "#", PROPERTIES_CONVERTER.toPropertiesData(properties), 1, comment);
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(key, "#", PROPERTIES_CONVERTER.toPropertiesData(properties), 1, comment);
 
         //Get the isntance model
-        InstanceModel model = applications.getInstanceModel(key, "#some#path");
+        InstanceModel model = applicationsWithEvent.getInstanceModel(key, "#some#path");
 
         assertThat(model.getKeys().size()).isEqualTo(1);
         assertThat(model.getKeys().iterator().next().getName()).isEqualTo("instance.property.from.global");
     }
 
     @Test
-    public void unit_test_getApplicationFromSelector() {
-        eventStoreMock.ignoreEvents();
-
+    public void get_application_from_selector() {
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("demoKatana")
                 .withVersion("1.0.0")
@@ -793,40 +782,42 @@ public class ApplicationsAggregateTest {
                 .isProduction();
 
 
-        PlatformData pltfm1 = applications.createPlatform(builder1.build());
-        PlatformData pltfm2 = applications.createPlatform(builder2.build());
-        PlatformData pltfm3 = applications.createPlatform(builder3.build());
+        PlatformData pltfm1 = applicationsWithEvent.createPlatform(builder1.build());
+        PlatformData pltfm2 = applicationsWithEvent.createPlatform(builder2.build());
+        PlatformData pltfm3 = applicationsWithEvent.createPlatform(builder3.build());
 
 
-        Collection<PlatformData> test0 = applications.getApplicationsFromSelector(data -> true);
+        Collection<PlatformData> test0 = applicationsWithEvent.getApplicationsFromSelector(data -> true);
         assertThat(test0.size()).isEqualTo(3);
 
-        Collection<PlatformData> test1 = applications.getApplicationsFromSelector(
+        Collection<PlatformData> test1 = applicationsWithEvent.getApplicationsFromSelector(
                 data -> data.getModules().stream().anyMatch(
                         elem -> elem.getName().equals("demoKatana") && elem.getVersion().equals("1.0.0") && elem.isWorkingCopy()));
         assertThat(test1.size()).isEqualTo(2);
-        assertThat(test1).isEqualTo(Arrays.asList(pltfm2, pltfm1));
+//        assertThat(test1).isEqualTo(Arrays.asList(pltfm2, pltfm1));
+        assertThat(test1.contains(pltfm1)).isEqualTo(true);
+        assertThat(test1.contains(pltfm2)).isEqualTo(true);
 
-        Collection<PlatformData> test2 = applications.getApplicationsFromSelector(
+        Collection<PlatformData> test2 = applicationsWithEvent.getApplicationsFromSelector(
                 data -> data.getModules().stream().anyMatch(
                         elem -> elem.getName().equals("demoKatana") && elem.getVersion().equals("1.0.0") && !elem.isWorkingCopy()));
         assertThat(test2.size()).isEqualTo(2);
-        assertThat(test2).isEqualTo(Arrays.asList(pltfm2, pltfm1));
+//        assertThat(test2).isEqualTo(Arrays.asList(pltfm2, pltfm1));
+        assertThat(test2.contains(pltfm1)).isEqualTo(true);
+        assertThat(test2.contains(pltfm2)).isEqualTo(true);
 
-        Collection<PlatformData> test3 = applications.getApplicationsFromSelector(
+        Collection<PlatformData> test3 = applicationsWithEvent.getApplicationsFromSelector(
                 data -> data.getModules().stream().anyMatch(
                         elem -> elem.getName().equals("demoSabre")));
         assertThat(test3).isEqualTo(Arrays.asList(pltfm3));
 
-        Collection<PlatformData> test4 = applications.getApplicationsFromSelector(
+        Collection<PlatformData> test4 = applicationsWithEvent.getApplicationsFromSelector(
                 data -> data.getModules().stream().anyMatch(
                         elem -> elem.getName().equals("demoSabredsqd")));
         assertThat(test4).isEqualTo(Arrays.asList());
 
-        Collection<PlatformData> test5 = applications.getApplicationsFromSelector(
+        Collection<PlatformData> test5 = applicationsWithEvent.getApplicationsFromSelector(
                 data -> data.getApplicationName().equals("test"));
         assertThat(test5).isEqualTo(Arrays.asList(pltfm3));
     }
-
-
 }

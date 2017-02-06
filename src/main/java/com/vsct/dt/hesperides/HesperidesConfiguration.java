@@ -32,7 +32,8 @@ import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.storage.RedisConfiguration;
+import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
+import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
 import io.dropwizard.Configuration;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
@@ -71,7 +72,7 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     @Valid
     @NotNull
     @JsonProperty
-    private RedisConfiguration redisConfiguration;
+    private RetryRedisConfiguration redisConfiguration;
 
     @Valid
     @NotNull
@@ -95,6 +96,10 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     @Valid
     @NotEmpty
     private String useDefaultUserWhenAuthentFails;
+
+    @Valid
+    @JsonProperty
+    private HesperidesCacheConfiguration cacheConfiguration = new HesperidesCacheConfiguration();
 
     @Valid
     @NotNull
@@ -123,17 +128,19 @@ public final class HesperidesConfiguration extends Configuration implements Asse
 
     @JsonIgnore
     public Optional<Authenticator<BasicCredentials, User>> getAuthenticator() {
-        if (authenticatorType.equals("none")) {
+        final String authType = authenticatorType.toLowerCase();
+
+        if (authType.equals("none")) {
             return Optional.empty();
         }
-        else if (authenticatorType.equals("simple")) {
+        else if (authType.equals("simple")) {
             return Optional.of(new SimpleAuthenticator());
         }
-        else if (authenticatorType.equals("LDAP")) {
+        else if (authType.equals("ldap")) {
             return Optional.of(new LDAPAuthenticator(getLdapConfiguration()));
         }
         else {
-            throw new IllegalArgumentException("Authenticator " + authenticatorType + " is unknow. Use one of ['none', 'simple', 'LDAP']");
+            throw new IllegalArgumentException("Authenticator " + authenticatorType + " is unknow. Use one of ['none', 'simple', 'ldap']");
         }
     }
 
@@ -161,11 +168,11 @@ public final class HesperidesConfiguration extends Configuration implements Asse
         this.elasticSearchConfiguration = elasticSearchConfiguration;
     }
 
-    public RedisConfiguration getRedisConfiguration() {
+    public RetryRedisConfiguration getRedisConfiguration() {
         return redisConfiguration;
     }
 
-    public void setRedisConfiguration(RedisConfiguration redisConfiguration) {
+    public void setRedisConfiguration(RetryRedisConfiguration redisConfiguration) {
         this.redisConfiguration = redisConfiguration;
     }
 
@@ -187,6 +194,15 @@ public final class HesperidesConfiguration extends Configuration implements Asse
 
     public void setUseDefaultUserWhenAuthentFails(String useDefaultUserWhenAuthentFails) {
         this.useDefaultUserWhenAuthentFails = useDefaultUserWhenAuthentFails;
+    }
+
+
+    public HesperidesCacheConfiguration getCacheConfiguration() {
+        return cacheConfiguration;
+    }
+
+    public void setCacheConfiguration(HesperidesCacheConfiguration cacheConfiguration) {
+        this.cacheConfiguration = cacheConfiguration;
     }
 
     public void setEventsConfiguration (EventsConfiguration eventsConfiguration){

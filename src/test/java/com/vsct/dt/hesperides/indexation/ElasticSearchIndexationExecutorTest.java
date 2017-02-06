@@ -21,21 +21,27 @@
 
 package com.vsct.dt.hesperides.indexation;
 
+import com.vsct.dt.hesperides.AbstractCacheTest;
+import com.vsct.dt.hesperides.applications.PlatformKey;
+import com.vsct.dt.hesperides.resources.HesperidesFullIndexationResource;
+import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
+import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.HttpClient;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
  * Created by william_montaz on 04/11/2014.
  */
-public class ElasticSearchIndexationExecutorTest {
+public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
+    private ElasticSearchClient elasticSearchClient = mock(ElasticSearchClient.class);
 
-    ElasticSearchClient elasticSearchClient = mock(ElasticSearchClient.class);
 
     @Test
     public void testThatItRunsTask() throws ExecutionException, InterruptedException {
@@ -71,5 +77,48 @@ public class ElasticSearchIndexationExecutorTest {
         verify(task, times(2)).index(elasticSearchClient);
     }
 
+    @Test
+    public void full_indexation() throws IOException {
+        // Create module with template
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module1", "the_version");
+        generateModule(moduleKey, NB_EVENT_BEFORE_STORE);
+        // Create deleted module
+        moduleKey = new ModuleWorkingCopyKey("my_module2", "the_version");
+        generateModule(moduleKey, 0);
+        this.modulesWithEvent.delete(moduleKey);
 
+        // Create template package
+        TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package1", "package_version");
+        generateTemplatePackage(packageInfo, NB_EVENT_BEFORE_STORE);
+        // Create deleted template package
+        packageInfo = new TemplatePackageWorkingCopyKey("some_package2", "package_version");
+        generateTemplatePackage(packageInfo, 0);
+        this.templatePackagesWithEvent.delete(packageInfo);
+
+        // Create application
+        PlatformKey platformKey = PlatformKey.withName("a_pltfm1")
+                .withApplicationName("an_app")
+                .build();
+        generateApplication(platformKey, NB_EVENT_BEFORE_STORE);
+        // Create deleted application
+        platformKey = PlatformKey.withName("a_pltfm2")
+                .withApplicationName("an_app")
+                .build();
+        generateApplication(platformKey, 0);
+        this.applicationsWithEvent.delete(platformKey);
+
+        // Run indexation
+        HttpClient httpClient = mock(HttpClient.class);
+
+        Mockito.when(httpClient.execute(Mockito.any(), (HttpRequest) Mockito.any())).thenReturn(null);
+
+        Mockito.when(elasticSearchClient.getClient()).thenReturn(httpClient);
+
+        ElasticSearchIndexationExecutor elasticSearchIndexationExecutor
+                = new ElasticSearchIndexationExecutor(elasticSearchClient, 2, 100);
+        HesperidesFullIndexationResource fullIndexationResource = new HesperidesFullIndexationResource(
+                elasticSearchIndexationExecutor, applicationsWithEvent, modulesWithEvent, templatePackagesWithEvent);
+
+        fullIndexationResource.resetIndex();
+    }
 }

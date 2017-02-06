@@ -28,14 +28,16 @@ public class User {
     /**
      * Convenient 'untracked user' information
      */
-    public static final User UNTRACKED = new User("untracked", false);
+    public static final User UNTRACKED = new User("untracked", false, false);
 
     private final String  username;
-    private final boolean isProdUser;
+    private final boolean prodUser;
+    private final boolean techUser;
 
-    public User(final String username, boolean isProdUser) {
+    public User(final String username, boolean prodUser, boolean techUser) {
         this.username = username;
-        this.isProdUser = isProdUser;
+        this.prodUser = prodUser;
+        this.techUser = techUser;
     }
 
     public String getUsername() {
@@ -43,6 +45,10 @@ public class User {
     }
 
     public boolean isProdUser() {
-        return isProdUser;
+        return prodUser;
+    }
+
+    public boolean isTechUser() {
+        return techUser;
     }
 }

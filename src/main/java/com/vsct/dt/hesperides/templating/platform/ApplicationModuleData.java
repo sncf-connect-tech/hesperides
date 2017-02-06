@@ -28,6 +28,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.vsct.dt.hesperides.util.Release;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.HashSet;
@@ -145,7 +147,8 @@ public class ApplicationModuleData {
     }
 
     public String getPropertiesPath() {
-        return this.getPath() + "#" + this.getName() + "#" + this.getVersion() + "#" + (this.isWorkingCopy() ? "WORKINGCOPY" : "RELEASE");
+        return this.getPath() + "#" + this.getName() + "#" + this.getVersion() + "#"
+                + (this.isWorkingCopy() ? WorkingCopy.UC : Release.UC);
     }
 
     public Set<KeyValueValorisationData> generateHesperidesPredefinedScope() {

@@ -1,5 +1,4 @@
 /*
- *
  *  * This file is part of the Hesperides distribution.
  *  * (https://github.com/voyages-sncf-technologies/hesperides)
  *  * Copyright (c) 2016 VSCT.
@@ -16,13 +15,11 @@
  *  * You should have received a copy of the GNU General Public License
  *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *
  */
 
 package com.vsct.dt.hesperides.util;
 
-import com.vsct.dt.hesperides.storage.RedisConfiguration;
-import io.dropwizard.lifecycle.Managed;
+import com.vsct.dt.hesperides.storage.RedisConfigurationInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -34,16 +31,34 @@ import redis.clients.util.Pool;
 /**
  * Created by william_montaz on 23/04/2015.
  */
-public class ManageableJedisConnectionPool implements Managed {
+public class ManageableJedisConnection implements
+        ManageableJedisConnectionInterface {
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManageableJedisConnection.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManageableJedisConnectionPool.class);
+    /**
+     * Pool.
+     */
+    private Pool<Jedis> pool;
 
-    private final Pool<Jedis> pool;
+    /**
+     * Number of retry.
+     */
+    private final int nRetry;
 
-    public ManageableJedisConnectionPool(Pool<Jedis> pool) {
-        this.pool = pool;
-    }
+    /**
+     * Wait time before retry.
+     */
+    private final int waitBeforeRetryMs;
 
+    /**
+     * Getter of pool.
+     *
+     * @return pool of connection.
+     */
+    @Override
     public Pool<Jedis> getPool() {
         return pool;
     }
@@ -59,23 +74,26 @@ public class ManageableJedisConnectionPool implements Managed {
         pool.destroy();
     }
 
-    public static ManageableJedisConnectionPool createPool(RedisConfiguration redisConfiguration) {
+    /**
+     * Constructor.
+     *
+     * @param redisConfiguration configuration
+     */
+    public ManageableJedisConnection(final RedisConfigurationInterface redisConfiguration) {
+        this.nRetry = redisConfiguration.getRetry();
+        this.waitBeforeRetryMs = redisConfiguration.getWaitBeforeRetryMs();
+
         switch (redisConfiguration.getType()) {
-            case REDIS: {
+            case REDIS:
                 LOGGER.info("Creates Simple Redis connection pool");
-                return new ManageableJedisConnectionPool(
-                        new JedisPool(
-                                new JedisPoolConfig(), redisConfiguration.getHost(), redisConfiguration.getPort(),
-                                redisConfiguration.getTimeout()
-                                ));
-            }
-            case SENTINEL: {
+                this.pool = new JedisPool(new JedisPoolConfig(), redisConfiguration.getHost(),
+                        redisConfiguration.getPort(), redisConfiguration.getTimeout());
+                break;
+            case SENTINEL:
                 LOGGER.info("Creates Redis Sentinel connection pool");
-                return new ManageableJedisConnectionPool(
-                        new JedisSentinelPool(
-                                redisConfiguration.getMasterName(), redisConfiguration.getSentinels(),
-                                new JedisPoolConfig(), redisConfiguration.getTimeout()));
-            }
+                this.pool = new JedisSentinelPool(redisConfiguration.getMasterName(), redisConfiguration.getSentinels(),
+                        new JedisPoolConfig(), redisConfiguration.getTimeout());
+                break;
             default: {
                 throw new IllegalArgumentException("Unexpected jedis pool type provided in configuration file");
             }
@@ -83,5 +101,23 @@ public class ManageableJedisConnectionPool implements Managed {
 
     }
 
+    /**
+     * Number of retry.
+     *
+     * @return number
+     */
+    @Override
+    public int getnRetry() {
+        return nRetry;
+    }
 
+    /**
+     * * Wait time before retry.
+     *
+     * @return time in millisecond
+     */
+    @Override
+    public int getWaitBeforeRetryMs() {
+        return waitBeforeRetryMs;
+    }
 }

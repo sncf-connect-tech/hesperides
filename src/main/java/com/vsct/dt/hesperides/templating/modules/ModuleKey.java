@@ -24,6 +24,8 @@ package com.vsct.dt.hesperides.templating.modules;
 import com.google.common.base.Strings;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
+import com.vsct.dt.hesperides.util.Release;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,21 +34,37 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Created by william_montaz on 03/03/2015.
  */
 public class ModuleKey extends TemplatePackageKey {
-
     private ModuleKey(){}
 
     public ModuleKey(String name, HesperidesVersion version) {
         super(name, version);
     }
 
+    /**
+     * Create Module key from namespace of tempalte.
+     *
+     * @param fromNamespace name space
+     */
+    public ModuleKey(final String fromNamespace) {
+        final String[] splitNamespace = fromNamespace.split("#");
+
+        // First is "modules"
+        // Second is name
+        this.name = splitNamespace[1];
+        // Third is versionName
+        this.versionName = splitNamespace[2];
+        // Workingcopy or release
+        this.workingCopy = WorkingCopy.is(splitNamespace[3]);
+    }
+
     @Override
     public String getNamespace() {
-        return "modules#" + name + "#" + versionName + "#" + (workingCopy ? "WORKINGCOPY" : "RELEASE");
+        return "modules#" + name + "#" + versionName + "#" + (workingCopy ? WorkingCopy.UC : Release.UC);
     }
 
     @Override
     public String getEntityName() {
-        return name + "-" + versionName + "-" + (workingCopy ? "wc" : "release");
+        return name + "-" + versionName + "-" + (workingCopy ? WorkingCopy.SHORT : Release.LC);
     }
 
     @Override

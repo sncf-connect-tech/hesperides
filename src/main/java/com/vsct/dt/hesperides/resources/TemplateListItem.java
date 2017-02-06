@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.resources;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import static com.google.common.base.Preconditions.checkNotNull;

@@ -81,7 +81,7 @@ public class TemplateSearch {
     }
 
     public Set<TemplateSearchResponse> getTemplatesByExactNamespace(final String namespace){
-        String url = String.format("/templates/_search");
+        String url = "/templates/_search";
 
         String body = TemplateContentGenerator.from(mustacheSearchByExactNamespace)
                 .put("namespace", namespace)

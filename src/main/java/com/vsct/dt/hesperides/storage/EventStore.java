@@ -23,6 +23,7 @@ package com.vsct.dt.hesperides.storage;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
@@ -33,12 +34,104 @@ import java.util.function.Consumer;
  */
 /* Simple implementation of an event store not designed to be shared among multiple application instances */
 public interface EventStore {
+    /**
+     * Store event.
+     *
+     * @param streamName
+     * @param event
+     * @param userinfo
+     * @param callback
+     * @param <T>
+     * @return
+     */
+    <T> T store(String streamName, T event, UserInfo userinfo, EventStoreCallback callback);
 
-    <T> T store(String streamName, T event, UserInfo userinfo);
+    /**
+     * Read snapshot.
+     *
+     * @param streamName
+     * @return
+     */
+    HesperidesSnapshotItem findLastSnapshot(String streamName);
 
-    void withEvents(String streamName, final long stopTimestamp, Consumer<Object> eventConsumer) throws StoreReadingException;
+    /**
+     * Read snapshot.
+     *
+     * @param streamName
+     * @param offset
+     * @param et lambda expression to validate event to be returned
+     *
+     * @return
+     */
+    HesperidesSnapshotItem findSnapshot(String streamName, long offset, EventTester<Event> et);
 
+    /**
+     * Save snapshot.
+     *
+     * @param streamName
+     * @param object
+     * @param offset number of event max before write snapshot
+     * @param <T>
+     */
+    <T> void storeSnapshot(String streamName, T object, long offset);
+
+    /**
+     * Create snapshot (don't check if need or not store a new snapshot).
+     * Only for cache regeneration.
+     *
+     * @param streamName
+     * @param object
+     * @param nbEvent number of event
+     * @param <T>
+     */
+    <T> void createSnapshot(String streamName, T object, long nbEvent) ;
+
+    /**
+     * Load event by date.
+     *
+     * @param streamName
+     * @param stopTimestamp
+     * @param eventConsumer
+     * @throws StoreReadingException
+     */
+    void withEvents(String streamName, long stopTimestamp,  Consumer<Object> eventConsumer) throws StoreReadingException;
+
+    /**
+     * Load event by date.
+     *
+     * @param streamName
+     * @param start
+     * @param stop
+     * @param stopTimestamp
+     * @param eventConsumer
+     * @throws StoreReadingException
+     */
+    void withEvents(String streamName, long start, long stop, long stopTimestamp, Consumer<Object> eventConsumer) throws StoreReadingException;
+
+    /**
+     * Load event by position.
+     *
+     * @param streamName
+     * @param start
+     * @param stop
+     * @param eventConsumer
+     * @throws StoreReadingException
+     */
+    void withEvents(String streamName, long start, long stop, Consumer<Object> eventConsumer) throws StoreReadingException;
+
+    /**
+     * Return list of stream.
+     *
+     * @param term
+     *
+     * @return list of stream
+     */
     Set<String> getStreamsLike(String term);
+
+    /**
+     * Check if connection is avaible.
+     */
+    boolean isConnected();
 
     /**
      * This will get the events list form the redis store.
@@ -52,7 +145,11 @@ public interface EventStore {
      */
     List<Event> getEventsList (final String streamName, final int page, final int size) throws StoreReadingException;
 
-    public boolean isConnected();
-
+    /**
+     * Clear cache.
+     *
+     * @param streamName name of stream (not name of key of cache)
+     */
+    void clearCache(String streamName);
 }
 

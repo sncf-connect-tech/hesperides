@@ -33,6 +33,6 @@ import io.dropwizard.auth.basic.BasicCredentials;
 public final class SimpleAuthenticator implements Authenticator<BasicCredentials, User> {
     @Override
     public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
-        return Optional.of(new User(basicCredentials.getUsername(), true));
+        return Optional.of(new User(basicCredentials.getUsername(), true, true));
     }
 }

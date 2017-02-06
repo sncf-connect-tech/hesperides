@@ -25,6 +25,31 @@ package com.vsct.dt.hesperides.util;
  * Created by william_montaz on 19/02/2015.
  */
 public class Release {
+    /**
+     * Workingcopy.
+     */
+    public static String UC = "RELEASE";
+
+    /**
+     * Workingcopy.
+     */
+    public static String LC = "release";
+
+    /**
+     * Workingcopy log text.
+     */
+    public static String TEXT = "Release";
+
+    /**
+     * Return true if text match with working copy.
+     *
+     * @param item text
+     *
+     * @return
+     */
+    public static  boolean is(final String item) {
+        return UC.equals(item.toUpperCase());
+    }
 
     public static HesperidesVersion of(String versionName) {
         return new HesperidesVersion(versionName, false);

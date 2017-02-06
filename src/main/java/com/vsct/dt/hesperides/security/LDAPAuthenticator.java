@@ -34,7 +34,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 import java.util.Hashtable;
 
 /**
@@ -43,6 +42,11 @@ import java.util.Hashtable;
 public final class LDAPAuthenticator implements Authenticator<BasicCredentials, User> {
 
     private static final Logger LOGGER                          = LoggerFactory.getLogger(LDAPAuthenticator.class);
+
+    /**
+     * AD matching rule.
+     * @link https://msdn.microsoft.com/en-us/library/aa746475(v=vs.85).aspx
+     */
     private static final String LDAP_MATCHING_RULE_IN_CHAIN_OID = "1.2.840.113556.1.4.1941";
 
     private final LdapConfiguration configuration;
@@ -57,15 +61,16 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         String password = credentials.getPassword();
 
         try {
-            try(AutoclosableDirContext context = buildContext(username, password)) {
+            try (AutoclosableDirContext context = buildContext(username, password)) {
 
                 //Get the user DN
                 SearchResult userSearched = searchUser(context, username);
 
                 //Check if user is in the prod group
-                boolean isProdUser = checkIfUserBelongsToProdGroup(context, userSearched.getNameInNamespace());
+                final boolean prodUser = checkIfUserBelongsToGroup(context, userSearched.getNameInNamespace(), configuration.getProdGroupName());
+                final boolean techUser = checkIfUserBelongsToGroup(context, userSearched.getNameInNamespace(), configuration.getTechGroupName());
 
-                return Optional.of(new User(username, isProdUser));
+                return Optional.of(new User(username, prodUser, techUser));
             }
 
         } catch (NamingException e) {
@@ -75,20 +80,23 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         return Optional.absent();
     }
 
-    private boolean checkIfUserBelongsToProdGroup(AutoclosableDirContext context, String userDN) throws NamingException, AuthenticationException {
-        String groupSearch = String.format("(CN=%s)", configuration.getProdGroupName());
+    private boolean checkIfUserBelongsToGroup(final AutoclosableDirContext context, final String userDN, final String groupName) throws
+            NamingException,
+            AuthenticationException {
+        String groupSearch = String.format("(CN=%s)", groupName);
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
         NamingEnumeration<SearchResult> groupResults = context.search(configuration.getRoleSearchBase(), groupSearch, searchControls);
 
-        SearchResult groupSearchResult = null;
-        if(groupResults.hasMoreElements()){
+        SearchResult groupSearchResult;
+
+        if (groupResults.hasMoreElements()) {
             groupSearchResult = groupResults.nextElement();
 
-            if(groupResults.hasMoreElements()){
-                LOGGER.error("Expected to find only one group for "+configuration.getProdGroupName()+" but found more results");
+            if (groupResults.hasMoreElements()) {
+                LOGGER.error("Expected to find only one group for " + configuration.getProdGroupName() + " but found more results");
                 return false;
             }
 
@@ -106,14 +114,14 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
 
         NamingEnumeration<SearchResult> memberOfSearchResults = context.search(userDN, memberOfSearch, searchControls);
 
-        if(memberOfSearchResults.hasMore()){
+        if (memberOfSearchResults.hasMore()){
             return true;
         } else {
             return false;
         }
     }
 
-    private SearchResult searchUser(AutoclosableDirContext context, String username) throws NamingException, AuthenticationException {
+    private SearchResult searchUser(final AutoclosableDirContext context, final String username) throws NamingException, AuthenticationException {
         String searchfilter = String.format("(%s=%s)", configuration.getUserNameAttribute(), username);
 
         SearchControls searchControls = new SearchControls();
@@ -121,11 +129,12 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
 
         NamingEnumeration<SearchResult> results = context.search(configuration.getUserSearchBase(), searchfilter, searchControls);
 
-        SearchResult searchResult = null;
-        if(results.hasMoreElements()){
+        SearchResult searchResult;
+
+        if (results.hasMoreElements()) {
             searchResult = results.nextElement();
 
-            if(results.hasMoreElements()){
+            if (results.hasMoreElements()){
                 throw new AuthenticationException("Expected to find only one user for "+username+" but found more results");
             }
 
@@ -136,10 +145,10 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         return searchResult;
     }
 
-    private AutoclosableDirContext buildContext(String username, String password) throws NamingException {
+    private AutoclosableDirContext buildContext(final String username, final String password) throws NamingException {
         Hashtable<String, String> env = contextConfiguration();
 
-        env.put(Context.SECURITY_PRINCIPAL, configuration.getAdDomain()+"\\"+username);
+        env.put(Context.SECURITY_PRINCIPAL, configuration.getAdDomain() + "\\" + username);
         env.put(Context.SECURITY_CREDENTIALS, password);
 
         return new AutoclosableDirContext(env);
@@ -149,7 +158,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, configuration.getUri().toString());
+        env.put(Context.PROVIDER_URL, configuration.getUri());
         env.put("com.sun.jndi.ldap.connect.timeout", String.valueOf(configuration.getConnectTimeout().toMilliseconds()));
         env.put("com.sun.jndi.ldap.read.timeout", String.valueOf(configuration.getReadTimeout().toMilliseconds()));
         env.put("com.sun.jndi.ldap.connect.pool", "true");

@@ -56,7 +56,7 @@ public final class Properties {
 
     @JsonCreator
     public Properties(@JsonProperty("key_value_properties") final Set<KeyValueValorisation> keyValueProperties,
-                      @JsonProperty("iterable_properties") final Set<IterableValorisation> iterableProperties) {
+            @JsonProperty("iterable_properties") final Set<IterableValorisation> iterableProperties) {
         this.keyValueProperties = Sets.newHashSet(keyValueProperties);
         this.iterableProperties = Sets.newHashSet(iterableProperties);
     }

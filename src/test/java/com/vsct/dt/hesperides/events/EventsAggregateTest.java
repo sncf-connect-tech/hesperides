@@ -21,30 +21,52 @@
 
 package com.vsct.dt.hesperides.events;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
-import com.vsct.dt.hesperides.EventStoreMock;
+import com.vsct.dt.hesperides.applications.PropertiesSavedEvent;
+import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.RedisEventStore;
+import com.vsct.dt.hesperides.storage.UserInfo;
+import com.vsct.dt.hesperides.templating.platform.PropertiesData;
+import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import org.junit.After;
-import static org.fest.assertions.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Created by tidiane_sidibe on 19/04/2016.
  */
 public class EventsAggregateTest {
-    EventBus eventBus        = new EventBus();
-    EventStoreMock eventStoreMock  = new EventStoreMock();
-    EventsConfiguration testEventsConfiguration = new EventsConfiguration();
+    private final EventBus eventBus = new EventBus();
+    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private final EventsConfiguration testEventsConfiguration = new EventsConfiguration();
     EventsAggregate events = null;
+
+
+    public void loadEvents (final String streamName){
+        final PropertiesData propertiesData = new PropertiesData(ImmutableSet.of(), ImmutableSet.of());
+
+        final PropertiesSavedEvent propertiesSavedEvent = new PropertiesSavedEvent("KTN", "USN1",
+                "#DEMO#WAS#demoKatana-war#1.0.0.0#WORKINGCOPY", propertiesData, "");
+
+        final int SIZE = 300;
+
+        for (int i = 0; i < SIZE - 1; i ++) {
+            eventStore.store(streamName, propertiesSavedEvent, UserInfo.UNTRACKED, () -> {});
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
         testEventsConfiguration.setPoolMaxSize(1);
         testEventsConfiguration.setPoolMaxSize(1);
         testEventsConfiguration.setQueueCapacity(3);
-        events = new EventsAggregate(testEventsConfiguration, eventBus, eventStoreMock);
-        eventStoreMock.reset();
-        eventStoreMock.loadEvents();
+        events = new EventsAggregate(testEventsConfiguration, eventBus, eventStore);
+        poolRedis.reset();
+        loadEvents("test-stream");
     }
 
     @Test

@@ -31,7 +31,7 @@ public final class ModuleWorkingCopyUpdatedEvent {
     private final Module updated;
 
     @JsonCreator
-    protected ModuleWorkingCopyUpdatedEvent(@JsonProperty("updated") final Module updated) {
+    public ModuleWorkingCopyUpdatedEvent(@JsonProperty("updated") final Module updated) {
         this.updated = updated;
     }
 

@@ -29,8 +29,6 @@ import com.google.common.cache.*;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 
-import java.util.concurrent.ExecutionException;
-
 import static com.codahale.metrics.MetricRegistry.name;
 
 /**

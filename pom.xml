@@ -74,11 +74,15 @@
             <artifactId>compiler</artifactId>
             <version>0.9.4</version>
         </dependency>
+
+        <!-- Redis client -->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.6.0</version>
         </dependency>
+
+        <!-- ************ -->
 
         <dependency>
             <groupId>com.wordnik</groupId>
@@ -90,6 +94,12 @@
             <groupId>com.bazaarvoice.dropwizard</groupId>
             <artifactId>dropwizard-configurable-assets-bundle</artifactId>
             <version>0.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
         </dependency>
 
         <dependency>
@@ -244,11 +254,11 @@
 	<distributionManagement>
 		<repository>
 			<id>dt-releases</id>
-			<url>http://nexus/content/repositories/dt-releases/</url>
+			<url>http://nexus.socrate.vsct.fr:50080/nexus/content/repositories/dt-releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>dt-snapshots</id>
-			<url>http://nexus/content/repositories/dt-snapshots/</url>
+			<url>http://nexus.socrate.vsct.fr:50080/nexus/content/repositories/dt-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
     <scm>

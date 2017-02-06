@@ -24,26 +24,39 @@ package com.vsct.dt.hesperides.files;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
-import com.vsct.dt.hesperides.EventStoreMock;
-import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.HesperidesCacheParameter;
+import com.vsct.dt.hesperides.HesperidesConfiguration;
+import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
+import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
+import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.resources.IterableValorisation;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.Properties;
-import com.vsct.dt.hesperides.templating.Template;
-import com.vsct.dt.hesperides.templating.TemplateData;
-import com.vsct.dt.hesperides.templating.TemplateSlurper;
+
+import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.RedisEventStore;
+import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.modules.*;
+import com.vsct.dt.hesperides.templating.modules.Module;
+import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
+import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
+import com.vsct.dt.hesperides.templating.modules.Techno;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
+
+import com.vsct.dt.hesperides.templating.modules.template.TemplateSlurper;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
 import com.vsct.dt.hesperides.templating.platform.InstanceData;
 import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
-import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
+import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
+import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
+import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,14 +73,14 @@ import static org.mockito.Mockito.mock;
  */
 public class FilesTest {
 
-    EventStoreMock eventStoreMock = new EventStoreMock();
-    EventBus       eventBus       = new EventBus();
+    private final EventBus       eventBus       = new EventBus();
+    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private ApplicationsAggregate     applications;
+    private ModulesAggregate          modules;
+    private TemplatePackagesAggregate templatePackages;
 
-    ApplicationsAggregate     applications;
-    ModulesAggregate          modules;
-    TemplatePackagesAggregate templatePackages;
-
-    SnapshotRegistry snapshotRegistry = mock(SnapshotRegistry.class);
+    private SnapshotRegistryInterface snapshotRegistryInterface = mock(SnapshotRegistry.class);
 
     private Files files;
     private final String comment = "Test comment";
@@ -75,14 +88,34 @@ public class FilesTest {
 
     private static final PropertiesConverter PROPERTIES_CONVERTER = new DefaultPropertiesConverter();
 
+    private TemplatePackagesAggregate templatePackagesWithEvent;
+    private ApplicationsAggregate applicationsWithEvent;
+    private ModulesAggregate modulesWithEvent;
+    private Files filesWithEvent;
+
     @Before
     public void setupMocks() throws Exception {
-        templatePackages = new TemplatePackagesAggregate(eventBus, eventStoreMock);
-        applications = new ApplicationsAggregate(eventBus, eventStoreMock, snapshotRegistry);
-        modules = new ModulesAggregate(eventBus, eventStoreMock, templatePackages);
+        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
+        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
+
+        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
+        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
+        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
+
+        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
+        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
+
+        templatePackages = new TemplatePackagesAggregate(eventBus, eventStore, hesperidesConfiguration);
+        applications = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface, hesperidesConfiguration);
+        modules = new ModulesAggregate(eventBus, eventStore, templatePackages, hesperidesConfiguration);
         files = new Files(applications, modules, templatePackages);
 
-        eventStoreMock.ignoreEvents();
+        templatePackagesWithEvent = new TemplatePackagesAggregate(eventBus, eventStore, hesperidesConfiguration);
+        applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface, hesperidesConfiguration);
+        modulesWithEvent = new ModulesAggregate(eventBus, eventStore, templatePackagesWithEvent, hesperidesConfiguration);
+        filesWithEvent = new Files(applicationsWithEvent, modulesWithEvent, templatePackagesWithEvent);
+
+        poolRedis.reset();
     }
 
     @Test
@@ -97,7 +130,7 @@ public class FilesTest {
                 .withContent("content")
                 .withRights(null)
                 .build();
-        templatePackages.createTemplateInWorkingCopy(techno1Info, template1Data);
+        templatePackagesWithEvent.createTemplateInWorkingCopy(techno1Info, template1Data);
 
         TemplatePackageWorkingCopyKey techno2Info = new TemplatePackageWorkingCopyKey("techno2", "v1");
         TemplateData template2Data = TemplateData.withTemplateName("template_from_techno2")
@@ -106,7 +139,7 @@ public class FilesTest {
                 .withContent("content")
                 .withRights(null)
                 .build();
-        templatePackages.createTemplateInWorkingCopy(techno2Info, template2Data);
+        templatePackagesWithEvent.createTemplateInWorkingCopy(techno2Info, template2Data);
 
         /* Create a module and add a template specific to the module
            This template filename and location relies on a property key named key
@@ -122,8 +155,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(new Techno("techno1", "v1", true), new Techno("techno2", "v1", true)), 1L);
-        modules.createWorkingCopy(module);
-        modules.createTemplateInWorkingCopy(moduleKey, template3Data);
+        modulesWithEvent.createWorkingCopy(module);
+        modulesWithEvent.createTemplateInWorkingCopy(moduleKey, template3Data);
 
         /*
         Create a platform "the_pltfm_name", belonging to "the_app_name"
@@ -165,18 +198,19 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
         Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("key", "prop_{{instance_key}}")), Sets.newHashSet());
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#path#1#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> fileSet = files.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", false);
+        Set<HesperidesFile> fileSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
 
         assertThat(fileSet.size()).isEqualTo(3);
 
@@ -221,8 +255,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
-        modules.createWorkingCopy(module);
-        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(module);
+        Template createdTemplate = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties, we only used PROPERTY_FILENAME and PROPERTY_LOCATION MustacheScope should be tested somewhere else*/
         Properties properties = new Properties(Sets.newHashSet(
@@ -275,18 +309,19 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#path#1#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
 
         /* ACTUAL CALL */
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("OK, the instance name is SUPER_INSTANCE, I am dotted, I use escapable chars \"'You know what ? I have spaces at start, I have spaces at end, I have spaces everywhere and This is my default value!");
 
@@ -302,8 +337,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
-        modules.createWorkingCopy(module);
-        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(module);
+        Template createdTemplate = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties, we only used PROPERTY_FILENAME and PROPERTY_LOCATION MustacheScope should be tested somewhere else*/
         Properties properties = new Properties(Sets.newHashSet(
@@ -356,28 +391,30 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#path#1#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
-        applications.createOrUpdatePropertiesInPlatform(platformKey, "#",
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey, "#",
                 PROPERTIES_CONVERTER.toPropertiesData(globalProperties), 2L, comment);
 
         /* ACTUAL CALL */
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("global_property");
 
         /* Let's delete the global module */
-        applications.createOrUpdatePropertiesInPlatform(platformKey, "#",
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey, "#",
                 PROPERTIES_CONVERTER.toPropertiesData(emptyGlobalProperties), 3L, comment);
 
         /* ACTUAL CALL */
-        String content2 = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content2 = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content2).isEqualTo("local_property");
 
@@ -399,8 +436,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
-        modules.createWorkingCopy(module);
-        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(module);
+        Template createdTemplate = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties */
         IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("car", Sets.newHashSet(new KeyValueValorisation("name", "ferrari"), new KeyValueValorisation("price", "300000")));
@@ -440,17 +477,19 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#path#1#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
+
         /* ACTUAL CALL */
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("ferrari\n" +
                 "300000\n" +
@@ -459,15 +498,16 @@ public class FilesTest {
                 "jean\n" +
                 "paul\n" +
                 "pierre\n");
+
     }
 
     @Test
     public void should_get_file_content_with_iterable_default_values() throws Exception {
         String templateContent =
                 "{{#items}}\n" +
-                    "{{name}}\n" +
-                    "{{price|@default \"1003030\"}}\n" +
-                "{{/items}}\n";
+                        "{{name}}\n" +
+                        "{{price|@default \"1003030\"}}\n" +
+                        "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -527,13 +567,14 @@ public class FilesTest {
         HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
 
         /* ACTUAL CALL */
-        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
+        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate
+                .getNamespace(), "template_from_module", templateModel, false);
 
         assertThat(content).isEqualTo(
                 "ferrari\n" +
-                "1003030\n" +
-                "triumph\n" +
-                "12000\n");
+                        "1003030\n" +
+                        "triumph\n" +
+                        "12000\n");
 
     }
 
@@ -541,9 +582,9 @@ public class FilesTest {
     public void should_fail_when_trying_to_get_file_content_with_unfilled_required_fields() throws Exception {
         String templateContent =
                 "{{#items}}\n" +
-                    "{{name}}\n" +
-                    "{{price|@required}}\n" +
-                "{{/items}}\n";
+                        "{{name}}\n" +
+                        "{{price|@required}}\n" +
+                        "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -602,7 +643,8 @@ public class FilesTest {
         HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
 
         /* ACTUAL CALL */
-        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
+        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
 
         // assertion is done on the @Test() annotation !
     }
@@ -611,9 +653,9 @@ public class FilesTest {
     public void should_fail_when_trying_to_get_file_content_with_not_matching_pattern_field_value() throws Exception {
         String templateContent =
                 "{{#items}}\n" +
-                    "{{name| @pattern \"[A-Za-z]+\"}}\n" +
-                    "{{price}}\n" +
-                "{{/items}}\n";
+                        "{{name| @pattern \"[A-Za-z]+\"}}\n" +
+                        "{{price}}\n" +
+                        "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -672,10 +714,12 @@ public class FilesTest {
         HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
 
         /* ACTUAL CALL */
-        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
+        files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
 
         // assertion is done on the @Test() annotation !
     }
+
 
     @Test
     public void file_generation_should_include_platform_information_in_the_mustache_scope(){
@@ -687,8 +731,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
-        modules.createWorkingCopy(module);
-        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(module);
+        Template createdTemplate = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties, we use empty valorisations, since platform valorisations should be automatically provided*/
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
@@ -721,23 +765,25 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#path#1#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", false);
+        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#path#1", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_app_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_app_name_the_pltfm_name_version");
 
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#path#1", "the_module_name", "the_module_version", true,
+                "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_app_name the_pltfm_name version");
     }
@@ -752,8 +798,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
-        modules.createWorkingCopy(module);
-        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(module);
+        Template createdTemplate = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties, we use empty valorisations, since platform valorisations should be automatically provided*/
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
@@ -785,23 +831,25 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#COMPONENT#TECHNO#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", false);
+        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_module_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_module_name_the_module_version");
 
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version",
+                true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_module_name the_module_version COMPONENT TECHNO");
     }
@@ -816,8 +864,8 @@ public class FilesTest {
                 .withRights(null)
                 .build();
         Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
-        modules.createWorkingCopy(module);
-        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+        modulesWithEvent.createWorkingCopy(module);
+        Template createdTemplate = modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties, we use empty valorisations, since platform valorisations should be automatically provided*/
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
@@ -849,23 +897,25 @@ public class FilesTest {
                 .withVersion(1L)
                 .isProduction();
 
-        applications.createPlatform(builder.build());
+        applicationsWithEvent.createPlatform(builder.build());
 
         /*
         Add the properties for "the_module_name"
          */
-        applications.createOrUpdatePropertiesInPlatform(platformKey,
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
                 "#COMPONENT#TECHNO#the_module_name#the_module_version#WORKINGCOPY",
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
 
 
         /* ACTUAL CALL */
-        Set<HesperidesFile> filesSet = files.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", false);
+        Set<HesperidesFile> filesSet = filesWithEvent.getLocations("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name",
+                "the_module_version", true, "the_instance_name", false);
         HesperidesFile fileInfo = filesSet.iterator().next();
         assertThat(fileInfo.getFilename()).isEqualTo("the_instance_name_file");
         assertThat(fileInfo.getLocation()).isEqualTo("the_instance_name_location");
 
-        String content = files.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version", true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
+        String content = filesWithEvent.getFile("the_app_name", "the_pltfm_name", "#COMPONENT#TECHNO", "the_module_name", "the_module_version",
+                true, "the_instance_name", createdTemplate.getNamespace(), "template_from_module", model, false);
 
         assertThat(content).isEqualTo("the_instance_name");
     }

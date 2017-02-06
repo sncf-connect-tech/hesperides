@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.templating.packages;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 
 import java.util.Objects;
 

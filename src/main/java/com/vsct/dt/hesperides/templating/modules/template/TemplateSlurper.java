@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.templating;
+package com.vsct.dt.hesperides.templating.modules.template;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;

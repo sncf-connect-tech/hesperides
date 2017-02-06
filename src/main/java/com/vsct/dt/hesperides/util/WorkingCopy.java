@@ -25,12 +25,42 @@ package com.vsct.dt.hesperides.util;
  * Created by william_montaz on 19/02/2015.
  */
 public class WorkingCopy {
+    /**
+     * Workingcopy.
+     */
+    public static String UC = "WORKINGCOPY";
 
-    public static HesperidesVersion of(String versionName) {
+    /**
+     * Workingcopy.
+     */
+    public static String LC = "workingcopy";
+
+    /**
+     * Workingcopy log text.
+     */
+    public static String TEXT = "WorkingCopy";
+
+    /**
+     * Workingcopy short text.
+     */
+    public static String SHORT = "wc";
+
+    /**
+     * Return true if text match with working copy.
+     *
+     * @param item text
+     *
+     * @return
+     */
+    public static  boolean is(final String item) {
+        return UC.equals(item.toUpperCase());
+    }
+
+    public static HesperidesVersion of(final String versionName) {
         return new HesperidesVersion(versionName, true);
     }
 
-    public static HesperidesVersion of(HesperidesVersion version) {
+    public static HesperidesVersion of(final HesperidesVersion version) {
         return new HesperidesVersion(version.getVersionName(), true);
     }
 }

@@ -21,7 +21,6 @@
 
 package com.vsct.dt.hesperides.resources;
 
-import com.github.mustachejava.Code;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.TemplateContext;
 import com.github.mustachejava.codes.DefaultCode;
@@ -38,14 +37,11 @@ import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.files.HesperidesFile;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
-import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
@@ -72,8 +68,6 @@ import static org.mockito.Mockito.*;
 public class HesperidesFilesResourceTest {
 
     private static final Files files = mock(Files.class);
-    private static final Applications applications = mock(Applications.class);
-    private static final Modules modules = mock(Modules.class);
 
     private static final ApplicationsAggregate applicationsAggregate = mock(ApplicationsAggregate.class);
     private static final ModulesAggregate modulesAggregate = mock(ModulesAggregate.class);
@@ -137,7 +131,7 @@ public class HesperidesFilesResourceTest {
                 .queryParam("isWorkingCopy", "true")
                 .queryParam("simulate", "false")
                 .get(new GenericType<Set<FileListItem>>() {
-        })).isEqualTo(Sets.newHashSet(fileListItem1, fileListItem2));
+                })).isEqualTo(Sets.newHashSet(fileListItem1, fileListItem2));
     }
 
     @Test
@@ -503,15 +497,15 @@ public class HesperidesFilesResourceTest {
 
 
         String content = hesperidesFiles.getFile(
-                    platformKey.getApplicationName(),
-                    platformKey.getName(),
-                    propertiesPath,
-                    moduleKey.getName(),
-                    module.getVersion(),
-                    module.isWorkingCopy(),
-                    instance.getName(),
-                    template.getNamespace(),
-                    template.getName(), model, false);
+                platformKey.getApplicationName(),
+                platformKey.getName(),
+                propertiesPath,
+                moduleKey.getName(),
+                module.getVersion(),
+                module.isWorkingCopy(),
+                instance.getName(),
+                template.getNamespace(),
+                template.getName(), model, false);
 
         assertThat(content).isEqualTo("prop1=\nprop2=truc machin chose");
     }

@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Created by william_montaz on 14/10/2014.

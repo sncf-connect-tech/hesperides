@@ -28,13 +28,14 @@ import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
 import com.vsct.dt.hesperides.indexation.model.ModuleIndexation;
 import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
-import com.vsct.dt.hesperides.templating.Template;
+import com.vsct.dt.hesperides.templating.modules.event.ModuleEventInterface;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.*;
 
 /**
  * Created by william_montaz on 22/01/2015.
  */
-public class ModuleEventsIndexation {
+public class ModuleEventsIndexation implements ModuleEventInterface {
 
     private final ElasticSearchIndexationExecutor indexer;
 
@@ -43,7 +44,8 @@ public class ModuleEventsIndexation {
     }
 
     @Subscribe
-    public void createModule(final ModuleCreatedEvent event) {
+    @Override
+    public void replayModuleCreatedEvent(final ModuleCreatedEvent event) {
 
         ModuleIndexation module = ModuleMapper.toModuleIndexation(event.getModuleCreated());
 
@@ -57,7 +59,8 @@ public class ModuleEventsIndexation {
     }
 
     @Subscribe
-    public void createTemplate(final ModuleTemplateCreatedEvent event) {
+    @Override
+    public void replayModuleTemplateCreatedEvent(final ModuleTemplateCreatedEvent event) {
         Template hesperidesTemplate = event.getCreated();
         TemplateIndexation template = TemplateMapper.asTemplateIndexation(hesperidesTemplate);
 
@@ -65,13 +68,15 @@ public class ModuleEventsIndexation {
     }
 
     @Subscribe
-    public void deleteTemplate(final ModuleTemplateDeletedEvent event) {
+    @Override
+    public void replayModuleTemplateDeletedEvent(final ModuleTemplateDeletedEvent event) {
         String namespace = ModuleIndexation.getNamespace(event.getModuleName(), event.getModuleVersion(), true);
         this.indexer.index(new DeleteIndexedTemplateCommand(namespace, event.getTemplateName()));
     }
 
     @Subscribe
-    public void updateTemplate(final ModuleTemplateUpdatedEvent event) {
+    @Override
+    public void replayModuleTemplateUpdatedEvent(final ModuleTemplateUpdatedEvent event) {
         Template hesperidesTemplate = event.getUpdated();
         TemplateIndexation template = TemplateMapper.asTemplateIndexation(hesperidesTemplate);
 
@@ -79,13 +84,15 @@ public class ModuleEventsIndexation {
     }
 
     @Subscribe
-    public void updateWorkingCopy(final ModuleWorkingCopyUpdatedEvent event) {
+    @Override
+    public void replayModuleWorkingCopyUpdatedEvent(final ModuleWorkingCopyUpdatedEvent event) {
         ModuleIndexation module = ModuleMapper.toModuleIndexation(event.getUpdated());
         this.indexer.index(new UpdateIndexedModuleCommand(module));
     }
 
     @Subscribe
-    public void deleteModule(final ModuleDeletedEvent event){
+    @Override
+    public void replayModuleDeletedEvent(final ModuleDeletedEvent event){
         this.indexer.index(new DeleteModuleCommand(event));
     }
 }

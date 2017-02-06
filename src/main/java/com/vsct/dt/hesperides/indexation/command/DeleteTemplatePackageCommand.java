@@ -28,6 +28,8 @@ import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageDeletedEvent;
+import com.vsct.dt.hesperides.util.Release;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 
 import java.util.Set;
 
@@ -39,7 +41,8 @@ public class DeleteTemplatePackageCommand implements ElasticSearchIndexationComm
     private final String namespace;
 
     public DeleteTemplatePackageCommand(TemplatePackageDeletedEvent event) {
-        namespace = "packages#" + event.getPackageName() + "#" + event.getPackageVersion() + "#" + (event.isWorkingCopy() ? "WORKINGCOPY" : "RELEASE");
+        namespace = "packages#" + event.getPackageName() + "#" + event.getPackageVersion() + "#"
+                + (event.isWorkingCopy() ? WorkingCopy.UC : Release.UC);
     }
 
     @Override
