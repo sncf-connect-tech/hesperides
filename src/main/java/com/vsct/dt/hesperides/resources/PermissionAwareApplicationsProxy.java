@@ -182,7 +182,7 @@ public class PermissionAwareApplicationsProxy implements Applications  {
 
     @Override
     public Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector) {
-        // No security needed to read informations
+        //No security needed to read informations
         return this.applicationsAggregate.getApplicationsFromSelector(selector);
     }
 
@@ -247,33 +247,39 @@ public class PermissionAwareApplicationsProxy implements Applications  {
         // This is for hidding password on iterable property level 1.
 
         // Iterable properties multiple level is not yet implemented
-        // TODO : Update this when multiple level implemetation is available.
+        // TODO : Update this when multiple level implementation is available.
 
         Set<IterableValorisationData> iterableProperties = Sets.newHashSet();
         Set<IterablePropertyModel> iterablePropertyModels = model.getIterableProperties();
 
         for (IterableValorisationData iterableValorisationData : properties.getIterableProperties()){
 
-            IterablePropertyModel subModel = iterablePropertyModels.stream().filter(iterablePropertyModel -> iterablePropertyModel.getName().trim().equals(iterableValorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", iterableValorisationData.getName())));
+            Optional<IterablePropertyModel> subModelOpt = iterablePropertyModels.stream().filter(iterablePropertyModel -> iterablePropertyModel.getName().trim().equals(iterableValorisationData.getName().trim())).findFirst();
 
-            // Checking the item data
-            List<IterableValorisationData.IterableValorisationItemData> iterableValorisationItemDatas = Lists.newArrayList();
-            for (IterableValorisationData.IterableValorisationItemData iterableValorisationItemData : iterableValorisationData.getIterableValorisationItems()){
+            if (subModelOpt.isPresent()) {
 
-                // Checking the valorisations
-                Set<ValorisationData> values = Sets.newHashSet();
-                for (ValorisationData valorisationData : iterableValorisationItemData.getValues() ){
-                    Property itModel = subModel.getFields().stream().filter(property -> property.getName().trim().equals(valorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", valorisationData.getName())));
-                    if ( itModel.isPassword() ){
-                        values.add(new KeyValueValorisationData(valorisationData.getName(), "********"));
-                    }else{
-                        values.add(valorisationData);
+                IterablePropertyModel subModel = subModelOpt.get();
+
+                // Checking the item data
+                List<IterableValorisationData.IterableValorisationItemData> iterableValorisationItemDatas = Lists.newArrayList();
+                for (IterableValorisationData.IterableValorisationItemData iterableValorisationItemData : iterableValorisationData.getIterableValorisationItems()) {
+
+                    // Checking the valorisations
+                    Set<ValorisationData> values = Sets.newHashSet();
+                    for (ValorisationData valorisationData : iterableValorisationItemData.getValues()) {
+                        Property itModel = subModel.getFields().stream().filter(property -> property.getName().trim().equals(valorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", valorisationData.getName())));
+                        if (itModel.isPassword()) {
+                            values.add(new KeyValueValorisationData(valorisationData.getName(), "********"));
+                        } else {
+                            values.add(valorisationData);
+                        }
                     }
+                    iterableValorisationItemDatas.add(new IterableValorisationData.IterableValorisationItemData(iterableValorisationItemData.getTitle(), values));
                 }
-                iterableValorisationItemDatas.add(new IterableValorisationData.IterableValorisationItemData(iterableValorisationItemData.getTitle(),values));
+                iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationItemDatas));
+            } else {
+                iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationData.getIterableValorisationItems()));
             }
-
-            iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationItemDatas));
         }
 
         // Return the hidden properties

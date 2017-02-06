@@ -21,25 +21,59 @@
 
 package com.vsct.dt.hesperides.templating.models.annotation;
 
-import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
+import org.apache.commons.lang.StringUtils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+/**
+ * Util class to create annotation object.
+ *
+ * Created by emeric_martineau on 05/11/2015.
+ */
 public class HesperidesAnnotationConstructor {
-    public static HesperidesAnnotation createAnnotationObject(final String annotation, final String propertyName) {
-        switch (annotation) {
-            case "comment":
-                return new HesperidesCommentAnnotation();
-            case "default":
-                return new HesperidesDefaultAnnotation();
-            case "password":
-                return new HesperidesPasswordAnnotation();
-            case "pattern":
-                return new HesperidesPatternAnnotation();
-            case "required":
-                return new HesperidesRequiredAnnotation();
-            default:
-                throw new ModelAnnotationException(
-                    String.format("Unknown annotation '%s' for property '%s'",
-                            annotation, propertyName));
+    private HesperidesAnnotationConstructor() {
+        // Nothing
+    }
+
+    /**
+     * Create annotation object.
+     *
+     * @param annotation annotation like "@default" or "default"
+     * @param value value of annotation
+     *
+     * @return anootation object or null if annotation not found.
+     */
+    public static HesperidesAnnotation createAnnotationObject(final String annotation, final String value) {
+        String classAnnotation;
+        HesperidesAnnotation obj = null;
+
+        if (annotation.startsWith("@")) {
+            classAnnotation = StringUtils.capitalize(annotation.substring(1).toLowerCase());
+        } else {
+            classAnnotation = StringUtils.capitalize(annotation.toLowerCase());
         }
+
+        try {
+            Class<HesperidesAnnotation> clazz = (Class<HesperidesAnnotation>) Class.forName(
+                    String.format("com.vsct.dt.hesperides.templating.models.annotation.Hesperides%sAnnotation",
+                            classAnnotation));
+
+            Constructor<HesperidesAnnotation> constructor = clazz.getConstructor(String.class, String.class);
+
+            obj = constructor.newInstance(classAnnotation.toLowerCase(), value);
+        } catch (ClassNotFoundException e) {
+            // Not good.
+        } catch (NoSuchMethodException e) {
+            // Not good.
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            // Not good.
+        } catch (IllegalAccessException e) {
+            // Not good.
+        }
+
+        return obj;
     }
 }

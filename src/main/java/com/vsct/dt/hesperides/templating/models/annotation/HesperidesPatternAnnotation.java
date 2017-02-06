@@ -21,17 +21,26 @@
 
 package com.vsct.dt.hesperides.templating.models.annotation;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Created by emeric_martineau on 05/11/2015.
  */
 public class HesperidesPatternAnnotation extends AbstractHesperidesAnnotation {
-
-    public HesperidesPatternAnnotation() {
-        super("pattern");
+    /**
+     * Constructor.
+     *
+     * @param name  name of annotation
+     * @param value value of annotation
+     */
+    public HesperidesPatternAnnotation(final String name, final String value) {
+        super(name, value);
     }
 
     @Override
-    public boolean requireValue() {
-        return true;
+    public boolean isValid() {
+        final String value = getValue();
+
+        return !(StringUtils.isEmpty(value) || StringUtils.isBlank(value));
     }
 }
