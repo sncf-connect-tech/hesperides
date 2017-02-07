@@ -67,8 +67,6 @@ public interface Applications {
 
     int getAllApplicationsCount();
 
-    int getAllModulesCount();
-
     Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector);
 
     void delete(PlatformKey key);

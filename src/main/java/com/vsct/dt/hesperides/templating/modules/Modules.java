@@ -40,8 +40,6 @@ public interface Modules {
 
     Collection<Module> getAllModules();
 
-    Integer getAllTechnosCount();
-
     Optional<Module> getModule(ModuleKey moduleKey);
 
     List<Template> getAllTemplates(ModuleKey moduleKey);

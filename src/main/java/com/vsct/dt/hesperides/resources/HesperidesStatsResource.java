@@ -21,9 +21,14 @@
 
 package com.vsct.dt.hesperides.resources;
 
+import java.util.Collection;
+
 import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.applications.Applications;
+import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.Modules;
+import com.vsct.dt.hesperides.templating.packages.TemplatePackages;
+
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.jackson.JsonSnakeCase;
@@ -49,10 +54,13 @@ public class HesperidesStatsResource {
 
     private final Applications applicationsAggregate;
     private final Modules modulesAggregate;
+    private final TemplatePackages templatePackagesAggregate;
 
-    public HesperidesStatsResource (final Applications applicationsAggregate, final Modules modulesAggregate){
+    public HesperidesStatsResource (final Applications applicationsAggregate, final Modules modulesAggregate, final TemplatePackages
+            templatePackagesAggregate){
         this.applicationsAggregate = applicationsAggregate;
         this.modulesAggregate = modulesAggregate;
+        this.templatePackagesAggregate = templatePackagesAggregate;
     }
 
     @GET
@@ -60,7 +68,18 @@ public class HesperidesStatsResource {
     @ApiOperation("Get some statics data about Hesperides")
     @Produces(MediaType.APPLICATION_JSON)
     public Stats getStats (){
-        return new Stats(applicationsAggregate.getAllApplicationsCount(), applicationsAggregate.getAllPlatformsCount(), applicationsAggregate.getAllModulesCount(), modulesAggregate.getAllTechnosCount());
+        final Collection<Module> listModules = modulesAggregate.getAllModules();
+        int nbModules = 0;
+
+        if (listModules != null) {
+            nbModules = listModules.size();
+        }
+
+        return new Stats(applicationsAggregate.getAllApplicationsCount(),
+                applicationsAggregate.getAllPlatformsCount(),
+                nbModules,
+                templatePackagesAggregate.getAllTemplatesCount()
+                );
     }
 
     /**
@@ -70,31 +89,31 @@ public class HesperidesStatsResource {
     @JsonSnakeCase
     public static class Stats {
 
-        private final Integer numberOfApplications;
-        private final Integer numberOfPlatforms;
-        private final Integer numberOfModules;
-        private final Integer numberOfTechnos;
+        private final int numberOfApplications;
+        private final int numberOfPlatforms;
+        private final int numberOfModules;
+        private final int numberOfTechnos;
 
-        public Stats(final Integer numberOfApplications, final Integer numberOfPlatforms, final Integer numberOfModules, final Integer numberOfTechnos) {
+        public Stats(final int numberOfApplications, final int numberOfPlatforms, final int numberOfModules, final int numberOfTechnos) {
             this.numberOfPlatforms = numberOfPlatforms;
             this.numberOfApplications = numberOfApplications;
             this.numberOfModules = numberOfModules;
             this.numberOfTechnos = numberOfTechnos;
         }
 
-        public Integer getNumberOfPlatforms() {
+        public int getNumberOfPlatforms() {
             return numberOfPlatforms;
         }
 
-        public Integer getNumberOfApplications() {
+        public int getNumberOfApplications() {
             return numberOfApplications;
         }
 
-        public Integer getNumberOfModules() {
+        public int getNumberOfModules() {
             return numberOfModules;
         }
 
-        public Integer getNumberOfTechnos() {
+        public int getNumberOfTechnos() {
             return numberOfTechnos;
         }
     }

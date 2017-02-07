@@ -235,6 +235,11 @@ class ModuleRegistry implements ModuleRegistryInterface, TemplateRegistryInterfa
     }
 
     @Override
+    public Set<Template> getAllTemplates() {
+        return null;
+    }
+
+    @Override
     public boolean templateHasNamespace(final String namespace) {
         return this.moduleCacheLoader.isNamespaceExist(namespace);
     }

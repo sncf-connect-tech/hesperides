@@ -37,6 +37,8 @@ public interface TemplatePackages {
 
     Set<Template> getAllTemplates(TemplatePackageKey packageInfo);
 
+    int getAllTemplatesCount();
+
     Optional<Template> getTemplate(TemplatePackageKey packageInfo, String templateName);
 
     Optional<Template> getTemplate(String templateNamespace, String templateName);

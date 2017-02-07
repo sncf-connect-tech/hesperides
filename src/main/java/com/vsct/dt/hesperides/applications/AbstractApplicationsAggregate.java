@@ -530,11 +530,6 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
     }
 
     @Override
-    public int getAllModulesCount() {
-        return getPlatformRegistry().getAllPlatforms().stream().filter(distinctByKey(app -> app.getModules())).collect(Collectors.toList()).size();
-    }
-
-    @Override
     public UserContext getUserContext() {
         return null;
     }

@@ -237,7 +237,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         environment.jersey().register(applicationResource);
 
         HesperidesStatsResource statsResource = new HesperidesStatsResource(
-                new PermissionAwareApplicationsProxy(applicationsAggregate, userContext), modulesAggregate);
+                new PermissionAwareApplicationsProxy(applicationsAggregate, userContext), modulesAggregate, templatePackagesAggregate);
         environment.jersey().register(statsResource);
 
         HesperidesFilesResource filesResource = new HesperidesFilesResource(files, moduleResource);

@@ -92,6 +92,10 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
         return getTemplateRegistry().getAllTemplates(packageKey);
     }
 
+    public int getAllTemplatesCount() {
+        return getTemplateRegistry().getAllTemplates().size();
+    }
+
     /**
      * Get a template
      * @param packageKey The {@link TemplatePackageKey} describing the template package

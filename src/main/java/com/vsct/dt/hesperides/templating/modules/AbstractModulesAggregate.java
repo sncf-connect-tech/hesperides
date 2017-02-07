@@ -419,9 +419,4 @@ public abstract class AbstractModulesAggregate extends SingleThreadAggregate
     protected abstract AbstractTemplatePackagesAggregate getTemplatePackages();
 
     protected abstract Models getModels();
-
-    @Override
-    public Integer getAllTechnosCount() {
-        return null;
-    }
 }
