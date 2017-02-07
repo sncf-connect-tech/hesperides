@@ -32,6 +32,7 @@ cacheConfiguration:
     #   - IP_SENTINEL_1:PORT_SENTINEL_1
     #   - IP_SENTINEL_2:PORT_SENTINEL_2
   nbEventBeforePersiste: 100
+  # Set true if you use a previous version of Hepserides that not support cache system
   generateCaheOnStartup: false
   # Cache configuration for platform in time
   platformTimeline:
@@ -85,8 +86,8 @@ authenticatorType: none # allowed values : none, simple, LDAP
 #   userNameAttribute: sAMAccountName
 #   userSearchBase: dc=mother,dc=com
 #   roleSearchBase: ou=kikoo,dc=mother,dc=com
-#   prodGroupName: HESPERIDES_PROD_GROUP
-#   techGroupName: HESPERIDES_TECH_GROUP
+#   prodGroupName: HESPERIDES_PROD_GROUP        # Group allow modify platform production
+#   techGroupName: HESPERIDES_TECH_GROUP        # Group allow to call technical API of Hesperides (reindex, cache...)
 authenticationCachePolicy: maximumSize=10000, expireAfterAccess=10m 
 useDefaultUserWhenAuthentFails: false # allows you to bypass authent :true for development mode, false for production mode
 # settings to define 
