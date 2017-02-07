@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 /**

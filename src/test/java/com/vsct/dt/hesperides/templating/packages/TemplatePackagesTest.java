@@ -45,7 +45,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * Created by william_montaz on 28/11/2014.

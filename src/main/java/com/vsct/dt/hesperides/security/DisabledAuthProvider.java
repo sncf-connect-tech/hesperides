@@ -21,37 +21,45 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.api.model.Parameter;
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.core.spi.component.ComponentScope;
-import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.InjectableProvider;
-import com.vsct.dt.hesperides.security.model.User;
-import io.dropwizard.auth.Auth;
+import io.dropwizard.auth.*;
+import io.dropwizard.auth.basic.BasicCredentials;
+
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * Created by william_montaz on 21/11/2014.
+ * Disable auth for Hesperides.
+ *
+ * @param <T> the principal type.
  */
-public final class DisabledAuthProvider implements InjectableProvider<Auth, Parameter> {
+public final class DisabledAuthProvider<T> extends AuthFactory<BasicCredentials, T> {
 
-    @Override
-    public ComponentScope getScope() {
-        return ComponentScope.PerRequest;
+    private T user;
+    private final Class<T> generatedClass;
+
+    public DisabledAuthProvider(final T user, final Class<T> generatedClass) {
+        super(null);
+        this.user = user;
+        this.generatedClass = generatedClass;
     }
 
     @Override
-    public Injectable getInjectable(final ComponentContext componentContext, final Auth auth, final Parameter parameter) {
-        return new DisabledAuthInjectable();
+    public AuthFactory<BasicCredentials, T> clone(boolean required) {
+        return new DisabledAuthProvider(this.user, this.generatedClass);
     }
 
-    private static class DisabledAuthInjectable extends AbstractHttpContextInjectable<User> {
-
-        @Override
-        public User getValue(final HttpContext httpContext) {
-            return User.UNTRACKED;
-        }
+    @Override
+    public void setRequest(HttpServletRequest request) {
+        // Nothing
     }
 
+    @Override
+    public T provide() {
+        return user;
+    }
+
+    @Override
+    public Class<T> getGeneratedClass() {
+        return generatedClass;
+    }
 }

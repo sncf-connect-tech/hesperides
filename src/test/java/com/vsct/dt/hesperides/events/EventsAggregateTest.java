@@ -21,6 +21,7 @@
 
 package com.vsct.dt.hesperides.events;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
 import com.vsct.dt.hesperides.applications.PropertiesSavedEvent;
@@ -32,8 +33,6 @@ import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Created by tidiane_sidibe on 19/04/2016.

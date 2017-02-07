@@ -33,6 +33,8 @@ import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
 import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 import io.dropwizard.jackson.Jackson;
+
+import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,12 +43,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by william_montaz on 16/01/2015.

@@ -34,9 +34,11 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
-import static org.fest.assertions.api.Assertions.assertThat;
+
 
 /**
  * Created by william_montaz on 01/09/14.
@@ -60,7 +62,6 @@ public class IterableValorisationTest {
     @Test
     public void shouldDeserializeFromJSON() throws IOException {
         Property property = new Property("name1", "comment1");
-        Set<Property> fields = Sets.newHashSet(property);
 
         IterableValorisation.IterableValorisationItem field = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value")));
 

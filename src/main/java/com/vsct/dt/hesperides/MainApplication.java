@@ -24,8 +24,6 @@ package com.vsct.dt.hesperides;
 import com.bazaarvoice.dropwizard.assets.ConfiguredAssetsBundle;
 import com.codahale.metrics.JmxReporter;
 import com.google.common.eventbus.EventBus;
-import com.sun.jersey.api.model.Parameter;
-import com.sun.jersey.spi.inject.InjectableProvider;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
@@ -46,10 +44,8 @@ import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.resources.*;
-import com.vsct.dt.hesperides.security.BasicAuthProviderWithUserContextHolder;
-import com.vsct.dt.hesperides.security.CorrectedCachingAuthenticator;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
+import com.vsct.dt.hesperides.security.jersey.HesperidesAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
@@ -76,7 +72,10 @@ import com.wordnik.swagger.jaxrs.reader.DefaultJaxrsApiReader;
 import com.wordnik.swagger.reader.ClassReaders;
 import io.dropwizard.Application;
 import io.dropwizard.auth.Auth;
+import io.dropwizard.auth.AuthFactory;
 import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.auth.basic.BasicAuthFactory;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.client.HttpClientBuilder;
 import io.dropwizard.setup.Bootstrap;
@@ -124,25 +123,17 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         Optional<Authenticator<BasicCredentials, User>> authenticator = hesperidesConfiguration.getAuthenticator();
 
-        InjectableProvider<Auth, Parameter> authProvider;
+        final ThreadLocalUserContext userContext = new ThreadLocalUserContext();
 
-        ThreadLocalUserContext userContext = new ThreadLocalUserContext(environment.jersey());
+        final HesperidesAuthenticator simpleAuthenticator = new HesperidesAuthenticator(authenticator, userContext);
 
-        if (authenticator.isPresent()) {
-            authProvider = new BasicAuthProviderWithUserContextHolder(
-                    new CorrectedCachingAuthenticator<>(
-                            environment.metrics(),
-                            authenticator.get(),
-                            hesperidesConfiguration.getAuthenticationCachePolicy()
-                    ),
-                    "LOGIN AD POUR HESPERIDES",
-                    userContext,
-                    hesperidesConfiguration.useDefaultUserWhenAuthentFails());
-        } else {
-            authProvider = new DisabledAuthProvider();
-        }
+        final CachingAuthenticator<BasicCredentials, User> cachingAuthenticator = new CachingAuthenticator<>(
+                environment.metrics(), simpleAuthenticator,
+                hesperidesConfiguration.getAuthenticationCachePolicy());
 
-        environment.jersey().register(authProvider);
+        environment.jersey().register(AuthFactory.binder(new BasicAuthFactory<>(cachingAuthenticator,
+                "LOGIN AD POUR HESPERIDES",
+                User.class)));
 
         LOGGER.debug("Creating Redis connection pool");
 
@@ -161,49 +152,50 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         environment.lifecycle().manage(manageableJedisConnectionPool);
 
         LOGGER.debug("Creating Event Bus");
-        EventBus eventBus = new EventBus();
+        final EventBus eventBus = new EventBus();
 
         LOGGER.debug("Creating aggregates");
         /* Create the http client */
-        HttpClient httpClient = new HttpClientBuilder(environment).using(hesperidesConfiguration.getHttpClientConfiguration()).build("elasticsearch");
-        environment.jersey().getResourceConfig().getRootResourceSingletons().add(httpClient);
+        final HttpClient httpClient = new HttpClientBuilder(environment).using(hesperidesConfiguration.getHttpClientConfiguration()).build
+                ("elasticsearch");
+        environment.jersey().register(httpClient);
         /* Create the elasticsearch client */
-        ElasticSearchClient elasticSearchClient = new ElasticSearchClient(httpClient, hesperidesConfiguration.getElasticSearchConfiguration());
+        final ElasticSearchClient elasticSearchClient = new ElasticSearchClient(httpClient, hesperidesConfiguration.getElasticSearchConfiguration());
 
         /* Search Helpers */
-        ApplicationSearch applicationSearch = new ApplicationSearch(elasticSearchClient);
-        ModuleSearch moduleSearch = new ModuleSearch(elasticSearchClient);
-        TemplateSearch templateSearch = new TemplateSearch(elasticSearchClient);
+        final ApplicationSearch applicationSearch = new ApplicationSearch(elasticSearchClient);
+        final ModuleSearch moduleSearch = new ModuleSearch(elasticSearchClient);
+        final TemplateSearch templateSearch = new TemplateSearch(elasticSearchClient);
 
         /* Registries (read part of the application) */
-        SnapshotRegistryInterface snapshotRegistryInterface = new SnapshotRegistry(manageableJedisConnectionPool.getPool());
+        final SnapshotRegistryInterface snapshotRegistryInterface = new SnapshotRegistry(manageableJedisConnectionPool.getPool());
 
         /* Aggregates (write part of the application: events + method to read from registries) */
-        TemplatePackagesAggregate templatePackagesAggregate = new TemplatePackagesAggregate(eventBus, eventStore,
+        final TemplatePackagesAggregate templatePackagesAggregate = new TemplatePackagesAggregate(eventBus, eventStore,
                 userContext, hesperidesConfiguration);
         environment.lifecycle().manage(templatePackagesAggregate);
 
-        ModulesAggregate modulesAggregate = new ModulesAggregate(eventBus, eventStore, templatePackagesAggregate,
+        final ModulesAggregate modulesAggregate = new ModulesAggregate(eventBus, eventStore, templatePackagesAggregate,
                 userContext, hesperidesConfiguration);
         environment.lifecycle().manage(modulesAggregate);
 
-        ApplicationsAggregate applicationsAggregate = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface,
+        final ApplicationsAggregate applicationsAggregate = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface,
                 hesperidesConfiguration, userContext);
         environment.lifecycle().manage(applicationsAggregate);
 
-        Applications permissionAwareApplications = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
+        final Applications permissionAwareApplications = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
         /* Events aggregate */
-        EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(),
+        final EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(),
                 eventBus, eventStore);
         environment.lifecycle().manage(eventsAggregate);
 
         /* Service to generate files */
-        Files files = new Files(permissionAwareApplications, modulesAggregate, templatePackagesAggregate);
+        final Files files = new Files(permissionAwareApplications, modulesAggregate, templatePackagesAggregate);
 
         LOGGER.debug("Loading indexation module");
         /* The indexer */
 
-        ElasticSearchIndexationExecutor elasticSearchIndexationExecutor
+        final ElasticSearchIndexationExecutor elasticSearchIndexationExecutor
                 = new ElasticSearchIndexationExecutor(elasticSearchClient,
                 hesperidesConfiguration.getElasticSearchConfiguration().getRetry(),
                 hesperidesConfiguration.getElasticSearchConfiguration().getWaitBeforeRetryMs());
@@ -217,48 +209,50 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         LOGGER.debug("Creating web resources");
         environment.jersey().setUrlPattern("/rest/*");
 
-        TimeStampedPlatformConverter timeStampedPlatformConverter = new DefaultTimeStampedPlatformConverter();
-        ApplicationConverter applicationConverter = new DefaultApplicationConverter();
-        PropertiesConverter propertiesConverter = new DefaultPropertiesConverter();
+        final TimeStampedPlatformConverter timeStampedPlatformConverter = new DefaultTimeStampedPlatformConverter();
+        final ApplicationConverter applicationConverter = new DefaultApplicationConverter();
+        final PropertiesConverter propertiesConverter = new DefaultPropertiesConverter();
 
-        HesperidesTemplateResource templateResource = new HesperidesTemplateResource(templatePackagesAggregate,
+        final HesperidesTemplateResource templateResource = new HesperidesTemplateResource(templatePackagesAggregate,
                 templateSearch);
 
         environment.jersey().register(templateResource);
 
-        HesperidesModuleResource moduleResource = new HesperidesModuleResource(modulesAggregate, moduleSearch);
+        final HesperidesModuleResource moduleResource = new HesperidesModuleResource(modulesAggregate, moduleSearch);
         environment.jersey().register(moduleResource);
 
-        HesperidesApplicationResource applicationResource = new HesperidesApplicationResource(
+        final HesperidesApplicationResource applicationResource = new HesperidesApplicationResource(
                 new PermissionAwareApplicationsProxy(applicationsAggregate, userContext), modulesAggregate,
                 applicationSearch, timeStampedPlatformConverter, applicationConverter,
                 propertiesConverter, moduleResource);
 
         environment.jersey().register(applicationResource);
 
-        HesperidesStatsResource statsResource = new HesperidesStatsResource(
+        final HesperidesStatsResource statsResource = new HesperidesStatsResource(
                 new PermissionAwareApplicationsProxy(applicationsAggregate, userContext), modulesAggregate);
         environment.jersey().register(statsResource);
 
-        HesperidesFilesResource filesResource = new HesperidesFilesResource(files, moduleResource);
+        final HesperidesFilesResource filesResource = new HesperidesFilesResource(files, moduleResource);
         environment.jersey().register(filesResource);
 
-        HesperidesVersionsResource versionsResource = new HesperidesVersionsResource(hesperidesConfiguration.getBackendVersion(), hesperidesConfiguration.getApiVersion());
+        final HesperidesVersionsResource versionsResource = new HesperidesVersionsResource(hesperidesConfiguration.getBackendVersion(),
+                hesperidesConfiguration.getApiVersion());
         environment.jersey().register(versionsResource);
 
-        HesperidesFullIndexationResource fullIndexationResource = new HesperidesFullIndexationResource(elasticSearchIndexationExecutor, applicationsAggregate, modulesAggregate, templatePackagesAggregate);
+        final HesperidesFullIndexationResource fullIndexationResource = new HesperidesFullIndexationResource(elasticSearchIndexationExecutor,
+                applicationsAggregate, modulesAggregate, templatePackagesAggregate);
         environment.jersey().register(fullIndexationResource);
 
         // Events resource
-        HesperidesEventResource eventResource = new HesperidesEventResource(eventsAggregate);
+        final HesperidesEventResource eventResource = new HesperidesEventResource(eventsAggregate);
         environment.jersey().register(eventResource);
 
-        HesperidesCacheResource hesperidesCacheResource = new HesperidesCacheResource(templatePackagesAggregate,
+        final HesperidesCacheResource hesperidesCacheResource = new HesperidesCacheResource(templatePackagesAggregate,
                 modulesAggregate, applicationsAggregate);
         environment.jersey().register(hesperidesCacheResource);
 
         // Users resource
-        HesperidesUserResource userResource = new HesperidesUserResource();
+        final HesperidesUserResource userResource = new HesperidesUserResource();
         environment.jersey().register(userResource);
 
         LOGGER.debug("Registering exception handlers");
@@ -282,7 +276,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         /* Exposition JMX */
         // active l'export des metrics en jmx
-        JmxReporter reporter = JmxReporter.forRegistry(environment.metrics()).build();
+        final JmxReporter reporter = JmxReporter.forRegistry(environment.metrics()).build();
         reporter.start();
 
         if (hesperidesConfiguration.getCacheConfiguration().isGenerateCaheOnStartup()) {

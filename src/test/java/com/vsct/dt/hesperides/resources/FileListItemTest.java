@@ -27,8 +27,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
-import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Created by william_montaz on 29/08/14.

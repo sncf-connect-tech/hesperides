@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -90,7 +90,7 @@ public class Valorisation {
     }
 
     public Valorisation inject(Map<String, String> keyValueProperties){
-        throw new NotImplementedException();
+        throw new NotImplementedException("Not implemented");
     }
 
     /* Use a specific deserializer to handle polymorphism and avoid changing the existing API */

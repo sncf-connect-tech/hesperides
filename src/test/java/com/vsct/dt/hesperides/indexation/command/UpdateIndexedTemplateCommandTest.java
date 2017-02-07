@@ -30,7 +30,6 @@ import io.dropwizard.jackson.Jackson;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 

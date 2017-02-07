@@ -29,7 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.fail;
-import static org.fest.assertions.api.Assertions.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**

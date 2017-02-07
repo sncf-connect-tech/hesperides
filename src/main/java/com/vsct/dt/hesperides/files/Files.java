@@ -44,7 +44,7 @@ import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;

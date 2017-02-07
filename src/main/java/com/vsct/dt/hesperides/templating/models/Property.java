@@ -30,7 +30,8 @@ import com.vsct.dt.hesperides.templating.models.annotation.HesperidesAnnotation;
 import com.vsct.dt.hesperides.templating.models.annotation.HesperidesAnnotationConstructor;
 import com.vsct.dt.hesperides.templating.models.annotation.HesperidesCommentAnnotation;
 import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

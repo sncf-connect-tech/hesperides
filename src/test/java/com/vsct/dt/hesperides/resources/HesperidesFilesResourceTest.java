@@ -27,16 +27,10 @@ import com.github.mustachejava.codes.DefaultCode;
 import com.github.mustachejava.codes.ValueCode;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
-import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.files.HesperidesFile;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
-import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
@@ -45,27 +39,28 @@ import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
-import io.dropwizard.auth.basic.BasicAuthProvider;
+
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
+import static junit.framework.TestCase.fail;
 
 /**
  * Created by william_montaz on 01/09/14.
  */
-/* AUTHENTICATION -> John_Doe:secret => Basic Sm9obl9Eb2U6c2VjcmV0 */
-public class HesperidesFilesResourceTest {
+public class HesperidesFilesResourceTest extends AbstractDisableUserResourcesTest {
 
     private static final Files files = mock(Files.class);
 
@@ -77,44 +72,26 @@ public class HesperidesFilesResourceTest {
     private static final HesperidesPropertiesModel model = HesperidesPropertiesModel.empty();
 
     @ClassRule
-    public static ResourceTestRule simpleAuthResources = ResourceTestRule.builder()
-            .addProvider(new BasicAuthProvider<>(
-                    new SimpleAuthenticator(),
-                    "AUTHENTICATION_PROVIDER"))
-            .addResource(new HesperidesFilesResource(files, modulesResource))
-            .addProvider(new DefaultExceptionMapper())
-            .addProvider(new DuplicateResourceExceptionMapper())
-            .addProvider(new IncoherentVersionExceptionMapper())
-            .addProvider(new OutOfDateVersionExceptionMapper())
-            .addProvider(new MissingResourceExceptionMapper())
-            .addProvider(new IllegalArgumentExceptionMapper())
-            .build();
+    public static ResourceTestRule simpleAuthResources = createSimpleAuthResource(
+            new HesperidesFilesResource(files, modulesResource));
 
     @ClassRule
-    public static ResourceTestRule disabledAuthResources = ResourceTestRule.builder()
-            .addProvider(new DisabledAuthProvider())
-            .addResource(new HesperidesFilesResource(files, modulesResource))
-            .addProvider(new DefaultExceptionMapper())
-            .addProvider(new DuplicateResourceExceptionMapper())
-            .addProvider(new IncoherentVersionExceptionMapper())
-            .addProvider(new OutOfDateVersionExceptionMapper())
-            .addProvider(new MissingResourceExceptionMapper())
-            .addProvider(new IllegalArgumentExceptionMapper())
-            .build();
-
-
-    public com.sun.jersey.api.client.WebResource withAuth(String url) {
-        return simpleAuthResources.client().resource(url);
-    }
-
-    public com.sun.jersey.api.client.WebResource withoutAuth(String url) {
-        return disabledAuthResources.client().resource(url);
-    }
-
+    public static ResourceTestRule disabledAuthResources = createDisabledAuthResource(
+            new HesperidesFilesResource(files, modulesResource));
 
     @Before
     public void setup() {
         reset(files);
+    }
+
+    @Override
+    protected ResourceTestRule getAuthResources() {
+        return simpleAuthResources;
+    }
+
+    @Override
+    protected ResourceTestRule getDisabledAuthResources() {
+        return disabledAuthResources;
     }
 
     @Test
@@ -130,6 +107,7 @@ public class HesperidesFilesResourceTest {
         assertThat(withoutAuth("/files/applications/my_app/platforms/my_pltfm/the_path/my_module/the_module_version/instances/my_instance")
                 .queryParam("isWorkingCopy", "true")
                 .queryParam("simulate", "false")
+                .request()
                 .get(new GenericType<Set<FileListItem>>() {
                 })).isEqualTo(Sets.newHashSet(fileListItem1, fileListItem2));
     }
@@ -146,33 +124,24 @@ public class HesperidesFilesResourceTest {
         assertThat(withoutAuth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance")
                 .queryParam("isWorkingCopy", "true")
                 .queryParam("simulate", "false")
+                .request()
                 .get(new GenericType<Set<FileListItem>>() {
                 })).isEqualTo(Sets.newHashSet(fileListItem1));
     }
 
     @Test
     public void should_return_400_if_getting_file_list_and_query_param_is_working_copy_is_missing(){
-        try {
-            withoutAuth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_with_auth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version" +
+                "/instances/my%20instance");
     }
 
     @Test
     public void should_return_401_if_getting_file_list_and_not_authenticated(){
-        try {
-            withAuth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version/instances/my%20instance")
-                    .get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        check_bad_request_on_get_with_auth("/files/applications/my%20app/platforms/my%20pltfm/the%20path/my%23module/the%23module%23version" +
+                "/instances/my%20instance");
     }
 
-    @Test(expected = UniformInterfaceException.class)
+    @Test(expected = Exception.class)
     public void should_get_generated_file_for_application_platform_path_module_infos_instance_filename_with_isWorkingcopy_and_template_namespace_params() throws Exception {
 
         when(files.getFile("some_app", "some_pltfm", "a_given_path", "module_name", "module_version", true, "the_instance_name", "the_template_namespace", "the_filename", model, false)).thenReturn("Ze file content");
@@ -180,177 +149,113 @@ public class HesperidesFilesResourceTest {
         assertThat(withoutAuth("/files/applications/some_app/platforms/some_pltfm/a_given_path/module_name/module_version/instances/the_instance_name/the_filename")
                 .queryParam("isWorkingCopy", "true")
                 .queryParam("template_namespace", "the_template_namespace")
+                .request()
                 .get(String.class))
                 .isEqualTo("Ze file content");
     }
 
     @Test
     public void should_return_400_if_getting_file_without_isWorkingcopy_query_param(){
-        try {
+        assertThat(
             withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances/the_instance_name/the_filename")
                     .queryParam("template_namespace", "the_template_namespace")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+                    .request()
+                    .get()
+                    .getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_file_without_template_namespace_query_param(){
-        try {
+        assertThat(
             withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances/the_instance_name/the_filename")
                     .queryParam("isWorkingCopy", "true")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+                    .request()
+                    .get()
+                    .getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_file_and_not_authenticated(){
-        try {
-            withAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances/the_instance_name/the_filename")
+        assertThat(
+                withAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances/the_instance_name" +
+                        "/the_filename")
                     .queryParam("isWorkingCopy", "true")
                     .queryParam("template_namespace", "the_template_namespace")
-                    .get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+                    .request()
+                    .get()
+                    .getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_files_with_application_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/%20%09%00/platforms/some_pltm/a_given_path/module_name/module_version/instances/the_instance_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/%20%09%00/platforms/some_pltm/a_given_path/module_name/module_version/instances" +
+                "/the_instance_name");
     }
 
     @Test
     public void should_return_400_if_getting_files_with_platform_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/%20%09%00/a_given_path/module_name/module_version/instances/the_instance_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/%20%09%00/a_given_path/module_name/module_version/instances" +
+                "/the_instance_name");
     }
 
     @Test
     public void should_return_400_if_getting_files_with_path_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/%20%09%00/module_name/module_version/instances/the_instance_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/%20%09%00/module_name/module_version/instances" +
+                "/the_instance_name");
     }
 
     @Test
     public void should_return_400_if_getting_files_with_module_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/%20%09%00/module_version/instances/the_instance_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/a_given_path/%20%09%00/module_version/instances" +
+                "/the_instance_name");
     }
 
     @Test
     public void should_return_400_if_getting_files_with_module_version_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/%20%09%00/instances/the_instance_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/%20%09%00/instances" +
+                "/the_instance_name");
     }
 
     @Test
     public void should_return_400_if_getting_files_with_instance_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances/%20%09%00")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances" +
+                "/%20%09%00");
     }
 
     @Test
     public void should_return_400_if_getting_one_file_with_application_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/%20%09%00/platforms/some_pltm/a_given_path/module_name/module_version/instances/the_instance_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/%20%09%00/platforms/some_pltm/a_given_path/module_name/module_version/instances" +
+                "/the_instance_name");
     }
 
     @Test
     public void should_return_400_if_getting_one_file_with_platform_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/%20%09%00/a_given_path/module_name/module_version/instances/the_instance_name/file_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/%20%09%00/a_given_path/module_name/module_version/instances" +
+                "/the_instance_name/file_name");
     }
 
     @Test
     public void should_return_400_if_getting_one_file_with_path_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/%20%09%00/module_name/module_version/instances/the_instance_name/file_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/%20%09%00/module_name/module_version/instances" +
+                "/the_instance_name/file_name");
     }
 
     @Test
     public void should_return_400_if_getting_one_file_with_module_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/%20%09%00/module_version/instances/the_instance_name/file_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/a_given_path/%20%09%00/module_version/instances" +
+                "/the_instance_name/file_name");
     }
 
     @Test
     public void should_return_400_if_getting_one_file_with_module_version_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/%20%09%00/instances/the_instance_name/file_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/%20%09%00/instances" +
+                "/the_instance_name/file_name");
     }
 
     @Test
     public void should_return_400_if_getting_one_file_with_instance_name_not_valid(){
-        try {
-            withoutAuth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances/%20%09%00/file_name")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        check_bad_request_on_get_without_auth("/files/applications/some_app/platforms/some_pltm/a_given_path/module_name/module_version/instances" +
+                "/%20%09%00/file_name");
     }
 
     @Test
