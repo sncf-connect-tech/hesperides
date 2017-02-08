@@ -29,7 +29,7 @@
 
     <properties>
         <dropwizard.version>0.7.0</dropwizard.version>
-        <es.version>1.1.1</es.version>
+        <es.version>5.2.0</es.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
