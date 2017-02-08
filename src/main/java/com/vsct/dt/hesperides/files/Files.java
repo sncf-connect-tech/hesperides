@@ -28,14 +28,12 @@ import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.templating.Template;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.TemplateFileRights;
 import com.vsct.dt.hesperides.templating.TemplateRights;
-import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
@@ -45,7 +43,6 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
@@ -53,6 +50,7 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -434,19 +432,25 @@ public class Files {
     private static class PropertiesWithDotHandler extends ReflectionObjectHandler {
 
         @Override
-        public Wrapper find(final String name, Object[] scopes) {
-
-            // We trim this to let mustach ignore whitespaces on properties name
+        public Wrapper find(final String name, List<Object> scopes) {
+            Object scope;
             String real_name = name.split("[|]")[0].trim();
+            int scope_index = scopes.size() - 1;
 
-            int length = scopes.length;
-            for (int i = 0; i < length; i++) {
-                Object scope = scopes[i];
-                final int scope_index = i;
+            final ListIterator<Object> scopeIterator = scopes.listIterator(scopes.size());
+
+            // We must search from local scope to global scope in case of iterable properties.
+            while (scopeIterator.hasPrevious()) {
+                scope = scopeIterator.previous();
+
                 if (scope instanceof Map && ((Map) scope).containsKey(real_name)) {
-                    return scopes1 -> ((Map) scopes1[scope_index]).get(real_name);
+                    final int index = scope_index;
+                    return scopes1 -> ((Map) scopes1.get(index)).get(real_name);
                 }
+
+                scope_index--;
             }
+
             return super.find(name, scopes);
         }
 
