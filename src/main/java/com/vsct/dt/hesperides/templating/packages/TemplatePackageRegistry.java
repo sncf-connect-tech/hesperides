@@ -168,11 +168,6 @@ public class TemplatePackageRegistry implements TemplateRegistryInterface {
     }
 
     @Override
-    public Set<Template> getAllTemplates() {
-        return new HashSet(this.templateCacheLoader.getAllTemplates());
-    }
-
-    @Override
     public boolean templateHasNamespace(final String namespace) {
         return this.templateCacheLoader.isNamespaceExist(namespace);
     }

@@ -25,6 +25,7 @@ import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -37,7 +38,7 @@ public interface TemplatePackages {
 
     Set<Template> getAllTemplates(TemplatePackageKey packageInfo);
 
-    int getAllTemplatesCount();
+    Collection<Template> getAllTemplates();
 
     Optional<Template> getTemplate(TemplatePackageKey packageInfo, String templateName);
 

@@ -63,9 +63,7 @@ public interface Applications {
 
     InstanceModel getInstanceModel(PlatformKey platformKey, String propertiesPath);
 
-    int getAllPlatformsCount();
-
-    int getAllApplicationsCount();
+    Collection<PlatformData> getAllPlatforms();
 
     Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector);
 
@@ -76,6 +74,4 @@ public interface Applications {
     List<Long> getSnapshots(PlatformKey key);
 
     PlatformData restoreSnapshot(PlatformKey key, long timestamp);
-
-    UserContext getUserContext();
 }

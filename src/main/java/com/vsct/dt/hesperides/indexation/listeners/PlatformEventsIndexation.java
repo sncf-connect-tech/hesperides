@@ -58,7 +58,8 @@ public class PlatformEventsIndexation implements PlatformEventBuilderInterface {
     }
 
     @Subscribe
-    public void createPlatformFrom(final PlatformCreatedFromExistingEvent event) {
+    @Override
+    public void replayPlatformCreatedFromExistingEvent(final PlatformCreatedFromExistingEvent event) {
 
         PlatformIndexation platformIndexation = PlatformMapper.asPlatformIndexation(event.getPlatform());
 

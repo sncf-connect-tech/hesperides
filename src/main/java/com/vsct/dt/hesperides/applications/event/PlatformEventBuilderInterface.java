@@ -36,4 +36,6 @@ public interface PlatformEventBuilderInterface {
     void replaySnapshotTakenEvent(PlatformSnapshotEvent event);
 
     void replaySnapshotRestoredEvent(PlatformSnapshotRestoreEvent event);
+
+    void replayPlatformCreatedFromExistingEvent(PlatformCreatedFromExistingEvent event);
 }

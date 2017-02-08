@@ -78,6 +78,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * Helper method used to apply a treatment to all templates
      * @param consumer A {@link Consumer} implementation to perform treatment on a template
      */
+    @Override
     public void withAll(Consumer<Template> consumer) {
         getTemplateRegistry().allTemplates().stream()
                 .forEach(valueObject -> consumer.accept(valueObject));
@@ -88,12 +89,14 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param packageKey The key describing the template package
      * @return a {@link Set} of all templates belonging to the TemplatePackage
      */
+    @Override
     public Set<Template> getAllTemplates(final TemplatePackageKey packageKey) {
         return getTemplateRegistry().getAllTemplates(packageKey);
     }
 
-    public int getAllTemplatesCount() {
-        return getTemplateRegistry().getAllTemplates().size();
+    @Override
+    public Collection<Template> getAllTemplates() {
+        return getTemplateRegistry().allTemplates();
     }
 
     /**
@@ -102,6 +105,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param templateName The name field of the template
      * @return An {@link Optional} of a template
      */
+    @Override
     public Optional<Template> getTemplate(final TemplatePackageKey packageKey, final String templateName) {
         return getTemplateRegistry().getTemplate(packageKey.getNamespace(), templateName);
     }
@@ -113,6 +117,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @return An {@link Optional} of a template
      */
     @Deprecated
+    @Override
     public Optional<Template> getTemplate(String templateNamespace, String templateName) {
         return getTemplateRegistry().getTemplate(templateNamespace, templateName);
     }
@@ -123,6 +128,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param templateData The data held by the template -> should be replaced by templateVO
      * @return The created {@link Template} with its versionID
      */
+    @Override
     public Template createTemplateInWorkingCopy(final TemplatePackageWorkingCopyKey packageKey, final TemplateData templateData) {
         return createTemplate(packageKey, templateData);
     }
@@ -157,6 +163,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param templateData The data held by the template -> should be replaced by templateVO
      * @return the updated {@link Template} with its new version id
      */
+    @Override
     public Template updateTemplateInWorkingCopy(final TemplatePackageWorkingCopyKey packageKey, final TemplateData templateData) {
         return updateTemplate(packageKey, templateData);
     }
@@ -189,6 +196,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param packageKey The {@link TemplatePackageKey} describing the template package
      * @param templateName The name field of the template
      */
+    @Override
     public void deleteTemplateInWorkingCopy(final TemplatePackageWorkingCopyKey packageKey, final String templateName) {
         deleteTemplate(packageKey, templateName);
     }
@@ -210,6 +218,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param workingCopyKey the {@link TemplatePackageWorkingCopyKey} of the working copy to create a release from
      * @return The {@link TemplatePackageKey} of the created release
      */
+    @Override
     public TemplatePackageKey createRelease(final TemplatePackageWorkingCopyKey workingCopyKey) {
         final TemplatePackageKey releaseInfos = new TemplatePackageKey(
                 workingCopyKey.getName(),
@@ -224,6 +233,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param fromPackageKey The {@link TemplatePackageKey} of the template package to copy from
      * @return The {@link TemplatePackageKey} of the created working copy
      */
+    @Override
     public TemplatePackageKey createWorkingCopyFrom(final TemplatePackageWorkingCopyKey workingCopyKey, final TemplatePackageKey fromPackageKey) {
         return createNewTemplatePackageFrom(workingCopyKey, fromPackageKey);
     }
@@ -263,6 +273,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * Actually, the event stream is preserved and a {@link TemplatePackageDeletedEvent} is fired
      * @param packageKey The {@link TemplatePackageKey}  to delete
      */
+    @Override
     public void delete(final TemplatePackageKey packageKey){
         final TemplatePackageDeletedCommand hc = new TemplatePackageDeletedCommand(getTemplateRegistry(), packageKey);
 
@@ -279,12 +290,14 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @return The {@link HesperidesPropertiesModel} for the given template package key
      */
     @Deprecated
+    @Override
     public HesperidesPropertiesModel getModel(final String name, final String version, final boolean isWorkingCopy) {
         final TemplatePackageKey packageKey = new TemplatePackageKey(name, version, isWorkingCopy);
         return getModels().getPropertiesModel(packageKey.getNamespace());
     }
 
     @Subscribe
+    @Override
     public void replayTemplateCreatedEvent(final TemplateCreatedEvent event) {
         try {
             final Template template = event.getCreated();
@@ -307,6 +320,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
     }
 
     @Subscribe
+    @Override
     public void replayTemplateUpdatedEvent(final TemplateUpdatedEvent event) {
         try {
             final Template template = event.getUpdated();
@@ -330,6 +344,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
     }
 
     @Subscribe
+    @Override
     public void replayTemplateDeletedEvent(final TemplateDeletedEvent event) {
         try {
             String[] tokens = event.getNamespace().split("#");
@@ -344,6 +359,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
     }
 
     @Subscribe
+    @Override
     public void replayTemplatePackageDeletedEvent(final TemplatePackageDeletedEvent event){
         try{
             final HesperidesVersion version = event.isWorkingCopy() ? WorkingCopy.of(event.getPackageVersion()) : Release.of(event.getPackageVersion());
@@ -352,14 +368,6 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
         } catch (Exception e){
             LOGGER.error("Error while replaying template package deleted event {}", e.getMessage());
         }
-    }
-
-    /**
-     * Get a set containing all template
-     * @return an {@link java.util.Set} of {@link Template}s
-     */
-    public Collection<Template> getAll() {
-        return getTemplateRegistry().allTemplates();
     }
 
     /**

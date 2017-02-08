@@ -163,15 +163,8 @@ public class PermissionAwareApplicationsProxy implements Applications  {
     }
 
     @Override
-    public int getAllPlatformsCount() {
-        //No security needed to read informations
-        return this.applicationsAggregate.getAllPlatformsCount();
-    }
-
-    @Override
-    public int getAllApplicationsCount() {
-        //No security needed to read informations
-        return this.applicationsAggregate.getAllApplicationsCount();
+    public Collection<PlatformData> getAllPlatforms() {
+        return this.applicationsAggregate.getAllPlatforms();
     }
 
     @Override
@@ -210,11 +203,6 @@ public class PermissionAwareApplicationsProxy implements Applications  {
             throw new ForbiddenOperationException("Restoring snapshot for a production platform is reserved to production role");
         }
         return this.applicationsAggregate.restoreSnapshot(key, timestamp);
-    }
-
-    @Override
-    public UserContext getUserContext() {
-        return this.userContext;
     }
 
     private PropertiesData hideProperties(PropertiesData properties, HesperidesPropertiesModel model){

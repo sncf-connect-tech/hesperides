@@ -110,21 +110,6 @@ public class VirtualTemplateRegistry implements TemplateRegistryInterface {
     }
 
     @Override
-    public Set<Template> getAllTemplates() {
-        Set<Template> result;
-
-        if (this.templates == null) {
-            result = new HashSet<>();
-        } else {
-            result = this.templates.entrySet().stream().map(Map.Entry::getValue).flatMap(
-                    t -> t.entrySet().stream().map(Map.Entry::getValue)
-            ).collect(Collectors.toSet());
-        }
-
-        return result;
-    }
-
-    @Override
     public boolean templateHasNamespace(final String namespace) {
         return this.templates.containsKey(namespace);
     }

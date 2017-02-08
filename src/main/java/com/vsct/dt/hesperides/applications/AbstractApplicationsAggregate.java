@@ -392,6 +392,19 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
 
     @Subscribe
     @Override
+    public void replayPlatformCreatedFromExistingEvent(final PlatformCreatedFromExistingEvent event) {
+        try {
+            PlatformData platform = event.getPlatform();
+            PlatformData originPlatform = event.getOriginPlatform();
+            Map<String, PropertiesData> orginProperties = event.getOriginProperties();
+            this.createPlatformFromExistingPlatformHandler(platform, originPlatform, orginProperties);
+        } catch (Exception e) {
+            LOGGER.error("Error while replaying platform created from existing event {}", e.getMessage());
+        }
+    }
+
+    @Subscribe
+    @Override
     public void replayPlatformUpdatedEvent(final PlatformUpdatedEvent event) {
         try {
             final PlatformData platform = event.getPlatform();
@@ -498,39 +511,12 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
     }
 
     /**
-     * Function used for extract distinct values from collection.
-     *
-     * @param keyExtractor
-     * @param <T>
-     * @return the filtered collection
-     */
-    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-    }
-
-    /**
      * Gets the number of platforms
      *
      * @return {@link Integer}
      */
     @Override
-    public int getAllPlatformsCount() {
-        return getPlatformRegistry().getAllPlatforms().stream().collect(Collectors.toList()).size();
-    }
-
-    /**
-     * Gets the number of applications
-     *
-     * @return {@link Integer}
-     */
-    @Override
-    public int getAllApplicationsCount() {
-        return getPlatformRegistry().getAllPlatforms().stream().filter(distinctByKey(app -> app.getApplicationName())).collect(Collectors.toList()).size();
-    }
-
-    @Override
-    public UserContext getUserContext() {
-        return null;
+    public Collection<PlatformData> getAllPlatforms() {
+        return getPlatformRegistry().getAllPlatforms();
     }
 }

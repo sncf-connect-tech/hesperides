@@ -45,8 +45,6 @@ public interface TemplateRegistryInterface {
 
     Set<Template> getAllTemplates(TemplatePackageKey packageKey);
 
-    Set<Template> getAllTemplates();
-
     boolean templateHasNamespace(String namespace);
 
     /**

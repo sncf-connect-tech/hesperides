@@ -22,17 +22,22 @@
 package com.vsct.dt.hesperides.resources;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackages;
+import com.vsct.dt.hesperides.templating.platform.PlatformData;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.jackson.JsonSnakeCase;
-import scala.Int;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -63,11 +68,28 @@ public class HesperidesStatsResource {
         this.templatePackagesAggregate = templatePackagesAggregate;
     }
 
+    /**
+     * Function used for extract distinct values from collection.
+     *
+     * @param keyExtractor
+     * @param <T>
+     * @return the filtered collection
+     */
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
     @GET
     @Timed
     @ApiOperation("Get some statics data about Hesperides")
     @Produces(MediaType.APPLICATION_JSON)
     public Stats getStats (){
+        final Collection<PlatformData> platformList = applicationsAggregate.getAllPlatforms();
+
+        final int ptfCount = platformList.stream().collect(Collectors.toList()).size();
+        final int appCount = platformList.stream().filter(distinctByKey(app -> app.getApplicationName())).collect(Collectors.toList()).size();
+
         final Collection<Module> listModules = modulesAggregate.getAllModules();
         int nbModules = 0;
 
@@ -75,11 +97,9 @@ public class HesperidesStatsResource {
             nbModules = listModules.size();
         }
 
-        return new Stats(applicationsAggregate.getAllApplicationsCount(),
-                applicationsAggregate.getAllPlatformsCount(),
-                nbModules,
-                templatePackagesAggregate.getAllTemplatesCount()
-                );
+        final int tplCount = templatePackagesAggregate.getAllTemplates().size();
+
+        return new Stats(appCount, ptfCount, nbModules, tplCount);
     }
 
     /**

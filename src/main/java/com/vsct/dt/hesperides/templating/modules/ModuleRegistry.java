@@ -151,7 +151,6 @@ class ModuleRegistry implements ModuleRegistryInterface, TemplateRegistryInterfa
         this.cache.invalidateAll();
     }
 
-
     @Override
     public Collection<Template> allTemplates() {
         return this.moduleCacheLoader.getAllTemplates();
@@ -232,11 +231,6 @@ class ModuleRegistry implements ModuleRegistryInterface, TemplateRegistryInterfa
     @Override
     public Set<Template> getAllTemplates(TemplatePackageKey packageKey) {
         return getAllTemplatesForNamespace(packageKey.getNamespace());
-    }
-
-    @Override
-    public Set<Template> getAllTemplates() {
-        return null;
     }
 
     @Override

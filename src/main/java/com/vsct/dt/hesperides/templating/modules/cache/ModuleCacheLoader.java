@@ -21,6 +21,7 @@ package com.vsct.dt.hesperides.templating.modules.cache;
 
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.HesperidesSnapshotItem;
+import com.vsct.dt.hesperides.templating.modules.AbstractModulesAggregate;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.event.ModuleContainer;
@@ -38,7 +39,7 @@ import java.util.*;
  */
 public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, ModuleContainer> implements ModuleStoragePrefixInterface {
     private interface Callback {
-        void moduleFound(ModuleContainer moduleContainer);
+        void moduleFound(Module module, AbstractModulesAggregate modulesAggregate);
     }
 
 
@@ -159,23 +160,13 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
      * @param redisKey
      * @return
      */
-    private ModuleKey findModuleKey(final VirtualModulesAggregate virtualModulesAggregate, final String redisKey) {
-        ModuleKey moduleKey;
-
+    private Collection<Module> findModuleKey(final VirtualModulesAggregate virtualModulesAggregate, final String redisKey) {
         virtualModulesAggregate.clear();
 
         // Replay only first event, we just want module key.
         virtualModulesAggregate.replay(redisKey, 0, 1);
 
-        final Collection<Module> moduleList = virtualModulesAggregate.getAllModules();
-
-        if (moduleList.size() > 0) {
-            moduleKey = moduleList.iterator().next().getKey();
-        } else {
-            moduleKey = null;
-        }
-
-        return moduleKey;
+        return virtualModulesAggregate.getAllModules();
     }
 
     /**
@@ -213,8 +204,6 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
     /**
      * Return list of modules.
      *
-     * @param callback if callback needed
-     *
      * @return list of modules
      */
     private List<Module> getAllModules(final Callback callback) {
@@ -225,38 +214,23 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
                 getStreamPrefix());
         // All application module redis key.
         final Set<String> modules = getStore().getStreamsLike(redisKey);
-        // Module builder
-        ModuleContainer moduleContainer;
         // List of platform return by method
         final List<Module> listModule = new ArrayList<>(modules.size());
-        // Current module
-        Module currentModule;
         // Module key
-        ModuleKey moduleKey;
+        Collection<Module> moduleList;
 
         final VirtualModulesAggregate virtualModulesAggregate = new VirtualModulesAggregate(getStore());
 
         for (String moduleRedisKey : modules) {
             LOGGER.debug("Load module from store associate with key '{}'.", moduleRedisKey);
 
-            moduleKey = findModuleKey(virtualModulesAggregate, moduleRedisKey);
+            moduleList = findModuleKey(virtualModulesAggregate, moduleRedisKey);
 
-            if (moduleKey != null) {
-                try {
-                    moduleContainer = load(moduleKey);
+            if (moduleList.size() > 0) {
+                listModule.addAll(moduleList);
 
-                    if (callback != null) {
-                        callback.moduleFound(moduleContainer);
-                    }
-
-                    currentModule = moduleContainer.getModule();
-
-                    // Platform can be remove at last event
-                    if (currentModule != null) {
-                        listModule.add(currentModule);
-                    }
-                } catch (ModuleNotFoundInDatabaseException e) {
-                    // If module not found, we don't care, module have been deleted
+                if (callback != null) {
+                    moduleList.stream().forEach(m -> callback.moduleFound(m, virtualModulesAggregate));
                 }
             }
         }
@@ -276,11 +250,9 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
     public List<Template> getAllTemplates() {
         final List<Template> listTemplates = new ArrayList<>();
 
-        getAllModules(m -> {
-            if (m.getModule() != null) {
-                listTemplates.addAll(m.loadAllTemplate());
-            }
-        });
+        getAllModules((m, ma) ->
+            listTemplates.addAll(ma.getAllTemplates(m.getKey()))
+        );
 
         // Can't return null !!!!
         return listTemplates;

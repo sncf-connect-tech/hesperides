@@ -126,6 +126,16 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
 
     @Subscribe
     @Override
+    public void replayPlatformCreatedFromExistingEvent(final PlatformCreatedFromExistingEvent event) {
+        super.replayPlatformCreatedFromExistingEvent(event);
+
+        final PlatformData plateformData = event.getPlatform();
+
+        increaseCounter(new PlatformKey(plateformData.getApplicationName(), plateformData.getPlatformName()));
+    }
+
+    @Subscribe
+    @Override
     public void replayPlatformUpdatedEvent(final PlatformUpdatedEvent event) {
         super.replayPlatformUpdatedEvent(event);
 
@@ -133,6 +143,7 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
 
         increaseCounter(new PlatformKey(plateformData.getApplicationName(), plateformData.getPlatformName()));
     }
+
     @Subscribe
     @Override
     public void replayPropertiesSavedEvent(final PropertiesSavedEvent event) {
