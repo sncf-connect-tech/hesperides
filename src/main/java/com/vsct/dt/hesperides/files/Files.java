@@ -432,7 +432,7 @@ public class Files {
     private static class PropertiesWithDotHandler extends ReflectionObjectHandler {
 
         @Override
-        public Wrapper find(final String name, List<Object> scopes) {
+        public Wrapper find(final String name, final List<Object> scopes) {
             Object scope;
             String real_name = name.split("[|]")[0].trim();
             int scope_index = scopes.size() - 1;

@@ -870,4 +870,203 @@ public class FilesTest {
         assertThat(content).isEqualTo("the_instance_name");
     }
 
+    @Test
+    public void should_get_file_content_with_iterable_with_first_empty_values() throws Exception {
+        String templateContent =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                "<profiles>\r\n" +
+                "{{#profiles}}\r\n" +
+                "  <profile>\r\n"+
+                "    <user>{{user}}</user>\r\n" +
+                "    <password>{{password}}</password>\r\n" +
+                "    <token>{{toto.token}}</token>\r\n" +
+                "  </profile>\r\n" +
+                "{{/profiles}}\r\n" +
+                "</profiles>";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("ferrari", Sets.newHashSet(
+                new KeyValueValorisation("user", "marcel_in_short"),
+                new KeyValueValorisation("toto.token", "144dfDGGRIs5689ds64")
+        ));
+
+        IterableValorisation.IterableValorisationItem item2 = new IterableValorisation.IterableValorisationItem("ferrari", Sets.newHashSet(
+                new KeyValueValorisation("user", "maurice_in_long"),
+                new KeyValueValorisation("password", "AureliaJsForEver"),
+                new KeyValueValorisation("toto.token", "144dfDGGRIs5689ds64")
+        ));
+
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1, item2);
+        IterableValorisation val1 = new IterableValorisation("profiles", items);
+
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        /* ACTUAL CALL */
+        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
+
+        assertThat(content).isEqualTo(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                "<profiles>\r\n" +
+                "  <profile>\r\n" +
+                "    <user>marcel_in_short</user>\r\n" +
+                "    <password></password>\r\n" +
+                "    <token>144dfDGGRIs5689ds64</token>\r\n" +
+                "  </profile>\r\n" +
+                "  <profile>\r\n" +
+                "    <user>maurice_in_long</user>\r\n" +
+                "    <password>AureliaJsForEver</password>\r\n" +
+                "    <token>144dfDGGRIs5689ds64</token>\r\n" +
+                "  </profile>\r\n" +
+                "</profiles>");
+    }
+
+    @Test
+    public void should_get_file_content_with_iterable_with_same_variable_name() throws Exception {
+        String templateContent =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "{{user}}\n" +
+                "<profiles>\n" +
+                "{{#profiles}}\n" +
+                "  <profile>\n"+
+                "    <user>{{user}}</user>\n" +
+                "    <password>{{password}}</password>\n" +
+                "    <token>{{toto.token}}</token>\n" +
+                "  </profile>\n" +
+                "{{/profiles}}\n" +
+                "</profiles>";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("titi", Sets.newHashSet(
+                new KeyValueValorisation("user", "marcel_in_short"),
+                new KeyValueValorisation("toto.token", "144dfDGGRIs5689ds64")
+        ));
+
+        IterableValorisation.IterableValorisationItem item2 = new IterableValorisation.IterableValorisationItem("rominet", Sets.newHashSet(
+                new KeyValueValorisation("user", "maurice_in_long"),
+                new KeyValueValorisation("password", "AureliaJsForEver"),
+                new KeyValueValorisation("toto.token", "144dfDGGRIs5689ds64")
+        ));
+
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1, item2);
+        IterableValorisation val1 = new IterableValorisation("profiles", items);
+
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("user", "bad_user")), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        /* ACTUAL CALL */
+        String content = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(), "template_from_module", templateModel, false);
+
+        assertThat(content).isEqualTo(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "bad_user\n" +
+                "<profiles>\n" +
+                "  <profile>\n" +
+                "    <user>marcel_in_short</user>\n" +
+                "    <password></password>\n" +
+                "    <token>144dfDGGRIs5689ds64</token>\n" +
+                "  </profile>\n" +
+                "  <profile>\n" +
+                "    <user>maurice_in_long</user>\n" +
+                "    <password>AureliaJsForEver</password>\n" +
+                "    <token>144dfDGGRIs5689ds64</token>\n" +
+                "  </profile>\n" +
+                "</profiles>");
+    }
 }
