@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.cache.CacheBuilderSpec;
 import com.vsct.dt.hesperides.events.EventsConfiguration;
 import com.vsct.dt.hesperides.indexation.ElasticSearchConfiguration;
+import com.vsct.dt.hesperides.resources.FeedbackConfiguration;
 import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
@@ -87,6 +88,11 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     @NotNull
     @JsonProperty
     private final HttpClientConfiguration httpClientConfiguration = new HttpClientConfiguration();
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    private final FeedbackConfiguration feedbackConfiguration = new FeedbackConfiguration();
 
     @Valid
     @NotEmpty
@@ -196,4 +202,6 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     public EventsConfiguration getEventsConfiguration (){
         return this.eventsConfiguration;
     }
+
+    public FeedbackConfiguration getFeedbackConfiguration() { return feedbackConfiguration; }
 }

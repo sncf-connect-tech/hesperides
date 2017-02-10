@@ -234,6 +234,10 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         HesperidesUserResource userResource = new HesperidesUserResource();
         environment.jersey().register(userResource);
 
+        // Feedback resource
+        HesperidesFeedbackRessource feedbackResource = new HesperidesFeedbackRessource(hesperidesConfiguration.getFeedbackConfiguration());
+        environment.jersey().register(feedbackResource);
+
         LOGGER.debug("Registering exception handlers");
         /* Error handling */
         environment.jersey().register(new DefaultExceptionMapper());
