@@ -18,6 +18,8 @@
  */
 package com.vsct.dt.hesperides.templating.packages.virtual;
 
+import java.util.concurrent.ExecutorService;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
@@ -25,6 +27,7 @@ import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.applications.properties.PropertiesRegistryInterface;
 import com.vsct.dt.hesperides.applications.properties.cache.PropertiesCacheLoader;
 import com.vsct.dt.hesperides.applications.properties.event.PlatformContainer;
+import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.applications.virtual.VirtualPlatformRegistry;
 import com.vsct.dt.hesperides.applications.virtual.VirtualSnapshotRegistry;
 import com.vsct.dt.hesperides.storage.EventStore;
@@ -70,6 +73,11 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
      * Internal structure holding in memory state.
      */
     private PropertiesCacheLoader propertiesCacheLoader;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate
+     */
+    private ExecutorService singleThreadPool = new VirtualExecutorService();
 
     /**
      * Constructor.
@@ -203,5 +211,10 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
 
             this.propertiesCacheLoader.forceSaveSnapshot(key, snapshot, this.count);
         }
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

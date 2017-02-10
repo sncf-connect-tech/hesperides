@@ -49,12 +49,17 @@ public class EventsAggregate extends SingleThreadAggregate implements Events {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventsAggregate.class);
 
     /**
+     * Convenient class that wraps the thread executor of the aggregate
+     */
+    private ExecutorService singleThreadPool;
+
+    /**
      * The constructor of the aggregator
      * @param eventBus
      * @param eventStore
      */
     public EventsAggregate (final EventsConfiguration eventsConfiguration, final EventBus eventBus, final EventStore eventStore){
-        super(new String(), eventBus, eventStore);
+        super(eventBus, eventStore);
         this.eventStore = eventStore;
         this.executor = new ThreadPoolExecutor(
                 eventsConfiguration.getPoolMinSize(),
@@ -105,5 +110,10 @@ public class EventsAggregate extends SingleThreadAggregate implements Events {
     @Override
     public void regenerateCache() {
         // TODO
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

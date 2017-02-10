@@ -19,9 +19,12 @@
 
 package com.vsct.dt.hesperides.templating.packages.virtual;
 
+import java.util.concurrent.ExecutorService;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
+import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.models.Models;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
@@ -60,6 +63,11 @@ public class CacheGeneratorTemplatePackagesAggregate extends AbstractTemplatePac
      * Internal structure holding in memory state
      */
     private TemplatePackageCacheLoader templatePackageCacheLoader;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate
+     */
+    private ExecutorService singleThreadPool = new VirtualExecutorService();
 
     /**
      * Count nb event for cache regeneration.
@@ -162,5 +170,10 @@ public class CacheGeneratorTemplatePackagesAggregate extends AbstractTemplatePac
 
             this.templatePackageCacheLoader.forceSaveSnapshot(key.getNamespace(), snapshot, this.count);
         }
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

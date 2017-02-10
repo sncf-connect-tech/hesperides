@@ -19,7 +19,13 @@
 
 package com.vsct.dt.hesperides.applications;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.properties.PropertiesRegistryInterface;
@@ -44,6 +50,11 @@ public class ApplicationsAggregate extends AbstractApplicationsAggregate {
      * Since there might be a lot of snapshot, we dont want to keep them inmemory like platformRegistry and propertiesRegistry
      */
     private SnapshotRegistryInterface snapshotRegistryInterface;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate.
+     */
+    private ExecutorService singleThreadPool;
 
     /**
      * Constructor to be used.
@@ -94,6 +105,13 @@ public class ApplicationsAggregate extends AbstractApplicationsAggregate {
 
         this.snapshotRegistryInterface = snapshotRegistryInterface;
         this.pr = new PlatformRegistry(eventStore, nbEventBeforePersiste, platform, platformParameterTimeline);
+
+        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setDaemon(false)
+                .setNameFormat(NAME + "-%d")
+                .build();
+
+        this.singleThreadPool = Executors.newFixedThreadPool(1, threadFactory);
     }
 
     @Override
@@ -122,5 +140,10 @@ public class ApplicationsAggregate extends AbstractApplicationsAggregate {
     @Override
     public void regenerateCache() {
         // Nothing
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

@@ -51,13 +51,18 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationsAggregate.class);
 
     /**
+     * Name of Aggregate
+     */
+    protected static final String NAME = "Applications";
+
+    /**
      * Constructor to be used.
      *
      * @param eventBus
      * @param eventStore
      */
     public AbstractApplicationsAggregate(final EventBus eventBus, final EventStore eventStore) {
-        super("Applications", eventBus, eventStore);
+        super(eventBus, eventStore);
     }
 
     /**
@@ -69,7 +74,7 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
      */
     public AbstractApplicationsAggregate(final EventBus eventBus, final EventStore eventStore,
                                          final UserProvider userProvider) {
-        super("Applications", eventBus, eventStore, userProvider);
+        super(eventBus, eventStore, userProvider);
     }
 
     /**

@@ -19,7 +19,13 @@
 
 package com.vsct.dt.hesperides.templating.modules;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.storage.EventStore;
@@ -57,6 +63,11 @@ public class ModulesAggregate extends AbstractModulesAggregate {
      * TemplatePackage aggregate used to retrieve templates associated to a "techno"
      */
     private TemplatePackagesAggregate templatePackages;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate.
+     */
+    private ExecutorService singleThreadPool;
 
     /**
      * Constructor using no particular UserProvider (used when there was no authentication)
@@ -115,6 +126,13 @@ public class ModulesAggregate extends AbstractModulesAggregate {
         this.moduleRegistry = mr;
         this.templateRegistry = mr;
         this.models = new Models(templateRegistry);
+
+        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setDaemon(false)
+                .setNameFormat(NAME + "-%d")
+                .build();
+
+        this.singleThreadPool = Executors.newFixedThreadPool(1, threadFactory);
     }
 
     @Override
@@ -148,5 +166,10 @@ public class ModulesAggregate extends AbstractModulesAggregate {
     @Override
     public void regenerateCache() {
         // TODO
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

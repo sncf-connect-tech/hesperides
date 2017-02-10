@@ -20,6 +20,8 @@
 package com.vsct.dt.hesperides.templating.packages.virtual;
 
 import com.google.common.eventbus.EventBus;
+
+import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.models.Models;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
@@ -27,14 +29,26 @@ import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterf
 import com.vsct.dt.hesperides.templating.packages.AbstractTemplatePackagesAggregate;
 
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by emeric_martineau on 30/05/2016.
  */
 public class VirtualTemplatePackagesAggregate extends AbstractTemplatePackagesAggregate {
-
+    /**
+     * Models.
+     */
     private final Models models;
+
+    /**
+     * Virtual registry of template (techno).
+     */
     private VirtualTemplateRegistry templateRegistry;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate
+     */
+    private ExecutorService singleThreadPool = new VirtualExecutorService();
 
     public VirtualTemplatePackagesAggregate(final EventStore store) {
         super(new EventBus(), store);
@@ -78,5 +92,10 @@ public class VirtualTemplatePackagesAggregate extends AbstractTemplatePackagesAg
 
     public void clear() {
         this.templateRegistry.clear();
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

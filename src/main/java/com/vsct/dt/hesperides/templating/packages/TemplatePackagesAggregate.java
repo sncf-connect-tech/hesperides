@@ -19,7 +19,13 @@
 
 package com.vsct.dt.hesperides.templating.packages;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.storage.EventStore;
@@ -48,6 +54,11 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
      * Nb event before store cache for force cache system.
      */
     private long nbEventBeforePersiste;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate.
+     */
+    private ExecutorService singleThreadPool;
 
     /**
      * Constructor using no UserProvider (used when no loggin was possible)
@@ -97,6 +108,13 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
         this.templateRegistry = new TemplatePackageRegistry(eventStore, nbEventBeforePersiste
                 , templateParameter);
         this.models = new Models(this.templateRegistry);
+
+        final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setDaemon(false)
+                .setNameFormat(NAME + "-%d")
+                .build();
+
+        this.singleThreadPool = Executors.newFixedThreadPool(1, threadFactory);
     }
 
     @Override
@@ -120,5 +138,10 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
     @Override
     public void regenerateCache() {
         // Nothing
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

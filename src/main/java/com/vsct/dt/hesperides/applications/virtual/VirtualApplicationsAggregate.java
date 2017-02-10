@@ -31,6 +31,7 @@ import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by emeric_martineau on 27/05/2016.
@@ -41,6 +42,11 @@ public class VirtualApplicationsAggregate extends AbstractApplicationsAggregate 
      * The properties registry holds all properties sets, it hides how properties are stored.
      */
     private VirtualPlatformRegistry pr;
+
+    /**
+     * Convenient class that wraps the thread executor of the aggregate
+     */
+    private ExecutorService singleThreadPool = new VirtualExecutorService();
 
     /**
      * Used to make snapshots, it hides implementation details about how snapshots are stored
@@ -105,5 +111,10 @@ public class VirtualApplicationsAggregate extends AbstractApplicationsAggregate 
     @Override
     public void regenerateCache() {
         // Nothing
+    }
+
+    @Override
+    protected ExecutorService executorService() {
+        return this.singleThreadPool;
     }
 }

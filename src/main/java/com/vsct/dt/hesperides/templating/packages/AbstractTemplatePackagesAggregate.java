@@ -52,7 +52,15 @@ import java.util.function.Consumer;
 public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggregate
         implements TemplatePackages, TemplatePackageEventInterface, TemplatePackageStoragePrefixInterface {
 
+    /**
+     * Logger.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTemplatePackagesAggregate.class);
+
+    /**
+     * Name of Aggregate
+     */
+    protected static final String NAME = "TemplatePackages";
 
     /**
      * Constructor using no UserProvider (used when no loggin was possible)
@@ -60,7 +68,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      * @param eventStore The {@link EventStore} used to store events
      */
     public AbstractTemplatePackagesAggregate(final EventBus eventBus, final EventStore eventStore) {
-        super("TemplatePackages", eventBus, eventStore);
+        super(eventBus, eventStore);
     }
 
     /**
@@ -71,7 +79,7 @@ public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggr
      */
     public AbstractTemplatePackagesAggregate(final EventBus eventBus, final EventStore eventStore,
                                              final UserProvider userProvider) {
-        super("TemplatePackages", eventBus, eventStore, userProvider);
+        super(eventBus, eventStore, userProvider);
     }
 
     /**

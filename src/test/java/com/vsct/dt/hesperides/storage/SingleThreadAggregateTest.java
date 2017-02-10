@@ -21,7 +21,13 @@
 
 package com.vsct.dt.hesperides.storage;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.exception.runtime.StateLockedException;
 import com.vsct.dt.hesperides.security.model.User;
@@ -40,9 +46,20 @@ public class SingleThreadAggregateTest {
     static EventStore eventStore = mock(EventStore.class);
 
     private static class AggregateTestImpl extends SingleThreadAggregate {
+        /**
+         * Convenient class that wraps the thread executor of the aggregate.
+         */
+        private ExecutorService singleThreadPool;
 
         protected AggregateTestImpl() {
-            super("TEST", new EventBus(), eventStore);
+            super(new EventBus(), eventStore);
+
+            final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                    .setDaemon(false)
+                    .setNameFormat("TEST-%d")
+                    .build();
+
+            this.singleThreadPool = Executors.newFixedThreadPool(1, threadFactory);
         }
 
         @Override
@@ -53,6 +70,10 @@ public class SingleThreadAggregateTest {
         @Override
         public void regenerateCache() {
             // Nothing
+        }
+        @Override
+        protected ExecutorService executorService() {
+            return this.singleThreadPool;
         }
     }
 

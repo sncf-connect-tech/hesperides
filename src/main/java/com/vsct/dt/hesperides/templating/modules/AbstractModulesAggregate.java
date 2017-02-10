@@ -61,12 +61,17 @@ public abstract class AbstractModulesAggregate extends SingleThreadAggregate
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractModulesAggregate.class);
 
     /**
+     * Name of Aggregate
+     */
+    protected static final String NAME = "Modules";
+
+    /**
      * Constructor using no particular UserProvider (used when there was no authentication)
      * @param eventBus {@link EventBus} used to propagate events
      * @param eventStore {@link EventStore} used to store events
      */
     public AbstractModulesAggregate(final EventBus eventBus, final EventStore eventStore) {
-        super("Modules", eventBus, eventStore);
+        super(eventBus, eventStore);
     }
 
     /**
@@ -77,7 +82,7 @@ public abstract class AbstractModulesAggregate extends SingleThreadAggregate
      */
     public AbstractModulesAggregate(final EventBus eventBus, final EventStore eventStore,
                                     final UserProvider userProvider) {
-        super("Modules", eventBus, eventStore, userProvider);
+        super(eventBus, eventStore, userProvider);
     }
 
 

@@ -51,11 +51,6 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
     private final EventBus   eventBus;
 
     /**
-     * Convenient class that wraps the thread executor of the aggregate
-     */
-    private final ExecutorService singleThreadPool;
-
-    /**
      * Describes if the aggregate allows write operations.
      * Write operations are not allowed when there has been an unexpected error that could lead to inconsistency
      */
@@ -90,16 +85,11 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
         }
     }
 
-    protected SingleThreadAggregate(final String name, final EventBus eventBus, final EventStore eventStore) {
-        this(name, eventBus, eventStore, new DefaultUserProvider());
+    protected SingleThreadAggregate(final EventBus eventBus, final EventStore eventStore) {
+        this(eventBus, eventStore, new DefaultUserProvider());
     }
 
-    protected SingleThreadAggregate(final String name, final EventBus eventBus, final EventStore eventStore, final UserProvider userProvider) {
-        ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setDaemon(false)
-                .setNameFormat(name + "-%d")
-                .build();
-        this.singleThreadPool = Executors.newFixedThreadPool(1, threadFactory);
+    protected SingleThreadAggregate(final EventBus eventBus, final EventStore eventStore, final UserProvider userProvider) {
         this.store = eventStore;
         this.eventBus = eventBus;
         this.userProvider = userProvider;
@@ -115,7 +105,7 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
         UserInfo userInfo = userProvider.getCurrentUserInfo();
 
         //Execute command and try to store the resulting event
-        Future<T> future = this.singleThreadPool.submit(() -> {
+        Future<T> future = this.executorService().submit(() -> {
                     //If we go multi instance that's where we can synchronize state with event store
                     //We are simple instance so dont do it
                     final String key = getStreamPrefix() + "-" + entityName;
@@ -273,4 +263,12 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
     protected void clearCacheInDatabase(final String key) {
         store.clearCache(key);
     }
+
+    /**
+     * Return exector service for tryAtomic function.
+     * Allow to don't provide thread for Virtual***Aggregate.
+     *
+     * @return an executor service
+     */
+    protected abstract ExecutorService executorService();
 }
