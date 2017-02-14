@@ -1,6 +1,9 @@
 package com.vsct.dt.hesperides.resources;
 
+import com.bazaarvoice.dropwizard.assets.AssetsConfiguration;
 import com.codahale.metrics.annotation.Timed;
+import com.vsct.dt.hesperides.MainApplication;
+import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.feedbacks.TemplateFeedback;
 import com.wordnik.swagger.annotations.Api;
@@ -8,12 +11,15 @@ import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
 
 import javax.imageio.ImageIO;
@@ -28,6 +34,8 @@ import java.io.*;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by stephane_fret on 07/02/2017.
@@ -37,10 +45,16 @@ import java.security.NoSuchAlgorithmException;
 @Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 public class HesperidesFeedbackRessource {
 
-    FeedbackConfiguration feedbackConfiguration;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainApplication.class);
 
-    public HesperidesFeedbackRessource(FeedbackConfiguration feedbackConfiguration) {
+    FeedbackConfiguration feedbackConfiguration;
+    AssetsConfiguration assetsConfiguration;
+
+
+    public HesperidesFeedbackRessource(FeedbackConfiguration feedbackConfiguration,
+                                       AssetsConfiguration assetsConfiguration) {
         this.feedbackConfiguration = feedbackConfiguration;
+        this.assetsConfiguration = assetsConfiguration;
     }
 
     @Path("/hipchat")
@@ -50,34 +64,76 @@ public class HesperidesFeedbackRessource {
     public void feedbackHipchat(@Auth final User user,
                              @Valid final TemplateFeedback template) {
 
-        System.out.println("Feedback from "
+        LOGGER.debug("Feedback from "
                 +user.getUsername()
                 +" to hipchat room\n"
                 +template.toJsonString());
 
-        String imageString = template.getFeedback().getImg().split(",")[1];
+        String imageData = template.getFeedback().getImg().split(",")[1];
 
-        String pathImageName =
-                feedbackConfiguration.getImagePathStorage() + "feedback_" + template.getFeedback().getTimestamp() + ".png";
-
-        writeImage(pathImageName, imageString);
+        String imageName =
+                "feedback_" + template.getFeedback().getTimestamp() + ".png";
 
         try {
+            Iterator<Map.Entry<String, String>> itOverride = assetsConfiguration.getOverrides().iterator();
+
+            String applicationPath;
+
+            if (itOverride.hasNext()) {
+                applicationPath = itOverride.next().getValue();
+            } else {
+                throw new HesperidesException("Could  not create Feedback: asserts configuration not valid");
+            }
+
+            StringBuilder serverPathImageName = new StringBuilder()
+                    .append(applicationPath)
+                    .append("/")
+                    .append(feedbackConfiguration.getImagePathStorage())
+                    .append("/")
+                    .append(imageName);
+
+            LOGGER.debug("Server path : "+serverPathImageName.toString());
+
+            StringBuilder urlDownloadImage = new StringBuilder()
+                    .append(template.getFeedback().getUrl().split("/")[0])
+                    .append("/")
+                    .append("/")
+                    .append(template.getFeedback().getUrl().split("/")[2])
+                    .append("/")
+                    .append(feedbackConfiguration.getImagePathStorage())
+                    .append("/")
+                    .append(imageName);
+
+            LOGGER.debug("Download URL : "+urlDownloadImage.toString());
+
+            StringBuilder hipchatMessage = new StringBuilder()
+                    .append("<p>When access to" +
+                            " <a href='")
+                    .append(template.getFeedback().getUrl())
+                    .append("'>")
+                    .append(template.getFeedback().getUrl())
+                    .append("</a></p><p>")
+                    .append(template.getFeedback().getNote())
+                    .append("</p><a href='")
+                    .append(urlDownloadImage)
+                    .append("'>Download screenshot</a>");
+
+            writeImage(serverPathImageName.toString(), imageData);
+
             CloseableHttpClient httpClient = getHttpClient();
 
             StringBuilder stringBody = new StringBuilder();
             stringBody.append("{\"from\": \"")
                     .append(user.getUsername())
                     .append("\",\"color\": \"")
-                    .append("random")
+                    .append("green")
                     .append("\",\"message\": \"")
-                    .append(template.getFeedback().getNote())
+                    .append(hipchatMessage.toString())
                     .append("\",\"notify\": \"")
                     .append("true")
                     .append("\",\"message_format\": \"")
-                    .append("text")
+                    .append("html")
                     .append("\"}");
-
 
             StringBuilder urlVersion = new StringBuilder("https://");
             urlVersion.append(feedbackConfiguration.getHipchatSubdomain())
@@ -93,19 +149,21 @@ public class HesperidesFeedbackRessource {
             postRequest.setEntity(input);
 
             // LOG
-            System.out.println("------------- Post create working copy request ------------------------------------------");
+            System.out.println("------------- Post send Hipchat request ------------------------------------------");
             System.out.println(postRequest.toString());
-            System.out.println("------------- Post create working copy content request ----------------------------------");
+            System.out.println("------------- Post send Hipchat content response ---------------------------------");
             System.out.println(getStringContent(postRequest.getEntity()));
 
-/*
             HttpResponse postResponse = httpClient.execute(postRequest);
+
+            // LOG
+            System.out.println("------------- Post send Hipchat request ------------------------------------------");
+            System.out.println(postResponse.toString());
 
             if (postResponse.getStatusLine().getStatusCode() != 204) {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + postResponse.getStatusLine().getStatusCode());
             }
-*/
 
         } catch (IOException e) {
             e.printStackTrace();

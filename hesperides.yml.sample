@@ -69,7 +69,7 @@ feedbackConfiguration:
   # Hipchat
   hipchatSubdomain: SUBDOMAIN_SOCIETY_HIPCHAT
   hipchatId: ROOM_ID
-  hipchatToken: HIPCHAT_TOKEN_USER_WITH_SEND_MESSAGE_SCOPE
+  hipchatToken: HIPCHAT_TOKEN_USER_WITH_NOTIFICATION_SCOPE
 # Settings about events in hesperides
 eventsConfiguration:
   poolMinSize: 1
