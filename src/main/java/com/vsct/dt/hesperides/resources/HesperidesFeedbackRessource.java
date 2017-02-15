@@ -34,8 +34,7 @@ import java.io.*;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by stephane_fret on 07/02/2017.
@@ -107,14 +106,23 @@ public class HesperidesFeedbackRessource {
             LOGGER.debug("Download URL : "+urlDownloadImage.toString());
 
             StringBuilder hipchatMessage = new StringBuilder()
-                    .append("<p>When access to" +
-                            " <a href='")
+                    .append("<p>When access to <a href='")
                     .append(template.getFeedback().getUrl())
                     .append("'>")
                     .append(template.getFeedback().getUrl())
-                    .append("</a></p><p>")
-                    .append(template.getFeedback().getNote())
-                    .append("</p><a href='")
+                    .append("</a></p>");
+
+            // Encapsulate each line ended by \n with <p><\p>
+            List<String> wordList = Arrays.asList(template.getFeedback().getNote().split("\n"));
+            Iterator itWordList = wordList.iterator();
+
+            while (itWordList.hasNext()) {
+                    hipchatMessage.append("<p>")
+                    .append(itWordList.next())
+                    .append(("</p>"));
+            }
+
+            hipchatMessage.append("<a href='")
                     .append(urlDownloadImage)
                     .append("'>Download screenshot</a>");
 
@@ -149,16 +157,16 @@ public class HesperidesFeedbackRessource {
             postRequest.setEntity(input);
 
             // LOG
-            System.out.println("------------- Post send Hipchat request ------------------------------------------");
-            System.out.println(postRequest.toString());
-            System.out.println("------------- Post send Hipchat content response ---------------------------------");
-            System.out.println(getStringContent(postRequest.getEntity()));
+            LOGGER.debug("------------- Post send Hipchat request ------------------------------------------");
+            LOGGER.debug(postRequest.toString());
+            LOGGER.debug("------------- Post send Hipchat content request ---------------------------------");
+            LOGGER.debug(getStringContent(postRequest.getEntity()));
 
             HttpResponse postResponse = httpClient.execute(postRequest);
 
             // LOG
-            System.out.println("------------- Post send Hipchat request ------------------------------------------");
-            System.out.println(postResponse.toString());
+            LOGGER.debug("------------- Post send Hipchat response ------------------------------------------");
+            LOGGER.debug(postResponse.toString());
 
             if (postResponse.getStatusLine().getStatusCode() != 204) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -220,7 +228,6 @@ public class HesperidesFeedbackRessource {
         } catch (KeyStoreException e) {
             throw new RuntimeException("KeyStoreException :"+e.toString());
         }
-
         return httpClient;
     }
 
@@ -237,11 +244,9 @@ public class HesperidesFeedbackRessource {
                 content.append(line);
             }
             IOUtils.closeQuietly(bufferedReader);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return content.toString();
     }
 
