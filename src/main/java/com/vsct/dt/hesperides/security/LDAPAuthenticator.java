@@ -41,7 +41,7 @@ import java.util.Hashtable;
  */
 public final class LDAPAuthenticator implements Authenticator<BasicCredentials, User> {
 
-    private static final Logger LOGGER                          = LoggerFactory.getLogger(LDAPAuthenticator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LDAPAuthenticator.class);
 
     /**
      * AD matching rule.

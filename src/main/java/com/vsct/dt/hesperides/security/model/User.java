@@ -21,10 +21,12 @@
 
 package com.vsct.dt.hesperides.security.model;
 
+import java.security.Principal;
+
 /**
  * Created by william_montaz on 12/11/2014.
  */
-public class User {
+public class User implements Principal {
     /**
      * Convenient 'untracked user' information
      */
@@ -40,15 +42,16 @@ public class User {
         this.techUser = techUser;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
     public boolean isProdUser() {
         return prodUser;
     }
 
     public boolean isTechUser() {
         return techUser;
+    }
+
+    @Override
+    public String getName() {
+        return username;
     }
 }

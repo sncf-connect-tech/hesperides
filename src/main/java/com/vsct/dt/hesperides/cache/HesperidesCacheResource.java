@@ -70,7 +70,7 @@ public class HesperidesCacheResource {
                                           @PathParam("application_name") final String applicationName,
                                           @PathParam("application_version") final String applicationVersion) {
         LOGGER.info("Remove application {}/{} from memory cache by {}.", applicationName, applicationVersion,
-                user.getUsername());
+                user.getName());
 
         this.applicationsAggregate.removeFromCache(applicationName, applicationVersion);
 
@@ -86,7 +86,7 @@ public class HesperidesCacheResource {
             throw new ForbiddenOperationException("Only tech user can clear all applications cache.");
         }
 
-        LOGGER.info("Remove all application from memory cache by {}.", user.getUsername());
+        LOGGER.info("Remove all application from memory cache by {}.", user.getName());
 
         this.applicationsAggregate.removeAllCache();
 
@@ -101,7 +101,7 @@ public class HesperidesCacheResource {
                                                 @PathParam("module_name") final String moduleName,
                                                 @PathParam("module_version") final String moduleVersion) {
         LOGGER.info("Remove module in workingcopy {}/{} from memory cache by {}.", moduleName, moduleVersion,
-                user.getUsername());
+                user.getName());
 
         this.modulesAggregate.removeFromCache(moduleName, moduleVersion, true);
 
@@ -117,7 +117,7 @@ public class HesperidesCacheResource {
             throw new ForbiddenOperationException("Only tech user can clear all modules cache.");
         }
 
-        LOGGER.info("Remove all modules from memory cache by {}.", user.getUsername());
+        LOGGER.info("Remove all modules from memory cache by {}.", user.getName());
 
         this.modulesAggregate.removeAllCache();
 
@@ -146,7 +146,7 @@ public class HesperidesCacheResource {
                                                 @PathParam("template_name") final String templateName,
                                                 @PathParam("template_version") final String templateVersion) {
         LOGGER.info("Remove template package in workingcopy {}/{} from memory cache by {}.",
-                templateName, templateVersion, user.getUsername());
+                templateName, templateVersion, user.getName());
 
         this.templatePackagesAggregate.removeFromCache(templateName, templateVersion, true);
 
@@ -161,7 +161,7 @@ public class HesperidesCacheResource {
                                                      @PathParam("template_name") final String templateName,
                                                      @PathParam("template_version") final String templateVersion) {
         LOGGER.info("Remove template package in release {}/{} from memory cache by {}.",
-                templateName, templateVersion, user.getUsername());
+                templateName, templateVersion, user.getName());
 
         this.templatePackagesAggregate.removeFromCache(templateName, templateVersion, false);
 
@@ -178,7 +178,7 @@ public class HesperidesCacheResource {
         }
 
         LOGGER.info("Remove templates packages from memory cache by {}.",
-                user.getUsername());
+                user.getName());
 
         this.templatePackagesAggregate.removeAllCache();
 

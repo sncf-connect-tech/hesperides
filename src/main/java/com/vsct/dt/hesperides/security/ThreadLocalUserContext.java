@@ -47,7 +47,7 @@ public class ThreadLocalUserContext implements UserProvider, UserContext {
 
     @Override
     public UserInfo getCurrentUserInfo() {
-        return new UserInfo(getCurrentUser().getUsername());
+        return new UserInfo(getCurrentUser().getName());
     }
 
     public void setCurrentUser(User user) {

@@ -24,42 +24,24 @@ package com.vsct.dt.hesperides.security;
 import io.dropwizard.auth.*;
 import io.dropwizard.auth.basic.BasicCredentials;
 
+import com.google.common.base.Optional;
 
-import javax.servlet.http.HttpServletRequest;
+import com.vsct.dt.hesperides.security.model.User;
 
 /**
  * Disable auth for Hesperides.
- *
- * @param <T> the principal type.
  */
-public final class DisabledAuthProvider<T> extends AuthFactory<BasicCredentials, T> {
+public final class DisabledAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
 
-    private T user;
-    private final Class<T> generatedClass;
+    private final static Optional<User> USER = Optional.of(User.UNTRACKED);
 
-    public DisabledAuthProvider(final T user, final Class<T> generatedClass) {
-        super(null);
-        this.user = user;
-        this.generatedClass = generatedClass;
+    @Override
+    public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
+        return USER;
     }
 
     @Override
-    public AuthFactory<BasicCredentials, T> clone(boolean required) {
-        return new DisabledAuthProvider(this.user, this.generatedClass);
-    }
-
-    @Override
-    public void setRequest(HttpServletRequest request) {
-        // Nothing
-    }
-
-    @Override
-    public T provide() {
-        return user;
-    }
-
-    @Override
-    public Class<T> getGeneratedClass() {
-        return generatedClass;
+    public boolean authorize(final User user, final String role) {
+        return false;
     }
 }

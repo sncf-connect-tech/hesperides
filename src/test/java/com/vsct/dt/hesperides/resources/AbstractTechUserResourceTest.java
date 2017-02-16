@@ -23,16 +23,15 @@ import java.util.Map;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.HttpHeaders;
 
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
-import io.dropwizard.auth.AuthFactory;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
-import io.dropwizard.auth.basic.BasicAuthFactory;
+import io.dropwizard.auth.Authorizer;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.testing.junit.ResourceTestRule;
 
@@ -48,7 +47,7 @@ public abstract class AbstractTechUserResourceTest extends AbstractDisableUserRe
     /**
      * Class to manage tech user or no tech user.
      */
-    private static class TechUserAuthenticator implements Authenticator<BasicCredentials, User> {
+    private static class TechUserAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
         private static final Map<String, User> USERS = ImmutableMap.of(
                 "tech_user", new User("tech_user", false, true),
                 "no_tech_user", new User("no_tech_user", false, false));
@@ -56,6 +55,11 @@ public abstract class AbstractTechUserResourceTest extends AbstractDisableUserRe
         @Override
         public com.google.common.base.Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
             return com.google.common.base.Optional.of(USERS.get(basicCredentials.getUsername()));
+        }
+
+        @Override
+        public boolean authorize(final User user, final String role) {
+            return true;
         }
     }
 
@@ -99,10 +103,13 @@ public abstract class AbstractTechUserResourceTest extends AbstractDisableUserRe
      * @return test rule resource
      */
     protected static ResourceTestRule createAuthenticationResource(final Object resource) {
-        final Binder binder = AuthFactory.binder(new BasicAuthFactory<>(TECH_NO_TECH_AUTHENTICATOR,
-                "AUTHENTICATION_PROVIDER",
-                User.class));
-        return createResourceWithContainer(binder, resource, DEFAULT_CONTAINER);
+        return createResourceWithContainer(
+                new BasicCredentialAuthFilter.Builder<User>()
+                        .setAuthenticator(TECH_NO_TECH_AUTHENTICATOR)
+                        .setAuthorizer(TECH_NO_TECH_AUTHENTICATOR)
+                        .setRealm("LOGIN AD POUR HESPERIDES")
+                        .buildAuthFilter(),
+                resource, DEFAULT_CONTAINER);
     }
 
     @Override

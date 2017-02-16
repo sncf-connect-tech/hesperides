@@ -25,14 +25,20 @@ import com.google.common.base.Optional;
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.basic.BasicCredentials;
 
 /**
  * Created by william_montaz on 12/11/2014.
  */
-public final class SimpleAuthenticator implements Authenticator<BasicCredentials, User> {
+public final class SimpleAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
     @Override
     public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
         return Optional.of(new User(basicCredentials.getUsername(), true, true));
+    }
+
+    @Override
+    public boolean authorize(final User user, final String role) {
+        return true;
     }
 }

@@ -19,15 +19,17 @@
 package com.vsct.dt.hesperides.resources;
 
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.dropwizard.auth.AuthFactory;
-import io.dropwizard.auth.basic.BasicAuthFactory;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.testing.junit.ResourceTestRule;
 
-import org.glassfish.hk2.utilities.Binder;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 
 import com.vsct.dt.hesperides.exception.wrapper.DefaultExceptionMapper;
@@ -37,7 +39,8 @@ import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.IncoherentVersionExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.MissingResourceExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.OutOfDateVersionExceptionMapper;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
+import com.vsct.dt.hesperides.security.DisabledAuthenticator;
+import com.vsct.dt.hesperides.security.NoCredentialAuthFilter;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 
@@ -45,11 +48,29 @@ import com.vsct.dt.hesperides.security.model.User;
  * Created by emeric_martineau on 03/02/2017.
  */
 public abstract class AbstractDisableUserResourcesTest {
+    /**
+     * Disable authentification -> return untracked.
+     */
+    private static final DisabledAuthenticator DISABLED_AUTHENTICATOR = new DisabledAuthenticator();
 
-    protected static ResourceTestRule createResource(final Binder binder, final Object resource) {
+    /**
+     * Simple authentification (just get username, we don't care about password) -> return username
+     */
+    private static final SimpleAuthenticator SIMPLE_AUTHENTICATOR = new SimpleAuthenticator();
+
+    /**
+     * Create a resource.
+     *
+     * @param userProvider
+     * @param resource
+     * @return
+     */
+    protected static ResourceTestRule createResource(final ContainerRequestFilter userProvider, final Object resource) {
         return ResourceTestRule.builder()
-                .addProvider(binder)
                 .addResource(resource)
+                .addProvider(RolesAllowedDynamicFeature.class)
+                .addProvider(new AuthDynamicFeature(userProvider))
+                .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
                 .addProvider(new DefaultExceptionMapper())
                 .addProvider(new DuplicateResourceExceptionMapper())
                 .addProvider(new IncoherentVersionExceptionMapper())
@@ -61,11 +82,14 @@ public abstract class AbstractDisableUserResourcesTest {
 
     }
 
-    protected static ResourceTestRule createResourceWithContainer(final Binder binder, final Object resource, final TestContainerFactory container) {
+    protected static ResourceTestRule createResourceWithContainer(final ContainerRequestFilter userProvider, final Object resource, final TestContainerFactory
+            container) {
         return ResourceTestRule.builder()
-                .addProvider(binder)
                 .setTestContainerFactory(container)
                 .addResource(resource)
+                .addProvider(RolesAllowedDynamicFeature.class)
+                .addProvider(new AuthDynamicFeature(userProvider))
+                .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
                 .addProvider(new DefaultExceptionMapper())
                 .addProvider(new DuplicateResourceExceptionMapper())
                 .addProvider(new IncoherentVersionExceptionMapper())
@@ -78,17 +102,23 @@ public abstract class AbstractDisableUserResourcesTest {
     }
 
     protected static ResourceTestRule createSimpleAuthResource(final Object object) {
-        final Binder binder = AuthFactory.binder(new BasicAuthFactory<>(new SimpleAuthenticator(),
-                "AUTHENTICATION_PROVIDER",
-                User.class));
-
-        return createResource(binder, object);
+        return createResource(
+                new BasicCredentialAuthFilter.Builder<User>()
+                        .setAuthenticator(SIMPLE_AUTHENTICATOR)
+                        .setAuthorizer(SIMPLE_AUTHENTICATOR)
+                        .setRealm("LOGIN AD POUR HESPERIDES")
+                        .buildAuthFilter(),
+                object);
     }
 
     protected static ResourceTestRule createDisabledAuthResource(final Object object) {
-        final Binder binder = AuthFactory.binder(new DisabledAuthProvider(User.UNTRACKED, User.class));
-
-        return createResource(binder, object);
+        return createResource(
+                new NoCredentialAuthFilter.Builder<User>()
+                    .setAuthenticator(DISABLED_AUTHENTICATOR)
+                    .setAuthorizer(DISABLED_AUTHENTICATOR)
+                    .setRealm("LOGIN AD POUR HESPERIDES")
+                    .buildAuthFilter(),
+                object);
     }
 
     protected WebTarget withAuth(String url) {

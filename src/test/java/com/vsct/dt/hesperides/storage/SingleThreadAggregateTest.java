@@ -88,7 +88,7 @@ public class SingleThreadAggregateTest {
         Object event = new Object();
         when(command.apply()).thenReturn(event);
 
-        UserInfo userInfo = new UserInfo(User.UNTRACKED.getUsername());
+        UserInfo userInfo = new UserInfo(User.UNTRACKED.getName());
         when(eventStore.store("TEST-stream", event, userInfo, command)).thenReturn(event);
 
         testAggregate.tryAtomic("stream", command);

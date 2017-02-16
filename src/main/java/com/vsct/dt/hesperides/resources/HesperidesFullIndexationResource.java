@@ -105,7 +105,7 @@ public class HesperidesFullIndexationResource {
         } else if (!user.isTechUser()) {
             throw new ForbiddenOperationException("Only tech user can reindex.");
         } else {
-            LOGGER.info("RELOADING INDEX START by {}", user.getUsername());
+            LOGGER.info("RELOADING INDEX START by {}", user.getName());
         }
 
         elasticSearchIndexationExecutor.reset();

@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.basic.BasicCredentials;
 
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
@@ -31,7 +32,7 @@ import com.vsct.dt.hesperides.security.model.User;
 /**
  * Created by emeric_martineau on 01/02/2017.
  */
-public class HesperidesAuthenticator implements Authenticator<BasicCredentials, User> {
+public class HesperidesAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
 
     private final java.util.Optional<Authenticator<BasicCredentials, User>> authenticator;
     private final ThreadLocalUserContext userContext;
@@ -52,8 +53,15 @@ public class HesperidesAuthenticator implements Authenticator<BasicCredentials, 
             user = Optional.of(User.UNTRACKED);
         }
 
-        this.userContext.setCurrentUser(user.get());
+        if (user.isPresent()) {
+            this.userContext.setCurrentUser(user.get());
+        }
 
         return user;
+    }
+
+    @Override
+    public boolean authorize(final User user, final String role) {
+        return true;
     }
 }
