@@ -22,6 +22,7 @@
 package com.vsct.dt.hesperides.applications;
 
 import com.cedarsoftware.util.DeepEquals;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
@@ -665,5 +667,50 @@ public class PropertiesTest {
         assertThat(model.getKeys().contains(new KeyValuePropertyModel("otherInstance", ""))).isTrue();
         assertThat(model.getKeys().contains(new KeyValuePropertyModel("global", ""))).isFalse();
 
+    }
+
+    @Test
+    public void should_make_a_copy_of_properties_without_empty_values (){
+        // Valuations, simple
+        Set<KeyValueValorisation> kvp = Sets.newHashSet();
+
+        kvp.add(new KeyValueValorisation("name1", "value1"));
+        kvp.add(new KeyValueValorisation("name2", ""));
+        kvp.add(new KeyValueValorisation("name3", "value3"));
+        kvp.add(new KeyValueValorisation("name4", "value4"));
+
+        Properties properties = new Properties(kvp, Sets.newHashSet());
+
+        Properties propertiesCleaned = properties.makeCopyWithoutNullOrEmptyValorisations();
+
+        assertThat(propertiesCleaned.getKeyValueProperties().size()).isEqualTo(3);
+        assertThat(propertiesCleaned.getKeyValueProperties().stream().filter(keyValueValorisation -> keyValueValorisation.getName().equals("name2")).collect(Collectors.toSet()).size()).isZero();
+    }
+
+    @Test
+    public void should_make_a_copy_of_iterable_properties_without_empty_values() throws JsonProcessingException {
+        ObjectMapper mapper = Jackson.newObjectMapper();
+
+        // Iterable properties
+        IterableValorisation.IterableValorisationItem itemIterable2 = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name3", "value"), new KeyValueValorisation("name0", "")));
+        IterableValorisation iterableValorisation2 = new IterableValorisation("iterable2", Lists.newArrayList(itemIterable2));
+
+        IterableValorisation.IterableValorisationItem item = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value"), iterableValorisation2, new KeyValueValorisation("name3", "value3")));
+        IterableValorisation iterableValorisation = new IterableValorisation("iterable", Lists.newArrayList(item));
+
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet(iterableValorisation));
+
+        Properties propertiesCleaned = properties.makeCopyWithoutNullOrEmptyValorisations();
+
+        IterableValorisation.IterableValorisationItem itemIterable2C = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name3", "value")));
+        IterableValorisation iterableValorisation2C = new IterableValorisation("iterable2", Lists.newArrayList(itemIterable2C));
+
+        IterableValorisation.IterableValorisationItem itemC = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value"), iterableValorisation2C, new KeyValueValorisation("name3", "value3")));
+        IterableValorisation iterableValorisationC = new IterableValorisation("iterable", Lists.newArrayList(itemC));
+
+        String propertiesCleanedJSON = mapper.writeValueAsString(propertiesCleaned);
+        String expectedJSON = mapper.writeValueAsString(new Properties(Sets.newHashSet(), Sets.newHashSet(iterableValorisationC)));
+
+        assertThat(propertiesCleanedJSON.equals(expectedJSON)).isTrue();
     }
 }
