@@ -21,36 +21,59 @@ package com.vsct.dt.hesperides.security.jersey;
 import java.util.Optional;
 
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.cache.CacheBuilderSpec;
+
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.Authorizer;
+import io.dropwizard.auth.CachingAuthenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
 
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
 import com.vsct.dt.hesperides.security.model.User;
 
 /**
+ * Authenticator for Hesperides.
+ *
  * Created by emeric_martineau on 01/02/2017.
  */
 public class HesperidesAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
-
-    private final java.util.Optional<Authenticator<BasicCredentials, User>> authenticator;
+    /**
+     * Thread local context to set user.
+     */
     private final ThreadLocalUserContext userContext;
 
-    public HesperidesAuthenticator(final java.util.Optional<Authenticator<BasicCredentials, User>> authenticator,
-            final ThreadLocalUserContext userContext) {
-        this.authenticator = authenticator;
+    /**
+     * All authentication use cache.
+     * If null, no authenticator set.
+     */
+    private CachingAuthenticator<BasicCredentials, User> cachingAuthenticator = null;
+
+    /**
+     *
+     * @param authenticator authenticator
+     * @param userContext local thread user
+     * @param metrics metric system
+     * @param authenticationCachePolicy cache policy
+     */
+    public HesperidesAuthenticator(final Optional<Authenticator<BasicCredentials, User>> authenticator,
+            final ThreadLocalUserContext userContext, final MetricRegistry metrics, final CacheBuilderSpec authenticationCachePolicy) {
         this.userContext = userContext;
+
+        if (authenticator.isPresent()) {
+            this.cachingAuthenticator = new CachingAuthenticator<>(metrics, authenticator.get(), authenticationCachePolicy);
+        }
     }
 
     @Override
     public Optional<User> authenticate(final BasicCredentials credentials) throws AuthenticationException {
         Optional<User> user;
 
-        if (this.authenticator.isPresent()) {
-            user = this.authenticator.get().authenticate(credentials);
-        } else {
+        if (cachingAuthenticator == null) {
             user = Optional.of(User.UNTRACKED);
+        } else {
+            user = this.cachingAuthenticator.authenticate(credentials);
         }
 
         if (user.isPresent()) {

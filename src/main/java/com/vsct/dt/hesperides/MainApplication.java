@@ -126,20 +126,13 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         final ThreadLocalUserContext userContext = new ThreadLocalUserContext();
 
-        final HesperidesAuthenticator simpleAuthenticator = new HesperidesAuthenticator(authenticator, userContext);
-
-        final CachingAuthenticator<BasicCredentials, User> cachingAuthenticator = new CachingAuthenticator<>(
-                environment.metrics(), simpleAuthenticator,
-                hesperidesConfiguration.getAuthenticationCachePolicy());
-/*
-        environment.jersey().register(AuthFactory.binder(new BasicAuthFactory<>(cachingAuthenticator,
-                "LOGIN AD POUR HESPERIDES",
-                User.class)));*/
+        final HesperidesAuthenticator hesperidesAuthenticator = new HesperidesAuthenticator(authenticator, userContext,
+                environment.metrics(), hesperidesConfiguration.getAuthenticationCachePolicy());
 
         environment.jersey().register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<User>()
-            .setAuthenticator(cachingAuthenticator)
-            .setAuthorizer(simpleAuthenticator)
-            .setRealm("LOGIN AD POUR HESPERIDES")
+            .setAuthenticator(hesperidesAuthenticator)
+            .setAuthorizer(hesperidesAuthenticator)
+            .setRealm("LOGIN AD FOR HESPERIDES")
             .buildAuthFilter()));
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
         environment.jersey().register(RolesAllowedDynamicFeature.class);
