@@ -39,6 +39,7 @@ import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -81,6 +82,7 @@ public class HesperidesFullIndexationResource {
     @POST
     @Timed
     @ApiOperation("Reindex all applications, modules, templates...")
+    @RolesAllowed(User.TECH)
     public void resetIndex(@Auth final User user) throws IOException {
         reset(user);
     }
@@ -102,8 +104,6 @@ public class HesperidesFullIndexationResource {
     private void reset(final User user) throws IOException {
         if (user == null) {
             LOGGER.info("RELOADING INDEX START at startup");
-        } else if (!user.isTechUser()) {
-            throw new ForbiddenOperationException("Only tech user can reindex.");
         } else {
             LOGGER.info("RELOADING INDEX START by {}", user.getName());
         }

@@ -32,6 +32,11 @@ public class User implements Principal {
      */
     public static final User UNTRACKED = new User("untracked", false, false);
 
+    /**
+     * To know if user is tech user.
+     */
+    public static final String TECH = "tech";
+
     private final String  username;
     private final boolean prodUser;
     private final boolean techUser;

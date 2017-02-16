@@ -266,6 +266,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         environment.jersey().register(new MissingResourceExceptionMapper());
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new ForbiddenOperationExceptionMapper());
+        environment.jersey().register(new ForbiddenExceptionMapper());
 
         // ressource healthcheck
         environment.healthChecks().register("elasticsearch", new ElasticSearchHealthCheck(elasticSearchClient));

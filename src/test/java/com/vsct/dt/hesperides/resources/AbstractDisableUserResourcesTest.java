@@ -34,6 +34,7 @@ import org.glassfish.jersey.test.spi.TestContainerFactory;
 
 import com.vsct.dt.hesperides.exception.wrapper.DefaultExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.DuplicateResourceExceptionMapper;
+import com.vsct.dt.hesperides.exception.wrapper.ForbiddenExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.ForbiddenOperationExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.IncoherentVersionExceptionMapper;
@@ -78,6 +79,7 @@ public abstract class AbstractDisableUserResourcesTest {
                 .addProvider(new MissingResourceExceptionMapper())
                 .addProvider(new IllegalArgumentExceptionMapper())
                 .addProvider(new ForbiddenOperationExceptionMapper())
+                .addProvider(new ForbiddenExceptionMapper())
                 .build();
 
     }
@@ -97,6 +99,7 @@ public abstract class AbstractDisableUserResourcesTest {
                 .addProvider(new MissingResourceExceptionMapper())
                 .addProvider(new IllegalArgumentExceptionMapper())
                 .addProvider(new ForbiddenOperationExceptionMapper())
+                .addProvider(new ForbiddenExceptionMapper())
                 .build();
 
     }

@@ -50,6 +50,12 @@ public class HesperidesAuthenticator implements Authenticator<BasicCredentials, 
      */
     private CachingAuthenticator<BasicCredentials, User> cachingAuthenticator = null;
 
+
+    protected HesperidesAuthenticator() {
+        // Only for test
+        this.userContext = null;
+    }
+
     /**
      *
      * @param authenticator authenticator
@@ -85,6 +91,6 @@ public class HesperidesAuthenticator implements Authenticator<BasicCredentials, 
 
     @Override
     public boolean authorize(final User user, final String role) {
-        return true;
+        return User.TECH.equals(role) && user.isTechUser();
     }
 }

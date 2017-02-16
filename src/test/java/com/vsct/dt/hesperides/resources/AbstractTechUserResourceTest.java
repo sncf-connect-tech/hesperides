@@ -29,12 +29,11 @@ import org.glassfish.jersey.test.spi.TestContainerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.Authenticator;
-import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.testing.junit.ResourceTestRule;
 
+import com.vsct.dt.hesperides.security.jersey.HesperidesAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 
 /**
@@ -47,7 +46,7 @@ public abstract class AbstractTechUserResourceTest extends AbstractDisableUserRe
     /**
      * Class to manage tech user or no tech user.
      */
-    private static class TechUserAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
+    private static class TechUserAuthenticator extends HesperidesAuthenticator {
         private static final Map<String, User> USERS = ImmutableMap.of(
                 "tech_user", new User("tech_user", false, true),
                 "no_tech_user", new User("no_tech_user", false, false));
@@ -55,11 +54,6 @@ public abstract class AbstractTechUserResourceTest extends AbstractDisableUserRe
         @Override
         public java.util.Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
             return java.util.Optional.of(USERS.get(basicCredentials.getUsername()));
-        }
-
-        @Override
-        public boolean authorize(final User user, final String role) {
-            return true;
         }
     }
 

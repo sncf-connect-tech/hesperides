@@ -28,6 +28,7 @@ import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
@@ -81,11 +82,8 @@ public class HesperidesCacheResource {
     @Path("/applications")
     @Timed
     @ApiOperation("Remove all applications from cache")
+    @RolesAllowed(User.TECH)
     public Response clearApplicationsCache(@Auth final User user) {
-        if (!user.isTechUser()) {
-            throw new ForbiddenOperationException("Only tech user can clear all applications cache.");
-        }
-
         LOGGER.info("Remove all application from memory cache by {}.", user.getName());
 
         this.applicationsAggregate.removeAllCache();
@@ -112,11 +110,8 @@ public class HesperidesCacheResource {
     @Path("/modules")
     @Timed
     @ApiOperation("Remove all modules from cache")
+    @RolesAllowed(User.TECH)
     public Response clearModulesCache(@Auth final User user) {
-        if (!user.isTechUser()) {
-            throw new ForbiddenOperationException("Only tech user can clear all modules cache.");
-        }
-
         LOGGER.info("Remove all modules from memory cache by {}.", user.getName());
 
         this.modulesAggregate.removeAllCache();
@@ -172,11 +167,8 @@ public class HesperidesCacheResource {
     @Path("/templates/packages")
     @Timed
     @ApiOperation("Remove all templates packages from cache")
+    @RolesAllowed(User.TECH)
     public Response clearTemplatesPackagesCache(@Auth final User user) {
-        if (!user.isTechUser()) {
-            throw new ForbiddenOperationException("Only tech user can clear all module templates packages cache.");
-        }
-
         LOGGER.info("Remove templates packages from memory cache by {}.",
                 user.getName());
 
