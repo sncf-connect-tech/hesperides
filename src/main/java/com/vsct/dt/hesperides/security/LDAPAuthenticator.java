@@ -21,7 +21,7 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
@@ -77,7 +77,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
             LOGGER.debug("{} failed to authenticate {}", username);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private boolean checkIfUserBelongsToGroup(final AutoclosableDirContext context, final String userDN, final String groupName) throws

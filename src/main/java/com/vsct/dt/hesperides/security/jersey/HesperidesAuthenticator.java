@@ -18,7 +18,7 @@
  */
 package com.vsct.dt.hesperides.security.jersey;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 
 import io.dropwizard.auth.AuthenticationException;

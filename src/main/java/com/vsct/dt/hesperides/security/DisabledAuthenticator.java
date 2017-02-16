@@ -24,7 +24,7 @@ package com.vsct.dt.hesperides.security;
 import io.dropwizard.auth.*;
 import io.dropwizard.auth.basic.BasicCredentials;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import com.vsct.dt.hesperides.security.model.User;
 

@@ -28,7 +28,7 @@ import javax.ws.rs.core.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import io.dropwizard.auth.AuthFilter;
 import io.dropwizard.auth.AuthenticationException;

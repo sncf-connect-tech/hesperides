@@ -53,8 +53,8 @@ public abstract class AbstractTechUserResourceTest extends AbstractDisableUserRe
                 "no_tech_user", new User("no_tech_user", false, false));
 
         @Override
-        public com.google.common.base.Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
-            return com.google.common.base.Optional.of(USERS.get(basicCredentials.getUsername()));
+        public java.util.Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
+            return java.util.Optional.of(USERS.get(basicCredentials.getUsername()));
         }
 
         @Override
