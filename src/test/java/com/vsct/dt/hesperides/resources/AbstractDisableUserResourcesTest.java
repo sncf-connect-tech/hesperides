@@ -41,7 +41,7 @@ import com.vsct.dt.hesperides.exception.wrapper.IncoherentVersionExceptionMapper
 import com.vsct.dt.hesperides.exception.wrapper.MissingResourceExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.OutOfDateVersionExceptionMapper;
 import com.vsct.dt.hesperides.security.DisabledAuthenticator;
-import com.vsct.dt.hesperides.security.NoCredentialAuthFilter;
+import com.vsct.dt.hesperides.security.jersey.NoCredentialAuthFilter;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 

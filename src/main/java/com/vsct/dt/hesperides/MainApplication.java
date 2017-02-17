@@ -44,8 +44,10 @@ import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.resources.*;
+import com.vsct.dt.hesperides.security.DisabledAuthenticator;
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
 import com.vsct.dt.hesperides.security.jersey.HesperidesAuthenticator;
+import com.vsct.dt.hesperides.security.jersey.NoCredentialAuthFilter;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
@@ -126,14 +128,26 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         final ThreadLocalUserContext userContext = new ThreadLocalUserContext();
 
-        final HesperidesAuthenticator hesperidesAuthenticator = new HesperidesAuthenticator(authenticator, userContext,
-                environment.metrics(), hesperidesConfiguration.getAuthenticationCachePolicy());
 
-        environment.jersey().register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<User>()
-            .setAuthenticator(hesperidesAuthenticator)
-            .setAuthorizer(hesperidesAuthenticator)
-            .setRealm("LOGIN AD FOR HESPERIDES")
-            .buildAuthFilter()));
+        if (authenticator.isPresent()) {
+            final HesperidesAuthenticator hesperidesAuthenticator = new HesperidesAuthenticator(authenticator.get(), userContext,
+                    environment.metrics(), hesperidesConfiguration.getAuthenticationCachePolicy());
+
+            environment.jersey().register(new AuthDynamicFeature(new BasicCredentialAuthFilter.Builder<User>()
+                    .setAuthenticator(hesperidesAuthenticator)
+                    .setAuthorizer(hesperidesAuthenticator)
+                    .setRealm("LOGIN AD FOR HESPERIDES")
+                    .buildAuthFilter()));
+        } else {
+            final DisabledAuthenticator disabledAuthenticator = new DisabledAuthenticator();
+
+            environment.jersey().register(new AuthDynamicFeature(new NoCredentialAuthFilter.Builder<User>()
+                    .setAuthenticator(disabledAuthenticator)
+                    .setAuthorizer(disabledAuthenticator)
+                    .setRealm("LOGIN AD FOR HESPERIDES")
+                    .buildAuthFilter()));
+        }
+
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
         environment.jersey().register(RolesAllowedDynamicFeature.class);
 

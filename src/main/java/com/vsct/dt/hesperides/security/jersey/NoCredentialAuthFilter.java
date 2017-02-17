@@ -16,7 +16,8 @@
  *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.vsct.dt.hesperides.security;
+
+package com.vsct.dt.hesperides.security.jersey;
 
 import java.io.IOException;
 import java.security.Principal;

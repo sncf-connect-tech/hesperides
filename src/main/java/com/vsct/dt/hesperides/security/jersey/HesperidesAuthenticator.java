@@ -50,7 +50,6 @@ public class HesperidesAuthenticator implements Authenticator<BasicCredentials, 
      */
     private CachingAuthenticator<BasicCredentials, User> cachingAuthenticator = null;
 
-
     protected HesperidesAuthenticator() {
         // Only for test
         this.userContext = null;
@@ -63,13 +62,11 @@ public class HesperidesAuthenticator implements Authenticator<BasicCredentials, 
      * @param metrics metric system
      * @param authenticationCachePolicy cache policy
      */
-    public HesperidesAuthenticator(final Optional<Authenticator<BasicCredentials, User>> authenticator,
+    public HesperidesAuthenticator(final Authenticator<BasicCredentials, User> authenticator,
             final ThreadLocalUserContext userContext, final MetricRegistry metrics, final CacheBuilderSpec authenticationCachePolicy) {
         this.userContext = userContext;
 
-        if (authenticator.isPresent()) {
-            this.cachingAuthenticator = new CachingAuthenticator<>(metrics, authenticator.get(), authenticationCachePolicy);
-        }
+        this.cachingAuthenticator = new CachingAuthenticator<>(metrics, authenticator, authenticationCachePolicy);
     }
 
     @Override
