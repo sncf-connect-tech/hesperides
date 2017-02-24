@@ -65,7 +65,7 @@ httpClientConfiguration:
   timeout: 2000ms
 # Feedback configuration
 feedbackConfiguration:
-  imagePathStorage: feedback/
+  imagePathStorage: feedbackReport # don't name it feedback
   # Hipchat
   hipchatSubdomain: SUBDOMAIN_SOCIETY_HIPCHAT
   hipchatId: ROOM_ID

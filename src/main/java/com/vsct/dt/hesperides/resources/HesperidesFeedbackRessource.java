@@ -191,7 +191,7 @@ public class HesperidesFeedbackRessource {
             bufferedImage = ImageIO.read(bis);
             bis.close();
 
-            File imageDirectory = new File(feedbackConfiguration.getImagePathStorage());
+            File imageDirectory = new File(pathImageName).getParentFile() ;
             if (!imageDirectory.exists()) {
                 imageDirectory.mkdirs();
             }
