@@ -33,8 +33,11 @@ import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.resources.IterableValorisation;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
+import com.vsct.dt.hesperides.resources.PermissionAwareApplicationsProxy;
 import com.vsct.dt.hesperides.resources.Properties;
 
+import com.vsct.dt.hesperides.security.UserContext;
+import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
@@ -82,7 +85,7 @@ public class FilesTest {
 
     private SnapshotRegistryInterface snapshotRegistryInterface = mock(SnapshotRegistry.class);
 
-    private Files files;
+    private Files files, hiddingFiles;
     private final String comment = "Test comment";
     private final HesperidesPropertiesModel model = HesperidesPropertiesModel.empty();
 
@@ -109,6 +112,17 @@ public class FilesTest {
         applications = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface, hesperidesConfiguration);
         modules = new ModulesAggregate(eventBus, eventStore, templatePackages, hesperidesConfiguration);
         files = new Files(applications, modules, templatePackages);
+        hiddingFiles = new Files(new PermissionAwareApplicationsProxy(applications, new UserContext() {
+            @Override
+            public User getCurrentUser() {
+                return new User("user", false, false);
+            }
+
+            @Override
+            public void setCurrentUser(User user) {
+                // no need !
+            }
+        }), modules, templatePackages);
 
         templatePackagesWithEvent = new TemplatePackagesAggregate(eventBus, eventStore, hesperidesConfiguration);
         applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore, snapshotRegistryInterface, hesperidesConfiguration);
@@ -584,7 +598,7 @@ public class FilesTest {
                 "{{#items}}\n" +
                         "{{name}}\n" +
                         "{{price|@required}}\n" +
-                        "{{/items}}\n";
+                "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -647,6 +661,87 @@ public class FilesTest {
                 "template_from_module", templateModel, false);
 
         // assertion is done on the @Test() annotation !
+    }
+
+    @Test
+    public void should_generate_file_with_password_fields() throws Exception {
+        String templateContent =
+                "{{user.password | @password}}" +
+                "{{#users}}" +
+                        "{{ login }}" +
+                        "{{ password | @password}}" +
+                "{{/users}}";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("tidiane", Sets.newHashSet(new KeyValueValorisation("login", "tidiane"), new KeyValueValorisation("password", "superp@ass!")));
+        IterableValorisation.IterableValorisationItem item2 = new IterableValorisation.IterableValorisationItem("jean", Sets.newHashSet(new KeyValueValorisation("login", "jean"), new KeyValueValorisation("password", "superp@ass#")));
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1, item2);
+        IterableValorisation val1 = new IterableValorisation("users", items);
+
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("user.password", "thePaSS")), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        /* ACTUAL CALL */
+        String generatedConent = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
+
+        final String expected = "thePaSStidianesuperp@ass!jeansuperp@ass#";
+        assertThat(generatedConent).isEqualTo(expected);
+
+        /* HIDDING CALL */
+        String generatedhHiddenConent = hiddingFiles.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
+
+        final String expectedHidden = "********tidiane********jean********";
+        assertThat(generatedhHiddenConent).isEqualTo(expectedHidden);
     }
 
     @Test(expected = MissingResourceException.class)
