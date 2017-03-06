@@ -684,10 +684,10 @@ public class FilesTest {
         Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
 
         /* Setup the properties */
-        IterableValorisation.IterableValorisationItem item1 = new IterableValorisation.IterableValorisationItem("tidiane", Sets.newHashSet(new KeyValueValorisation("login", "tidiane"), new KeyValueValorisation("password", "superp@ass!")));
-        IterableValorisation.IterableValorisationItem item2 = new IterableValorisation.IterableValorisationItem("jean", Sets.newHashSet(new KeyValueValorisation("login", "jean"), new KeyValueValorisation("password", "superp@ass#")));
-        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList(item1, item2);
-        IterableValorisation val1 = new IterableValorisation("users", items);
+        IterableValorisation.IterableValorisationItem user1 = new IterableValorisation.IterableValorisationItem("tidiane", Sets.newHashSet(new KeyValueValorisation("login", "tidiane"), new KeyValueValorisation("password", "superp@ass!")));
+        IterableValorisation.IterableValorisationItem user2 = new IterableValorisation.IterableValorisationItem("jean", Sets.newHashSet(new KeyValueValorisation("login", "jean"), new KeyValueValorisation("password", "superp@ass#")));
+        List<IterableValorisation.IterableValorisationItem> users = Lists.newArrayList(user1, user2);
+        IterableValorisation val1 = new IterableValorisation("users", users);
 
         Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("user.password", "thePaSS")), Sets.newHashSet(val1));
 
@@ -741,6 +741,97 @@ public class FilesTest {
                 "template_from_module", templateModel, false);
 
         final String expectedHidden = "********tidiane********jean********";
+        assertThat(generatedhHiddenConent).isEqualTo(expectedHidden);
+    }
+
+    @Test
+    public void should_generate_file_with_password_fields_for_nested_iterable_properties() throws Exception {
+        String templateContent =
+                "{{user.password | @password}}" +
+                "{{#users}}" +
+                    "{{ login }}" +
+                    "{{ password | @password }}" +
+                        "{{#account}}" +
+                            "{{ account.password | @password }}" +
+                        "{{/account}}" +
+                "{{/users}}";
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
+        TemplateData templateData = TemplateData.withTemplateName("template_from_module")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent(templateContent)
+                .withRights(null)
+                .build();
+        Module module = new Module(moduleKey, Sets.newHashSet(), 1L);
+        modules.createWorkingCopy(module);
+        Template createdTemplate = modules.createTemplateInWorkingCopy(moduleKey, templateData);
+
+        /* Setup the properties */
+        IterableValorisation.IterableValorisationItem account1 = new IterableValorisation.IterableValorisationItem("account1", Sets.newHashSet(new KeyValueValorisation("account.password", "the@ccountp@ass;)")));
+        List<IterableValorisation.IterableValorisationItem> accounts = Lists.newArrayList(account1);
+        IterableValorisation accounts1 = new IterableValorisation("account", accounts);
+        IterableValorisation.IterableValorisationItem user1 = new IterableValorisation.IterableValorisationItem("tidiane", Sets.newHashSet(new KeyValueValorisation("login", "tidiane"), new KeyValueValorisation("password", "superp@ass!"), accounts1));
+
+        IterableValorisation.IterableValorisationItem account2 = new IterableValorisation.IterableValorisationItem("account2", Sets.newHashSet(new KeyValueValorisation("account.password", "the@ccountp@ass2!;)")));
+        List<IterableValorisation.IterableValorisationItem> _accounts = Lists.newArrayList(account2);
+        IterableValorisation accounts2 = new IterableValorisation("account", _accounts);
+        IterableValorisation.IterableValorisationItem user2 = new IterableValorisation.IterableValorisationItem("jean", Sets.newHashSet(new KeyValueValorisation("login", "jean"), new KeyValueValorisation("password", "superp@ass#"), accounts2));
+
+        List<IterableValorisation.IterableValorisationItem> users = Lists.newArrayList(user1, user2);
+        IterableValorisation val1 = new IterableValorisation("users", users);
+
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("user.password", "thePaSS")), Sets.newHashSet(val1));
+
+        /* Create the platform */
+        InstanceData instance1 = InstanceData.withInstanceName("instance_name")
+                .withKeyValue(Sets.newHashSet(new KeyValueValorisationData("name", "SUPER_INSTANCE"))).build();
+
+        ApplicationModuleData applicationModule1 = ApplicationModuleData
+                .withApplicationName("module_name")
+                .withVersion("module_version")
+                .withPath("path#1")
+                .withId(1)
+                .withInstances(Sets.newHashSet(instance1))
+                .isWorkingcopy()
+                .build();
+
+        Set<ApplicationModuleData> appModules = Sets.newHashSet(applicationModule1);
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("1.0.0.0")
+                .withModules(appModules)
+                .withVersion(1L)
+                .isProduction();
+
+        applications.createPlatform(builder.build());
+
+        /*
+        Add the properties for "the_module_name"
+         */
+        applications.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#module_name#module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+
+        TemplateSlurper slurper = new TemplateSlurper(templateContent);
+
+        HesperidesPropertiesModel templateModel = slurper.generatePropertiesScope();
+
+        String generatedConent = files.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
+
+        final String expected = "thePaSStidianesuperp@ass!the@ccountp@ass;)jeansuperp@ass#the@ccountp@ass2!;)";
+        assertThat(generatedConent).isEqualTo(expected);
+
+        // Hidding call
+        String generatedhHiddenConent = hiddingFiles.getFile("app_name", "pltfm_name", "#path#1", "module_name", "module_version", true, "instance_name", createdTemplate.getNamespace(),
+                "template_from_module", templateModel, false);
+
+        final String expectedHidden = "********tidiane****************jean****************";
         assertThat(generatedhHiddenConent).isEqualTo(expectedHidden);
     }
 

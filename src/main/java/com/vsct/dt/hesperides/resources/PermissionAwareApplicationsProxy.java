@@ -205,8 +205,84 @@ public class PermissionAwareApplicationsProxy implements Applications  {
         return this.applicationsAggregate.restoreSnapshot(key, timestamp);
     }
 
+    /**
+     * Hides password field in valuations.
+     *
+     * @param valorisations : the valuations
+     * @param model : the model of thes valuations
+     * @return the valuations with hidden password fields
+     */
+    private Set<ValorisationData> hideValorisations ( Set<ValorisationData> valorisations, Set<Property> model){
+        Set<ValorisationData> hidden = Sets.newHashSet();
+
+        for ( ValorisationData val : valorisations ){
+
+            Optional<Property> optModel = model.stream().filter(property -> property.getName().trim().equals(val.getName().trim())).findFirst();
+
+            if ( optModel.isPresent() ){
+
+                Property _model = optModel.get();
+
+                if ( val instanceof KeyValueValorisationData ){
+                    KeyValueValorisationData _val = (KeyValueValorisationData) val;
+
+                    if ( _model.isPassword() ){
+                        hidden.add( new KeyValueValorisationData(_val.getName(), "********"));
+                    }else{
+                        hidden.add( new KeyValueValorisationData(_val.getName(), _val.getValue()));
+                    }
+                }else{
+                    // iterable
+                    hidden.add( hideIterableValorisation((IterableValorisationData) val, (IterablePropertyModel) _model));
+                }
+            }else{
+                // There is no model for this value. Should we do something here ?
+            }
+        }
+
+        return hidden;
+    }
+
+    /**
+     * Hides password fields of a iterable item
+     * @param item : the item
+     * @param model : the model of the item
+     * @return the item with hidden fields
+     */
+    private IterableValorisationData.IterableValorisationItemData hideItem(IterableValorisationData.IterableValorisationItemData item, IterablePropertyModel model) {
+        Set<ValorisationData> values = hideValorisations(item.getValues(), model.getFields());
+
+        IterableValorisationData.IterableValorisationItemData hiddenItem = new IterableValorisationData.IterableValorisationItemData(item.getTitle(), values);
+        return hiddenItem;
+    }
+
+    /**
+     * Hides password fields of an iterable valuation
+     * @param iterable : the iterable property
+     * @param model : the model of the property
+     * @return the iterable property with hidden fields
+     */
+    private IterableValorisationData hideIterableValorisation (IterableValorisationData iterable, IterablePropertyModel model){
+        List<IterableValorisationData.IterableValorisationItemData> items = Lists.newArrayList();
+
+        for ( IterableValorisationData.IterableValorisationItemData item : iterable.getIterableValorisationItems() ){
+            items.add ( hideItem (item, model));
+        }
+
+        IterableValorisationData hidden = new IterableValorisationData(iterable.getName(), items);
+        return hidden;
+    }
+
+    /**
+     * Hiddes password fields of properties
+     *
+     * @param properties : the properties
+     * @param model : the model
+     * @return the properties with password fields
+     */
     private PropertiesData hideProperties(PropertiesData properties, HesperidesPropertiesModel model){
-        // Hidding password fields for simple properties
+
+        // 1 - Hidding password fields for simple properties
         Set<KeyValueValorisationData> keyValueProperties = Sets.newHashSet();
         Set<KeyValuePropertyModel> keyValuePropertyModels = model.getKeyValueProperties();
 
@@ -226,45 +302,21 @@ public class PermissionAwareApplicationsProxy implements Applications  {
             }
         });
 
-        // This is for hidding password on iterable property level 1.
-
-        // Iterable properties multiple level is not yet implemented
-        // TODO : Update this when multiple level implementation is available.
-
+        // 2 - Hidding password for iterable properties
         Set<IterableValorisationData> iterableProperties = Sets.newHashSet();
         Set<IterablePropertyModel> iterablePropertyModels = model.getIterableProperties();
 
-        for (IterableValorisationData iterableValorisationData : properties.getIterableProperties()){
+        for ( ValorisationData val : properties.getIterableProperties()){
+            Optional<IterablePropertyModel> subModel = iterablePropertyModels.stream().filter(iterablePropertyModel -> iterablePropertyModel.getName().trim().equals(val.getName().trim())).findFirst();
 
-            Optional<IterablePropertyModel> subModelOpt = iterablePropertyModels.stream().filter(iterablePropertyModel -> iterablePropertyModel.getName().trim().equals(iterableValorisationData.getName().trim())).findFirst();
-
-            if (subModelOpt.isPresent()) {
-
-                IterablePropertyModel subModel = subModelOpt.get();
-
-                // Checking the item data
-                List<IterableValorisationData.IterableValorisationItemData> iterableValorisationItemDatas = Lists.newArrayList();
-                for (IterableValorisationData.IterableValorisationItemData iterableValorisationItemData : iterableValorisationData.getIterableValorisationItems()) {
-
-                    // Checking the valorisations
-                    Set<ValorisationData> values = Sets.newHashSet();
-                    for (ValorisationData valorisationData : iterableValorisationItemData.getValues()) {
-                        Property itModel = subModel.getFields().stream().filter(property -> property.getName().trim().equals(valorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", valorisationData.getName())));
-                        if (itModel.isPassword()) {
-                            values.add(new KeyValueValorisationData(valorisationData.getName(), "********"));
-                        } else {
-                            values.add(valorisationData);
-                        }
-                    }
-                    iterableValorisationItemDatas.add(new IterableValorisationData.IterableValorisationItemData(iterableValorisationItemData.getTitle(), values));
-                }
-                iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationItemDatas));
-            } else {
-                iterableProperties.add(new IterableValorisationData(iterableValorisationData.getName(), iterableValorisationData.getIterableValorisationItems()));
+            if ( subModel.isPresent() ){
+                iterableProperties.add ( hideIterableValorisation( (IterableValorisationData) val, subModel.get() ) );
+            }else{
+                // There is no model for this value. Should we do something here ?
             }
         }
 
-        // Return the hidden properties
+        // 3 - Return the hidden properties
         return new PropertiesData(keyValueProperties, iterableProperties);
     }
 }
