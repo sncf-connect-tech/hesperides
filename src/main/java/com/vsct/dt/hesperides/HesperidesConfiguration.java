@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.cache.CacheBuilderSpec;
 import com.vsct.dt.hesperides.events.EventsConfiguration;
 import com.vsct.dt.hesperides.indexation.ElasticSearchConfiguration;
-import com.vsct.dt.hesperides.resources.FeedbackConfiguration;
+import com.vsct.dt.hesperides.feedback.FeedbackConfiguration;
 import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;

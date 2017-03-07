@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.templating.feedbacks;
+package com.vsct.dt.hesperides.feedback.jsonObject;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,10 +30,10 @@ import io.dropwizard.jackson.JsonSnakeCase;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
-public class TemplateFeedback {
+public class FeedbackJson {
     private final FeedbackObject feedback;
 
-    public TemplateFeedback(
+    public FeedbackJson(
             @JsonProperty("feedback") final FeedbackObject feedback) {
         this.feedback = feedback;
     }

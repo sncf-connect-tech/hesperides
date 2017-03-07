@@ -31,6 +31,7 @@ import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.events.EventsAggregate;
 import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.*;
+import com.vsct.dt.hesperides.feedback.FeedbacksAggregate;
 import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.healthcheck.AggregateHealthCheck;
 import com.vsct.dt.hesperides.healthcheck.ElasticSearchHealthCheck;
@@ -181,6 +182,11 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(), eventBus, eventStore);
         environment.lifecycle().manage(eventsAggregate);
 
+        /* Feedbacks aggregate */
+        FeedbacksAggregate feedbacksAggregate = new FeedbacksAggregate(hesperidesConfiguration.getFeedbackConfiguration(),
+                hesperidesConfiguration.getAssetsConfiguration(), eventBus, eventStore);
+        environment.lifecycle().manage(feedbacksAggregate);
+
         /* Service to generate files */
         Files files = new Files(permissionAwareApplications, modulesAggregate, templatePackagesAggregate);
 
@@ -235,8 +241,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         environment.jersey().register(userResource);
 
         // Feedback resource
-        HesperidesFeedbackRessource feedbackResource = new HesperidesFeedbackRessource(hesperidesConfiguration.getFeedbackConfiguration(),
-                hesperidesConfiguration.getAssetsConfiguration());
+        HesperidesFeedbackRessource feedbackResource = new HesperidesFeedbackRessource(feedbacksAggregate);
         environment.jersey().register(feedbackResource);
 
         LOGGER.debug("Registering exception handlers");

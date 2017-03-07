@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.templating.feedbacks;
+package com.vsct.dt.hesperides.feedback.jsonObject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
