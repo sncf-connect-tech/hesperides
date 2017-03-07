@@ -52,6 +52,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -433,19 +434,25 @@ public class Files {
     private static class PropertiesWithDotHandler extends ReflectionObjectHandler {
 
         @Override
-        public Wrapper find(final String name, Object[] scopes) {
-
-            // We trim this to let mustach ignore whitespaces on properties name
+        public Wrapper find(final String name, final List<Object> scopes) {
+            Object scope;
             String real_name = name.split("[|]")[0].trim();
+            int scope_index = scopes.size() - 1;
 
-            int length = scopes.length;
-            for (int i = 0; i < length; i++) {
-                Object scope = scopes[i];
-                final int scope_index = i;
+            final ListIterator<Object> scopeIterator = scopes.listIterator(scopes.size());
+
+            // We must search from local scope to global scope in case of iterable properties.
+            while (scopeIterator.hasPrevious()) {
+                scope = scopeIterator.previous();
+
                 if (scope instanceof Map && ((Map) scope).containsKey(real_name)) {
-                    return scopes1 -> ((Map) scopes1[scope_index]).get(real_name);
+                    final int index = scope_index;
+                    return scopes1 -> ((Map) scopes1.get(index)).get(real_name);
                 }
+
+                scope_index--;
             }
+
             return super.find(name, scopes);
         }
 

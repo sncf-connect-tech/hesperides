@@ -31,9 +31,9 @@ import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.platform.*;
-import org.elasticsearch.common.collect.Sets;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -207,7 +207,7 @@ public class PermissionAwareApplicationsProxy implements Applications  {
 
     private PropertiesData hideProperties(PropertiesData properties, HesperidesPropertiesModel model){
         // Hidding password fields for simple properties
-        Set<KeyValueValorisationData> keyValueProperties = Sets.newHashSet();
+        Set<KeyValueValorisationData> keyValueProperties = new HashSet<>();
         Set<KeyValuePropertyModel> keyValuePropertyModels = model.getKeyValueProperties();
 
         properties.getKeyValueProperties().stream().forEach(keyValueValorisation -> {
@@ -231,7 +231,7 @@ public class PermissionAwareApplicationsProxy implements Applications  {
         // Iterable properties multiple level is not yet implemented
         // TODO : Update this when multiple level implementation is available.
 
-        Set<IterableValorisationData> iterableProperties = Sets.newHashSet();
+        Set<IterableValorisationData> iterableProperties = new HashSet<>();
         Set<IterablePropertyModel> iterablePropertyModels = model.getIterableProperties();
 
         for (IterableValorisationData iterableValorisationData : properties.getIterableProperties()){
@@ -247,7 +247,7 @@ public class PermissionAwareApplicationsProxy implements Applications  {
                 for (IterableValorisationData.IterableValorisationItemData iterableValorisationItemData : iterableValorisationData.getIterableValorisationItems()) {
 
                     // Checking the valorisations
-                    Set<ValorisationData> values = Sets.newHashSet();
+                    Set<ValorisationData> values = new HashSet<>();
                     for (ValorisationData valorisationData : iterableValorisationItemData.getValues()) {
                         Property itModel = subModel.getFields().stream().filter(property -> property.getName().trim().equals(valorisationData.getName().trim())).findFirst().orElseThrow(() -> new MissingResourceException(String.format("No model found for the property '%s'. You probably have some whitespaces on it", valorisationData.getName())));
                         if (itModel.isPassword()) {
