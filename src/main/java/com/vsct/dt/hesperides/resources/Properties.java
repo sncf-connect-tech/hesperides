@@ -25,19 +25,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.vsct.dt.hesperides.exception.runtime.*;
-import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
-import com.vsct.dt.hesperides.templating.models.Property;
-import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
-import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
-import com.vsct.dt.hesperides.templating.platform.ValorisationData;
 import io.dropwizard.jackson.JsonSnakeCase;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
-import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +58,68 @@ public final class Properties {
         return new Properties(Sets.newHashSet(), Sets.newHashSet());
     }
 
+    /**
+     * Copies the valuations without empty ones
+     *
+     * @param valorisations : the valuations to be copied
+     * @return : the copy of the valuations
+     */
+    private Set<Valorisation> copyValorisations ( Set<Valorisation> valorisations){
+
+        Set<Valorisation> copy = Sets.newHashSet();
+        for ( Valorisation val : valorisations ){
+            if ( val instanceof KeyValueValorisation ){
+                KeyValueValorisation _val = (KeyValueValorisation) val;
+
+                if ( !Strings.isNullOrEmpty(_val.getValue())){
+                    copy.add(_val);
+                }
+            }else{
+                copy.add(copyIterableValorisation((IterableValorisation)val));
+            }
+        }
+
+        return copy;
+    }
+
+    /**
+     * Copy iterable items without empty values
+     *
+     * @param item : the item to be copied
+     *
+     * @return the copy of the item
+     */
+    private IterableValorisation.IterableValorisationItem copyItem (IterableValorisation.IterableValorisationItem item){
+        Set<Valorisation> values = copyValorisations(item.getValues());
+        IterableValorisation.IterableValorisationItem copy = new IterableValorisation.IterableValorisationItem(item.getTitle(), values);
+        return copy;
+    }
+
+    /**
+     *  Copy iterable valuations without empty values
+     *
+     * @param iterable : the iterable to be copied
+     *
+     * @return the copy of the iterable
+     */
+    private IterableValorisation copyIterableValorisation (IterableValorisation iterable){
+        List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList();
+
+        for (IterableValorisation.IterableValorisationItem item : iterable.getIterableValorisationItems() ){
+            items.add(copyItem(item));
+        }
+
+        IterableValorisation copy = new IterableValorisation(iterable.getName(), items);
+        return copy;
+    }
+
+    /**
+     * Copy all properties without empty values
+     *
+     * @return the copy of the properties
+     */
     public Properties makeCopyWithoutNullOrEmptyValorisations() {
+
         // For key value properties
         Set<KeyValueValorisation> keyValuePropertiesCleaned = this.keyValueProperties
                 .stream()
@@ -73,21 +127,10 @@ public final class Properties {
                 .collect(Collectors.toSet());
 
         // For iterable properties
-        // TODO : Update this when multiple level implementation is available.
         Set<IterableValorisation> iterablePropertiesCleaned = Sets.newHashSet();
-        for (IterableValorisation valorisation : this.iterableProperties){
-            List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList();
-            for (IterableValorisation.IterableValorisationItem item : valorisation.getIterableValorisationItems()){
-                Set<Valorisation> values = Sets.newHashSet();
-                for (Valorisation value : item.getValues() ){
-                    KeyValueValorisation _value = (KeyValueValorisation)value;
-                    if ( !_value.getValue().isEmpty()){
-                        values.add(new KeyValueValorisation(_value.getName(), _value.getValue()));
-                    }
-                }
-                items.add(new IterableValorisation.IterableValorisationItem(item.getTitle(), values));
-            }
-            iterablePropertiesCleaned.add(new IterableValorisation(valorisation.getName(), items));
+
+        for (Valorisation val : this.iterableProperties){
+            iterablePropertiesCleaned.add(copyIterableValorisation((IterableValorisation) val));
         }
 
         // cleaned

@@ -498,6 +498,48 @@ public class HesperidesApplicationResourceTest {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .post(Properties.class, MAPPER.writeValueAsString(properties));
 
+        //Check that service is called with cleaned properties
+        verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "some_path",
+                propertiesCleaned, 1L, comment);
+    }
+
+    @Test
+    public void should_save_only_valued_iterable_properties_and_not_null_or_empty_ones() throws JsonProcessingException {
+        // Iterable properties
+        IterableValorisation.IterableValorisationItem itemIterable2 = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name3", "value"), new KeyValueValorisation("name0", "")));
+        IterableValorisation iterableValorisation2 = new IterableValorisation("iterable2", Lists.newArrayList(itemIterable2));
+
+        IterableValorisation.IterableValorisationItem item = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value"), iterableValorisation2));
+        IterableValorisation iterableValorisation = new IterableValorisation("iterable", Lists.newArrayList(item));
+
+        // Properties
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("simple1", "value"), new KeyValueValorisation("simple2", "")), Sets.newHashSet(iterableValorisation));
+
+        // Cleaned properties
+        Set<KeyValueValorisationData> keyValuePropertiesCleaned = Sets.newHashSet();
+        keyValuePropertiesCleaned.add(new KeyValueValorisationData("simple1", "value"));
+
+        IterableValorisationData.IterableValorisationItemData itemIterable2Cleaned = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("name3", "value")));
+        IterableValorisationData iterableValorisation2Cleaned = new IterableValorisationData("iterable2", Lists.newArrayList(itemIterable2Cleaned));
+
+        IterableValorisationData.IterableValorisationItemData itemCleaned = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("name2", "value"), iterableValorisation2Cleaned));
+        Set<IterableValorisationData> iterablePropertiesCleaned = Sets.newHashSet(new IterableValorisationData("iterable", Lists.newArrayList(itemCleaned)));
+
+        PropertiesData propertiesCleaned = new PropertiesData(keyValuePropertiesCleaned, iterablePropertiesCleaned);
+
+        PlatformKey platformKey = PlatformKey.withName("my_pltfm")
+                .withApplicationName("my_app")
+                .build();
+
+        when(applications.createOrUpdatePropertiesInPlatform(platformKey, "some_path", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
+
+        Properties p = withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("path", "some_path")
+                .queryParam("platform_vid", "1")
+                .queryParam("comment", "Test comment")
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .post(Properties.class, MAPPER.writeValueAsString(properties));
+
 
 
         //Check that service is called with cleaned properties
