@@ -49,12 +49,8 @@ import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
-import java.util.ArrayList;
+import java.util.*;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -283,6 +279,55 @@ public class Files {
     }
 
     /**
+     * Manages an iterable property.
+     * This makes use of recursion to manage inner iterable properties if existing
+     *
+     * @param scopes : the mustache scope collection
+     * @param itpm : the iterable property model
+     * @param templateNamespace : the template workspace
+     * @param templateName : the template name
+     */
+    private void manageIterableProperty (ArrayList<MustacheScope> scopes, IterablePropertyModel itpm, String templateNamespace, String templateName){
+
+        scopes.forEach(scope -> {
+
+            itpm.getFields().forEach(p -> {
+                if ( p instanceof IterablePropertyModel ){
+                    // this is an inner iterable
+                    manageIterableProperty((ArrayList<MustacheScope>) scope.get(p.getName()), (IterablePropertyModel) p, templateNamespace, templateName);
+                }else{
+                    // check if the property exists in scope.
+                    boolean _exists = isInScope(p.getName(), scope);
+
+                    // required but not existing
+                    if (!_exists && p.isRequired()){
+                        throw new MissingResourceException(String.format("Property '%s' in template '%s/%s' must be set.",
+                                p.getName(), templateNamespace, templateName));
+                    }
+
+                    // has default value and not existing
+                    if (!_exists && StringUtils.isNotEmpty(p.getDefaultValue())){
+                        scope.put(p.getName(), p.getDefaultValue());
+                    }
+
+                    // has pattern
+                    if (StringUtils.isNotEmpty(p.getPattern())){
+                        // get the value
+                        String value = findProperty(p.getName(), scope);
+                        Pattern pattern = Pattern.compile(p.getPattern());
+                        Matcher matcher = pattern.matcher(value);
+                        if (!matcher.matches()){
+                            throw new MissingResourceException(String.format(
+                                    "Property '%s' in template '%s/%s' not match regular expression '%s'.",
+                                    p.getName(), templateNamespace, templateName, p.getPattern()));
+                        }
+                    }
+                }
+            });
+        });
+
+    }
+    /**
      * Manage module template.
      *
      * @param moduleName
@@ -343,43 +388,15 @@ public class Files {
         }
 
         // Taking care of iterable properties
-        // TODO : Update this to make multiple level implementation available.
         for (IterablePropertyModel itpm : templateModel.getIterableProperties()){
+
             // Get the valuation for this
-            if (mustacheScope.keySet().contains(itpm.getName())){
+            if (mustacheScope.keySet().contains(itpm.getName())) {
+                // The the scopes
                 ArrayList<MustacheScope> scopes = (ArrayList<MustacheScope>) mustacheScope.get(itpm.getName());
 
-                scopes.forEach(scope -> {
-
-                    itpm.getFields().forEach(p -> {
-                        // check if the property exists in scope.
-                        boolean _exists = isInScope(p.getName(), scope);
-
-                        // required but not existing
-                        if (!_exists && p.isRequired()){
-                            throw new MissingResourceException(String.format("Property '%s' in template '%s/%s' must be set.",
-                                    p.getName(), templateNamespace, templateName));
-                        }
-
-                        // has default value and not existing
-                        if (!_exists && StringUtils.isNotEmpty(p.getDefaultValue())){
-                            scope.put(p.getName(), p.getDefaultValue());
-                        }
-
-                        // has pattern
-                        if (StringUtils.isNotEmpty(p.getPattern())){
-                            // get the value
-                            String value = findProperty(p.getName(), scope);
-                            Pattern pattern = Pattern.compile(p.getPattern());
-                            Matcher matcher = pattern.matcher(value);
-                            if (!matcher.matches()){
-                                throw new MissingResourceException(String.format(
-                                        "Property '%s' in template '%s/%s' not match regular expression '%s'.",
-                                        p.getName(), templateNamespace, templateName, p.getPattern()));
-                            }
-                        }
-                    });
-                });
+                // Manage it as iterable property
+                manageIterableProperty(scopes, itpm, templateNamespace, templateName);
             }
         }
 
@@ -409,7 +426,7 @@ public class Files {
     }
 
     /**
-     * Found property in scope.
+     * Find property in scope.
      *
      * @param name property name.
      * @param mustacheScope scope
