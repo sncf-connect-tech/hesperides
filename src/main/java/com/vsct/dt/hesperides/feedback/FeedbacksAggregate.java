@@ -23,13 +23,10 @@
 package com.vsct.dt.hesperides.feedback;
 
 import com.bazaarvoice.dropwizard.assets.AssetsConfiguration;
-import com.google.common.eventbus.EventBus;
 import com.vsct.dt.hesperides.MainApplication;
 import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -58,7 +55,7 @@ import java.util.Map;
 /**
  * Created by stephane_fret on 07/03/2017.
  */
-public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbacks {
+public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feedbacks {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApplication.class);
     FeedbackConfiguration feedbackConfiguration;
@@ -69,15 +66,10 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
      * @param feedbackConfiguration
      * @param assetsConfiguration
      */
-    public FeedbacksAggregate (final FeedbackConfiguration feedbackConfiguration, final AssetsConfiguration assetsConfiguration, final EventBus eventBus, final EventStore eventStore){
-        super(new String(), eventBus, eventStore);
+    public FeedbacksAggregate (final FeedbackConfiguration feedbackConfiguration, final AssetsConfiguration assetsConfiguration){
+        super();
         this.feedbackConfiguration = feedbackConfiguration;
         this.assetsConfiguration = assetsConfiguration;
-    }
-
-    @Override
-    protected String getStreamPrefix() {
-        return "";
     }
 
     @Override
@@ -85,19 +77,19 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
                                       final FeedbackJson template) {
 
         LOGGER.debug("Feedback from "
-                +user.getUsername()
-                +" to hipchat room\n"
-                +template.toJsonString());
+            +user.getUsername()
+            +" to hipchat room\n"
+            +template.toJsonString());
 
         String imageData = template.getFeedback().getImg().split(",")[1];
 
         String imageName =
-                "feedback_" + template.getFeedback().getTimestamp() + ".png";
+            "feedback_" + template.getFeedback().getTimestamp() + ".png";
 
         try {
-            Iterator<Map.Entry<String, String>> itOverride = assetsConfiguration.getOverrides().iterator();
 
             String applicationPath;
+            Iterator<Map.Entry<String, String>> itOverride = assetsConfiguration.getOverrides().iterator();
 
             if (itOverride.hasNext()) {
                 applicationPath = itOverride.next().getValue();
@@ -105,75 +97,14 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
                 throw new HesperidesException("Could  not create Feedback: asserts configuration not valid");
             }
 
-            StringBuilder serverPathImageName = new StringBuilder()
-                    .append(applicationPath)
-                    .append("/")
-                    .append(feedbackConfiguration.getImagePathStorage())
-                    .append("/")
-                    .append(imageName);
-
-            LOGGER.debug("Server path : "+serverPathImageName.toString());
-
-            StringBuilder urlDownloadImage = new StringBuilder()
-                    .append(template.getFeedback().getUrl().split("/")[0])
-                    .append("/")
-                    .append("/")
-                    .append(template.getFeedback().getUrl().split("/")[2])
-                    .append("/")
-                    .append(feedbackConfiguration.getImagePathStorage())
-                    .append("/")
-                    .append(imageName);
-
-            LOGGER.debug("Download URL : "+urlDownloadImage.toString());
-
-            StringBuilder hipchatMessage = new StringBuilder()
-                    .append("<p>When access to <a href='")
-                    .append(template.getFeedback().getUrl())
-                    .append("'>")
-                    .append(template.getFeedback().getUrl())
-                    .append("</a></p>");
-
-            // Encapsulate each line ended by \n with <p><\p>
-            List<String> wordList = Arrays.asList(template.getFeedback().getNote().split("\n"));
-            Iterator itWordList = wordList.iterator();
-
-            while (itWordList.hasNext()) {
-                hipchatMessage.append("<p>")
-                        .append(itWordList.next())
-                        .append(("</p>"));
-            }
-
-            hipchatMessage.append("<a href='")
-                    .append(urlDownloadImage)
-                    .append("'>Download screenshot</a>");
-
-            writeImage(serverPathImageName.toString(), imageData);
+            LOGGER.debug("Server path : "+applicationPath);
+            writeImage(getServerPathImageName(applicationPath, imageName), imageData);
 
             CloseableHttpClient httpClient = getHttpClient();
 
-            StringBuilder stringBody = new StringBuilder();
-            stringBody.append("{\"from\": \"")
-                    .append(user.getUsername())
-                    .append("\",\"color\": \"")
-                    .append("green")
-                    .append("\",\"message\": \"")
-                    .append(hipchatMessage.toString())
-                    .append("\",\"notify\": \"")
-                    .append("true")
-                    .append("\",\"message_format\": \"")
-                    .append("html")
-                    .append("\"}");
+            HttpPost postRequest = new HttpPost(getHipchatUrl());
 
-            StringBuilder urlVersion = new StringBuilder("https://");
-            urlVersion.append(feedbackConfiguration.getHipchatSubdomain())
-                    .append(".hipchat.com/v2/room/")
-                    .append(feedbackConfiguration.getHipchatId())
-                    .append("/notification?auth_token=")
-                    .append(feedbackConfiguration.getHipchatToken());
-
-            HttpPost postRequest = new HttpPost(urlVersion.toString());
-
-            StringEntity input = new StringEntity(stringBody.toString());
+            StringEntity input = new StringEntity(getHipchatMessageBody(template, imageName, user));
             input.setContentType("application/json");
             postRequest.setEntity(input);
 
@@ -191,14 +122,82 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
 
             if (postResponse.getStatusLine().getStatusCode() != 204) {
                 throw new RuntimeException("Failed : HTTP error code : "
-                        + postResponse.getStatusLine().getStatusCode());
+                    + postResponse.getStatusLine().getStatusCode());
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public String getHipchatUrl() {
+        return new StringBuilder("https://")
+            .append(feedbackConfiguration.getHipchatSubdomain())
+            .append(".hipchat.com/v2/room/")
+            .append(feedbackConfiguration.getHipchatId())
+            .append("/notification?auth_token=")
+            .append(feedbackConfiguration.getHipchatToken())
+            .toString();
+    }
 
+    public String getServerPathImageName(String applicationPath, String imageName) {
+
+        return new StringBuilder()
+            .append(applicationPath)
+            .append("/")
+            .append(feedbackConfiguration.getImagePathStorage())
+            .append("/")
+            .append(imageName)
+            .toString();
+    }
+
+    public String getHipchatMessageBody(FeedbackJson template, String imageName, User user) {
+        StringBuilder urlDownloadImage = new StringBuilder()
+            .append(template.getFeedback().getUrl().split("/")[0])
+            .append("/")
+            .append("/")
+            .append(template.getFeedback().getUrl().split("/")[2])
+            .append("/")
+            .append(feedbackConfiguration.getImagePathStorage())
+            .append("/")
+            .append(imageName);
+
+        LOGGER.debug("Download URL : "+urlDownloadImage.toString());
+
+        StringBuilder hipchatMessage = new StringBuilder()
+            .append("<p>When access to <a href='")
+            .append(template.getFeedback().getUrl())
+            .append("'>")
+            .append(template.getFeedback().getUrl())
+            .append("</a></p>");
+
+        // Encapsulate each line ended by \n with <p><\p>
+        List<String> wordList = Arrays.asList(template.getFeedback().getNote().split("\n"));
+        Iterator itWordList = wordList.iterator();
+
+        while (itWordList.hasNext()) {
+            hipchatMessage.append("<p>")
+                .append(itWordList.next())
+                .append(("</p>"));
+        }
+
+        hipchatMessage.append("<a href='")
+            .append(urlDownloadImage)
+            .append("'>Download screenshot</a>");
+
+        return new StringBuilder()
+            .append("{\"from\": \"")
+            .append(user.getUsername())
+            .append("\",\"color\": \"")
+            .append("green")
+            .append("\",\"message\": \"")
+            .append(hipchatMessage.toString())
+            .append("\",\"notify\": \"")
+            .append("true")
+            .append("\",\"message_format\": \"")
+            .append("html")
+            .append("\"}")
+            .toString();
     }
 
     private void writeImage(String pathImageName, String imageString) {
@@ -221,7 +220,7 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
 
             // write the image to a file
             FileOutputStream outputfile =
-                    new FileOutputStream(pathImageName, false);
+                new FileOutputStream(pathImageName, false);
             ImageIO.write(bufferedImage, "png", outputfile);
 
             outputfile.close();
@@ -231,18 +230,18 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
         }
     }
 
-    public static CloseableHttpClient getHttpClient() {
+    private static CloseableHttpClient getHttpClient() {
 
         CloseableHttpClient httpClient;
 
         try {
             SSLContext sslContext = new SSLContextBuilder()
-                    .loadTrustMaterial(null, (certificate, authType) -> true).build();
+                .loadTrustMaterial(null, (certificate, authType) -> true).build();
 
             httpClient = HttpClients.custom()
-                    .setSSLContext(sslContext)
-                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
-                    .build();
+                .setSSLContext(sslContext)
+                .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .build();
 
         } catch (KeyManagementException e) {
             throw new RuntimeException("KeyManagementException :"+e.toString());
@@ -254,14 +253,14 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
         return httpClient;
     }
 
-    public static String getStringContent(HttpEntity httpEntity) {
+    private static String getStringContent(HttpEntity httpEntity) {
 
         BufferedReader bufferedReader;
         StringBuilder content = new StringBuilder();
 
         try {
             bufferedReader = new BufferedReader(
-                    new InputStreamReader((httpEntity.getContent()) , "UTF-8"));
+                new InputStreamReader((httpEntity.getContent()) , "UTF-8"));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 content.append(line);
@@ -272,6 +271,5 @@ public class FeedbacksAggregate extends SingleThreadAggregate implements Feedbac
         }
         return content.toString();
     }
-
 }
 

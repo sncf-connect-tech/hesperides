@@ -184,7 +184,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         /* Feedbacks aggregate */
         FeedbacksAggregate feedbacksAggregate = new FeedbacksAggregate(hesperidesConfiguration.getFeedbackConfiguration(),
-                hesperidesConfiguration.getAssetsConfiguration(), eventBus, eventStore);
+                hesperidesConfiguration.getAssetsConfiguration());
         environment.lifecycle().manage(feedbacksAggregate);
 
         /* Service to generate files */
