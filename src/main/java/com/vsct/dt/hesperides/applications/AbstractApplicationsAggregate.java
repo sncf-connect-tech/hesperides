@@ -379,7 +379,6 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
                 app -> selector.match(app)).collect(Collectors.toList());
     }
 
-
     /*
      * REPLAY LISTENERS
      */
