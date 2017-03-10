@@ -42,7 +42,6 @@ public class HesperidesFeedbackRessource {
 
     private final Feedbacks feedbacks;
 
-
     public HesperidesFeedbackRessource(final Feedbacks feedbacks) {
         this.feedbacks = feedbacks;
     }
@@ -55,9 +54,5 @@ public class HesperidesFeedbackRessource {
                                 @Valid final FeedbackJson feedbackJson) {
 
         this.feedbacks.sendFeedbackToHipchat(user, feedbackJson);
-
     }
-
-
-
 }
