@@ -36,11 +36,8 @@ public final class TemplateContentGenerator {
         return new TemplateMaker(mustacheTemplate);
     }
 
-    private TemplateContentGenerator() {
-    }
-
     private Mustache mustacheTemplate;
-    private Object scope = Maps.newHashMap();
+    private Object scope;
 
     public TemplateContentGenerator(final Mustache mustacheTemplate, final Object scope) {
         this.mustacheTemplate = mustacheTemplate;

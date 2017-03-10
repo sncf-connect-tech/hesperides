@@ -28,19 +28,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.vsct.dt.hesperides.exception.runtime.*;
-import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
-import com.vsct.dt.hesperides.templating.models.Property;
-import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
-import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
-import com.vsct.dt.hesperides.templating.platform.ValorisationData;
 import io.dropwizard.jackson.JsonSnakeCase;
-import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.search.aggregations.metrics.percentiles.InternalPercentiles;
-import scala.tools.nsc.doc.model.Val;
 
 import java.util.*;
-import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 
 /**
