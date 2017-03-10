@@ -52,7 +52,6 @@ public class HesperidesFeedbackRessource {
     @ApiOperation("Send an feedback to an hipchat room")
     public void feedbackHipchat(@Auth final User user,
                                 @Valid final FeedbackJson feedbackJson) {
-
         this.feedbacks.sendFeedbackToHipchat(user, feedbackJson);
     }
 }
