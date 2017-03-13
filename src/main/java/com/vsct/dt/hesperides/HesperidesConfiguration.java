@@ -27,8 +27,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.cache.CacheBuilderSpec;
 import com.vsct.dt.hesperides.events.EventsConfiguration;
-import com.vsct.dt.hesperides.indexation.ElasticSearchConfiguration;
 import com.vsct.dt.hesperides.feedback.FeedbackConfiguration;
+import com.vsct.dt.hesperides.indexation.ElasticSearchConfiguration;
+import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
@@ -55,10 +56,6 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     @NotNull
     @JsonProperty
     private CacheBuilderSpec authenticationCachePolicy;
-
-    @Valid
-    @NotEmpty
-    private String apiVersion;
 
     @Valid
     @NotEmpty
@@ -93,6 +90,11 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     @NotNull
     @JsonProperty
     private final FeedbackConfiguration feedbackConfiguration = new FeedbackConfiguration();
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    private final ProxyConfiguration proxyConfiguration = new ProxyConfiguration();
 
     @Valid
     @NotEmpty
@@ -142,6 +144,10 @@ public final class HesperidesConfiguration extends Configuration implements Asse
             throw new IllegalArgumentException("Authenticator " + authenticatorType + " is unknow. Use one of ['none', 'simple', 'LDAP']");
         }
     }
+
+    @Valid
+    @NotEmpty
+    private String apiVersion;
 
     public String getApiVersion() {
         return apiVersion;
@@ -204,4 +210,6 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     }
 
     public FeedbackConfiguration getFeedbackConfiguration() { return feedbackConfiguration; }
+
+    public ProxyConfiguration getProxyConfiguration() { return proxyConfiguration; }
 }
