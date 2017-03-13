@@ -28,7 +28,7 @@ public class User {
     /**
      * Convenient 'untracked user' information
      */
-    public static final User UNTRACKED = new User("untracked", false, false);
+    public static final User UNTRACKED = new User("untracked", false, true);
 
     private final String  username;
     private final boolean prodUser;
