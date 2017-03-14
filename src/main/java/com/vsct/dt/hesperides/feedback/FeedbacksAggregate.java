@@ -26,9 +26,11 @@ import com.bazaarvoice.dropwizard.assets.AssetsConfiguration;
 import com.vsct.dt.hesperides.MainApplication;
 import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
+import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -60,16 +62,20 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApplication.class);
     FeedbackConfiguration feedbackConfiguration;
     AssetsConfiguration assetsConfiguration;
+    ProxyConfiguration proxyConfiguration;
 
     /**
      * The constructor of the aggregator
      * @param feedbackConfiguration
      * @param assetsConfiguration
      */
-    public FeedbacksAggregate (final FeedbackConfiguration feedbackConfiguration, final AssetsConfiguration assetsConfiguration){
+    public FeedbacksAggregate (final FeedbackConfiguration feedbackConfiguration,
+                               final AssetsConfiguration assetsConfiguration,
+                               final ProxyConfiguration proxyConfiguration){
         super();
         this.feedbackConfiguration = feedbackConfiguration;
         this.assetsConfiguration = assetsConfiguration;
+        this.proxyConfiguration = proxyConfiguration;
     }
 
     @Override
@@ -230,18 +236,34 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
         }
     }
 
-    private static CloseableHttpClient getHttpClient() {
+    private CloseableHttpClient getHttpClient() {
 
         CloseableHttpClient httpClient;
 
         try {
+
             SSLContext sslContext = new SSLContextBuilder()
                 .loadTrustMaterial(null, (certificate, authType) -> true).build();
 
-            httpClient = HttpClients.custom()
-                .setSSLContext(sslContext)
-                .setSSLHostnameVerifier(new NoopHostnameVerifier())
-                .build();
+            if (!this.proxyConfiguration.getProxyUrl().isEmpty()) {
+                String proxyUrl = this.proxyConfiguration.getProxyUrl().split(":")[0];
+                Integer proxyPort = Integer.valueOf(this.proxyConfiguration.getProxyUrl().split(":")[1]);
+
+                HttpHost proxy = new HttpHost(proxyUrl, proxyPort);
+
+                LOGGER.debug("Access with proxy : "+proxyUrl+":"+proxyPort);
+                httpClient = HttpClients.custom()
+                        .setSSLContext(sslContext)
+                        .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                        .setProxy(proxy)
+                        .build();
+            } else {
+                LOGGER.debug("Access without proxy");
+                httpClient = HttpClients.custom()
+                        .setSSLContext(sslContext)
+                        .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                        .build();
+            }
 
         } catch (KeyManagementException e) {
             throw new RuntimeException("KeyManagementException :"+e.toString());

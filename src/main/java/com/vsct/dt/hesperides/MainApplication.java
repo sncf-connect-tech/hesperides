@@ -32,6 +32,7 @@ import com.vsct.dt.hesperides.applications.SnapshotRegistry;
 import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
 import com.vsct.dt.hesperides.events.EventsAggregate;
+import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.feedback.FeedbacksAggregate;
 import com.vsct.dt.hesperides.files.Files;
@@ -200,7 +201,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         /* Feedbacks aggregate */
         FeedbacksAggregate feedbacksAggregate = new FeedbacksAggregate(hesperidesConfiguration.getFeedbackConfiguration(),
-                hesperidesConfiguration.getAssetsConfiguration());
+                hesperidesConfiguration.getAssetsConfiguration(), hesperidesConfiguration.getProxyConfiguration());
         environment.lifecycle().manage(feedbacksAggregate);
 
         /* Service to generate files */

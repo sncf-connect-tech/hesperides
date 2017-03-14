@@ -25,6 +25,7 @@ package com.vsct.dt.hesperides.feedback;
 import com.bazaarvoice.dropwizard.assets.AssetsConfiguration;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackObject;
+import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,7 @@ public class FeedbacksTest {
     @Before
     public void setUp() throws Exception {
         AssetsConfiguration assetsConfiguration = mock(AssetsConfiguration.class);
+        ProxyConfiguration proxyConfiguration = mock(ProxyConfiguration.class);
         FeedbackConfiguration feedbackConfiguration = mock(FeedbackConfiguration.class);
 
         applicationPath = "applicationPath";
@@ -57,7 +59,7 @@ public class FeedbacksTest {
         when(feedbackConfiguration.getImagePathStorage()).thenReturn("hipchatPathStorageTest");
 
         // init aggregate
-        this.feedbacksAggregate = new FeedbacksAggregate(feedbackConfiguration, assetsConfiguration);
+        this.feedbacksAggregate = new FeedbacksAggregate(feedbackConfiguration, assetsConfiguration, proxyConfiguration);
     }
 
     @Test
