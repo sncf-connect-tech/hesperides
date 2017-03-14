@@ -115,6 +115,9 @@ feedbackConfiguration:
   hipchatSubdomain: SUBDOMAIN_SOCIETY_HIPCHAT
   hipchatId: ROOM_ID
   hipchatToken: HIPCHAT_TOKEN_USER_WITH_NOTIFICATION_SCOPE
+#Proxy
+proxyConfiguration:
+  proxyUrlPort:    #empty if no proxy
 # Settings about events in hesperides
 eventsConfiguration:
   poolMinSize: 1
