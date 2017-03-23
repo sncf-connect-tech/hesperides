@@ -34,6 +34,7 @@ import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAg
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -41,9 +42,12 @@ import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import tests.type.UnitTests;
+
 /**
  * Created by emeric_martineau on 07/06/2016.
  */
+@Category(UnitTests.class)
 public class CacheTest extends AbstractCacheTest {
     @Test
     public void should_create_template_in_working_copy_without_snapshot() {

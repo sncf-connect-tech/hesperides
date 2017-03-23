@@ -40,6 +40,7 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -47,9 +48,12 @@ import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william_montaz on 28/11/2014.
  */
+@Category(UnitTests.class)
 public class TemplatePackagesTest {
 
     private final EventBus       eventBus       = new EventBus();

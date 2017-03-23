@@ -62,6 +62,7 @@ import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
 import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.List;
 import java.util.Set;
@@ -70,10 +71,13 @@ import java.util.stream.Collectors;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william_montaz on 03/09/14.
  * Updated by Tidiane SIDIBE on 09/11/2016
  */
+@Category(UnitTests.class)
 public class FilesTest {
 
     private final EventBus       eventBus       = new EventBus();

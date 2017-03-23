@@ -42,6 +42,7 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,9 +51,12 @@ import java.util.Optional;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william_montaz on 02/12/2014.
  */
+@Category(UnitTests.class)
 public class ModulesAggregateTest {
 
     private final EventBus       eventBus       = new EventBus();

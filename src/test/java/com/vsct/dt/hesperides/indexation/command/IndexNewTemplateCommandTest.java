@@ -26,8 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vsct.dt.hesperides.indexation.ElasticSearchClient;
 import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -36,6 +39,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by william_montaz on 11/02/2015.
  */
+@Category(UnitTests.class)
 public class IndexNewTemplateCommandTest {
 
     final private        ElasticSearchClient                 elasticSearchClient = mock(ElasticSearchClient.class);

@@ -27,8 +27,11 @@ import com.google.common.collect.Lists;
 import com.vsct.dt.hesperides.indexation.ElasticSearchClient;
 import com.vsct.dt.hesperides.indexation.model.ModuleIndexation;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -37,7 +40,8 @@ import static org.mockito.Mockito.*;
 /**
  * Created by william_montaz on 11/02/2015.
  */
-public class IndexNewModuleCommandTest {
+@Category(UnitTests.class)
+public class IndexNewModuleClientCommandTest {
 
     final private        ElasticSearchClient                 elasticSearchClient = mock(ElasticSearchClient.class);
     final private        ElasticSearchClient.RequestExecuter executer            = mock(ElasticSearchClient.RequestExecuter.class);

@@ -27,7 +27,10 @@ import com.google.common.io.ByteStreams;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 
@@ -38,6 +41,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 /**
  * Created by william_montaz on 29/08/14.
  */
+@Category(UnitTests.class)
 public class TemplateTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();

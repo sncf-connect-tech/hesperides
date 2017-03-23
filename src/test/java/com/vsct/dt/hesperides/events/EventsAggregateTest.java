@@ -32,12 +32,16 @@ import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+
+import tests.type.UnitTests;
 
 /**
  * Created by tidiane_sidibe on 19/04/2016.
  */
+@Category(UnitTests.class)
 public class EventsAggregateTest {
     private final EventBus eventBus = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();

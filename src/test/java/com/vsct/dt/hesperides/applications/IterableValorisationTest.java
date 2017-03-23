@@ -29,7 +29,10 @@ import com.vsct.dt.hesperides.resources.IterableValorisation;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.templating.models.Property;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.Set;
@@ -41,6 +44,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 /**
  * Created by william_montaz on 01/09/14.
  */
+@Category(UnitTests.class)
 public class IterableValorisationTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();

@@ -246,9 +246,14 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
                 final String redisSnapshotKey = String.format("snapshotevents-%s", streamName);
 
                 final long currentNbEvent = jedisData.llen(streamName);
+                final long cacheNbEvent = jedisSnapshot.llen(redisSnapshotKey);
+
                 HesperidesSnapshotCacheEntry hsce;
 
-                if (offset == 0 || currentNbEvent % offset == 0) {
+                // We need check if in cache we have no already store snapshot.
+                // In case of platform, we have update platform and update properties in same time
+                // that mean we create two snapshot. It's not good.
+                if (offset == 0 || (currentNbEvent % offset == 0 && (currentNbEvent / offset) > cacheNbEvent)) {
                     LOGGER.debug("Store new snapshot for key {}.", redisSnapshotKey);
                     hsce = new HesperidesSnapshotCacheEntry(
                             object.getClass().getCanonicalName(),

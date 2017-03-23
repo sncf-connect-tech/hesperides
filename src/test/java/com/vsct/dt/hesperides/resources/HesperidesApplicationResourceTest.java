@@ -53,9 +53,12 @@ import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import tests.type.UnitTests;
+
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -69,6 +72,7 @@ import static org.mockito.Mockito.*;
  * Created by william_montaz on 01/09/14.
  */
 /* AUTHENTICATION -> John_Doe:secret => Basic Sm9obl9Eb2U6c2VjcmV0 */   //header(HttpHeaders.AUTHORIZATION, "Basic Sm9obl9Eb2U6c2VjcmV0")
+@Category(UnitTests.class)
 public class HesperidesApplicationResourceTest {
 
     private static final Applications applications = mock(Applications.class);

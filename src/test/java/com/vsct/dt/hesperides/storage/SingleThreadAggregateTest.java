@@ -33,14 +33,18 @@ import com.vsct.dt.hesperides.exception.runtime.StateLockedException;
 import com.vsct.dt.hesperides.security.model.User;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static junit.framework.TestCase.fail;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import tests.type.UnitTests;
+
 /**
  * Created by wmontaz on 06/11/2014.
  */
+@Category(UnitTests.class)
 public class SingleThreadAggregateTest {
 
     static EventStore eventStore = mock(EventStore.class);

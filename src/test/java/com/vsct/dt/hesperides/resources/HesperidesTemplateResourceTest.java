@@ -46,10 +46,13 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
 import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import tests.type.UnitTests;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -65,6 +68,7 @@ import static org.mockito.Mockito.*;
  * Created by william_montaz on 01/09/14.
  */
 /* AUTHENTICATION -> John_Doe:secret => Basic Sm9obl9Eb2U6c2VjcmV0 */
+@Category(UnitTests.class)
 public class HesperidesTemplateResourceTest {
 
     private static final TemplatePackages templatePackages = mock(TemplatePackages.class);
@@ -503,7 +507,7 @@ public class HesperidesTemplateResourceTest {
 
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("pckg_name", "pckg_version");
 
-        when(templatePackages.createTemplateInWorkingCopy(packageInfo, templateData)).thenThrow(new MissingResourceException("Module not found"));
+        when(templatePackages.createTemplateInWorkingCopy(packageInfo, templateData)).thenThrow(new MissingResourceException("ModuleClient not found"));
 
         try {
             withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates")

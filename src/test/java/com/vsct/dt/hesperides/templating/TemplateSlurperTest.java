@@ -28,6 +28,7 @@ import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateSlurper;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.Set;
@@ -36,9 +37,12 @@ import java.util.stream.Collectors;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william_montaz on 10/07/14.
  */
+@Category(UnitTests.class)
 public class TemplateSlurperTest {
 
     static String readFile(String path)

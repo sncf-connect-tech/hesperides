@@ -24,7 +24,10 @@ package com.vsct.dt.hesperides.templating.modules;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 
@@ -35,7 +38,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 /**
  * Created by william_montaz on 20/02/2015.
  */
-public class ModuleTest {
+@Category(UnitTests.class)
+public class ModuleClientTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 

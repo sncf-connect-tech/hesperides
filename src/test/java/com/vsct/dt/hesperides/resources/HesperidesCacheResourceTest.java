@@ -28,6 +28,7 @@ import static org.mockito.Mockito.reset;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
@@ -37,6 +38,7 @@ import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import tests.type.UnitTests;
 
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
@@ -49,6 +51,7 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
  * Created by william_montaz on 01/09/14.
  */
 /* AUTHENTICATION -> John_Doe:secret => Basic Sm9obl9Eb2U6c2VjcmV0 */
+@Category(UnitTests.class)
 public class HesperidesCacheResourceTest {
 
     private static final ModulesAggregate MODULES_AGGREGATE = mock(ModulesAggregate.class);

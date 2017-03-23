@@ -34,8 +34,11 @@ import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
 import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,6 +56,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by william_montaz on 16/01/2015.
  */
+@Category(UnitTests.class)
 public class PropertiesTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();

@@ -30,15 +30,19 @@ import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william_montaz on 27/02/2015.
  */
+@Category(UnitTests.class)
 public class PermissionAwareApplicationsProxyTest {
 
     ApplicationsAggregate            applicationsAggregate = mock(ApplicationsAggregate.class);

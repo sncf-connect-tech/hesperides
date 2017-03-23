@@ -39,6 +39,7 @@ import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,9 +48,12 @@ import java.util.stream.Collectors;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william on 04/09/2014.
  */
+@Category(UnitTests.class)
 public class ApplicationsAggregateTest {
     private static final PropertiesConverter PROPERTIES_CONVERTER = new DefaultPropertiesConverter();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();

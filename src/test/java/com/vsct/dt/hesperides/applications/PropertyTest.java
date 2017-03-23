@@ -25,15 +25,19 @@ import com.github.mustachejava.codes.DefaultCode;
 import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.lang.reflect.Field;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 
+import tests.type.UnitTests;
+
 /**
  * Created by william_montaz on 01/09/14.
  */
+@Category(UnitTests.class)
 public class PropertyTest {
 
     @Test

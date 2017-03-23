@@ -22,6 +22,8 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.jackson.JsonSnakeCase;
@@ -59,12 +61,13 @@ public class HesperidesVersionsResource {
     }
 
     @JsonSnakeCase
-    private static class Versions {
+    public static class Versions {
 
         private final String backendVersion;
         private final String apiVersion;
 
-        public Versions(String backendVersion, String apiVersion) {
+        @JsonCreator
+        public Versions(@JsonProperty("backend_version") String backendVersion, @JsonProperty("api_version") String apiVersion) {
             this.backendVersion = backendVersion;
             this.apiVersion = apiVersion;
         }

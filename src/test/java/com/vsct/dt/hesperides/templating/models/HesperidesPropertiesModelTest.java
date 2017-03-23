@@ -25,7 +25,10 @@ import com.cedarsoftware.util.DeepEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import io.dropwizard.jackson.Jackson;
+import tests.type.UnitTests;
+
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.Set;
@@ -37,6 +40,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 /**
  * Created by william_montaz on 02/09/14.
  */
+@Category(UnitTests.class)
 public class HesperidesPropertiesModelTest {
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
