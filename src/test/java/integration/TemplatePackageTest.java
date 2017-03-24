@@ -111,6 +111,31 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
      */
     private static final String MODULE_REDIS_CACHE_KEY = "snapshotevents-" + MODULE_REDIS_KEY;
 
+    /**
+     * Name of application.
+     */
+    private static final String APPLICATION_NAME = "TEST_AUTO_INT";
+
+    /**
+     * Name of platform.
+     */
+    private static final String PLATFORM_NAME = "PTF1";
+
+    /**
+     * Prefix of propoerties
+     */
+    private static final String PROPERTIES_PREFIX_PATH = "#TEST#INT";
+
+    /**
+     * Platform redis key (for data).
+     */
+    private static final String PLATFORM_REDIS_KEY = "platform-" + APPLICATION_NAME + "-" + PLATFORM_NAME;
+
+    /**
+     * Platform redis key (for cache).
+     */
+    private static final String PLATFORM_REDIS_CACHE_KEY = "snapshotevents-" + PLATFORM_REDIS_KEY;
+
     // TODO generer un identifiant unique a placer devant les noms de template pour effacer plus facillement
     @Test
     public void check_template_package_behavior_with_cache() throws Exception {
@@ -158,13 +183,15 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         add_module_in_platform();
         // Generate 150 to try create a snapshot
         generate_events_in_platform(NB_EVENTS);
-        // TODO créer un test qui verifie le nombre d'event
-        // TODO créer un test qui supprime vide le cache mémoire et qui prend la dernière donnée
-        // TODO créer un test qui vérifier les caches en base
+        // Read number of event
+        read_nb_event_platform(1 + 1 + NB_EVENTS); // +1 for create, +1 for add template
+        // Clear cache and reload
+        clear_cache_and_read_platform();
+        // Check nb snapshot in cache
+        check_cache_event_platform(3);
         // Delete platform
-        delete_platform(); // TODO clear cache in redis
+        delete_platform();
         delete_module();
-
     }
 
     /**
@@ -393,7 +420,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void create_platform() {
         System.out.println("Create platform");
 
-        this.hesClient.application().platform().create("TEST_AUTO_INT", "PTF1", MODULE_VERSION);
+        this.hesClient.application().platform().create(APPLICATION_NAME, PLATFORM_NAME, MODULE_VERSION);
     }
 
     /**
@@ -416,14 +443,14 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void add_module_in_platform() {
         System.out.println("Add module in platform");
 
-        final PlatformClient ptf = this.hesClient.application().platform().retreive("TEST_AUTO_INT", "PTF1");
+        final PlatformClient ptf = this.hesClient.application().platform().retreive(APPLICATION_NAME, PLATFORM_NAME);
 
         final ModuleClient moduleToAdd = this.hesClient.module().retreiveWorkingcopy(MODULE_NAME, MODULE_VERSION);
 
         final Set<ApplicationModule> modules = ptf.getModules();
 
         modules.add(new ApplicationModule(moduleToAdd.getName(), moduleToAdd.getVersion(), moduleToAdd.isWorkingCopy(),
-                "#TEST#INT", new HashSet<>(), (int) moduleToAdd.getVersionID()));
+                PROPERTIES_PREFIX_PATH, new HashSet<>(), (int) moduleToAdd.getVersionID()));
 
         final PlatformClient ptfUpdate = new PlatformClient(ptf.getPlatformName(), ptf.getApplicationName(), ptf.getApplicationVersion(),
                 ptf.isProduction(), modules, ptf.getVersionID());
@@ -439,7 +466,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void generate_events_in_platform(final int nbEvent) {
         System.out.println(String.format("Generate %s events in platform", nbEvent));
 
-        final PlatformClient ptf = this.hesClient.application().platform().retreive("TEST_AUTO_INT", "PTF1");
+        final PlatformClient ptf = this.hesClient.application().platform().retreive(APPLICATION_NAME, PLATFORM_NAME);
         final long ptfVid = ptf.getVersionID();
 
         for (int index = 0; index < nbEvent; index++) {
@@ -453,8 +480,61 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             // Properties
             final com.vsct.dt.hesperides.resources.Properties props = new Properties(keyValueProp, new HashSet<>());
 
-            this.hesClient.application().properties().update("TEST_AUTO_INT", "PTF1", MODULE_PATH, ptfVid + index,
+            this.hesClient.application().properties().update(APPLICATION_NAME, PLATFORM_NAME, PROPERTIES_PREFIX_PATH + "#" + MODULE_NAME + "#" + MODULE_VERSION + "#WORKINGCOPY", ptfVid +
+                            index,
                     "This is a nice comment " + (index + 1), props);
+        }
+    }
+
+    /**
+     * check number of event.
+     *
+     * @param nbEvent number of event asked
+     */
+    private void read_nb_event_platform(final int nbEvent) {
+        System.out.println(String.format("Check if found %d events", nbEvent));
+
+        try (Jedis j = this.redisPool.getResource()) {
+            final long nb = j.llen(PLATFORM_REDIS_KEY);
+
+            assertThat(nb).isEqualTo(nbEvent);
+        }
+    }
+
+    /**
+     * Clear cache and read module.
+     */
+    private void clear_cache_and_read_platform() {
+        this.hesClient.application().clearCache(APPLICATION_NAME, PLATFORM_NAME);
+
+        final PlatformClient ptf = this.hesClient.application().platform().retreive(APPLICATION_NAME, PLATFORM_NAME);
+
+        assertThat(ptf.getModules().size()).isEqualTo(1);
+
+        final ApplicationModule module = ptf.getModules().iterator().next();
+
+        final Properties props = this.hesClient.application().properties().retreive(APPLICATION_NAME, PLATFORM_NAME,
+                module.getPropertiesPath());
+
+        final KeyValueValorisation property = props.getKeyValueProperties().iterator().next();
+
+        assertThat(property.getName()).isEqualTo("name_of_prop");
+
+        assertThat(property.getValue()).isEqualTo("roger" + NB_EVENTS);
+    }
+
+    /**
+     * Check nb item in cache.
+     *
+     * @param nbItem
+     */
+    private void check_cache_event_platform(final int nbItem) {
+        System.out.println(String.format("Check if found %d item in cache", nbItem));
+
+        try (Jedis j = this.redisCachePool.getResource()) {
+            final long nb = j.llen(PLATFORM_REDIS_CACHE_KEY);
+
+            assertThat(nb).isEqualTo(nbItem);
         }
     }
 
@@ -464,13 +544,17 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void delete_platform() {
         System.out.println("Delete platform");
 
-        this.hesClient.application().platform().delete("TEST_AUTO_INT", "PTF1");
+        this.hesClient.application().platform().delete(APPLICATION_NAME, PLATFORM_NAME);
 
         try (Jedis j = this.redisPool.getResource()) {
-            j.del("platform-TEST_AUTO_INT-PTF1");
+            j.del(PLATFORM_REDIS_KEY);
         }
 
-        this.hesClient.application().clearCache("TEST_AUTO_INT", "PTF1");
+        try (Jedis j = this.redisCachePool.getResource()) {
+            j.del(PLATFORM_REDIS_CACHE_KEY);
+        }
+
+        this.hesClient.application().clearCache(APPLICATION_NAME, PLATFORM_NAME);
     }
 
     /**

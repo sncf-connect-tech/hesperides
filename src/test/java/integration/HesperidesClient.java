@@ -330,6 +330,18 @@ public class HesperidesClient {
          * Sub part of Application.
          */
         public class Properties {
+            /**
+             * Update properties.
+             *
+             * @param appName application name
+             * @param ptfName platform name
+             * @param path path of properties
+             * @param pftVid platform version_id
+             * @param comment comment of update
+             * @param props properties
+             *
+             * @return
+             */
             public com.vsct.dt.hesperides.resources.Properties update(final String appName, final String ptfName,
                     final String path, final long pftVid, final String comment,
                     final com.vsct.dt.hesperides.resources.Properties props) {
@@ -341,6 +353,23 @@ public class HesperidesClient {
                         .queryParam("comment", comment)
                         .type(MediaType.APPLICATION_JSON_TYPE)
                         .post(com.vsct.dt.hesperides.resources.Properties.class, props);
+            }
+
+            /**
+             * Get properties.
+             *
+             * @param appName application name
+             * @param ptfName platform name
+             * @param path path of properties
+             *
+             * @return
+             */
+            public com.vsct.dt.hesperides.resources.Properties retreive(final String appName, final String ptfName, final String path) {
+                return httpClient.resource(url +
+                        String.format("applications/%s/platforms/%s/properties", appName, ptfName))
+                        .queryParam("path", path)
+                        .type(MediaType.APPLICATION_JSON_TYPE)
+                        .get(com.vsct.dt.hesperides.resources.Properties.class);
             }
         }
 
@@ -432,13 +461,15 @@ public class HesperidesClient {
         }
 
         /**
-         * Clear all cache.
+         * Clear cache.
+         *
+         * @param applicationName application name
+         * @param ptfName platform name
          */
-        public void clearCache(final String name, final String version) {
-            httpClient.resource(url + String.format("cache/applications/%s/%s", name, version))
+        public void clearCache(final String applicationName, final String ptfName) {
+            httpClient.resource(url + String.format("cache/application/%s/%s", applicationName, ptfName))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .delete();
         }
-
     }
 }

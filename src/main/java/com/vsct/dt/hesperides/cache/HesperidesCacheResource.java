@@ -63,16 +63,16 @@ public class HesperidesCacheResource {
     }
 
     @DELETE
-    @Path("/application/{application_name}/{application_version}")
+    @Path("/application/{application_name}/{platform_name}")
     @Timed
     @ApiOperation("Remove an application from cache")
     public Response clearApplicationCache(@Auth final User user,
                                           @PathParam("application_name") final String applicationName,
-                                          @PathParam("application_version") final String applicationVersion) {
-        LOGGER.info("Remove application {}/{} from memory cache by {}.", applicationName, applicationVersion,
+                                          @PathParam("platform_name") final String platformName) {
+        LOGGER.info("Remove application {}/{} from memory cache by {}.", applicationName, platformName,
                 user.getUsername());
 
-        this.applicationsAggregate.removeFromCache(applicationName, applicationVersion);
+        this.applicationsAggregate.removeFromCache(applicationName, platformName);
 
         return Response.ok().build();
     }

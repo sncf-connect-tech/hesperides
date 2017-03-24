@@ -129,8 +129,8 @@ public class ApplicationsAggregate extends AbstractApplicationsAggregate {
         return this.snapshotRegistryInterface;
     }
 
-    public void removeFromCache(final String applicationName, final String applicationVersion) {
-        pr.removeFromCache(applicationName, applicationVersion);
+    public void removeFromCache(final String applicationName, final String platformName) {
+        pr.removeFromCache(applicationName, platformName);
     }
 
     public void removeAllCache() {
