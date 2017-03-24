@@ -105,7 +105,7 @@ public class HesperidesClient {
          *
          * @return
          */
-        public List<TemplateListItem> retreiveListWorkingcopy(final String name, final String version) {
+        public List<TemplateListItem> listWorkingcopy(final String name, final String version) {
             return httpClient.resource(url +
                     String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
                     .type(MediaType.APPLICATION_JSON_TYPE)
@@ -227,6 +227,38 @@ public class HesperidesClient {
                         .type(MediaType.APPLICATION_JSON_TYPE)
                         .put(com.vsct.dt.hesperides.templating.modules.template.Template.class, template);
             }
+
+            /**
+             * Get template list.
+             *
+             * @param name name of template package
+             * @param version version
+             *
+             * @return
+             */
+            public List<com.vsct.dt.hesperides.templating.modules.template.Template> listWorkingcopy(final String name, final String version) {
+                return httpClient.resource(url +
+                        String.format("modules/%s/%s/workingcopy/templates", name, version))
+                        .type(MediaType.APPLICATION_JSON_TYPE)
+                        .get(new GenericType<List<com.vsct.dt.hesperides.templating.modules.template.Template>>(){});
+            }
+
+            /**
+             * Get template in module.
+             *
+             * @param name name of module
+             * @param version version of module
+             * @param tplName template name in module
+             *
+             * @return
+             */
+            public com.vsct.dt.hesperides.templating.modules.template.Template retreiveWorkingcopy(final String name, final String version,
+                    final String tplName) {
+                return httpClient.resource(url +
+                        String.format("modules/%s/%s/workingcopy/templates/%s", name, version, tplName))
+                        .type(MediaType.APPLICATION_JSON_TYPE)
+                        .get(com.vsct.dt.hesperides.templating.modules.template.Template.class);
+            }
         }
 
         private final Template template = new Template();
@@ -284,7 +316,7 @@ public class HesperidesClient {
          * Clear all cache.
          */
         public void clearWorkingcopyCache(final String name, final String version) {
-            httpClient.resource(url + String.format("cache/modules/%s/%s/workingcopy", name, version))
+            httpClient.resource(url + String.format("cache/module/%s/%s/workingcopy", name, version))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .delete();
         }
