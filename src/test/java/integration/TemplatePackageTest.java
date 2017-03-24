@@ -19,6 +19,7 @@
 package integration;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ import tests.type.IntegrationTests;
 import com.vsct.dt.hesperides.resources.ApplicationModule;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.Properties;
+import com.vsct.dt.hesperides.resources.TemplateListItem;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateFileRights;
@@ -44,6 +46,32 @@ import com.vsct.dt.hesperides.util.HesperidesVersion;
  */
 @Category(IntegrationTests.class)
 public class TemplatePackageTest extends AbstractIntegrationTest {
+    /**
+     * Template package name.
+     */
+    private static final String TEMPLATE_PACKAGE_NAME = "template_name";
+
+    /**
+     * Tempalte package version.
+     */
+    private static final String TEMPLATE_PACKAGE_VERSION = "1.0.0";
+
+    /**
+     * Template package properties path.
+     */
+    private static final String TEMPLATE_PACKAGE_PATH = "packages#" + TEMPLATE_PACKAGE_NAME + "#" + TEMPLATE_PACKAGE_VERSION + "#WORKINGCOPY";
+
+    /**
+     * Template package redis key (for data).
+     */
+    private static final String TEMPLATE_PACKAGE_REDIS_KEY = "template_package-" + TEMPLATE_PACKAGE_NAME + "-" + TEMPLATE_PACKAGE_VERSION + "-wc";
+
+    /**
+     * Template package redis key (for cache).
+     */
+    private static final String TEMPLATE_PACKAGE_REDIS_CACHE_KEY = "snapshotevents-template_package-" + TEMPLATE_PACKAGE_NAME + "-" +
+        TEMPLATE_PACKAGE_VERSION + "-wc";
+
     // TODO generer un identifiant unique a placer devant les noms de template pour effacer plus facillement
     @Test
     public void check_template_package_behavior_with_cache() throws Exception {
@@ -51,11 +79,14 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         create_template_package();
         // Generate 150 to try create a snapshot
         generate_events_in_template_package(372);
-        // TODO créer un test qui verifie le nombre d'event
-        // TODO créer un test qui supprime vide le cache mémoire et qui prend la dernière donnée
-        // TODO créer un test qui vérifier les caches en base
+        // Read number of platform
+        read_nb_event_template_package(1 + 372); // 1 is create module
+        // Clear cache and reload
+        clear_cache_and_read_template_package();
+        // Check nb snapshot in cache
+        check_cache_event_template_package(3);
         // Delete template package
-        delete_template_package(); // TODO clear cache in redis
+        delete_template_package();
     }
 
     @Test
@@ -105,9 +136,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         final Template templateToCreate = createTemplate("content");
 
         final Template templateCreated = this.hesClient.templatePackage().
-                createWorkingcopy("template_name", "1.0.0", templateToCreate);
+                createWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION, templateToCreate);
 
-        checkTemplate(templateToCreate, templateCreated, 1, "packages#template_name#1.0.0#WORKINGCOPY");
+        checkTemplate(templateToCreate, templateCreated, 1, TEMPLATE_PACKAGE_PATH);
     }
 
     /**
@@ -125,9 +156,59 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             templateToCreate = createTemplate("content" + index, index);
 
             templateUpdated = this.hesClient.templatePackage().
-                    updateWorkingcopy("template_name", "1.0.0", templateToCreate);
+                    updateWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION, templateToCreate);
 
-            checkTemplate(templateToCreate, templateUpdated, index + 1, "packages#template_name#1.0.0#WORKINGCOPY");
+            checkTemplate(templateToCreate, templateUpdated, index + 1, TEMPLATE_PACKAGE_PATH);
+        }
+    }
+
+    /**
+     * check number of event.
+     *
+     * @param nbEvent number of event asked
+     */
+    private void read_nb_event_template_package(final int nbEvent) {
+        System.out.println(String.format("Check if found %d events", nbEvent));
+
+        try (Jedis j = this.redisPool.getResource()) {
+            final long nb = j.llen(TEMPLATE_PACKAGE_REDIS_KEY);
+
+            assertThat(nb).isEqualTo(nbEvent);
+        }
+    }
+
+    /**
+     * Clear cache and read template package.
+     */
+    private void clear_cache_and_read_template_package() {
+        this.hesClient.templatePackage().clearWorkingcopyCache(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION);
+
+        final List<TemplateListItem> listTemplates = this.hesClient.templatePackage().retreiveListWorkingcopy(TEMPLATE_PACKAGE_NAME,
+                TEMPLATE_PACKAGE_VERSION);
+
+        assertThat(listTemplates.size()).isEqualTo(1);
+
+        final TemplateListItem templateItem = listTemplates.get(0);
+
+        assertThat(templateItem.getName()).isEqualTo("title");
+
+        final Template tpl = this.hesClient.templatePackage().retreiveWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION, "title");
+
+        assertThat(tpl.getContent()).isEqualTo("content" + 372);
+    }
+
+    /**
+     * Check nb item in cache.
+     *
+     * @param nbItem
+     */
+    private void check_cache_event_template_package(final int nbItem) {
+        System.out.println(String.format("Check if found %d item in cache", nbItem));
+
+        try (Jedis j = this.redisCachePool.getResource()) {
+            final long nb = j.llen(TEMPLATE_PACKAGE_REDIS_CACHE_KEY);
+
+            assertThat(nb).isEqualTo(nbItem);
         }
     }
 
@@ -137,13 +218,17 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void delete_template_package() {
         System.out.println("Delete template package");
 
-        this.hesClient.templatePackage().deleteWorkingcopy("template_name", "1.0.0");
+        this.hesClient.templatePackage().deleteWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION);
 
         try (Jedis j = this.redisPool.getResource()) {
-            j.del("template_package-template_name-1.0.0-wc");
+            j.del(TEMPLATE_PACKAGE_REDIS_KEY);
         }
 
-        this.hesClient.templatePackage().clearCache();
+        try (Jedis j = this.redisCachePool.getResource()) {
+            j.del(TEMPLATE_PACKAGE_REDIS_CACHE_KEY);
+        }
+
+        this.hesClient.templatePackage().clearWorkingcopyCache(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION);
     }
 
     /**
@@ -202,8 +287,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             j.del("module-module_name-1.0.0-wc");
         }
 
-        this.hesClient.templatePackage().clearCache();
-        this.hesClient.module().clearCache();
+        this.hesClient.module().clearWorkingcopyCache("module_name", "1.0.0");
     }
 
     /**
@@ -289,7 +373,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             j.del("platform-TEST_AUTO_INT-PTF1");
         }
 
-        this.hesClient.application().clearCache();
+        this.hesClient.application().clearCache("TEST_AUTO_INT", "PTF1");
     }
 
     /**

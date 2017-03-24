@@ -48,6 +48,11 @@ public class AbstractIntegrationTest {
     protected JedisPool redisPool;
 
     /**
+     * Redis cache
+     */
+    protected JedisPool redisCachePool;
+
+    /**
      * Disable SSL check
      */
     private static void disableSslVerification() {
@@ -84,9 +89,15 @@ public class AbstractIntegrationTest {
 
         this.hesClient = new HesperidesClient(System.getenv("HESPERIDES_URL"));
 
-        final String redisUrl = System.getenv("REDIS_URL");
-        final String[] redisHostPort = redisUrl.split(":");
+        String redisUrl = System.getenv("REDIS_URL");
+        String[] redisHostPort = redisUrl.split(":");
 
         this.redisPool = new JedisPool(new JedisPoolConfig(), redisHostPort[0], Integer.valueOf(redisHostPort[1]), 30000);
+
+
+        redisUrl = System.getenv("REDIS_CACHE_URL");
+        redisHostPort = redisUrl.split(":");
+
+        this.redisCachePool = new JedisPool(new JedisPoolConfig(), redisHostPort[0], Integer.valueOf(redisHostPort[1]), 30000);
     }
 }

@@ -19,9 +19,11 @@
 package integration;
 
 import java.util.HashSet;
+import java.util.List;
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 import integration.client.ModuleClient;
@@ -29,6 +31,7 @@ import integration.client.PlatformClient;
 
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.resources.HesperidesVersionsResource.Versions;
+import com.vsct.dt.hesperides.resources.TemplateListItem;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 
 /**
@@ -94,6 +97,36 @@ public class HesperidesClient {
      * Sub part of template package.
      */
     public class TemplatePackage {
+        /**
+         * Get template list.
+         *
+         * @param name name of template package
+         * @param version version
+         *
+         * @return
+         */
+        public List<TemplateListItem> retreiveListWorkingcopy(final String name, final String version) {
+            return httpClient.resource(url +
+                    String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .get(new GenericType<List<TemplateListItem>>(){});
+        }
+
+        /**
+         * Get a template in template package.
+         *
+         * @param name name of template package
+         * @param version version
+         * @param tplName template name
+         *
+         * @return
+         */
+        public Template retreiveWorkingcopy(final String name, final String version, final String tplName) {
+            return httpClient.resource(url +
+                    String.format("templates/packages/%s/%s/workingcopy/templates/%s", name, version, tplName))
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Template.class);
+        }
 
         /**
          * Create a template package.
@@ -140,11 +173,14 @@ public class HesperidesClient {
                     .delete();
         }
 
-        /**
-         * Clear all cache.
+         /**
+         * Clear one package template.
+         *
+         * @param name name of template package
+         * @param version version
          */
-        public void clearCache() {
-            httpClient.resource(url + "cache/templates/packages")
+        public void clearWorkingcopyCache(final String name, final String version) {
+            httpClient.resource(url + String.format("cache/template/package/%s/%s/workingcopy", name, version))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .delete();
         }
@@ -247,8 +283,8 @@ public class HesperidesClient {
         /**
          * Clear all cache.
          */
-        public void clearCache() {
-            httpClient.resource(url + "cache/modules")
+        public void clearWorkingcopyCache(final String name, final String version) {
+            httpClient.resource(url + String.format("cache/modules/%s/%s/workingcopy", name, version))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .delete();
         }
@@ -265,8 +301,6 @@ public class HesperidesClient {
             public com.vsct.dt.hesperides.resources.Properties update(final String appName, final String ptfName,
                     final String path, final long pftVid, final String comment,
                     final com.vsct.dt.hesperides.resources.Properties props) {
-                //http://192.168.99.100:8080/rest/applications/TEST_AUTO_INT/platforms/PTF1/properties?path=%23TEST%23INT%23module_name%231.0.0
-                // %23WORKINGCOPY&platform_vid=2&comment=This%20is%20a%20nice%20comment
 
                 return httpClient.resource(url +
                         String.format("applications/%s/platforms/%s/properties", appName, ptfName))
@@ -368,8 +402,8 @@ public class HesperidesClient {
         /**
          * Clear all cache.
          */
-        public void clearCache() {
-            httpClient.resource(url + "cache/applications")
+        public void clearCache(final String name, final String version) {
+            httpClient.resource(url + String.format("cache/applications/%s/%s", name, version))
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .delete();
         }
