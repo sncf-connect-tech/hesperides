@@ -34,6 +34,7 @@ import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
 import com.vsct.dt.hesperides.events.EventsAggregate;
 import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.*;
+import com.vsct.dt.hesperides.feedback.FeedbackConfiguration;
 import com.vsct.dt.hesperides.feedback.FeedbacksAggregate;
 import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.healthcheck.AggregateHealthCheck;
@@ -200,9 +201,17 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         environment.lifecycle().manage(eventsAggregate);
 
         /* Feedbacks aggregate */
-        FeedbacksAggregate feedbacksAggregate = new FeedbacksAggregate(hesperidesConfiguration.getFeedbackConfiguration(),
-                hesperidesConfiguration.getAssetsConfiguration(), hesperidesConfiguration.getProxyConfiguration());
-        environment.lifecycle().manage(feedbacksAggregate);
+        FeedbackConfiguration feedbackConfiguration = hesperidesConfiguration.getFeedbackConfiguration();
+
+        FeedbacksAggregate feedbacksAggregate;
+
+        if (feedbackConfiguration == null) {
+            feedbacksAggregate = null;
+        } else {
+            feedbacksAggregate = new FeedbacksAggregate(feedbackConfiguration,
+                    hesperidesConfiguration.getAssetsConfiguration(), hesperidesConfiguration.getProxyConfiguration());
+            environment.lifecycle().manage(feedbacksAggregate);
+        }
 
         /* Service to generate files */
         Files files = new Files(permissionAwareApplications, modulesAggregate, templatePackagesAggregate);

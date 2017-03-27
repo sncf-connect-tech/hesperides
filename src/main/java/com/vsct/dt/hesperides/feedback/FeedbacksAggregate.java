@@ -60,18 +60,18 @@ import java.util.Map;
 public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feedbacks {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApplication.class);
-    FeedbackConfiguration feedbackConfiguration;
-    AssetsConfiguration assetsConfiguration;
-    ProxyConfiguration proxyConfiguration;
+    private final FeedbackConfiguration feedbackConfiguration;
+    private final AssetsConfiguration assetsConfiguration;
+    private final ProxyConfiguration proxyConfiguration;
 
     /**
      * The constructor of the aggregator
      * @param feedbackConfiguration
      * @param assetsConfiguration
      */
-    public FeedbacksAggregate (final FeedbackConfiguration feedbackConfiguration,
+    public FeedbacksAggregate(final FeedbackConfiguration feedbackConfiguration,
                                final AssetsConfiguration assetsConfiguration,
-                               final ProxyConfiguration proxyConfiguration){
+                               final ProxyConfiguration proxyConfiguration) {
         super();
         this.feedbackConfiguration = feedbackConfiguration;
         this.assetsConfiguration = assetsConfiguration;
@@ -82,20 +82,21 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
     public void sendFeedbackToHipchat(final User user,
                                       final FeedbackJson template) {
 
-        LOGGER.debug("Feedback from "
-            +user.getUsername()
-            +" to hipchat room\n"
-            +template.toJsonString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Feedback from "
+                    + user.getUsername()
+                    + " to hipchat room\n"
+                    + template.toJsonString());
+        }
 
-        String imageData = template.getFeedback().getImg().split(",")[1];
+        final String imageData = template.getFeedback().getImg().split(",")[1];
 
-        String imageName =
-            "feedback_" + template.getFeedback().getTimestamp() + ".png";
+        final String imageName = String.format("feedback_%s.png", template.getFeedback().getTimestamp());
 
         try {
+            final String applicationPath;
 
-            String applicationPath;
-            Iterator<Map.Entry<String, String>> itOverride = assetsConfiguration.getOverrides().iterator();
+            final Iterator<Map.Entry<String, String>> itOverride = assetsConfiguration.getOverrides().iterator();
 
             if (itOverride.hasNext()) {
                 applicationPath = itOverride.next().getValue();
@@ -103,7 +104,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
                 throw new HesperidesException("Could  not create Feedback: asserts configuration not valid");
             }
 
-            LOGGER.debug("Server path : "+applicationPath);
+            LOGGER.debug("Server path : {}", applicationPath);
             writeImage(getServerPathImageName(applicationPath, imageName), imageData);
 
             CloseableHttpClient httpClient = getHttpClient();
@@ -115,10 +116,12 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
             postRequest.setEntity(input);
 
             // LOG
-            LOGGER.debug("------------- Post send Hipchat request ------------------------------------------");
-            LOGGER.debug(postRequest.toString());
-            LOGGER.debug("------------- Post send Hipchat content request ---------------------------------");
-            LOGGER.debug(getStringContent(postRequest.getEntity()));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("------------- Post send Hipchat request ------------------------------------------");
+                LOGGER.debug(postRequest.toString());
+                LOGGER.debug("------------- Post send Hipchat content request ---------------------------------");
+                LOGGER.debug(getStringContent(postRequest.getEntity()));
+            }
 
             HttpResponse postResponse = httpClient.execute(postRequest);
 

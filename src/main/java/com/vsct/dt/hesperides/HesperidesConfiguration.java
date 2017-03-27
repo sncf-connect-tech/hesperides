@@ -77,7 +77,6 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     private RetryRedisConfiguration redisConfiguration;
 
     @Valid
-    @NotNull
     @JsonProperty
     private LdapConfiguration ldapConfiguration;
 
@@ -92,9 +91,8 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     private final HttpClientConfiguration httpClientConfiguration = new HttpClientConfiguration();
 
     @Valid
-    @NotNull
     @JsonProperty
-    private final FeedbackConfiguration feedbackConfiguration = new FeedbackConfiguration();
+    private FeedbackConfiguration feedbackConfiguration;
 
     @Valid
     @NotNull
@@ -144,14 +142,15 @@ public final class HesperidesConfiguration extends Configuration implements Asse
 
         if (authType.equals("none")) {
             return Optional.empty();
-        }
-        else if (authType.equals("simple")) {
+        } else if (authType.equals("simple")) {
             return Optional.of(new SimpleAuthenticator());
-        }
-        else if (authType.equals("ldap")) {
-            return Optional.of(new LDAPAuthenticator(getLdapConfiguration()));
-        }
-        else {
+        } else if (authType.equals("ldap")) {
+            if (ldapConfiguration == null) {
+                throw new IllegalArgumentException("Authenticator type is set to 'ldap' but ldap configuration is empty.");
+            }
+
+            return Optional.of(new LDAPAuthenticator(ldapConfiguration));
+        } else {
             throw new IllegalArgumentException("Authenticator " + authenticatorType + " is unknow. Use one of ['none', 'simple', 'ldap']");
         }
     }

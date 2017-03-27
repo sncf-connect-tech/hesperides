@@ -31,6 +31,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Created by stephane_fret on 07/02/2017.
@@ -42,16 +44,31 @@ public class HesperidesFeedbackRessource {
 
     private final Feedbacks feedbacks;
 
+    /**
+     * Response when not avaible.
+     */
+    private final Response notAvailable;
+
     public HesperidesFeedbackRessource(final Feedbacks feedbacks) {
         this.feedbacks = feedbacks;
+
+        this.notAvailable = Response.status(Status.SERVICE_UNAVAILABLE).entity("No feedback configuration avaible").build();
     }
 
     @Path("/hipchat")
     @POST
     @Timed
-    @ApiOperation("Send an feedback to an hipchat room")
-    public void feedbackHipchat(@Auth final User user,
-                                @Valid final FeedbackJson feedbackJson) {
-        this.feedbacks.sendFeedbackToHipchat(user, feedbackJson);
+    @ApiOperation("Send an feedback to an hipchat room.")
+    public Response feedbackHipchat(@Auth final User user, @Valid final FeedbackJson feedbackJson) {
+        Response r;
+
+        if (this.feedbacks == null) {
+            r = this.notAvailable;
+        } else {
+            this.feedbacks.sendFeedbackToHipchat(user, feedbackJson);
+            r = Response.noContent().build();
+        }
+
+        return r;
     }
 }
