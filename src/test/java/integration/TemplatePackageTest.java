@@ -57,34 +57,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private static final String TEMPLATE_NAME = "title";
 
     /**
-     * Template package name.
-     */
-    private static final String TEMPLATE_PACKAGE_NAME = "template_name";
-
-    /**
      * Tempalte package version.
      */
     private static final String TEMPLATE_PACKAGE_VERSION = "1.0.0";
-
-    /**
-     * Template package properties path.
-     */
-    private static final String TEMPLATE_PACKAGE_PATH = "packages#" + TEMPLATE_PACKAGE_NAME + "#" + TEMPLATE_PACKAGE_VERSION + "#WORKINGCOPY";
-
-    /**
-     * Template package redis key (for data).
-     */
-    private static final String TEMPLATE_PACKAGE_REDIS_KEY = "template_package-" + TEMPLATE_PACKAGE_NAME + "-" + TEMPLATE_PACKAGE_VERSION + "-wc";
-
-    /**
-     * Template package redis key (for cache).
-     */
-    private static final String TEMPLATE_PACKAGE_REDIS_CACHE_KEY = "snapshotevents-" + TEMPLATE_PACKAGE_REDIS_KEY;
-
-    /**
-     * Name of module.
-     */
-    private static final String MODULE_NAME = "module_name";
 
     /**
      * Version of module.
@@ -92,29 +67,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private static final String MODULE_VERSION = "1.0.0";
 
     /**
-     * Module properties path.
-     */
-    private static final String MODULE_PATH = "modules#" + MODULE_NAME + "#" + MODULE_VERSION + "#WORKINGCOPY";
-
-    /**
      * Content of template of module.
      */
     private static final String MODULE_TEMPLATE_BASE_CONTENT = "content";
-
-    /**
-     * Module redis key (for data).
-     */
-    private static final String MODULE_REDIS_KEY = "module-" + MODULE_NAME + "-" + MODULE_VERSION + "-wc";
-
-    /**
-     * Module redis key (for cache).
-     */
-    private static final String MODULE_REDIS_CACHE_KEY = "snapshotevents-" + MODULE_REDIS_KEY;
-
-    /**
-     * Name of application.
-     */
-    private static final String APPLICATION_NAME = "TEST_AUTO_INT";
 
     /**
      * Name of platform.
@@ -127,16 +82,104 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private static final String PROPERTIES_PREFIX_PATH = "#TEST#INT";
 
     /**
-     * Platform redis key (for data).
+     * Template package name.
+     *
+     * @return name
      */
-    private static final String PLATFORM_REDIS_KEY = "platform-" + APPLICATION_NAME + "-" + PLATFORM_NAME;
+    private String getTemplatePackageName() {
+        return this.prefixName + "_template_name";
+    }
+
+    /**
+     * Template package properties path.
+     *
+     * @return  properties path
+     */
+    private String getTemplatePackagePath() {
+        return "packages#" + getTemplatePackageName() + "#" + TEMPLATE_PACKAGE_VERSION + "#WORKINGCOPY";
+    }
+
+    /**
+     * Template package redis key (for data).
+     *
+     * @return redis key
+     */
+    private String getTemplatePackageRedisKey() {
+        return "template_package-" + getTemplatePackageName() + "-" + TEMPLATE_PACKAGE_VERSION + "-wc";
+    }
+
+    /**
+     * Template package redis key (for cache).
+     *
+     * @return redis key
+     */
+    private String getTemplatePackageRedisCacheKey() {
+        return "snapshotevents-" + getTemplatePackageRedisKey();
+    }
+
+    /**
+     * Name of module.
+     *
+     * @return name
+     */
+    private String getModuleName() {
+        return this.prefixName + "-module_name";
+    }
+
+    /**
+     * Module properties path.
+     *
+     * @return properties path
+     */
+    private String getModulePath() {
+        return "modules#" + getModuleName() + "#" + MODULE_VERSION + "#WORKINGCOPY";
+    }
+
+    /**
+     * Module redis key (for data).
+     *
+     * @return redis key
+     */
+    private String getModuleRedisKey() {
+        return "module-" + getModuleName() + "-" + MODULE_VERSION + "-wc";
+    }
+
+    /**
+     * Module redis key (for data).
+     *
+     * @return redis key
+     */
+    private String getModuleRedisCacheKey() {
+        return "snapshotevents-" + getModuleRedisKey();
+    }
+
+    /**
+     * Name of application.
+     *
+     * @return name
+     */
+    private String getApplicationName() {
+        return this.prefixName + "-TEST_AUTO_INT";
+    }
+
+    /**
+     * Platform redis key (for data).
+     *
+     * @return key
+     */
+    private String getPlatformRedisKey() {
+        return  "platform-" + getApplicationName() + "-" + PLATFORM_NAME;
+    }
 
     /**
      * Platform redis key (for cache).
+     *
+     * @retun key
      */
-    private static final String PLATFORM_REDIS_CACHE_KEY = "snapshotevents-" + PLATFORM_REDIS_KEY;
+    private String getPlatformRedisCacheKey() {
+        return "snapshotevents-" + getPlatformRedisKey();
+    }
 
-    // TODO generer un identifiant unique a placer devant les noms de template pour effacer plus facillement
     @Test
     public void check_template_package_behavior_with_cache() throws Exception {
         // Create template package
@@ -205,9 +248,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         final Template templateToCreate = createTemplate(MODULE_TEMPLATE_BASE_CONTENT);
 
         final Template templateCreated = this.hesClient.templatePackage().
-                createWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION, templateToCreate);
+                createWorkingcopy(getTemplatePackageName(), TEMPLATE_PACKAGE_VERSION, templateToCreate);
 
-        checkTemplate(templateToCreate, templateCreated, 1, TEMPLATE_PACKAGE_PATH);
+        checkTemplate(templateToCreate, templateCreated, 1, getTemplatePackagePath());
     }
 
     /**
@@ -225,9 +268,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             templateToCreate = createTemplate(MODULE_TEMPLATE_BASE_CONTENT + index, index);
 
             templateUpdated = this.hesClient.templatePackage().
-                    updateWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION, templateToCreate);
+                    updateWorkingcopy(getTemplatePackageName(), TEMPLATE_PACKAGE_VERSION, templateToCreate);
 
-            checkTemplate(templateToCreate, templateUpdated, index + 1, TEMPLATE_PACKAGE_PATH);
+            checkTemplate(templateToCreate, templateUpdated, index + 1, getTemplatePackagePath());
         }
     }
 
@@ -240,7 +283,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         System.out.println(String.format("Check if found %d events", nbEvent));
 
         try (Jedis j = this.redisPool.getResource()) {
-            final long nb = j.llen(TEMPLATE_PACKAGE_REDIS_KEY);
+            final long nb = j.llen(getTemplatePackageRedisKey());
 
             assertThat(nb).isEqualTo(nbEvent);
         }
@@ -250,9 +293,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
      * Clear cache and read template package.
      */
     private void clear_cache_and_read_template_package() {
-        this.hesClient.templatePackage().clearWorkingcopyCache(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION);
+        this.hesClient.templatePackage().clearWorkingcopyCache(getTemplatePackageName(), TEMPLATE_PACKAGE_VERSION);
 
-        final List<TemplateListItem> listTemplates = this.hesClient.templatePackage().listWorkingcopy(TEMPLATE_PACKAGE_NAME,
+        final List<TemplateListItem> listTemplates = this.hesClient.templatePackage().listWorkingcopy(getTemplatePackageName(),
                 TEMPLATE_PACKAGE_VERSION);
 
         assertThat(listTemplates.size()).isEqualTo(1);
@@ -261,7 +304,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
 
         assertThat(templateItem.getName()).isEqualTo(TEMPLATE_NAME);
 
-        final Template tpl = this.hesClient.templatePackage().retreiveWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION, TEMPLATE_NAME);
+        final Template tpl = this.hesClient.templatePackage().retreiveWorkingcopy(getTemplatePackageName(), TEMPLATE_PACKAGE_VERSION, TEMPLATE_NAME);
 
         assertThat(tpl.getContent()).isEqualTo(MODULE_TEMPLATE_BASE_CONTENT + NB_EVENTS);
     }
@@ -275,7 +318,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         System.out.println(String.format("Check if found %d item in cache", nbItem));
 
         try (Jedis j = this.redisCachePool.getResource()) {
-            final long nb = j.llen(TEMPLATE_PACKAGE_REDIS_CACHE_KEY);
+            final long nb = j.llen(getTemplatePackageRedisCacheKey());
 
             assertThat(nb).isEqualTo(nbItem);
         }
@@ -287,17 +330,17 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void delete_template_package() {
         System.out.println("Delete template package");
 
-        this.hesClient.templatePackage().deleteWorkingcopy(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION);
+        this.hesClient.templatePackage().deleteWorkingcopy(getTemplatePackageName(), TEMPLATE_PACKAGE_VERSION);
 
         try (Jedis j = this.redisPool.getResource()) {
-            j.del(TEMPLATE_PACKAGE_REDIS_KEY);
+            j.del(getTemplatePackageRedisKey());
         }
 
         try (Jedis j = this.redisCachePool.getResource()) {
-            j.del(TEMPLATE_PACKAGE_REDIS_CACHE_KEY);
+            j.del(getTemplatePackageRedisCacheKey());
         }
 
-        this.hesClient.templatePackage().clearWorkingcopyCache(TEMPLATE_PACKAGE_NAME, TEMPLATE_PACKAGE_VERSION);
+        this.hesClient.templatePackage().clearWorkingcopyCache(getTemplatePackageName(), TEMPLATE_PACKAGE_VERSION);
     }
 
     /**
@@ -306,7 +349,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void create_module() {
         System.out.println("Create module");
 
-        final ModuleClient module =  new ModuleClient(new ModuleKey(MODULE_NAME, new HesperidesVersion(MODULE_VERSION, true)), new HashSet<>());
+        final ModuleClient module =  new ModuleClient(new ModuleKey(getModuleName(), new HesperidesVersion(MODULE_VERSION, true)), new HashSet<>());
         this.hesClient.module().createWorkingcopy(module);
     }
 
@@ -318,9 +361,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
 
         final Template templateToCreate = createTemplate(MODULE_TEMPLATE_BASE_CONTENT);
 
-        final Template templateCreated = this.hesClient.module().template().add(MODULE_NAME, MODULE_VERSION, templateToCreate);
+        final Template templateCreated = this.hesClient.module().template().add(getModuleName(), MODULE_VERSION, templateToCreate);
 
-        checkTemplate(templateToCreate, templateCreated, 1, MODULE_PATH);
+        checkTemplate(templateToCreate, templateCreated, 1, getModulePath());
     }
 
     /**
@@ -338,9 +381,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             templateToCreate = createTemplate(MODULE_TEMPLATE_BASE_CONTENT + index, index);
 
             templateUpdated = this.hesClient.module().template()
-                    .update(MODULE_NAME, MODULE_VERSION, templateToCreate);
+                    .update(getModuleName(), MODULE_VERSION, templateToCreate);
 
-            checkTemplate(templateToCreate, templateUpdated, index + 1, MODULE_PATH);
+            checkTemplate(templateToCreate, templateUpdated, index + 1, getModulePath());
         }
     }
 
@@ -353,7 +396,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         System.out.println(String.format("Check if found %d events", nbEvent));
 
         try (Jedis j = this.redisPool.getResource()) {
-            final long nb = j.llen(MODULE_REDIS_KEY);
+            final long nb = j.llen(getModuleRedisKey());
 
             assertThat(nb).isEqualTo(nbEvent);
         }
@@ -363,19 +406,19 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
      * Clear cache and read module.
      */
     private void clear_cache_and_read_module() {
-        this.hesClient.module().clearWorkingcopyCache(MODULE_NAME, MODULE_VERSION);
+        this.hesClient.module().clearWorkingcopyCache(getModuleName(), MODULE_VERSION);
 
-        final ModuleClient module = this.hesClient.module().retreiveWorkingcopy(MODULE_NAME, MODULE_VERSION);
+        final ModuleClient module = this.hesClient.module().retreiveWorkingcopy(getModuleName(), MODULE_VERSION);
 
         assertThat(module.getTechnos().size()).isEqualTo(0);
 
-        final List<Template> listTemplates = this.hesClient.module().template().listWorkingcopy(MODULE_NAME, MODULE_VERSION);
+        final List<Template> listTemplates = this.hesClient.module().template().listWorkingcopy(getModuleName(), MODULE_VERSION);
 
         final Template templateItem = listTemplates.get(0);
 
         assertThat(templateItem.getName()).isEqualTo(TEMPLATE_NAME);
 
-        final Template tpl = this.hesClient.module().template().retreiveWorkingcopy(MODULE_NAME, MODULE_VERSION, TEMPLATE_NAME);
+        final Template tpl = this.hesClient.module().template().retreiveWorkingcopy(getModuleName(), MODULE_VERSION, TEMPLATE_NAME);
 
         assertThat(tpl.getContent()).isEqualTo(MODULE_TEMPLATE_BASE_CONTENT + NB_EVENTS);
     }
@@ -389,7 +432,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         System.out.println(String.format("Check if found %d item in cache", nbItem));
 
         try (Jedis j = this.redisCachePool.getResource()) {
-            final long nb = j.llen(MODULE_REDIS_CACHE_KEY);
+            final long nb = j.llen(getModuleRedisCacheKey());
 
             assertThat(nb).isEqualTo(nbItem);
         }
@@ -401,17 +444,17 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void delete_module() {
         System.out.println("Delete module");
 
-        this.hesClient.module().deleteWorkingcopy(MODULE_NAME, MODULE_VERSION);
+        this.hesClient.module().deleteWorkingcopy(getModuleName(), MODULE_VERSION);
 
         try (Jedis j = this.redisPool.getResource()) {
-            j.del(MODULE_REDIS_KEY);
+            j.del(getModuleRedisKey());
         }
 
         try (Jedis j = this.redisCachePool.getResource()) {
-            j.del(MODULE_REDIS_CACHE_KEY);
+            j.del(getModuleRedisCacheKey());
         }
 
-        this.hesClient.module().clearWorkingcopyCache(MODULE_NAME, MODULE_VERSION);
+        this.hesClient.module().clearWorkingcopyCache(getModuleName(), MODULE_VERSION);
     }
 
     /**
@@ -420,7 +463,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void create_platform() {
         System.out.println("Create platform");
 
-        this.hesClient.application().platform().create(APPLICATION_NAME, PLATFORM_NAME, MODULE_VERSION);
+        this.hesClient.application().platform().create(getApplicationName(), PLATFORM_NAME, MODULE_VERSION);
     }
 
     /**
@@ -432,9 +475,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         final Template templateToCreate = createTemplate("myProp={{name_of_prop|@comment 'this is a comment' @default 'default_value' @pattern " +
                 "'[a-z_]+'}}");
 
-        final Template templateCreated = this.hesClient.module().template().add(MODULE_NAME, MODULE_VERSION, templateToCreate);
+        final Template templateCreated = this.hesClient.module().template().add(getModuleName(), MODULE_VERSION, templateToCreate);
 
-        checkTemplate(templateToCreate, templateCreated, 1, MODULE_PATH);
+        checkTemplate(templateToCreate, templateCreated, 1, getModulePath());
     }
 
     /**
@@ -443,9 +486,9 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void add_module_in_platform() {
         System.out.println("Add module in platform");
 
-        final PlatformClient ptf = this.hesClient.application().platform().retreive(APPLICATION_NAME, PLATFORM_NAME);
+        final PlatformClient ptf = this.hesClient.application().platform().retreive(getApplicationName(), PLATFORM_NAME);
 
-        final ModuleClient moduleToAdd = this.hesClient.module().retreiveWorkingcopy(MODULE_NAME, MODULE_VERSION);
+        final ModuleClient moduleToAdd = this.hesClient.module().retreiveWorkingcopy(getModuleName(), MODULE_VERSION);
 
         final Set<ApplicationModule> modules = ptf.getModules();
 
@@ -466,7 +509,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void generate_events_in_platform(final int nbEvent) {
         System.out.println(String.format("Generate %s events in platform", nbEvent));
 
-        final PlatformClient ptf = this.hesClient.application().platform().retreive(APPLICATION_NAME, PLATFORM_NAME);
+        final PlatformClient ptf = this.hesClient.application().platform().retreive(getApplicationName(), PLATFORM_NAME);
         final long ptfVid = ptf.getVersionID();
 
         for (int index = 0; index < nbEvent; index++) {
@@ -480,8 +523,8 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
             // Properties
             final com.vsct.dt.hesperides.resources.Properties props = new Properties(keyValueProp, new HashSet<>());
 
-            this.hesClient.application().properties().update(APPLICATION_NAME, PLATFORM_NAME, PROPERTIES_PREFIX_PATH + "#" + MODULE_NAME + "#" + MODULE_VERSION + "#WORKINGCOPY", ptfVid +
-                            index,
+            this.hesClient.application().properties().update(getApplicationName(), PLATFORM_NAME,
+                    PROPERTIES_PREFIX_PATH + "#" + getModuleName() + "#" + MODULE_VERSION + "#WORKINGCOPY", ptfVid + index,
                     "This is a nice comment " + (index + 1), props);
         }
     }
@@ -495,7 +538,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         System.out.println(String.format("Check if found %d events", nbEvent));
 
         try (Jedis j = this.redisPool.getResource()) {
-            final long nb = j.llen(PLATFORM_REDIS_KEY);
+            final long nb = j.llen(getPlatformRedisKey());
 
             assertThat(nb).isEqualTo(nbEvent);
         }
@@ -505,15 +548,15 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
      * Clear cache and read module.
      */
     private void clear_cache_and_read_platform() {
-        this.hesClient.application().clearCache(APPLICATION_NAME, PLATFORM_NAME);
+        this.hesClient.application().clearCache(getApplicationName(), PLATFORM_NAME);
 
-        final PlatformClient ptf = this.hesClient.application().platform().retreive(APPLICATION_NAME, PLATFORM_NAME);
+        final PlatformClient ptf = this.hesClient.application().platform().retreive(getApplicationName(), PLATFORM_NAME);
 
         assertThat(ptf.getModules().size()).isEqualTo(1);
 
         final ApplicationModule module = ptf.getModules().iterator().next();
 
-        final Properties props = this.hesClient.application().properties().retreive(APPLICATION_NAME, PLATFORM_NAME,
+        final Properties props = this.hesClient.application().properties().retreive(getApplicationName(), PLATFORM_NAME,
                 module.getPropertiesPath());
 
         final KeyValueValorisation property = props.getKeyValueProperties().iterator().next();
@@ -532,7 +575,7 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
         System.out.println(String.format("Check if found %d item in cache", nbItem));
 
         try (Jedis j = this.redisCachePool.getResource()) {
-            final long nb = j.llen(PLATFORM_REDIS_CACHE_KEY);
+            final long nb = j.llen(getPlatformRedisCacheKey());
 
             assertThat(nb).isEqualTo(nbItem);
         }
@@ -544,17 +587,17 @@ public class TemplatePackageTest extends AbstractIntegrationTest {
     private void delete_platform() {
         System.out.println("Delete platform");
 
-        this.hesClient.application().platform().delete(APPLICATION_NAME, PLATFORM_NAME);
+        this.hesClient.application().platform().delete(getApplicationName(), PLATFORM_NAME);
 
         try (Jedis j = this.redisPool.getResource()) {
-            j.del(PLATFORM_REDIS_KEY);
+            j.del(getPlatformRedisKey());
         }
 
         try (Jedis j = this.redisCachePool.getResource()) {
-            j.del(PLATFORM_REDIS_CACHE_KEY);
+            j.del(getPlatformRedisCacheKey());
         }
 
-        this.hesClient.application().clearCache(APPLICATION_NAME, PLATFORM_NAME);
+        this.hesClient.application().clearCache(getApplicationName(), PLATFORM_NAME);
     }
 
     /**

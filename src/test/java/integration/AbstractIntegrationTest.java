@@ -18,14 +18,17 @@
  */
 package integration;
 
+import java.math.BigInteger;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.elasticsearch.common.Strings;
 import org.junit.Before;
 import org.junit.Ignore;
 
@@ -51,6 +54,11 @@ public class AbstractIntegrationTest {
      * Redis cache
      */
     protected JedisPool redisCachePool;
+
+    /**
+     * Random prefix name for test.
+     */
+    protected String prefixName;
 
     /**
      * Disable SSL check
@@ -87,7 +95,25 @@ public class AbstractIntegrationTest {
     public void setup() {
         disableSslVerification();
 
-        this.hesClient = new HesperidesClient(System.getenv("HESPERIDES_URL"));
+        final String username = System.getenv("HESPERIDES_USER");
+        final String password = System.getenv("HESPERIDES_PASS");
+
+        if (Strings.isNullOrEmpty(System.getenv("HESPERIDES_URL"))) {
+            System.err.println("Please set environment variable HESPERIDES_URL");
+            System.err.println("HESPERIDES_URL is url (http or https)");
+        } else if (Strings.isNullOrEmpty(System.getenv("REDIS_URL"))) {
+            System.err.println("Please set environment variable REDIS_URL");
+            System.err.println("REDIS_URL is not really an url. But Ip:Port of redis that contain data");
+        } else if (Strings.isNullOrEmpty(System.getenv("REDIS_CACHE_URL"))) {
+            System.err.println("Please set environment variable REDIS_CACHE_URL");
+            System.err.println("REDIS_CACHE_URL is not really an url. But Ip:Port of redis that contain data");
+        }
+
+        if (!(Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password))) {
+            this.hesClient = new HesperidesClient(System.getenv("HESPERIDES_URL"), username, password);
+        } else {
+            this.hesClient = new HesperidesClient(System.getenv("HESPERIDES_URL"));
+        }
 
         String redisUrl = System.getenv("REDIS_URL");
         String[] redisHostPort = redisUrl.split(":");
@@ -99,5 +125,9 @@ public class AbstractIntegrationTest {
         redisHostPort = redisUrl.split(":");
 
         this.redisCachePool = new JedisPool(new JedisPoolConfig(), redisHostPort[0], Integer.valueOf(redisHostPort[1]), 30000);
+
+        SecureRandom random = new SecureRandom();
+
+        this.prefixName = new BigInteger(130, random).toString(32);
     }
 }
