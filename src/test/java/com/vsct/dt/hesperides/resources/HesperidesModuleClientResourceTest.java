@@ -34,25 +34,25 @@ import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearchResponse;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.templating.modules.template.Template;
-import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
 import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import tests.type.UnitTests;
-
+import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -765,6 +765,54 @@ public class HesperidesModuleClientResourceTest {
             fail("Ne renvoie pas 409");
         } catch (UniformInterfaceException e) {
             assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        }
+    }
+
+    @Test
+    public void should_return_422_when_creating_module_from_but_body_name_is_null() throws JsonProcessingException {
+        Module moduleBefore = new Module(null, "the_module_version", false, Sets.newHashSet(), 0L);
+        Module moduleAfter = new Module("the_module_name", "the_module_version", true, Sets.newHashSet(), 1L);
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
+        ModuleKey fromModuleKey = ModuleKey.withModuleName("the_name_from")
+                .withVersion(Release.of("the_version_from"))
+                .build();
+        when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
+
+        try {
+            withoutAuth("/modules")
+                    .queryParam("from_module_name", "the_name_from")
+                    .queryParam("from_module_version", "the_version_from")
+                    .queryParam("from_is_working_copy", "false")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Module.class, MAPPER.writeValueAsString(moduleBefore));
+            Assertions.fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+        }
+    }
+
+    @Test
+    public void should_return_422_when_creating_module_from_but_body_version_is_null() throws JsonProcessingException {
+        Module moduleBefore = new Module("the_module_name", null, false, Sets.newHashSet(), 0L);
+        Module moduleAfter = new Module("the_module_name", "the_module_version", true, Sets.newHashSet(), 1L);
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
+        ModuleKey fromModuleKey = ModuleKey.withModuleName("the_name_from")
+                .withVersion(Release.of("the_version_from"))
+                .build();
+        when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
+
+        try {
+            withoutAuth("/modules")
+                    .queryParam("from_module_name", "the_name_from")
+                    .queryParam("from_module_version", "the_version_from")
+                    .queryParam("from_is_working_copy", "false")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Module.class, MAPPER.writeValueAsString(moduleBefore));
+            Assertions.fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
         }
     }
 

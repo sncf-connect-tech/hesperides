@@ -340,6 +340,96 @@ public class HesperidesApplicationResourceTest {
     }
 
     @Test
+    public void should_return_422_when_creating_platform_from_but_body_platformName_is_null() throws JsonProcessingException {
+        PlatformKey fromPlatformKey = PlatformKey.withName("the_pltfm_from")
+                .withApplicationName("the_app_from")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData
+                .withPlatformName(null)
+                .withApplicationName("app_name")
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder.build();
+
+        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+
+        try {
+            withoutAuth("/applications/app_name/platforms")
+                    .queryParam("from_application", "the_app_from")
+                    .queryParam("from_platform", "the_pltfm_from")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
+            fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+        }
+    }
+
+    @Test
+    public void should_return_422_when_creating_platform_from_but_body_applicationName_is_null() throws JsonProcessingException {
+        PlatformKey fromPlatformKey = PlatformKey.withName("the_pltfm_from")
+                .withApplicationName("the_app_from")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData
+                .withPlatformName("pltfm_name")
+                .withApplicationName(null)
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder.build();
+
+        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+
+        try {
+            withoutAuth("/applications/app_name/platforms")
+                    .queryParam("from_application", "the_app_from")
+                    .queryParam("from_platform", "the_pltfm_from")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
+            fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+        }
+    }
+
+    @Test
+    public void should_return_422_when_creating_platform_from_but_body_applicationVersion_is_null() throws JsonProcessingException {
+        PlatformKey fromPlatformKey = PlatformKey.withName("the_pltfm_from")
+                .withApplicationName("the_app_from")
+                .build();
+
+        PlatformData.IBuilder builder = PlatformData
+                .withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion(null)
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder.build();
+
+        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+
+        try {
+            withoutAuth("/applications/app_name/platforms")
+                    .queryParam("from_application", "the_app_from")
+                    .queryParam("from_platform", "the_pltfm_from")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
+            fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+        }
+    }
+
+    @Test
     public void create_platform_should_return_401_if_not_authenticated() {
         try {
             withAuth("/applications/app_name/platforms").post(Response.class);
