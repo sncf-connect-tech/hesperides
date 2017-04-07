@@ -817,6 +817,54 @@ public class HesperidesModuleClientResourceTest {
     }
 
     @Test
+    public void should_return_422_when_creating_module_from_but_body_name_is_empty() throws JsonProcessingException {
+        Module moduleBefore = new Module("", "the_module_version", false, Sets.newHashSet(), 0L);
+        Module moduleAfter = new Module("the_module_name", "the_module_version", true, Sets.newHashSet(), 1L);
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
+        ModuleKey fromModuleKey = ModuleKey.withModuleName("the_name_from")
+                .withVersion(Release.of("the_version_from"))
+                .build();
+        when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
+
+        try {
+            withoutAuth("/modules")
+                    .queryParam("from_module_name", "the_name_from")
+                    .queryParam("from_module_version", "the_version_from")
+                    .queryParam("from_is_working_copy", "false")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Module.class, MAPPER.writeValueAsString(moduleBefore));
+            Assertions.fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+        }
+    }
+
+    @Test
+    public void should_return_422_when_creating_module_from_but_body_version_is_empty() throws JsonProcessingException {
+        Module moduleBefore = new Module("the_module_name", "", false, Sets.newHashSet(), 0L);
+        Module moduleAfter = new Module("the_module_name", "the_module_version", true, Sets.newHashSet(), 1L);
+
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
+        ModuleKey fromModuleKey = ModuleKey.withModuleName("the_name_from")
+                .withVersion(Release.of("the_version_from"))
+                .build();
+        when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
+
+        try {
+            withoutAuth("/modules")
+                    .queryParam("from_module_name", "the_name_from")
+                    .queryParam("from_module_version", "the_version_from")
+                    .queryParam("from_is_working_copy", "false")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Module.class, MAPPER.writeValueAsString(moduleBefore));
+            Assertions.fail("Ne renvoie pas 422");
+        } catch (UniformInterfaceException e) {
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+        }
+    }
+
+    @Test
     public void should_create_working_copy_from_existing_release_if_from_module_name_and_from_module_version_and_from_is_working_copy_query_params_are_provided() throws JsonProcessingException {
         Module moduleBefore = new Module("the_module_name", "the_module_version", false, Sets.newHashSet(), 0L);
         Module moduleAfter = new Module("the_module_name", "the_module_version", true, Sets.newHashSet(), 1L);
