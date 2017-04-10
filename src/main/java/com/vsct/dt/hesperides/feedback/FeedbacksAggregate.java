@@ -29,6 +29,7 @@ import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -183,7 +184,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         while (itWordList.hasNext()) {
             hipchatMessage.append("<p>")
-                .append(itWordList.next())
+                .append(StringEscapeUtils.escapeHtml(itWordList.next().toString()))
                 .append(("</p>"));
         }
 

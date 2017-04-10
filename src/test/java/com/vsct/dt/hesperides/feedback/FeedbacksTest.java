@@ -88,7 +88,7 @@ public class FeedbacksTest {
         // Mock call of feedbackJson
         when(feedbackJson.getFeedback()).thenReturn(feedbackObject);
         when(feedbackObject.getUrl()).thenReturn("https://hostname/url");
-        when(feedbackObject.getNote()).thenReturn("A message\non 2 lines");
+        when(feedbackObject.getNote()).thenReturn("A message\non 2 lines\nwith éà€");
 
         // Mock call of User
         when(user.getUsername()).thenReturn("username");
@@ -98,7 +98,7 @@ public class FeedbacksTest {
         assertThat(hipchatMessageBody).isNotEmpty();
         assertThat(hipchatMessageBody).isEqualTo("{\"from\": \"username\",\"color\": \"green\",\"message\": \"" +
                 "<p>When access to <a href='https://hostname/url'>https://hostname/url</a></p><p>A message</p>" +
-                "<p>on 2 lines</p>" +
+                "<p>on 2 lines</p><p>with &eacute;&agrave;&euro;</p>" +
                 "<a href='https://hostname/hipchatPathStorageTest/imageName.png'>Download screenshot</a>" +
                 "\",\"notify\": \"true\",\"message_format\": \"html\"}");
     }
