@@ -27,7 +27,9 @@ import com.google.common.collect.ImmutableSet;
 import com.vsct.dt.hesperides.storage.DomainVersionable;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Set;
 
@@ -39,9 +41,13 @@ import java.util.Set;
 @JsonPropertyOrder({"name", "version", "working_copy", "technos", "version_id"})
 public final class Module extends DomainVersionable {
 
+    @NotNull
+    @NotEmpty
     @JsonProperty("name")
     private final String  name;
 
+    @NotNull
+    @NotEmpty
     @JsonProperty("version")
     private final String  version;
 

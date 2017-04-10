@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableSet;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import io.dropwizard.jackson.JsonSnakeCase;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -37,12 +39,18 @@ import java.util.Set;
 @JsonPropertyOrder({"platform_name", "application_name", "application_version", "production", "platform_global_module", "modules", "version_id"})
 public class Platform {
 
+    @NotNull
+    @NotEmpty
     @JsonProperty("platform_name")
     private final String                          platformName;
 
+    @NotNull
+    @NotEmpty
     @JsonProperty("application_name")
     private final String                          applicationName;
 
+    @NotNull
+    @NotEmpty
     @JsonProperty("application_version")
     private final String                          applicationVersion;
 
