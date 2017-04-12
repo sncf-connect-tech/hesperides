@@ -23,6 +23,8 @@ package com.vsct.dt.hesperides.storage;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.exception.runtime.StateLockedException;
 import io.dropwizard.lifecycle.Managed;
@@ -248,8 +250,8 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
     /**
      * Allow to regenerate cache at startup.
      */
-    public void regenerateCache() {
-        final Set<String> listStream = store.getStreamsLike(getStreamPrefix() + "-*");
+    protected void regenerateCache(final String keySearch) {
+        final Set<String> listStream = store.getStreamsLike(keySearch);
 
         for (String key : listStream) {
             LOGGER.info("Regenerate cache for stream {}.", key);

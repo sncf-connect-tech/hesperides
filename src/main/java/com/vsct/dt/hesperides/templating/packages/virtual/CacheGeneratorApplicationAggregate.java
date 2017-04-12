@@ -217,4 +217,20 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
     protected ExecutorService executorService() {
         return this.singleThreadPool;
     }
+
+    public void regenerateCache() {
+        this.regenerateCache(getStreamPrefix() + "-*");
+    }
+
+    /**
+     * Regenera cache for only one pplication/platform.
+     *
+     * @param applicationName
+     * @param platformName
+     */
+    public void regenerateCache(final String applicationName, final String platformName) {
+        final String redisKeyEnd = new PlatformKey(applicationName, platformName).getEntityName();
+
+        this.regenerateCache(getStreamPrefix() + "-" + redisKeyEnd);
+    }
 }

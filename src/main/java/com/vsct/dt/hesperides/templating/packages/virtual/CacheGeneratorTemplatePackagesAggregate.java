@@ -27,6 +27,7 @@ import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.models.Models;
+import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
 import com.vsct.dt.hesperides.templating.packages.*;
 import com.vsct.dt.hesperides.templating.packages.cache.TemplatePackageCacheLoader;
@@ -175,5 +176,22 @@ public class CacheGeneratorTemplatePackagesAggregate extends AbstractTemplatePac
     @Override
     protected ExecutorService executorService() {
         return this.singleThreadPool;
+    }
+
+    public void regenerateCache() {
+        this.regenerateCache(getStreamPrefix() + "-*");
+    }
+
+    /**
+     * Regenera cache for only one pplication/platform.
+     *
+     * @param tplName
+     * @param moduleVersion
+     */
+    public void regenerateCache(final String tplName, final String moduleVersion) {
+        // We regenerate only working copy
+        final String redisKeyEnd = new TemplatePackageKey(tplName, new HesperidesVersion(moduleVersion, true)).getEntityName();
+
+        this.regenerateCache(getStreamPrefix() + "-" + redisKeyEnd);
     }
 }

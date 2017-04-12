@@ -109,11 +109,6 @@ public class VirtualApplicationsAggregate extends AbstractApplicationsAggregate 
     }
 
     @Override
-    public void regenerateCache() {
-        // Nothing
-    }
-
-    @Override
     protected ExecutorService executorService() {
         return this.singleThreadPool;
     }

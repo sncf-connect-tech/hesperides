@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
+import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.models.Models;
@@ -207,5 +208,22 @@ public class CacheGeneratorModuleAggregate extends AbstractModulesAggregate {
     @Override
     protected ExecutorService executorService() {
         return this.singleThreadPool;
+    }
+
+    public void regenerateCache() {
+        this.regenerateCache(getStreamPrefix() + "-*");
+    }
+
+    /**
+     * Regenera cache for only one pplication/platform.
+     *
+     * @param moduleName
+     * @param moduleVersion
+     */
+    public void regenerateCache(final String moduleName, final String moduleVersion) {
+        // We regenerate only working copy
+        final String redisKeyEnd = new ModuleKey(moduleName, new HesperidesVersion(moduleVersion, true)).getEntityName();
+
+        this.regenerateCache(getStreamPrefix() + "-" + redisKeyEnd);
     }
 }

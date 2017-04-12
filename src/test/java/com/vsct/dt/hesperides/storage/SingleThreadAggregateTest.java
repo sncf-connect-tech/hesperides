@@ -72,10 +72,6 @@ public class SingleThreadAggregateTest {
         }
 
         @Override
-        public void regenerateCache() {
-            // Nothing
-        }
-        @Override
         protected ExecutorService executorService() {
             return this.singleThreadPool;
         }

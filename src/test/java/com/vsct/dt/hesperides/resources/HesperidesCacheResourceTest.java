@@ -40,12 +40,18 @@ import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import tests.type.UnitTests;
 
+import com.vsct.dt.hesperides.applications.AbstractApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
 import com.vsct.dt.hesperides.exception.wrapper.ForbiddenOperationExceptionMapper;
 import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.templating.modules.AbstractModulesAggregate;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
+import com.vsct.dt.hesperides.templating.packages.AbstractTemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorApplicationAggregate;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAggregate;
+import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
 
 /**
  * Created by william_montaz on 01/09/14.
@@ -57,6 +63,10 @@ public class HesperidesCacheResourceTest {
     private static final ModulesAggregate MODULES_AGGREGATE = mock(ModulesAggregate.class);
     private static final TemplatePackagesAggregate TEMPLATE_PACKAGES_AGGREGATE = mock(TemplatePackagesAggregate.class);
     private static final ApplicationsAggregate APPLICATIONS_AGGREGATE = mock(ApplicationsAggregate.class);
+    private static final CacheGeneratorTemplatePackagesAggregate CACHE_GENERATOR_TEMPLATE_PACKAGES_AGGREGATE = mock
+            (CacheGeneratorTemplatePackagesAggregate.class);
+    private static final CacheGeneratorModuleAggregate CACHE_GENERATOR_MODULE_AGGREGATE = mock(CacheGeneratorModuleAggregate.class);
+    private static final CacheGeneratorApplicationAggregate CACHE_GENERATOR_APPLICATION_AGGREGATE = mock(CacheGeneratorApplicationAggregate.class);
 
     public static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
@@ -83,7 +93,8 @@ public class HesperidesCacheResourceTest {
             .addProvider(new BasicAuthProvider<>(
                     new TechUserAuthenticator(),
                     "AUTHENTICATION_PROVIDER"))
-            .addResource(new HesperidesCacheResource(TEMPLATE_PACKAGES_AGGREGATE, MODULES_AGGREGATE, APPLICATIONS_AGGREGATE))
+            .addResource(new HesperidesCacheResource(TEMPLATE_PACKAGES_AGGREGATE, MODULES_AGGREGATE, APPLICATIONS_AGGREGATE,
+                    CACHE_GENERATOR_TEMPLATE_PACKAGES_AGGREGATE, CACHE_GENERATOR_MODULE_AGGREGATE, CACHE_GENERATOR_APPLICATION_AGGREGATE))
             .addProvider(new ForbiddenOperationExceptionMapper())
             .build();
 
@@ -92,7 +103,8 @@ public class HesperidesCacheResourceTest {
             .addProvider(new BasicAuthProvider<>(
                     new NoTechUserAuthenticator(),
                     "AUTHENTICATION_PROVIDER"))
-            .addResource(new HesperidesCacheResource(TEMPLATE_PACKAGES_AGGREGATE, MODULES_AGGREGATE, APPLICATIONS_AGGREGATE))
+            .addResource(new HesperidesCacheResource(TEMPLATE_PACKAGES_AGGREGATE, MODULES_AGGREGATE, APPLICATIONS_AGGREGATE,
+                    CACHE_GENERATOR_TEMPLATE_PACKAGES_AGGREGATE, CACHE_GENERATOR_MODULE_AGGREGATE, CACHE_GENERATOR_APPLICATION_AGGREGATE))
             .addProvider(new ForbiddenOperationExceptionMapper())
             .build();
 

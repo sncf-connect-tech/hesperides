@@ -26,6 +26,7 @@ import com.codahale.metrics.JmxReporter;
 import com.google.common.eventbus.EventBus;
 import com.sun.jersey.api.model.Parameter;
 import com.sun.jersey.spi.inject.InjectableProvider;
+
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
@@ -269,8 +270,14 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         HesperidesEventResource eventResource = new HesperidesEventResource(eventsAggregate);
         environment.jersey().register(eventResource);
 
+        final CacheGeneratorTemplatePackagesAggregate cacheTemplatePackagesAggregate = new CacheGeneratorTemplatePackagesAggregate(eventStore,
+                hesperidesConfiguration);
+        final CacheGeneratorModuleAggregate cacheModulesAggregate = new CacheGeneratorModuleAggregate(eventStore, hesperidesConfiguration);
+        final CacheGeneratorApplicationAggregate cacheApplicationsAggregate = new CacheGeneratorApplicationAggregate(eventStore, hesperidesConfiguration);
+
         HesperidesCacheResource hesperidesCacheResource = new HesperidesCacheResource(templatePackagesAggregate,
-                modulesAggregate, applicationsAggregate);
+                modulesAggregate, applicationsAggregate, cacheTemplatePackagesAggregate, cacheModulesAggregate, cacheApplicationsAggregate);
+
         environment.jersey().register(hesperidesCacheResource);
 
         // Users resource
@@ -307,13 +314,13 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         if (hesperidesConfiguration.getCacheConfiguration().isGenerateCaheOnStartup()) {
             LOGGER.info("Regenerate cache for template package.");
-            new CacheGeneratorTemplatePackagesAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+            cacheTemplatePackagesAggregate.regenerateCache();
 
             LOGGER.info("Regenerate cache for module.");
-            new CacheGeneratorModuleAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+            cacheModulesAggregate.regenerateCache();
 
             LOGGER.info("Regenerate cache for application.");
-            new CacheGeneratorApplicationAggregate(eventStore, hesperidesConfiguration).regenerateCache();
+            cacheApplicationsAggregate.regenerateCache();
 
             LOGGER.info("All cache were regenerated successfully.");
         }

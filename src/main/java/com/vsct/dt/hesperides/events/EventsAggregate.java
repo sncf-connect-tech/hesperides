@@ -108,11 +108,6 @@ public class EventsAggregate extends SingleThreadAggregate implements Events {
     }
 
     @Override
-    public void regenerateCache() {
-        // TODO
-    }
-
-    @Override
     protected ExecutorService executorService() {
         return this.singleThreadPool;
     }

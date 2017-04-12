@@ -136,11 +136,6 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
     }
 
     @Override
-    public void regenerateCache() {
-        // Nothing
-    }
-
-    @Override
     protected ExecutorService executorService() {
         return this.singleThreadPool;
     }

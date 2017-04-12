@@ -85,11 +85,6 @@ public class VirtualTemplatePackagesAggregate extends AbstractTemplatePackagesAg
         super.replay(stream, start, stop);
     }
 
-    @Override
-    public void regenerateCache() {
-        // Nothing
-    }
-
     public void clear() {
         this.templateRegistry.clear();
     }

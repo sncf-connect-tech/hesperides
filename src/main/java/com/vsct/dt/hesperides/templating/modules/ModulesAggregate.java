@@ -164,11 +164,6 @@ public class ModulesAggregate extends AbstractModulesAggregate {
     }
 
     @Override
-    public void regenerateCache() {
-        // TODO
-    }
-
-    @Override
     protected ExecutorService executorService() {
         return this.singleThreadPool;
     }
