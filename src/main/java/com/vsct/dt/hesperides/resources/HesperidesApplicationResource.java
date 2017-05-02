@@ -22,20 +22,16 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.codahale.metrics.annotation.Timed;
-
+import com.google.common.collect.Sets;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.applications.PlatformKey;
-
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
-import com.vsct.dt.hesperides.security.UserContext;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.platform.ApplicationData;
-import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import com.vsct.dt.hesperides.templating.platform.TimeStampedPlatformData;
 import com.vsct.dt.hesperides.util.HesperidesUtil;
@@ -48,16 +44,12 @@ import com.vsct.dt.hesperides.util.converter.TimeStampedPlatformConverter;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
-import org.apache.http.util.Asserts;
-import org.apache.lucene.search.Collector;
-import com.google.common.collect.Sets;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
@@ -111,11 +103,7 @@ public final class HesperidesApplicationResource extends BaseResource {
     public Response getApplicationUsingModule(@Auth final User user, @PathParam("module") final String module, @PathParam("version") final String version,
                                               @PathParam("type") final String type) {
 
-        return Response.ok(this.applications.getApplicationsFromSelector(
-                data -> data.getModules().stream().anyMatch(
-                        elem -> elem.getName().equals(module) && elem.getVersion().equals(version) &&
-                                ((elem.isWorkingCopy() && WorkingCopy.is(type))
-                                        || (!elem.isWorkingCopy() && Release.is(type)))))).build();
+        return Response.ok(applicationSearch.getAllPlatformsUsingModules(module, version, type)).build();
     }
 
     @Path("/{application_name}/platforms/{platform_name}/global_properties_usage")
