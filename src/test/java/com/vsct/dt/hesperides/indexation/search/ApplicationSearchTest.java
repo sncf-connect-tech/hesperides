@@ -43,6 +43,7 @@ import static org.mockito.Mockito.*;
  */
 @Category(UnitTests.class)
 public class ApplicationSearchTest {
+    public static final int       SEARCH_SIZE     = 50;
 
     final private ElasticSearchClient elasticSearchClient = mock(ElasticSearchClient.class);
     final private ElasticSearchClient.RequestExecuter executer = mock(ElasticSearchClient.RequestExecuter.class);
@@ -95,6 +96,110 @@ public class ApplicationSearchTest {
         assertThat(applications.size()).isEqualTo(2);
         assertThat(applications.contains(app1)).isTrue();
         assertThat(applications.contains(app2)).isTrue();
+    }
+
+    @Test
+    public void testgetAllPlatformsUsingModulesWithHyphenInNameAndReleaseType() throws IOException {
+        String url = String.format("/platforms/_search?size=%1$s", SEARCH_SIZE);
+
+        PlatformApplicationSearchResponse appHyphenRelease1
+                = new PlatformApplicationSearchResponse("application_name1", "platform_name1");
+        PlatformApplicationSearchResponse appHyphenRelease2
+                = new PlatformApplicationSearchResponse("application_name2", "platform_name2");
+
+        ElasticSearchResponse<PlatformApplicationSearchResponse> elasticSearchResponseHyphenRelease
+                = elasticSearchResponseWithEntities(appHyphenRelease1, appHyphenRelease2);
+
+        String bodyHyphenRelease = "{\n" +
+                "\"_source\": [\"application_name\", \"platform_name\"],\n" +
+                "\"query\":{\n" +
+                "\"constant_score\":{\n" +
+                "\"filter\":{\n" +
+                "\"bool\":{\n" +
+                "\"must\":[\n" +
+                "{\n" +
+                "\"term\":{\n" +
+                "\"modules.name\":\"modulename\"\n" +
+                "}\n" +
+                "},\n" +
+                "{\n" +
+                "\"term\":{\n" +
+                "\"modules.version\" : \"1.0.0.0-SNAPSHOT\"\n" +
+                "}\n" +
+                "},\n" +
+                "{\n" +
+                "\"term\":{\n" +
+                "\"modules.working_copy\": false\n" +
+                "}\n" +
+                "}\n" +
+                "]\n" +
+                "}\n" +
+                "}\n" +
+                "}\n" +
+                "}\n" +
+                "}";
+
+        when(executer.post(url, bodyHyphenRelease))
+                .thenReturn(elasticSearchResponseHyphenRelease);
+
+        Set<PlatformApplicationSearchResponse> applicationsReleaseSnapshot
+                = applicationSearch.getAllPlatformsUsingModules("moduleName", "1.0.0.0-SNAPSHOT", "release");
+
+        assertThat(applicationsReleaseSnapshot.size()).isEqualTo(2);
+        assertThat(applicationsReleaseSnapshot.contains(appHyphenRelease1)).isTrue();
+        assertThat(applicationsReleaseSnapshot.contains(appHyphenRelease2)).isTrue();
+    }
+
+    @Test
+    public void testgetAllPlatformsUsingModulesWithWorkingCopyType() throws IOException {
+        String url = String.format("/platforms/_search?size=%1$s", SEARCH_SIZE);
+
+        PlatformApplicationSearchResponse appWorkingCopy1
+                = new PlatformApplicationSearchResponse("application_name1", "platform_name1");
+        PlatformApplicationSearchResponse appWorkingCopy2
+                = new PlatformApplicationSearchResponse("application_name2", "platform_name2");
+
+        ElasticSearchResponse<PlatformApplicationSearchResponse> elasticSearchResponseWorkingCopy
+                = elasticSearchResponseWithEntities(appWorkingCopy1, appWorkingCopy2);
+
+        String bodyWorkingCopy = "{\n" +
+                "\"_source\": [\"application_name\", \"platform_name\"],\n" +
+                "\"query\":{\n" +
+                "\"constant_score\":{\n" +
+                "\"filter\":{\n" +
+                "\"bool\":{\n" +
+                "\"must\":[\n" +
+                "{\n" +
+                "\"term\":{\n" +
+                "\"modules.name\":\"modulename\"\n" +
+                "}\n" +
+                "},\n" +
+                "{\n" +
+                "\"term\":{\n" +
+                "\"modules.version\" : \"1.0.0.0\"\n" +
+                "}\n" +
+                "},\n" +
+                "{\n" +
+                "\"term\":{\n" +
+                "\"modules.working_copy\": true\n" +
+                "}\n" +
+                "}\n" +
+                "]\n" +
+                "}\n" +
+                "}\n" +
+                "}\n" +
+                "}\n" +
+                "}";
+
+        when(executer.post(url, bodyWorkingCopy))
+                .thenReturn(elasticSearchResponseWorkingCopy);
+
+        Set<PlatformApplicationSearchResponse> applicationsWorkingCopy
+                = applicationSearch.getAllPlatformsUsingModules("moduleName", "1.0.0.0", "workingcopy");
+
+        assertThat(applicationsWorkingCopy.size()).isEqualTo(2);
+        assertThat(applicationsWorkingCopy.contains(appWorkingCopy1)).isTrue();
+        assertThat(applicationsWorkingCopy.contains(appWorkingCopy2)).isTrue();
     }
 
 }
