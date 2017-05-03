@@ -34,9 +34,9 @@
                 "version": {
                     "type": "string",
                     "index": "not_analyzed"
-                }
+                },
                 "working_copy": {
-                    "type": "string",
+                    "type": "boolean",
                     "index": "not_analyzed"
                 }
             }

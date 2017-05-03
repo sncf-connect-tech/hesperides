@@ -60,6 +60,7 @@ public class ApplicationSearch {
      */
     private final ObjectReader elasticSearchVsctApplicationReader;
     private final ObjectReader elasticSearchVsctPlatformReader;
+    private final ObjectReader elasticSearchVsctPlatformApplicationReader;
 
     /**
      * Main constructor.
@@ -72,6 +73,8 @@ public class ApplicationSearch {
         this.elasticSearchVsctApplicationReader = objectMapper.reader(searchType);
         JavaType searchTypePlatform = objectMapper.getTypeFactory().constructParametricType(ElasticSearchResponse.class, PlatformSearchResponse.class);
         this.elasticSearchVsctPlatformReader = objectMapper.reader(searchTypePlatform);
+        JavaType searchTypePlatformApplication = objectMapper.getTypeFactory().constructParametricType(ElasticSearchResponse.class, PlatformApplicationSearchResponse.class);
+        this.elasticSearchVsctPlatformApplicationReader = objectMapper.reader(searchTypePlatformApplication);
         this.elasticSearchClient = elasticSearchClient;
     }
 
@@ -118,20 +121,21 @@ public class ApplicationSearch {
      *
      * @return a set of plaforms matching request
      */
-    public Set<PlatformSearchResponse> getAllPlatformsUsingModules(final String moduleName, final String moduleVersion, String isWorkingCopy) {
+    public Set<PlatformApplicationSearchResponse> getAllPlatformsUsingModules(final String moduleName, final String moduleVersion, String isWorkingCopy) {
         String url = String.format("/platforms/_search?size=%1$s", SEARCH_SIZE);
 
+        boolean boolIsWorkingCopy = true;
         if (isWorkingCopy.contains("release")) {
-            isWorkingCopy = "false";
+            boolIsWorkingCopy = false;
         }
 
         String body = TemplateContentGenerator.from(mustacheSearchAllPlatformUsingModules)
                 .put("moduleName", moduleName.toLowerCase())
                 .put("moduleVersion", moduleVersion)
-                .put("isWorkingCopy", isWorkingCopy)
+                .put("isWorkingCopy", boolIsWorkingCopy)
                 .generate();
 
-        ElasticSearchResponse<PlatformSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchVsctPlatformReader)
+        ElasticSearchResponse<PlatformApplicationSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchVsctPlatformApplicationReader)
                 .post(url, body);
 
         return esResponse.streamOfData().collect(Collectors.toSet());
