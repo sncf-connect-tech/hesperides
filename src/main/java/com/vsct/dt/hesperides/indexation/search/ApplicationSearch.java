@@ -121,7 +121,7 @@ public class ApplicationSearch {
      *
      * @return a set of plaforms matching request
      */
-    public Set<PlatformApplicationSearchResponse> getAllPlatformsUsingModules(final String moduleName, final String moduleVersion, String isWorkingCopy) {
+    public Set<PlatformApplicationSearchResponse> getAllPlatformsUsingModules(final String moduleName, final String moduleVersion, final String isWorkingCopy) {
         String url = String.format("/platforms/_search?size=%1$s", SEARCH_SIZE);
 
         boolean boolIsWorkingCopy = true;
