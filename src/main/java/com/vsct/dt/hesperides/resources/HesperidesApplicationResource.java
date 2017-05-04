@@ -27,6 +27,7 @@ import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
+import com.vsct.dt.hesperides.indexation.search.PlatformSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
@@ -49,6 +50,7 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,84 +115,88 @@ public final class HesperidesApplicationResource extends BaseResource {
     public Response getGlobalPropertiesUsage(@Auth final User user, @PathParam("application_name") final String applicationName,
                                              @PathParam("platform_name") final String platformName) {
 
+        final Optional<PlatformData> searchPlatform = this.applications.getPlatform(new PlatformKey(applicationName, platformName));
 
-        final Collection<PlatformData> listPlatform = this.applications.getApplicationsFromSelector(
-                data -> data.getApplicationName().equals(applicationName) && data.getPlatformName().equals(platformName));
+        if (searchPlatform.isPresent()) {
+            final PlatformData ptf = searchPlatform.get();
 
-        final PlatformData firstPlatform = listPlatform.stream().findFirst().get();
+            final Map<String, Set<Map>> usage = new HashMap<>();
 
-        final Map<String, Set<Map>> usage = new HashMap<>();
+            applications
+                    .getProperties(new PlatformKey(applicationName, platformName), "#")
+                    .getKeyValueProperties()
+                    .stream()
+                    .forEach(globalProp -> {
 
-        applications
-                .getProperties(new PlatformKey(applicationName, platformName), "#")
-                .getKeyValueProperties()
-                .stream()
-                .forEach(globalProp -> {
+                        final Set<Map> buffer = new HashSet<>();
 
-            final Set<Map> buffer = new HashSet<>();
+                        ptf.getModules().stream().forEach(elem -> {
 
-            firstPlatform.getModules().stream().forEach(elem -> {
+                            final PlatformKey currentPlatformKey = new PlatformKey(applicationName, platformName);
 
-                final PlatformKey currentPlatformKey = new PlatformKey(applicationName, platformName);
+                            Optional<HesperidesPropertiesModel> oModel;
+                            HesperidesPropertiesModel model;
 
-                Optional<HesperidesPropertiesModel> oModel;
-                HesperidesPropertiesModel model;
+                            if (elem.isWorkingCopy()) {
+                                oModel = modules.getModel(new ModuleKey(elem.getName(), WorkingCopy.of(elem.getVersion())));
+                            } else {
+                                oModel = modules.getModel(new ModuleKey(elem.getName(), Release.of(elem.getVersion())));
+                            }
 
-                if (elem.isWorkingCopy()) {
-                    oModel = modules.getModel(new ModuleKey(elem.getName(), WorkingCopy.of(elem.getVersion())));
-                } else {
-                    oModel = modules.getModel(new ModuleKey(elem.getName(), Release.of(elem.getVersion())));
-                }
+                            if (oModel.isPresent()) {
 
-                if (oModel.isPresent()) {
+                                model = oModel.get();
+                                if (model.getKeyValueProperties().stream().anyMatch(prop ->
+                                        prop.getName().equals(globalProp.getName()))) {
 
-                    model = oModel.get();
-                    if (model.getKeyValueProperties().stream().anyMatch(prop ->
-                            prop.getName().equals(globalProp.getName()))) {
+                                    final Map b = new HashMap();
+                                    b.put("path", elem.getPropertiesPath());
+                                    b.put("inModel", true);
 
-                        buffer.add(new HashMap() {{
-                            put("path", elem.getPropertiesPath());
-                            put("inModel", true);
-                        }});
-                    }
-                } else {
+                                    buffer.add(b);
+                                }
+                            } else {
 
-                    model = null;
-                }
+                                model = null;
+                            }
 
-                applications
-                        .getProperties(currentPlatformKey, elem.getPropertiesPath())
-                        .getKeyValueProperties()
-                        .stream()
-                        .forEach(prop -> {
+                            applications
+                                    .getProperties(currentPlatformKey, elem.getPropertiesPath())
+                                    .getKeyValueProperties()
+                                    .stream()
+                                    .forEach(prop -> {
 
-                    if (prop.getName().equals(globalProp.getName())
-                            || prop.getValue().contains("{{" + globalProp.getName() + "}}")) {
+                                        if (prop.getName().equals(globalProp.getName())
+                                                || prop.getValue().contains("{{" + globalProp.getName() + "}}")) {
 
-                        if (model == null) {
+                                            if (model == null) {
+                                                final Map b = new HashMap();
+                                                b.put("path", elem.getPropertiesPath());
+                                                b.put("inModel", false);
 
-                            buffer.add(new HashMap() {{
-                                put("path", elem.getPropertiesPath());
-                                put("inModel", false);
-                            }});
-                        } else {
+                                                buffer.add(b);
+                                            } else {
 
-                            boolean inModel = model.getKeyValueProperties().stream().anyMatch(mod ->
-                                    prop.getName().equals(mod.getName()));
+                                                final boolean inModel = model.getKeyValueProperties().stream().anyMatch(mod ->
+                                                        prop.getName().equals(mod.getName()));
 
-                            buffer.add(new HashMap() {{
-                                put("path", elem.getPropertiesPath());
-                                put("inModel", inModel);
-                            }});
-                        }
-                    }
-                });
-            });
+                                                final Map b = new HashMap();
+                                                b.put("path", elem.getPropertiesPath());
+                                                b.put("inModel", inModel);
 
-            usage.put(globalProp.getName(), buffer);
-        });
+                                                buffer.add(b);
+                                            }
+                                        }
+                                    });
+                        });
 
-        return Response.ok(usage).build();
+                        usage.put(globalProp.getName(), buffer);
+                    });
+
+            return Response.ok(usage).build();
+        } else {
+            return Response.status(Status.NOT_FOUND).entity("Module application and platform not found").build();
+        }
     }
 
     @Path("/{application_name}")

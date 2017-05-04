@@ -356,18 +356,6 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Find the application matching the selector
-     *
-     * @param selector
-     * @return the corresponding list of application
-     */
-    @Override
-    public Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector) {
-        return getPlatformRegistry().getAllPlatforms().stream().filter(
-                app -> selector.match(app)).collect(Collectors.toList());
-    }
-
     /*
      * REPLAY LISTENERS
      */

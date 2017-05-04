@@ -1330,11 +1330,7 @@ public class HesperidesApplicationResourceTest {
                 .withApplicationName("KTN")
                 .build();
 
-        Collection<PlatformData> col = new ArrayList<PlatformData>();
-
-        col.add(pltfm1);
-
-        when(applications.getApplicationsFromSelector(any())).thenReturn(col);
+        when(applications.getPlatform(any())).thenReturn(Optional.of(pltfm1));
         when(applications.getProperties(platformKey, "#")).thenReturn(global_properties);
         when(applications.getProperties(platformKey, module1.getPropertiesPath())).thenReturn(properties_1);
         when(applications.getProperties(platformKey, module2.getPropertiesPath())).thenReturn(properties_2);

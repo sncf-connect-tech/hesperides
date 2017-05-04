@@ -63,8 +63,6 @@ public interface Applications {
 
     Collection<PlatformData> getAllPlatforms();
 
-    Collection<PlatformData> getApplicationsFromSelector(ApplicationSelector selector);
-
     void delete(PlatformKey key);
 
     long takeSnapshot(PlatformKey key);

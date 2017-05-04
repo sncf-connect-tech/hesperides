@@ -175,12 +175,6 @@ public class PermissionAwareApplicationsProxy implements Applications  {
     }
 
     @Override
-    public Collection<PlatformData> getApplicationsFromSelector(final ApplicationSelector selector) {
-        //No security needed to read informations
-        return this.applicationsAggregate.getApplicationsFromSelector(selector);
-    }
-
-    @Override
     public void delete(final PlatformKey key) {
         final PlatformData existingPlatform = this.applicationsAggregate.getPlatform(key).orElseThrow(() -> new MissingResourceException("Cannot " +
                 "check permissions for "+key));
