@@ -50,6 +50,7 @@ public class ApplicationSearch {
      */
     private final Mustache mustacheSearchByNameLike = mustacheFactory.compile("search.application.name.like.mustache");
     private final Mustache mustacheSearchAllPlatform = mustacheFactory.compile("search.platform.name.like.mustache");
+    private final Mustache mustacheSearchAllPlatformUsingModules = mustacheFactory.compile("search.platform.using.modules.mustache");
     /**
      * The elasticSearch Client Helper.
      */
@@ -59,6 +60,7 @@ public class ApplicationSearch {
      */
     private final ObjectReader elasticSearchVsctApplicationReader;
     private final ObjectReader elasticSearchVsctPlatformReader;
+    private final ObjectReader elasticSearchVsctPlatformApplicationReader;
 
     /**
      * Main constructor.
@@ -71,6 +73,8 @@ public class ApplicationSearch {
         this.elasticSearchVsctApplicationReader = objectMapper.reader(searchType);
         JavaType searchTypePlatform = objectMapper.getTypeFactory().constructParametricType(ElasticSearchResponse.class, PlatformSearchResponse.class);
         this.elasticSearchVsctPlatformReader = objectMapper.reader(searchTypePlatform);
+        JavaType searchTypePlatformApplication = objectMapper.getTypeFactory().constructParametricType(ElasticSearchResponse.class, PlatformApplicationSearchResponse.class);
+        this.elasticSearchVsctPlatformApplicationReader = objectMapper.reader(searchTypePlatformApplication);
         this.elasticSearchClient = elasticSearchClient;
     }
 
@@ -107,6 +111,31 @@ public class ApplicationSearch {
                 .generate();
 
         ElasticSearchResponse<PlatformSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchVsctPlatformReader)
+                .post(url, body);
+
+        return esResponse.streamOfData().collect(Collectors.toSet());
+    }
+
+    /**
+     * Find all platforms using by a module.
+     *
+     * @return a set of plaforms matching request
+     */
+    public Set<PlatformApplicationSearchResponse> getAllPlatformsUsingModules(final String moduleName, final String moduleVersion, final String isWorkingCopy) {
+        String url = String.format("/platforms/_search?size=%1$s", SEARCH_SIZE);
+
+        boolean boolIsWorkingCopy = true;
+        if (isWorkingCopy.contains("release")) {
+            boolIsWorkingCopy = false;
+        }
+
+        String body = TemplateContentGenerator.from(mustacheSearchAllPlatformUsingModules)
+                .put("moduleName", moduleName)
+                .put("moduleVersion", moduleVersion)
+                .put("isWorkingCopy", boolIsWorkingCopy)
+                .generate();
+
+        ElasticSearchResponse<PlatformApplicationSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchVsctPlatformApplicationReader)
                 .post(url, body);
 
         return esResponse.streamOfData().collect(Collectors.toSet());
