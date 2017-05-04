@@ -130,7 +130,7 @@ public class ApplicationSearch {
         }
 
         String body = TemplateContentGenerator.from(mustacheSearchAllPlatformUsingModules)
-                .put("moduleName", moduleName.toLowerCase())
+                .put("moduleName", moduleName)
                 .put("moduleVersion", moduleVersion)
                 .put("isWorkingCopy", boolIsWorkingCopy)
                 .generate();

@@ -119,7 +119,7 @@ public class ApplicationSearchTest {
                 "\"must\":[\n" +
                 "{\n" +
                 "\"term\":{\n" +
-                "\"modules.name\":\"modulename\"\n" +
+                "\"modules.name\":\"moduleName\"\n" +
                 "}\n" +
                 "},\n" +
                 "{\n" +
@@ -171,7 +171,7 @@ public class ApplicationSearchTest {
                 "\"must\":[\n" +
                 "{\n" +
                 "\"term\":{\n" +
-                "\"modules.name\":\"modulename\"\n" +
+                "\"modules.name\":\"moduleName\"\n" +
                 "}\n" +
                 "},\n" +
                 "{\n" +
