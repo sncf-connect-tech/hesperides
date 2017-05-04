@@ -99,17 +99,6 @@ public abstract class AbstractApplicationsAggregate extends SingleThreadAggregat
     protected abstract SnapshotRegistryInterface getSnapshotRegistry();
 
     /**
-     * Method helpers that can be used to do some processing based on all platforms
-     * We provide Value Objects to the consumer, and not entities, entities are manipulated only within Applications class
-     *
-     * @param consumer
-     */
-    public void withAllPlatforms(Consumer<PlatformData> consumer) {
-        getPlatformRegistry().getAllPlatforms().stream()
-                .forEach(valueObject -> consumer.accept(valueObject));
-    }
-
-    /**
      * Get an application with its name.
      * The application is not actually stored so we create it by assembling all the platforms corresponding to that application
      *

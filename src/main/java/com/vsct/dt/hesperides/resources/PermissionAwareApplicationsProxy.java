@@ -54,12 +54,6 @@ public class PermissionAwareApplicationsProxy implements Applications  {
     }
 
     @Override
-    public void withAllPlatforms(final Consumer<PlatformData> consumer) {
-        //No security for now on this method that is not exposed on resources
-        this.applicationsAggregate.withAllPlatforms(consumer);
-    }
-
-    @Override
     public Optional<ApplicationData> getApplication(final String applicationName) {
         //No security needed to read informations
         return this.applicationsAggregate.getApplication(applicationName);
