@@ -48,23 +48,29 @@ public final class IndexNewModuleCommandBulk implements ElasticSearchIndexationC
     @Override
     public Void index(final ElasticSearchClient elasticSearchClient) {
         String body;
-        List<SingleToBulkMapper> propertiesAsString = null;
-            propertiesAsString = modules.stream().map(module -> {
-                try {
-                    return new SingleToBulkMapper(module.getId(), ElasticSearchMappers.MODULE_WRITER.writeValueAsString(module));
-                } catch (final JsonProcessingException e) {
-                    LOGGER.error("Could not serialize module " + module);
-                    throw new RuntimeException(e);
-                }
-            }).collect(Collectors.toList());
+        List<SingleToBulkMapper> propertiesAsString;
 
-        if (propertiesAsString.size() > 0) {
+        LOGGER.info("Index {} modules.", modules.size());
+
+        propertiesAsString = modules.stream().map(module -> {
+            LOGGER.info("Index module with namespace {}.", module.getNamespace());
+
+            try {
+                return new SingleToBulkMapper(module.getId(), ElasticSearchMappers.MODULE_WRITER.writeValueAsString(module));
+            } catch (final JsonProcessingException e) {
+                LOGGER.error("Could not serialize module " + module);
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
+
+        if (propertiesAsString != null && propertiesAsString.size() > 0) {
             body = propertiesAsString.stream().map(module -> module.toString()).collect(Collectors.joining(""));
             ElasticSearchEntity<ModuleIndexation> entity = elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_MODULE_READER)
                     .post("/modules/_bulk", body);
 
-            LOGGER.info("Successfully indexed new modules {}", "");
+            LOGGER.info("Successfully indexed new modules {}", propertiesAsString.size());
         }
+
         return null;
     }
 }

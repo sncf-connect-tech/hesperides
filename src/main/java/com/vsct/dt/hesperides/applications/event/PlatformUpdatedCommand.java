@@ -195,6 +195,8 @@ public class PlatformUpdatedCommand extends AbstractPlatformEvent<PlatformUpdate
                     this.updateProperties = true;
                     this.properties = propertiesOptional.get();
                     this.module = module;
+
+                    propertiesRegistry.createOrUpdateProperties(applicationName, platformName, module.getPropertiesPath(), propertiesOptional.get());
                 }
             }
 

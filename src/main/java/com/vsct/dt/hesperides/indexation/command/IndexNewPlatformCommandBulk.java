@@ -50,8 +50,14 @@ public final class IndexNewPlatformCommandBulk implements ElasticSearchIndexatio
     public Void index(final ElasticSearchClient elasticSearchClient) {
         String body;
         List<SingleToBulkMapper> propertiesAsString;
+
+        LOGGER.info("Index {} platforms.", platforms.size());
+
         propertiesAsString = platforms.stream().map(platform -> {
             try {
+                LOGGER.info("Index platform with name {}-{}-{}.", platform.getApplicationName(), platform.getPlatformName(), platform
+                        .getApplicationVersion());
+
                 return new SingleToBulkMapper(platform.getId(), ElasticSearchMappers.PLATFORM_WRITER.writeValueAsString(platform));
             } catch (final JsonProcessingException e) {
                 LOGGER.error("Could not serialize platform " + platform);
@@ -59,13 +65,13 @@ public final class IndexNewPlatformCommandBulk implements ElasticSearchIndexatio
             }
         }).collect(Collectors.toList());
 
-        if (propertiesAsString.size() > 0) {
+        if (propertiesAsString != null && propertiesAsString.size() > 0) {
             body = propertiesAsString.stream().map(platform -> platform.toString()).collect(Collectors.joining(""));
 
             ElasticSearchEntity<PlatformIndexation> entity = elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_PLATFORM_READER)
                     .post("/platforms/_bulk", body);
 
-            LOGGER.info("Successfully indexed new platform {}", entity);
+            LOGGER.info("Successfully indexed new platform {}", propertiesAsString.size());
         }
         return null;
     }

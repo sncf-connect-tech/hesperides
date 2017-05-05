@@ -50,8 +50,13 @@ public final class IndexNewTemplateCommandBulk implements ElasticSearchIndexatio
     @Override
     public Void index(final ElasticSearchClient elasticSearchClient) {
         String body;
-        List<SingleToBulkMapper> propertiesAsString = null;
+        List<SingleToBulkMapper> propertiesAsString;
+
+        LOGGER.info("Index {} templates.", templates.size());
+
         propertiesAsString = templates.stream().map(template -> {
+            LOGGER.info("Index template with namespace {}.", template.getNamespace());
+
             try {
                 return new SingleToBulkMapper(template.getId(), ElasticSearchMappers.TEMPLATE_WRITER.writeValueAsString(template));
             } catch (final JsonProcessingException e) {
@@ -60,13 +65,15 @@ public final class IndexNewTemplateCommandBulk implements ElasticSearchIndexatio
             }
         }).collect(Collectors.toList());
 
-        if (propertiesAsString.size() > 0) {
+        if (propertiesAsString != null && propertiesAsString.size() > 0) {
             body = propertiesAsString.stream().map(template -> template.toString()).collect(Collectors.joining(""));
+
+
 
             ElasticSearchEntity<TemplateIndexation> entity = elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_TEMPLATE_READER)
                     .post("/templates/_bulk", body);
 
-            LOGGER.info("Successfully indexed new templates {}", "");
+            LOGGER.info("Successfully indexed new templates {}", propertiesAsString.size());
         }
         return null;
     }

@@ -82,7 +82,7 @@ public class ElasticSearchIndexationExecutor {
      * The problem is if we have several indexation for the same document then the order should be respected
      * If not it is ok to execute other indexation tasks
      */
-    public <T> Future<Void> index(final ElasticSearchIndexationCommand task) {
+    public Future<Void> index(final ElasticSearchIndexationCommand task) {
         return singleThreadPool.submit(new Callable<Void>() {
             @Override
             public Void call() {
