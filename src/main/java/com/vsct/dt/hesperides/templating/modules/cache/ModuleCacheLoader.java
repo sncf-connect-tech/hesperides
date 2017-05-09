@@ -163,8 +163,7 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
     private Collection<Module> findModuleKey(final VirtualModulesAggregate virtualModulesAggregate, final String redisKey) {
         virtualModulesAggregate.clear();
 
-        // Replay only first event, we just want module key.
-        virtualModulesAggregate.replay(redisKey, 0, 1);
+        virtualModulesAggregate.replay(redisKey);
 
         return virtualModulesAggregate.getAllModules();
     }

@@ -326,6 +326,12 @@ public class HesperidesModuleResource extends BaseResource {
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey(moduleName, moduleVersion);
+
+        // First check if module exists. We must do this here, cause in database we already found event create template before event create module !?!
+        if (!modules.getModule(moduleKey).isPresent()) {
+            throw new MissingResourceException("Parent module not found");
+        }
+
         TemplateData templateData = TemplateData.withTemplateName(template.getName())
                 .withFilename(template.getFilename())
                 .withLocation(template.getLocation())
@@ -350,6 +356,12 @@ public class HesperidesModuleResource extends BaseResource {
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey(moduleName, moduleVersion);
+
+        // First check if module exists. We must do this here, cause in database we already found event create template before event create module !?!
+        if (!modules.getModule(moduleKey).isPresent()) {
+            throw new MissingResourceException("Parent module not found");
+        }
+
         TemplateData templateData = TemplateData.withTemplateName(template.getName())
                 .withFilename(template.getFilename())
                 .withLocation(template.getLocation())
@@ -411,6 +423,12 @@ public class HesperidesModuleResource extends BaseResource {
         checkQueryParameterNotEmpty("template_name", templateName);
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey(moduleName, moduleVersion);
+
+        // First check if module exists. We must do this here, cause in database we already found event create template before event create module !?!
+        if (!modules.getModule(moduleKey).isPresent()) {
+            throw new MissingResourceException("Parent module not found");
+        }
+
         modules.deleteTemplateInWorkingCopy(moduleKey, templateName);
     }
 

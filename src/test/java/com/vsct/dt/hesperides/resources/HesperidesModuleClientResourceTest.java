@@ -46,6 +46,7 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
 import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
+
 import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -57,6 +58,7 @@ import tests.type.UnitTests;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -569,6 +571,8 @@ public class HesperidesModuleClientResourceTest {
                 1L);
 
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
+        Module module = new Module(moduleInfo, new HashSet<>());
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         when(modules.createTemplateInWorkingCopy(moduleInfo, templateData)).thenReturn(templateAfter);
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/templates")
@@ -595,6 +599,8 @@ public class HesperidesModuleClientResourceTest {
                 .build();
 
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
+        Module module = new Module(moduleInfo, new HashSet<>());
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         when(modules.createTemplateInWorkingCopy(moduleInfo, templateData)).thenThrow(new DuplicateResourceException("Non unique"));
 
         try {
@@ -619,15 +625,8 @@ public class HesperidesModuleClientResourceTest {
                 null,
                 0L);
 
-        TemplateData templateData = TemplateData.withTemplateName("template_name")
-                .withFilename("filename")
-                .withLocation("/some/location")
-                .withContent("some content")
-                .withRights(null)
-                .build();
-
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
-        when(modules.createTemplateInWorkingCopy(moduleInfo, templateData)).thenThrow(new MissingResourceException("ModuleClient not found"));
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.empty());
 
         try {
             withoutAuth("/modules/module_name/module_version/workingcopy/templates")
@@ -638,6 +637,45 @@ public class HesperidesModuleClientResourceTest {
             assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
         }
 
+    }
+
+    @Test
+    public void should_return_404_not_found_if_delete_template_but_module_not_found() throws Exception {
+        ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.empty());
+
+        try {
+            withoutAuth("/modules/module_name/module_version/workingcopy/templates/template_name")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .delete();
+            fail("Ne renvoie pas 404");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        }
+    }
+
+    @Test
+    public void should_return_404_not_found_if_update_template_but_module_not_found() throws Exception {
+        Template templateBefore = new Template(
+                "modules#module_name#module_version#WORKINGCOPY",
+                "template_name",
+                "filename",
+                "/some/location",
+                "some content",
+                null,
+                0L);
+
+        ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.empty());
+
+        try {
+            withoutAuth("/modules/module_name/module_version/workingcopy/templates")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .put(Response.class, MAPPER.writeValueAsString(templateBefore));
+            fail("Ne renvoie pas 404");
+        } catch (UniformInterfaceException e) {
+            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        }
     }
 
     @Test
@@ -683,6 +721,8 @@ public class HesperidesModuleClientResourceTest {
                 2L);
 
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
+        Module module = new Module(moduleInfo, new HashSet<>());
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         when(modules.updateTemplateInWorkingCopy(moduleInfo, templateData)).thenReturn(templateAfter);
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/templates")
@@ -709,6 +749,9 @@ public class HesperidesModuleClientResourceTest {
                 .build();
 
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
+        Module module = new Module(moduleInfo, new HashSet<>());
+
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         when(modules.updateTemplateInWorkingCopy(moduleInfo, templateData)).thenThrow(new MissingResourceException("Not found"));
 
         try {
@@ -1015,6 +1058,8 @@ public class HesperidesModuleClientResourceTest {
     @Test
     public void should_delete_template_in_workingcopy_if_exists() {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
+        Module module = new Module(moduleInfo, new HashSet<>());
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name").delete();
         verify(modules).deleteTemplateInWorkingCopy(moduleInfo, "the_name");
     }
@@ -1022,6 +1067,10 @@ public class HesperidesModuleClientResourceTest {
     @Test
     public void should_return_404_not_found_if_delete_missing_template() {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
+        Module module = new Module(moduleInfo, new HashSet<>());
+
+        when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
+
         doThrow(new MissingResourceException("Not found")).when(modules).deleteTemplateInWorkingCopy(moduleInfo, "the_name");
         try {
             withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name")
