@@ -27,9 +27,8 @@ import com.vsct.dt.hesperides.applications.cache.ApplicationStoragePrefixInterfa
 import com.vsct.dt.hesperides.applications.event.*;
 import com.vsct.dt.hesperides.applications.properties.PropertiesRegistryInterface;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.security.UserContext;
 import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
+import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.platform.*;
@@ -37,16 +36,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * Created by emeric_martineau on 27/05/2016.
  */
-public abstract class AbstractApplicationsAggregate extends SingleThreadAggregate implements Applications, PlatformEventBuilderInterface, ApplicationStoragePrefixInterface {
+public abstract class AbstractApplicationsAggregate extends AbstractThreadAggregate implements Applications, PlatformEventBuilderInterface, ApplicationStoragePrefixInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationsAggregate.class);
 

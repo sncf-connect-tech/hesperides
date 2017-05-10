@@ -197,8 +197,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         Applications permissionAwareApplications = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
         /* Events aggregate */
-        EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(),
-                eventBus, eventStore);
+        EventsAggregate eventsAggregate = new EventsAggregate(hesperidesConfiguration.getEventsConfiguration(), eventStore);
         environment.lifecycle().manage(eventsAggregate);
 
         /* Feedbacks aggregate */

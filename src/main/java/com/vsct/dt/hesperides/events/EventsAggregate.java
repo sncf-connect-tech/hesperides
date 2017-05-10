@@ -22,11 +22,13 @@
 package com.vsct.dt.hesperides.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.eventbus.EventBus;
+
 import com.vsct.dt.hesperides.storage.Event;
 import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
+
 import io.dropwizard.jackson.Jackson;
+import io.dropwizard.lifecycle.Managed;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,7 @@ import java.util.concurrent.*;
  *
  * Created by tidiane_sidibe on 01/03/2016.
  */
-public class EventsAggregate extends SingleThreadAggregate implements Events {
+public class EventsAggregate implements Events, Managed {
 
     protected final EventStore eventStore;
     private final ObjectMapper MAPPER = Jackson.newObjectMapper();
@@ -49,17 +51,10 @@ public class EventsAggregate extends SingleThreadAggregate implements Events {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventsAggregate.class);
 
     /**
-     * Convenient class that wraps the thread executor of the aggregate
-     */
-    private ExecutorService singleThreadPool;
-
-    /**
      * The constructor of the aggregator
-     * @param eventBus
      * @param eventStore
      */
-    public EventsAggregate (final EventsConfiguration eventsConfiguration, final EventBus eventBus, final EventStore eventStore){
-        super(eventBus, eventStore);
+    public EventsAggregate (final EventsConfiguration eventsConfiguration, final EventStore eventStore) {
         this.eventStore = eventStore;
         this.executor = new ThreadPoolExecutor(
                 eventsConfiguration.getPoolMinSize(),
@@ -103,12 +98,11 @@ public class EventsAggregate extends SingleThreadAggregate implements Events {
     }
 
     @Override
-    public String getStreamPrefix() {
-        return null;
+    public void start() throws Exception {
     }
 
     @Override
-    protected ExecutorService executorService() {
-        return this.singleThreadPool;
+    public void stop() throws Exception {
+        this.executor.shutdown();
     }
 }

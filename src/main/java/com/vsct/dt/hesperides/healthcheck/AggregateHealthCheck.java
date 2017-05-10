@@ -22,16 +22,16 @@
 package com.vsct.dt.hesperides.healthcheck;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
+import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
 
 /**
  * Created by william_montaz on 04/02/2015.
  */
 public class AggregateHealthCheck extends HealthCheck{
 
-    private final SingleThreadAggregate aggregate;
+    private final AbstractThreadAggregate aggregate;
 
-    public AggregateHealthCheck(SingleThreadAggregate aggregate){
+    public AggregateHealthCheck(AbstractThreadAggregate aggregate){
         this.aggregate = aggregate;
     }
 

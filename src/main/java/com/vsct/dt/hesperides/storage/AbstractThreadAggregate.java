@@ -22,9 +22,7 @@
 package com.vsct.dt.hesperides.storage;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.exception.runtime.StateLockedException;
 import io.dropwizard.lifecycle.Managed;
@@ -38,8 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by william_montaz on 22/01/2015.
  */
-public abstract class SingleThreadAggregate implements Managed, StoragePrefixInterface {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SingleThreadAggregate.class);
+public abstract class AbstractThreadAggregate implements Managed, StoragePrefixInterface {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractThreadAggregate.class);
 
     /**
      * Used to store events, storing is actually made throug the try atomic method
@@ -87,11 +85,11 @@ public abstract class SingleThreadAggregate implements Managed, StoragePrefixInt
         }
     }
 
-    protected SingleThreadAggregate(final EventBus eventBus, final EventStore eventStore) {
+    protected AbstractThreadAggregate(final EventBus eventBus, final EventStore eventStore) {
         this(eventBus, eventStore, new DefaultUserProvider());
     }
 
-    protected SingleThreadAggregate(final EventBus eventBus, final EventStore eventStore, final UserProvider userProvider) {
+    protected AbstractThreadAggregate(final EventBus eventBus, final EventStore eventStore, final UserProvider userProvider) {
         this.store = eventStore;
         this.eventBus = eventBus;
         this.userProvider = userProvider;

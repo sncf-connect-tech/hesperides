@@ -23,7 +23,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
 import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
+import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.Models;
@@ -49,7 +49,7 @@ import java.util.function.Consumer;
  * Templates belong to the same "TemplatePackage" through namespacing
  * Created by william_montaz on 24/11/2014.
  */
-public abstract class AbstractTemplatePackagesAggregate extends SingleThreadAggregate
+public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAggregate
         implements TemplatePackages, TemplatePackageEventInterface, TemplatePackageStoragePrefixInterface {
 
     /**

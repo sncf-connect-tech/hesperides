@@ -45,11 +45,11 @@ import tests.type.UnitTests;
  * Created by wmontaz on 06/11/2014.
  */
 @Category(UnitTests.class)
-public class SingleThreadAggregateTest {
+public class AbstractThreadAggregateTest {
 
     static EventStore eventStore = mock(EventStore.class);
 
-    private static class AggregateTestImpl extends SingleThreadAggregate {
+    private static class AggregateTestImpl extends AbstractThreadAggregate {
         /**
          * Convenient class that wraps the thread executor of the aggregate.
          */

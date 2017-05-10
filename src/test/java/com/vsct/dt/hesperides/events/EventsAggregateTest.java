@@ -68,7 +68,7 @@ public class EventsAggregateTest {
         testEventsConfiguration.setPoolMaxSize(1);
         testEventsConfiguration.setPoolMaxSize(1);
         testEventsConfiguration.setQueueCapacity(3);
-        events = new EventsAggregate(testEventsConfiguration, eventBus, eventStore);
+        events = new EventsAggregate(testEventsConfiguration, eventStore);
         poolRedis.reset();
         loadEvents("test-stream");
     }

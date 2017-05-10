@@ -26,7 +26,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.HesperidesCommand;
-import com.vsct.dt.hesperides.storage.SingleThreadAggregate;
+import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.Models;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * This helps evolving the model defining how templates are tied together.
  * Created by william_montaz on 02/12/2014.
  */
-public abstract class AbstractModulesAggregate extends SingleThreadAggregate
+public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
         implements Modules, ModuleEventInterface, ModuleStoragePrefixInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractModulesAggregate.class);
