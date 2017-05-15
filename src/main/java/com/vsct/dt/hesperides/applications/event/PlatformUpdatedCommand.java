@@ -46,11 +46,6 @@ public class PlatformUpdatedCommand extends AbstractPlatformEvent<PlatformUpdate
     private PlatformData updatedPlatform;
 
     /**
-     * If need update properties.
-     */
-    private boolean updateProperties = false;
-
-    /**
      * Module to update.
      */
     private ApplicationModuleData module;
@@ -174,11 +169,6 @@ public class PlatformUpdatedCommand extends AbstractPlatformEvent<PlatformUpdate
     @Override
     public void complete() {
         this.platformRegistry.createOrUpdatePlatform(updatedPlatform);
-
-        if (updateProperties) {
-            propertiesRegistry.createOrUpdateProperties(updatedPlatform.getApplicationName(),
-                    updatedPlatform.getPlatformName(), module.getPropertiesPath(), properties);
-        }
     }
 
     private boolean detectIfEntityProvidedHasUpdatedThisModuleAndCopyPropertiesIfNeeded(
@@ -192,7 +182,6 @@ public class PlatformUpdatedCommand extends AbstractPlatformEvent<PlatformUpdate
                 final Optional<PropertiesData> propertiesOptional = propertiesRegistry.getProperties(applicationName, platformName, existingModule.getPropertiesPath());
 
                 if (propertiesOptional.isPresent()) {
-                    this.updateProperties = true;
                     this.properties = propertiesOptional.get();
                     this.module = module;
 
