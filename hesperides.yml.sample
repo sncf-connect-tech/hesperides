@@ -88,11 +88,16 @@ authenticatorType: none # allowed values : none, simple, LDAP
 #   roleSearchBase: ou=kikoo,dc=mother,dc=com
 #   prodGroupName: HESPERIDES_PROD_GROUP        # Group allow modify platform production
 #   techGroupName: HESPERIDES_TECH_GROUP        # Group allow to call technical API of Hesperides (reindex, cache...)
+#   pool:                                       # Ldap Pool Configuration
+#     initsize: 5
+#     maxsize: 20
+#     idleTimeout: 60000
 authenticationCachePolicy: maximumSize=10000, expireAfterAccess=10m 
 useDefaultUserWhenAuthentFails: false # allows you to bypass authent :true for development mode, false for production mode
 # settings to define 
 server:
   type: simple
+#   maxThreads: 100                             # Dropwizard maximum thread
   applicationContextPath: /
   adminContextPath: /admin # access to metrics/ping/threads/healthcheck
   connector:
