@@ -21,9 +21,13 @@
 
 package com.vsct.dt.hesperides.security;
 
+import javax.validation.Valid;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
 
 /**
  * Created by william_montaz on 23/02/2015.
@@ -63,6 +67,10 @@ public class LdapConfiguration {
     @NotEmpty
     @JsonProperty
     private String adDomain;
+
+    @Valid
+    @JsonProperty
+    private LdapPoolConfiguration pool;
 
     public String getUserNameAttribute() {
         return userNameAttribute;
@@ -134,5 +142,13 @@ public class LdapConfiguration {
 
     public void setTechGroupName(final String techGroupName) {
         this.techGroupName = techGroupName;
+    }
+
+    public LdapPoolConfiguration getPool() {
+        return pool;
+    }
+
+    public void setPool(final LdapPoolConfiguration pool) {
+        this.pool = pool;
     }
 }

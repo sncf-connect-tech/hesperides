@@ -22,6 +22,8 @@
 package com.vsct.dt.hesperides.security;
 
 import com.google.common.base.Optional;
+
+import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
@@ -53,6 +55,15 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
 
     public LDAPAuthenticator(LdapConfiguration configuration) {
         this.configuration = configuration;
+
+        final LdapPoolConfiguration pool = configuration.getPool();
+
+        if (pool != null) {
+            System.setProperty("com.sun.jndi.ldap.connect.pool", "true");
+            System.setProperty("com.sun.jndi.ldap.connect.pool.initsize", String.valueOf(pool.getInitsize()));
+            System.setProperty("com.sun.jndi.ldap.connect.pool.maxsize", String.valueOf(pool.getMaxsize()));
+            System.setProperty("com.sun.jndi.ldap.connect.pool.timeout", String.valueOf(pool.getIdleTimeout()));
+        }
     }
 
     @Override
@@ -161,7 +172,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         env.put(Context.PROVIDER_URL, configuration.getUri());
         env.put("com.sun.jndi.ldap.connect.timeout", String.valueOf(configuration.getConnectTimeout().toMilliseconds()));
         env.put("com.sun.jndi.ldap.read.timeout", String.valueOf(configuration.getReadTimeout().toMilliseconds()));
-        env.put("com.sun.jndi.ldap.connect.pool", "true");
+
         return env;
     }
 }
