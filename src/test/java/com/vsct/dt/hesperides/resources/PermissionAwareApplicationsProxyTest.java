@@ -34,7 +34,7 @@ import org.junit.experimental.categories.Category;
 
 import java.util.Optional;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import tests.type.UnitTests;

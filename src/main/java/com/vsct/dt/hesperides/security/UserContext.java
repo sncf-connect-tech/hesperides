@@ -28,8 +28,8 @@ import com.vsct.dt.hesperides.security.model.User;
  */
 public interface UserContext {
 
-    public User getCurrentUser();
+    User getCurrentUser();
 
-    public void setCurrentUser(User user);
+    void setCurrentUser(User user);
 
 }

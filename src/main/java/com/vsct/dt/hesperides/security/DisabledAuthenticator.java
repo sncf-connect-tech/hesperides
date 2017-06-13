@@ -19,28 +19,29 @@
  *
  */
 
-package com.vsct.dt.hesperides.templating.models.annotation;
+package com.vsct.dt.hesperides.security;
 
-import org.apache.commons.lang3.StringUtils;
+import io.dropwizard.auth.*;
+import io.dropwizard.auth.basic.BasicCredentials;
+
+import java.util.Optional;
+
+import com.vsct.dt.hesperides.security.model.User;
 
 /**
- * Created by emeric_martineau on 05/11/2015.
+ * Disable auth for Hesperides.
  */
-public class HesperidesRequiredAnnotation extends AbstractHesperidesAnnotation {
-    /**
-     * Constructor.
-     *
-     * @param name  name of annotation
-     * @param value value of annotation
-     */
-    public HesperidesRequiredAnnotation(final String name, final String value) {
-        super(name, value);
+public final class DisabledAuthenticator implements Authenticator<BasicCredentials, User>, Authorizer<User> {
+
+    private final static Optional<User> USER = Optional.of(User.UNTRACKED);
+
+    @Override
+    public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
+        return USER;
     }
 
     @Override
-    public boolean isValid() {
-        final String value = getValue();
-
-        return (StringUtils.isEmpty(value) || StringUtils.isBlank(value));
+    public boolean authorize(final User user, final String role) {
+        return false;
     }
 }

@@ -1,5 +1,4 @@
 /*
- *
  *  * This file is part of the Hesperides distribution.
  *  * (https://github.com/voyages-sncf-technologies/hesperides)
  *  * Copyright (c) 2016 VSCT.
@@ -16,31 +15,23 @@
  *  * You should have received a copy of the GNU General Public License
  *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *
  */
 
-package com.vsct.dt.hesperides.templating.models.annotation;
+package com.vsct.dt.hesperides.exception.wrapper;
 
-import org.apache.commons.lang3.StringUtils;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+
+import com.vsct.dt.hesperides.exception.runtime.ForbiddenOperationException;
 
 /**
- * Created by emeric_martineau on 05/11/2015.
- */
-public class HesperidesRequiredAnnotation extends AbstractHesperidesAnnotation {
-    /**
-     * Constructor.
-     *
-     * @param name  name of annotation
-     * @param value value of annotation
-     */
-    public HesperidesRequiredAnnotation(final String name, final String value) {
-        super(name, value);
-    }
+* Created by william_montaz on 09/01/2015.
+*/
+public final class ForbiddenExceptionMapper extends BaseExceptionMapper implements ExceptionMapper<ForbiddenException> {
 
     @Override
-    public boolean isValid() {
-        final String value = getValue();
-
-        return (StringUtils.isEmpty(value) || StringUtils.isBlank(value));
+    public Response toResponse(final ForbiddenException e) {
+        return exceptionResponse(Response.Status.FORBIDDEN, e);
     }
 }

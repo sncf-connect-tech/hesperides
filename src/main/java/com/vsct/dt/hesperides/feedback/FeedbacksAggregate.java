@@ -28,8 +28,8 @@ import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -85,7 +85,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Feedback from "
-                    + user.getUsername()
+                    + user.getName()
                     + " to hipchat room\n"
                     + template.toJsonString());
         }
@@ -187,7 +187,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         while (itWordList.hasNext()) {
             hipchatMessage.append("<p>")
-                .append(StringEscapeUtils.escapeHtml(itWordList.next().toString()))
+                .append(StringEscapeUtils.escapeHtml4(itWordList.next().toString()))
                 .append(("</p>"));
         }
 
@@ -197,7 +197,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         return new StringBuilder()
             .append("{\"from\": \"")
-            .append(user.getUsername())
+            .append(user.getName())
             .append("\",\"color\": \"")
             .append("green")
             .append("\",\"message\": \"")
@@ -280,21 +280,20 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
     }
 
     private static String getStringContent(HttpEntity httpEntity) {
-
-        BufferedReader bufferedReader;
         StringBuilder content = new StringBuilder();
 
-        try {
-            bufferedReader = new BufferedReader(
-                new InputStreamReader((httpEntity.getContent()) , "UTF-8"));
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader((httpEntity.getContent()) , "UTF-8"))) {
+
             String line;
+
+
             while ((line = bufferedReader.readLine()) != null) {
-                content.append(line);
+                content.append(line );
             }
-            IOUtils.closeQuietly(bufferedReader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (final IOException e) {
+            LOGGER.error("Error when use feedback", e);
         }
+
         return content.toString();
     }
 }

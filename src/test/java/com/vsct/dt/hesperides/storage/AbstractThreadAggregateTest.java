@@ -36,7 +36,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import static junit.framework.TestCase.fail;
-import static org.fest.assertions.api.Assertions.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import tests.type.UnitTests;
@@ -108,7 +109,7 @@ public class AbstractThreadAggregateTest {
         Object event = new Object();
         when(command.apply()).thenReturn(event);
 
-        UserInfo userInfo = new UserInfo(User.UNTRACKED.getUsername());
+        UserInfo userInfo = new UserInfo(User.UNTRACKED.getName());
         when(eventStore.store("TEST-stream", event, userInfo, command)).thenReturn(event);
 
         testAggregate.tryAtomic("stream", command);
