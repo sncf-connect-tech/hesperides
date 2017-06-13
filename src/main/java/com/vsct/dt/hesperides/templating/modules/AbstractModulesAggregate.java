@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.HesperidesCommand;
@@ -277,6 +279,44 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
     public Module createRelease(final ModuleWorkingCopyKey fromModuleKey, final String releaseVersion) {
         final ModuleKey releaseKey = new ModuleKey(fromModuleKey.getName(), Release.of(releaseVersion));
         return createModuleFrom(releaseKey, fromModuleKey);
+    }
+
+    /**
+     * Creates a release from an existing working copy, creating a new working copy afterwards
+     * Templates are copied
+     * @param fromModuleKey {@link com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey} describing the module working copy to create the 
+     *                                                                                         release from
+     * @param releaseVersion The version of the release. This can be useful to transform a 1.0-SNAPSHOT working copy to a 1.0 release
+     * @param nextVersion The version of the next working copy. Useful to follow applications release flow, ie creating a new working copy 
+     *                    1.1-SNAPSHOT    
+     *
+     * @return
+     */
+    public Module createRelease(final ModuleWorkingCopyKey fromModuleKey, final String releaseVersion, final String nextVersion) {
+
+        // check inputs before process to decrease risk of incomplete release flow 
+        ModuleKey releaseKey = new ModuleKey(fromModuleKey.getName(), Release.of(releaseVersion));
+        Module fromModule = getModuleRegistry().getModule(fromModuleKey).orElseThrow(
+                () -> new MissingResourceException("There is no module " + fromModuleKey + " to build " + releaseKey)
+        );
+        
+        if (getModuleRegistry().existsModule(releaseKey)) {
+            throw new DuplicateResourceException("Module " + releaseKey + " already exists");
+        }
+
+        ModuleKey nextVersionKey = new ModuleWorkingCopyKey(fromModuleKey.getName(), nextVersion);
+
+        if(getModuleRegistry().existsModule(nextVersionKey)) {
+            throw new DuplicateResourceException("Module " + nextVersionKey + " already exists");
+        }
+
+        //Get templates
+        Set<Template> templatesFrom = getTemplateRegistry().getAllTemplatesForNamespace(fromModuleKey.getNamespace());
+
+        Module releaseModule = createModule(releaseKey, fromModule, templatesFrom);
+        createModule(nextVersionKey, fromModule, templatesFrom);
+
+        return releaseModule;
     }
 
     /**
