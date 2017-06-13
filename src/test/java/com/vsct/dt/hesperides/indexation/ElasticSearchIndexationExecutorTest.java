@@ -61,7 +61,7 @@ public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
     public void testThatItRetriesAndReturnsSuccessIfLessThanNRetry() throws ExecutionException, InterruptedException {
         ElasticSearchIndexationExecutor elasticSearchIndexationExecutor = new ElasticSearchIndexationExecutor(elasticSearchClient, 2, 100);
         ElasticSearchIndexationCommand task = mock(ElasticSearchIndexationCommand.class);
-        when(task.index(elasticSearchClient)).thenThrow(new RuntimeException()).thenReturn(null);
+        when(task.index(elasticSearchClient)).thenThrow(new RuntimeException());
 
         elasticSearchIndexationExecutor.index(task).get();
 
