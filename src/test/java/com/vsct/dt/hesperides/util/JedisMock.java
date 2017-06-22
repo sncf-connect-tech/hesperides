@@ -376,9 +376,19 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public Long pexpire(final String s, final long l) {
+        return null;
+    }
+
+    @Override
     public Long expireAt(String s, long l) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Long pexpireAt(final String s, final long l) {
+        return null;
     }
 
     @Override
