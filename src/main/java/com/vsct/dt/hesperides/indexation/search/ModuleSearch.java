@@ -44,7 +44,10 @@ public class ModuleSearch {
 
     private final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
     private final Mustache mustacheSearchByNameAndVersion = mustacheFactory.compile("search.module.name.version.mustache");
+    private final Mustache mustacheSearchByNameAndVersionAndWorkingcopy = mustacheFactory.compile("search.module.name.version.workingcopy.mustache");
     private final Mustache mustacheSearchByNameAndVersionLike = mustacheFactory.compile("search.module.name.version.like.mustache");
+    private final Mustache mustacheSearchAll = mustacheFactory.compile("search.module.all.mustache");
+    private final Mustache mustacheSearchModuleByName = mustacheFactory.compile("search.module.name.mustache");
 
     private final ObjectReader elasticSearchModuleReader;
     private final ElasticSearchClient elasticSearchClient;
@@ -56,19 +59,21 @@ public class ModuleSearch {
         this.elasticSearchClient = elasticSearchClient;
     }
 
-    public List<ModuleSearchResponse> getModulesByNameAndVersionLike(final String[] wildcards) {
+    /**
+     * Return list of modules by name and version
+     *
+     * @param name
+     * @param version
+     *
+     * @return list of module
+     */
+    public List<ModuleSearchResponse> getModulesByNameAndVersionLike(final String name, final String version) {
         String url = String.format("/modules/_search?size=%1$s", 50);
 
-        List<String> insensitiveCaseWildcards = Arrays.asList(wildcards).stream().map(wildcard -> wildcard.toLowerCase()).collect(Collectors.toList());
-
-//        String body = TemplateContentGenerator.from(mustacheSearchByNameAndVersionLike)
-//                .put("wildcards", new DecoratedCollection<>(insensitiveCaseWildcards))
-//                .generate();
-//
         String body = TemplateContentGenerator.from(mustacheSearchByNameAndVersionLike)
-                .put("raw_name", wildcards[0])
-                .put("tokenized_name", wildcards[0].replace(' ', '*').replace('-', '*'))
-                .put("raw_version", wildcards[1])
+                .put("raw_name", name)
+                .put("tokenized_name", name.replace(' ', '*').replace('-', '*'))
+                .put("raw_version", version)
                 .generate();
 
         ElasticSearchResponse<ModuleSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchModuleReader)
@@ -77,13 +82,81 @@ public class ModuleSearch {
         return esResponse.streamOfData().collect(Collectors.toList());
     }
 
-    public List<ModuleSearchResponse> getModulesByNameAndVersion(final String[] terms) {
+    /**
+     * Get module by name and version.
+     *
+     * @param name module name
+     * @param version version
+     * @param workingcopy if is working copy
+     *
+     * @return list of module
+     */
+    public List<ModuleSearchResponse> getModulesByNameAndVersion(final String name, final String version, final String workingcopy) {
+        String url = String.format("/modules/_search?size=%1$s", 1);
+
+        String body = TemplateContentGenerator.from(mustacheSearchByNameAndVersionAndWorkingcopy)
+                .put("name", name)
+                .put("version", version)
+                .put("is_working_copy", workingcopy)
+                .generate();
+
+        ElasticSearchResponse<ModuleSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchModuleReader)
+                .post(url, body);
+
+        return esResponse.streamOfData().collect(Collectors.toList());
+    }
+
+    /**
+     * Get module by name and version.
+     *
+     * @param name module name
+     * @param version version
+     *
+     * @return list of module
+     */
+    public List<ModuleSearchResponse> getModulesByNameAndVersion(final String name, final String version) {
         String url = String.format("/modules/_search?size=%1$s", 1);
 
         String body = TemplateContentGenerator.from(mustacheSearchByNameAndVersion)
-                .put("name", terms[0])
-                .put("version", terms[1])
-                .put("is_working_copy", terms[2])
+                .put("name", name.toLowerCase())
+                .put("version", version)
+                .generate();
+
+        ElasticSearchResponse<ModuleSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchModuleReader)
+                .post(url, body);
+
+        return esResponse.streamOfData().collect(Collectors.toList());
+    }
+
+    /**
+     * Return list of module by name.
+     *
+     * @param name search name
+     *
+     * @return list of module
+     */
+    public List<ModuleSearchResponse> getModulesByName(final String name) {
+        String url = "/modules/_search";
+
+        String body = TemplateContentGenerator.from(mustacheSearchModuleByName)
+                .put("name", name.toLowerCase())
+                .generate();
+
+        ElasticSearchResponse<ModuleSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchModuleReader)
+                .post(url, body);
+
+        return esResponse.streamOfData().collect(Collectors.toList());
+    }
+
+    /**
+     * Return list of modules.
+     *
+     * @return list of module
+     */
+    public List<ModuleSearchResponse> getAllModules() {
+        String url = "/modules/_search";
+
+        String body = TemplateContentGenerator.from(mustacheSearchAll)
                 .generate();
 
         ElasticSearchResponse<ModuleSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchModuleReader)

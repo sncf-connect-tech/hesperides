@@ -1,47 +1,51 @@
 {
-"_source": ["name", "version", "working_copy"],
-"query":{
-"bool":{
-"must":[
-{
-"wildcard":{
-"name":"*{{tokenized_name}}*"
-}
-},
-{
-"wildcard":{
-"version":"*{{raw_version}}*"
-}
-}
-],
-"must_not":[
+   "_source":[
+      "name",
+      "version",
+      "working_copy"
+   ],
+   "query":{
+      "bool":{
+         "must":[
+            {
+               "wildcard":{
+                  "name":"*{{tokenized_name}}*"
+               }
+            },
+            {
+               "wildcard":{
+                  "version":"*{{raw_version}}*"
+               }
+            }
+         ],
+         "must_not":[
 
-],
-"should":[
-{
-"term":{
-"name":"{{raw_name}}"
-}
-},
-{
-"wildcard":{
-"name":"*{{raw_name}}*"
-}
-},
-{
-"term":{
-"version":"{{raw_version}}"
-}
-}
-]
-}
-},
-"from":0,
-"size":100,
-"sort":[
+         ],
+         "should":[
+            {
+               "term":{
+                  "name":"{{raw_name}}"
+               }
+            },
+            {
+               "wildcard":{
+                  "name":"*{{raw_name}}*"
+               }
+            },
+            {
+               "term":{
+                  "version":"{{raw_version}}"
+               }
+            }
+         ]
+      }
+   },
+   "from":0,
+   "size":100,
+   "sort":[
 
-],
-"aggs":{
+   ],
+   "aggs":{
 
-}
+   }
 }
