@@ -27,6 +27,7 @@ import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
+import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.indexation.search.PlatformSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
@@ -206,7 +207,29 @@ public final class HesperidesApplicationResource extends BaseResource {
     public Response getApplication(@Auth final User user, @PathParam("application_name") final String name) {
         checkQueryParameterNotEmpty("application_name", name);
 
-        return entityWithConverterOrNotFound(applications.getApplication(name), responseApplicationConverter);
+        // Search if platform exists
+        final Set<ApplicationSearchResponse> applisEls = applicationSearch.getApplications(name);
+
+        final List<PlatformData> listPlatform = new ArrayList<>(applisEls.size());
+
+        for (ApplicationSearchResponse appli : applisEls) {
+            // Get platform
+            final Optional<PlatformData> ptf = applications.getPlatform(new PlatformKey(name, appli.getPlatform()));
+
+            if (ptf.isPresent()) {
+                listPlatform.add(ptf.get());
+            }
+        }
+
+        Optional<ApplicationData> appli;
+
+        if (applisEls.isEmpty()) {
+            appli = Optional.empty();
+        } else {
+            appli = Optional.of(new ApplicationData(name, listPlatform));
+        }
+
+        return entityWithConverterOrNotFound(appli, responseApplicationConverter);
     }
 
     @Path("/perform_search")

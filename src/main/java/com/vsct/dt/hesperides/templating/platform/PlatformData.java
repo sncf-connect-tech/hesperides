@@ -62,29 +62,29 @@ public class PlatformData extends AbstractPlatformData {
         return new Builder(name);
     }
 
-    public static interface IApplicationName {
+    public interface IApplicationName {
         IApplicationVersion withApplicationName(String name);
     }
 
-    public static interface IApplicationVersion {
+    public interface IApplicationVersion {
         IModules withApplicationVersion(String version);
     }
 
-    public static interface IModules {
+    public interface IModules {
         IVersion withModules(Set<ApplicationModuleData> modules);
     }
 
-    public static interface IVersion {
+    public interface IVersion {
         IProduction withVersion(long version);
     }
 
-    public static interface IProduction extends IBuilder {
+    public interface IProduction extends IBuilder {
         IBuilder isProduction();
 
         IBuilder setProduction(boolean production);
     }
 
-    public static interface IBuilder {
+    public interface IBuilder {
         PlatformData build();
     }
 

@@ -54,12 +54,6 @@ public class PermissionAwareApplicationsProxy implements Applications  {
     }
 
     @Override
-    public Optional<ApplicationData> getApplication(final String applicationName) {
-        //No security needed to read informations
-        return this.applicationsAggregate.getApplication(applicationName);
-    }
-
-    @Override
     public Optional<PlatformData> getPlatform(final PlatformKey platformKey) {
         //No security needed to read informations
         return this.applicationsAggregate.getPlatform(platformKey);

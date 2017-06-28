@@ -137,49 +137,6 @@ class PlatformRegistry implements PropertiesRegistryInterface, PlatformRegistryI
     }
 
     @Override
-    public List<PlatformData> getPlatformsForApplication(final String applicationName) {
-        LOGGER.debug("Get all platforms for application '{}'", applicationName == null ? "all" : applicationName);
-
-        // Get all key of platform
-        final List<PlatformKey> platformKey = this.propertiesCacheLoader.getAllPlatformKeyFromApplication(applicationName);
-        // Create result list to return to this method
-        final List<PlatformData> listCachePlatform = new ArrayList<>(platformKey.size());
-
-        // Filter key if platform is loaded
-        final List<PlatformKey> platformKeyToLoad = platformKey.stream().filter(key -> {
-            final PlatformContainer platformContainer = this.cache.getIfPresent(key);
-
-            final boolean notExists = platformContainer == null;
-
-            if (!notExists) {
-                listCachePlatform.add(platformContainer.getPlatform());
-            }
-
-            return notExists;
-        }).collect(Collectors.toList());
-
-        // Get platform
-        final Map<PlatformKey, PlatformContainer> list
-                = this.propertiesCacheLoader.getPlatformFromApplication(platformKeyToLoad);
-
-        for (Map.Entry<PlatformKey, PlatformContainer> entryPlatform : list.entrySet()) {
-            LOGGER.debug("Platform '{}' is missing in cache, put it.", entryPlatform.getKey());
-
-            this.cache.put(entryPlatform.getKey(), entryPlatform.getValue());
-        }
-
-        // Convert Map to list
-        final List<PlatformData> missingCachePlatform = list.entrySet().stream()
-                .map(platformKeyPlatformContainerEntry -> platformKeyPlatformContainerEntry.getValue().getPlatform())
-                .collect(Collectors.toList());
-
-        listCachePlatform.addAll(missingCachePlatform);
-
-        return listCachePlatform.stream().filter(p -> p != null)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public void deletePlatform(final PlatformKey key) {
         try {
             PlatformContainer platformContainer;
@@ -201,8 +158,18 @@ class PlatformRegistry implements PropertiesRegistryInterface, PlatformRegistryI
     public Collection<PlatformData> getAllPlatforms() {
         LOGGER.debug("Get all platform.");
 
+        final List<PlatformKey> platformKey = this.propertiesCacheLoader.getAllPlatformKey();
+
+        // Now
+        final Map<PlatformKey, PlatformContainer> mapPlatforms = this.propertiesCacheLoader.getPlatformFromApplication(platformKey);
+
         // Return all platform
-        return getPlatformsForApplication(null);
+        return mapPlatforms
+                .entrySet()
+                .stream()
+                .filter(platformKeyPlatformContainerEntry -> platformKeyPlatformContainerEntry.getValue().getPlatform() != null)
+                .map(platformKeyPlatformContainerEntry -> platformKeyPlatformContainerEntry.getValue().getPlatform())
+                .collect(Collectors.toSet());
     }
 
     @Override

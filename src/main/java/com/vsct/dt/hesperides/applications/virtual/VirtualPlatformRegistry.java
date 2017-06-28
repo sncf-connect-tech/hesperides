@@ -58,7 +58,12 @@ public class VirtualPlatformRegistry implements PropertiesRegistryInterface, Pla
     }
 
     @Override
-    public List<PlatformData> getPlatformsForApplication(final String applicationName) {
+    public void deletePlatform(final PlatformKey key) {
+        this.platform = null;
+    }
+
+    @Override
+    public Collection<PlatformData> getAllPlatforms() {
         final List<PlatformData> list = new ArrayList<>(1);
 
         if (this.platform != null) {
@@ -66,16 +71,6 @@ public class VirtualPlatformRegistry implements PropertiesRegistryInterface, Pla
         }
 
         return list;
-    }
-
-    @Override
-    public void deletePlatform(final PlatformKey key) {
-        this.platform = null;
-    }
-
-    @Override
-    public Collection<PlatformData> getAllPlatforms() {
-        return getPlatformsForApplication(null);
     }
 
     @Override

@@ -110,14 +110,37 @@ public class HesperidesFullIndexationResource {
 
         elasticSearchIndexationExecutor.reset();
 
-        elasticSearchIndexationExecutor.index(new IndexNewTemplateCommandBulk(templatePackages.getAllTemplates().stream().map(template -> TemplateMapper
-                .asTemplateIndexation(template)).collect(Collectors.toList())));
+        elasticSearchIndexationExecutor.index(
+                new IndexNewTemplateCommandBulk(
+                        templatePackages
+                                .getAllTemplates()
+                                .stream()
+                                .map(template -> TemplateMapper.asTemplateIndexation(template))
+                                .collect(Collectors.toList())));
 
-        elasticSearchIndexationExecutor.index(new IndexNewModuleCommandBulk(modules.getAllModules().stream().map(module -> ModuleMapper.toModuleIndexation(module)).collect(Collectors.toList())));
+        elasticSearchIndexationExecutor.index(
+                new IndexNewModuleCommandBulk(
+                        modules
+                                .getAllModules()
+                                .stream()
+                                .map(module -> ModuleMapper.toModuleIndexation(module))
+                                .collect(Collectors.toList())));
 
-        elasticSearchIndexationExecutor.index(new IndexNewTemplateCommandBulk(modules.getAll().stream().map(template -> TemplateMapper.asTemplateIndexation(template)).collect(Collectors.toList())));
+        elasticSearchIndexationExecutor.index(
+                new IndexNewTemplateCommandBulk(
+                        modules
+                                .getAll()
+                                .stream()
+                                .map(template -> TemplateMapper.asTemplateIndexation(template))
+                                .collect(Collectors.toList())));
 
-        elasticSearchIndexationExecutor.index(new IndexNewPlatformCommandBulk(applications.getAll().stream().map(app -> PlatformMapper.asPlatformIndexation(app)).collect(Collectors.toList())));
+        elasticSearchIndexationExecutor.index(
+                new IndexNewPlatformCommandBulk(
+                        applications
+                                .getAll()
+                                .stream()
+                                .map(app -> PlatformMapper.asPlatformIndexation(app))
+                                .collect(Collectors.toList())));
 
         LOGGER.info("RELOADING INDEX START");
     }

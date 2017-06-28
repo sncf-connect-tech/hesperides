@@ -35,8 +35,6 @@ public interface PlatformRegistryInterface {
 
     void createOrUpdatePlatform(PlatformData platform);
 
-    List<PlatformData> getPlatformsForApplication(String applicationName);
-
     void deletePlatform(PlatformKey key);
 
     Collection<PlatformData> getAllPlatforms();

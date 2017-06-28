@@ -37,8 +37,6 @@ import java.util.function.Consumer;
  * Created by william_montaz on 25/02/2015.
  */
 public interface Applications {
-    Optional<ApplicationData> getApplication(String applicationName);
-
     Optional<PlatformData> getPlatform(PlatformKey platformKey);
 
     Optional<TimeStampedPlatformData> getPlatform(PlatformKey platformKey, long timestamp);

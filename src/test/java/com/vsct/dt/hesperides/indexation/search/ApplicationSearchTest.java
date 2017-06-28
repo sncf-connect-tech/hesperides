@@ -61,18 +61,22 @@ public class ApplicationSearchTest {
 
     @Test
     public void testGetApplicationsLike() throws IOException {
-        ApplicationSearchResponse app1 = new ApplicationSearchResponse("application_name1");
-        ApplicationSearchResponse app2 = new ApplicationSearchResponse("application_name2");
+        ApplicationSearchResponse app1 = new ApplicationSearchResponse("application_name1", "application_version1", "platform_name1");
+        ApplicationSearchResponse app2 = new ApplicationSearchResponse("application_name2", "application_version2", "platform_name2");
 
         ElasticSearchResponse<ApplicationSearchResponse> elasticSearchResponse = elasticSearchResponseWithEntities(app1, app2);
-        when(executer.post("/platforms/_search?size=50", "{\n" +
-                "\"_source\": [\"application_name\"],\n" +
-                "\"query\": {\n" +
-                "\"wildcard\": {\n" +
-                "\"platforms.application_name\": \"*application*\"\n" +
-                "}\n" +
-                "}\n" +
-                "}"))
+        when(executer.post("/platforms/_search?size=50",
+                "{\n" +
+                        "   \"_source\":[\n" +
+                        "      \"application_name\"\n" +
+                        "   ],\n" +
+                        "   \"query\":{\n" +
+                        "      \"wildcard\":{\n" +
+                        "         \"platforms.application_name\":\"*application*\"\n" +
+                        "      }\n" +
+                        "   }\n" +
+                        "}"
+                ))
                 .thenReturn(elasticSearchResponse);
 
         Set<ApplicationSearchResponse> applications = applicationSearch.getApplicationsLike("application");
