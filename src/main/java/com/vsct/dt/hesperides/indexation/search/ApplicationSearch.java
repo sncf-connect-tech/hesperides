@@ -49,6 +49,7 @@ public class ApplicationSearch {
      * The Mustache Template for elastic search requests.
      */
     private final Mustache mustacheSearchByNameLike = mustacheFactory.compile("search.application.name.like.mustache");
+    private final Mustache mustacheSearchByName = mustacheFactory.compile("search.application.name.mustache");
     private final Mustache mustacheSearchAllPlatform = mustacheFactory.compile("search.platform.name.like.mustache");
     private final Mustache mustacheSearchAllPlatformUsingModules = mustacheFactory.compile("search.platform.using.modules.mustache");
     /**
@@ -88,6 +89,25 @@ public class ApplicationSearch {
         String url = String.format("/platforms/_search?size=%1$s", SEARCH_SIZE);
 
         String body = TemplateContentGenerator.from(mustacheSearchByNameLike)
+                .put("applicationName", name.toLowerCase())
+                .generate();
+
+        ElasticSearchResponse<ApplicationSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchVsctApplicationReader)
+                .post(url, body);
+
+        return esResponse.streamOfData().collect(Collectors.toSet());
+    }
+
+    /**
+     * Find an application with a name or just a part of a name.
+     *
+     * @param name
+     * @return a set of applications matching request
+     */
+    public Set<ApplicationSearchResponse> getApplications(final String name) {
+        String url = "/platforms/_search";
+
+        String body = TemplateContentGenerator.from(mustacheSearchByName)
                 .put("applicationName", name.toLowerCase())
                 .generate();
 

@@ -94,27 +94,6 @@ public abstract class AbstractApplicationsAggregate extends AbstractThreadAggreg
     protected abstract SnapshotRegistryInterface getSnapshotRegistry();
 
     /**
-     * Get an application with its name.
-     * The application is not actually stored so we create it by assembling all the platforms corresponding to that application
-     *
-     * @param applicationName
-     * @return the matching application or empty
-     */
-    @Override
-    public Optional<ApplicationData> getApplication(final String applicationName) {
-        final List<PlatformData> platforms = getPlatformRegistry().getPlatformsForApplication(applicationName);
-
-        if (platforms.size() > 0) {
-            return Optional.of(new ApplicationData(
-                    applicationName,
-                    platforms
-            ));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    /**
      * Get a platform with its name and its application name.
      *
      * @param platformKey

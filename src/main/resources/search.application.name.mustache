@@ -1,0 +1,16 @@
+{
+    "_source": ["application_name", "application_version", "platform_name"],
+	"query": {
+		"bool": {
+			"must": [
+				{
+					"term": {
+						"platforms.application_name":"{{applicationName}}"
+					}
+				}
+			],
+			"must_not": [],
+			"should": []
+		}
+	}
+}

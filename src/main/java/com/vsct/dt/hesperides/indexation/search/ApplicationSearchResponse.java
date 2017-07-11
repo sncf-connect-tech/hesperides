@@ -29,12 +29,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Created by william_montaz on 29/10/2014.
  */
 public final class ApplicationSearchResponse {
-
+    /**
+     * Name of application.
+     */
     private final String name;
 
+    /**
+     * Version of application.
+     */
+    private final String version;
+
+    /**
+     * Platform name.
+     */
+    private final String platform;
+
     @JsonCreator
-    public ApplicationSearchResponse(@JsonProperty("application_name") final String name) {
+    public ApplicationSearchResponse(
+            @JsonProperty("application_name") final String name,
+            @JsonProperty("application_version") final String version,
+            @JsonProperty("platform_name") final String platform) {
         this.name = name;
+        this.version = version;
+        this.platform = platform;
     }
 
     @JsonProperty(value = "application_name")
@@ -42,20 +59,34 @@ public final class ApplicationSearchResponse {
         return name;
     }
 
+    @JsonProperty(value = "application_version")
+    public String getVersion() {
+        return version;
+    }
+
+    @JsonProperty(value = "platform_name")
+    public String getPlatform() {
+        return platform;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof ApplicationSearchResponse)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ApplicationSearchResponse that = (ApplicationSearchResponse) o;
+        final ApplicationSearchResponse that = (ApplicationSearchResponse) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (version != null ? !version.equals(that.version) : that.version != null) return false;
+        return platform != null ? platform.equals(that.platform) : that.platform == null;
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (version != null ? version.hashCode() : 0);
+        result = 31 * result + (platform != null ? platform.hashCode() : 0);
+        return result;
     }
 }

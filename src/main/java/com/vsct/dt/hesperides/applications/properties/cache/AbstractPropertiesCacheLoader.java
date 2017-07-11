@@ -144,26 +144,17 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
     /**
      * Return all plaform key for application.
      *
-     * @param applicationName applicationName or null
-     *
      * @return list of platform key
      */
-    public List<PlatformKey> getAllPlatformKeyFromApplication(final String applicationName) {
+    public List<PlatformKey> getAllPlatformKey() {
         final List<PlatformKey> listPlatformKey;
         // Redis key pattern to search all application platform
         final String redisKey;
 
-        if (applicationName == null) {
-            getLogger().debug("Load all platforms keys for all application.");
+        getLogger().debug("Load all platforms keys for all application.");
 
-            redisKey = String.format("%s-*",
-                    getStreamPrefix());
-        } else {
-            getLogger().debug("Load all platforms keys for application '{}' from store.", applicationName);
-
-            redisKey = String.format("%s-%s-*",
-                    getStreamPrefix(), applicationName);
-        }
+        redisKey = String.format("%s-*",
+                getStreamPrefix());
 
         // All application platform redis key.
         final Set<String> platforms = this.store.getStreamsLike(redisKey);
@@ -176,12 +167,7 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
                             entityNameFormRedisKey(platformRedisKey)));
         }
 
-
-        if (applicationName == null) {
-            getLogger().debug("All platform keys for all application are loaded.");
-        } else {
-            getLogger().debug("All platform keys for application '{}' are loaded.", applicationName);
-        }
+        getLogger().debug("All platform keys for all application are loaded.");
 
         return listPlatformKey;
     }

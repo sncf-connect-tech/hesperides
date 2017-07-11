@@ -79,7 +79,11 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get all module names")
     public Collection<String> getModuleNames(@Auth final User user) {
-        return modules.getAllModules().stream().map(Module::getName).collect(Collectors.toSet());
+        return moduleSearch
+                .getAllModules()
+                .stream()
+                .map(ModuleSearchResponse::getName)
+                .collect(Collectors.toSet());
     }
 
     @Path("/{module_name}")
@@ -90,7 +94,11 @@ public class HesperidesModuleResource extends BaseResource {
                                                 @PathParam("module_name") final String moduleName) {
         checkQueryParameterNotEmpty("module_name", moduleName);
 
-        return modules.getAllModules().stream().filter(e -> e.getName().equals(moduleName)).map(Module::getVersion).collect(Collectors.toSet());
+        return moduleSearch
+                .getModulesByName(moduleName)
+                .stream()
+                .map(ModuleSearchResponse::getVersion)
+                .collect(Collectors.toSet());
     }
 
     @Path("/{module_name}/{module_version}")
@@ -103,8 +111,9 @@ public class HesperidesModuleResource extends BaseResource {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
-        return modules.getAllModules().stream()
-                .filter(e -> e.getName().equals(moduleName) && e.getVersion().equals(moduleVersion))
+        return moduleSearch
+                .getModulesByNameAndVersion(moduleName, moduleVersion)
+                .stream()
                 .map(e -> (e.isWorkingCopy() ? WorkingCopy.LC : Release.LC)).collect(Collectors.toList());
     }
 
@@ -143,24 +152,15 @@ public class HesperidesModuleResource extends BaseResource {
 
         String local_tokens = tokens.toLowerCase();
 
-        String firstTokens = local_tokens;
-        String lastToken = "";
+        String moduleName = local_tokens;
+        String moduleVersion = "";
 
         if (local_tokens.lastIndexOf(" ") > -1) {
-            firstTokens = local_tokens.substring(0, local_tokens.lastIndexOf(" "));
-            lastToken = local_tokens.substring(local_tokens.lastIndexOf(" ") + 1);
+            moduleName = local_tokens.substring(0, local_tokens.lastIndexOf(" "));
+            moduleVersion = local_tokens.substring(local_tokens.lastIndexOf(" ") + 1);
         }
-//        String[] terms = tokens.split("#");
-//        for (int i = 0; i < terms.length; i++) {
-//            terms[i] = "*" + terms[i] + "*";
-//        }
 
-        String[] terms = new String[2];
-
-        terms[0] = firstTokens;
-        terms[1] = lastToken;
-
-        return moduleSearch.getModulesByNameAndVersionLike(terms).stream()
+        return moduleSearch.getModulesByNameAndVersionLike(moduleName, moduleVersion).stream()
                 .map(searchResponse -> {
                     ModuleKey moduleKey = new ModuleKey(
                             searchResponse.getName(),
@@ -185,7 +185,27 @@ public class HesperidesModuleResource extends BaseResource {
     public Response searchOne(@Auth final User user, @QueryParam("terms") final String tokens) {
         checkQueryParameterNotEmpty("terms", tokens);
 
-        List<ModuleSearchResponse> result = moduleSearch.getModulesByNameAndVersion(tokens.split(" "));
+        String local_tokens = tokens.toLowerCase();
+
+        String moduleName = local_tokens;
+        String moduleVersion = "";
+        String moduleWorkingcopy = "";
+
+        if (local_tokens.lastIndexOf(" ") > -1) {
+            String[] terms = local_tokens.split(" ");
+
+            moduleName = terms[0];
+
+            if (terms.length > 1) {
+                moduleVersion = terms[1];
+            }
+
+            if (terms.length > 2) {
+                moduleWorkingcopy = terms[2];
+            }
+        }
+
+        final List<ModuleSearchResponse> result = moduleSearch.getModulesByNameAndVersion(moduleName, moduleVersion, moduleWorkingcopy);
 
         return result.size() > 0 ? Response.ok(result.get(0)).build(): Response.status(404).build();
     }

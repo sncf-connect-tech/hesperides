@@ -113,9 +113,27 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_get_application_with_name() throws ESServiceException {
-        ApplicationData application = new ApplicationData("my_name", Lists.newArrayList());
+        final List<PlatformData> listPlatform = new ArrayList<>(1);
 
-        when(applications.getApplication("my_name")).thenReturn(Optional.of(application));
+        final PlatformData ptfData = PlatformData
+                .withPlatformName("my_platform")
+                .withApplicationName("my_name")
+                .withApplicationVersion("my_version")
+                .withModules(new HashSet<>(0))
+                .withVersion(1)
+                .build();
+
+        listPlatform.add(ptfData);
+
+        ApplicationData application = new ApplicationData("my_name", Lists.newArrayList(ptfData));
+
+        Set<ApplicationSearchResponse> elsResponse = new HashSet<>(1);
+
+        elsResponse.add(new ApplicationSearchResponse("my_name", "my_version", "my_platform"));
+
+        when(applicationSearch.getApplications("my_name")).thenReturn(elsResponse);
+
+        when(applications.getPlatform(new PlatformKey("my_name", "my_platform"))).thenReturn(Optional.of(ptfData));
 
         Application app = withoutAuth("/applications/my_name")
                 .request()
@@ -128,7 +146,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_404_if_not_found() throws ESServiceException {
-        when(applications.getApplication("app_name")).thenReturn(Optional.empty());
+        Set<ApplicationSearchResponse> elsResponse = new HashSet<>(1);
 
         assertThat(
                 withoutAuth("/applications/app_name")
@@ -147,8 +165,8 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_search_applications_with_provided_name() throws ESServiceException {
-        ApplicationSearchResponse applicationSearchResponse1 =  new ApplicationSearchResponse("name1");
-        ApplicationSearchResponse applicationSearchResponse2 =  new ApplicationSearchResponse("name2");
+        ApplicationSearchResponse applicationSearchResponse1 =  new ApplicationSearchResponse("name1", "version1", "platform1");
+        ApplicationSearchResponse applicationSearchResponse2 =  new ApplicationSearchResponse("name2", "version2", "platform2");
 
         ApplicationListItem item1 = new ApplicationListItem("name1");
         ApplicationListItem item2 = new ApplicationListItem("name2");

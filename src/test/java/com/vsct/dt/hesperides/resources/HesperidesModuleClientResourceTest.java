@@ -101,13 +101,8 @@ public class HesperidesModuleClientResourceTest extends AbstractDisableUserResou
 
     @Test
     public void should_return_modulename_list() {
-        Module module = new Module("module_name", "module_version", false, Sets.newHashSet(), 1L);
-        ModuleKey.withModuleName("module_name")
-                .withVersion(Release.of("module_version"))
-                .build();
-
-        Module[] moduleArray = {module};
-        when(modules.getAllModules()).thenReturn(Arrays.asList(moduleArray));
+        ModuleSearchResponse[] moduleSearchResponses = { new ModuleSearchResponse("module_name", "module_version", false) };
+        when(moduleSearch.getAllModules()).thenReturn(Arrays.asList(moduleSearchResponses));
 
         String[] awaitedResponseList = {"module_name"};
 
@@ -121,13 +116,8 @@ public class HesperidesModuleClientResourceTest extends AbstractDisableUserResou
 
     @Test
     public void should_return_moduleversion_list() {
-        Module module = new Module("module_name", "module_version", false, Sets.newHashSet(), 1L);
-        ModuleKey.withModuleName("module_name")
-                .withVersion(Release.of("module_version"))
-                .build();
-
-        Module[] moduleArray = {module};
-        when(modules.getAllModules()).thenReturn(Arrays.asList(moduleArray));
+        ModuleSearchResponse[] moduleSearchResponses = { new ModuleSearchResponse("module_name", "module_version", false) };
+        when(moduleSearch.getModulesByName("module_name")).thenReturn(Arrays.asList(moduleSearchResponses));
 
         String[] awaitedResponseList = {"module_version"};
 
@@ -141,12 +131,8 @@ public class HesperidesModuleClientResourceTest extends AbstractDisableUserResou
 
     @Test
     public void should_return_moduletype_list() {
-        Module module = new Module("module_name", "module_version", false, Sets.newHashSet(), 1L);
-        ModuleKey.withModuleName("module_name")
-                .withVersion(Release.of("module_version"))
-                .build();
-        Module[] moduleArray = {module};
-        when(modules.getAllModules()).thenReturn(Arrays.asList(moduleArray));
+        ModuleSearchResponse[] moduleSearchResponses = { new ModuleSearchResponse("module_name", "module_version", false) };
+        when(moduleSearch.getModulesByNameAndVersion("module_name", "module_version")).thenReturn(Arrays.asList(moduleSearchResponses));
 
         String[] awaitedResponseList = {Release.LC};
 
@@ -169,7 +155,7 @@ public class HesperidesModuleClientResourceTest extends AbstractDisableUserResou
         Module module1 = new Module("module_name1", "module_version", true, Sets.newHashSet(), 1L);
         Module module2 = new Module("module_name2", "module_version", true, Sets.newHashSet(), 1L);
 
-        when(moduleSearch.getModulesByNameAndVersionLike(new String[]{"*term1*", "*term2*", "*term3*"})).thenReturn(Lists.newArrayList(moduleSearchResponse1, moduleSearchResponse2));
+        when(moduleSearch.getModulesByNameAndVersionLike("*term1*", "*term2*")).thenReturn(Lists.newArrayList(moduleSearchResponse1, moduleSearchResponse2));
 
         ModuleKey moduleInfo1 = ModuleKey.withModuleName("module_name1")
                 .withVersion(WorkingCopy.of("module_version"))
@@ -197,7 +183,7 @@ public class HesperidesModuleClientResourceTest extends AbstractDisableUserResou
         Module module1 = new Module("module_name1", "module_version", true, Sets.newHashSet(), 1L);
         Module module2 = new Module("module_name2", "module_version", true, Sets.newHashSet(), 1L);
 
-        when(moduleSearch.getModulesByNameAndVersionLike(new String[]{"module_name1", "module_version"})).thenReturn(Lists.newArrayList(moduleSearchResponse1));
+        when(moduleSearch.getModulesByNameAndVersionLike("module_name1", "module_version")).thenReturn(Lists.newArrayList(moduleSearchResponse1));
 
         ModuleKey moduleInfo1 = ModuleKey.withModuleName("module_name1")
                 .withVersion(WorkingCopy.of("module_version"))

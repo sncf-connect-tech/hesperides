@@ -27,6 +27,7 @@ import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
+import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
@@ -43,6 +44,7 @@ import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
 import com.vsct.dt.hesperides.util.converter.TimeStampedPlatformConverter;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+
 import io.dropwizard.auth.Auth;
 
 import javax.validation.Valid;
@@ -202,10 +204,46 @@ public final class HesperidesApplicationResource extends BaseResource {
     @GET
     @Timed
     @ApiOperation("Get application with given name")
-    public Response getApplication(@Auth final User user, @PathParam("application_name") final String name) {
+    public Response getApplication(@Auth final User user, @PathParam("application_name") final String name,
+            @QueryParam("hide_platform") final boolean hidePlatform) {
         checkQueryParameterNotEmpty("application_name", name);
 
-        return entityWithConverterOrNotFound(applications.getApplication(name), responseApplicationConverter);
+        // Search if platform exists
+        final Set<ApplicationSearchResponse> applisEls = applicationSearch.getApplications(name);
+
+        Optional<ApplicationData> appli;
+
+        if (applisEls.isEmpty()) {
+            // If nothing found in ELS, this is an error
+            appli = Optional.empty();
+        } else {
+            // If we want all information about platform
+            final List<PlatformData> listPlatform = applisEls
+                    .stream()
+                    .map(applicationSearchResponse -> {
+                        if (hidePlatform) {
+                            final PlatformData ptfData = PlatformData
+                                    .withPlatformName(applicationSearchResponse.getPlatform())
+                                    .withApplicationName(applicationSearchResponse.getName())
+                                    .withApplicationVersion(applicationSearchResponse.getVersion())
+                                    .withModules(new HashSet())
+                                    .withVersion(-1)
+                                    .build();
+
+                            return Optional.of(ptfData);
+                        }
+
+                        return applications.getPlatform(new PlatformKey(applicationSearchResponse.getName(),
+                                applicationSearchResponse.getPlatform()));
+                        })
+                    .filter(platformData -> platformData.isPresent())
+                    .map(platformData -> platformData.get())
+                    .collect(Collectors.toList());
+
+            appli = Optional.of(new ApplicationData(name, listPlatform));
+        }
+
+        return entityWithConverterOrNotFound(appli, responseApplicationConverter);
     }
 
     @Path("/perform_search")
