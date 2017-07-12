@@ -142,6 +142,9 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
                     .setAuthorizer(hesperidesAuthenticator)
                     .setRealm("LOGIN AD FOR HESPERIDES")
                     .buildAuthFilter()));
+
+            // To enable Role filter
+            environment.jersey().register(RolesAllowedDynamicFeature.class);
         } else {
             final DisabledAuthenticator disabledAuthenticator = new DisabledAuthenticator();
 
@@ -153,7 +156,6 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         }
 
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
-        environment.jersey().register(RolesAllowedDynamicFeature.class);
 
         LOGGER.debug("Creating Redis connection pool");
 

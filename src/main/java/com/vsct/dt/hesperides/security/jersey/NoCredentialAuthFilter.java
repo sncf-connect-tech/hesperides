@@ -92,7 +92,7 @@ public class NoCredentialAuthFilter<P extends Principal> extends AuthFilter<Basi
 
         @Override
         protected NoCredentialAuthFilter<P> newInstance() {
-            return new NoCredentialAuthFilter<>();
+            return new NoCredentialAuthFilter();
         }
     }
 }

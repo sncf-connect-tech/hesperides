@@ -30,7 +30,7 @@ public class User implements Principal {
     /**
      * Convenient 'untracked user' information
      */
-    public static final User UNTRACKED = new User("untracked", false, true);
+    public static final User UNTRACKED = new User("untracked", true, true);
 
     /**
      * To know if user is tech user.

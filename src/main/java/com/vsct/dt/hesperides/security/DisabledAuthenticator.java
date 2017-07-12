@@ -42,6 +42,6 @@ public final class DisabledAuthenticator implements Authenticator<BasicCredentia
 
     @Override
     public boolean authorize(final User user, final String role) {
-        return false;
+        return true;
     }
 }
