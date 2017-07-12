@@ -41,7 +41,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Decoder;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLContext;
@@ -50,10 +49,7 @@ import java.io.*;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by stephane_fret on 07/03/2017.
@@ -217,8 +213,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
         byte[] imageByte;
 
         try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            imageByte = decoder.decodeBuffer(imageString);
+            imageByte = Base64.getDecoder().decode(imageString);
             ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
             bufferedImage = ImageIO.read(bis);
             bis.close();

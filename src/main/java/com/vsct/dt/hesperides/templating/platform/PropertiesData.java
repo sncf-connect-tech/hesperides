@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.applications.MustacheScope.InjectableMustacheScope;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
