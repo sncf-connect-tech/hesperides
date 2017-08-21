@@ -45,7 +45,7 @@ import com.vsct.dt.hesperides.util.HesperidesVersion;
  * Created by emeric_martineau on 10/03/2017.
  */
 @Category(IntegrationTests.class)
-public class TemplatePackageTest extends AbstractIntegrationTest {
+public class IntegrationTest extends AbstractIntegrationTest {
     /**
      * Nb event to generate.
      */

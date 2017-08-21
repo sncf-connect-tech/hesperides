@@ -40,6 +40,22 @@ Run the backend :
 $ java -jar hesperides-1.0.0-SNAPSHOT.jar server PATH_TO_YOUR_HESPERIDES_YML_FILE
 ```
 
+Run integration test for cache
+=====
+
+To check if new cache working fine, run integration test.
+
+Set environment variables:
+```
+HESPERIDES_USER=<your_ldap_username>
+HESPERIDES_PASS=<your_ldap_password>
+HESPERIDES_URL=<e.g. http://localhost:8080>
+REDIS_URL=<e.g. 192.168.2.3:2600>
+REDIS_CACHE_URL=<e.g. 192.168.2.59:3000>
+```
+
+Then run test class `integration.IntegrationTest`
+
 Documentation:
 =====
 
