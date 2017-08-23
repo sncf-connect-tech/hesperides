@@ -39,9 +39,8 @@ public class ElasticSearchConfiguration {
     @JsonProperty
     private String index;
 
-    @NotNull
     @JsonProperty
-    private int port;
+    private int port = -1;
 
     @JsonProperty
     private boolean reindexOnStartup;

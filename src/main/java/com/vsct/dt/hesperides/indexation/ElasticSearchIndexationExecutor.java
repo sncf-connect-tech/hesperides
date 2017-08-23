@@ -22,6 +22,7 @@
 package com.vsct.dt.hesperides.indexation;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.InputStreamEntity;
@@ -157,7 +158,9 @@ public class ElasticSearchIndexationExecutor {
 
                 putMapping = new HttpPut("/"+elasticSearchClient.getIndex()+"/" + mapping.documentName + "/_mapping");
                 putMapping.setEntity(new InputStreamEntity(mappingFile));
-                elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putMapping);
+                final HttpResponse response = elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putMapping);
+
+                ifResponseStatusAbove400SendExeception(putMapping.getURI().toString(), response);
 
                 LOGGER.debug("Put new mapping in {}", mapping.documentName);
             } finally {
@@ -170,4 +173,8 @@ public class ElasticSearchIndexationExecutor {
 
     }
 
+    private void ifResponseStatusAbove400SendExeception(final String url, final HttpResponse response) {
+        if (response.getStatusLine().getStatusCode() >= 400)
+            throw new ESServiceException("ELS return error code for url " + url + ". Response is " + response);
+    }
 }
