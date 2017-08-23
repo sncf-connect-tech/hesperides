@@ -55,6 +55,9 @@ public class RedisConfiguration implements RedisConfigurationInterface {
     @JsonProperty
     private Set<String> sentinels;
 
+    @JsonProperty
+    private String password;
+
     @Override
     public String getHost() {
         return host;
@@ -109,5 +112,14 @@ public class RedisConfiguration implements RedisConfigurationInterface {
     @Override
     public int getTimeout() {
         return timeout;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
     }
 }

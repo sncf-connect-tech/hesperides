@@ -40,4 +40,6 @@ public interface RedisConfigurationInterface {
     int getWaitBeforeRetryMs();
 
     int getTimeout();
+
+    String getPassword();
 }
