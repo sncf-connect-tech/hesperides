@@ -27,6 +27,8 @@ import com.vsct.dt.hesperides.resources.HesperidesFullIndexationResource;
 import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -114,7 +116,15 @@ public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
         // Run indexation
         HttpClient httpClient = mock(HttpClient.class);
 
-        Mockito.when(httpClient.execute(Mockito.any(), (HttpRequest) Mockito.any())).thenReturn(null);
+        HttpResponse response = mock(HttpResponse.class);
+
+        StatusLine statusLine = mock(StatusLine.class);
+
+        Mockito.when(statusLine.getStatusCode()).thenReturn(200);
+
+        Mockito.when(response.getStatusLine()).thenReturn(statusLine);
+
+        Mockito.when(httpClient.execute(Mockito.any(), (HttpRequest) Mockito.any())).thenReturn(response);
 
         Mockito.when(elasticSearchClient.getClient()).thenReturn(httpClient);
 
