@@ -83,8 +83,12 @@ import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.client.HttpClientBuilder;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.http.client.HttpClient;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.slf4j.Logger;
@@ -96,8 +100,30 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MainApplication.class);
 
+    /**
+     * Replace ${xxx} by value of environment variable xxx
+     *
+     * @param line the string to read
+     *
+     * @return new string
+     */
+    private static String expandString(final String line) {
+        final StrSubstitutor substitutor = new EnvironmentVariableSubstitutor(false);
+        return substitutor.replace(line);
+    }
+
     public static void main(final String[] args) throws Exception {
-        new MainApplication().run(args);
+        if (args == null || args.length == 0) {
+            final String[] newArgs = {"server", expandString(System.getenv("HESPERIDES_CONFIG_FILE"))};
+
+            new MainApplication().run(newArgs);
+        } else if (args.length == 2) {
+            final String[] newArgs = {args[0], expandString(args[1])};
+
+            new MainApplication().run(newArgs);
+        } else {
+            new MainApplication().run(args);
+        }
     }
 
     @Override
@@ -107,6 +133,13 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
     @Override
     public void initialize(final Bootstrap<HesperidesConfiguration> hesperidesConfigurationBootstrap) {
+        // Enable variable substitution with environment variables
+        hesperidesConfigurationBootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(hesperidesConfigurationBootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor(false)
+                )
+        );
+
         hesperidesConfigurationBootstrap.addBundle(new ConfiguredAssetsBundle("/assets/", "/", "index.html"));
     }
 
