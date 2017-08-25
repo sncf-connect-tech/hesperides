@@ -114,8 +114,6 @@ public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
         this.applicationsWithEvent.delete(platformKey);
 
         // Run indexation
-        HttpClient httpClient = mock(HttpClient.class);
-
         HttpResponse response = mock(HttpResponse.class);
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -124,9 +122,7 @@ public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
 
         Mockito.when(response.getStatusLine()).thenReturn(statusLine);
 
-        Mockito.when(httpClient.execute(Mockito.any(), (HttpRequest) Mockito.any())).thenReturn(response);
-
-        Mockito.when(elasticSearchClient.getClient()).thenReturn(httpClient);
+        Mockito.when(elasticSearchClient.execute(Mockito.any())).thenReturn(response);
 
         ElasticSearchIndexationExecutor elasticSearchIndexationExecutor
                 = new ElasticSearchIndexationExecutor(elasticSearchClient, 2, 100);

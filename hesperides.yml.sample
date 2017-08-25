@@ -10,6 +10,9 @@ elasticSearchConfiguration:
   reindexOnStartup: false # true/false
   retry: 5 # index retry before failure
   waitBeforeRetryMs: 5000
+  # Not requiered
+  # user: elastic
+  # password: changeme
 cacheConfiguration:
   redisConfiguration:
     ####################################

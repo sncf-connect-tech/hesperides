@@ -53,6 +53,12 @@ public class ElasticSearchConfiguration {
     @JsonProperty
     private int waitBeforeRetryMs;
 
+    @JsonProperty
+    private String user = null;
+
+    @JsonProperty
+    private String password = null;
+
     public String getHost() {
         return host;
     }
@@ -99,5 +105,21 @@ public class ElasticSearchConfiguration {
 
     public void setWaitBeforeRetryMs(int waitBeforeRetryMs) {
         this.waitBeforeRetryMs = waitBeforeRetryMs;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(final String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
     }
 }

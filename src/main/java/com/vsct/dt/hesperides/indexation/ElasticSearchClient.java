@@ -23,12 +23,22 @@ package com.vsct.dt.hesperides.indexation;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,20 +51,34 @@ public class ElasticSearchClient {
     private final HttpClient client;
     private final HttpHost host;
     private final String index;
+    private final String user;
+    private final String password;
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchClient.class);
 
     public ElasticSearchClient(final HttpClient client, final ElasticSearchConfiguration elasticSearchConfiguration) {
         this.client = client;
         this.host = new HttpHost(elasticSearchConfiguration.getHost(), elasticSearchConfiguration.getPort());
         this.index = elasticSearchConfiguration.getIndex();
+        this.user = elasticSearchConfiguration.getUser();
+        this.password = elasticSearchConfiguration.getPassword();
     }
 
     /**
-     * Getter for the httphost
-     * @return HttpHost
+     * Hostname.
+     *
+     * @return hostname
      */
-    public HttpHost getHost() {
-        return host;
+    public String getHostname() {
+        return this.host.getHostName();
+    }
+
+    /**
+     * Return http port.
+     *
+     * @return port
+     */
+    public int getPort() {
+        return this.host.getPort();
     }
 
     /**
@@ -66,12 +90,39 @@ public class ElasticSearchClient {
     }
 
     /**
-     * Getter to use the client somewhere else
-     * Responsibility is given to the caller to handle connections
-     * @return the HttpClient instance
+     * Execute a http request.
+     *
+     * @param request request
+     *
+     * @return response
+     *
+     * @throws IOException
      */
-    public HttpClient getClient() {
-        return client;
+    public HttpResponse execute(final HttpRequest request) throws IOException {
+        if (this.user != null) {
+        /* Elasticsearch need "Preemptive authentication"
+           see https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
+         */
+            final CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(
+                    new AuthScope(host.getHostName(), host.getPort()),
+                    new UsernamePasswordCredentials(this.user, this.password));
+
+            // Create AuthCache instance
+            final AuthCache authCache = new BasicAuthCache();
+            // Generate BASIC scheme object and add it to the local auth cache
+            final BasicScheme basicAuth = new BasicScheme();
+            authCache.put(host, basicAuth);
+
+            // Add AuthCache to the execution context
+            final HttpClientContext context = HttpClientContext.create();
+            context.setCredentialsProvider(credsProvider);
+            context.setAuthCache(authCache);
+
+            return client.execute(host, request, context);
+        } else {
+            return client.execute(host, request);
+        }
     }
 
     public RequestExecuter withResponseReader(final ObjectReader reader) {

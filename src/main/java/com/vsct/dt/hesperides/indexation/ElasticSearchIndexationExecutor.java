@@ -122,7 +122,7 @@ public class ElasticSearchIndexationExecutor {
         HttpDelete deleteIndex = null;
         try {
             deleteIndex = new HttpDelete("/"+elasticSearchClient.getIndex());
-            elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), deleteIndex);
+            elasticSearchClient.execute(deleteIndex);
         } catch (final Exception e) {
             LOGGER.info("Could not delete elastic search index. This mostly happens when there is no index already");
         } finally {
@@ -137,12 +137,14 @@ public class ElasticSearchIndexationExecutor {
         HttpPut putGlobalMapping = null;
         try(InputStream globalMappingFile = this.getClass().getClassLoader().getResourceAsStream("elasticsearch/global_mapping.json")) {
 
-            putGlobalMapping = new HttpPut("/"+elasticSearchClient.getIndex());
+            putGlobalMapping = new HttpPut("/" + elasticSearchClient.getIndex());
 
             putGlobalMapping.setEntity(new InputStreamEntity(globalMappingFile));
-            elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putGlobalMapping);
+            elasticSearchClient.execute(putGlobalMapping);
 
             LOGGER.debug("Put new global mapping in {}", elasticSearchClient.getIndex());
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if(putGlobalMapping != null){
                 putGlobalMapping.releaseConnection();
@@ -158,7 +160,7 @@ public class ElasticSearchIndexationExecutor {
 
                 putMapping = new HttpPut("/"+elasticSearchClient.getIndex()+"/" + mapping.documentName + "/_mapping");
                 putMapping.setEntity(new InputStreamEntity(mappingFile));
-                final HttpResponse response = elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putMapping);
+                final HttpResponse response = elasticSearchClient.execute(putMapping);
 
                 ifResponseStatusAbove400SendExeception(putMapping.getURI().toString(), response);
 
