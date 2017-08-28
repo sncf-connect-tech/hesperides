@@ -133,6 +133,15 @@ public class ElasticSearchIndexationExecutor {
 
         LOGGER.debug("Deleted Hesperides index {}", elasticSearchClient.getIndex());
 
+        remapping();
+    }
+
+    /**
+     * Remapping indexex.
+     *
+     * @throws IOException
+     */
+    public void remapping() throws IOException {
         /* Add global mapping */
         HttpPut putGlobalMapping = null;
         try(InputStream globalMappingFile = this.getClass().getClassLoader().getResourceAsStream("elasticsearch/global_mapping.json")) {
@@ -172,7 +181,6 @@ public class ElasticSearchIndexationExecutor {
             }
 
         }
-
     }
 
     private void ifResponseStatusAbove400SendExeception(final String url, final HttpResponse response) {
