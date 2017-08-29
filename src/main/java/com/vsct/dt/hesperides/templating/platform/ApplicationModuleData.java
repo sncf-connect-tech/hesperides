@@ -51,6 +51,7 @@ public class ApplicationModuleData {
     private static final String VALORISATION_KEY_MODULE_NAME    = "hesperides.module.name";
     private static final String VALORISATION_KEY_MODULE_VERSION = "hesperides.module.version";
     private static final String VALORISATION_KEY_MODULE_PATH    = "hesperides.module.path";
+    private static final String VALORISATION_KEY_MODULE_FULL_PATH    = "hesperides.module.path.full";
 
     /**
      * This id is used to detect module updates when version or path is changed
@@ -155,6 +156,7 @@ public class ApplicationModuleData {
         Set<KeyValueValorisationData> predefinedScope = new HashSet<>();
         predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_MODULE_NAME, this.getName()));
         predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_MODULE_VERSION, this.getVersion()));
+        predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_MODULE_FULL_PATH, this.getPath().replace('#', '/')));
 
         /* Construct path related valorisations
         Since path always start with #, using split produces an array starting with an empty string, thus we need to offset by 1
