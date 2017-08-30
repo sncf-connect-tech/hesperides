@@ -71,16 +71,86 @@ public class HesperidesFullIndexationResourceTest extends AbstractTechUserResour
     }
 
     @Test
-    public void should_return_403_forbiden_when_clear_applications_caches() {
+    public void should_return_403_forbiden_when_clear_full_indexation() {
         assertThat(
-            withNoTechAuth("/indexation/perform_reindex")
+            withNoTechAuth("/indexation/all")
                     .post(Entity.json(null))
                     .getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
     }
 
     @Test
-    public void should_return_works_when_clear_applications_caches() {
-        withTechAuth("/indexation/perform_reindex")
+    public void should_return_works_when_clear_full_indexation() {
+        withTechAuth("/indexation/all")
+                .post(Entity.json(null));
+    }
+
+    @Test
+    public void should_return_403_forbiden_when_mapping() {
+        assertThat(
+                withNoTechAuth("/indexation/mapping")
+                        .post(Entity.json(null))
+                        .getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void should_return_works_when_mapping() {
+        withTechAuth("/indexation/mapping")
+                .post(Entity.json(null));
+    }
+
+    @Test
+    public void should_return_403_forbiden_when_clear_templates_packages() {
+        assertThat(
+                withNoTechAuth("/indexation/templates/packages")
+                        .post(Entity.json(null))
+                        .getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void should_return_works_when_clear_templates_packages() {
+        withTechAuth("/indexation/templates/packages")
+                .post(Entity.json(null));
+    }
+
+    @Test
+    public void should_return_403_forbiden_when_clear_modules() {
+        assertThat(
+                withNoTechAuth("/indexation/modules")
+                        .post(Entity.json(null))
+                        .getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void should_return_works_when_clear_modules() {
+        withTechAuth("/indexation/modules")
+                .post(Entity.json(null));
+    }
+
+    @Test
+    public void should_return_403_forbiden_when_clear_modules_packages() {
+        assertThat(
+                withNoTechAuth("/indexation/modules/templates")
+                        .post(Entity.json(null))
+                        .getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void should_return_works_when_clear_modules_packages() {
+        withTechAuth("/indexation/modules/templtaes")
+                .post(Entity.json(null));
+    }
+
+    @Test
+    public void should_return_403_forbiden_when_applications() {
+        assertThat(
+                withNoTechAuth("/indexation/applications")
+                        .post(Entity.json(null))
+                        .getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    public void should_return_works_when_applications() {
+        withTechAuth("/indexation/applications")
                 .post(Entity.json(null));
     }
 }
