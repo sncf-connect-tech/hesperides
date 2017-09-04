@@ -1,0 +1,22 @@
+version: '2'
+services:
+
+  elasticsearch:
+    image: "elasticsearch:1.7.5"
+    command: "elasticsearch -Dcluster.name=hesperides"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always
+
+  redis:
+    image: "redis:3.0.3"
+    ports:
+      - "6379:6379"
+    restart: always
+
+  rediscache:
+    image: "redis:3.0.3"
+    ports:
+      - "56379:6379"
+    restart: always
