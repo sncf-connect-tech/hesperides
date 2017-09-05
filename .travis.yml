@@ -10,9 +10,9 @@ after_success:
   - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
   - export IMAGE=hesperides/hesperides-api
-  - docker build -t $IMAGE:$COMMIT .
-  - docker tag $IMAGE:$COMMIT $IMAGE:$TAG
-  - docker push $IMAGE
+  - docker build -t $IMAGE .
+  - docker tag $IMAGE:$TAG
+  - docker push $IMAGE:$TAG
 
 cache:
   directories:
