@@ -21,8 +21,8 @@ services:
       - "56379:6379"
     restart: always
 
-  hesperides-api:
-    image: "hesperides/hesperides-api"
+  hesperides:
+    image: "hesperides/hesperides"
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -39,7 +39,7 @@ services:
     ports:
       - "80:80"
     links:
-      - hesperides-api
+      - hesperides
     depends_on:
-      - hesperides-api
+      - hesperides
     restart: always
