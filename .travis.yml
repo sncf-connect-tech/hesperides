@@ -1,6 +1,25 @@
 language: java
+
 jdk:
   - oraclejdk8
+
+service:
+  - docker
+
+after_success:
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
+  - export IMAGE=hesperides/hesperides-api
+  - docker build -t $IMAGE:$COMMIT .
+  - docker tag $IMAGE:$COMMIT $IMAGE:$TAG
+  - docker push $IMAGE
+
 cache:
   directories:
-  - $HOME/.m2
+    - "$HOME/.m2"
+
+env:
+  global:
+    - secure: MizCkK0yJ+zgbmoKOFzHQT/91qBQXV1XOE3Mxwh77UkdeCPTWADP+4Pln1NM7U+lZbU8aRuYaaNDcBiHdC3BYKUrArt94KNBiTwO3/d5/z02bA82COIz4QBTYtF3erX2gS+2YM8ygSwAXl/9FeIcIeDfN/ceVG0PBa/pI34zuxbuFWUY6SYlhDa+TDQiODkTqibbRhbjbbzvlNBAI6roNH8ysQKSnJMWC3h7ohdW6Yyg+enJD4rrJBjVhFeqI3synfYPl6zDtklr/m0hgZYdEE2S1ukFYTfKtYv/AmWVSMnyv3bdFLik1zt/QjLL6hC9gRBMPQwTRsM/i4WGHBEkDMzo3FSkF3v4+YemGAajjSc1N9pTSNMQP7Rk5devw1h09uxxK2l//1c0lb+8OyUzaD29fs41ivgV/ULVYFQhbmGH48wrXM27rZavW2WLV5AcIfhZV2mtSky8hTJi4d+kRS9yOuVL/0J091+XGtuhCYmJvH0TH+wECI2w5Kkbb3FJOtMu7bL7iUwAxXW7+X0GWR6FFgI0FQLW7CWh3NRhWQIzQHB6rQYsGPLhylOf8I0dFjDzR2Gk5UxpvFEvwJL6Igx2/K31FVXRkZZPjWqIS6HEXKDklVt1hj3XJb5Zv1hxpgP+JvmFlIp7fW9exg0GSRi4A5ugVdaI8kF7prRLgvI=
+    - secure: lea2r9UrFezXDIwtOtxrwmBOFYu59/r4JKa1re8rd7M/kvPo7fUJpq8doGMTn0ErKpRaNxcbcoUz3PyN1gr0k7YkX68+vF2tE4GGi0ICdXgE9oaVrimVs97fvRhc+qr3/oWi0bYDAfsrhZc2Ty+aOq6pVOUzjvWe2OAXTcyubY5imtjCxVqAEkmsH4MUQMTx/wjnBEzvmJlvQsYk9Z3c6yarO0n+Xqqho67NeziHWI3/L09WZDZ89A96byigE1OSjY+GcEGqIgFF6aWzRcRA2YPwMGbogz6djo2AEgGriBF0ziegG5ltz0sexp4kE/aRVrA5xg+sdOR5eKXIGFbBakrRT13TOJJjRLmOYr5FpCyOKTUGjlT0bxL3n1YsMcn39OvATgADT7+MCdvVDA1EdiPii3UO91FjmO6Akd6cW1vIZ5uQed/4gEyDTNfI4zjiaPt7A0HqAyXKa5LWMpa3rvt58cPmwL63ta1DzubxhJZAAd25+PIdMqgEaazXkaVLg2QrhOPBSr1M2F6vUqI5pFGVN42ZUjyqT99xBkDR1DTXAoWjrKMUUQTCuDc/4yjxh10UP3EmBmOP6fWoTkeD9fQS7Slt55g03NvKsOVyC66j3jisn64os6r0fgvBSb/fvvZZA+aia77JfeDkiyF2NPItth+5qjTwWDA9TkAp06s=
+    - secure: T/+4cVr2pWUviJj6V6aY0jQnLRa372IgXffXZbdgTxcezV9E9eMTt3ArqYZAsZ+/LGhVPj1ewa3M8I+7DD8mnNKLCX2+IiUKJ449BXFsrmmGL61SsDlDLfHBxEzZNRM3mvTiXh0PFciQJ/Oyfb8igGRG7bCCvX6p2iDG3xO6dP4g25/qqYtKKu93ljigRtKZnPcnAAwMY8M7lE3kts0qavLBEB0eldM8njbFISJN/o7nebjh6AwAnvkMo7hiLlAqcB91w9dOdn8kT7stus7B5h9BP2C6Fpev2lTHNK5sg3ErbfLPFCTLjXyqBw1TA6qZ4BeMXnrzO9Wo/x78g1G+DV+gT1YB52txVbVViQl3ii7p+DF2lR2FTqPRcXmT2ij02q0vMRXdAIp4rOalBBzCalKoe9UDUkWKMzzvXaC/4BK7dr6vb/wFm3yAzlJufI5SSX29MecvKLFLuwfa+gV0MEjKqQmw2owoRZZ+mwyL2M41af/UcmGKAW1nPIanE0An0UTsDPl2oH+Jv/jt7yBLTHDC0C9CEy5A704Vw8GFARkw7kp/DDtb96pLd+x9sHIiWCprzm0rCAdsFCMXoKfbMVB60AbM6CnOIdM4WgnrBBp2OlIq1l+EdCOv4TLEZQB4OJVeQ51pGvTPUWZprvSCgp8FKWaCnCJ8dq4dNbUMlv4=
