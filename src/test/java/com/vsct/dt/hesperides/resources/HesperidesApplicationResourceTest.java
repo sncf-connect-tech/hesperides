@@ -23,11 +23,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.eventbus.EventBus;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.UniformInterfaceException;
-import com.vsct.dt.hesperides.applications.Applications;
-import com.vsct.dt.hesperides.applications.InstanceModel;
-import com.vsct.dt.hesperides.applications.PlatformKey;
+import com.vsct.dt.hesperides.HesperidesCacheParameter;
+import com.vsct.dt.hesperides.HesperidesConfiguration;
+import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.exception.runtime.IncoherentVersionException;
 import com.vsct.dt.hesperides.exception.runtime.OutOfDateVersionException;
 import com.vsct.dt.hesperides.exception.wrapper.*;
@@ -37,11 +38,16 @@ import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
+import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.RedisEventStore;
+import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.platform.*;
+import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
+import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
 import com.vsct.dt.hesperides.util.converter.ApplicationConverter;
@@ -90,6 +96,11 @@ public class HesperidesApplicationResourceTest {
 
     private final String comment = "Test comment";
 
+    private final EventBus eventBus = new EventBus();
+    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private ApplicationsAggregate applicationsWithEvent;
+
     @ClassRule
     public static ResourceTestRule simpleAuthResources = ResourceTestRule.builder()
             .addProvider(new BasicAuthProvider<>(
@@ -131,6 +142,22 @@ public class HesperidesApplicationResourceTest {
     public void setup() throws AuthenticationException {
         reset(applications);
         reset(applicationSearch);
+
+        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
+        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
+
+        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
+        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
+        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
+        hesperidesCacheConfiguration.setTemplatePackage(hesperidesCacheParameter);
+        hesperidesCacheConfiguration.setNbEventBeforePersiste(10000);
+
+        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
+        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
+
+        applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore,
+                new SnapshotRegistry(poolRedis.getPool()), hesperidesConfiguration);
+        poolRedis.reset();
     }
 
     @Test
@@ -1381,5 +1408,43 @@ public class HesperidesApplicationResourceTest {
         assertThat(response.get("global").get(0).get("inModel")).isEqualTo(true);
         assertThat(response.get("second_global").get(0).get("inModel")).isEqualTo(true);
         assertThat(response.get("third_global").get(0).get("inModel")).isEqualTo(false);
+    }
+
+    @Test
+    public void no_npe_on_timeline_request_on_snapshot_events() {
+        ApplicationModuleData module1 = ApplicationModuleData
+                .withApplicationName("module1")
+                .withVersion("version")
+                .withPath("#path#1#the_module_name#the_module_version#WORKINGCOPY")
+                .withId(0)
+                .withInstances(Sets.newHashSet())
+                .isWorkingcopy()
+                .build();
+
+        final PlatformKey platformKey = PlatformKey.withName("a_pltfm")
+                .withApplicationName("an_app")
+                .build();
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet(module1))
+                .withVersion(1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder1.build());
+        applicationsWithEvent.takeSnapshot(platformKey);
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("key", "prop_{{instance_key}}")), Sets.newHashSet());
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#the_module_name#the_module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+        PropertiesData propertiesDataOutput = applicationsWithEvent.getProperties(
+                platformKey,
+                "#path#1#the_module_name#the_module_version#WORKINGCOPY",
+                System.currentTimeMillis());
+
+        DefaultPropertiesConverter defaultPropertiesConverter = new DefaultPropertiesConverter();
+        PropertiesData propertiesDataInput = defaultPropertiesConverter.toPropertiesData(properties);
+        assertThat(propertiesDataInput.getKeyValueProperties()).isEqualTo(propertiesDataOutput.getKeyValueProperties());
     }
 }
