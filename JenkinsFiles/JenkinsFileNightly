@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven3'
+        jdk 'JDK1.8_131_64bits'
+    }
+    stages {
+        stage('Initialize') {
+            steps {
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                '''
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn -Dmaven.test.failure.ignore=true install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                success {
+                    junit 'target/surefire-reports/**/*.xml'
+                }
+            }
+        }
+
+        stage('SonarQube analysis') {
+            steps {
+                withSonarQubeEnv(env.SONARQUBE_URL) {
+                    // requires SonarQube Scanner for Maven 3.2+
+                    sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
+                }
+            }
+        }
+    }
+}

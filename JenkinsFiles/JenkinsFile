@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven3'
+        jdk 'JDK1.8_131_64bits'
+    }
+    stages {
+        stage('Initialize') {
+            steps {
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                '''
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn -Dmaven.test.failure.ignore=true install'
+            }
+        }
+    }
+}
