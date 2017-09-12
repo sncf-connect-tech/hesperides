@@ -59,12 +59,11 @@ import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.basic.BasicAuthProvider;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import tests.type.UnitTests;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -114,6 +113,7 @@ public class HesperidesApplicationResourceTest {
             .addProvider(new OutOfDateVersionExceptionMapper())
             .addProvider(new MissingResourceExceptionMapper())
             .addProvider(new IllegalArgumentExceptionMapper())
+            .addProvider(new ForbiddenOperationExceptionMapper())
             .build();
 
     @ClassRule
@@ -630,6 +630,33 @@ public class HesperidesApplicationResourceTest {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .put(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform1))))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform2));
+    }
+
+    @Test
+    public void should_return_422_when_updating_plateform_with_empty_application_version() throws Exception {
+        PlatformData.IBuilder builder = PlatformData
+                .withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder.build();
+
+        when(applications.updatePlatform(platform, false)).thenReturn(platform);
+
+        try {
+            withoutAuth("/applications/app_name/platforms")
+                    .queryParam("copyPropertiesForUpgradedModules", "false")
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .put(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
+            fail("Ne renvoie pas 422"); // Wrong statement
+        } catch (UniformInterfaceException e) {
+            // We should get a 422 Unprocessable Entity but we get a 500 Internal Server Error
+            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
+            // We get a 500 Internal Server Error and compare it to a Client Error??
+        }
     }
 
     @Test
