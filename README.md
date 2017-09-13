@@ -1,7 +1,7 @@
-[![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=master)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
-
 Backend Hesperides
 ========
+
+[![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=master)](https://travis-ci.org/voyages-sncf-technologies/hesperides) [![codecov](https://codecov.io/gh/voyages-sncf-technologies/hesperides/branch/master/graph/badge.svg)](https://codecov.io/gh/voyages-sncf-technologies/hesperides)
 
 Hesperides is an open source tool with a frontend (hesperides-gui) and a backend (hesperides).
 
