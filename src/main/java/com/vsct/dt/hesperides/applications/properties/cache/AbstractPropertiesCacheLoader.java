@@ -95,7 +95,11 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
 
             final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(store);
 
-            virtualApplicationsAggregate.replay(redisKey);
+            if (timestamp == Long.MAX_VALUE) {
+                virtualApplicationsAggregate.replay(redisKey);
+            } else {
+                virtualApplicationsAggregate.replay(redisKey, 0, Long.MAX_VALUE, timestamp);
+            }
 
             updatePropertiesContainer(propertiesBuilder, virtualApplicationsAggregate);
         } else {

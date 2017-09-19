@@ -596,7 +596,7 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     @Override
     public List<String> lrange(String redisKey, long start, long stop) {
         final List<String> currentStream = this.redisList.get(redisKey);
-        List<String> subList = null;
+        List<String> subList = new ArrayList<>();
 
         if (currentStream != null) {
             /* Out-of-range indexes
@@ -604,9 +604,7 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
              * list is returned. If stop is larger than the actual end of the list, Redis will treat it like the last
              * element of the list.
              */
-            if (start >= currentStream.size()) {
-                subList = new ArrayList<>();
-            } else {
+            if (start < currentStream.size()) {
                 if (start < 0) {
                     start = 0;
                 }
@@ -621,12 +619,10 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
                 try {
                     subList = currentStream.subList((int) start, (int) stop);
-                } catch (IndexOutOfBoundsException e) {
+                } catch (final IndexOutOfBoundsException e) {
                     System.out.println("Ouille !");
                 }
             }
-        } else {
-            subList = new ArrayList<>();
         }
 
         return subList;

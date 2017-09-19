@@ -23,7 +23,11 @@ import com.google.common.cache.LoadingCache;
 import com.vsct.dt.hesperides.AbstractCacheTest;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.PlatformKey;
+import com.vsct.dt.hesperides.resources.ApplicationModule;
+import com.vsct.dt.hesperides.resources.Instance;
+import com.vsct.dt.hesperides.resources.Platform;
 import com.vsct.dt.hesperides.storage.HesperidesSnapshotItem;
+import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.modules.event.ModuleContainer;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
@@ -32,13 +36,20 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.event.TemplatePackageContainer;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
+import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
+import com.vsct.dt.hesperides.templating.platform.PlatformData;
+import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
+import com.vsct.dt.hesperides.util.converter.impl.DefaultPlatformConverter;
+
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -256,5 +267,99 @@ public class CacheTest extends AbstractCacheTest {
         assertThat(snapshot).isNotNull();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(100);
+    }
+
+    @Test
+    public void should_get_platform_with_timestamp() throws InterruptedException {
+        // First, create Module
+        final ModuleWorkingCopyKey moduleKey = generateModule(1);
+
+        final Module module = modulesWithEvent.getModule(moduleKey).get();
+
+        // Then create Application/Platform
+        final PlatformKey platformKey = generateApplication(1);
+
+        // Get Platform for version_id and update
+        PlatformData ptf = applicationsWithEvent.getPlatform(platformKey).get();
+
+        // TODO remove
+        final DefaultPlatformConverter ptfConverter = new DefaultPlatformConverter();
+
+        final Set<Instance> instances = new HashSet<>();
+
+        // Create instance and module in platform
+        instances.add(new Instance("TOTO_TITI", new HashSet<>()));
+
+        final ApplicationModule appModule = new ApplicationModule(
+                moduleKey.getName(),
+                moduleKey.getVersion().getVersionName(),
+                moduleKey.isWorkingCopy(),
+                "#WAS",
+                instances,
+                (int) module.getVersionID());
+
+        final Set<ApplicationModule> modules = new HashSet<>();
+        modules.add(appModule);
+
+        // Platform need to be convert to update (PlatformData is immutable and Modules set is immutable)
+        final Platform newPtf = new Platform(
+                ptf.getPlatformName(),
+                ptf.getApplicationName(),
+                ptf.getApplicationVersion(),
+                ptf.isProduction(),
+                modules,
+                ptf.getVersionID());
+
+        Thread.sleep(200);
+
+        applicationsWithEvent.updatePlatform(ptfConverter.toPlatformData(newPtf), false);
+
+        // Add properties
+        ptf = applicationsWithEvent.getPlatform(platformKey).get();
+
+        final PropertiesData propertiesOld = createPropertiesData("myProp", "1");
+
+        Thread.sleep(200);
+
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey, "#WAS", propertiesOld, ptf.getVersionID(), "comment 1");
+
+        // Keep timestamp
+        final long timestamp = System.currentTimeMillis();
+
+        // New properties
+        ptf = applicationsWithEvent.getPlatform(platformKey).get();
+
+        final PropertiesData propertiesNew = createPropertiesData("myProp1", "1", "myProp2", "2");
+
+        Thread.sleep(200);
+
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey, "#WAS", propertiesNew, ptf.getVersionID(), "comment 2");
+
+        // Get properties with previous timestamp and check number of propperties
+        final PropertiesData prop = applicationsWithEvent.getProperties(platformKey, "#WAS", timestamp);
+
+        assertThat(prop.getKeyValueProperties().size()).isEqualTo(1);
+
+        final KeyValueValorisationData keyValue = prop.getKeyValueProperties().iterator().next();
+        assertThat(keyValue.getName()).isEqualTo("myProp");
+        assertThat(keyValue.getValue()).isEqualTo("1");
+    }
+
+    /**
+     * Create properties.
+     *
+     * @param keyValue "key" => "value"
+     *
+     * @return
+     */
+    private static PropertiesData createPropertiesData(final String... keyValue) {
+        final Set<KeyValueValorisationData> keyValueProperties = new HashSet<>();
+
+        for (int index = 0; index < keyValue.length; index += 2) {
+            keyValueProperties.add(new KeyValueValorisationData(keyValue[index], keyValue[index + 1]));
+        }
+
+
+        return new PropertiesData(keyValueProperties, new HashSet<>());
     }
 }

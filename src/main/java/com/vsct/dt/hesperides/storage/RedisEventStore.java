@@ -23,6 +23,8 @@ package com.vsct.dt.hesperides.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
+
 import com.vsct.dt.hesperides.util.ManageableJedisConnectionInterface;
 import io.dropwizard.jackson.Jackson;
 import org.slf4j.Logger;
@@ -334,7 +336,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
             long ioAccumulator = 0, serializationAccumulator = 0, processingAccumulator = 0;
 
-            for (indexBatch = start; indexBatch < stop; indexBatch = indexBatch + BATCH_SIZE) {
+            // Check if "stop" var is > to nb event in stream
+            final long stopBatch = Math.min(stop, jedis.llen(streamName));
+
+            for (indexBatch = start; indexBatch < stopBatch; indexBatch = indexBatch + BATCH_SIZE) {
 
                 startIO = System.nanoTime();
 
@@ -359,7 +364,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     if (event.getTimestamp() > stopTimestamp) {
                         //No need to go beyong this point in time
-                        indexBatch = stop;
+                        indexBatch = stopBatch;
                         break;
                     }
 
