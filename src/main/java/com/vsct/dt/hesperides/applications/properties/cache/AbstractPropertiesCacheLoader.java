@@ -93,16 +93,22 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
 
             propertiesBuilder = (PlatformContainer) snapshot.getSnapshot();
 
+            // If snapshot is done on last event, do nothing
+            if (snapshot.getStreamNbEvents() <= snapshot.getCacheNbEvents()) {
+                return propertiesBuilder;
+            }
+
             final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(
                     store,
                     propertiesBuilder.getPlatform(),
                     propertiesBuilder.getProperties());
-            final long start = snapshot.getNbEvents();
-            final long stop = snapshot.getCurrentNbEvents();
+            final long start = snapshot.getCacheNbEvents();
+            final long stop = snapshot.getStreamNbEvents();
 
+            // If no timestamp, but snapshot missing last event, replay it until at end
             if (timestamp == Long.MAX_VALUE) {
                 virtualApplicationsAggregate.replay(redisKey, start, stop);
-            } else if (snapshot.getCurrentNbEvents() > snapshot.getNbEvents()) {
+            } else if (snapshot.getStreamNbEvents() > snapshot.getCacheNbEvents()) {
                 virtualApplicationsAggregate.replay(redisKey, start, stop, timestamp);
             }
 

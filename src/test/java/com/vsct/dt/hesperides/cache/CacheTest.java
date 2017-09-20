@@ -23,10 +23,6 @@ import com.google.common.cache.LoadingCache;
 import com.vsct.dt.hesperides.AbstractCacheTest;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.PlatformKey;
-import com.vsct.dt.hesperides.resources.ApplicationModule;
-import com.vsct.dt.hesperides.resources.Instance;
-import com.vsct.dt.hesperides.resources.Platform;
-import com.vsct.dt.hesperides.storage.EventTimeProvider;
 import com.vsct.dt.hesperides.storage.HesperidesSnapshotItem;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
@@ -43,7 +39,6 @@ import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
-import com.vsct.dt.hesperides.util.converter.impl.DefaultPlatformConverter;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -78,7 +73,7 @@ public class CacheTest extends AbstractCacheTest {
 
         final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(5);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(5);
 
         final TemplatePackageContainer container = (TemplatePackageContainer) snapshot.getSnapshot();
 
@@ -138,7 +133,7 @@ public class CacheTest extends AbstractCacheTest {
 
         final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(5);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(5);
 
         final TemplatePackageContainer container = (TemplatePackageContainer) snapshot.getSnapshot();
 
@@ -163,7 +158,7 @@ public class CacheTest extends AbstractCacheTest {
 
         final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(5);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(5);
 
         final ModuleContainer container = (ModuleContainer) snapshot.getSnapshot();
 
@@ -185,7 +180,7 @@ public class CacheTest extends AbstractCacheTest {
 
         final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(5);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(5);
 
         final ModuleContainer container = (ModuleContainer) snapshot.getSnapshot();
 
@@ -210,7 +205,7 @@ public class CacheTest extends AbstractCacheTest {
 
         assertThat(snapshot).isNotNull();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(5);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(5);
     }
 
     @Test
@@ -228,7 +223,7 @@ public class CacheTest extends AbstractCacheTest {
 
         assertThat(snapshot).isNotNull();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(5);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(5);
     }
 
 
@@ -260,7 +255,7 @@ public class CacheTest extends AbstractCacheTest {
 
         final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(100);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(100);
     }
 
     @Test
@@ -291,7 +286,7 @@ public class CacheTest extends AbstractCacheTest {
 
         final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-        assertThat(snapshot.getNbEvents()).isEqualTo(100);
+        assertThat(snapshot.getCacheNbEvents()).isEqualTo(100);
     }
 
     @Test

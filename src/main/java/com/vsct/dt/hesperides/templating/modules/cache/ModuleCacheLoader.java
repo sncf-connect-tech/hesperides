@@ -89,16 +89,19 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
 
             moduleContainer = (ModuleContainer) snapshot.getSnapshot();
 
-            if (snapshot.getCurrentNbEvents() > snapshot.getNbEvents()) {
-                final VirtualModulesAggregate virtualModulesAggregate = new VirtualModulesAggregate(getStore(),
-                        moduleContainer.getModule(), moduleContainer.loadAllTemplate());
-
-                virtualModulesAggregate.replay(redisKey, snapshot.getNbEvents(), snapshot.getCurrentNbEvents());
-
-                final Optional<Module> module = virtualModulesAggregate.getModule(moduleKey);
-
-                updateModuleContainer(moduleKey, moduleContainer, virtualModulesAggregate, module);
+            // If snapshot is done on last event, do nothing
+            if (snapshot.getStreamNbEvents() <= snapshot.getCacheNbEvents()) {
+                return moduleContainer;
             }
+
+            final VirtualModulesAggregate virtualModulesAggregate = new VirtualModulesAggregate(getStore(),
+                    moduleContainer.getModule(), moduleContainer.loadAllTemplate());
+
+            virtualModulesAggregate.replay(redisKey, snapshot.getCacheNbEvents(), snapshot.getStreamNbEvents());
+
+            final Optional<Module> module = virtualModulesAggregate.getModule(moduleKey);
+
+            updateModuleContainer(moduleKey, moduleContainer, virtualModulesAggregate, module);
         } else {
             // Module builder
             moduleContainer = createEventBuilder();

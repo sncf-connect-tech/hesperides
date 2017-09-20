@@ -87,19 +87,22 @@ public class TemplatePackageCacheLoader extends AbstractTemplateCacheLoader<Stri
 
             templatePackageContainer = (TemplatePackageContainer) snapshot.getSnapshot();
 
-            if (snapshot.getCurrentNbEvents() > snapshot.getNbEvents()) {
-                final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
-                        = new VirtualTemplatePackagesAggregate(
-                        getStore(),
-                        templatePackageContainer.loadAllTemplate());
-
-                final long start = snapshot.getNbEvents();
-                final long stop = snapshot.getCurrentNbEvents();
-
-                virtualTemplatePackagesAggregate.replay(redisKey, start, stop);
-
-                updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
+            // If snapshot is done on last event, do nothing
+            if (snapshot.getStreamNbEvents() <= snapshot.getCacheNbEvents()) {
+                return templatePackageContainer;
             }
+
+            final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
+                    = new VirtualTemplatePackagesAggregate(
+                    getStore(),
+                    templatePackageContainer.loadAllTemplate());
+
+            final long start = snapshot.getCacheNbEvents();
+            final long stop = snapshot.getStreamNbEvents();
+
+            virtualTemplatePackagesAggregate.replay(redisKey, start, stop);
+
+            updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
         } else {
                 // Module builder
                 templatePackageContainer = createEventBuilder();
