@@ -57,7 +57,7 @@ import tests.type.UnitTests;
 public class ApplicationsAggregateTest {
     private static final PropertiesConverter PROPERTIES_CONVERTER = new DefaultPropertiesConverter();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
 
     private EventBus         eventBus        = new EventBus();
     private SnapshotRegistryInterface snapshotRegistryInterface = mock(SnapshotRegistry.class);

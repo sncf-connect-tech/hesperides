@@ -61,7 +61,7 @@ public class ModulesAggregateTest {
 
     private final EventBus       eventBus       = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
     private final TemplatePackagesAggregate templatePackages = mock(TemplatePackagesAggregate.class);
 
     private ModulesAggregate modulesWithEvent;

@@ -85,8 +85,7 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
             // In case of max value, we get last snapshot
             hesperidesSnapshotItem = store.findLastSnapshot(redisKey);
         } else {
-            hesperidesSnapshotItem = store.findSnapshot(redisKey, nbEventBeforePersiste,
-                    e -> e.getTimestamp() > timestamp);
+            hesperidesSnapshotItem = store.findSnapshot(redisKey, nbEventBeforePersiste, timestamp);
         }
 
         if (hesperidesSnapshotItem == null

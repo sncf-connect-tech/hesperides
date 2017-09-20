@@ -25,6 +25,7 @@ import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
 import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.EventTimeProvider;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.modules.Module;
@@ -48,13 +49,25 @@ public abstract class AbstractCacheTest {
 
     protected final EventBus eventBus       = new EventBus();
     protected final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    protected final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    protected final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> getTimeStamp());
     protected TemplatePackagesAggregate templatePackagesWithEvent;
     protected ModulesAggregate modulesWithEvent;
     protected ApplicationsAggregate applicationsWithEvent;
 
+    /**
+     * Allow to override in test.
+     * Reset at each test.
+     */
+    protected ManualTimeStamp timeProvider;
+
+    private long getTimeStamp() {
+        return this.timeProvider.timestamp();
+    }
+
     @Before
     public void setUp() throws Exception {
+        this.timeProvider = new ManualTimeStamp();
+
         final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
         final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
 
@@ -169,6 +182,19 @@ public abstract class AbstractCacheTest {
                     .isProduction();
 
             applicationsWithEvent.updatePlatform(builder1.build(), false);
+        }
+    }
+
+    public class ManualTimeStamp implements EventTimeProvider {
+        private long timestamp = 200L;
+
+        @Override
+        public long timestamp() {
+            return timestamp++;
+        }
+
+        public long currentTimestamp() {
+            return timestamp;
         }
     }
 }

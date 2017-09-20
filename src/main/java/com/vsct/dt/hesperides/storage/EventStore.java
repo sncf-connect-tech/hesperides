@@ -59,11 +59,11 @@ public interface EventStore {
      *
      * @param streamName
      * @param offset
-     * @param et lambda expression to validate event to be returned
+     * @param timestamp lambda expression to validate event to be returned
      *
      * @return
      */
-    HesperidesSnapshotItem findSnapshot(String streamName, long offset, EventTester<Event> et);
+    HesperidesSnapshotItem findSnapshot(String streamName, long offset, long timestamp);
 
     /**
      * Save snapshot.

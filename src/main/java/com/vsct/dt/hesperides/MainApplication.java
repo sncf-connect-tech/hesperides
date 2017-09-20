@@ -161,7 +161,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
                 = new ManageableJedisConnection(
                 hesperidesConfiguration.getCacheConfiguration().getRedisConfiguration());
 
-        eventStore = new RedisEventStore(manageableJedisConnectionPool, snapshotManageableJedisConnectionPool);
+        eventStore = new RedisEventStore(manageableJedisConnectionPool, snapshotManageableJedisConnectionPool, () -> System.currentTimeMillis());
         environment.lifecycle().manage(manageableJedisConnectionPool);
 
         LOGGER.debug("Creating Event Bus");

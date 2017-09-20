@@ -82,7 +82,7 @@ public class FilesTest {
 
     private final EventBus       eventBus       = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
     private ApplicationsAggregate     applications;
     private ModulesAggregate          modules;
     private TemplatePackagesAggregate templatePackages;

@@ -16,19 +16,18 @@
  *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 package com.vsct.dt.hesperides.storage;
 
 /**
  * Created by emeric_martineau on 14/11/2016.
  */
 @FunctionalInterface
-public interface EventTester<T> {
+public interface EventTimeProvider {
     /**
-     * Test event.
+     * Provide timestamp.
      *
-     * @param t event
-     *
-     * @return if event is ok, return this
+     * @return if timestamp
      */
-    boolean test(T t);
+    long timestamp();
 }
