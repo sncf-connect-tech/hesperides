@@ -72,9 +72,11 @@ public class CacheTest extends AbstractCacheTest {
         final String redisKey = String.format("%s-%s",
                 templatePackagesWithEvent.getStreamPrefix(), packageInfo.getEntityName());
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
 
-        assertThat(snapshot).isNotNull();
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(5);
 
@@ -130,9 +132,11 @@ public class CacheTest extends AbstractCacheTest {
         final String redisKey = String.format("%s-%s",
                 templatePackagesWithEvent.getStreamPrefix(), packageInfo.getEntityName());
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
 
-        assertThat(snapshot).isNotNull();
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(5);
 
@@ -153,9 +157,11 @@ public class CacheTest extends AbstractCacheTest {
         final String redisKey = String.format("%s-%s",
                 modulesWithEvent.getStreamPrefix(), moduleKey.getEntityName());
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
 
-        assertThat(snapshot).isNotNull();
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(5);
 
@@ -173,9 +179,11 @@ public class CacheTest extends AbstractCacheTest {
         final String redisKey = String.format("%s-%s",
                 modulesWithEvent.getStreamPrefix(), moduleKey.getEntityName());
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
 
-        assertThat(snapshot).isNotNull();
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(5);
 
@@ -194,7 +202,11 @@ public class CacheTest extends AbstractCacheTest {
         final String redisKey = String.format("%s-%s",
                 applicationsWithEvent.getStreamPrefix(), platformKey.getEntityName());
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
+
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot).isNotNull();
 
@@ -208,7 +220,11 @@ public class CacheTest extends AbstractCacheTest {
         final String redisKey = String.format("%s-%s",
                 applicationsWithEvent.getStreamPrefix(), platformKey.getEntityName());
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
+
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot).isNotNull();
 
@@ -238,9 +254,11 @@ public class CacheTest extends AbstractCacheTest {
 
         assertThat(cacheList.size()).isEqualTo(20);
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
 
-        assertThat(snapshot).isNotNull();
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(100);
     }
@@ -267,9 +285,11 @@ public class CacheTest extends AbstractCacheTest {
 
         assertThat(cacheList.size()).isEqualTo(20);
 
-        final HesperidesSnapshotItem snapshot = eventStore.findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = eventStore.findLastSnapshot(redisKey);
 
-        assertThat(snapshot).isNotNull();
+        assertThat(hesperidesSnapshotItem.isPresent()).isTrue();
+
+        final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
         assertThat(snapshot.getNbEvents()).isEqualTo(100);
     }

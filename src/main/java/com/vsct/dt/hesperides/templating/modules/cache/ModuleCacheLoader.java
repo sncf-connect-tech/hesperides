@@ -80,12 +80,26 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
         final String redisKey = generateDbKey(moduleKey);
 
         // First seach last snapshot
-        final HesperidesSnapshotItem hesperidesSnapshotItem = getStore().findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = getStore().findLastSnapshot(redisKey);
 
         ModuleContainer moduleContainer;
 
-        if (hesperidesSnapshotItem == null
-                || hesperidesSnapshotItem.getCurrentNbEvents() < hesperidesSnapshotItem.getNbEvents()) {
+        if (hesperidesSnapshotItem.isPresent()) {
+            final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
+
+            moduleContainer = (ModuleContainer) snapshot.getSnapshot();
+
+            if (snapshot.getCurrentNbEvents() > snapshot.getNbEvents()) {
+                final VirtualModulesAggregate virtualModulesAggregate = new VirtualModulesAggregate(getStore(),
+                        moduleContainer.getModule(), moduleContainer.loadAllTemplate());
+
+                virtualModulesAggregate.replay(redisKey, snapshot.getNbEvents(), snapshot.getCurrentNbEvents());
+
+                final Optional<Module> module = virtualModulesAggregate.getModule(moduleKey);
+
+                updateModuleContainer(moduleKey, moduleContainer, virtualModulesAggregate, module);
+            }
+        } else {
             // Module builder
             moduleContainer = createEventBuilder();
 
@@ -99,20 +113,6 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
             final Optional<Module> module = virtualModulesAggregate.getModule(moduleKey);
 
             updateModuleContainer(moduleKey, moduleContainer, virtualModulesAggregate, module);
-        } else {
-            moduleContainer = (ModuleContainer) hesperidesSnapshotItem.getSnapshot();
-
-            if (hesperidesSnapshotItem.getCurrentNbEvents() > hesperidesSnapshotItem.getNbEvents()) {
-                final VirtualModulesAggregate virtualModulesAggregate = new VirtualModulesAggregate(getStore(),
-                        moduleContainer.getModule(), moduleContainer.loadAllTemplate());
-
-                virtualModulesAggregate.replay(redisKey, hesperidesSnapshotItem.getNbEvents(),
-                        hesperidesSnapshotItem.getCurrentNbEvents());
-
-                final Optional<Module> module = virtualModulesAggregate.getModule(moduleKey);
-
-                updateModuleContainer(moduleKey, moduleContainer, virtualModulesAggregate, module);
-            }
         }
 
         // Can't return null !!!!

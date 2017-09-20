@@ -37,6 +37,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -158,10 +159,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public HesperidesSnapshotItem findSnapshot(final String streamName, final long offset, final long timestamp) {
-        return execute(dataPool, snapshotPool, new RedisCommand<HesperidesSnapshotItem, A>() {
+    public Optional<HesperidesSnapshotItem> findSnapshot(final String streamName, final long offset, final long timestamp) {
+        return execute(dataPool, snapshotPool, new RedisCommand<Optional<HesperidesSnapshotItem>, A>() {
             @Override
-            public HesperidesSnapshotItem execute(final A jedisData, final A jedisSnapshot) throws Throwable {
+            public Optional<HesperidesSnapshotItem> execute(final A jedisData, final A jedisSnapshot) throws Throwable {
                 final String redisSnapshotKey = String.format("snapshotevents-%s", streamName);
 
                 if (jedisData.exists(streamName) && jedisSnapshot.exists(redisSnapshotKey)) {
@@ -214,7 +215,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
                     selectedCacheIndex = (currentEventIndex / offset) - 1;
 
                     if (selectedCacheIndex < 0) {
-                        return null;
+                        return Optional.empty();
                     }
 
                     final List<String> lastCache = jedisSnapshot.lrange(redisSnapshotKey, selectedCacheIndex, selectedCacheIndex);
@@ -224,10 +225,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     Object object = MAPPER.readValue(cache.getData(), Class.forName(cache.getCacheType()));
 
-                    return new HesperidesSnapshotItem(object, cache.getNbEvents(), currentEventIndex);
+                    return Optional.of(new HesperidesSnapshotItem(object, cache.getNbEvents(), currentEventIndex));
                 }
 
-                return null;
+                return Optional.empty();
             }
 
             @Override
@@ -244,10 +245,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public HesperidesSnapshotItem findLastSnapshot(final String streamName) {
-        return execute(dataPool, snapshotPool, new RedisCommand<HesperidesSnapshotItem, A>() {
+    public Optional<HesperidesSnapshotItem> findLastSnapshot(final String streamName) {
+        return execute(dataPool, snapshotPool, new RedisCommand<Optional<HesperidesSnapshotItem>, A>() {
             @Override
-            public HesperidesSnapshotItem execute(final A jedisData, final A jedisSnapshot) throws Throwable {
+            public Optional<HesperidesSnapshotItem> execute(final A jedisData, final A jedisSnapshot) throws Throwable {
                 final String redisSnapshotKey = String.format("snapshotevents-%s", streamName);
 
                 if (jedisSnapshot.exists(redisSnapshotKey)) {
@@ -259,10 +260,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     Object object = MAPPER.readValue(cache.getData(), Class.forName(cache.getCacheType()));
 
-                    return new HesperidesSnapshotItem(object, cache.getNbEvents(), jedisData.llen(streamName));
+                    return Optional.of(new HesperidesSnapshotItem(object, cache.getNbEvents(), jedisData.llen(streamName)));
                 }
 
-                return null;
+                return Optional.empty();
             }
 
             @Override
