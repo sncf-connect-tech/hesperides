@@ -22,6 +22,7 @@
 package com.vsct.dt.hesperides.storage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -52,18 +53,18 @@ public interface EventStore {
      * @param streamName
      * @return
      */
-    HesperidesSnapshotItem findLastSnapshot(String streamName);
+    Optional<HesperidesSnapshotItem> findLastSnapshot(String streamName);
 
     /**
      * Read snapshot.
      *
      * @param streamName
      * @param offset
-     * @param et lambda expression to validate event to be returned
+     * @param timestamp lambda expression to validate event to be returned
      *
      * @return
      */
-    HesperidesSnapshotItem findSnapshot(String streamName, long offset, EventTester<Event> et);
+    Optional<HesperidesSnapshotItem> findSnapshot(String streamName, long offset, long timestamp);
 
     /**
      * Save snapshot.

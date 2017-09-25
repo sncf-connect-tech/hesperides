@@ -115,7 +115,7 @@ public class ModuleSearch {
      * @return list of module
      */
     public List<ModuleSearchResponse> getModulesByNameAndVersion(final String name, final String version) {
-        String url = String.format("/modules/_search?size=%1$s", 1);
+        String url = "/modules/_search";
 
         String body = TemplateContentGenerator.from(mustacheSearchByNameAndVersion)
                 .put("name", name.toLowerCase())
