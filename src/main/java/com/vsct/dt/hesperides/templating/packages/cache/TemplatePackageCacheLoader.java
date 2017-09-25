@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -77,37 +78,41 @@ public class TemplatePackageCacheLoader extends AbstractTemplateCacheLoader<Stri
         final String redisKey = generateDbKey(new ModuleKey(namespace));
 
         // First seach last snapshot
-        final HesperidesSnapshotItem hesperidesSnapshotItem = getStore().findLastSnapshot(redisKey);
+        final Optional<HesperidesSnapshotItem> hesperidesSnapshotItem = getStore().findLastSnapshot(redisKey);
 
         TemplatePackageContainer templatePackageContainer;
 
-        if (hesperidesSnapshotItem == null
-                || hesperidesSnapshotItem.getCurrentNbEvents() < hesperidesSnapshotItem.getNbEvents()) {
-            // Module builder
-            templatePackageContainer = createEventBuilder();
+        if (hesperidesSnapshotItem.isPresent()) {
+            final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
+
+            templatePackageContainer = (TemplatePackageContainer) snapshot.getSnapshot();
+
+            // If snapshot is done on last event, do nothing
+            if (snapshot.getStreamNbEvents() <= snapshot.getCacheNbEvents()) {
+                return templatePackageContainer;
+            }
 
             final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
-                    = new VirtualTemplatePackagesAggregate(getStore());
+                    = new VirtualTemplatePackagesAggregate(
+                    getStore(),
+                    templatePackageContainer.loadAllTemplate());
 
-            virtualTemplatePackagesAggregate.replay(redisKey);
+            final long start = snapshot.getCacheNbEvents();
+            final long stop = snapshot.getStreamNbEvents();
+
+            virtualTemplatePackagesAggregate.replay(redisKey, start, stop);
 
             updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
         } else {
-            templatePackageContainer = (TemplatePackageContainer) hesperidesSnapshotItem.getSnapshot();
+                // Module builder
+                templatePackageContainer = createEventBuilder();
 
-            if (hesperidesSnapshotItem.getCurrentNbEvents() > hesperidesSnapshotItem.getNbEvents()) {
                 final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
-                        = new VirtualTemplatePackagesAggregate(
-                        getStore(),
-                        templatePackageContainer.loadAllTemplate());
+                        = new VirtualTemplatePackagesAggregate(getStore());
 
-                final long start = hesperidesSnapshotItem.getNbEvents();
-                final long stop = hesperidesSnapshotItem.getCurrentNbEvents();
-
-                virtualTemplatePackagesAggregate.replay(redisKey, start, stop);
+                virtualTemplatePackagesAggregate.replay(redisKey);
 
                 updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
-            }
         }
 
         // Can't return null !!!!

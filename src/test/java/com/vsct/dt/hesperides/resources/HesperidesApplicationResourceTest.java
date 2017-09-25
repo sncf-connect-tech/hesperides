@@ -26,15 +26,24 @@ import com.google.common.collect.Sets;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.applications.PlatformKey;
+import com.google.common.eventbus.EventBus;
+import com.vsct.dt.hesperides.HesperidesCacheParameter;
+import com.vsct.dt.hesperides.HesperidesConfiguration;
+import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.indexation.ESServiceException;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
+import com.vsct.dt.hesperides.storage.EventStore;
+import com.vsct.dt.hesperides.storage.RedisEventStore;
+import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
 import com.vsct.dt.hesperides.templating.platform.*;
+import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
+import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
 import com.vsct.dt.hesperides.util.converter.ApplicationConverter;
@@ -46,12 +55,11 @@ import com.vsct.dt.hesperides.util.converter.impl.*;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import tests.type.UnitTests;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -82,6 +90,11 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     private final String comment = "Test comment";
 
+    private final EventBus eventBus = new EventBus();
+    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
+    private ApplicationsAggregate applicationsWithEvent;
+
     @ClassRule
     public static ResourceTestRule simpleAuthResources = createSimpleAuthResource(
             new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
@@ -109,6 +122,22 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
     public void setup() throws AuthenticationException {
         reset(applications);
         reset(applicationSearch);
+
+        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
+        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
+
+        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
+        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
+        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
+        hesperidesCacheConfiguration.setTemplatePackage(hesperidesCacheParameter);
+        hesperidesCacheConfiguration.setNbEventBeforePersiste(10000);
+
+        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
+        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
+
+        applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore,
+                new SnapshotRegistry(poolRedis.getPool()), hesperidesConfiguration);
+        poolRedis.reset();
     }
 
     @Test
@@ -564,6 +593,28 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .put(Entity.json(PLATFORM_CONVERTER.toPlatform(platform1)))
                 .readEntity(Platform.class))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform2));
+    }
+
+    @Test
+    public void should_return_422_when_updating_plateform_with_empty_application_version() throws Exception {
+        PlatformData.IBuilder builder = PlatformData
+                .withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder.build();
+
+        when(applications.updatePlatform(platform, false)).thenReturn(platform);
+
+        assertThat(
+            withoutAuth("/applications/app_name/platforms")
+                .queryParam("copyPropertiesForUpgradedModules", "false")
+                .request()
+                .put(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))))
+                .getStatus()).isEqualTo(CLIENT_ERROR);
     }
 
     @Test
@@ -1259,5 +1310,43 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
         assertThat(response.get("global").get(0).get("inModel")).isEqualTo(true);
         assertThat(response.get("second_global").get(0).get("inModel")).isEqualTo(true);
         assertThat(response.get("third_global").get(0).get("inModel")).isEqualTo(false);
+    }
+
+    @Test
+    public void no_npe_on_timeline_request_on_snapshot_events() {
+        ApplicationModuleData module1 = ApplicationModuleData
+                .withApplicationName("module1")
+                .withVersion("version")
+                .withPath("#path#1#the_module_name#the_module_version#WORKINGCOPY")
+                .withId(0)
+                .withInstances(Sets.newHashSet())
+                .isWorkingcopy()
+                .build();
+
+        final PlatformKey platformKey = PlatformKey.withName("a_pltfm")
+                .withApplicationName("an_app")
+                .build();
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet(module1))
+                .withVersion(1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder1.build());
+        applicationsWithEvent.takeSnapshot(platformKey);
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("key", "prop_{{instance_key}}")), Sets.newHashSet());
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#the_module_name#the_module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+        PropertiesData propertiesDataOutput = applicationsWithEvent.getProperties(
+                platformKey,
+                "#path#1#the_module_name#the_module_version#WORKINGCOPY",
+                System.currentTimeMillis());
+
+        DefaultPropertiesConverter defaultPropertiesConverter = new DefaultPropertiesConverter();
+        PropertiesData propertiesDataInput = defaultPropertiesConverter.toPropertiesData(properties);
+        assertThat(propertiesDataInput.getKeyValueProperties()).isEqualTo(propertiesDataOutput.getKeyValueProperties());
     }
 }

@@ -79,39 +79,49 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
 
         // Properties builder
         PlatformContainer propertiesBuilder;
-        HesperidesSnapshotItem hesperidesSnapshotItem;
+        Optional<HesperidesSnapshotItem> hesperidesSnapshotItem;
 
         if (timestamp == Long.MAX_VALUE) {
             // In case of max value, we get last snapshot
             hesperidesSnapshotItem = store.findLastSnapshot(redisKey);
         } else {
-            hesperidesSnapshotItem = store.findSnapshot(redisKey, nbEventBeforePersiste,
-                    e -> e.getTimestamp() > timestamp);
+            hesperidesSnapshotItem = store.findSnapshot(redisKey, nbEventBeforePersiste, timestamp);
         }
 
-        if (hesperidesSnapshotItem == null
-                || hesperidesSnapshotItem.getCurrentNbEvents() < hesperidesSnapshotItem.getNbEvents()) {
-            propertiesBuilder = new PlatformContainer();
+        if (hesperidesSnapshotItem.isPresent()) {
+            final HesperidesSnapshotItem snapshot = hesperidesSnapshotItem.get();
 
-            final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(store);
+            propertiesBuilder = (PlatformContainer) snapshot.getSnapshot();
 
-            virtualApplicationsAggregate.replay(redisKey);
-
-            updatePropertiesContainer(propertiesBuilder, virtualApplicationsAggregate);
-        } else {
-            propertiesBuilder = (PlatformContainer) hesperidesSnapshotItem.getSnapshot();
+            // If snapshot is done on last event, do nothing
+            if (snapshot.getStreamNbEvents() <= snapshot.getCacheNbEvents()) {
+                return propertiesBuilder;
+            }
 
             final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(
                     store,
                     propertiesBuilder.getPlatform(),
                     propertiesBuilder.getProperties());
-            final long start = hesperidesSnapshotItem.getNbEvents();
-            final long stop = hesperidesSnapshotItem.getCurrentNbEvents();
+            final long start = snapshot.getCacheNbEvents();
+            final long stop = snapshot.getStreamNbEvents();
 
+            // If no timestamp, but snapshot missing last event, replay it until at end
             if (timestamp == Long.MAX_VALUE) {
                 virtualApplicationsAggregate.replay(redisKey, start, stop);
-            } else if (hesperidesSnapshotItem.getCurrentNbEvents() > hesperidesSnapshotItem.getNbEvents()) {
+            } else if (snapshot.getStreamNbEvents() > snapshot.getCacheNbEvents()) {
                 virtualApplicationsAggregate.replay(redisKey, start, stop, timestamp);
+            }
+
+            updatePropertiesContainer(propertiesBuilder, virtualApplicationsAggregate);
+        } else {
+            propertiesBuilder = new PlatformContainer();
+
+            final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(store);
+
+            if (timestamp == Long.MAX_VALUE) {
+                virtualApplicationsAggregate.replay(redisKey);
+            } else {
+                virtualApplicationsAggregate.replay(redisKey, 0, Long.MAX_VALUE, timestamp);
             }
 
             updatePropertiesContainer(propertiesBuilder, virtualApplicationsAggregate);
