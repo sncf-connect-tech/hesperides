@@ -35,6 +35,7 @@ import io.dropwizard.jackson.Jackson;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,12 +43,15 @@ import java.util.stream.Collectors;
  */
 public class ModuleSearch {
 
+    public static final int       SEARCH_SIZE     = 50;
+
     private final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
     private final Mustache mustacheSearchByNameAndVersion = mustacheFactory.compile("search.module.name.version.mustache");
     private final Mustache mustacheSearchByNameAndVersionAndWorkingcopy = mustacheFactory.compile("search.module.name.version.workingcopy.mustache");
     private final Mustache mustacheSearchByNameAndVersionLike = mustacheFactory.compile("search.module.name.version.like.mustache");
     private final Mustache mustacheSearchAll = mustacheFactory.compile("search.module.all.mustache");
     private final Mustache mustacheSearchModuleByName = mustacheFactory.compile("search.module.name.mustache");
+    private final Mustache mustacheSearchAllModulesUsingTechno = mustacheFactory.compile("search.module.using.techno.mustache");
 
     private final ObjectReader elasticSearchModuleReader;
     private final ElasticSearchClient elasticSearchClient;
@@ -56,6 +60,7 @@ public class ModuleSearch {
         ObjectMapper objectMapper = Jackson.newObjectMapper();
         JavaType type = objectMapper.getTypeFactory().constructParametricType(ElasticSearchResponse.class, ModuleSearchResponse.class);
         this.elasticSearchModuleReader = objectMapper.reader(type);
+
         this.elasticSearchClient = elasticSearchClient;
     }
 
@@ -163,5 +168,25 @@ public class ModuleSearch {
                 .post(url, body);
 
         return esResponse.streamOfData().collect(Collectors.toList());
+    }
+
+    public Set<ModuleSearchResponse> getAllModulesUsingTechnos(final String technoName, final String technoVersion, final String isWorkingCopy) {
+        String url = String.format("/modules/_search?size=%1$s", SEARCH_SIZE);
+
+        boolean boolIsWorkingCopy = true;
+        if (isWorkingCopy.contains("release")) {
+            boolIsWorkingCopy = false;
+        }
+
+        String body = TemplateContentGenerator.from(mustacheSearchAllModulesUsingTechno)
+                .put("technoName", technoName)
+                .put("technoVersion", technoVersion)
+                .put("isWorkingCopy", boolIsWorkingCopy)
+                .generate();
+
+        ElasticSearchResponse<ModuleSearchResponse> esResponse = elasticSearchClient.withResponseReader(elasticSearchModuleReader)
+                .post(url, body);
+
+        return esResponse.streamOfData().collect(Collectors.toSet());
     }
 }

@@ -1,0 +1,32 @@
+{
+    "_source": [
+        "name",
+        "version",
+        "working_copy"
+    ],
+    "query":{
+        "constant_score":{
+            "filter":{
+                "bool":{
+                    "must":[
+                        {
+                            "term":{
+                                "technos.name":"{{technoName}}"
+                            }
+                        },
+                        {
+                            "term":{
+                                "technos.version" : "{{technoVersion}}"
+                            }
+                        },
+                        {
+                            "term":{
+                                "technos.working_copy": {{isWorkingCopy}}
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
