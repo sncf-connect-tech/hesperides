@@ -33,13 +33,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by emeric_martineau on 15/01/2016.
  */
 public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, ModuleContainer> implements ModuleStoragePrefixInterface {
     private interface Callback {
-        void moduleFound(Module module, AbstractModulesAggregate modulesAggregate);
+        void moduleFound(Module module, Set<Template> templates);
     }
 
 
@@ -163,12 +165,26 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
      * @param redisKey
      * @return
      */
-    private Collection<Module> findModuleKey(final VirtualModulesAggregate virtualModulesAggregate, final String redisKey) {
+    private Optional<ModuleContainer> retreiveModule(final VirtualModulesAggregate virtualModulesAggregate, final String redisKey) {
         virtualModulesAggregate.clear();
 
-        virtualModulesAggregate.replay(redisKey);
+        // First event is always create event.
+        // That mean with you don't need replay event to know with module is associate to redis stream
+        virtualModulesAggregate.replay(redisKey, 0, 1);
 
-        return virtualModulesAggregate.getAllModules();
+        final Iterator<Module> itModule = virtualModulesAggregate.getAllModules().iterator();
+
+        if (itModule.hasNext()) {
+            final Module module = itModule.next();
+
+            try {
+                return Optional.of(load(module.getKey()));
+            } catch (ModuleNotFoundInDatabaseException e) {
+                LOGGER.error("When reload all modules, we can't load module in stream {}", redisKey);
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**
@@ -218,21 +234,24 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
         final Set<String> modules = getStore().getStreamsLike(redisKey);
         // List of platform return by method
         final List<Module> listModule = new ArrayList<>(modules.size());
-        // Module key
-        Collection<Module> moduleList;
+        // Module
+        Optional<ModuleContainer> optContainer;
+        ModuleContainer container;
 
         final VirtualModulesAggregate virtualModulesAggregate = new VirtualModulesAggregate(getStore());
 
         for (String moduleRedisKey : modules) {
             LOGGER.debug("Load module from store associate with key '{}'.", moduleRedisKey);
 
-            moduleList = findModuleKey(virtualModulesAggregate, moduleRedisKey);
+            optContainer = retreiveModule(virtualModulesAggregate, moduleRedisKey);
 
-            if (moduleList.size() > 0) {
-                listModule.addAll(moduleList);
+            if (optContainer.isPresent()) {
+                container = optContainer.get();
+
+                listModule.add(container.getModule());
 
                 if (callback != null) {
-                    moduleList.stream().forEach(m -> callback.moduleFound(m, virtualModulesAggregate));
+                    callback.moduleFound(container.getModule(), container.loadAllTemplate());
                 }
             }
         }
@@ -252,8 +271,8 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
     public List<Template> getAllTemplates() {
         final List<Template> listTemplates = new ArrayList<>();
 
-        getAllModules((m, ma) ->
-            listTemplates.addAll(ma.getAllTemplates(m.getKey()))
+        getAllModules((module, templates) ->
+            listTemplates.addAll(templates)
         );
 
         // Can't return null !!!!

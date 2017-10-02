@@ -158,18 +158,9 @@ class PlatformRegistry implements PropertiesRegistryInterface, PlatformRegistryI
     public Collection<PlatformData> getAllPlatforms() {
         LOGGER.debug("Get all platform.");
 
-        final List<PlatformKey> platformKey = this.propertiesCacheLoader.getAllPlatformKey();
+        final List<PlatformData> platforms = this.propertiesCacheLoader.getAllPlatform();
 
-        // Now
-        final Map<PlatformKey, PlatformContainer> mapPlatforms = this.propertiesCacheLoader.getPlatformFromApplication(platformKey);
-
-        // Return all platform
-        return mapPlatforms
-                .entrySet()
-                .stream()
-                .filter(platformKeyPlatformContainerEntry -> platformKeyPlatformContainerEntry.getValue().getPlatform() != null)
-                .map(platformKeyPlatformContainerEntry -> platformKeyPlatformContainerEntry.getValue().getPlatform())
-                .collect(Collectors.toSet());
+        return platforms.stream().collect(Collectors.toList());
     }
 
     @Override

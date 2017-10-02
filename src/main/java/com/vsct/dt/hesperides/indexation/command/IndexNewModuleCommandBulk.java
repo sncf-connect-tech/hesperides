@@ -65,7 +65,7 @@ public final class IndexNewModuleCommandBulk implements ElasticSearchIndexationC
 
         if (propertiesAsString != null && propertiesAsString.size() > 0) {
             body = propertiesAsString.stream().map(module -> module.toString()).collect(Collectors.joining(""));
-            ElasticSearchEntity<ModuleIndexation> entity = elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_MODULE_READER)
+            elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_MODULE_READER)
                     .post("/modules/_bulk", body);
 
             LOGGER.info("Successfully indexed new modules {}", propertiesAsString.size());
