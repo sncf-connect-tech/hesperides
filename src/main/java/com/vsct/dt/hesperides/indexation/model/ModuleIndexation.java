@@ -78,7 +78,7 @@ public final class ModuleIndexation extends Data {
         return "HesperidesModule{" +
                 "name='" + name + '\'' +
                 ", version='" + version + '\'' +
-                ", workingCopy=" + workingCopy +
+                ", working_copy=" + workingCopy +
                 '}';
     }
 
@@ -115,6 +115,6 @@ public final class ModuleIndexation extends Data {
     }
 
     public static String getNamespace(String moduleName, String moduleVersion, boolean isWorkingCopy) {
-        return "modules#" + moduleName + "#" + moduleVersion + "#" + (isWorkingCopy ? WorkingCopy.UC : Release.TEXT);
+        return "modules#" + moduleName + "#" + moduleVersion + "#" + (isWorkingCopy ? WorkingCopy.UC : Release.UC);
     }
 }

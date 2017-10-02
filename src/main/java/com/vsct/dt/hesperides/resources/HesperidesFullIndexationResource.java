@@ -137,11 +137,11 @@ public class HesperidesFullIndexationResource {
         elasticSearchIndexationExecutor.index(
                 new IndexNewPlatformCommandBulk(
                         applications
-                                .getAll()
+                                .getAllPlatforms()
                                 .stream()
                                 .map(app -> PlatformMapper.asPlatformIndexation(app))
                                 .collect(Collectors.toList())));
 
-        LOGGER.info("RELOADING INDEX START");
+        LOGGER.info("RELOADING INDEX END");
     }
 }

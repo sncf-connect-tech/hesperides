@@ -156,10 +156,12 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      *
      * @return list of platform key
      */
-    public List<PlatformKey> getAllPlatformKey() {
-        final List<PlatformKey> listPlatformKey;
+    public List<PlatformData> getAllPlatform() {
+        final List<PlatformData> listPlatform;
         // Redis key pattern to search all application platform
         final String redisKey;
+        // To rebuild event
+        final VirtualApplicationsAggregate virtualApplicationsAggregate = new VirtualApplicationsAggregate(this.store);
 
         getLogger().debug("Load all platforms keys for all application.");
 
@@ -169,67 +171,30 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
         // All application platform redis key.
         final Set<String> platforms = this.store.getStreamsLike(redisKey);
 
-        listPlatformKey = new ArrayList<>(platforms.size());
+        listPlatform = new ArrayList<>(platforms.size());
+
+        PlatformData platform;
+        Iterator<PlatformData> itPlatform;
 
         for (String platformRedisKey : platforms) {
-            listPlatformKey.add(
-                    new PlatformKey(
-                            entityNameFormRedisKey(platformRedisKey)));
+            virtualApplicationsAggregate.clear();
+
+            // First event is always create event.
+            // That mean with you don't need replay event to know with platform is associate to redis stream
+            virtualApplicationsAggregate.replay(platformRedisKey, 0, 1);
+
+            itPlatform = virtualApplicationsAggregate.getAllPlatforms().iterator();
+
+            if (itPlatform.hasNext()) {
+                platform = itPlatform.next();
+
+                listPlatform.add(platform);
+            }
         }
 
         getLogger().debug("All platform keys for all application are loaded.");
 
-        return listPlatformKey;
-    }
-
-    /**
-     * Return list from application name.
-     *
-     * @param platformKey list of key
-     *
-     * @return list of application (never return null. Maybe return empty list)
-     */
-    public Map<PlatformKey, PlatformContainer> getPlatformFromApplication(final List<PlatformKey> platformKey) {
-        getLogger().debug("Load platform for {} keys.", platformKey.size());
-
-        // List of platform return by method
-        final Map<PlatformKey, PlatformContainer> listPlatform = new HashMap<>(platformKey.size());
-        // Current platform
-        PlatformContainer currentPlatform;
-        // Key of redis
-        String platformRedisKey;
-
-        for (PlatformKey ptfKey : platformKey) {
-            platformRedisKey = generateDbKey(ptfKey);
-
-            getLogger().debug("Load platform from store associate with key '{}'.", platformRedisKey);
-
-            try {
-                currentPlatform = loadProperties(ptfKey, Long.MAX_VALUE);
-            } catch (Exception e) {
-                e.printStackTrace();
-                currentPlatform = null;
-            }
-
-            // Platform can be remove at last event
-            if (currentPlatform != null) {
-                listPlatform.put(ptfKey, currentPlatform);
-            }
-        }
-
-        getLogger().debug("{} platforms loaded.", listPlatform.size());
-
         return listPlatform;
-    }
-
-    /**
-     * Generate name of entity.
-     *
-     * @param redisKey
-     * @return
-     */
-    private String entityNameFormRedisKey(final String redisKey) {
-        return redisKey.substring(getStreamPrefix().length() + 1);
     }
 
     /**

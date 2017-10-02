@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -72,6 +73,10 @@ public class TemplatePackageCacheLoader extends AbstractTemplateCacheLoader<Stri
 
     @Override
     public TemplatePackageContainer load(final String namespace) throws ModuleNotFoundInDatabaseException {
+        return loadTemplate(namespace);
+    }
+
+    public TemplatePackageContainer loadTemplate(final String namespace) {
         final String loadObjectName = getObjectLoadName();
 
         getLogger().debug("Load {} with namespace '{}' from store", loadObjectName, namespace);
@@ -148,7 +153,7 @@ public class TemplatePackageCacheLoader extends AbstractTemplateCacheLoader<Stri
 
         getLogger().debug("Load all {} from store.", loadObjectName);
 
-        // Redis key pattern to search all application tempalte
+        // Redis key pattern to search all application template
         final String redisKey = String.format("%s-*",
                 getStreamPrefix());
         // All application template redis key.
@@ -159,15 +164,34 @@ public class TemplatePackageCacheLoader extends AbstractTemplateCacheLoader<Stri
         final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
                 = new VirtualTemplatePackagesAggregate(getStore());
 
-        for (String templateRedisKey : templates) {
+        // Current namespace of template package
+        String namespace;
+        // Template package container from cache and replay event
+        TemplatePackageContainer container;
+        // Iterator of template cause we get all platform from vitrualTemplatePackageAggregate.
+        // You can only have one TemplatePackage.
+        Iterator<Template> itTemplate;
+
+        for (String templateStreamName : templates) {
             getLogger().debug("Load {} from store associate with key '{}' for {}.", loadObjectName,
-                    templateRedisKey, loadObjectName);
-
-            virtualTemplatePackagesAggregate.replay(templateRedisKey);
-
-            virtualTemplatePackagesAggregate.withAll(t -> listTemplates.add(t));
+                    templateStreamName, loadObjectName);
 
             virtualTemplatePackagesAggregate.clear();
+
+            // First event is always create event.
+            // That mean with you don't need replay event to know with template package is associate to redis stream
+            virtualTemplatePackagesAggregate.replay(templateStreamName, 0, 1);
+
+            // Get template to read namespace
+            itTemplate = virtualTemplatePackagesAggregate.getAllTemplates().iterator();
+
+            if (itTemplate.hasNext()) {
+                namespace = itTemplate.next().getNamespace();
+
+                container = loadTemplate(namespace);
+
+                listTemplates.addAll(container.loadAllTemplate());
+            }
         }
 
         getLogger().debug("All {} are loaded.", loadObjectName);

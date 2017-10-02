@@ -445,14 +445,6 @@ public abstract class AbstractApplicationsAggregate extends AbstractThreadAggreg
         }
     }
 
-    /**
-     * Get a set containing all platforms
-     * @return an {@link java.util.Set} of {@link PlatformData}s
-     */
-    public Collection<PlatformData> getAll() {
-        return getPlatformRegistry().getAllPlatforms();
-    }
-
     @Override
     public PropertiesData getSecuredProperties(PlatformKey platformKey, String path, HesperidesPropertiesModel model) {
         // No security need for that
