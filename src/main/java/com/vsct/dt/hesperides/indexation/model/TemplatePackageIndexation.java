@@ -36,7 +36,10 @@ import io.dropwizard.jackson.JsonSnakeCase;
 public final class TemplatePackageIndexation {
 
     private final String version;
+
+    @JsonProperty("working_copy")
     private final boolean workingCopy;
+
     private final String name;
 
     @JsonCreator
@@ -87,7 +90,7 @@ public final class TemplatePackageIndexation {
     public String toString() {
         return "Techno{" +
                 "version='" + version + '\'' +
-                ", workingCopy=" + workingCopy +
+                ", working_copy=" + workingCopy +
                 ", name='" + name + '\'' +
                 '}';
     }

@@ -104,7 +104,7 @@ public class TemplatePackageKey {
         return "TemplatePackageKey{" +
                 "name='" + name + '\'' +
                 ", versionName='" + versionName + '\'' +
-                ", workingCopy=" + workingCopy +
+                ", working_copy=" + workingCopy +
                 '}';
     }
 
