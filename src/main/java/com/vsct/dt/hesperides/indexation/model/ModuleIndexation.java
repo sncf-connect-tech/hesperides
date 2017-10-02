@@ -43,13 +43,15 @@ public final class ModuleIndexation extends Data {
 
     private final String name;
     private final String version;
+
+    @JsonProperty("working_copy")
     private final boolean workingCopy;
     private final List<TemplatePackageIndexation> technos;
 
     @JsonCreator
     public ModuleIndexation(@JsonProperty("name") final String name,
                             @JsonProperty("version") final String version,
-                            @JsonProperty("workingCopy") final boolean workingCopy,
+                            @JsonProperty("working_copy") final boolean workingCopy,
                             @JsonProperty("technos") final List<TemplatePackageIndexation> technos) {
         this.name = name;
         this.version = version;

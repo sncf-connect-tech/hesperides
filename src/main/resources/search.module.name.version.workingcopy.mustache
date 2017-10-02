@@ -8,11 +8,12 @@
 						"name": "{{name}}"
 					}
 				},
-				{
-					"term": {
-						"version": "{{version}}"
-					}
-				},
+                {
+                    "query_string": {
+                        "default_field": "version",
+                        "query": "{{version}}"
+                    }
+                },
 				{
 					"term": {
 						"working_copy": "{{is_working_copy}}"

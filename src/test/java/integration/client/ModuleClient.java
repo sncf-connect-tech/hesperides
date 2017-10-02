@@ -106,7 +106,7 @@ public final class ModuleClient extends DomainVersionable {
         return "HesperidesModule{" +
                 "name='" + name + '\'' +
                 ", version='" + version + '\'' +
-                ", workingCopy=" + workingCopy +
+                ", working_copy=" + workingCopy +
                 '}';
     }
 

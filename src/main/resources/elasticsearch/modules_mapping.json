@@ -7,6 +7,10 @@
         "version": {
             "type": "string",
             "analyzer": "case_insensitive_analyzer"
+        },
+        "working_copy": {
+            "type": "boolean",
+            "index": "not_analyzed"
         }
     }
 }

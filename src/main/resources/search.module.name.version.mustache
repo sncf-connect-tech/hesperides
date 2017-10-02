@@ -9,8 +9,9 @@
 					}
 				},
 				{
-					"term": {
-						"version": "{{version}}"
+					"query_string": {
+						"default_field": "version",
+                        "query": "{{version}}"
 					}
 				}
 			],
