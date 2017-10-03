@@ -77,15 +77,16 @@ public class HesperidesPropertiesModelTest {
         assertThat(DeepEquals.deepEquals(MAPPER.readValue(fixture("fixtures/business/hesperides_properties_model.json"), HesperidesPropertiesModel.class), model));
     }
 
+    /*
     @Test
     public void shouldCreateModelFromCode() throws NoSuchFieldException, IllegalAccessException {
-        /* HARD to create mustache objetcs (constructors, private fields, etc...) */
+        // TODO HARD to create mustache objetcs (constructors, private fields, etc...)
     }
 
     @Test
     public void shouldAddIterableFromCode() {
-        /* HARD TO create mustache Objects constructors, private fields, etc...) */
-    }
+        // TODO HARD TO create mustache Objects constructors, private fields, etc...)
+    }*/
 
     @Test
     public void mergeShouldAddAllPropertiesHavingADifferentNameAndNotChangeTheExistingOnes() {

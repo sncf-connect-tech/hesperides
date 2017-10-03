@@ -76,12 +76,4 @@ public class TemplateTest {
         assertThat(model.hasProperty("prop_with_whitespaces"));
         assertThat(model.hasProperty("prop_with_some_tabs_at_start_and_end")).isTrue();
     }
-
-    static String readFile(String path)
-            throws IOException {
-        return new String(ByteStreams.toByteArray(TemplateTest.class.getClassLoader().getResourceAsStream(path)), "UTF-8");
-    }
-
-
-
 }

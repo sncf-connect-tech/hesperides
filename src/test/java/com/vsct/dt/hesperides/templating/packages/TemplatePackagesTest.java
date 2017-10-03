@@ -1,5 +1,4 @@
 /*
- *
  *  * This file is part of the Hesperides distribution.
  *  * (https://github.com/voyages-sncf-technologies/hesperides)
  *  * Copyright (c) 2016 VSCT.
@@ -16,73 +15,35 @@
  *  * You should have received a copy of the GNU General Public License
  *  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *
  */
 
 package com.vsct.dt.hesperides.templating.packages;
-
-import com.google.common.eventbus.EventBus;
-import com.vsct.dt.hesperides.HesperidesCacheParameter;
-import com.vsct.dt.hesperides.HesperidesConfiguration;
-import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
-import com.vsct.dt.hesperides.exception.runtime.IncoherentVersionException;
-import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.exception.runtime.OutOfDateVersionException;
-import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.RedisEventStore;
-import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
-import com.vsct.dt.hesperides.templating.modules.template.Template;
-import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
-import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
-import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
-import com.vsct.dt.hesperides.util.Release;
-import com.vsct.dt.hesperides.util.WorkingCopy;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import tests.type.UnitTests;
+
+import com.vsct.dt.hesperides.AbstractCacheTest;
+import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
+import com.vsct.dt.hesperides.exception.runtime.IncoherentVersionException;
+import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
+import com.vsct.dt.hesperides.exception.runtime.OutOfDateVersionException;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
+import com.vsct.dt.hesperides.util.Release;
+import com.vsct.dt.hesperides.util.WorkingCopy;
 
 /**
  * Created by william_montaz on 28/11/2014.
  */
 @Category(UnitTests.class)
-public class TemplatePackagesTest {
-
-    private final EventBus       eventBus       = new EventBus();
-    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
-    private TemplatePackagesAggregate templatePackagesWithEvent;
-
-    @Before
-    public void setUp() throws Exception {
-        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
-        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
-
-        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
-        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
-        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
-
-        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
-        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
-
-        templatePackagesWithEvent = new TemplatePackagesAggregate(eventBus, eventStore, hesperidesConfiguration);
-        poolRedis.reset();
-    }
-
-    @After
-    public void checkUnwantedEvents() {
-
-    }
-
+public class TemplatePackagesTest extends AbstractCacheTest {
     @Test
     public void should_create_template_in_working_copy_if_it_does_not_already_exists() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");

@@ -22,25 +22,16 @@
 package com.vsct.dt.hesperides.templating.modules;
 
 import com.google.common.collect.Sets;
-import com.google.common.eventbus.EventBus;
-import com.vsct.dt.hesperides.HesperidesCacheParameter;
-import com.vsct.dt.hesperides.HesperidesConfiguration;
+
+import com.vsct.dt.hesperides.AbstractCacheTest;
 import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
 import com.vsct.dt.hesperides.exception.runtime.IncoherentVersionException;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.exception.runtime.OutOfDateVersionException;
-import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.RedisEventStore;
-import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
-import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
-import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
-import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -49,7 +40,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import tests.type.UnitTests;
 
@@ -57,35 +47,8 @@ import tests.type.UnitTests;
  * Created by william_montaz on 02/12/2014.
  */
 @Category(UnitTests.class)
-public class ModulesAggregateTest {
+public class ModulesAggregateTest extends AbstractCacheTest {
 
-    private final EventBus       eventBus       = new EventBus();
-    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
-    private final TemplatePackagesAggregate templatePackages = mock(TemplatePackagesAggregate.class);
-
-    private ModulesAggregate modulesWithEvent;
-
-    @Before
-    public void setUp() throws Exception {
-        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
-        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
-
-        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
-        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
-        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
-
-        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
-        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
-
-        poolRedis.reset();
-        modulesWithEvent = new ModulesAggregate(eventBus, eventStore, templatePackages, hesperidesConfiguration);
-    }
-
-    @After
-    public void checkUnwantedEvents() {
-        
-    }
 
     /**
      * Create working copy

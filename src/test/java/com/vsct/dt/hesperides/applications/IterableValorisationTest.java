@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,8 +53,6 @@ public class IterableValorisationTest {
     @Test
     public void shouldSerializeToJSON() throws IOException {
         Property property = new Property("name1", "comment1");
-        Set<Property> fields = Sets.newHashSet(property);
-
         IterableValorisation.IterableValorisationItem field = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value")));
 
         IterableValorisation ip = new IterableValorisation("iterable", Lists.newArrayList(field));
@@ -65,8 +62,6 @@ public class IterableValorisationTest {
 
     @Test
     public void shouldDeserializeFromJSON() throws IOException {
-        Property property = new Property("name1", "comment1");
-
         IterableValorisation.IterableValorisationItem field = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value")));
 
         IterableValorisation ip = new IterableValorisation("iterable", Lists.newArrayList(field));
