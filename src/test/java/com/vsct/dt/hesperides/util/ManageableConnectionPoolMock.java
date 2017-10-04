@@ -33,9 +33,16 @@ import static junit.framework.Assert.assertTrue;
  * Created by emeric_martineau on 02/06/2016.
  */
 public class ManageableConnectionPoolMock implements ManageableJedisConnectionInterface<JedisMock> {
-    private PoolMock poolMock = new PoolMock();
+    private PoolMock poolMock;
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
+    public ManageableConnectionPoolMock() {
+        this.poolMock = new PoolMock();
+    }
+
+    public ManageableConnectionPoolMock(final PoolMock poolMock) {
+        this.poolMock = poolMock;
+    }
 
     @Override
     public Pool<JedisMock> getPool() {

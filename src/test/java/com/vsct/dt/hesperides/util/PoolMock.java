@@ -28,7 +28,15 @@ public class PoolMock extends Pool<JedisMock> {
     /**
      * Fake redis connection.
      */
-    private final JedisMock jedisMock = new JedisMock();
+    private final JedisMock jedisMock;
+
+    public PoolMock() {
+        this.jedisMock = new JedisMock();
+    }
+
+    public PoolMock(final JedisMock jedisMock) {
+        this.jedisMock = jedisMock;
+    }
 
     @Override
     public JedisMock getResource() {

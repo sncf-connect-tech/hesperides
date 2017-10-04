@@ -48,7 +48,7 @@ public abstract class AbstractCacheTest {
     protected static final int NB_EVENT_BEFORE_STORE = 5;
 
     protected final EventBus eventBus       = new EventBus();
-    protected final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
+    protected final ManageableConnectionPoolMock poolRedis = getManageableConnectionPoolMock();
     protected final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> getTimeStamp());
     protected TemplatePackagesAggregate templatePackagesWithEvent;
     protected ModulesAggregate modulesWithEvent;
@@ -60,8 +60,22 @@ public abstract class AbstractCacheTest {
      */
     protected ManualTimeStamp timeProvider;
 
+    /**
+     * Provide default timestamp provider.
+     *
+     * @return default timestamp provider
+     */
     private long getTimeStamp() {
         return this.timeProvider.timestamp();
+    }
+
+    /**
+     * Provide default jedis pool mock.
+     *
+     * @return default pool
+     */
+    protected ManageableConnectionPoolMock getManageableConnectionPoolMock()  {
+        return new ManageableConnectionPoolMock();
     }
 
     @Before
