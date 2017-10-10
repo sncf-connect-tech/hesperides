@@ -50,9 +50,12 @@ public abstract class AbstractCacheTest {
     protected final EventBus eventBus       = new EventBus();
     protected final ManageableConnectionPoolMock poolRedis = getManageableConnectionPoolMock();
     protected final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> getTimeStamp());
-    protected TemplatePackagesAggregate templatePackagesWithEvent;
-    protected ModulesAggregate modulesWithEvent;
-    protected ApplicationsAggregate applicationsWithEvent;
+    protected TemplatePackagesAggregate templatePackagesWithEvent = new TemplatePackagesAggregate(eventBus, eventStore,
+            getDefaultHesperidesConfiguration());
+    protected ModulesAggregate modulesWithEvent = new ModulesAggregate(eventBus, eventStore, templatePackagesWithEvent,
+            getDefaultHesperidesConfiguration());
+    protected ApplicationsAggregate applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore,
+            new SnapshotRegistry(poolRedis.getPool()), getDefaultHesperidesConfiguration());
 
     /**
      * Allow to override in test.
@@ -78,10 +81,7 @@ public abstract class AbstractCacheTest {
         return new ManageableConnectionPoolMock();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        this.timeProvider = new ManualTimeStamp();
-
+    protected HesperidesConfiguration getDefaultHesperidesConfiguration() {
         final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
         final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
 
@@ -94,10 +94,17 @@ public abstract class AbstractCacheTest {
         final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
         hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
 
-        templatePackagesWithEvent = new TemplatePackagesAggregate(eventBus, eventStore, hesperidesConfiguration);
-        modulesWithEvent = new ModulesAggregate(eventBus, eventStore, templatePackagesWithEvent, hesperidesConfiguration);
-        applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore,
-                new SnapshotRegistry(poolRedis.getPool()), hesperidesConfiguration);
+        return hesperidesConfiguration;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        this.timeProvider = new ManualTimeStamp();
+
+        this.applicationsWithEvent.removeAllCache();
+        this.modulesWithEvent.removeAllCache();
+        this.templatePackagesWithEvent.removeAllCache();
+
         poolRedis.reset();
     }
 
@@ -133,7 +140,7 @@ public abstract class AbstractCacheTest {
         return packageInfo;
     }
 
-    protected void generateModule(final ModuleWorkingCopyKey moduleKey, final int max) {
+    protected void generateModule(final ModuleWorkingCopyKey moduleKey, final String content, final int max) {
         Techno techno = new Techno("tomcat", "1", false);
 
         modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
@@ -142,12 +149,16 @@ public abstract class AbstractCacheTest {
             TemplateData templateData = TemplateData.withTemplateName("nom du template" + index)
                     .withFilename("filename")
                     .withLocation("location")
-                    .withContent("content")
+                    .withContent(content)
                     .withRights(null)
                     .build();
 
             modulesWithEvent.createTemplateInWorkingCopy(moduleKey, templateData);
         }
+    }
+
+    protected void generateModule(final ModuleWorkingCopyKey moduleKey, final int max) {
+        generateModule(moduleKey, "content", max);
     }
 
     protected ModuleWorkingCopyKey generateModule(final int max) {

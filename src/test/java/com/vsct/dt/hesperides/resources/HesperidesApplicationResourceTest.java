@@ -40,9 +40,13 @@ import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
+import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
+import com.vsct.dt.hesperides.util.HesperidesVersion;
+import com.vsct.dt.hesperides.util.JedisMock;
 import com.vsct.dt.hesperides.util.ManageableConnectionPoolMock;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
@@ -57,6 +61,7 @@ import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import tests.type.UnitTests;
@@ -64,6 +69,7 @@ import tests.type.UnitTests;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.util.*;
 import java.util.Optional;
 
@@ -75,8 +81,6 @@ import static org.mockito.Mockito.*;
  */
 @Category(UnitTests.class)
 public class HesperidesApplicationResourceTest extends AbstractDisableUserResourcesTest {
-    private static final Applications applications = mock(Applications.class);
-    private static final Modules modules = mock(Modules.class);
     private static final ApplicationSearch applicationSearch = mock(ApplicationSearch.class);
     private static final ModuleSearch moduleSearch = mock(ModuleSearch.class);
 
@@ -86,24 +90,20 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
     public static final TimeStampedPlatformConverter TIME_CONVERTER = new DefaultTimeStampedPlatformConverter(PLATFORM_CONVERTER);
     public static final ApplicationConverter APPLI_CONVERTER = new DefaultApplicationConverter(PLATFORM_CONVERTER);
     private static final PropertiesConverter PROPERTIES_CONVERTER = new DefaultPropertiesConverter();
-    private static final HesperidesModuleResource MODULE_RESOURCE = new HesperidesModuleResource(modules, moduleSearch);
+
+    private final HesperidesModuleResource MODULE_RESOURCE = new HesperidesModuleResource(modulesWithEvent, moduleSearch);
 
     private final String comment = "Test comment";
 
-    private final EventBus eventBus = new EventBus();
-    private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
-    private ApplicationsAggregate applicationsWithEvent;
-
-    @ClassRule
-    public static ResourceTestRule simpleAuthResources = createSimpleAuthResource(
-            new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
+    @Rule
+    public ResourceTestRule simpleAuthResources = createSimpleAuthResource(
+            new HesperidesApplicationResource(applicationsWithEvent, modulesWithEvent, applicationSearch, TIME_CONVERTER,
                     APPLI_CONVERTER, PROPERTIES_CONVERTER, MODULE_RESOURCE)
     );
 
-    @ClassRule
-    public static ResourceTestRule disabledAuthResources  = createDisabledAuthResource(
-            new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
+    @Rule
+    public ResourceTestRule disabledAuthResources  = createDisabledAuthResource(
+            new HesperidesApplicationResource(applicationsWithEvent, modulesWithEvent, applicationSearch, TIME_CONVERTER,
                     APPLI_CONVERTER, PROPERTIES_CONVERTER, MODULE_RESOURCE)
     );
 
@@ -119,25 +119,10 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
     }
 
     @Before
-    public void setup() throws AuthenticationException {
-        reset(applications);
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
         reset(applicationSearch);
-
-        final RetryRedisConfiguration retryRedisConfiguration = new RetryRedisConfiguration();
-        final HesperidesCacheParameter hesperidesCacheParameter = new HesperidesCacheParameter();
-
-        final HesperidesCacheConfiguration hesperidesCacheConfiguration = new HesperidesCacheConfiguration();
-        hesperidesCacheConfiguration.setRedisConfiguration(retryRedisConfiguration);
-        hesperidesCacheConfiguration.setPlatformTimeline(hesperidesCacheParameter);
-        hesperidesCacheConfiguration.setTemplatePackage(hesperidesCacheParameter);
-        hesperidesCacheConfiguration.setNbEventBeforePersiste(10000);
-
-        final HesperidesConfiguration hesperidesConfiguration = new HesperidesConfiguration();
-        hesperidesConfiguration.setCacheConfiguration(hesperidesCacheConfiguration);
-
-        applicationsWithEvent = new ApplicationsAggregate(eventBus, eventStore,
-                new SnapshotRegistry(poolRedis.getPool()), hesperidesConfiguration);
-        poolRedis.reset();
     }
 
     @Test
@@ -162,7 +147,9 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         when(applicationSearch.getApplications("my_name")).thenReturn(elsResponse);
 
-        when(applications.getPlatform(new PlatformKey("my_name", "my_platform"))).thenReturn(Optional.of(ptfData));
+        PlatformKey ptfKey = new PlatformKey("my_name", "my_platform");
+
+        generateApplication(ptfKey, 1);
 
         Application app = withoutAuth("/applications/my_name")
                 .request()
@@ -175,8 +162,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_404_if_not_found() throws ESServiceException {
-        Set<ApplicationSearchResponse> elsResponse = new HashSet<>(1);
-
         assertThat(
                 withoutAuth("/applications/app_name")
                 .request()
@@ -241,7 +226,8 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
         PlatformKey platformKey = PlatformKey.withName("pltfm_name")
                 .withApplicationName("app_name")
                 .build();
-        when(applications.getPlatform(platformKey)).thenReturn(Optional.of(platform));
+
+        generateApplication(platformKey, 1);
 
         assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name")
                 .request()
@@ -264,7 +250,8 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
         PlatformKey platformKey = PlatformKey.withName("pltfm_name")
                 .withApplicationName("app_name")
                 .build();
-        when(applications.getPlatform(platformKey)).thenReturn(Optional.of(platform));
+
+        generateApplication(platformKey, 1);
 
         assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name")
                 .request()
@@ -275,11 +262,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_404_if_platform_is_not_found() throws ESServiceException {
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-        when(applications.getPlatform(platformKey)).thenReturn(Optional.empty());
-
         assertThat(
             withoutAuth("/applications/app_name/platforms/pltfm_name")
                     .request()
@@ -307,8 +289,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatform(platform)).thenReturn(platform);
-
         assertThat(withoutAuth("/applications/app_name/platforms")
                 .request()
                 .post(Entity.json(PLATFORM_CONVERTER.toPlatform(platform)))
@@ -331,7 +311,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(withoutAuth("/applications/app_name/platforms")
                 .queryParam("from_application", "the_app_from")
@@ -380,7 +360,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -407,7 +387,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -434,7 +414,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -461,7 +441,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -488,7 +468,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -515,7 +495,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder.build();
 
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
+        generateApplication(fromPlatformKey, 1);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -538,6 +518,15 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
     @Test
     public void should_update_platform_for_application_without_copying_properties_for_upgraded_modules_if_query_param_is_not_provided() throws
             Exception {
+        PlatformData.IBuilder builder0 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet())
+                .withVersion(-1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder0.build());
+
         PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
                 .withApplicationName("app_name")
                 .withApplicationVersion("app_version")
@@ -555,8 +544,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .isProduction();
 
         PlatformData platform2 = builder2.build();
-
-        when(applications.updatePlatform(platform1, false)).thenReturn(platform2);
 
         assertThat(withoutAuth("/applications/app_name/platforms")
                 .request()
@@ -567,6 +554,15 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_update_platform_for_application_copying_properties_for_upgraded_modules_if_query_param_is_provided() throws Exception {
+        PlatformData.IBuilder builder0 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet())
+                .withVersion(-1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder0.build());
+
         PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
                 .withApplicationName("app_name")
                 .withApplicationVersion("app_version")
@@ -584,8 +580,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .isProduction();
 
         PlatformData platform2 = builder2.build();
-
-        when(applications.updatePlatform(platform1, true)).thenReturn(platform2);
 
         assertThat(withoutAuth("/applications/app_name/platforms")
                 .queryParam("copyPropertiesForUpgradedModules", "true")
@@ -597,6 +591,15 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_422_when_updating_plateform_with_empty_application_version() throws Exception {
+        PlatformData.IBuilder builder0 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet())
+                .withVersion(-1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder0.build());
+
         PlatformData.IBuilder builder = PlatformData
                 .withPlatformName("pltfm_name")
                 .withApplicationName("app_name")
@@ -606,8 +609,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .isProduction();
 
         PlatformData platform = builder.build();
-
-        when(applications.updatePlatform(platform, false)).thenReturn(platform);
 
         assertThat(
                 withoutAuth("/applications/app_name/platforms")
@@ -633,7 +634,40 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
         PlatformKey platformKey = PlatformKey.withName("my_pltfm")
                 .withApplicationName("my_app")
                 .build();
-        when(applications.getProperties(platformKey, "some_path")).thenReturn(properties);
+
+        final KeyValueValorisationData kv = new KeyValueValorisationData("prop", "val1");
+        final Set<KeyValueValorisationData> keyValues = new HashSet<>();
+        keyValues.add(kv);
+
+        final InstanceData instance = InstanceData
+                .withInstanceName("TOTO")
+                .withKeyValue(keyValues)
+                .build();
+
+        final Set<InstanceData> instances = new HashSet<>();
+        instances.add(instance);
+
+        final ApplicationModuleData module = ApplicationModuleData
+                .withApplicationName("app_name")
+                .withVersion("app_version")
+                .withPath("some_path")
+                .withId(-1)
+                .withInstances(instances)
+                .build();
+
+        final Set<ApplicationModuleData> modules = new HashSet<>();
+        modules.add(module);
+
+        PlatformData.IBuilder builder0 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("app_version")
+                .withModules(modules)
+                .withVersion(-1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder0.build());
+
+        when(applicationsWithEvent.getProperties(platformKey, "some_path")).thenReturn(properties);
         assertThat(withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
                 .queryParam("path", "some_path")
                 .request()
@@ -667,13 +701,12 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
         PlatformKey platformKey = PlatformKey.withName("my_pltfm")
                 .withApplicationName("my_app")
                 .build();
-        when(applications.createOrUpdatePropertiesInPlatform(platformKey, "some_path",
-                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment)).thenReturn(
-                PROPERTIES_CONVERTER.toPropertiesData(properties));
+
+        generateApplication(platformKey, 2);
 
         assertThat(withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
                 .queryParam("path", "some_path")
-                .queryParam("platform_vid", "1")
+                .queryParam("platform_vid", "2")
                 .queryParam("comment", "Test comment")
                 .request()
                 .post(Entity.json(properties))
@@ -683,39 +716,53 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_save_only_valued_properties_and_not_null_or_empty_ones() throws JsonProcessingException {
+        final ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module", "2.1.1.0");
+
+        generateModule(moduleKey, 1);
+
         Set<KeyValueValorisation> keyValueProperties = Sets.newHashSet();
         keyValueProperties.add(new KeyValueValorisation("name1", "value"));
         keyValueProperties.add(new KeyValueValorisation("name2", ""));
         keyValueProperties.add(new KeyValueValorisation("name3", ""));
         keyValueProperties.add(new KeyValueValorisation("name5", "value"));
 
-        Set<KeyValueValorisationData> keyValuePropertiesCleaned = Sets.newHashSet();
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name1", "value"));
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("name5", "value"));
+        Set<KeyValueValorisation> keyValuePropertiesCleaned = Sets.newHashSet();
+        keyValuePropertiesCleaned.add(new KeyValueValorisation("name1", "value"));
+        keyValuePropertiesCleaned.add(new KeyValueValorisation("name5", "value"));
 
         Properties properties = new Properties(keyValueProperties, Sets.newHashSet());
-        PropertiesData propertiesCleaned = new PropertiesData(keyValuePropertiesCleaned, Sets.newHashSet());
 
         PlatformKey platformKey = PlatformKey.withName("my_pltfm")
                 .withApplicationName("my_app")
                 .build();
 
-        when(applications.createOrUpdatePropertiesInPlatform(platformKey, "some_path", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
+        generateApplication(platformKey, 1);
 
         withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                .queryParam("path", "some_path")
+                .queryParam("path", "#TITI#TOTO#module#2.1.1.0#WORKINGCOPY")
                 .queryParam("platform_vid", "1")
                 .queryParam("comment", "Test comment")
                 .request()
                 .post(Entity.json(properties));
 
-        //Check that service is called with cleaned properties
-        verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "some_path",
-                propertiesCleaned, 1L, comment);
+        final Properties propResult = withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("path", "#TITI#TOTO#module#2.1.1.0#WORKINGCOPY")
+                .request()
+                .get()
+                .readEntity(Properties.class);
+
+        final Set<KeyValueValorisation> kvResult = propResult.getKeyValueProperties();
+        kvResult.removeAll(keyValuePropertiesCleaned);
+
+        assertThat(kvResult.size()).isEqualTo(0);
     }
 
     @Test
     public void should_save_only_valued_iterable_properties_and_not_null_or_empty_ones() throws JsonProcessingException {
+        final ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module", "2.1.1.0");
+
+        generateModule(moduleKey, 1);
+
         // Iterable properties
         IterableValorisation.IterableValorisationItem itemIterable2 = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name3", "value"), new KeyValueValorisation("name0", "")));
         IterableValorisation iterableValorisation2 = new IterableValorisation("iterable2", Lists.newArrayList(itemIterable2));
@@ -727,34 +774,44 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
         Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("simple1", "value"), new KeyValueValorisation("simple2", "")), Sets.newHashSet(iterableValorisation));
 
         // Cleaned properties
-        Set<KeyValueValorisationData> keyValuePropertiesCleaned = Sets.newHashSet();
-        keyValuePropertiesCleaned.add(new KeyValueValorisationData("simple1", "value"));
+        Set<KeyValueValorisation> keyValuePropertiesCleaned = Sets.newHashSet();
+        keyValuePropertiesCleaned.add(new KeyValueValorisation("simple1", "value"));
 
-        IterableValorisationData.IterableValorisationItemData itemIterable2Cleaned = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("name3", "value")));
-        IterableValorisationData iterableValorisation2Cleaned = new IterableValorisationData("iterable2", Lists.newArrayList(itemIterable2Cleaned));
+        IterableValorisation.IterableValorisationItem itemIterable2Cleaned = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name3", "value")));
+        IterableValorisation iterableValorisation2Cleaned = new IterableValorisation("iterable2", Lists.newArrayList(itemIterable2Cleaned));
 
-        IterableValorisationData.IterableValorisationItemData itemCleaned = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("name2", "value"), iterableValorisation2Cleaned));
-        Set<IterableValorisationData> iterablePropertiesCleaned = Sets.newHashSet(new IterableValorisationData("iterable", Lists.newArrayList(itemCleaned)));
-
-        PropertiesData propertiesCleaned = new PropertiesData(keyValuePropertiesCleaned, iterablePropertiesCleaned);
+        IterableValorisation.IterableValorisationItem itemCleaned = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name2", "value"), iterableValorisation2Cleaned));
+        Set<IterableValorisation> iterablePropertiesCleaned = Sets.newHashSet(new IterableValorisation("iterable", Lists.newArrayList(itemCleaned)));
 
         PlatformKey platformKey = PlatformKey.withName("my_pltfm")
                 .withApplicationName("my_app")
                 .build();
 
-        when(applications.createOrUpdatePropertiesInPlatform(platformKey, "some_path", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
+        generateApplication(platformKey, 1);
 
-        Properties p = withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                .queryParam("path", "some_path")
+        Properties propResult = withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("path", "#TITI#TOTO#module#2.1.1.0#WORKINGCOPY")
                 .queryParam("platform_vid", "1")
                 .queryParam("comment", "Test comment")
                 .request()
                 .post(Entity.json(properties))
                 .readEntity(Properties.class);
 
-        //Check that service is called with cleaned properties
-        verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "some_path",
-                propertiesCleaned, 1L, comment);
+        final Set<KeyValueValorisation> kvResult = propResult.getKeyValueProperties();
+
+        kvResult.removeAll(keyValuePropertiesCleaned);
+
+        kvResult.stream().forEach(kv -> System.out.println(kv.getName() + " : " + kv.getValue()));
+
+        assertThat(kvResult.size()).isEqualTo(0);
+
+        final Set<IterableValorisation> itResult = propResult.getIterableProperties();
+
+        itResult.stream().forEach(it -> System.out.println(it.getName()));
+
+        itResult.removeAll(iterablePropertiesCleaned);
+
+        assertThat(itResult.size()).isEqualTo(0);
     }
 
     @Test
@@ -794,16 +851,78 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_instance_model_for_given_application_platform_and_instance() {
-        InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-        when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
+        final ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module", "2.1.1.0");
 
-        assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/properties/instance_model")
-                .queryParam("path", "some_path")
+        // We must generate module with template
+        generateModule(moduleKey, "{{prop1}}, {{prop2}}", 1);
+
+        // Create platform
+        final KeyValueValorisationData kv = new KeyValueValorisationData("prop", "val1");
+        final Set<KeyValueValorisationData> keyValues = new HashSet<>();
+        keyValues.add(kv);
+
+        final InstanceData instance = InstanceData
+                .withInstanceName("TOTO")
+                .withKeyValue(keyValues)
+                .build();
+
+        final Set<InstanceData> instances = new HashSet<>();
+        instances.add(instance);
+
+        final ApplicationModuleData module = ApplicationModuleData
+                .withApplicationName("app_name")
+                .withVersion("app_version")
+                .withPath("#TITI#TOTO#module#2.1.1.0#WORKINGCOPY")
+                .withId(1)
+                .withInstances(instances)
+                .build();
+
+        final Set<ApplicationModuleData> modules = new HashSet<>();
+        modules.add(module);
+
+        PlatformData.IBuilder builder0 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("app_version")
+                .withModules(modules)
+                .withVersion(-1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder0.build());
+
+        // Set properties to have  instance model
+        Set<KeyValueValorisation> keyValueProperties = Sets.newHashSet();
+        keyValueProperties.add(new KeyValueValorisation("prop1", "{{aaa}}"));
+        keyValueProperties.add(new KeyValueValorisation("prop2", "{{bbb}}"));
+
+        Properties properties = new Properties(keyValueProperties, Sets.newHashSet());
+
+        withoutAuth("/applications/app_name/platforms/pltfm_name/properties")
+                .queryParam("path", "#TITI#TOTO#module#2.1.1.0#WORKINGCOPY")
+                .queryParam("platform_vid", "1")
+                .queryParam("comment", "Test comment")
                 .request()
-                    .get(InstanceModel.class)).isEqualTo(instanceModel);
+                .post(Entity.json(properties));
+
+        // Generate output list to compare
+        final KeyValuePropertyModel kvPro1 = new KeyValuePropertyModel("aaa", "");
+        final KeyValuePropertyModel kvPro2 = new KeyValuePropertyModel("bbb", "");
+
+        final Set<KeyValuePropertyModel> listModel = new HashSet<>();
+        listModel.add(kvPro1);
+        listModel.add(kvPro2);
+
+        final InstanceModel instanceModel = new InstanceModel(listModel);
+
+        final InstanceModel instanceModelResult = withoutAuth("/applications/app_name/platforms/pltfm_name/properties/instance_model")
+                .queryParam("path", "#TITI#TOTO#module#2.1.1.0#WORKINGCOPY")
+                .request()
+                .get(InstanceModel.class);
+
+        final Set<KeyValuePropertyModel> keys = instanceModelResult.getKeys();
+
+        keys.removeAll(instanceModel.getKeys());
+
+        assertThat(keys.size()).isEqualTo(0);
     }
 
     @Test
@@ -848,6 +967,8 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .withApplicationName("the_app_from")
                 .build();
 
+        generateApplication(fromPlatformKey, 1);
+
         PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
                 .withApplicationName("app_name")
                 .withApplicationVersion("app_version")
@@ -856,8 +977,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .isProduction();
 
         PlatformData platform = builder1.build();
-
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
         assertThat(withoutAuth("/applications/%20%09%00/platforms")
                 .queryParam("from_application", "the_app_from")
@@ -880,11 +999,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder1.build();
 
-        PlatformKey fromPlatformKey = PlatformKey.withName("the_pltfm_from")
-                .withApplicationName("the_app_from")
-                .build();
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
-
         assertThat(withoutAuth("/applications/_we_dont_care_/platforms")
                 .queryParam("from_application", "%20%09%00")
                 .queryParam("from_platform", "the_pltfm_from")
@@ -897,10 +1011,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
     @Test
     public void should_return_400_when_create_platform_if_from_platform_is_not_valid_with_post()
             throws JsonProcessingException {
-        PlatformKey fromPlatformKey = PlatformKey.withName("the_pltfm_from")
-                .withApplicationName("the_app_from")
-                .build();
-
         PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
                 .withApplicationName("app_name")
                 .withApplicationVersion("app_version")
@@ -909,8 +1019,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .isProduction();
 
         PlatformData platform = builder1.build();
-
-        when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
         assertThat(withoutAuth("/applications/_we_dont_care_/platforms")
                 .queryParam("from_application", "the_app_from")
@@ -982,12 +1090,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_400_when_post_properties_if_application_name_is_not_valid() {
-        InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-        when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
-
         assertThat(
             withoutAuth("/applications/%20%09%00/platforms/pltfm_name/properties/instance_model")
                 .queryParam("path", "some_path")
@@ -998,12 +1100,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_400_when_post_properties_if_platform_name_is_not_valid() {
-        InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-        when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
-
         assertThat(
             withoutAuth("/applications/app_name/platforms/%20%09%00/properties/instance_model")
                     .queryParam("path", "some_path")
@@ -1044,7 +1140,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .withApplicationName("app_name")
                 .build();
 
-        when(applications.takeSnapshot(platformKey)).thenReturn(1L);
+        generateApplication(platformKey, 1);
 
         assertThat(
             withoutAuth("/applications/app_name/platforms/pltfm_name/take_snapshot")
@@ -1055,12 +1151,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_400_when_post_take_snapshot_if_platform_name_is_not_valid() throws JsonProcessingException {
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-
-        when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-
         assertThat(
             withoutAuth("/applications/app_name/platforms/%20%09%00/take_snapshot")
                     .request()
@@ -1070,12 +1160,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_400_when_post_take_snapshot_if_application_name_is_not_valid() throws JsonProcessingException {
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-
-        when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-
         assertThat(
             withoutAuth("/applications/%20%09%00/platforms/pltfm_name/take_snapshot")
                     .request()
@@ -1085,9 +1169,7 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_restore_snapshot() throws JsonProcessingException {
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
+        should_create_snapshot();
 
         PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
                 .withApplicationName("app_name")
@@ -1098,10 +1180,20 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
         PlatformData platform = builder1.build();
 
-        when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
+        // Search timestamp in database
+        final JedisMock jedis = this.poolRedis.getPool().getResource();
+
+        // Search in redis key with pattern to get timestamp
+        // snapshot-platform-app_name-pltfm_name-1507551413983
+        final String patternKey = "snapshot-platform-app_name-pltfm_name-";
+        final Set<String> listKeys = jedis.keys(patternKey + "*");
+
+        final String theKey = listKeys.iterator().next();
+
+        final String timestamp = theKey.substring(patternKey.length());
 
         assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/restore_snapshot")
-                .queryParam("timestamp", "1")
+                .queryParam("timestamp", timestamp)
                 .request()
                 .post(Entity.json(null))
                 .readEntity(Platform.class)
@@ -1110,21 +1202,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_400_when_post_restore_snapshot_if_platform_name_is_not_valid() throws JsonProcessingException {
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-
-        PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
-                .withApplicationName("app_name")
-                .withApplicationVersion("1.0.0.0")
-                .withModules(Sets.newHashSet())
-                .withVersion(1L)
-                .isProduction();
-
-        PlatformData platform = builder1.build();
-
-        when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-
         assertThat(
             withoutAuth("/applications/app_name/platforms/%20%09%00/restore_snapshot")
                     .queryParam("timestamp", "1")
@@ -1135,21 +1212,6 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void should_return_400_when_post_restore_snapshot_if_application_name_is_not_valid() throws JsonProcessingException {
-        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                .withApplicationName("app_name")
-                .build();
-
-        PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
-                .withApplicationName("app_name")
-                .withApplicationVersion("1.0.0.0")
-                .withModules(Sets.newHashSet())
-                .withVersion(1L)
-                .isProduction();
-
-        PlatformData platform = builder1.build();
-
-        when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-
         assertThat(
             withoutAuth("/applications/%20%09%00/platforms/pltfm_name/restore_snapshot")
                     .queryParam("timestamp", "1")
@@ -1164,21 +1226,43 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .withApplicationName("app_name")
                 .build();
 
-        List<Long> listInput = new ArrayList<>();
-        listInput.add(1L);
-        listInput.add(3L);
-        listInput.add(2L);
+        // Create platform
+        generateApplication(platformKey, 1);
 
-        List<Integer> listOuput = new ArrayList<>();
-        listOuput.add(3);
-        listOuput.add(2);
-        listOuput.add(1);
+        // Generate 5 snpahsot
+        for (int index = 0; index < 5; index++) {
+            assertThat(
+                    withoutAuth("/applications/app_name/platforms/pltfm_name/take_snapshot")
+                            .request()
+                            .post(Entity.json(null))
+                            .getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        }
 
-        when(applications.getSnapshots(platformKey)).thenReturn(listInput);
+        // Get list of timestamp in database
+        // Search timestamp in database
+        final JedisMock jedis = this.poolRedis.getPool().getResource();
+
+        // Search in redis key with pattern to get timestamp
+        // snapshot-platform-app_name-pltfm_name-1507551413983
+        final String patternKey = "snapshot-platform-app_name-pltfm_name-";
+        final Set<String> listKeys = jedis.keys(patternKey + "*");
+
+        final List<Long> listTimestamp = new ArrayList<>();
+        String timestamp;
+
+        for (String currentKeyName : listKeys) {
+            timestamp = currentKeyName.substring(patternKey.length());
+
+            listTimestamp.add(Long.valueOf(timestamp));
+        }
+
+        listTimestamp.sort((o1, o2) -> o1.compareTo(o2));
+
+        Collections.reverse(listTimestamp);
 
         assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/snapshots")
                 .request()
-                .get(new GenericType<List<Integer>>() {})).isEqualTo(listOuput);
+                .get(new GenericType<List<Long>>() {})).isEqualTo(listTimestamp);
     }
 
     @Test
@@ -1193,6 +1277,27 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
 
     @Test
     public void test_getGlobalPropertiesUsage() throws JsonProcessingException {
+        // Create module 1 to convert to module 2
+        final ModuleWorkingCopyKey demoKatanaWc = new ModuleWorkingCopyKey("demoKatana", "1.0.0");
+        generateModule(demoKatanaWc, "{{prop_21}} {{prop_22}} {{global}}", 2); // 2 to create template
+
+        // Now create release module 1 to module 2
+        modulesWithEvent.createRelease(demoKatanaWc, "1.0.0");
+
+        // Update module 1
+        TemplateData templateData = TemplateData.withTemplateName("nom du template1")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent("{{prop_11}} {{prop_12}} {{global}}")
+                .withRights(null)
+                .build();
+        modulesWithEvent.updateTemplateInWorkingCopy(demoKatanaWc, templateData);
+
+        // Create module 3
+        final ModuleWorkingCopyKey demoGlobalWc = new ModuleWorkingCopyKey("demoGlobal", "1.0.0");
+        generateModule(demoGlobalWc, "{{prop_31}} {{prop_32}}", 1);
+
+        // Create platform
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("demoKatana")
                 .withVersion("1.0.0")
@@ -1220,11 +1325,9 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .isWorkingcopy()
                 .build();
 
-
         PlatformKey platformKey1 = PlatformKey.withName("USN1")
                 .withApplicationName("KTN")
                 .build();
-
 
         PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey1.getName())
                 .withApplicationName(platformKey1.getApplicationName())
@@ -1233,62 +1336,48 @@ public class HesperidesApplicationResourceTest extends AbstractDisableUserResour
                 .withVersion(1L)
                 .isProduction();
 
-
         PlatformData pltfm1 = builder1.build();
 
-        Set<KeyValueValorisationData> g_prop = new HashSet<>();
+        applicationsWithEvent.createPlatform(pltfm1);
+
+        // Add properties for module 1
         Set<KeyValueValorisationData> prop_1 = new HashSet<>();
+        prop_1.add(new KeyValueValorisationData("prop_11", "{{first_global}}"));
+        prop_1.add(new KeyValueValorisationData("prop_12", "{{whole_global}}"));
+        PropertiesData properties_1 = new PropertiesData(prop_1, Sets.newHashSet());
+
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey1, "#DEMO#CMS#demoKatana#1.0.0#WORKINGCOPY", properties_1,
+                1L, "Maj prop1");
+
+        // Add properties for module 2
         Set<KeyValueValorisationData> prop_2 = new HashSet<>();
+        prop_2.add(new KeyValueValorisationData("prop_21", "{{second_global}}"));
+        prop_2.add(new KeyValueValorisationData("prop_22", "{{whole_global}}"));
+        PropertiesData properties_2 = new PropertiesData(prop_2, Sets.newHashSet());
+
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey1, "#DEMO#CMS#demoKatana#1.0.0#RELEASE", properties_2,
+                2L, "Maj prop2");
+
+        // Add properties for module 3
         Set<KeyValueValorisationData> prop_3 = new HashSet<>();
+        prop_3.add(new KeyValueValorisationData("prop_31", "{{third_global}}"));
+        prop_3.add(new KeyValueValorisationData("prop_32", "{{whole_global}}"));
+        PropertiesData properties_3 = new PropertiesData(prop_3, Sets.newHashSet());
 
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey1, "#DEMO#NJS#demoGlobal#1.0.0#WORKINGCOPY", properties_3,
+                3L, "Maj prop3");
 
-        Set<KeyValuePropertyModel> model_1 = new HashSet<>();
-        Set<KeyValuePropertyModel> model_2 = new HashSet<>();
-        Set<KeyValuePropertyModel> model_3 = new HashSet<>();
-
+        // Add globals properties
+        Set<KeyValueValorisationData> g_prop = new HashSet<>();
         g_prop.add(new KeyValueValorisationData("first_global", "first_global_value"));
         g_prop.add(new KeyValueValorisationData("second_global", "second_global_value"));
         g_prop.add(new KeyValueValorisationData("third_global", "third_global_value"));
         g_prop.add(new KeyValueValorisationData("whole_global", "whole_global_value"));
         g_prop.add(new KeyValueValorisationData("global", "global_value"));
         g_prop.add(new KeyValueValorisationData("unused", "unused_value"));
-
-        prop_1.add(new KeyValueValorisationData("prop_11", "{{first_global}}"));
-        prop_1.add(new KeyValueValorisationData("prop_12", "{{whole_global}}"));
-
-        prop_2.add(new KeyValueValorisationData("prop_21", "{{second_global}}"));
-        prop_2.add(new KeyValueValorisationData("prop_22", "{{whole_global}}"));
-
-        prop_3.add(new KeyValueValorisationData("prop_31", "{{third_global}}"));
-        prop_3.add(new KeyValueValorisationData("prop_32", "{{whole_global}}"));
-
-        model_1.add(new KeyValuePropertyModel("global", ""));
-        model_2.add(new KeyValuePropertyModel("global", ""));
-        model_2.add(new KeyValuePropertyModel("prop_21", ""));
-
         PropertiesData global_properties = new PropertiesData(g_prop, Sets.newHashSet());
-        PropertiesData properties_1 = new PropertiesData(prop_1, Sets.newHashSet());
-        PropertiesData properties_2 = new PropertiesData(prop_2, Sets.newHashSet());
-        PropertiesData properties_3 = new PropertiesData(prop_3, Sets.newHashSet());
 
-        PlatformKey platformKey = PlatformKey.withName("USN1")
-                .withApplicationName("KTN")
-                .build();
-
-        when(applications.getPlatform(any())).thenReturn(Optional.of(pltfm1));
-        when(applications.getProperties(platformKey, "#")).thenReturn(global_properties);
-        when(applications.getProperties(platformKey, module1.getPropertiesPath())).thenReturn(properties_1);
-        when(applications.getProperties(platformKey, module2.getPropertiesPath())).thenReturn(properties_2);
-        when(applications.getProperties(platformKey, module3.getPropertiesPath())).thenReturn(properties_3);
-
-        Optional<HesperidesPropertiesModel> opt_1 = Optional.of(new HesperidesPropertiesModel(model_1, Sets.newHashSet()));
-        Optional<HesperidesPropertiesModel> opt_2 = Optional.of(new HesperidesPropertiesModel(model_2, Sets.newHashSet()));
-        Optional<HesperidesPropertiesModel> opt_3 = Optional.of(new HesperidesPropertiesModel(model_3, Sets.newHashSet()));
-
-        when(modules.getModel(new ModuleKey(module2.getName(), Release.of(module2.getVersion())))).thenReturn(opt_2);
-        when(modules.getModel(new ModuleKey(module1.getName(), WorkingCopy.of(module1.getVersion())))).thenReturn(opt_1);
-        when(modules.getModel(new ModuleKey(module3.getName(), WorkingCopy.of(module3.getVersion())))).thenReturn(opt_3);
-
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey1, "#", global_properties, 4L, "Maj prop globale");
 
         HashMap<String, ArrayList<HashMap>> response = withoutAuth("/applications/KTN/platforms/USN1/global_properties_usage")
                 .request()

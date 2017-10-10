@@ -32,6 +32,7 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 
+import com.vsct.dt.hesperides.AbstractCacheTest;
 import com.vsct.dt.hesperides.exception.wrapper.DefaultExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.DuplicateResourceExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.ForbiddenExceptionMapper;
@@ -48,7 +49,7 @@ import com.vsct.dt.hesperides.security.model.User;
 /**
  * Created by emeric_martineau on 03/02/2017.
  */
-public abstract class AbstractDisableUserResourcesTest {
+public abstract class AbstractDisableUserResourcesTest extends AbstractCacheTest {
     /**
      * Disable authentification -> return untracked.
      */
