@@ -755,6 +755,72 @@ public class ModulesAggregateTest extends AbstractCacheTest {
 
     }
 
+    @Test
+    public void should_create_new_working_copy_from_the_matching_working_copy_with_new_version() {
+        ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
+        TemplateData templateData1 = TemplateData.withTemplateName("template1")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent("content")
+                .withRights(null)
+                .build();
+        TemplateData templateData2 = TemplateData.withTemplateName("template2")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent("content")
+                .withRights(null)
+                .build();
+
+        Techno techno = new Techno("tomcat", "1", false);
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet(techno)));
+
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData1);
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData2);
+
+        Module returnedModule = modulesWithEvent.createRelease(
+                fromModuleKey, 
+                "new_release_version", 
+                "new_working_copy_version");
+        
+        assertThat(returnedModule.getName()).isEqualTo("my_module");
+        assertThat(returnedModule.getVersion()).isEqualTo("new_release_version");
+        assertThat(returnedModule.isWorkingCopy()).isFalse();
+        assertThat(returnedModule.getTechnos()).isEqualTo(Sets.newHashSet(techno));
+
+        //Workingcopy templates should still exist
+        List<Template> wcTemplates = modulesWithEvent.getAllTemplates(fromModuleKey);
+        assertThat(wcTemplates.size()).isEqualTo(2);
+
+        //Release templates should have been created
+        ModuleKey releaseInfo = ModuleKey.withModuleName("my_module").withVersion(Release.of("new_release_version")).build();
+        List<Template> releaseTemplates = modulesWithEvent.getAllTemplates(releaseInfo);
+        assertThat(releaseTemplates.size()).isEqualTo(2);
+        for(int i = 0; i<2; i++) {
+            Template template = releaseTemplates.get(i);
+            assertThat(template.getFilename()).isEqualTo("filename");
+            assertThat(template.getLocation()).isEqualTo("location");
+            assertThat(template.getContent()).isEqualTo("content");
+            assertThat(template.getVersionID()).isEqualTo(1L);
+            assertThat(template.getNamespace()).isEqualTo("modules#my_module#new_release_version#RELEASE");
+        }
+
+        //New Working copy templates should have been created
+        ModuleKey nextVersionInfo = ModuleKey.withModuleName("my_module")
+                .withVersion(WorkingCopy.of("new_working_copy_version"))
+                .build();
+        List<Template> nextVersionTemplates = modulesWithEvent.getAllTemplates(nextVersionInfo);
+        assertThat(nextVersionTemplates.size()).isEqualTo(2);
+        for(int i = 0; i<2; i++) {
+            Template template = nextVersionTemplates.get(i);
+            assertThat(template.getFilename()).isEqualTo("filename");
+            assertThat(template.getLocation()).isEqualTo("location");
+            assertThat(template.getContent()).isEqualTo("content");
+            assertThat(template.getVersionID()).isEqualTo(1L);
+            assertThat(template.getNamespace()).isEqualTo("modules#my_module#new_working_copy_version#WORKINGCOPY");
+        }
+
+    }
+
     @Test(expected = DuplicateResourceException.class)
     public void should_throw_duplicate_ressource_exception_if_release_already_exists_when_creating_a_release() {
         ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
@@ -772,6 +838,25 @@ public class ModulesAggregateTest extends AbstractCacheTest {
 
         modulesWithEvent.createRelease(fromModuleKey, "version");
         modulesWithEvent.createRelease(fromModuleKey, "version");
+    }
+
+    @Test(expected = DuplicateResourceException.class)
+    public void should_throw_duplicate_ressource_exception_if_next_version_already_exists_when_creating_a_release() {
+        ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
+        ModuleWorkingCopyKey fromModuleKey2 = new ModuleWorkingCopyKey("my_module", "the_version");
+
+        assertThat(fromModuleKey).isEqualTo(fromModuleKey2);
+        TemplateData templateData1 = TemplateData.withTemplateName("template1")
+                .withFilename("filename")
+                .withLocation("location")
+                .withContent("content")
+                .withRights(null)
+                .build();
+        modulesWithEvent.createWorkingCopy(new Module(fromModuleKey, Sets.newHashSet()));
+        modulesWithEvent.createTemplateInWorkingCopy(fromModuleKey, templateData1);
+
+        modulesWithEvent.createRelease(fromModuleKey, "version", "nextVersion");
+        modulesWithEvent.createRelease(fromModuleKey, "version2", "nextVersion");
     }
 
     @Test

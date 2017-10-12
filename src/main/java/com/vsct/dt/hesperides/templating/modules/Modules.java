@@ -62,5 +62,7 @@ public interface Modules {
 
     Module createRelease(ModuleWorkingCopyKey moduleKey, String releaseVersion);
 
+    Module createRelease(ModuleWorkingCopyKey moduleKey, String releaseVersion, String nextVersion);
+
     void delete(ModuleKey moduleKey);
 }

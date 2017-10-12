@@ -488,17 +488,24 @@ public class HesperidesModuleResource extends BaseResource {
     public Module createRelease(@Auth final User user,
                                   @QueryParam("module_name") final String moduleName,
                                   @QueryParam("module_version") final String moduleVersion,
-                                  @QueryParam("release_version") String releaseVersion) {
+                                  @QueryParam("release_version") String releaseVersion,
+                                  @QueryParam("next_version") String nextVersion) {
 
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
+        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey(moduleName, moduleVersion);
 
         if(releaseVersion == null || isNonDisplayedChar(releaseVersion)){
             releaseVersion = moduleVersion;
         }
 
-        ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey(moduleName, moduleVersion);
-        return modules.createRelease(moduleKey, releaseVersion);
+        if(nextVersion != null && !isNonDisplayedChar(nextVersion)) {
+            return modules.createRelease(moduleKey, releaseVersion, nextVersion);
+        } else {
+            return modules.createRelease(moduleKey, releaseVersion);
+        }
+
+        
     }
 
 }
