@@ -25,7 +25,7 @@
 
     <groupId>com.vsct.dt</groupId>
     <artifactId>hesperides</artifactId>
-    <version>3.0.5</version>
+    <version>3.0.0-SNAPSHOT</version>
 
     <properties>
         <dropwizard.version>0.7.0</dropwizard.version>
@@ -275,7 +275,7 @@
     <scm>
         <connection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</connection>
         <developerConnection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</developerConnection>
-      <tag>3.0.5</tag>
+      <tag>HEAD</tag>
   </scm>
 
   <profiles>
