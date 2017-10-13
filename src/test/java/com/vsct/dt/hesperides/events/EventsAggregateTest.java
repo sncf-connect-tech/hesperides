@@ -43,11 +43,10 @@ import tests.type.UnitTests;
  */
 @Category(UnitTests.class)
 public class EventsAggregateTest {
-    private final EventBus eventBus = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
-    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis);
+    private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
     private final EventsConfiguration testEventsConfiguration = new EventsConfiguration();
-    EventsAggregate events = null;
+    private EventsAggregate events = null;
 
 
     public void loadEvents (final String streamName){

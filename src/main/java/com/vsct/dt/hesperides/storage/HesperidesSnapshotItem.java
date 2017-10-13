@@ -31,28 +31,28 @@ public class HesperidesSnapshotItem {
     /**
      * Nb event in redis stream.
      */
-    private final long currentNbEvent;
+    private final long streamNbEvent;
 
     /**
      * Nb event in cache.
      */
-    private final long nbEvents;
+    private final long cacheNbEvents;
 
-    public HesperidesSnapshotItem(final Object snapshot, final long nbEvents, final long currentNbEvent) {
+    public HesperidesSnapshotItem(final Object snapshot, final long cacheNbEvents, final long streamNbEvent) {
         this.snapshot = snapshot;
-        this.currentNbEvent = currentNbEvent;
-        this.nbEvents = nbEvents;
+        this.streamNbEvent = streamNbEvent;
+        this.cacheNbEvents = cacheNbEvents;
     }
 
     public Object getSnapshot() {
         return snapshot;
     }
 
-    public long getCurrentNbEvents() {
-        return currentNbEvent;
+    public long getStreamNbEvents() {
+        return streamNbEvent;
     }
 
-    public long getNbEvents() {
-        return nbEvents;
+    public long getCacheNbEvents() {
+        return cacheNbEvents;
     }
 }

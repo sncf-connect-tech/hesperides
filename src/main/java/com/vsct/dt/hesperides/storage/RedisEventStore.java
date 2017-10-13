@@ -23,6 +23,8 @@ package com.vsct.dt.hesperides.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
+
 import com.vsct.dt.hesperides.util.ManageableJedisConnectionInterface;
 import io.dropwizard.jackson.Jackson;
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -52,6 +55,12 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
      * Builder of event from JSON.
      */
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+
+    /**
+     * Number of events to be loaded at once when replaying
+     * It is also the events list pagination page size.
+     */
+    private static final int BATCH_SIZE = 100;
 
     /**
      * Pool.
@@ -74,17 +83,18 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     private final int waitBeforeRetryMs;
 
     /**
-     * Number of events to be loaded at once when replaying
-     * It is also the events list pagination page size.
+     * Timestamp provider.
      */
-    private int BATCH_SIZE = 100;
+    private final EventTimeProvider timeProvider;
 
     public RedisEventStore(final ManageableJedisConnectionInterface<A> dataPool,
-                           final ManageableJedisConnectionInterface<A> snapshotPool) {
+                           final ManageableJedisConnectionInterface<A> snapshotPool,
+                            final EventTimeProvider timeProvider) {
         this.dataPool = dataPool.getPool();
         this.snapshotPool = snapshotPool.getPool();
         this.nRetry = dataPool.getnRetry();
         this.waitBeforeRetryMs = dataPool.getWaitBeforeRetryMs();
+        this.timeProvider = timeProvider;
     }
 
     private <T> T execute(final Pool<A> dataPool, final Pool<A> snapshotPool, final RedisCommand<T, A> command) {
@@ -126,7 +136,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
             @Override
             public T execute(final A jedisData, final A jedisSnapshot) throws Throwable {
                 Event eventStoreEvent = new Event(event.getClass().getCanonicalName(),
-                        MAPPER.writeValueAsString(event), System.currentTimeMillis(), userInfo.getName());
+                        MAPPER.writeValueAsString(event), timeProvider.timestamp(), userInfo.getName());
 
                 jedisData.rpush(streamName, MAPPER.writeValueAsString(eventStoreEvent));
 
@@ -149,10 +159,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public HesperidesSnapshotItem findSnapshot(final String streamName, final long offset, final EventTester<Event> ev) {
-        return execute(dataPool, snapshotPool, new RedisCommand<HesperidesSnapshotItem, A>() {
+    public Optional<HesperidesSnapshotItem> findSnapshot(final String streamName, final long offset, final long timestamp) {
+        return execute(dataPool, snapshotPool, new RedisCommand<Optional<HesperidesSnapshotItem>, A>() {
             @Override
-            public HesperidesSnapshotItem execute(final A jedisData, final A jedisSnapshot) throws Throwable {
+            public Optional<HesperidesSnapshotItem> execute(final A jedisData, final A jedisSnapshot) throws Throwable {
                 final String redisSnapshotKey = String.format("snapshotevents-%s", streamName);
 
                 if (jedisData.exists(streamName) && jedisSnapshot.exists(redisSnapshotKey)) {
@@ -161,21 +171,52 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
                     long currentEventIndex;
                     long selectedCacheIndex;
 
-                    // Check event that jump to ev.increment
-                    for (currentEventIndex = 0; currentEventIndex <= lastIndex; currentEventIndex += offset) {
+                    // First snapshot take event #0 to #3 (for example)
+                    // Now, we must check event #3, #7, #11
+                    for (currentEventIndex = offset - 1; currentEventIndex <= lastIndex; currentEventIndex += offset) {
                         final List<String> binaryEvents = jedisData.lrange(streamName, currentEventIndex, currentEventIndex);
 
                         final Event event = MAPPER.readValue(binaryEvents.get(0), Event.class);
 
-                        if (ev.test(event)) {
+                        // Ok event is greater to timestamp
+                        if (event.getTimestamp() > timestamp) {
                             break;
                         }
                     }
 
-                    // E.g. we stop to event #8000
-                    // Cache index to event #8000 is #79
-                    // But #8000 is rejected, we must reject cache #79 an get cache #78
-                    selectedCacheIndex = ((currentEventIndex / offset) - 1) - 1;
+                    // We have 14 event in data
+                    // Offset is 4
+                    //
+                    // | DATA |      | CACHE |
+                    // | 1    |      | 1     |
+                    // | 2    |      | 2     |
+                    // | 3    |      | 3     |
+                    // | 4    |
+                    // | 5    |
+                    // | 6    |
+                    // | 7    |
+                    // | 8    |
+                    // | 9    |
+                    // | 10   |
+                    // | 11   |
+                    // | 12   |
+                    // | 13   |
+                    // | 14   |
+                    //
+                    // We stop to event 12.
+                    // 12 div 4 = 3
+                    //
+                    // But cache 3 is rejected cause event 12 is rejected
+                    //
+                    // We take event cache 2. But cache 2 have index 1.
+                    //
+                    // In case of no cache found, selectedCacheIndex is set to -1.
+                    // In Redis, index -1 mean start at end. We must set to 0.
+                    selectedCacheIndex = (currentEventIndex / offset) - 1;
+
+                    if (selectedCacheIndex < 0) {
+                        return Optional.empty();
+                    }
 
                     final List<String> lastCache = jedisSnapshot.lrange(redisSnapshotKey, selectedCacheIndex, selectedCacheIndex);
 
@@ -184,10 +225,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     Object object = MAPPER.readValue(cache.getData(), Class.forName(cache.getCacheType()));
 
-                    return new HesperidesSnapshotItem(object, cache.getNbEvents(), currentEventIndex);
+                    return Optional.of(new HesperidesSnapshotItem(object, cache.getNbEvents(), currentEventIndex));
                 }
 
-                return null;
+                return Optional.empty();
             }
 
             @Override
@@ -204,10 +245,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     }
 
     @Override
-    public HesperidesSnapshotItem findLastSnapshot(final String streamName) {
-        return execute(dataPool, snapshotPool, new RedisCommand<HesperidesSnapshotItem, A>() {
+    public Optional<HesperidesSnapshotItem> findLastSnapshot(final String streamName) {
+        return execute(dataPool, snapshotPool, new RedisCommand<Optional<HesperidesSnapshotItem>, A>() {
             @Override
-            public HesperidesSnapshotItem execute(final A jedisData, final A jedisSnapshot) throws Throwable {
+            public Optional<HesperidesSnapshotItem> execute(final A jedisData, final A jedisSnapshot) throws Throwable {
                 final String redisSnapshotKey = String.format("snapshotevents-%s", streamName);
 
                 if (jedisSnapshot.exists(redisSnapshotKey)) {
@@ -219,10 +260,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     Object object = MAPPER.readValue(cache.getData(), Class.forName(cache.getCacheType()));
 
-                    return new HesperidesSnapshotItem(object, cache.getNbEvents(), jedisData.llen(streamName));
+                    return Optional.of(new HesperidesSnapshotItem(object, cache.getNbEvents(), jedisData.llen(streamName)));
                 }
 
-                return null;
+                return Optional.empty();
             }
 
             @Override
@@ -334,7 +375,10 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
             long ioAccumulator = 0, serializationAccumulator = 0, processingAccumulator = 0;
 
-            for (indexBatch = start; indexBatch < stop; indexBatch = indexBatch + BATCH_SIZE) {
+            // Check if "stop" var is > to nb event in stream
+            final long stopBatch = Math.min(stop, jedis.llen(streamName));
+
+            for (indexBatch = start; indexBatch < stopBatch; indexBatch = indexBatch + BATCH_SIZE) {
 
                 startIO = System.nanoTime();
 
@@ -359,7 +403,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                     if (event.getTimestamp() > stopTimestamp) {
                         //No need to go beyong this point in time
-                        indexBatch = stop;
+                        indexBatch = stopBatch;
                         break;
                     }
 

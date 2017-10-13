@@ -102,11 +102,11 @@ public class InstanceData {
         return new Builder(name);
     }
 
-    public static interface IApplicationName {
+    public interface IApplicationName {
         IBuilder withKeyValue(Set<KeyValueValorisationData> keyValues);
     }
 
-    public static interface IBuilder {
+    public interface IBuilder {
         InstanceData build();
     }
 
