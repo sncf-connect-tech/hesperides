@@ -21,9 +21,10 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
+
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
@@ -43,7 +44,7 @@ import java.util.Hashtable;
  */
 public final class LDAPAuthenticator implements Authenticator<BasicCredentials, User> {
 
-    private static final Logger LOGGER                          = LoggerFactory.getLogger(LDAPAuthenticator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LDAPAuthenticator.class);
 
     /**
      * AD matching rule.
@@ -88,7 +89,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
             LOGGER.debug("{} failed to authenticate {}", username);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private boolean checkIfUserBelongsToGroup(final AutoclosableDirContext context, final String userDN, final String groupName) throws

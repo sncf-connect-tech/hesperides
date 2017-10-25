@@ -29,8 +29,9 @@ import org.junit.experimental.categories.Category;
 
 import java.lang.reflect.Field;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+
 
 import tests.type.UnitTests;
 

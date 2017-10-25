@@ -4,11 +4,15 @@ apiVersion: 1.0.0
 elasticSearchConfiguration:
   # host and port of your elasticsearch
   host: localhost
+  # if not port (like xxx.clevercloud.com), remove port line
   port: 9200
   index: hesperides
   reindexOnStartup: false # true/false
   retry: 5 # index retry before failure
   waitBeforeRetryMs: 5000
+  # Not requiered
+  # user: elastic
+  # password: changeme
 cacheConfiguration:
   redisConfiguration:
     ####################################
@@ -19,6 +23,8 @@ cacheConfiguration:
     port: 6379
     retry: 5
     waitBeforeRetryMs: 20000
+    # Password key is not required
+    # password: foobared
     ##################################################
     # for a sentinel configuration (production mode) #
     ##################################################
@@ -62,6 +68,8 @@ redisConfiguration:
   port: 6379
   retry: 5
   waitBeforeRetryMs: 20000
+  # Password key is not required
+  # password: foobared
   ##################################################
   # for a sentinel configuration (production mode) #
   ##################################################

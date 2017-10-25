@@ -39,6 +39,7 @@ import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -74,15 +75,103 @@ public class HesperidesFullIndexationResource {
      * Reindex the full application
      * We will have problems if someone calls resetIndex many times
      * We assume no one wants to do that...
-     * A nice way to do this would be to block application until indexation is finished
+     * A nice way to do this would be to block application until indexation is finished.
+     *
      * @throws FileNotFoundException
      */
-    @Path("/perform_reindex")
+    @Path("/all")
     @POST
     @Timed
     @ApiOperation("Reindex all applications, modules, templates...")
+    @RolesAllowed(User.TECH)
     public void resetIndex(@Auth final User user) throws IOException {
         reset(user);
+    }
+
+    /**
+     * Regenerate ElasticSearch Mapping.
+     */
+    @Path("/mapping")
+    @POST
+    @Timed
+    @ApiOperation("Regenerate mapping in ElasticSearch")
+    @RolesAllowed(User.TECH)
+    public void mapping(@Auth final User user) throws IOException {
+        elasticSearchIndexationExecutor.remapping();
+    }
+
+    /**
+     * Reindex template package.
+     */
+    @Path("/templates/packages")
+    @POST
+    @Timed
+    @ApiOperation("Reindex template package")
+    @RolesAllowed(User.TECH)
+    public void templatesPackages(@Auth final User user) throws IOException {
+        elasticSearchIndexationExecutor.index(
+                new IndexNewTemplateCommandBulk(
+                        templatePackages
+                                .getAllTemplates()
+                                .stream()
+                                .map(template -> TemplateMapper.asTemplateIndexation(template))
+                                .collect(Collectors.toList())));
+    }
+
+    /**
+     * Reindex module.
+     */
+    @Path("/modules")
+    @POST
+    @Timed
+    @ApiOperation("Reindex modules and templates")
+    @RolesAllowed(User.TECH)
+    public void modules(@Auth final User user) throws IOException {
+        elasticSearchIndexationExecutor.index(
+                new IndexNewModuleCommandBulk(
+                        modules
+                                .getAllModules()
+                                .stream()
+                                .map(module -> ModuleMapper.toModuleIndexation(module))
+                                .collect(Collectors.toList())));
+
+        modulesTemplates(user);
+    }
+
+    /**
+     * Reindex templates's modules.
+     */
+    @Path("/modules/templates")
+    @POST
+    @Timed
+    @ApiOperation("Reindex only template of modules")
+    @RolesAllowed(User.TECH)
+    public void modulesTemplates(@Auth final User user) throws IOException {
+        elasticSearchIndexationExecutor.index(
+                new IndexNewTemplateCommandBulk(
+                        modules
+                                .getAll()
+                                .stream()
+                                .map(template -> TemplateMapper.asTemplateIndexation(template))
+                                .collect(Collectors.toList())));
+    }
+
+    /**
+     * Reindex applications.
+     */
+    @Path("/applications")
+    @POST
+    @Timed
+    @ApiOperation("Reindex applications and platforms")
+    @RolesAllowed(User.TECH)
+    public void applications(@Auth final User user) throws IOException {
+        elasticSearchIndexationExecutor.index(
+                new IndexNewPlatformCommandBulk(
+                        applications
+                                .getAll()
+                                .stream()
+                                .map(app -> PlatformMapper.asPlatformIndexation(app))
+                                .collect(Collectors.toList())));
     }
 
     /**
@@ -102,45 +191,17 @@ public class HesperidesFullIndexationResource {
     private void reset(final User user) throws IOException {
         if (user == null) {
             LOGGER.info("RELOADING INDEX START at startup");
-        } else if (!user.isTechUser()) {
-            throw new ForbiddenOperationException("Only tech user can reindex.");
         } else {
-            LOGGER.info("RELOADING INDEX START by {}", user.getUsername());
+            LOGGER.info("RELOADING INDEX START by {}", user.getName());
         }
 
         elasticSearchIndexationExecutor.reset();
 
-        elasticSearchIndexationExecutor.index(
-                new IndexNewTemplateCommandBulk(
-                        templatePackages
-                                .getAllTemplates()
-                                .stream()
-                                .map(template -> TemplateMapper.asTemplateIndexation(template))
-                                .collect(Collectors.toList())));
+        templatesPackages(user);
 
-        elasticSearchIndexationExecutor.index(
-                new IndexNewModuleCommandBulk(
-                        modules
-                                .getAllModules()
-                                .stream()
-                                .map(module -> ModuleMapper.toModuleIndexation(module))
-                                .collect(Collectors.toList())));
+        modules(user);
 
-        elasticSearchIndexationExecutor.index(
-                new IndexNewTemplateCommandBulk(
-                        modules
-                                .getAll()
-                                .stream()
-                                .map(template -> TemplateMapper.asTemplateIndexation(template))
-                                .collect(Collectors.toList())));
-
-        elasticSearchIndexationExecutor.index(
-                new IndexNewPlatformCommandBulk(
-                        applications
-                                .getAll()
-                                .stream()
-                                .map(app -> PlatformMapper.asPlatformIndexation(app))
-                                .collect(Collectors.toList())));
+        applications(user);
 
         LOGGER.info("RELOADING INDEX START");
     }

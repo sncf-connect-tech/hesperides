@@ -68,7 +68,7 @@ public final class IndexNewPlatformCommandBulk implements ElasticSearchIndexatio
         if (propertiesAsString != null && propertiesAsString.size() > 0) {
             body = propertiesAsString.stream().map(platform -> platform.toString()).collect(Collectors.joining(""));
 
-            ElasticSearchEntity<PlatformIndexation> entity = elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_PLATFORM_READER)
+            elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_PLATFORM_READER)
                     .post("/platforms/_bulk", body);
 
             LOGGER.info("Successfully indexed new platform {}", propertiesAsString.size());

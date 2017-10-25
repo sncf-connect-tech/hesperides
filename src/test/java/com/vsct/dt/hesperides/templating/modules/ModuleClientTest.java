@@ -31,9 +31,10 @@ import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
-import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Created by william_montaz on 20/02/2015.

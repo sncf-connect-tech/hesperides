@@ -87,12 +87,12 @@ public class ManageableJedisConnection implements
             case REDIS:
                 LOGGER.info("Creates Simple Redis connection pool");
                 this.pool = new JedisPool(new JedisPoolConfig(), redisConfiguration.getHost(),
-                        redisConfiguration.getPort(), redisConfiguration.getTimeout());
+                        redisConfiguration.getPort(), redisConfiguration.getTimeout(), redisConfiguration.getPassword());
                 break;
             case SENTINEL:
                 LOGGER.info("Creates Redis Sentinel connection pool");
                 this.pool = new JedisSentinelPool(redisConfiguration.getMasterName(), redisConfiguration.getSentinels(),
-                        new JedisPoolConfig(), redisConfiguration.getTimeout());
+                        new JedisPoolConfig(), redisConfiguration.getTimeout(), redisConfiguration.getPassword());
                 break;
             default: {
                 throw new IllegalArgumentException("Unexpected jedis pool type provided in configuration file");

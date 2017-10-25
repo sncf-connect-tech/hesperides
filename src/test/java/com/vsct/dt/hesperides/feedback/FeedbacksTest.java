@@ -30,7 +30,7 @@ import com.vsct.dt.hesperides.security.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +91,7 @@ public class FeedbacksTest {
         when(feedbackObject.getNote()).thenReturn("A message\non 2 lines\nwith éà€");
 
         // Mock call of User
-        when(user.getUsername()).thenReturn("username");
+        when(user.getName()).thenReturn("username");
 
         String hipchatMessageBody = feedbacksAggregate.getHipchatMessageBody(feedbackJson, imageName, user);
 

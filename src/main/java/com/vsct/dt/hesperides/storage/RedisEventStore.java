@@ -136,7 +136,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
             @Override
             public T execute(final A jedisData, final A jedisSnapshot) throws Throwable {
                 Event eventStoreEvent = new Event(event.getClass().getCanonicalName(),
-                        MAPPER.writeValueAsString(event), timeProvider.timestamp(), userInfo.getUsername());
+                        MAPPER.writeValueAsString(event), timeProvider.timestamp(), userInfo.getName());
 
                 jedisData.rpush(streamName, MAPPER.writeValueAsString(eventStoreEvent));
 

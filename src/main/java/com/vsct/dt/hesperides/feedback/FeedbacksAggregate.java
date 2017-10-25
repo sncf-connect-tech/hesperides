@@ -28,8 +28,8 @@ import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
-import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -41,7 +41,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Decoder;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLContext;
@@ -50,10 +49,7 @@ import java.io.*;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by stephane_fret on 07/03/2017.
@@ -85,7 +81,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Feedback from "
-                    + user.getUsername()
+                    + user.getName()
                     + " to hipchat room\n"
                     + template.toJsonString());
         }
@@ -187,7 +183,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         while (itWordList.hasNext()) {
             hipchatMessage.append("<p>")
-                .append(StringEscapeUtils.escapeHtml(itWordList.next().toString()))
+                .append(StringEscapeUtils.escapeHtml4(itWordList.next().toString()))
                 .append(("</p>"));
         }
 
@@ -197,7 +193,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         return new StringBuilder()
             .append("{\"from\": \"")
-            .append(user.getUsername())
+            .append(user.getName())
             .append("\",\"color\": \"")
             .append("green")
             .append("\",\"message\": \"")
@@ -217,8 +213,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
         byte[] imageByte;
 
         try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            imageByte = decoder.decodeBuffer(imageString);
+            imageByte = Base64.getDecoder().decode(imageString);
             ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
             bufferedImage = ImageIO.read(bis);
             bis.close();
@@ -280,21 +275,20 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
     }
 
     private static String getStringContent(HttpEntity httpEntity) {
-
-        BufferedReader bufferedReader;
         StringBuilder content = new StringBuilder();
 
-        try {
-            bufferedReader = new BufferedReader(
-                new InputStreamReader((httpEntity.getContent()) , "UTF-8"));
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader((httpEntity.getContent()) , "UTF-8"))) {
+
             String line;
+
+
             while ((line = bufferedReader.readLine()) != null) {
-                content.append(line);
+                content.append(line );
             }
-            IOUtils.closeQuietly(bufferedReader);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (final IOException e) {
+            LOGGER.error("Error when use feedback", e);
         }
+
         return content.toString();
     }
 }

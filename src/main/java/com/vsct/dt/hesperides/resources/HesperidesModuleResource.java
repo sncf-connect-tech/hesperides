@@ -40,7 +40,8 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -393,6 +394,7 @@ public class HesperidesModuleResource extends BaseResource {
         return Response.status(Response.Status.CREATED).entity(created).build();
     }
 
+
     @POST
     @Timed
     @ApiOperation("Create a working copy (possibly from a release)")
@@ -498,6 +500,16 @@ public class HesperidesModuleResource extends BaseResource {
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey(moduleName, moduleVersion);
         return modules.createRelease(moduleKey, releaseVersion);
+    }
+
+    @Path("/using_techno/{techno}/{version}/{type}")
+    @GET
+    @Timed
+    @ApiOperation("Get module using techno")
+    public Response getApplicationUsingModule(@Auth final User user, @PathParam("techno") final String techno, @PathParam("version") final String version,
+                                              @PathParam("type") final String type) {
+
+        return Response.ok(moduleSearch.getAllModulesUsingTechnos(techno, version, type)).build();
     }
 
 }

@@ -52,7 +52,7 @@ public class HesperidesUserResource extends  BaseResource {
     @ApiOperation("Authenticates users. It returns useful information about the authenticated user.")
     @Produces(MediaType.APPLICATION_JSON)
     public User authenticate (@Auth User user){
-        LOGGER.debug(" Authenticated User : '{}' is producation user : {}.", user.getUsername(), user.isProdUser() ? "YES" : "NO");
+        LOGGER.debug(" Authenticated User : '{}' is producation user : {}.", user.getName(), user.isProdUser() ? "YES" : "NO");
         return user;
     }
 }

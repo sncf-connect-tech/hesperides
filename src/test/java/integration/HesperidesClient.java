@@ -19,17 +19,29 @@
 package integration;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.ws.rs.client.Client;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.codahale.metrics.MetricRegistry;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import integration.client.ModuleClient;
 import integration.client.PlatformClient;
+import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.jackson.Jackson;
+import io.dropwizard.jersey.validation.Validators;
+import io.dropwizard.setup.Environment;
 
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.resources.HesperidesVersionsResource.Versions;
@@ -40,6 +52,11 @@ import com.vsct.dt.hesperides.templating.modules.template.Template;
  * Created by emeric_martineau on 10/03/2017.
  */
 public class HesperidesClient {
+    /**
+     * Builder of event from JSON.
+     */
+    private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
+
     /**
      * Final url for Hesperides.
      */
@@ -70,7 +87,10 @@ public class HesperidesClient {
             this.url = url.concat("rest/");
         }
 
-        this.httpClient = Client.create(new DefaultClientConfig());
+        final Environment e = new Environment("HesperidesClientEnvironment", MAPPER, Validators.newValidator(),
+                new MetricRegistry(), this.getClass().getClassLoader());
+
+        this.httpClient = new JerseyClientBuilder(e).build("HesperidesClient");
 
         this.templatePackage = new TemplatePackage();
         this.module = new Module();
@@ -85,15 +105,44 @@ public class HesperidesClient {
     }
 
     /**
+     * Send request with authorization.
+     *
+     * @param target url
+     *
+     * @return
+     */
+    private Builder send(final String target) {
+        return this.httpClient.target(target)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, credential);
+    }
+
+    /**
+     * Send request with authorization.
+     *
+     * @param target url
+     *
+     * @return
+     */
+    private Builder send(final String target, final Map<String, String> queryparam) {
+        final WebTarget webTarget = this.httpClient.target(target);
+
+        for(Entry<String, String> query : queryparam.entrySet()) {
+            webTarget.queryParam(query.getKey(), query.getValue());
+        }
+
+        return webTarget
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, credential);
+    }
+
+    /**
      * Get Hesperides version.
      *
      * @return
      */
     public Versions getVersion() {
-        return this.httpClient.resource(url + "versions")
-                .header(HttpHeaders.AUTHORIZATION, credential)
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .get(Versions.class);
+        return send(url + "versions").get(Versions.class);
     }
 
     public TemplatePackage templatePackage() {
@@ -121,10 +170,7 @@ public class HesperidesClient {
          * @return
          */
         public List<TemplateListItem> listWorkingcopy(final String name, final String version) {
-            return httpClient.resource(url +
-                    String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            return send(url + String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
                     .get(new GenericType<List<TemplateListItem>>(){});
         }
 
@@ -138,10 +184,7 @@ public class HesperidesClient {
          * @return
          */
         public Template retreiveWorkingcopy(final String name, final String version, final String tplName) {
-            return httpClient.resource(url +
-                    String.format("templates/packages/%s/%s/workingcopy/templates/%s", name, version, tplName))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            return send(url + String.format("templates/packages/%s/%s/workingcopy/templates/%s", name, version, tplName))
                     .get(Template.class);
         }
 
@@ -155,11 +198,9 @@ public class HesperidesClient {
          * @return template created (with namespace)
          */
         public Template createWorkingcopy(final String name, final String version, final Template template) {
-            return httpClient.resource(url +
-                    String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Template.class, template);
+            return send(url + String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
+                    .post(Entity.json(template))
+                    .readEntity(Template.class);
         }
 
         /**
@@ -172,11 +213,9 @@ public class HesperidesClient {
          * @return template created (with namespace)
          */
         public Template updateWorkingcopy(final String name, final String version, final Template template) {
-            return httpClient.resource(url +
-                    String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .put(Template.class, template);
+            return send(url + String.format("templates/packages/%s/%s/workingcopy/templates", name, version))
+                    .put(Entity.json(template))
+                    .readEntity(Template.class);
         }
 
         /**
@@ -186,10 +225,7 @@ public class HesperidesClient {
          * @param version version
          */
         public void deleteWorkingcopy(final String name, final String version) {
-            httpClient.resource(url +
-                    String.format("templates/packages/%s/%s/workingcopy", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            send(url + String.format("templates/packages/%s/%s/workingcopy", name, version))
                     .delete();
         }
 
@@ -200,9 +236,7 @@ public class HesperidesClient {
          * @param version version
          */
         public void clearWorkingcopyCache(final String name, final String version) {
-            httpClient.resource(url + String.format("cache/template/package/%s/%s/workingcopy", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            send(url + String.format("cache/template/package/%s/%s/workingcopy", name, version))
                     .delete();
         }
     }
@@ -226,11 +260,8 @@ public class HesperidesClient {
              */
             public com.vsct.dt.hesperides.templating.modules.template.Template add(final String name, final String version,
                     final com.vsct.dt.hesperides.templating.modules.template.Template template) {
-                return httpClient.resource(url +
-                        String.format("modules/%s/%s/workingcopy/templates", name, version))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
-                        .post(com.vsct.dt.hesperides.templating.modules.template.Template.class, template);
+                return send(url + String.format("modules/%s/%s/workingcopy/templates", name, version))
+                        .post(Entity.json(template)).readEntity(com.vsct.dt.hesperides.templating.modules.template.Template.class);
             }
 
             /**
@@ -244,11 +275,8 @@ public class HesperidesClient {
              */
             public com.vsct.dt.hesperides.templating.modules.template.Template update(final String name, final String version,
                     final com.vsct.dt.hesperides.templating.modules.template.Template template) {
-                return httpClient.resource(url +
-                        String.format("modules/%s/%s/workingcopy/templates", name, version))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
-                        .put(com.vsct.dt.hesperides.templating.modules.template.Template.class, template);
+                return send(url + String.format("modules/%s/%s/workingcopy/templates", name, version))
+                        .put(Entity.json(template)).readEntity(com.vsct.dt.hesperides.templating.modules.template.Template.class);
             }
 
             /**
@@ -260,10 +288,7 @@ public class HesperidesClient {
              * @return
              */
             public List<com.vsct.dt.hesperides.templating.modules.template.Template> listWorkingcopy(final String name, final String version) {
-                return httpClient.resource(url +
-                        String.format("modules/%s/%s/workingcopy/templates", name, version))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
+                return send(url + String.format("modules/%s/%s/workingcopy/templates", name, version))
                         .get(new GenericType<List<com.vsct.dt.hesperides.templating.modules.template.Template>>(){});
             }
 
@@ -278,10 +303,7 @@ public class HesperidesClient {
              */
             public com.vsct.dt.hesperides.templating.modules.template.Template retreiveWorkingcopy(final String name, final String version,
                     final String tplName) {
-                return httpClient.resource(url +
-                        String.format("modules/%s/%s/workingcopy/templates/%s", name, version, tplName))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
+                return send(url + String.format("modules/%s/%s/workingcopy/templates/%s", name, version, tplName))
                         .get(com.vsct.dt.hesperides.templating.modules.template.Template.class);
             }
         }
@@ -296,10 +318,9 @@ public class HesperidesClient {
          * @return module created
          */
         public ModuleClient createWorkingcopy(final ModuleClient module) {
-            return httpClient.resource(url + "modules")
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(ModuleClient.class, module);
+            return send(url + "modules")
+                    .post(Entity.json(module))
+                    .readEntity(ModuleClient.class);
         }
 
         /**
@@ -309,10 +330,7 @@ public class HesperidesClient {
          * @param version version of module
          */
         public void deleteWorkingcopy(final String name, final String version) {
-            httpClient.resource(url +
-                    String.format("modules/%s/%s/workingcopy", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            send(url + String.format("modules/%s/%s/workingcopy", name, version))
                     .delete();
         }
 
@@ -325,10 +343,7 @@ public class HesperidesClient {
          * @return
          */
         public ModuleClient retreiveWorkingcopy(final String name, final String version) {
-            return httpClient.resource(url +
-                    String.format("modules/%s/%s/workingcopy", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            return send(url + String.format("modules/%s/%s/workingcopy", name, version))
                     .get(ModuleClient.class);
         }
 
@@ -344,9 +359,7 @@ public class HesperidesClient {
          * Clear all cache.
          */
         public void clearWorkingcopyCache(final String name, final String version) {
-            httpClient.resource(url + String.format("cache/module/%s/%s/workingcopy", name, version))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            send(url + String.format("cache/module/%s/%s/workingcopy", name, version))
                     .delete();
         }
     }
@@ -375,14 +388,15 @@ public class HesperidesClient {
                     final String path, final long pftVid, final String comment,
                     final com.vsct.dt.hesperides.resources.Properties props) {
 
-                return httpClient.resource(url +
-                        String.format("applications/%s/platforms/%s/properties", appName, ptfName))
-                        .queryParam("path", path)
-                        .queryParam("platform_vid", String.valueOf(pftVid))
-                        .queryParam("comment", comment)
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
-                        .post(com.vsct.dt.hesperides.resources.Properties.class, props);
+                final Map<String, String> queryParam = new HashMap<>();
+
+                queryParam.put("path", path);
+                queryParam.put("platform_vid", String.valueOf(pftVid));
+                queryParam.put("comment", comment);
+
+                return send(url + String.format("applications/%s/platforms/%s/properties", appName, ptfName), queryParam)
+                        .post(Entity.json(props))
+                        .readEntity(com.vsct.dt.hesperides.resources.Properties.class);
             }
 
             /**
@@ -395,11 +409,11 @@ public class HesperidesClient {
              * @return
              */
             public com.vsct.dt.hesperides.resources.Properties retreive(final String appName, final String ptfName, final String path) {
-                return httpClient.resource(url +
-                        String.format("applications/%s/platforms/%s/properties", appName, ptfName))
-                        .queryParam("path", path)
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
+                final Map<String, String> queryParam = new HashMap<>();
+
+                queryParam.put("path", path);
+
+                return send(url + String.format("applications/%s/platforms/%s/properties", appName, ptfName), queryParam)
                         .get(com.vsct.dt.hesperides.resources.Properties.class);
             }
         }
@@ -419,11 +433,9 @@ public class HesperidesClient {
             public PlatformClient create(final String name, final String ptfName, final String ptfVersion) {
                 final PlatformClient ptf = new PlatformClient(new PlatformKey(name, ptfName), ptfVersion, false, new HashSet<>());
 
-                return httpClient.resource(url +
-                        String.format("applications/%s/platforms", name))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
-                        .post(PlatformClient.class, ptf);
+                return send(url + String.format("applications/%s/platforms", name))
+                        .post(Entity.json(ptf))
+                        .readEntity(PlatformClient.class);
             }
 
             /**
@@ -434,10 +446,7 @@ public class HesperidesClient {
              * @return
              */
             public PlatformClient retreive(final String name, final String ptfName) {
-                return httpClient.resource(url +
-                        String.format("applications/%s/platforms/%s", name, ptfName))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
+                return send(url + String.format("applications/%s/platforms/%s", name, ptfName))
                         .get(PlatformClient.class);
             }
 
@@ -450,10 +459,7 @@ public class HesperidesClient {
              * @return
              */
             public void delete(final String name, final String ptfName) {
-                httpClient.resource(url +
-                        String.format("applications/%s/platforms/%s", name, ptfName))
-                        .header(HttpHeaders.AUTHORIZATION, credential)
-                        .type(MediaType.APPLICATION_JSON_TYPE)
+                send(url + String.format("applications/%s/platforms/%s", name, ptfName))
                         .delete();
             }
         }
@@ -469,11 +475,9 @@ public class HesperidesClient {
          * @return
          */
         public PlatformClient update(final PlatformClient ptf) {
-            return httpClient.resource(url + String.format(
-                    "applications/TEST_AUTO_INT/platforms?copyPropertiesForUpgradedModules=false", ptf.getApplicationName()))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .put(PlatformClient.class, ptf);
+            return send(url + String.format("applications/TEST_AUTO_INT/platforms?copyPropertiesForUpgradedModules=false", ptf.getApplicationName()))
+                    .put(Entity.json(ptf))
+                    .readEntity(PlatformClient.class);
 
         }
 
@@ -502,9 +506,7 @@ public class HesperidesClient {
          * @param ptfName platform name
          */
         public void clearCache(final String applicationName, final String ptfName) {
-            httpClient.resource(url + String.format("cache/application/%s/%s", applicationName, ptfName))
-                    .header(HttpHeaders.AUTHORIZATION, credential)
-                    .type(MediaType.APPLICATION_JSON_TYPE)
+            send(url + String.format("cache/application/%s/%s", applicationName, ptfName))
                     .delete();
         }
     }

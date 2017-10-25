@@ -27,6 +27,8 @@ import com.vsct.dt.hesperides.resources.HesperidesFullIndexationResource;
 import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -61,7 +63,7 @@ public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
     public void testThatItRetriesAndReturnsSuccessIfLessThanNRetry() throws ExecutionException, InterruptedException {
         ElasticSearchIndexationExecutor elasticSearchIndexationExecutor = new ElasticSearchIndexationExecutor(elasticSearchClient, 2, 100);
         ElasticSearchIndexationCommand task = mock(ElasticSearchIndexationCommand.class);
-        when(task.index(elasticSearchClient)).thenThrow(new RuntimeException()).thenReturn(null);
+        when(task.index(elasticSearchClient)).thenThrow(new RuntimeException());
 
         elasticSearchIndexationExecutor.index(task).get();
 
@@ -112,11 +114,15 @@ public class ElasticSearchIndexationExecutorTest extends AbstractCacheTest {
         this.applicationsWithEvent.delete(platformKey);
 
         // Run indexation
-        HttpClient httpClient = mock(HttpClient.class);
+        HttpResponse response = mock(HttpResponse.class);
 
-        Mockito.when(httpClient.execute(Mockito.any(), (HttpRequest) Mockito.any())).thenReturn(null);
+        StatusLine statusLine = mock(StatusLine.class);
 
-        Mockito.when(elasticSearchClient.getClient()).thenReturn(httpClient);
+        Mockito.when(statusLine.getStatusCode()).thenReturn(200);
+
+        Mockito.when(response.getStatusLine()).thenReturn(statusLine);
+
+        Mockito.when(elasticSearchClient.execute(Mockito.any())).thenReturn(response);
 
         ElasticSearchIndexationExecutor elasticSearchIndexationExecutor
                 = new ElasticSearchIndexationExecutor(elasticSearchClient, 2, 100);

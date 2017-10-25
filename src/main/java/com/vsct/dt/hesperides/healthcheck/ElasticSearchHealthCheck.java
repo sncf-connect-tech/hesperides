@@ -31,12 +31,10 @@ import org.apache.http.client.methods.HttpGet;
 import java.io.IOException;
 
 public final class ElasticSearchHealthCheck extends HealthCheck {
-    private final HttpClient httpClient;
-    private final HttpHost httpHost;
+    private final ElasticSearchClient elasticSearchClient;
 
     public ElasticSearchHealthCheck(final ElasticSearchClient elasticSearchClient) {
-        this.httpClient = elasticSearchClient.getClient();
-        this.httpHost = elasticSearchClient.getHost();
+        this.elasticSearchClient = elasticSearchClient;
     }
 
     @Override
@@ -44,12 +42,13 @@ public final class ElasticSearchHealthCheck extends HealthCheck {
         HttpGet healthRequest = null;
         try {
             healthRequest = new HttpGet("/_cluster/health");
-            HttpResponse response = httpClient.execute(httpHost, healthRequest);
+            HttpResponse response = elasticSearchClient.execute(healthRequest);
 
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != 200) {
                 // TODO Check server's response : green, yellow, red...
-                return Result.unhealthy("Hesperides can't access ElasticSearch " + this.httpHost.getHostName() + ":" + this.httpHost.getPort() + ", status code is " + statusCode + ", " + response.getStatusLine().getReasonPhrase());
+                return Result.unhealthy("Hesperides can't access ElasticSearch " + this.elasticSearchClient.getHostname() + ":" + this
+                        .elasticSearchClient.getPort() + ", status code is " + statusCode + ", " + response.getStatusLine().getReasonPhrase());
             }
             return Result.healthy();
         } finally {

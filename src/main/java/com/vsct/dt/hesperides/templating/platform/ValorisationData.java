@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.vsct.dt.hesperides.applications.MustacheScopeEntry;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class ValorisationData {
     }
 
     public MustacheScopeEntry<String, Object> toMustacheScopeEntry(){
-        throw new NotImplementedException();
+        throw new NotImplementedException("");
     };
 
     @Override
@@ -88,7 +88,7 @@ public class ValorisationData {
     }
 
     public ValorisationData inject(Map<String, String> keyValueProperties){
-        throw new NotImplementedException();
+        throw new NotImplementedException("");
     };
 
     /* Use a specific deserializer to handle polymorphism and avoid changing the existing API */

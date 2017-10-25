@@ -22,6 +22,7 @@
 package com.vsct.dt.hesperides.indexation;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.InputStreamEntity;
@@ -121,7 +122,7 @@ public class ElasticSearchIndexationExecutor {
         HttpDelete deleteIndex = null;
         try {
             deleteIndex = new HttpDelete("/"+elasticSearchClient.getIndex());
-            elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), deleteIndex);
+            elasticSearchClient.execute(deleteIndex);
         } catch (final Exception e) {
             LOGGER.info("Could not delete elastic search index. This mostly happens when there is no index already");
         } finally {
@@ -132,16 +133,27 @@ public class ElasticSearchIndexationExecutor {
 
         LOGGER.debug("Deleted Hesperides index {}", elasticSearchClient.getIndex());
 
+        remapping();
+    }
+
+    /**
+     * Remapping indexex.
+     *
+     * @throws IOException
+     */
+    public void remapping() throws IOException {
         /* Add global mapping */
         HttpPut putGlobalMapping = null;
         try(InputStream globalMappingFile = this.getClass().getClassLoader().getResourceAsStream("elasticsearch/global_mapping.json")) {
 
-            putGlobalMapping = new HttpPut("/"+elasticSearchClient.getIndex());
+            putGlobalMapping = new HttpPut("/" + elasticSearchClient.getIndex());
 
             putGlobalMapping.setEntity(new InputStreamEntity(globalMappingFile));
-            elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putGlobalMapping);
+            elasticSearchClient.execute(putGlobalMapping);
 
             LOGGER.debug("Put new global mapping in {}", elasticSearchClient.getIndex());
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             if(putGlobalMapping != null){
                 putGlobalMapping.releaseConnection();
@@ -157,7 +169,9 @@ public class ElasticSearchIndexationExecutor {
 
                 putMapping = new HttpPut("/"+elasticSearchClient.getIndex()+"/" + mapping.documentName + "/_mapping");
                 putMapping.setEntity(new InputStreamEntity(mappingFile));
-                elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putMapping);
+                final HttpResponse response = elasticSearchClient.execute(putMapping);
+
+                ifResponseStatusAbove400SendExeception(putMapping.getURI().toString(), response);
 
                 LOGGER.debug("Put new mapping in {}", mapping.documentName);
             } finally {
@@ -167,7 +181,10 @@ public class ElasticSearchIndexationExecutor {
             }
 
         }
-
     }
 
+    private void ifResponseStatusAbove400SendExeception(final String url, final HttpResponse response) {
+        if (response.getStatusLine().getStatusCode() >= 400)
+            throw new ESServiceException("ELS return error code for url " + url + ". Response is " + response);
+    }
 }

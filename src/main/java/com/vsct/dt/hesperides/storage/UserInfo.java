@@ -35,7 +35,7 @@ public class UserInfo {
         this.username = username;
     }
 
-    public String getUsername() {
+    public String getName() {
         return username;
     }
 
