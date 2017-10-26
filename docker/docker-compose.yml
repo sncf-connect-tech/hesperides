@@ -1,0 +1,45 @@
+version: '2'
+services:
+
+  elasticsearch: 
+    image: "elasticsearch:1.7.5"
+    command: "elasticsearch -Dcluster.name=hesperides"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always
+
+  redis:
+    image: "redis:3.0.3"
+    ports:
+      - "6379:6379"
+    restart: always
+
+  rediscache:
+    image: "redis:3.0.3"
+    ports:
+      - "56379:6379"
+    restart: always
+
+  hesperides:
+    image: "hesperides/hesperides"
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    expose:
+      - "8080"
+    depends_on:
+      - elasticsearch
+      - redis
+      - rediscache
+    restart: always
+
+  hesperides-gui:
+    image: "hesperides/hesperides-gui"
+    ports:
+      - "80:80"
+    links:
+      - hesperides
+    depends_on:
+      - hesperides
+    restart: always
