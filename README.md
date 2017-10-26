@@ -12,15 +12,11 @@ Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesp
 Requirements:
 =====
 
- * Docker
+Java 8 (openjdk, sun)
 
-or :
+elasticSearch 1.7.5
 
- * Java 8 (openjdk, sun)
-
- * elasticSearch 1.7.5
-
- * redis 3.0.3
+redis 3.0
 
 Build:
 =====
