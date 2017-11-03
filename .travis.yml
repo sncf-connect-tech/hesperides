@@ -14,12 +14,7 @@ env:
     - secure: "okmQr8g/yKN1CEFwHm68hsCJwgABA16L6HXD37pV17MoAV/5s+kVL9uXTza6XK27xHjPbRkzaxgWY6UOJ/XIfH+xe4M9+rwUTFy75kXH5qt6UazNMvm3PPtKQJTcQpSZ7HeGLhKJqBelNu2wUAO0OizE6GOCp0GlQbRzib/OzfYO27Xsk+1oPQ26cK8jpYeeV60L4JO8OhBeBxnLBP08D9Tf2osWAJLlf6Diejx/qW6RRBnkSCfXcFBGqbTEVxHtwtrZztU6q4DE6jEMHXz3pssQeV0hlinQB7dAKOO6+OewhzygH+k5CvxzgXeVzT8De/SnfRo2O2Q/xrn3QqvhSLHizPflMECm/E5qm9ngA3PfKJdG+3QQfGnSj4NfWKyo1d4/GXipk/6CkDpnMFkn9uVbzzRJnPRaWoEtCIs7Kmfzye49WU5D4Zn0fhugh3cy3IQ1rIIn8g3TdCv/hpY+5wl3czQrttPAJrASCp2tI2n1R3ZATasRjboxzmlsAGfo1A0qeJ642CGR8dAvphRJeLsLiqcj2WZ6/s9bDZh01C4yk4JCO1xh+iLKp30ZmidQg1JLJSjn0E+nNGN3NId/4eD7nWZOhxsBUk/R6viae5VsZMDMuie3+7+Z465RBXMG/Emln/OkLvcQKIUk4vVsJBWu2VsDQ5Fn5NxG4C9XBjM=" # DOCKER_PASS
 
 after_success:
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH | sed -e 's/\//-/g' -e 's/\#//g' ; fi`
-  - export IMAGE=hesperides/hesperides
-  - docker build -t $IMAGE:$COMMIT .
-  - docker tag $IMAGE:$COMMIT $IMAGE:$TAG
-  - docker push $IMAGE:$TAG
+  - .travis/after_success_docker.sh
 
 cache:
   directories:
