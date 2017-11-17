@@ -25,7 +25,12 @@
 
     <groupId>com.vsct.dt</groupId>
     <artifactId>hesperides</artifactId>
+    <packaging>pom</packaging>
     <version>3.0.4</version>
+
+    <modules>
+        <module>hesperides-core</module>
+    </modules>
 
     <properties>
         <dropwizard.version>0.7.0</dropwizard.version>
@@ -34,6 +39,34 @@
     </properties>
 
     <dependencies>
+        <!-- DDD -->
+        <dependency>
+            <groupId>com.vsct.dt.hesperides</groupId>
+            <artifactId>presentation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vsct.dt.hesperides</groupId>
+            <artifactId>application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vsct.dt.hesperides</groupId>
+            <artifactId>domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vsct.dt.hesperides</groupId>
+            <artifactId>infrastructure</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Guice -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+        <!-- DropWizard -->
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
@@ -59,6 +92,7 @@
             <artifactId>dropwizard-configuration</artifactId>
             <version>${dropwizard.version}</version>
         </dependency>
+        <!-- Other -->
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>

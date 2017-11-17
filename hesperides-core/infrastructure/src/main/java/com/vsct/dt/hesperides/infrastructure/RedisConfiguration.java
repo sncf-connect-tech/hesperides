@@ -19,17 +19,14 @@
  *
  */
 
-package com.vsct.dt.hesperides.storage;
+package com.vsct.dt.hesperides.infrastructure;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import redis.clients.jedis.Protocol;
 
 import java.util.Set;
 
-/**
- * Created by william_montaz on 29/01/2015.
- */
-public class RedisConfiguration implements RedisConfigurationInterface {
+public class RedisConfiguration {
 
     public enum Type {
         REDIS, SENTINEL
@@ -55,7 +52,6 @@ public class RedisConfiguration implements RedisConfigurationInterface {
     @JsonProperty
     private Set<String> sentinels;
 
-    @Override
     public String getHost() {
         return host;
     }
@@ -64,7 +60,6 @@ public class RedisConfiguration implements RedisConfigurationInterface {
         this.host = host;
     }
 
-    @Override
     public int getPort() {
         return port;
     }
@@ -73,7 +68,6 @@ public class RedisConfiguration implements RedisConfigurationInterface {
         this.port = port;
     }
 
-    @Override
     public String getMasterName() {
         return masterName;
     }
@@ -82,7 +76,6 @@ public class RedisConfiguration implements RedisConfigurationInterface {
         this.masterName = masterName;
     }
 
-    @Override
     public Set<String> getSentinels() {
         return sentinels;
     }
@@ -91,22 +84,18 @@ public class RedisConfiguration implements RedisConfigurationInterface {
         this.sentinels = sentinels;
     }
 
-    @Override
     public Type getType() {
         return type;
     }
 
-    @Override
     public int getRetry() {
         return 0;
     }
 
-    @Override
     public int getWaitBeforeRetryMs() {
         return 0;
     }
 
-    @Override
     public int getTimeout() {
         return timeout;
     }

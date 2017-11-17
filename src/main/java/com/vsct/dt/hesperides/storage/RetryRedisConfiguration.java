@@ -20,6 +20,7 @@
 package com.vsct.dt.hesperides.storage;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vsct.dt.hesperides.infrastructure.RedisConfiguration;
 
 /**
  * Created by william_montaz on 29/01/2015.

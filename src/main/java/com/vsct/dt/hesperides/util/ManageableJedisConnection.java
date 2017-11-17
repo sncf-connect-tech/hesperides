@@ -19,7 +19,7 @@
 
 package com.vsct.dt.hesperides.util;
 
-import com.vsct.dt.hesperides.storage.RedisConfigurationInterface;
+import com.vsct.dt.hesperides.infrastructure.RedisConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -79,7 +79,7 @@ public class ManageableJedisConnection implements
      *
      * @param redisConfiguration configuration
      */
-    public ManageableJedisConnection(final RedisConfigurationInterface redisConfiguration) {
+    public ManageableJedisConnection(final RedisConfiguration redisConfiguration) {
         this.nRetry = redisConfiguration.getRetry();
         this.waitBeforeRetryMs = redisConfiguration.getWaitBeforeRetryMs();
 

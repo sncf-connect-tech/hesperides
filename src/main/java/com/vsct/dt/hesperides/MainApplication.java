@@ -24,16 +24,19 @@ package com.vsct.dt.hesperides;
 import com.bazaarvoice.dropwizard.assets.ConfiguredAssetsBundle;
 import com.codahale.metrics.JmxReporter;
 import com.google.common.eventbus.EventBus;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.sun.jersey.api.model.Parameter;
 import com.sun.jersey.spi.inject.InjectableProvider;
-
+import com.vsct.dt.hesperides.api.ModuleApi;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
 import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
+import com.vsct.dt.hesperides.domain.modules.ModuleRepository;
 import com.vsct.dt.hesperides.events.EventsAggregate;
-import com.vsct.dt.hesperides.exception.wrapper.IllegalArgumentExceptionMapper;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.feedback.FeedbackConfiguration;
 import com.vsct.dt.hesperides.feedback.FeedbacksAggregate;
@@ -49,6 +52,8 @@ import com.vsct.dt.hesperides.indexation.listeners.TemplateEventsIndexation;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
+import com.vsct.dt.hesperides.infrastructure.RedisConfiguration;
+import com.vsct.dt.hesperides.infrastructure.RedisModuleRepository;
 import com.vsct.dt.hesperides.resources.*;
 import com.vsct.dt.hesperides.security.BasicAuthProviderWithUserContextHolder;
 import com.vsct.dt.hesperides.security.CorrectedCachingAuthenticator;
@@ -109,8 +114,24 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         hesperidesConfigurationBootstrap.addBundle(new ConfiguredAssetsBundle("/assets/", "/", "index.html"));
     }
 
+    private Injector createInjector(final HesperidesConfiguration hesperidesConfiguration) {
+        return Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(ModuleRepository.class).to(RedisModuleRepository.class);
+                bind(RedisConfiguration.class).toInstance(hesperidesConfiguration.getRedisConfiguration());
+            }
+        });
+    }
+
     @Override
     public void run(final HesperidesConfiguration hesperidesConfiguration, final Environment environment) throws Exception {
+        Injector injector = createInjector(hesperidesConfiguration);
+
+        // API
+        environment.jersey().register(injector.getInstance(ModuleApi.class));
+
+
         // ajoute swagger
         LOGGER.debug("Loading Swagger");
 
@@ -324,7 +345,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
             LOGGER.info("All cache were regenerated successfully.");
         }
 
-        if(hesperidesConfiguration.getElasticSearchConfiguration().reindexOnStartup()) {
+        if (hesperidesConfiguration.getElasticSearchConfiguration().reindexOnStartup()) {
             /* Reset the index */
             fullIndexationResource.resetIndex();
         }
