@@ -3,7 +3,5 @@ target/
 *.iml
 hesperides.yml
 hesperides.iml
-src/main/resources/rebel.xml
-hesperides-core/presentation/src/main/resources/rebel.xml
-hesperides-core/infrastructure/src/main/resources/rebel.xml
-hesperides-core/domain/src/main/resources/rebel.xml
+rebel.xml
+.rebel.xml.bak
