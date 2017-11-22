@@ -18,10 +18,9 @@
  *
  *
  */
-package com.vsct.dt.hesperides.infrastructure;
+package com.vsct.dt.hesperides.infrastructure.redis;
 
 import redis.clients.jedis.*;
-import redis.clients.util.Pool;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

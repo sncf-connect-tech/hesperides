@@ -18,16 +18,24 @@
  *
  *
  */
-package com.vsct.dt.hesperides.domain.modules;
+package com.vsct.dt.hesperides.infrastructure.elasticsearch;
 
-public class Module {
-    private String name;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 
-    public String getName() {
-        return name;
+import javax.inject.Inject;
+
+public class ElasticSearchClient {
+
+    private final ElasticSearchConfiguration elasticSearchConfiguration;
+
+    @Inject
+    public ElasticSearchClient(final ElasticSearchConfiguration elasticSearchConfiguration) {
+        this.elasticSearchConfiguration = elasticSearchConfiguration;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public RestClient getRestClient() {
+        HttpHost httpHost = new HttpHost(this.elasticSearchConfiguration.getHost(), this.elasticSearchConfiguration.getPort());
+        return RestClient.builder(httpHost).build(); //TODO .setFailureListener()
     }
 }

@@ -18,9 +18,13 @@
  *
  *
  */
-package com.vsct.dt.hesperides.domain.modules;
+package com.vsct.dt.hesperides.infrastructure.elasticsearch.modules;
 
-public class Module {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.vsct.dt.hesperides.domain.modules.Module;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ElasticSearchModule {
     private String name;
 
     public String getName() {
@@ -29,5 +33,11 @@ public class Module {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Module getDomainModule() {
+        Module module = new Module();
+        module.setName(this.name);
+        return module;
     }
 }

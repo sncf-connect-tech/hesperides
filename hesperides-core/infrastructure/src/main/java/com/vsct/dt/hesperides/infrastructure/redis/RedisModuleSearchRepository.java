@@ -18,48 +18,31 @@
  *
  *
  */
-package com.vsct.dt.hesperides.infrastructure;
+package com.vsct.dt.hesperides.infrastructure.redis;
 
 
 import com.vsct.dt.hesperides.domain.modules.Module;
-import com.vsct.dt.hesperides.domain.modules.ModuleRepository;
-import redis.clients.jedis.Jedis;
+import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RedisModuleRepository implements ModuleRepository {
+public class RedisModuleSearchRepository implements ModuleSearchRepository {
 
     private static final String prefix = "module-";
 
     private final RedisClient redisClient;
 
     @Inject
-    public RedisModuleRepository(final RedisClient redisClient) {
+    public RedisModuleSearchRepository(final RedisClient redisClient) {
         this.redisClient = redisClient;
     }
 
     @Override
-    public List<Module> getActiveModulesName() {
+    public List<Module> getModules() {
         List<Module> modules = new ArrayList<>();
         for (String key : redisClient.getKeys(String.format("%s*", prefix))) {
-            /**
-             * TODO: Pour chaque clé, regarder si le dernier élément est un delete
-             * TODO: Mapper la valeur redis vers un objet java
-             */
-            Jedis jedis = redisClient.getJedis();
-            if (jedis.exists(key)) {
-                final long lastIndex = jedis.llen(key) - 1;
-                final List<String> lastCache = jedis.lrange(key, lastIndex, lastIndex);
-                for (String s : lastCache) {
-                    System.out.println(s);
-                }
-            }
-
-
-
-            modules.add(new Module(key.replace(prefix, "")));
         }
         return modules;
     }

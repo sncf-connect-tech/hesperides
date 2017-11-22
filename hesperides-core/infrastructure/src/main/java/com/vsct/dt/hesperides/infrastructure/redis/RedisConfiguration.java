@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.infrastructure;
+package com.vsct.dt.hesperides.infrastructure.redis;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import redis.clients.jedis.Protocol;
@@ -43,7 +43,7 @@ public class RedisConfiguration {
     private String host;
 
     @JsonProperty
-    private int    port;
+    private int port;
 
     /* Specific sentinel */
     @JsonProperty

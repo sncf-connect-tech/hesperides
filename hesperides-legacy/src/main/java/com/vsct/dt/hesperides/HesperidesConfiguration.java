@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.cache.CacheBuilderSpec;
 import com.vsct.dt.hesperides.events.EventsConfiguration;
 import com.vsct.dt.hesperides.feedback.FeedbackConfiguration;
-import com.vsct.dt.hesperides.indexation.ElasticSearchConfiguration;
+import com.vsct.dt.hesperides.infrastructure.elasticsearch.ElasticSearchConfiguration;
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
@@ -216,15 +216,19 @@ public final class HesperidesConfiguration extends Configuration implements Asse
         this.cacheConfiguration = cacheConfiguration;
     }
 
-    public void setEventsConfiguration (EventsConfiguration eventsConfiguration){
+    public void setEventsConfiguration(EventsConfiguration eventsConfiguration) {
         this.eventsConfiguration = eventsConfiguration;
     }
 
-    public EventsConfiguration getEventsConfiguration (){
+    public EventsConfiguration getEventsConfiguration() {
         return this.eventsConfiguration;
     }
 
-    public FeedbackConfiguration getFeedbackConfiguration() { return feedbackConfiguration; }
+    public FeedbackConfiguration getFeedbackConfiguration() {
+        return feedbackConfiguration;
+    }
 
-    public ProxyConfiguration getProxyConfiguration() { return proxyConfiguration; }
+    public ProxyConfiguration getProxyConfiguration() {
+        return proxyConfiguration;
+    }
 }

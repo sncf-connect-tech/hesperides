@@ -19,7 +19,7 @@
 
 package com.vsct.dt.hesperides.util;
 
-import com.vsct.dt.hesperides.infrastructure.RedisConfiguration;
+import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;

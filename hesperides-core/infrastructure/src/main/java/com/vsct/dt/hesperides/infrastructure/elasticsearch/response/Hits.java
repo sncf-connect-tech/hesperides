@@ -18,10 +18,21 @@
  *
  *
  */
-package com.vsct.dt.hesperides.domain.modules;
+package com.vsct.dt.hesperides.infrastructure.elasticsearch.response;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
-public interface ModuleRepository {
-    List<Module> getActiveModulesName();
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Hits<T> {
+    private List<Hit<T>> hits;
+
+    public List<Hit<T>> getHits() {
+        return hits;
+    }
+
+    public void setHits(List<Hit<T>> hits) {
+        this.hits = hits;
+    }
 }

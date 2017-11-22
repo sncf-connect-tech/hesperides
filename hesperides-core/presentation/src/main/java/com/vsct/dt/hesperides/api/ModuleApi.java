@@ -21,7 +21,7 @@
 package com.vsct.dt.hesperides.api;
 
 import com.vsct.dt.hesperides.domain.modules.Module;
-import com.vsct.dt.hesperides.domain.modules.ModuleRepository;
+import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -38,11 +38,11 @@ import java.util.List;
 //@Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 public class ModuleApi {
 
-    private ModuleRepository moduleRepository;
+    private ModuleSearchRepository moduleSearchRepository;
 
     @Inject
-    public ModuleApi(final ModuleRepository moduleRepository) {
-        this.moduleRepository = moduleRepository;
+    public ModuleApi(final ModuleSearchRepository moduleSearchRepository) {
+        this.moduleSearchRepository = moduleSearchRepository;
     }
 
     @GET
@@ -53,7 +53,7 @@ public class ModuleApi {
          * Récupérer la liste des noms de modules qui n'ont pas été supprimés
          */
         List<String> moduleNames = new ArrayList<>();
-        for (Module module : moduleRepository.getActiveModulesName()) {
+        for (Module module : moduleSearchRepository.getModules()) {
             moduleNames.add(module.getName());
         }
         return moduleNames;

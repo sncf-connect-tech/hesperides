@@ -23,6 +23,8 @@ package com.vsct.dt.hesperides;
 
 import com.bazaarvoice.dropwizard.assets.ConfiguredAssetsBundle;
 import com.codahale.metrics.JmxReporter;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.MustacheFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -35,7 +37,7 @@ import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
 import com.vsct.dt.hesperides.applications.SnapshotRegistryInterface;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
-import com.vsct.dt.hesperides.domain.modules.ModuleRepository;
+import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 import com.vsct.dt.hesperides.events.EventsAggregate;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.feedback.FeedbackConfiguration;
@@ -52,8 +54,9 @@ import com.vsct.dt.hesperides.indexation.listeners.TemplateEventsIndexation;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
-import com.vsct.dt.hesperides.infrastructure.RedisConfiguration;
-import com.vsct.dt.hesperides.infrastructure.RedisModuleRepository;
+import com.vsct.dt.hesperides.infrastructure.elasticsearch.ElasticSearchConfiguration;
+import com.vsct.dt.hesperides.infrastructure.elasticsearch.modules.ElasticSearchModuleSearchRepository;
+import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
 import com.vsct.dt.hesperides.resources.*;
 import com.vsct.dt.hesperides.security.BasicAuthProviderWithUserContextHolder;
 import com.vsct.dt.hesperides.security.CorrectedCachingAuthenticator;
@@ -118,8 +121,10 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         return Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                bind(ModuleRepository.class).to(RedisModuleRepository.class);
                 bind(RedisConfiguration.class).toInstance(hesperidesConfiguration.getRedisConfiguration());
+                bind(ElasticSearchConfiguration.class).toInstance(hesperidesConfiguration.getElasticSearchConfiguration());
+                bind(ModuleSearchRepository.class).to(ElasticSearchModuleSearchRepository.class).asEagerSingleton(); //TODO Singleton?
+                bind(MustacheFactory.class).to(DefaultMustacheFactory.class);
             }
         });
     }

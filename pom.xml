@@ -49,6 +49,7 @@
         <dropwizard.version>0.7.0</dropwizard.version>
         <es.version>5.2.0</es.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jackson.version>2.3.2</jackson.version><!-- TODO DropWizard nous impose cette version => à modifier quand on fera un upgrade de DW -->
     </properties>
 
 </project>

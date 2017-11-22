@@ -20,14 +20,8 @@
  */
 package com.vsct.dt.hesperides.domain.modules;
 
-public class Module {
-    private String name;
+import java.util.List;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+public interface ModuleSearchRepository {
+    List<Module> getModules();
 }

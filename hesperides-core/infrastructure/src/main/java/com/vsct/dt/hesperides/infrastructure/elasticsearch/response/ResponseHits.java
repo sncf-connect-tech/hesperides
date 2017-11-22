@@ -18,16 +18,19 @@
  *
  *
  */
-package com.vsct.dt.hesperides.domain.modules;
+package com.vsct.dt.hesperides.infrastructure.elasticsearch.response;
 
-public class Module {
-    private String name;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-    public String getName() {
-        return name;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ResponseHits<T> {
+    private Hits<T> hits;
+
+    public Hits<T> getHits() {
+        return hits;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setHits(Hits<T> hits) {
+        this.hits = hits;
     }
 }
