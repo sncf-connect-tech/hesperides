@@ -35,8 +35,6 @@ import java.util.Collections;
 import java.util.Map;
 
 public class ElasticSearchService {
-    private static final String INDEX = "/hesperides";
-
     private final ElasticSearchClient elasticSearchClient;
     private final ElasticSearchConfiguration elasticSearchConfiguration;
 
