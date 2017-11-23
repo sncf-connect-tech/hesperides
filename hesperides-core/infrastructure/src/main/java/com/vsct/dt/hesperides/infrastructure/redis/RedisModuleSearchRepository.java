@@ -43,6 +43,9 @@ public class RedisModuleSearchRepository implements ModuleSearchRepository {
     public List<Module> getModules() {
         List<Module> modules = new ArrayList<>();
         for (String key : redisClient.getKeys(String.format("%s*", prefix))) {
+            Module module = new Module();
+            module.setName(key.replace(prefix, ""));
+            modules.add(module);
         }
         return modules;
     }

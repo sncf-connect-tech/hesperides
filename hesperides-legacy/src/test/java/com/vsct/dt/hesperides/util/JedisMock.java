@@ -20,6 +20,9 @@
 package com.vsct.dt.hesperides.util;
 
 import redis.clients.jedis.*;
+import redis.clients.jedis.params.geo.GeoRadiusParam;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 import redis.clients.util.Slowlog;
 
 import java.util.*;
@@ -73,7 +76,8 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public List<Slowlog> slowlogGet(long l) {
-        return null;
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
@@ -335,6 +339,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public String readonly() {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public String set(String redisKey, String s1) {
         this.redisString.put(redisKey, s1);
 
@@ -343,6 +353,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public String set(String s, String s1, String s2, String s3, long l) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public String set(String key, String value, String nxxx) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -377,7 +393,8 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public Long pexpire(final String s, final long l) {
-        return null;
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
@@ -388,11 +405,18 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public Long pexpireAt(final String s, final long l) {
-        return null;
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
     public Long ttl(String s) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Long pttl(String key) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -446,6 +470,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public String psetex(String key, long milliseconds, String value) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public Long decrBy(String s, long l) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
@@ -459,6 +489,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public Long incrBy(String s, long l) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Double incrByFloat(String key, double value) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -513,6 +549,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public Long hincrBy(String s, String s1, long l) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Double hincrByFloat(String key, String field, double value) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -689,6 +731,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public Set<String> spop(String key, long count) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public Long scard(String s) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
@@ -725,7 +773,19 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public Long zadd(String key, double score, String member, ZAddParams params) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public Long zadd(String s, Map<String, Double> map) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Long zadd(String key, Map<String, Double> scoreMembers, ZAddParams params) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -744,6 +804,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public Double zincrby(String s, double v, String s1) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Double zincrby(String key, double score, String member, ZIncrByParams params) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -947,6 +1013,18 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public Set<String> zrevrangeByLex(String key, String max, String min) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Set<String> zrevrangeByLex(String key, String max, String min, int offset, int count) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public Long zremrangeByLex(String s, String s1, String s2) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
@@ -1035,6 +1113,18 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public Long bitpos(String key, boolean value) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Long bitpos(String key, boolean value, BitPosParams params) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public ScanResult<Map.Entry<String, String>> hscan(String s, int i) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
@@ -1059,13 +1149,31 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public ScanResult<Map.Entry<String, String>> hscan(String key, String cursor, ScanParams params) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public ScanResult<String> sscan(String s, String s1) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
+    public ScanResult<String> sscan(String key, String cursor, ScanParams params) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public ScanResult<Tuple> zscan(String s, String s1) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public ScanResult<Tuple> zscan(String key, String cursor, ScanParams params) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -1082,7 +1190,79 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
     }
 
     @Override
+    public Long geoadd(String key, double longitude, double latitude, String member) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Long geoadd(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Double geodist(String key, String member1, String member2) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Double geodist(String key, String member1, String member2, GeoUnit unit) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<String> geohash(String key, String... members) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<GeoCoordinate> geopos(String key, String... members) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadius(String key, double longitude, double latitude, double radius, GeoUnit unit, GeoRadiusParam param) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<GeoRadiusResponse> georadiusByMember(String key, String member, double radius, GeoUnit unit, GeoRadiusParam param) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public List<Long> bitfield(String key, String... arguments) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
     public Long del(String... strings) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public Long exists(String... keys) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }
@@ -1305,6 +1485,12 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
 
     @Override
     public ScanResult<String> scan(String s) {
+        //return null;
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    public ScanResult<String> scan(String cursor, ScanParams params) {
         //return null;
         throw new UnsupportedOperationException("Not implemented.");
     }

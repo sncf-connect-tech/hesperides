@@ -24,11 +24,11 @@
             <artifactId>guice</artifactId>
             <version>4.1.0</version>
         </dependency>
-        <!-- Redis client -->
+        <!-- Jedis -->
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>2.6.3</version>
+            <version>2.9.0</version>
         </dependency>
         <!-- Jackson -->
         <dependency>
