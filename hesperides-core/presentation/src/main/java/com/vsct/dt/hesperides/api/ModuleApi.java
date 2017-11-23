@@ -26,16 +26,19 @@ import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Path("/toto")
 @Api("/toto")
-//@Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
-//@Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
+@Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
+@Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 public class ModuleApi {
 
     private ModuleSearchRepository moduleSearchRepository;

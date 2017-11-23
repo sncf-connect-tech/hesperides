@@ -38,19 +38,22 @@ public class ElasticSearchService {
     private static final String INDEX = "/hesperides";
 
     private final ElasticSearchClient elasticSearchClient;
+    private final ElasticSearchConfiguration elasticSearchConfiguration;
 
     @Inject
-    public ElasticSearchService(final ElasticSearchClient elasticSearchClient) {
+    public ElasticSearchService(final ElasticSearchClient elasticSearchClient, final ElasticSearchConfiguration elasticSearchConfiguration) {
         this.elasticSearchClient = elasticSearchClient;
+        this.elasticSearchConfiguration = elasticSearchConfiguration;
     }
 
     public ResponseHits getResponseHits(final String method, final String url, final String requestBody, final TypeReference typeReference) {
         ResponseHits responseHits = null;
         RestClient restClient = this.elasticSearchClient.getRestClient();
+        String endpoint = "/" + this.elasticSearchConfiguration.getIndex() + url;
+        Map<String, String> params = Collections.emptyMap();
         try {
-            Map<String, String> params = Collections.emptyMap();
             HttpEntity entity = new NStringEntity(requestBody, ContentType.APPLICATION_JSON);
-            Response response = restClient.performRequest(method, INDEX + url, params, entity);
+            Response response = restClient.performRequest(method, endpoint, params, entity);
             responseHits = new ObjectMapper().readValue(response.getEntity().getContent(), typeReference);
         } catch (IOException e) {
             e.printStackTrace(); //TODO Gérer l'exception
