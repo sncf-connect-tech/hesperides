@@ -26,11 +26,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 public class ElasticSearchConfiguration {
-    @NotEmpty
     @JsonProperty
     private String host;
 
-    @NotEmpty
     @JsonProperty
     private String index;
 
