@@ -21,11 +21,12 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.google.common.base.Optional;
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
+
+import java.util.Optional;
 
 /**
  * Created by william_montaz on 12/11/2014.

@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import tests.type.UnitTests;
 

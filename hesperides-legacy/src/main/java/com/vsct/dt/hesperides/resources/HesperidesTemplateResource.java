@@ -22,7 +22,6 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.sun.jersey.api.client.ClientResponse;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
@@ -348,7 +347,7 @@ public class HesperidesTemplateResource extends BaseResource {
         );
 
         templatePackages.deleteTemplateInWorkingCopy(packageInfo, templateName);
-        return Response.status(ClientResponse.Status.OK).build();
+        return Response.status(Response.Status.OK).build();
     }
 
     @Path("/create_release")

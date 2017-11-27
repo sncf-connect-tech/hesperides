@@ -30,7 +30,7 @@ import com.vsct.dt.hesperides.templating.models.annotation.HesperidesAnnotation;
 import com.vsct.dt.hesperides.templating.models.annotation.HesperidesAnnotationConstructor;
 import com.vsct.dt.hesperides.templating.models.annotation.HesperidesCommentAnnotation;
 import com.vsct.dt.hesperides.templating.models.exception.ModelAnnotationException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +57,7 @@ public class Property {
 
     /**
      * Constructor from mustache codes
+     *
      * @param code : mustache code
      */
     public Property(final DefaultCode code) {
@@ -86,7 +87,7 @@ public class Property {
                     }
 
                     switch (annotation.getName()) {
-                        case "default" :
+                        case "default":
                             this.defaultValue = manageAnnotation(this.defaultValue, annotation);
 
                             if (this.required) {
@@ -94,20 +95,20 @@ public class Property {
                             }
 
                             break;
-                        case "pattern" :
+                        case "pattern":
                             this.pattern = manageAnnotation(this.pattern, annotation);
                             break;
-                        case "required" :
+                        case "required":
                             if (this.defaultValue != null) {
                                 throwRequiriedAndDefaultInSameTime();
                             }
 
                             this.required = true;
                             break;
-                        case "password" :
+                        case "password":
                             this.password = true;
                             break;
-                        case "comment" :
+                        case "comment":
                             manageComment(annotation);
 
                             break;
@@ -138,7 +139,7 @@ public class Property {
      * Constructor from name and comment
      * Ex. {{hello|I am the comment}}
      *
-     * @param name : the name
+     * @param name    : the name
      * @param comment : the comment
      */
     @JsonCreator
@@ -180,7 +181,7 @@ public class Property {
     /**
      * Manage annotation (check if already set).
      *
-     * @param oldValue old value
+     * @param oldValue   old value
      * @param annotation annotation
      */
     private String manageAnnotation(final String oldValue, final HesperidesAnnotation annotation) {
@@ -195,14 +196,13 @@ public class Property {
     /**
      * Get all annotation.
      *
-     * @param str string after name of property
+     * @param str          string after name of property
      * @param propertyName property name
-     * @param offset start position
-     *
+     * @param offset       start position
      * @return list of annotation
      */
     private static List<HesperidesAnnotation> splitByAnnotation(final String str, final String propertyName,
-                                                                        final int offset) {
+                                                                final int offset) {
         final List<HesperidesAnnotation> result = new ArrayList<>();
 
         // Search '@' char but escape in string "" or ''
@@ -285,10 +285,9 @@ public class Property {
     /**
      * Check if it's an email address.
      *
-     * @param str string after name of property
-     * @param len len string
+     * @param str        string after name of property
+     * @param len        len string
      * @param arobasePos arobase position
-     *
      * @return true/false
      */
     private static boolean isNotAnnotation(final String str, final int len, final int arobasePos) {
@@ -328,10 +327,9 @@ public class Property {
     /**
      * Get value of annotation.
      *
-     * @param str string
-     * @param len len string
+     * @param str   string
+     * @param len   len string
      * @param start position to start
-     *
      * @return substring of str or empty string if no parameter. If null this is an error.
      */
     private static TemporaryValueProperty grapAnnotationValue(String str, int len, int start) {
@@ -369,15 +367,14 @@ public class Property {
     /**
      * Get protected string by simple or double quote.
      *
-     * @param str string
-     * @param len len string
+     * @param str   string
+     * @param len   len string
      * @param start position to start
-     *
      * @return substring of str without protection and escape char.
      */
     private static TemporaryValueProperty copyProtectedString(final String str, final int len, final int start) {
         // Char to protected string
-        final char protectedChar = str.charAt(start) ;
+        final char protectedChar = str.charAt(start);
         // String content
         String result = null;
         // Current char
@@ -410,10 +407,9 @@ public class Property {
     /**
      * Skip white space.
      *
-     * @param str string
-     * @param len len string
+     * @param str   string
+     * @param len   len string
      * @param start position to start
-     *
      * @return position of first non space char.
      */
     private static int skipWhitespace(final String str, final int len, final int start) {
@@ -433,10 +429,9 @@ public class Property {
     /**
      * Get annotation.
      *
-     * @param str string
-     * @param len len string
+     * @param str   string
+     * @param len   len string
      * @param start position to start
-     *
      * @return substring of str
      */
     private static TemporaryValueProperty grabAnnotationName(final String str, final int len, final int start) {
@@ -449,10 +444,9 @@ public class Property {
     /**
      * Copy first word.
      *
-     * @param str string
-     * @param len len string
+     * @param str   string
+     * @param len   len string
      * @param start position to start
-     *
      * @return substring of str
      */
     private static TemporaryValueProperty copyFirstWord(final String str, final int len, final int start) {

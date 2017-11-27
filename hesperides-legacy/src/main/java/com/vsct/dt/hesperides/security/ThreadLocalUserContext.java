@@ -21,15 +21,16 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerResponse;
-import com.sun.jersey.spi.container.ContainerResponseFilter;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.UserInfo;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
 
 /**
  * Created by william_montaz on 25/02/2015.
@@ -42,7 +43,7 @@ public class ThreadLocalUserContext implements UserProvider, UserContext {
     private ThreadLocal<User>            userThreadLocal = new ThreadLocal<>();
 
     public ThreadLocalUserContext(JerseyEnvironment jersey) {
-        jersey.getResourceConfig().getContainerResponseFilters().add(new CleanUserContextHolderFilter());
+//        jersey.getResourceConfig().getContainerResponseFilters().add(new CleanUserContextHolderFilter());
     }
 
     public User getCurrentUser() {
@@ -69,10 +70,15 @@ public class ThreadLocalUserContext implements UserProvider, UserContext {
     @Provider
     public class CleanUserContextHolderFilter implements ContainerResponseFilter {
 
+//        @Override
+//        public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
+//            userThreadLocal.set(null);
+//            return response;
+//        }
+
         @Override
-        public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
+        public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
             userThreadLocal.set(null);
-            return response;
         }
     }
 }

@@ -21,14 +21,16 @@
 
 package com.vsct.dt.hesperides.resources;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -50,6 +52,7 @@ public class Valorisation {
 
     /**
      * The
+     *
      * @param name: the name of the valuation
      */
     @JsonCreator
@@ -89,8 +92,8 @@ public class Valorisation {
         return name != null ? name.hashCode() : 0;
     }
 
-    public Valorisation inject(Map<String, String> keyValueProperties){
-        throw new NotImplementedException();
+    public Valorisation inject(Map<String, String> keyValueProperties) {
+        throw new NotImplementedException("");
     }
 
     /* Use a specific deserializer to handle polymorphism and avoid changing the existing API */
@@ -105,7 +108,7 @@ public class Valorisation {
             ObjectMapper mapper = (ObjectMapper) jp.getCodec();
             ObjectNode obj = mapper.readTree(jp);
 
-            if(obj.get("value") != null){
+            if (obj.get("value") != null) {
                 /* This is a KeyValueValorisation */
                 return mapper.treeToValue(obj, KeyValueValorisation.class);
             } else {

@@ -31,13 +31,12 @@ import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.util.Optional;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
-import tests.type.UnitTests;
 
 /**
  * Created by william_montaz on 27/02/2015.

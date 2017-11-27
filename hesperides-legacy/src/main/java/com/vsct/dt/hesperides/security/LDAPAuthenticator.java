@@ -21,8 +21,6 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.google.common.base.Optional;
-
 import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
@@ -37,6 +35,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.util.Hashtable;
+import java.util.Optional;
 
 /**
  * Created by william_montaz on 12/11/2014.
@@ -88,7 +87,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
             LOGGER.debug("{} failed to authenticate {}", username);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private boolean checkIfUserBelongsToGroup(final AutoclosableDirContext context, final String userDN, final String groupName) throws

@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.util;
 
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by william_montaz on 23/01/2015.

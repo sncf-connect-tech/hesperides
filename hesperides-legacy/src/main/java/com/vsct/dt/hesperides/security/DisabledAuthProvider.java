@@ -21,37 +21,28 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.api.model.Parameter;
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.core.spi.component.ComponentScope;
-import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.InjectableProvider;
-import com.vsct.dt.hesperides.security.model.User;
-import io.dropwizard.auth.Auth;
-
 /**
  * Created by william_montaz on 21/11/2014.
  */
-public final class DisabledAuthProvider implements InjectableProvider<Auth, Parameter> {
-
-    @Override
-    public ComponentScope getScope() {
-        return ComponentScope.PerRequest;
-    }
-
-    @Override
-    public Injectable getInjectable(final ComponentContext componentContext, final Auth auth, final Parameter parameter) {
-        return new DisabledAuthInjectable();
-    }
-
-    private static class DisabledAuthInjectable extends AbstractHttpContextInjectable<User> {
-
-        @Override
-        public User getValue(final HttpContext httpContext) {
-            return User.UNTRACKED;
-        }
-    }
-
+public final class DisabledAuthProvider {
+//public final class DisabledAuthProvider implements InjectableProvider<Auth, Parameter> {
+//
+//    @Override
+//    public ComponentScope getScope() {
+//        return ComponentScope.PerRequest;
+//    }
+//
+//    @Override
+//    public Injectable getInjectable(final ComponentContext componentContext, final Auth auth, final Parameter parameter) {
+//        return new DisabledAuthInjectable();
+//    }
+//
+//    private static class DisabledAuthInjectable extends AbstractHttpContextInjectable<User> {
+//
+//        @Override
+//        public User getValue(final HttpContext httpContext) {
+//            return User.UNTRACKED;
+//        }
+//    }
+//
 }
