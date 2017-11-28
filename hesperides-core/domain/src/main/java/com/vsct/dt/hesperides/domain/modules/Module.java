@@ -20,14 +20,17 @@
  */
 package com.vsct.dt.hesperides.domain.modules;
 
+/**
+ * Objet immuable du domaine
+ */
 public class Module {
-    private String name;
+    private final String name;
+
+    public Module(final String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

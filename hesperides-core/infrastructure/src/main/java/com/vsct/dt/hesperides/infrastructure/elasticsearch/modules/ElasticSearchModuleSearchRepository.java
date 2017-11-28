@@ -65,7 +65,8 @@ public class ElasticSearchModuleSearchRepository implements ModuleSearchReposito
             List<Hit<ElasticSearchModule>> hits = responseHits.getHits().getHits();
             for (Hit<ElasticSearchModule> hit : hits) {
                 ElasticSearchModule elasticSearchModule = hit.getSource();
-                modules.add(elasticSearchModule.getDomainModule());
+                Module module = elasticSearchModule.toDomainModule();
+                modules.add(module);
             }
         }
         return modules;

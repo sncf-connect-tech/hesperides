@@ -35,9 +35,7 @@ public class ElasticSearchModule {
         this.name = name;
     }
 
-    public Module getDomainModule() {
-        Module module = new Module();
-        module.setName(this.name);
-        return module;
+    public Module toDomainModule() {
+        return new Module(this.name);
     }
 }
