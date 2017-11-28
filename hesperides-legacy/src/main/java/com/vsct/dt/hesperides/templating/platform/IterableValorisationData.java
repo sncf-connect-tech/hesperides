@@ -44,7 +44,8 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
 @JsonPropertyOrder({"name", "iterable_valorisation_items"})
-@JsonDeserialize//This annotation is important, it prevents IterableValorisation from using the Valorisation Deserializer, which would cause endless loops
+@JsonDeserialize
+//This annotation is important, it prevents IterableValorisation from using the Valorisation Deserializer, which would cause endless loops
 public final class IterableValorisationData extends ValorisationData {
     private final List<IterableValorisationItemData> iterableValorisationItems;
 
@@ -63,7 +64,7 @@ public final class IterableValorisationData extends ValorisationData {
     @Override
     public MustacheScopeEntry<String, Object> toMustacheScopeEntry() {
         List<MustacheScope> innerScopes = Lists.newArrayList();
-        for(IterableValorisationItemData item: iterableValorisationItems){
+        for (IterableValorisationItemData item : iterableValorisationItems) {
             innerScopes.add(new MustacheScope(item.getValues()));
         }
         return new MustacheScopeEntry<>(this.getName(), innerScopes);
@@ -98,12 +99,12 @@ public final class IterableValorisationData extends ValorisationData {
 
     @JsonPropertyOrder({"title", "values"})
     public static class IterableValorisationItemData {
-        private final String                    title;
+        private final String title;
         private final Set<ValorisationData> values;
 
         @JsonCreator
         public IterableValorisationItemData(@JsonProperty("title") final String title,
-                                        @JsonProperty("values") final Set<ValorisationData> values) {
+                                            @JsonProperty("values") final Set<ValorisationData> values) {
             this.title = title;
             this.values = Sets.newHashSet(values);
         }

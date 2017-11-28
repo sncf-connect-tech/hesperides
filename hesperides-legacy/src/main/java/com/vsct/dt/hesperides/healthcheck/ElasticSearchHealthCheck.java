@@ -53,7 +53,7 @@ public final class ElasticSearchHealthCheck extends HealthCheck {
             }
             return Result.healthy();
         } finally {
-            if(healthRequest != null){
+            if (healthRequest != null) {
                 healthRequest.releaseConnection();
             }
         }

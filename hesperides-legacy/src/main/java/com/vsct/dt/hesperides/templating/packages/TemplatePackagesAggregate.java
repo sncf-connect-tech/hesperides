@@ -19,19 +19,18 @@
 
 package com.vsct.dt.hesperides.templating.packages;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.Models;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Service used to manage templates as "packs".
@@ -48,7 +47,7 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
     /**
      * Helper class used to return a template model
      */
-    private Models           models;
+    private Models models;
 
     /**
      * Nb event before store cache for force cache system.
@@ -62,8 +61,9 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
 
     /**
      * Constructor using no UserProvider (used when no loggin was possible)
-     * @param eventBus  The {@link com.google.common.eventbus.EventBus} used to propagate events to other part of the application
-     * @param eventStore The {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
+     *
+     * @param eventBus                The {@link com.google.common.eventbus.EventBus} used to propagate events to other part of the application
+     * @param eventStore              The {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
      * @param hesperidesConfiguration hesperides configuration
      */
     public TemplatePackagesAggregate(final EventBus eventBus, final EventStore eventStore,
@@ -75,9 +75,10 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
 
     /**
      * Constructor using a specific UserProvider
-     * @param eventBus The {@link com.google.common.eventbus.EventBus} used to propagate events to other part of the application
-     * @param eventStore The {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
-     * @param userProvider A {@link com.vsct.dt.hesperides.storage.UserProvider} that indicates which user is performing the request
+     *
+     * @param eventBus                The {@link com.google.common.eventbus.EventBus} used to propagate events to other part of the application
+     * @param eventStore              The {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
+     * @param userProvider            A {@link com.vsct.dt.hesperides.storage.UserProvider} that indicates which user is performing the request
      * @param hesperidesConfiguration Hesperides configuration
      */
     public TemplatePackagesAggregate(final EventBus eventBus, final EventStore eventStore,
@@ -91,7 +92,7 @@ public class TemplatePackagesAggregate extends AbstractTemplatePackagesAggregate
     /**
      * Init module.
      *
-     * @param eventStore {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
+     * @param eventStore              {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
      * @param hesperidesConfiguration {@link com.vsct.dt.hesperides.HesperidesConfiguration} configuration hesperides
      */
     private void initTemplateAggregate(final EventStore eventStore,

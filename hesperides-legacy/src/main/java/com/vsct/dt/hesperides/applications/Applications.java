@@ -21,9 +21,7 @@
 
 package com.vsct.dt.hesperides.applications;
 
-import com.vsct.dt.hesperides.security.UserContext;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.platform.ApplicationData;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 import com.vsct.dt.hesperides.templating.platform.TimeStampedPlatformData;
@@ -31,7 +29,6 @@ import com.vsct.dt.hesperides.templating.platform.TimeStampedPlatformData;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Created by william_montaz on 25/02/2015.

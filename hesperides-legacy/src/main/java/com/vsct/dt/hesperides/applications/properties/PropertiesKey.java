@@ -39,10 +39,9 @@ public class PropertiesKey {
     private String path;
 
     /**
-     *
      * @param applicationName Name of application
-     * @param platformName Name of platform
-     * @param path Path of properties (box name with '#')
+     * @param platformName    Name of platform
+     * @param path            Path of properties (box name with '#')
      */
     public PropertiesKey(final String applicationName, final String platformName, final String path) {
         this.applicationName = applicationName;

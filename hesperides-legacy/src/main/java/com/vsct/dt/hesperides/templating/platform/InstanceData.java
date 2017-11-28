@@ -45,7 +45,7 @@ import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 public class InstanceData {
     private static final String VALORISATION_KEY_INSTANCE_NAME = "hesperides.instance.name";
 
-    private String                    name;
+    private String name;
     private Set<KeyValueValorisationData> keyValues;
 
     private InstanceData() {
@@ -54,7 +54,7 @@ public class InstanceData {
 
     @JsonCreator
     protected InstanceData(@JsonProperty("name") final String name,
-                    @JsonProperty("key_values") final Set<KeyValueValorisationData> keyValues) {
+                           @JsonProperty("key_values") final Set<KeyValueValorisationData> keyValues) {
         this.name = name;
         this.keyValues = Sets.newHashSet(keyValues);
     }

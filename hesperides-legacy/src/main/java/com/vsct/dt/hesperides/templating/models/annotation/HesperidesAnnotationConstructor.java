@@ -28,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Util class to create annotation object.
- *
+ * <p>
  * Created by emeric_martineau on 05/11/2015.
  */
 public class HesperidesAnnotationConstructor {
@@ -40,8 +40,7 @@ public class HesperidesAnnotationConstructor {
      * Create annotation object.
      *
      * @param annotation annotation like "@default" or "default"
-     * @param value value of annotation
-     *
+     * @param value      value of annotation
      * @return anootation object or null if annotation not found.
      */
     public static HesperidesAnnotation createAnnotationObject(final String annotation, final String value) {

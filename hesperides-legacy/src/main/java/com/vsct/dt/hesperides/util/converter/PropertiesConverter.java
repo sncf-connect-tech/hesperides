@@ -30,6 +30,7 @@ import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 public interface PropertiesConverter {
     /**
      * Convert PropertiesData to Properties.
+     *
      * @param prop input
      * @return output
      */
@@ -37,6 +38,7 @@ public interface PropertiesConverter {
 
     /**
      * Convert Properties to PropertiesData.
+     *
      * @param prop input
      * @return output
      */

@@ -25,10 +25,9 @@ import com.cedarsoftware.util.DeepEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.Set;

@@ -61,11 +61,9 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
     /**
      * Load properties from database.
      *
-     * @param key key
+     * @param key       key
      * @param timestamp timestamp
-     *
      * @return properties
-     *
      * @throws Exception if not found.
      */
     protected PlatformContainer loadProperties(final PlatformKey key, final long timestamp) throws Exception {
@@ -138,8 +136,8 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      * @param virtualApplicationsAggregate
      */
     private void updatePropertiesContainer(
-                                           final PlatformContainer propertiesBuilder,
-                                           final VirtualApplicationsAggregate virtualApplicationsAggregate) {
+            final PlatformContainer propertiesBuilder,
+            final VirtualApplicationsAggregate virtualApplicationsAggregate) {
         final Optional<PlatformData> platform = virtualApplicationsAggregate.getPlatform();
 
         if (platform.isPresent()) {
@@ -186,7 +184,6 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      * Return list from application name.
      *
      * @param platformKey list of key
-     *
      * @return list of application (never return null. Maybe return empty list)
      */
     public Map<PlatformKey, PlatformContainer> getPlatformFromApplication(final List<PlatformKey> platformKey) {
@@ -236,7 +233,6 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      * Generate key to search in database.
      *
      * @param ptfKey namespace of module
-     *
      * @return db key
      */
     private String generateDbKey(final PlatformKey ptfKey) {
@@ -248,7 +244,7 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      * Store object in snapshot.
      *
      * @param platformKey key of cache (same as cache.get(K))
-     * @param object object
+     * @param object      object
      */
     public void saveSnapshot(final PlatformKey platformKey, final PlatformContainer object) {
         final String redisKey = generateDbKey(platformKey);
@@ -261,7 +257,7 @@ public abstract class AbstractPropertiesCacheLoader<K> extends CacheLoader<K, Pl
      * Store object in snapshot.
      *
      * @param platformKey key of cache (same as cache.get(K))
-     * @param object object
+     * @param object      object
      */
     public void forceSaveSnapshot(final PlatformKey platformKey, final PlatformContainer object, final long nbEvent) {
         final String redisKey = generateDbKey(platformKey);

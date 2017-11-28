@@ -30,7 +30,6 @@ import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
@@ -47,7 +46,6 @@ import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -56,7 +54,6 @@ import tests.type.UnitTests;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -65,7 +62,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -161,10 +157,10 @@ public class HesperidesTemplateResourceTest {
     @Test
     public void should_return_401_if_getting_list_of_all_templates_in_working_copy_and_not_authenticated() {
         Response response = withAuth("/templates/packages/name/version/workingcopy/templates")
-                    .post(Entity.json(null), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -208,10 +204,10 @@ public class HesperidesTemplateResourceTest {
     @Test
     public void should_return_401_if_getting_list_of_all_templates_in_release_and_not_authenticated() {
         Response response = withAuth("/templates/packages/name/version/release/templates")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -231,9 +227,9 @@ public class HesperidesTemplateResourceTest {
     @Test
     public void should_return_401_if_getting_properties_model_for_release_and_not_authenticated() {
         Response response = withAuth("/templates/packages/the_name/the_version/release/model")
-                    .get(Response.class);
+                .get(Response.class);
 
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -254,9 +250,9 @@ public class HesperidesTemplateResourceTest {
     @Test
     public void should_return_401_if_getting_properties_model_for_working_copy_and_not_authenticated() {
         Response response = withAuth("/templates/packages/the_name/the_version/workingcopy/model")
-                    .get(Response.class);
+                .get(Response.class);
 
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -284,19 +280,19 @@ public class HesperidesTemplateResourceTest {
     @Test
     public void should_return_400_if_terms_query_param_is_missing() {
         Response response = withoutAuth("/templates/packages/perform_search")
-                    .post(Entity.json(null), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_perform_search_and_not_authenticated() {
         Response response = withAuth("/templates/packages/perform_search")
-                    .post(Entity.json(null), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -334,18 +330,18 @@ public class HesperidesTemplateResourceTest {
 
         when(templatePackages.getTemplate(packageInfo, "unknown")).thenReturn(Optional.empty());
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates/unknown").get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_template_from_working_copy_and_not_authenticated() {
         Response response = withAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates/unknown")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -383,18 +379,18 @@ public class HesperidesTemplateResourceTest {
 
         when(templatePackages.getTemplate(packageInfo, "unknown")).thenReturn(Optional.empty());
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/release/templates/unknown").get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_template_from_release_and_not_authenticated() {
         Response response = withAuth("/templates/packages/pckg_name/pckg_version/release/templates/unknown")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -459,10 +455,10 @@ public class HesperidesTemplateResourceTest {
         when(templatePackages.createTemplateInWorkingCopy(packageInfo, templateData)).thenThrow(new DuplicateResourceException("Non unique"));
 
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates")
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -488,19 +484,19 @@ public class HesperidesTemplateResourceTest {
         when(templatePackages.createTemplateInWorkingCopy(packageInfo, templateData)).thenThrow(new MissingResourceException("ModuleClient not found"));
 
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates")
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_creating_template_and_not_authenticated() {
         Response response = withAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates")
-                    .post(Entity.json(null), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -565,19 +561,19 @@ public class HesperidesTemplateResourceTest {
         when(templatePackages.updateTemplateInWorkingCopy(packageInfo, templateData)).thenThrow(new MissingResourceException("Not found"));
 
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates")
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_updating_template_and_not_authenticated() {
         Response response = withAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates")
-                    .put(Entity.json(""));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .put(Entity.json(""));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -596,19 +592,19 @@ public class HesperidesTemplateResourceTest {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("pckg_name", "pckg_version");
         doThrow(new MissingResourceException("Not found")).when(templatePackages).deleteTemplateInWorkingCopy(packageInfo, "the_name");
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates/the_name")
-                    .delete();
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+                .delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_deleting_template_in_working_copy_and_not_authenticated() {
         Response response = withAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates/the_name")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -640,39 +636,39 @@ public class HesperidesTemplateResourceTest {
     public void should_return_400_if_create_working_copy_from_and_from_package_name_query_param_is_missing() throws JsonProcessingException {
         TemplatePackageKey templatePackage = new TemplatePackageKey("the_package_name", "the_package_version", true);
         Response response = rawClient("/templates/packages")
-                    .queryParam("from_package_version", "pckg_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .queryParam("from_package_version", "pckg_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_create_working_copy_from_and_from_package_version_query_param_is_missing() throws JsonProcessingException {
         TemplatePackageKey templatePackage = new TemplatePackageKey("the_package_name", "the_package_version", true);
         Response response = rawClient("/templates/packages")
-                    .queryParam("from_package_name", "pckg_name_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .queryParam("from_package_name", "pckg_name_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_create_working_copy_from_and_from_is_working_copy_query_param_is_missing() throws JsonProcessingException {
         TemplatePackageKey templatePackage = new TemplatePackageKey("the_package_name", "the_package_version", true);
         Response response = rawClient("/templates/packages")
-                    .queryParam("from_package_name", "pckg_name_from")
-                    .queryParam("from_package_version", "pckg_version_from")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .queryParam("from_package_name", "pckg_name_from")
+                .queryParam("from_package_version", "pckg_version_from")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -688,14 +684,14 @@ public class HesperidesTemplateResourceTest {
         TemplatePackageKey templatePackage = new TemplatePackageKey("the_package_name", "the_package_version", true);
 
         Response response = rawClient("/templates/packages")
-                    .queryParam("from_package_name", "pckg_name_from")
-                    .queryParam("from_package_version", "pckg_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+                .queryParam("from_package_name", "pckg_name_from")
+                .queryParam("from_package_version", "pckg_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     /**
@@ -720,24 +716,24 @@ public class HesperidesTemplateResourceTest {
     public void should_return_400_if_create_release_and_package_name_query_param_is_missing() throws JsonProcessingException {
         TemplatePackageKey templatePackage = new TemplatePackageKey("pckg_name", "pckg_version", true);
         Response response = rawClient("/templates/packages/create_release")
-                    .queryParam("package_name", "pckg_name")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .queryParam("package_name", "pckg_name")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_create_release_and_package_version_query_param_is_missing() throws JsonProcessingException {
         TemplatePackageKey templatePackage = new TemplatePackageKey("pckg_name", "pckg_version", true);
         Response response = rawClient("/templates/packages/create_release")
-                    .queryParam("package_version", "pckg_version")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .queryParam("package_version", "pckg_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -748,173 +744,173 @@ public class HesperidesTemplateResourceTest {
         TemplatePackageKey templatePackage = new TemplatePackageKey("pckg_name", "pckg_version", true);
 
         Response response = rawClient("/templates/packages/create_release")
-                    .queryParam("package_name", "pckg_name")
-                    .queryParam("package_version", "pckg_version")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(templatePackage)));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+                .queryParam("package_name", "pckg_name")
+                .queryParam("package_version", "pckg_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templatePackage)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_list_of_all_templates_in_workingcopy_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/workingcopy/templates")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_list_of_all_templates_in_workingcopy_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/workingcopy/templates")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_list_of_all_templates_in_release_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/release/templates")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_list_of_all_templates_in_release_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/release/templates")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_list_of_all_templates_in_workingcopy_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/workingcopy")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delte_list_of_all_templates_in_workingcopy_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/workingcopy")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_list_of_all_templates_in_release_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/release")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delte_list_of_all_templates_in_release_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/release")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_model_in_release_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/release/model")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_model_in_release_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/release/model")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_model_in_workingcopy_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/workingcopy/model")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_getting_model_in_workingcopy_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/workingcopy/model")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_get_template_in_workingcopy_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/pckg_version/workingcopy/templates/the_name")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_get_template_in_workingcopy_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/pckg_name/%20%09%00/workingcopy/templates/the_name")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_get_template_in_workingcopy_template_name_not_valid() {
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/workingcopy/templates/%20%09%00")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_get_template_in_release_package_name_not_valid() {
-            Response response = withoutAuth("/templates/packages/%20%09%00/pckg_version/release/templates/the_name")
-                    .get(Response.class);
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        Response response = withoutAuth("/templates/packages/%20%09%00/pckg_version/release/templates/the_name")
+                .get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_get_template_in_release_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/pckg_name/%20%09%00/release/templates/the_name")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_get_template_in_release_template_name_not_valid() {
         Response response = withoutAuth("/templates/packages/pckg_name/pckg_version/release/templates/%20%09%00")
-                    .get(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -929,10 +925,10 @@ public class HesperidesTemplateResourceTest {
                 0L);
 
         Response response = withoutAuth("/templates/packages/%20%09%00/version/workingcopy/templates")
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -947,10 +943,10 @@ public class HesperidesTemplateResourceTest {
                 0L);
 
         Response response = withoutAuth("/templates/packages/name/%20%09%00/workingcopy/templates")
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -964,10 +960,10 @@ public class HesperidesTemplateResourceTest {
                 null,
                 0L);
         Response response = withoutAuth("/templates/packages/%20%09%00/version/workingcopy/templates")
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -981,54 +977,54 @@ public class HesperidesTemplateResourceTest {
                 null,
                 0L);
         Response response = withoutAuth("/templates/packages/name/%20%09%00/workingcopy/templates")
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_template_in_workingcopy_package_name_not_valid() {
         Response response = withoutAuth("/templates/packages/%20%09%00/version/workingcopy/templates/template_name")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_template_in_workingcopy_package_version_not_valid() {
         Response response = withoutAuth("/templates/packages/name/%20%09%00/workingcopy/templates/template_name")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_template_in_workingcopy_template_name_not_valid() {
         Response response = withoutAuth("/templates/packages/name/version/workingcopy/templates/%20%09%00")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_template_in_workingcopy_template_name_valid() {
         Response response = withoutAuth("/templates/packages/name/version/workingcopy/templates/%00template_name")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_delete_template_in_workingcopy_template_name_valid2() {
         Response response = withoutAuth("/templates/packages/name/version/workingcopy/templates/%09template_name")
-                    .delete(Response.class);
-            
-        
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }

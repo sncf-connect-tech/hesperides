@@ -41,6 +41,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -48,15 +49,13 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import tests.type.UnitTests;
-
 /**
  * Created by william_montaz on 28/11/2014.
  */
 @Category(UnitTests.class)
 public class TemplatePackagesTest {
 
-    private final EventBus       eventBus       = new EventBus();
+    private final EventBus eventBus = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
     private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
     private TemplatePackagesAggregate templatePackagesWithEvent;
@@ -134,7 +133,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = DuplicateResourceException.class)
-    public void should_not_create_a_template_if_it_already_exists(){
+    public void should_not_create_a_template_if_it_already_exists() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData = TemplateData.withTemplateName("nom du template")
                 .withFilename("filename")
@@ -182,7 +181,7 @@ public class TemplatePackagesTest {
     }
 
     @Test
-    public void should_return_template(){
+    public void should_return_template() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -204,7 +203,7 @@ public class TemplatePackagesTest {
     }
 
     @Test
-    public void should_return_empty_option_if_getting_non_existing_template(){
+    public void should_return_empty_option_if_getting_non_existing_template() {
         TemplatePackageKey packageInfo = TemplatePackageKey.withName("some_package").withVersion(WorkingCopy.of("package_version")).build();
 
         Optional<Template> templateOptional = templatePackagesWithEvent.getTemplate(packageInfo, "template1");
@@ -269,7 +268,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_not_update_template_if_it_does_not_already_exists(){
+    public void should_not_update_template_if_it_does_not_already_exists() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -282,7 +281,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = Exception.class)
-    public void should_not_update_a_template_with_invalid_content(){
+    public void should_not_update_a_template_with_invalid_content() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -305,7 +304,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = OutOfDateVersionException.class)
-    public void should_not_update_template_if_provided_version_id_is_too_low(){
+    public void should_not_update_template_if_provided_version_id_is_too_low() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -330,7 +329,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = IncoherentVersionException.class)
-    public void should_not_update_template_if_version_id_is_too_high(){
+    public void should_not_update_template_if_version_id_is_too_high() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -390,7 +389,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_throw_an_exception_when_deleting_a_non_existing_template(){
+    public void should_throw_an_exception_when_deleting_a_non_existing_template() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         templatePackagesWithEvent.deleteTemplateInWorkingCopy(packageInfo, "template1");
     }
@@ -427,7 +426,7 @@ public class TemplatePackagesTest {
         Set<Template> releaseTemplates = templatePackagesWithEvent.getAllTemplates(releaseInfo);
 
         assertThat(releaseTemplates.size()).isEqualTo(2);
-        for(Template template : releaseTemplates){
+        for (Template template : releaseTemplates) {
             assertThat(template.getFilename()).isEqualTo("filename");
             assertThat(template.getLocation()).isEqualTo("location");
             assertThat(template.getContent()).isEqualTo("content");
@@ -488,7 +487,7 @@ public class TemplatePackagesTest {
     }
 
     private void checkTemplates(Set<Template> newTemplates) {
-        for(Template template : newTemplates){
+        for (Template template : newTemplates) {
             assertThat(template.getFilename()).isEqualTo("filename");
             assertThat(template.getLocation()).isEqualTo("location");
             assertThat(template.getContent()).isEqualTo("content");
@@ -549,7 +548,7 @@ public class TemplatePackagesTest {
     }
 
     @Test
-    public void should_delete_all_templates_related_to_template_package(){
+    public void should_delete_all_templates_related_to_template_package() {
         TemplatePackageWorkingCopyKey packageInfo = new TemplatePackageWorkingCopyKey("some_package", "package_version");
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -600,7 +599,7 @@ public class TemplatePackagesTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_throw_exception_when_trying_to_delete_unknown_template_package(){
+    public void should_throw_exception_when_trying_to_delete_unknown_template_package() {
         TemplatePackageKey packageInfo = TemplatePackageKey.withName("some_package").withVersion(WorkingCopy.of("package_version")).build();
         templatePackagesWithEvent.delete(packageInfo);
     }

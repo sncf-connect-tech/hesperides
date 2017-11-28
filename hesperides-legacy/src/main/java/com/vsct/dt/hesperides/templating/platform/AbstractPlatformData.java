@@ -41,15 +41,15 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"platform_name", "application_name", "application_version", "production", "platform_global_module", "modules", "version_id"})
 public abstract class AbstractPlatformData extends DomainVersionable {
-    private static final String VALORISATION_KEY_APP_NAME    = "hesperides.application.name";
+    private static final String VALORISATION_KEY_APP_NAME = "hesperides.application.name";
     private static final String VALORISATION_KEY_APP_VERSION = "hesperides.application.version";
-    private static final String VALORISATION_KEY_PLTFM_NAME  = "hesperides.platform.name";
+    private static final String VALORISATION_KEY_PLTFM_NAME = "hesperides.platform.name";
 
-    protected String                          platformName;
-    protected String                          applicationName;
-    protected String                          applicationVersion;
+    protected String platformName;
+    protected String applicationName;
+    protected String applicationVersion;
     protected ImmutableSet<ApplicationModuleData> modules;
-    protected boolean                         production; //default value, some events have not this field
+    protected boolean production; //default value, some events have not this field
 
     protected AbstractPlatformData() {
         // nothing
@@ -58,11 +58,11 @@ public abstract class AbstractPlatformData extends DomainVersionable {
     @JsonCreator
     protected AbstractPlatformData(
             @JsonProperty("platform_name") final String platformName,
-                    @JsonProperty("application_name") final String applicationName,
-                    @JsonProperty("application_version") final String applicationVersion,
-                    @JsonProperty("production") final boolean isProduction,
-                    @JsonProperty("modules") final Set<ApplicationModuleData> modules,
-                    @JsonProperty("version_id") final long versionID) {
+            @JsonProperty("application_name") final String applicationName,
+            @JsonProperty("application_version") final String applicationVersion,
+            @JsonProperty("production") final boolean isProduction,
+            @JsonProperty("modules") final Set<ApplicationModuleData> modules,
+            @JsonProperty("version_id") final long versionID) {
         this.versionID = versionID;
         this.platformName = platformName;
         this.applicationName = applicationName;
@@ -104,11 +104,11 @@ public abstract class AbstractPlatformData extends DomainVersionable {
     }
 
     public Optional<ApplicationModuleData> findModule(String moduleName, String moduleVersion, boolean isModuleWorkingCopy, String path) {
-        for(ApplicationModuleData module: modules){
-            if(module.getName().equals(moduleName)
+        for (ApplicationModuleData module : modules) {
+            if (module.getName().equals(moduleName)
                     && module.getVersion().equals(moduleVersion)
                     && module.isWorkingCopy() == isModuleWorkingCopy
-                    && module.getPath().equals(path)){
+                    && module.getPath().equals(path)) {
                 return Optional.of(module);
             }
         }

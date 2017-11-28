@@ -21,7 +21,8 @@ package com.vsct.dt.hesperides.templating.modules.event;
 
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.storage.HesperidesCommand;
-import com.vsct.dt.hesperides.templating.modules.*;
+import com.vsct.dt.hesperides.templating.modules.ModuleTemplateUpdatedEvent;
+import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
@@ -60,7 +61,7 @@ public class ModuleTemplateUpdatedCommand implements HesperidesCommand<ModuleTem
                 moduleKey.getNamespace(),
                 templateData.getName());
 
-        if(templateOptional.isPresent()){
+        if (templateOptional.isPresent()) {
 
             templateOptional.get().tryCompareVersionID(templateData.getVersionID());
 

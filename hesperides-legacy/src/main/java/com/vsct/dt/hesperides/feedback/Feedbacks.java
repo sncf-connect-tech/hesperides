@@ -26,16 +26,16 @@ import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.security.model.User;
 
 /**
- *  Feedback aggragator interface.
- *
+ * Feedback aggragator interface.
+ * <p>
  * Created by stephane_fret on 07/03/2017.
  */
 public interface Feedbacks {
     /**
      * Send a feedback to Hipchat
      *
-     * @param user : the current user
-     * @param feedbackJson     : feedback message with screenshoot and url
+     * @param user         : the current user
+     * @param feedbackJson : feedback message with screenshoot and url
      */
     void sendFeedbackToHipchat(final User user,
                                final FeedbackJson feedbackJson);

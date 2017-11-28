@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/files")
-@Consumes(MediaType.APPLICATION_JSON+ "; charset=utf-8")
+@Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 @Api("/files")
 public class HesperidesFilesResource extends BaseResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesFilesResource.class);
@@ -57,7 +57,7 @@ public class HesperidesFilesResource extends BaseResource {
     }
 
     @Path("/applications/{application_name}/platforms/{platform_name}/{path}/{module_name}/{module_version}/instances/{instance_name}")
-    @Produces(MediaType.APPLICATION_JSON+ "; charset=utf-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
     @GET
     @Timed
     @ApiOperation("Get files list for given application, version, platefomr, unit and context")
@@ -89,12 +89,13 @@ public class HesperidesFilesResource extends BaseResource {
                 throw new RuntimeException(e);
             }
 
-            return new FileListItem(file.getLocation()+"/"+file.getFilename(), url, convertRights(file.getRights()));
+            return new FileListItem(file.getLocation() + "/" + file.getFilename(), url, convertRights(file.getRights()));
         }).collect(Collectors.toSet());
     }
 
     /**
      * Convert HesperidesFileRights to FileListItemRights
+     *
      * @param rights HesperidesFileRights
      * @return FileListItemRights
      */
@@ -118,8 +119,7 @@ public class HesperidesFilesResource extends BaseResource {
      * Convert HesperidesRight to String.
      *
      * @param currentRights right
-     * @param sb string builder
-     *
+     * @param sb            string builder
      * @return "rwx"
      */
     private static String convertRight(final HesperidesRight currentRights, final StringBuilder sb) {
@@ -139,8 +139,8 @@ public class HesperidesFilesResource extends BaseResource {
      * Convert a right into string.
      *
      * @param right right
-     * @param flag char to set
-     * @param sb string builder
+     * @param flag  char to set
+     * @param sb    string builder
      */
     private static void convertSingleRight(final Boolean right, final char flag, final StringBuilder sb) {
         if (right == null) {

@@ -35,7 +35,6 @@ import com.vsct.dt.hesperides.resources.IterableValorisation;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.PermissionAwareApplicationsProxy;
 import com.vsct.dt.hesperides.resources.Properties;
-
 import com.vsct.dt.hesperides.security.UserContext;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.EventStore;
@@ -48,7 +47,6 @@ import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.modules.Techno;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
-
 import com.vsct.dt.hesperides.templating.modules.template.TemplateSlurper;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
@@ -63,6 +61,7 @@ import com.vsct.dt.hesperides.util.converter.impl.DefaultPropertiesConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.util.List;
 import java.util.Set;
@@ -71,8 +70,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import tests.type.UnitTests;
-
 /**
  * Created by william_montaz on 03/09/14.
  * Updated by Tidiane SIDIBE on 09/11/2016
@@ -80,11 +77,11 @@ import tests.type.UnitTests;
 @Category(UnitTests.class)
 public class FilesTest {
 
-    private final EventBus       eventBus       = new EventBus();
+    private final EventBus eventBus = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
     private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
-    private ApplicationsAggregate     applications;
-    private ModulesAggregate          modules;
+    private ApplicationsAggregate applications;
+    private ModulesAggregate modules;
     private TemplatePackagesAggregate templatePackages;
 
     private SnapshotRegistryInterface snapshotRegistryInterface = mock(SnapshotRegistry.class);
@@ -268,7 +265,7 @@ public class FilesTest {
                 .withLocation("location")
                 .withContent(
                         "{{no_comment}}, {{content|comment for content}}, {{property.with.dots|some comment here}}, {{property.with.html.escapable|and comment here}}" +
-                        "You know what ? {{         property.with.whitespaces.at.start|@comment \"Spaces at start\"}}, {{property.with.whitespaces.at.end   |@comment \"Spaces at end\"}}, {{  property named property.with.whitespaces.at.everywhere  | @comment \"Spaces everywhere\"}} and {{  property.with.whitespaces.and.default      | @comment \"Spaces at start and end with default value\" @default \"This is my default value!\"}}"
+                                "You know what ? {{         property.with.whitespaces.at.start|@comment \"Spaces at start\"}}, {{property.with.whitespaces.at.end   |@comment \"Spaces at end\"}}, {{  property named property.with.whitespaces.at.everywhere  | @comment \"Spaces everywhere\"}} and {{  property.with.whitespaces.and.default      | @comment \"Spaces at start and end with default value\" @default \"This is my default value!\"}}"
                 )
                 .withRights(null)
                 .build();
@@ -602,7 +599,7 @@ public class FilesTest {
                 "{{#items}}\n" +
                         "{{name}}\n" +
                         "{{price|@required}}\n" +
-                "{{/items}}\n";
+                        "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -671,10 +668,10 @@ public class FilesTest {
     public void should_generate_file_with_password_fields() throws Exception {
         String templateContent =
                 "{{user.password | @password}}" +
-                "{{#users}}" +
+                        "{{#users}}" +
                         "{{ login }}" +
                         "{{ password | @password}}" +
-                "{{/users}}";
+                        "{{/users}}";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -752,14 +749,14 @@ public class FilesTest {
     public void should_generate_file_with_password_and_default_fields_for_nested_iterable_properties() throws Exception {
         String templateContent =
                 "{{user.password | @password}}" +
-                    "{{#users}}" +
-                    "{{ login }}" +
-                    "{{ password | @password }}" +
-                    "{{#account}}" +
+                        "{{#users}}" +
+                        "{{ login }}" +
+                        "{{ password | @password }}" +
+                        "{{#account}}" +
                         "{{ account.login | @default \"simple\" }}" +
                         "{{ account.password | @password }}" +
-                    "{{/account}}" +
-                "{{/users}}";
+                        "{{/account}}" +
+                        "{{/users}}";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -846,7 +843,7 @@ public class FilesTest {
                 "{{#items}}\n" +
                         "{{name| @pattern \"[A-Za-z]+\"}}\n" +
                         "{{price}}\n" +
-                "{{/items}}\n";
+                        "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -994,12 +991,12 @@ public class FilesTest {
     public void should_fail_when_trying_to_get_file_content_with_not_matching_unfilled_required_value_in_inner_iterable_properties() throws Exception {
         String templateContent =
                 "{{#items}}\n" +
-                    "{{name}}\n" +
-                    "{{price}}\n" +
-                    "{{#owners}}" +
+                        "{{name}}\n" +
+                        "{{price}}\n" +
+                        "{{#owners}}" +
                         "{{name | @required}}" +
-                    "{{/owners}}" +
-                "{{/items}}\n";
+                        "{{/owners}}" +
+                        "{{/items}}\n";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -1069,7 +1066,7 @@ public class FilesTest {
     }
 
     @Test
-    public void file_generation_should_include_platform_information_in_the_mustache_scope(){
+    public void file_generation_should_include_platform_information_in_the_mustache_scope() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
                 .withFilename("{{hesperides.application.name}}_file")
@@ -1136,7 +1133,7 @@ public class FilesTest {
     }
 
     @Test
-    public void file_generation_should_include_module_information_in_the_mustache_scope(){
+    public void file_generation_should_include_module_information_in_the_mustache_scope() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
                 .withFilename("{{hesperides.module.name}}_file")
@@ -1202,7 +1199,7 @@ public class FilesTest {
     }
 
     @Test
-    public void file_generation_should_include_instance_information_in_the_mustache_scope(){
+    public void file_generation_should_include_instance_information_in_the_mustache_scope() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
                 .withFilename("{{hesperides.instance.name}}_file")
@@ -1271,15 +1268,15 @@ public class FilesTest {
     public void should_get_file_content_with_iterable_with_first_empty_values() throws Exception {
         String templateContent =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                "<profiles>\r\n" +
-                "{{#profiles}}\r\n" +
-                "  <profile>\r\n"+
-                "    <user>{{user}}</user>\r\n" +
-                "    <password>{{password}}</password>\r\n" +
-                "    <token>{{toto.token}}</token>\r\n" +
-                "  </profile>\r\n" +
-                "{{/profiles}}\r\n" +
-                "</profiles>";
+                        "<profiles>\r\n" +
+                        "{{#profiles}}\r\n" +
+                        "  <profile>\r\n" +
+                        "    <user>{{user}}</user>\r\n" +
+                        "    <password>{{password}}</password>\r\n" +
+                        "    <token>{{toto.token}}</token>\r\n" +
+                        "  </profile>\r\n" +
+                        "{{/profiles}}\r\n" +
+                        "</profiles>";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -1352,34 +1349,34 @@ public class FilesTest {
 
         assertThat(content).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                "<profiles>\r\n" +
-                "  <profile>\r\n" +
-                "    <user>marcel_in_short</user>\r\n" +
-                "    <password></password>\r\n" +
-                "    <token>144dfDGGRIs5689ds64</token>\r\n" +
-                "  </profile>\r\n" +
-                "  <profile>\r\n" +
-                "    <user>maurice_in_long</user>\r\n" +
-                "    <password>AureliaJsForEver</password>\r\n" +
-                "    <token>144dfDGGRIs5689ds64</token>\r\n" +
-                "  </profile>\r\n" +
-                "</profiles>");
+                        "<profiles>\r\n" +
+                        "  <profile>\r\n" +
+                        "    <user>marcel_in_short</user>\r\n" +
+                        "    <password></password>\r\n" +
+                        "    <token>144dfDGGRIs5689ds64</token>\r\n" +
+                        "  </profile>\r\n" +
+                        "  <profile>\r\n" +
+                        "    <user>maurice_in_long</user>\r\n" +
+                        "    <password>AureliaJsForEver</password>\r\n" +
+                        "    <token>144dfDGGRIs5689ds64</token>\r\n" +
+                        "  </profile>\r\n" +
+                        "</profiles>");
     }
 
     @Test
     public void should_get_file_content_with_iterable_with_same_variable_name() throws Exception {
         String templateContent =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "{{user}}\n" +
-                "<profiles>\n" +
-                "{{#profiles}}\n" +
-                "  <profile>\n"+
-                "    <user>{{user}}</user>\n" +
-                "    <password>{{password}}</password>\n" +
-                "    <token>{{toto.token}}</token>\n" +
-                "  </profile>\n" +
-                "{{/profiles}}\n" +
-                "</profiles>";
+                        "{{user}}\n" +
+                        "<profiles>\n" +
+                        "{{#profiles}}\n" +
+                        "  <profile>\n" +
+                        "    <user>{{user}}</user>\n" +
+                        "    <password>{{password}}</password>\n" +
+                        "    <token>{{toto.token}}</token>\n" +
+                        "  </profile>\n" +
+                        "{{/profiles}}\n" +
+                        "</profiles>";
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("module_name", "module_version");
         TemplateData templateData = TemplateData.withTemplateName("template_from_module")
@@ -1452,18 +1449,18 @@ public class FilesTest {
 
         assertThat(content).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "bad_user\n" +
-                "<profiles>\n" +
-                "  <profile>\n" +
-                "    <user>marcel_in_short</user>\n" +
-                "    <password></password>\n" +
-                "    <token>144dfDGGRIs5689ds64</token>\n" +
-                "  </profile>\n" +
-                "  <profile>\n" +
-                "    <user>maurice_in_long</user>\n" +
-                "    <password>AureliaJsForEver</password>\n" +
-                "    <token>144dfDGGRIs5689ds64</token>\n" +
-                "  </profile>\n" +
-                "</profiles>");
+                        "bad_user\n" +
+                        "<profiles>\n" +
+                        "  <profile>\n" +
+                        "    <user>marcel_in_short</user>\n" +
+                        "    <password></password>\n" +
+                        "    <token>144dfDGGRIs5689ds64</token>\n" +
+                        "  </profile>\n" +
+                        "  <profile>\n" +
+                        "    <user>maurice_in_long</user>\n" +
+                        "    <password>AureliaJsForEver</password>\n" +
+                        "    <token>144dfDGGRIs5689ds64</token>\n" +
+                        "  </profile>\n" +
+                        "</profiles>");
     }
 }

@@ -29,8 +29,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TemplatePackageDeletedEvent {
 
-    private final String  packageName;
-    private final String  packageVersion;
+    private final String packageName;
+    private final String packageVersion;
     private final boolean workingCopy;
 
     @JsonCreator

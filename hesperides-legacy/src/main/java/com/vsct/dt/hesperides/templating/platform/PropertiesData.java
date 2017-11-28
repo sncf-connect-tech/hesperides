@@ -27,8 +27,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.applications.InstanceModel;
+import com.vsct.dt.hesperides.applications.MustacheScope;
 import com.vsct.dt.hesperides.applications.MustacheScope.InjectableMustacheScope;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import io.dropwizard.jackson.JsonSnakeCase;
@@ -65,23 +65,23 @@ public final class PropertiesData {
     }
 
     public MustacheScope toMustacheScope(Set<KeyValueValorisationData> instanceValorisations, Set<KeyValueValorisationData> platformValorisations, Boolean buildingFile) {
-        if(instanceValorisations == null){
+        if (instanceValorisations == null) {
             instanceValorisations = new HashSet<>();
         }
-        if(platformValorisations == null){
+        if (platformValorisations == null) {
             platformValorisations = new HashSet<>();
         }
 
         HashSet<ValorisationData> valorisations = new HashSet<>();
         valorisations.addAll(keyValueProperties);
         valorisations.addAll(iterableProperties);
-        if(platformValorisations != null){
+        if (platformValorisations != null) {
             /* addAll doesn't replace existing values, but we want to, so iterate */
-            for(KeyValueValorisationData v : platformValorisations){
+            for (KeyValueValorisationData v : platformValorisations) {
                 //Remove local valorisation if it exists (ie has the same name even if the value is different)
-                for(Iterator<ValorisationData> it = valorisations.iterator(); it.hasNext();){
+                for (Iterator<ValorisationData> it = valorisations.iterator(); it.hasNext(); ) {
                     ValorisationData existingValorisation = it.next();
-                    if(existingValorisation.getName().equals(v.getName())){
+                    if (existingValorisation.getName().equals(v.getName())) {
                         it.remove();
                     }
                 }

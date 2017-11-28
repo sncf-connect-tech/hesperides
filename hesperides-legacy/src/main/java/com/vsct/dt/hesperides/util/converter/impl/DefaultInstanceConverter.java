@@ -43,6 +43,7 @@ public final class DefaultInstanceConverter extends AbstractKeyConverter impleme
 
     /**
      * Convert Instance object to InstanceData
+     *
      * @param instance
      * @return
      */

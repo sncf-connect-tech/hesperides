@@ -25,14 +25,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.exception.runtime.ForbiddenOperationException;
 import com.vsct.dt.hesperides.indexation.ElasticSearchIndexationExecutor;
-import com.vsct.dt.hesperides.indexation.command.*;
+import com.vsct.dt.hesperides.indexation.command.IndexNewModuleCommandBulk;
+import com.vsct.dt.hesperides.indexation.command.IndexNewPlatformCommandBulk;
+import com.vsct.dt.hesperides.indexation.command.IndexNewTemplateCommandBulk;
 import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.PlatformMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
-
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
@@ -59,9 +60,9 @@ public class HesperidesFullIndexationResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesFullIndexationResource.class);
     private final ElasticSearchIndexationExecutor elasticSearchIndexationExecutor;
-    private final TemplatePackagesAggregate       templatePackages;
-    private final ModulesAggregate                modules;
-    private final ApplicationsAggregate           applications;
+    private final TemplatePackagesAggregate templatePackages;
+    private final ModulesAggregate modules;
+    private final ApplicationsAggregate applications;
 
     public HesperidesFullIndexationResource(ElasticSearchIndexationExecutor elasticSearchIndexationExecutor, ApplicationsAggregate applications, ModulesAggregate modules, TemplatePackagesAggregate templatePackages) {
         this.elasticSearchIndexationExecutor = elasticSearchIndexationExecutor;
@@ -75,6 +76,7 @@ public class HesperidesFullIndexationResource {
      * We will have problems if someone calls resetIndex many times
      * We assume no one wants to do that...
      * A nice way to do this would be to block application until indexation is finished
+     *
      * @throws FileNotFoundException
      */
     @Path("/perform_reindex")
@@ -96,6 +98,7 @@ public class HesperidesFullIndexationResource {
 
     /**
      * Internal call for reindexation
+     *
      * @param user
      * @throws IOException
      */

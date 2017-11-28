@@ -20,8 +20,8 @@
 package com.vsct.dt.hesperides.templating.modules.template;
 
 /**
-* Created by emeric_martineau on 15/01/2016.
-*/
+ * Created by emeric_martineau on 15/01/2016.
+ */
 public class TemplateKey {
     private String namespace;
     private String name;

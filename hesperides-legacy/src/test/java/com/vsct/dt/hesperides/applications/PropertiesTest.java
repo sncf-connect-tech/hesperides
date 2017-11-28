@@ -34,11 +34,10 @@ import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
 import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,9 +48,6 @@ import java.util.stream.Collectors;
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
 import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Created by william_montaz on 16/01/2015.
@@ -62,7 +58,7 @@ public class PropertiesTest {
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
     @Before
-    public void setup(){
+    public void setup() {
     }
 
     @Test
@@ -293,7 +289,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void shouldConstructMustacheScopeWithKeyValueValorisationsCallingEachOther(){
+    public void shouldConstructMustacheScopeWithKeyValueValorisationsCallingEachOther() {
 
         /* Create the KeyValueProperties */
         KeyValueValorisationData kvp1 = new KeyValueValorisationData("kvp1", "something {{kvp2}} {{kvp3}}");
@@ -315,7 +311,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void shouldConstructMustacheScopeWithKeyValueValorisationsCallingEachOtherWithCircularReferences(){
+    public void shouldConstructMustacheScopeWithKeyValueValorisationsCallingEachOtherWithCircularReferences() {
 
         /* Create the KeyValueProperties */
         KeyValueValorisationData kvp1 = new KeyValueValorisationData("kvp1", "something {{kvp2}}");
@@ -335,7 +331,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void shouldConstructMustacheScopeWithInjectionFromPlatformPropertiesInKeyValueValorisations(){
+    public void shouldConstructMustacheScopeWithInjectionFromPlatformPropertiesInKeyValueValorisations() {
 
         /* Create 3 valorisations, one not touche (kvp2), one totally replaced because it has the same name (platform_prop), one just partially replaced (kvp3) */
         KeyValueValorisationData kvp1 = new KeyValueValorisationData("platform_prop", "");
@@ -359,7 +355,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void shouldConstructMustacheScopeInjectingKeyValueValorisationsInIterableValorisations(){
+    public void shouldConstructMustacheScopeInjectingKeyValueValorisationsInIterableValorisations() {
 
         /* Create the KeyValueProperties */
         KeyValueValorisationData kvp1 = new KeyValueValorisationData("kvp1", "{{replacement}}");
@@ -400,7 +396,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void shouldConstructMustacheScopeWithInjectionFromPlatformPropertiesInIterableValorisations(){
+    public void shouldConstructMustacheScopeWithInjectionFromPlatformPropertiesInIterableValorisations() {
 
         IterableValorisationData.IterableValorisationItemData item1 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties", Sets.newHashSet(new KeyValueValorisationData("field1", "hello {{platform_prop}}"), new KeyValueValorisationData("field2", "bye bye {{platform_prop}}")));
         IterableValorisationData.IterableValorisationItemData item2 = new IterableValorisationData.IterableValorisationItemData("blockOfProperties2", Sets.newHashSet(new KeyValueValorisationData("field1", "hello {{platform_prop}}"), new KeyValueValorisationData("field2", "bye bye {{platform_prop}}")));
@@ -423,7 +419,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void shouldConstructMustacheScopeWithGlobalValorisationsCallingEachOther(){
+    public void shouldConstructMustacheScopeWithGlobalValorisationsCallingEachOther() {
         KeyValueValorisationData kvp1 = new KeyValueValorisationData("some_prop", "{{platform_prop}}");
         PropertiesData moduleValorisations = new PropertiesData(Sets.newHashSet(kvp1), Sets.newHashSet());
 
@@ -445,7 +441,7 @@ public class PropertiesTest {
     //Only test simple properties for now
 
     @Test
-    public void get_instance_model_should_return_empty_model_if_there_is_no_property_needed(){
+    public void get_instance_model_should_return_empty_model_if_there_is_no_property_needed() {
         //Create the properties
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
 
@@ -473,7 +469,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void get_instance_model_should_return_model_containing_keys_having_different_names_than_properties(){
+    public void get_instance_model_should_return_model_containing_keys_having_different_names_than_properties() {
         //Create the properties
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
 
@@ -510,7 +506,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void get_instance_model_should_return_model_with_less_keys_if_one_already_belongs_to_properties(){
+    public void get_instance_model_should_return_model_with_less_keys_if_one_already_belongs_to_properties() {
         //Create the properties
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
 
@@ -543,7 +539,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void get_instance_model_should_ignore_whitespaces_on_properties_names(){
+    public void get_instance_model_should_ignore_whitespaces_on_properties_names() {
         // The valuations, simple
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
 
@@ -574,7 +570,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void get_instance_model_should_return_model_with_keys_refering_to_themselves(){
+    public void get_instance_model_should_return_model_with_keys_refering_to_themselves() {
         //Create the properties
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
 
@@ -635,7 +631,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void get_instance_model_should_not_produce_instance_properties_when_global_properties_already_exists_ignoring_whitespaces(){
+    public void get_instance_model_should_not_produce_instance_properties_when_global_properties_already_exists_ignoring_whitespaces() {
         // Valuations, simple
         Set<KeyValueValorisationData> kvp = Sets.newHashSet();
 
@@ -674,7 +670,7 @@ public class PropertiesTest {
     }
 
     @Test
-    public void should_make_a_copy_of_properties_without_empty_values (){
+    public void should_make_a_copy_of_properties_without_empty_values() {
         // Valuations, simple
         Set<KeyValueValorisation> kvp = Sets.newHashSet();
 

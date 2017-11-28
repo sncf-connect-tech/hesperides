@@ -31,13 +31,13 @@ public class EventStoreHealthCheck extends HealthCheck {
 
     private final EventStore store;
 
-    public EventStoreHealthCheck(EventStore store){
+    public EventStoreHealthCheck(EventStore store) {
         this.store = store;
     }
 
     @Override
     protected Result check() throws Exception {
-        if(store.isConnected()){
+        if (store.isConnected()) {
             return Result.healthy();
         } else {
             return Result.unhealthy("Cannot connect to event store.");

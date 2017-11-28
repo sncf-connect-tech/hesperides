@@ -80,7 +80,7 @@ public class TemplateSearch {
         return esResponse.streamOfData().collect(Collectors.toSet());
     }
 
-    public Set<TemplateSearchResponse> getTemplatesByExactNamespace(final String namespace){
+    public Set<TemplateSearchResponse> getTemplatesByExactNamespace(final String namespace) {
         String url = "/templates/_search";
 
         String body = TemplateContentGenerator.from(mustacheSearchByExactNamespace)

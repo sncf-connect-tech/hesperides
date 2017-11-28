@@ -27,13 +27,11 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import com.github.mustachejava.util.DecoratedCollection;
 import com.vsct.dt.hesperides.indexation.ElasticSearchClient;
 import com.vsct.dt.hesperides.indexation.model.ElasticSearchResponse;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
 import io.dropwizard.jackson.Jackson;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,7 +62,6 @@ public class ModuleSearch {
      *
      * @param name
      * @param version
-     *
      * @return list of module
      */
     public List<ModuleSearchResponse> getModulesByNameAndVersionLike(final String name, final String version) {
@@ -85,10 +82,9 @@ public class ModuleSearch {
     /**
      * Get module by name and version.
      *
-     * @param name module name
-     * @param version version
+     * @param name        module name
+     * @param version     version
      * @param workingcopy if is working copy
-     *
      * @return list of module
      */
     public List<ModuleSearchResponse> getModulesByNameAndVersion(final String name, final String version, final String workingcopy) {
@@ -109,9 +105,8 @@ public class ModuleSearch {
     /**
      * Get module by name and version.
      *
-     * @param name module name
+     * @param name    module name
      * @param version version
-     *
      * @return list of module
      */
     public List<ModuleSearchResponse> getModulesByNameAndVersion(final String name, final String version) {
@@ -132,7 +127,6 @@ public class ModuleSearch {
      * Return list of module by name.
      *
      * @param name search name
-     *
      * @return list of module
      */
     public List<ModuleSearchResponse> getModulesByName(final String name) {

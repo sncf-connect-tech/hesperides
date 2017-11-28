@@ -32,7 +32,7 @@ public class User implements Principal {
      */
     public static final User UNTRACKED = new User("untracked", false, true);
 
-    private final String  username;
+    private final String username;
     private final boolean prodUser;
     private final boolean techUser;
 

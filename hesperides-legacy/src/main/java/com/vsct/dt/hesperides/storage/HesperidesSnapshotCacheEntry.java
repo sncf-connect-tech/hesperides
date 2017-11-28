@@ -19,7 +19,10 @@
 
 package com.vsct.dt.hesperides.storage;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Created by emeric_martineau on 20/04/2016.
@@ -34,7 +37,7 @@ public class HesperidesSnapshotCacheEntry {
 
     @JsonCreator
     public HesperidesSnapshotCacheEntry(@JsonProperty("cacheType") final String cacheType,
-                 @JsonProperty("data") final String data, @JsonProperty("nbEvents") final long nbEvents) {
+                                        @JsonProperty("data") final String data, @JsonProperty("nbEvents") final long nbEvents) {
         this.cacheType = cacheType;
         this.data = data;
         this.nbEvents = nbEvents;

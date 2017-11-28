@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by emeric_martineau on 16/05/2017.
- *
+ * <p>
  * All data is requiered
  */
 public class LdapPoolConfiguration {

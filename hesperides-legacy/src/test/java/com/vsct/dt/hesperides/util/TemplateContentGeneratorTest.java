@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TemplateContentGeneratorTest {
 
     @Test
-    public void should_generate_mustache_template_with_provided_context(){
+    public void should_generate_mustache_template_with_provided_context() {
         MustacheFactory factory = new DefaultMustacheFactory();
         Mustache mustache = factory.compile("template.mustache");
         Map<String, String> context = new HashMap<>();

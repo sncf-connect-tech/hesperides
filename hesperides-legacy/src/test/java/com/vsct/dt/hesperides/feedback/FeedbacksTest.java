@@ -63,7 +63,7 @@ public class FeedbacksTest {
     }
 
     @Test
-    public void should_test_url_building (){
+    public void should_test_url_building() {
         String url = feedbacksAggregate.getHipchatUrl();
 
         assertThat(url).isNotEmpty();
@@ -72,7 +72,7 @@ public class FeedbacksTest {
     }
 
     @Test
-    public void should_test_PathImageName_building (){
+    public void should_test_PathImageName_building() {
         String serverPathImageName = feedbacksAggregate.getServerPathImageName(applicationPath, imageName);
 
         assertThat(serverPathImageName).isNotEmpty();
@@ -80,7 +80,7 @@ public class FeedbacksTest {
     }
 
     @Test
-    public void should_test_HipchatMessageBody_building (){
+    public void should_test_HipchatMessageBody_building() {
         FeedbackJson feedbackJson = mock(FeedbackJson.class);
         FeedbackObject feedbackObject = mock(FeedbackObject.class);
         User user = mock(User.class);

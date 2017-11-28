@@ -24,7 +24,7 @@ import java.util.Optional;
 
 /**
  * Module registry interface.
- *
+ * <p>
  * Created by emeric_martineau on 15/01/2016.
  */
 public interface ModuleRegistryInterface {

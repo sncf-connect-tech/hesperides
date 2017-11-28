@@ -36,7 +36,7 @@ public class Models {
 
     public HesperidesPropertiesModel getPropertiesModel(final String namespace) {
         return templateRegistry.getAllTemplatesForNamespace(namespace).stream().map(template ->
-            template.generatePropertiesModel()
+                template.generatePropertiesModel()
         ).reduce(HesperidesPropertiesModel.empty(), (a, b) -> a.merge(b));
     }
 

@@ -45,13 +45,21 @@ public class FeedbackObject {
         this.note = note;
     }
 
-    public String getUrl() { return url; }
+    public String getUrl() {
+        return url;
+    }
 
-    public String getTimestamp() { return timestamp; }
+    public String getTimestamp() {
+        return timestamp;
+    }
 
-    public String getImg() { return img; }
+    public String getImg() {
+        return img;
+    }
 
-    public String getNote() { return note; }
+    public String getNote() {
+        return note;
+    }
 
     @Override
     public int hashCode() {

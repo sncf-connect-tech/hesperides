@@ -52,7 +52,7 @@ public final class UpdateIndexedModuleCommand implements ElasticSearchIndexation
         try {
             templateAsJson = ElasticSearchMappers.ES_DOC_MODULE_WRITER.writeValueAsString(DocWrapper.of(module));
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Could not serialize module "+module);
+            LOGGER.error("Could not serialize module " + module);
             throw new RuntimeException(e);
         }
 

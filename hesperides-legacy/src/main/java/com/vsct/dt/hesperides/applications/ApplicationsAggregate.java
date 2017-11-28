@@ -19,21 +19,17 @@
 
 package com.vsct.dt.hesperides.applications;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.properties.PropertiesRegistryInterface;
-import com.vsct.dt.hesperides.security.UserContext;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.UserProvider;
-import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.platform.PropertiesData;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Created by william_montaz on 10/12/2014.

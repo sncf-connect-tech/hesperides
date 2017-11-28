@@ -110,7 +110,7 @@ public final class ModuleIndexation extends Data {
         return Objects.hash(name, version, workingCopy);
     }
 
-    public String getNamespace(){
+    public String getNamespace() {
         return ModuleIndexation.getNamespace(this.name, this.version, this.workingCopy);
     }
 

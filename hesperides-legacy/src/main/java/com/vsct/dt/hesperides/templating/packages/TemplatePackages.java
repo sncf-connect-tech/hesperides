@@ -21,9 +21,9 @@
 
 package com.vsct.dt.hesperides.templating.packages;
 
+import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
-import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 
 import java.util.Collection;
 import java.util.Optional;

@@ -18,7 +18,7 @@
  *
  *
  */
- 
+
 package com.vsct.dt.hesperides.templating.modules.template;
 
 import com.google.common.base.Strings;
@@ -40,7 +40,8 @@ public class TemplateData {
     private long versionID = 1L; //Default value is the first versionID given to an object
     private TemplateRights rights;
 
-    private TemplateData(){}
+    private TemplateData() {
+    }
 
     public String getName() {
         return name;
@@ -116,6 +117,7 @@ public class TemplateData {
 
     public static interface IBuild {
         public IBuild withVersionID(long versionID);
+
         public TemplateData build();
     }
 

@@ -46,7 +46,6 @@ import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
-import org.assertj.core.api.Assertions;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -66,7 +65,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 /**

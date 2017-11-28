@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Created by william_montaz on 23/04/2015.
  */
 public class PlatformSnapshotEvent {
-    private final long   timestamp;
+    private final long timestamp;
     private final String applicationName;
     private final String platformName;
 

@@ -40,7 +40,7 @@ public abstract class DomainVersionable {
     @JsonProperty("version_id")
     public long versionID; //initial default value
 
-    protected DomainVersionable(){
+    protected DomainVersionable() {
         //Jackson
     }
 

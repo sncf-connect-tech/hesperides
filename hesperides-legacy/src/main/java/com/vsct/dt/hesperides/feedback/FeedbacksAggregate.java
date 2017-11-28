@@ -67,12 +67,13 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
     /**
      * The constructor of the aggregator
+     *
      * @param feedbackConfiguration
      * @param assetsConfiguration
      */
     public FeedbacksAggregate(final FeedbackConfiguration feedbackConfiguration,
-                               final AssetsConfiguration assetsConfiguration,
-                               final ProxyConfiguration proxyConfiguration) {
+                              final AssetsConfiguration assetsConfiguration,
+                              final ProxyConfiguration proxyConfiguration) {
         super();
         this.feedbackConfiguration = feedbackConfiguration;
         this.assetsConfiguration = assetsConfiguration;
@@ -132,7 +133,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
             if (postResponse.getStatusLine().getStatusCode() != 204) {
                 throw new RuntimeException("Failed : HTTP error code : "
-                    + postResponse.getStatusLine().getStatusCode());
+                        + postResponse.getStatusLine().getStatusCode());
             }
 
         } catch (IOException e) {
@@ -142,44 +143,44 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
     public String getHipchatUrl() {
         return new StringBuilder("https://")
-            .append(feedbackConfiguration.getHipchatSubdomain())
-            .append(".hipchat.com/v2/room/")
-            .append(feedbackConfiguration.getHipchatId())
-            .append("/notification?auth_token=")
-            .append(feedbackConfiguration.getHipchatToken())
-            .toString();
+                .append(feedbackConfiguration.getHipchatSubdomain())
+                .append(".hipchat.com/v2/room/")
+                .append(feedbackConfiguration.getHipchatId())
+                .append("/notification?auth_token=")
+                .append(feedbackConfiguration.getHipchatToken())
+                .toString();
     }
 
     public String getServerPathImageName(String applicationPath, String imageName) {
 
         return new StringBuilder()
-            .append(applicationPath)
-            .append("/")
-            .append(feedbackConfiguration.getImagePathStorage())
-            .append("/")
-            .append(imageName)
-            .toString();
+                .append(applicationPath)
+                .append("/")
+                .append(feedbackConfiguration.getImagePathStorage())
+                .append("/")
+                .append(imageName)
+                .toString();
     }
 
     public String getHipchatMessageBody(FeedbackJson template, String imageName, User user) {
         StringBuilder urlDownloadImage = new StringBuilder()
-            .append(template.getFeedback().getUrl().split("/")[0])
-            .append("/")
-            .append("/")
-            .append(template.getFeedback().getUrl().split("/")[2])
-            .append("/")
-            .append(feedbackConfiguration.getImagePathStorage())
-            .append("/")
-            .append(imageName);
+                .append(template.getFeedback().getUrl().split("/")[0])
+                .append("/")
+                .append("/")
+                .append(template.getFeedback().getUrl().split("/")[2])
+                .append("/")
+                .append(feedbackConfiguration.getImagePathStorage())
+                .append("/")
+                .append(imageName);
 
-        LOGGER.debug("Download URL : "+urlDownloadImage.toString());
+        LOGGER.debug("Download URL : " + urlDownloadImage.toString());
 
         StringBuilder hipchatMessage = new StringBuilder()
-            .append("<p>When access to <a href='")
-            .append(template.getFeedback().getUrl())
-            .append("'>")
-            .append(template.getFeedback().getUrl())
-            .append("</a></p>");
+                .append("<p>When access to <a href='")
+                .append(template.getFeedback().getUrl())
+                .append("'>")
+                .append(template.getFeedback().getUrl())
+                .append("</a></p>");
 
         // Encapsulate each line ended by \n with <p><\p>
         List<String> wordList = Arrays.asList(template.getFeedback().getNote().split("\n"));
@@ -187,27 +188,27 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         while (itWordList.hasNext()) {
             hipchatMessage.append("<p>")
-                .append(StringEscapeUtils.escapeHtml4(itWordList.next().toString()))
-                .append(("</p>"));
+                    .append(StringEscapeUtils.escapeHtml4(itWordList.next().toString()))
+                    .append(("</p>"));
         }
 
         hipchatMessage.append("<a href='")
-            .append(urlDownloadImage)
-            .append("'>Download screenshot</a>");
+                .append(urlDownloadImage)
+                .append("'>Download screenshot</a>");
 
         return new StringBuilder()
-            .append("{\"from\": \"")
-            .append(user.getUsername())
-            .append("\",\"color\": \"")
-            .append("green")
-            .append("\",\"message\": \"")
-            .append(hipchatMessage.toString())
-            .append("\",\"notify\": \"")
-            .append("true")
-            .append("\",\"message_format\": \"")
-            .append("html")
-            .append("\"}")
-            .toString();
+                .append("{\"from\": \"")
+                .append(user.getUsername())
+                .append("\",\"color\": \"")
+                .append("green")
+                .append("\",\"message\": \"")
+                .append(hipchatMessage.toString())
+                .append("\",\"notify\": \"")
+                .append("true")
+                .append("\",\"message_format\": \"")
+                .append("html")
+                .append("\"}")
+                .toString();
     }
 
     private void writeImage(String pathImageName, String imageString) {
@@ -223,14 +224,14 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
             bufferedImage = ImageIO.read(bis);
             bis.close();
 
-            File imageDirectory = new File(pathImageName).getParentFile() ;
+            File imageDirectory = new File(pathImageName).getParentFile();
             if (!imageDirectory.exists()) {
                 imageDirectory.mkdirs();
             }
 
             // write the image to a file
             FileOutputStream outputfile =
-                new FileOutputStream(pathImageName, false);
+                    new FileOutputStream(pathImageName, false);
             ImageIO.write(bufferedImage, "png", outputfile);
 
             outputfile.close();
@@ -247,7 +248,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
         try {
 
             SSLContext sslContext = new SSLContextBuilder()
-                .loadTrustMaterial(null, (certificate, authType) -> true).build();
+                    .loadTrustMaterial(null, (certificate, authType) -> true).build();
 
             if (!this.proxyConfiguration.getProxyUrl().isEmpty()) {
                 String proxyUrl = this.proxyConfiguration.getProxyUrl().split(":")[0];
@@ -255,7 +256,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
                 HttpHost proxy = new HttpHost(proxyUrl, proxyPort);
 
-                LOGGER.debug("Access with proxy : "+proxyUrl+":"+proxyPort);
+                LOGGER.debug("Access with proxy : " + proxyUrl + ":" + proxyPort);
                 httpClient = HttpClients.custom()
                         .setSSLContext(sslContext)
                         .setSSLHostnameVerifier(new NoopHostnameVerifier())
@@ -270,11 +271,11 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
             }
 
         } catch (KeyManagementException e) {
-            throw new RuntimeException("KeyManagementException :"+e.toString());
+            throw new RuntimeException("KeyManagementException :" + e.toString());
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("NoSuchAlgorithmException :"+e.toString());
+            throw new RuntimeException("NoSuchAlgorithmException :" + e.toString());
         } catch (KeyStoreException e) {
-            throw new RuntimeException("KeyStoreException :"+e.toString());
+            throw new RuntimeException("KeyStoreException :" + e.toString());
         }
         return httpClient;
     }
@@ -286,7 +287,7 @@ public class FeedbacksAggregate extends FeedbackManagerAggregate implements Feed
 
         try {
             bufferedReader = new BufferedReader(
-                new InputStreamReader((httpEntity.getContent()) , "UTF-8"));
+                    new InputStreamReader((httpEntity.getContent()), "UTF-8"));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 content.append(line);

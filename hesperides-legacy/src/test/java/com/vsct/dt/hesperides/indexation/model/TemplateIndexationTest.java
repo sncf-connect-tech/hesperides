@@ -24,10 +24,9 @@ package com.vsct.dt.hesperides.indexation.model;
 import com.cedarsoftware.util.DeepEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 

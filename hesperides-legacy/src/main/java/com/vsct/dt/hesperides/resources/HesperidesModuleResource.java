@@ -27,13 +27,13 @@ import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
-import com.vsct.dt.hesperides.templating.modules.template.Template;
-import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;
+import com.vsct.dt.hesperides.templating.modules.template.Template;
+import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.Release;
 import com.vsct.dt.hesperides.util.WorkingCopy;
@@ -48,7 +48,6 @@ import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +65,7 @@ import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 public class HesperidesModuleResource extends BaseResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesModuleResource.class);
 
-    private final Modules      modules;
+    private final Modules modules;
     private final ModuleSearch moduleSearch;
 
     public HesperidesModuleResource(final Modules modules, final ModuleSearch moduleSearch) {
@@ -206,7 +205,7 @@ public class HesperidesModuleResource extends BaseResource {
 
         final List<ModuleSearchResponse> result = moduleSearch.getModulesByNameAndVersion(moduleName, moduleVersion, moduleWorkingcopy);
 
-        return result.size() > 0 ? Response.ok(result.get(0)).build(): Response.status(404).build();
+        return result.size() > 0 ? Response.ok(result.get(0)).build() : Response.status(404).build();
     }
 
     @Path("/{module_name}/{module_version}/workingcopy/templates")
@@ -214,8 +213,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get all templates bundled in a module of a version workingcopy")
     public List<TemplateListItem> getAllTemplatesInWorkingCopy(@Auth final User user,
-                                                                 @PathParam("module_name") final String moduleName,
-                                                                 @PathParam("module_version") final String moduleVersion) {
+                                                               @PathParam("module_name") final String moduleName,
+                                                               @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -245,8 +244,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Deletes the release")
     public Response deleteRelease(@Auth final User user,
-                                      @PathParam("module_name") final String moduleName,
-                                      @PathParam("module_version") final String moduleVersion) {
+                                  @PathParam("module_name") final String moduleName,
+                                  @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -260,8 +259,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get all templates bundled in a module of a version release")
     public List<TemplateListItem> getAllTemplatesInRelease(@Auth final User user,
-                                                             @PathParam("module_name") final String moduleName,
-                                                             @PathParam("module_version") final String moduleVersion) {
+                                                           @PathParam("module_name") final String moduleName,
+                                                           @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -276,9 +275,9 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get template bundled in a module for a version workingcopy")
     public Template getTemplateInWorkingCopy(@Auth final User user,
-                                               @PathParam("module_name") final String moduleName,
-                                               @PathParam("module_version") final String moduleVersion,
-                                               @PathParam("template_name") final String templateName) {
+                                             @PathParam("module_name") final String moduleName,
+                                             @PathParam("module_version") final String moduleVersion,
+                                             @PathParam("template_name") final String templateName) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
         checkQueryParameterNotEmpty("template_name", templateName);
@@ -292,9 +291,9 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get template bundled in a module for a version release")
     public Template getTemplateInRelease(@Auth final User user,
-                                           @PathParam("module_name") final String moduleName,
-                                           @PathParam("module_version") final String moduleVersion,
-                                           @PathParam("template_name") final String templateName) {
+                                         @PathParam("module_name") final String moduleName,
+                                         @PathParam("module_version") final String moduleVersion,
+                                         @PathParam("template_name") final String templateName) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
         checkQueryParameterNotEmpty("template_name", templateName);
@@ -308,8 +307,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get properties model for a release")
     public HesperidesPropertiesModel getReleaseModel(@Auth final User user,
-                                    @PathParam("module_name") final String moduleName,
-                                    @PathParam("module_version") final String moduleVersion) {
+                                                     @PathParam("module_name") final String moduleName,
+                                                     @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -323,8 +322,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get properties model for a workingcopy")
     public HesperidesPropertiesModel getWorkingCopyModel(@Auth final User user,
-                                        @PathParam("module_name") final String moduleName,
-                                        @PathParam("module_version") final String moduleVersion) {
+                                                         @PathParam("module_name") final String moduleName,
+                                                         @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -338,9 +337,9 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Update template in the workingcopy of a module")
     public Template updateTemplateInWorkingCopy(@Auth final User user,
-                                                  @PathParam("module_name") final String moduleName,
-                                                  @PathParam("module_version") final String moduleVersion,
-                                                  @Valid final Template template) {
+                                                @PathParam("module_name") final String moduleName,
+                                                @PathParam("module_version") final String moduleVersion,
+                                                @Valid final Template template) {
 
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
@@ -457,8 +456,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get a module workingcopy")
     public Module getWorkingCopy(@Auth final User user,
-                                   @PathParam("module_name") final String moduleName,
-                                   @PathParam("module_version") final String moduleVersion) {
+                                 @PathParam("module_name") final String moduleName,
+                                 @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -471,8 +470,8 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Get a module release")
     public Module getRelease(@Auth final User user,
-                               @PathParam("module_name") final String moduleName,
-                               @PathParam("module_version") final String moduleVersion) {
+                             @PathParam("module_name") final String moduleName,
+                             @PathParam("module_version") final String moduleVersion) {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
@@ -485,14 +484,14 @@ public class HesperidesModuleResource extends BaseResource {
     @Timed
     @ApiOperation("Create a release from an existing workingcopy")
     public Module createRelease(@Auth final User user,
-                                  @QueryParam("module_name") final String moduleName,
-                                  @QueryParam("module_version") final String moduleVersion,
-                                  @QueryParam("release_version") String releaseVersion) {
+                                @QueryParam("module_name") final String moduleName,
+                                @QueryParam("module_version") final String moduleVersion,
+                                @QueryParam("release_version") String releaseVersion) {
 
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
-        if(releaseVersion == null || isNonDisplayedChar(releaseVersion)){
+        if (releaseVersion == null || isNonDisplayedChar(releaseVersion)) {
             releaseVersion = moduleVersion;
         }
 

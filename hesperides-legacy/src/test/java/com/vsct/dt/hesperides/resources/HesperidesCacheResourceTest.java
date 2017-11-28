@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
 import com.vsct.dt.hesperides.exception.wrapper.ForbiddenOperationExceptionMapper;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
@@ -33,10 +32,7 @@ import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAg
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
-import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
-import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -51,7 +47,6 @@ import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

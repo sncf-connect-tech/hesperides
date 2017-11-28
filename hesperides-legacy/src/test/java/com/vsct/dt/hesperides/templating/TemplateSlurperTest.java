@@ -23,12 +23,13 @@ package com.vsct.dt.hesperides.templating;
 
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
-import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
+import com.vsct.dt.hesperides.templating.models.Property;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateSlurper;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.Set;
@@ -36,8 +37,6 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-
-import tests.type.UnitTests;
 
 /**
  * Created by william_montaz on 10/07/14.

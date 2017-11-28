@@ -26,9 +26,9 @@ import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
 import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;
-import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackages;
@@ -59,7 +59,7 @@ public class HesperidesTemplateResource extends BaseResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesTemplateResource.class);
 
     private final TemplatePackages templatePackages;
-    private final TemplateSearch   templateSearch;
+    private final TemplateSearch templateSearch;
 
     public HesperidesTemplateResource(final TemplatePackages templatePackages, final TemplateSearch templateSearch) {
         this.templatePackages = templatePackages;
@@ -130,8 +130,8 @@ public class HesperidesTemplateResource extends BaseResource {
     @Timed
     @ApiOperation("Delete a template package release")
     public Response deleteRelease(@Auth final User user,
-                                      @PathParam("package_name") final String packageName,
-                                      @PathParam("package_version") final String packageVersion) {
+                                  @PathParam("package_name") final String packageName,
+                                  @PathParam("package_version") final String packageVersion) {
         checkQueryParameterNotEmpty("package_name", packageName);
         checkQueryParameterNotEmpty("package_version", packageVersion);
 
@@ -197,8 +197,7 @@ public class HesperidesTemplateResource extends BaseResource {
                     int compareName = technoA.getName().compareTo(technoB.getName());
                     if (compareName != 0) {
                         return compareName;
-                    }
-                    else {
+                    } else {
                         return technoA.getVersion().getVersionName().compareTo(technoB.getVersion().getVersionName());
                     }
                 }).collect(Collectors.toList());
@@ -209,9 +208,9 @@ public class HesperidesTemplateResource extends BaseResource {
     @Timed
     @ApiOperation("Get template bundled in a package for a version workingcopy")
     public Template getTemplateInWorkingCopy(@Auth final User user,
-                                               @PathParam("package_name") final String packageName,
-                                               @PathParam("package_version") final String packageVersion,
-                                               @PathParam("template_name") final String templateName) {
+                                             @PathParam("package_name") final String packageName,
+                                             @PathParam("package_version") final String packageVersion,
+                                             @PathParam("template_name") final String templateName) {
         checkQueryParameterNotEmpty("package_name", packageName);
         checkQueryParameterNotEmpty("package_version", packageVersion);
         checkQueryParameterNotEmpty("template_name", templateName);
@@ -231,9 +230,9 @@ public class HesperidesTemplateResource extends BaseResource {
     @Timed
     @ApiOperation("Get template bundled in a package for a version release")
     public Template getTemplateInRelease(@Auth final User user,
-                                           @PathParam("package_name") final String packageName,
-                                           @PathParam("package_version") final String packageVersion,
-                                           @PathParam("template_name") final String templateName) {
+                                         @PathParam("package_name") final String packageName,
+                                         @PathParam("package_version") final String packageVersion,
+                                         @PathParam("template_name") final String templateName) {
         checkQueryParameterNotEmpty("package_name", packageName);
         checkQueryParameterNotEmpty("package_version", packageVersion);
         checkQueryParameterNotEmpty("template_name", templateName);
@@ -253,9 +252,9 @@ public class HesperidesTemplateResource extends BaseResource {
     @Timed
     @ApiOperation("Update template in the workingcopy of a package")
     public Template updateTemplateInWorkingCopy(@Auth final User user,
-                                                  @PathParam("package_name") final String packageName,
-                                                  @PathParam("package_version") final String packageVersion,
-                                                  final Template template) {
+                                                @PathParam("package_name") final String packageName,
+                                                @PathParam("package_version") final String packageVersion,
+                                                final Template template) {
         checkQueryParameterNotEmpty("package_name", packageName);
         checkQueryParameterNotEmpty("package_version", packageVersion);
 

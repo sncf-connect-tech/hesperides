@@ -29,7 +29,6 @@ public class CheckArgument {
      * Check if char is lower space.
      *
      * @param str string
-     *
      * @return true/false
      */
     public static boolean isNonDisplayedChar(String str) {

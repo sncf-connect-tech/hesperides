@@ -30,8 +30,8 @@ import com.vsct.dt.hesperides.templating.modules.template.Template;
  */
 public final class ModuleTemplateUpdatedEvent {
     private final Template updated;
-    private final String   moduleName;
-    private final String   moduleVersion;
+    private final String moduleName;
+    private final String moduleVersion;
 
     @JsonCreator
     public ModuleTemplateUpdatedEvent(@JsonProperty("moduleName") final String moduleName,

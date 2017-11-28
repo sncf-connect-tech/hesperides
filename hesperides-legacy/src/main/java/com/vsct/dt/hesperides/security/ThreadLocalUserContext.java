@@ -40,7 +40,7 @@ public class ThreadLocalUserContext implements UserProvider, UserContext {
     /**
      * ThreadLocal holding user
      */
-    private ThreadLocal<User>            userThreadLocal = new ThreadLocal<>();
+    private ThreadLocal<User> userThreadLocal = new ThreadLocal<>();
 
     public ThreadLocalUserContext(JerseyEnvironment jersey) {
 //        jersey.getResourceConfig().getContainerResponseFilters().add(new CleanUserContextHolderFilter());
@@ -50,8 +50,7 @@ public class ThreadLocalUserContext implements UserProvider, UserContext {
         User user = userThreadLocal.get();
         if (user == null) {
             return User.UNTRACKED;
-        }
-        else {
+        } else {
             return user;
         }
     }

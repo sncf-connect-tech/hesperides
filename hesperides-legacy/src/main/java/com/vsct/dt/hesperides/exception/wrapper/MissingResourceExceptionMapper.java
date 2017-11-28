@@ -27,8 +27,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
-* Created by william_montaz on 09/01/2015.
-*/
+ * Created by william_montaz on 09/01/2015.
+ */
 public final class MissingResourceExceptionMapper extends BaseExceptionMapper implements ExceptionMapper<MissingResourceException> {
 
     @Override

@@ -31,13 +31,12 @@ import org.apache.http.client.HttpClient;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.Mockito.*;
-
-import tests.type.UnitTests;
 
 /**
  * Created by william_montaz on 04/11/2014.

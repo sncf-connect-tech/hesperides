@@ -22,7 +22,6 @@
 package com.vsct.dt.hesperides.events;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.eventbus.EventBus;
 import com.vsct.dt.hesperides.applications.PropertiesSavedEvent;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
@@ -33,10 +32,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import tests.type.UnitTests;
 
 /**
  * Created by tidiane_sidibe on 19/04/2016.
@@ -49,7 +47,7 @@ public class EventsAggregateTest {
     private EventsAggregate events = null;
 
 
-    public void loadEvents (final String streamName){
+    public void loadEvents(final String streamName) {
         final PropertiesData propertiesData = new PropertiesData(ImmutableSet.of(), ImmutableSet.of());
 
         final PropertiesSavedEvent propertiesSavedEvent = new PropertiesSavedEvent("KTN", "USN1",
@@ -57,8 +55,9 @@ public class EventsAggregateTest {
 
         final int SIZE = 300;
 
-        for (int i = 0; i < SIZE - 1; i ++) {
-            eventStore.store(streamName, propertiesSavedEvent, UserInfo.UNTRACKED, () -> {});
+        for (int i = 0; i < SIZE - 1; i++) {
+            eventStore.store(streamName, propertiesSavedEvent, UserInfo.UNTRACKED, () -> {
+            });
         }
     }
 
@@ -73,17 +72,17 @@ public class EventsAggregateTest {
     }
 
     @Test
-    public void shouldGetFirstPageOfEvents (){
+    public void shouldGetFirstPageOfEvents() {
         assertThat(events.getEventsList("test-stream", 1, 25).size()).isEqualTo(25);
     }
 
     @Test
-    public void shouldGetAPageOfEvents (){
+    public void shouldGetAPageOfEvents() {
         assertThat(events.getEventsList("test-stream", 3, 25).size()).isEqualTo(25);
     }
 
     @After
-    public void cleanUp(){
+    public void cleanUp() {
         events = null;
     }
 }

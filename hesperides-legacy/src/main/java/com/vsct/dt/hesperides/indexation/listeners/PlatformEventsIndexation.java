@@ -22,10 +22,8 @@
 package com.vsct.dt.hesperides.indexation.listeners;
 
 import com.google.common.eventbus.Subscribe;
-
 import com.vsct.dt.hesperides.applications.*;
 import com.vsct.dt.hesperides.applications.event.PlatformEventBuilderInterface;
-
 import com.vsct.dt.hesperides.indexation.ElasticSearchIndexationExecutor;
 import com.vsct.dt.hesperides.indexation.command.DeletePlatformCommand;
 import com.vsct.dt.hesperides.indexation.command.IndexNewPlatformCommand;
@@ -84,7 +82,7 @@ public class PlatformEventsIndexation implements PlatformEventBuilderInterface {
 
     @Subscribe
     @Override
-    public void replayPlateformeDeletedEvent(final PlatformDeletedEvent event){
+    public void replayPlateformeDeletedEvent(final PlatformDeletedEvent event) {
         this.indexer.index(new DeletePlatformCommand(event));
         LOGGER.debug("Deleting platform platform : [" + event.getApplicationName() + "-" + event.getPlatformName() + "]");
     }

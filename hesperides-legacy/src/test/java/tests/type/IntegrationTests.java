@@ -21,7 +21,7 @@ package tests.type;
 
 /**
  * Just for exclude integration test.
- *
+ * <p>
  * Created by emeric_martineau on 10/03/2017.
  */
 public interface IntegrationTests {

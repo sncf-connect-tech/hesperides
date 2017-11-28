@@ -50,7 +50,7 @@ public final class UpdateIndexedTemplateCommand implements ElasticSearchIndexati
         try {
             templateAsJson = ElasticSearchMappers.ES_DOC_TEMPLATE_WRITER.writeValueAsString(DocWrapper.of(template));
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Could not serialize template "+template);
+            LOGGER.error("Could not serialize template " + template);
             throw new RuntimeException(e);
         }
 

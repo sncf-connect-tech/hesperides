@@ -69,7 +69,6 @@ public final class IndexNewTemplateCommandBulk implements ElasticSearchIndexatio
             body = propertiesAsString.stream().map(template -> template.toString()).collect(Collectors.joining(""));
 
 
-
             ElasticSearchEntity<TemplateIndexation> entity = elasticSearchClient.withResponseReader(ElasticSearchMappers.ES_ENTITY_TEMPLATE_READER)
                     .post("/templates/_bulk", body);
 

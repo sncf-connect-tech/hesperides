@@ -19,21 +19,14 @@
 
 package integration.client;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.collect.ImmutableSet;
-
-import io.dropwizard.jackson.JsonSnakeCase;
-
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.resources.ApplicationModule;
+import io.dropwizard.jackson.JsonSnakeCase;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by william_montaz on 10/12/2014.
@@ -44,31 +37,31 @@ import com.vsct.dt.hesperides.resources.ApplicationModule;
 public class PlatformClient {
 
     @JsonProperty("platform_name")
-    private final String                          platformName;
+    private final String platformName;
 
     @JsonProperty("application_name")
-    private final String                          applicationName;
+    private final String applicationName;
 
     @JsonProperty("application_version")
-    private final String                          applicationVersion;
+    private final String applicationVersion;
 
     @JsonProperty("modules")
     @JsonDeserialize(as = HashSet.class)
     private final Set<ApplicationModule> modules;
 
     @JsonProperty("production")
-    private final boolean                         production; //default value, some events have not this field
+    private final boolean production; //default value, some events have not this field
 
     @JsonProperty("version_id")
-    private final long                            versionID; //initial default value
+    private final long versionID; //initial default value
 
     @JsonCreator
     public PlatformClient(@JsonProperty("platform_name") final String platformName,
-                    @JsonProperty("application_name") final String applicationName,
-                    @JsonProperty("application_version") final String applicationVersion,
-                    @JsonProperty("production") final boolean isProduction,
-                    @JsonProperty("modules") final Set<ApplicationModule> modules,
-                    @JsonProperty("version_id") final long versionID) {
+                          @JsonProperty("application_name") final String applicationName,
+                          @JsonProperty("application_version") final String applicationVersion,
+                          @JsonProperty("production") final boolean isProduction,
+                          @JsonProperty("modules") final Set<ApplicationModule> modules,
+                          @JsonProperty("version_id") final long versionID) {
         this.versionID = versionID;
         this.platformName = platformName;
         this.applicationName = applicationName;
@@ -78,7 +71,7 @@ public class PlatformClient {
     }
 
     public PlatformClient(final PlatformKey key, final String applicationVersion, final boolean isProduction, final Set<ApplicationModule> modules,
-            final long versionID){
+                          final long versionID) {
         this(key.getName(), key.getApplicationName(), applicationVersion, isProduction, modules, versionID);
     }
 

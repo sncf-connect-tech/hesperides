@@ -20,7 +20,6 @@
 package com.vsct.dt.hesperides.templating.modules.virtual;
 
 import com.google.common.eventbus.EventBus;
-
 import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.models.Models;

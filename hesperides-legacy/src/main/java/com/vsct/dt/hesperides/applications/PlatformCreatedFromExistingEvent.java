@@ -30,13 +30,12 @@ import java.util.Map;
 
 /**
  * Created by tidiane_sidibe on 11/08/2016.
- *
  */
 
 //This could inherit from PlatformCreatedEvent if it was not a final class
 public final class PlatformCreatedFromExistingEvent {
 
-    private final String   applicationName;
+    private final String applicationName;
     private final PlatformData platform;
 
     private final PlatformData originPlatform;
@@ -62,11 +61,11 @@ public final class PlatformCreatedFromExistingEvent {
         return applicationName;
     }
 
-    public PlatformData getOriginPlatform (){
+    public PlatformData getOriginPlatform() {
         return originPlatform;
     }
 
-    public Map<String, PropertiesData> getOriginProperties (){
+    public Map<String, PropertiesData> getOriginProperties() {
         return originProperties;
     }
 

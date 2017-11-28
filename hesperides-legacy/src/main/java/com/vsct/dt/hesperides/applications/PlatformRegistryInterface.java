@@ -22,7 +22,6 @@ package com.vsct.dt.hesperides.applications;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 /**

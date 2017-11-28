@@ -27,10 +27,9 @@ import com.google.common.io.ByteStreams;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 
@@ -80,7 +79,6 @@ public class TemplateTest {
             throws IOException {
         return new String(ByteStreams.toByteArray(TemplateTest.class.getClassLoader().getResourceAsStream(path)), "UTF-8");
     }
-
 
 
 }

@@ -28,7 +28,7 @@ import com.vsct.dt.hesperides.util.WorkingCopy;
  */
 public class TemplatePackageWorkingCopyKey extends TemplatePackageKey {
 
-    public TemplatePackageWorkingCopyKey(String name, String version){
+    public TemplatePackageWorkingCopyKey(String name, String version) {
         super(name, WorkingCopy.of(version));
     }
 

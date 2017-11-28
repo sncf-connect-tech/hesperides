@@ -30,7 +30,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import io.dropwizard.jackson.JsonSnakeCase;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +51,7 @@ public final class Properties {
 
     @JsonCreator
     public Properties(@JsonProperty("key_value_properties") final Set<KeyValueValorisation> keyValueProperties,
-            @JsonProperty("iterable_properties") final Set<IterableValorisation> iterableProperties) {
+                      @JsonProperty("iterable_properties") final Set<IterableValorisation> iterableProperties) {
         this.keyValueProperties = Sets.newHashSet(keyValueProperties);
         this.iterableProperties = Sets.newHashSet(iterableProperties);
     }
@@ -64,18 +66,18 @@ public final class Properties {
      * @param valorisations : the valuations to be copied
      * @return : the copy of the valuations
      */
-    private Set<Valorisation> copyValorisations ( Set<Valorisation> valorisations){
+    private Set<Valorisation> copyValorisations(Set<Valorisation> valorisations) {
 
         Set<Valorisation> copy = Sets.newHashSet();
-        for ( Valorisation val : valorisations ){
-            if ( val instanceof KeyValueValorisation ){
+        for (Valorisation val : valorisations) {
+            if (val instanceof KeyValueValorisation) {
                 KeyValueValorisation _val = (KeyValueValorisation) val;
 
-                if ( !Strings.isNullOrEmpty(_val.getValue())){
+                if (!Strings.isNullOrEmpty(_val.getValue())) {
                     copy.add(_val);
                 }
-            }else{
-                copy.add(copyIterableValorisation((IterableValorisation)val));
+            } else {
+                copy.add(copyIterableValorisation((IterableValorisation) val));
             }
         }
 
@@ -86,26 +88,24 @@ public final class Properties {
      * Copy iterable items without empty values
      *
      * @param item : the item to be copied
-     *
      * @return the copy of the item
      */
-    private IterableValorisation.IterableValorisationItem copyItem (IterableValorisation.IterableValorisationItem item){
+    private IterableValorisation.IterableValorisationItem copyItem(IterableValorisation.IterableValorisationItem item) {
         Set<Valorisation> values = copyValorisations(item.getValues());
         IterableValorisation.IterableValorisationItem copy = new IterableValorisation.IterableValorisationItem(item.getTitle(), values);
         return copy;
     }
 
     /**
-     *  Copy iterable valuations without empty values
+     * Copy iterable valuations without empty values
      *
      * @param iterable : the iterable to be copied
-     *
      * @return the copy of the iterable
      */
-    private IterableValorisation copyIterableValorisation (IterableValorisation iterable){
+    private IterableValorisation copyIterableValorisation(IterableValorisation iterable) {
         List<IterableValorisation.IterableValorisationItem> items = Lists.newArrayList();
 
-        for (IterableValorisation.IterableValorisationItem item : iterable.getIterableValorisationItems() ){
+        for (IterableValorisation.IterableValorisationItem item : iterable.getIterableValorisationItems()) {
             items.add(copyItem(item));
         }
 
@@ -129,7 +129,7 @@ public final class Properties {
         // For iterable properties
         Set<IterableValorisation> iterablePropertiesCleaned = Sets.newHashSet();
 
-        for (Valorisation val : this.iterableProperties){
+        for (Valorisation val : this.iterableProperties) {
             iterablePropertiesCleaned.add(copyIterableValorisation((IterableValorisation) val));
         }
 

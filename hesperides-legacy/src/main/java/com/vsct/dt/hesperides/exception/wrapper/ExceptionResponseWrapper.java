@@ -28,7 +28,7 @@ import java.io.StringWriter;
  * Created by william_montaz on 09/01/2015.
  */
 public class ExceptionResponseWrapper {
-    private int    status;
+    private int status;
     private String exception;
     private String message;
     private String stacktrace;

@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class VersionTest {
 
     @Test
-    public void should_say_release_is_greater_than_working_copy(){
+    public void should_say_release_is_greater_than_working_copy() {
         Version v1 = new Version("1.0.0.0", false);
         Version v2 = new Version("1.0.0.0", true);
         assertThat(v1.isGreaterThan(v2)).isTrue();
@@ -45,7 +45,7 @@ public class VersionTest {
     }
 
     @Test
-    public void should_say_not_greater_when_equals(){
+    public void should_say_not_greater_when_equals() {
         Version v1 = new Version("1.0.0.0", false);
         Version v2 = new Version("1.0", false);
 
@@ -60,7 +60,7 @@ public class VersionTest {
     }
 
     @Test
-    public void should_say_greater_when_version_number_is_greater(){
+    public void should_say_greater_when_version_number_is_greater() {
         Version v1 = new Version("1.0.0.0", false);
         Version v2 = new Version("1.0.0", false);
         Version v3 = new Version("1.0.0.1", false);

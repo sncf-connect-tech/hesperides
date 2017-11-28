@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.templating.models.annotation;
 
 /**
  * Hesperide annotation for property.
- *
+ * <p>
  * Created by emeric_martineau on 05/11/2015.
  */
 public interface HesperidesAnnotation {

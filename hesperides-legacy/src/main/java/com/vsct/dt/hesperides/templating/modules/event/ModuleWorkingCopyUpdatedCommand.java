@@ -57,7 +57,7 @@ public class ModuleWorkingCopyUpdatedCommand implements HesperidesCommand<Module
     public ModuleWorkingCopyUpdatedEvent apply() {
         Optional<Module> moduleOptional = moduleRegistry.getModule(wcInfo);
 
-        if(moduleOptional.isPresent()) {
+        if (moduleOptional.isPresent()) {
 
             moduleOptional.get().tryCompareVersionID(module.getVersionID());
             this.updatedModule = new Module(wcInfo, module.getTechnos(), module.getVersionID() + 1);

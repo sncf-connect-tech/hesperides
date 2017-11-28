@@ -59,7 +59,7 @@ public class ModuleTemplateDeletedCommand implements HesperidesCommand<ModuleTem
 
         Optional<Template> optionalTemplate = templateRegistry.getTemplate(wcInfo.getNamespace(), templateName);
 
-        if(optionalTemplate.isPresent()){
+        if (optionalTemplate.isPresent()) {
             templateToDelete = optionalTemplate.get();
 
             return new ModuleTemplateDeletedEvent(wcInfo.getName(), wcInfo.getVersion().getVersionName(), templateName);

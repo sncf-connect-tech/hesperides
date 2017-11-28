@@ -19,6 +19,7 @@
 
 package com.vsct.dt.hesperides.cache;
 
+import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.exception.runtime.ForbiddenOperationException;
 import com.vsct.dt.hesperides.security.model.User;
@@ -27,23 +28,15 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorApplicationAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
-
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.codahale.metrics.annotation.Timed;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
  * Created by emeric_martineau on 13/06/2016.
@@ -96,8 +89,8 @@ public class HesperidesCacheResource {
     @Timed
     @ApiOperation("Regenerate cache for application in database")
     public Response regenerateApplicationCache(@Auth final User user,
-            @PathParam("application_name") final String applicationName,
-            @PathParam("platform_name") final String platformName) {
+                                               @PathParam("application_name") final String applicationName,
+                                               @PathParam("platform_name") final String platformName) {
         if (!user.isTechUser()) {
             throw new ForbiddenOperationException("Only tech user can clear all applications cache.");
         }
@@ -146,8 +139,8 @@ public class HesperidesCacheResource {
     @Timed
     @ApiOperation("Regenerate cache for working module ony in database")
     public Response regenerateModuleCache(@Auth final User user,
-            @PathParam("module_name") final String moduleName,
-            @PathParam("module_version") final String moduleVersion) {
+                                          @PathParam("module_name") final String moduleName,
+                                          @PathParam("module_version") final String moduleVersion) {
         if (!user.isTechUser()) {
             throw new ForbiddenOperationException("Only tech user can clear all applications cache.");
         }
@@ -181,8 +174,8 @@ public class HesperidesCacheResource {
     @Timed
     @ApiOperation("Remove a released module from cache")
     public Response clearModuleReleaseCache(@Auth final User user,
-                                                @PathParam("module_name") final String moduleName,
-                                                @PathParam("module_version") final String moduleVersion) {
+                                            @PathParam("module_name") final String moduleName,
+                                            @PathParam("module_version") final String moduleVersion) {
         LOGGER.info("Remove module in release {}/{} from memory cache.", moduleName, moduleVersion);
 
         this.modulesAggregate.removeFromCache(moduleName, moduleVersion, false);
@@ -195,8 +188,8 @@ public class HesperidesCacheResource {
     @Timed
     @ApiOperation("Remove a workingcopy template package from cache")
     public Response clearTemplatePackageWorkingcopyCache(@Auth final User user,
-                                                @PathParam("template_name") final String templateName,
-                                                @PathParam("template_version") final String templateVersion) {
+                                                         @PathParam("template_name") final String templateName,
+                                                         @PathParam("template_version") final String templateVersion) {
         LOGGER.info("Remove template package in workingcopy {}/{} from memory cache by {}.",
                 templateName, templateVersion, user.getUsername());
 
@@ -210,8 +203,8 @@ public class HesperidesCacheResource {
     @Timed
     @ApiOperation("Regenerate cache for application in database")
     public Response regenerateTemplatePackageCache(@Auth final User user,
-            @PathParam("template_name") final String templateName,
-            @PathParam("template_version") final String templateVersion) {
+                                                   @PathParam("template_name") final String templateName,
+                                                   @PathParam("template_version") final String templateVersion) {
         if (!user.isTechUser()) {
             throw new ForbiddenOperationException("Only tech user can clear all applications cache.");
         }

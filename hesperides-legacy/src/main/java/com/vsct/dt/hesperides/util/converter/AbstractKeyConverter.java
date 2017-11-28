@@ -35,6 +35,7 @@ public abstract class AbstractKeyConverter {
 
     /**
      * Convert list of KeyValueValorisation to list of KeyValueValorisationData.
+     *
      * @param list input
      * @return output
      */
@@ -50,6 +51,7 @@ public abstract class AbstractKeyConverter {
 
     /**
      * Convert list of KeyValueValorisationData to list of KeyValueValorisation.
+     *
      * @param list input
      * @return output
      */

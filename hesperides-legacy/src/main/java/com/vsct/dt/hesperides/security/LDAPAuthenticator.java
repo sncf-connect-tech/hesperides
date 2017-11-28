@@ -42,10 +42,11 @@ import java.util.Optional;
  */
 public final class LDAPAuthenticator implements Authenticator<BasicCredentials, User> {
 
-    private static final Logger LOGGER                          = LoggerFactory.getLogger(LDAPAuthenticator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LDAPAuthenticator.class);
 
     /**
      * AD matching rule.
+     *
      * @link https://msdn.microsoft.com/en-us/library/aa746475(v=vs.85).aspx
      */
     private static final String LDAP_MATCHING_RULE_IN_CHAIN_OID = "1.2.840.113556.1.4.1941";
@@ -124,7 +125,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
 
         NamingEnumeration<SearchResult> memberOfSearchResults = context.search(userDN, memberOfSearch, searchControls);
 
-        if (memberOfSearchResults.hasMore()){
+        if (memberOfSearchResults.hasMore()) {
             return true;
         } else {
             return false;
@@ -144,12 +145,12 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         if (results.hasMoreElements()) {
             searchResult = results.nextElement();
 
-            if (results.hasMoreElements()){
-                throw new AuthenticationException("Expected to find only one user for "+username+" but found more results");
+            if (results.hasMoreElements()) {
+                throw new AuthenticationException("Expected to find only one user for " + username + " but found more results");
             }
 
         } else {
-            throw new AuthenticationException("Unable to authenticate user "+username);
+            throw new AuthenticationException("Unable to authenticate user " + username);
         }
 
         return searchResult;

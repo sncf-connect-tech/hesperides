@@ -81,7 +81,7 @@ public final class HesperidesPropertiesModel {
     }
 
     public HesperidesPropertiesModel merge(final HesperidesPropertiesModel modelToMerge) {
-        HesperidesPropertiesModel merged = new HesperidesPropertiesModel(this.keyValueProperties,this.iterableProperties);
+        HesperidesPropertiesModel merged = new HesperidesPropertiesModel(this.keyValueProperties, this.iterableProperties);
         merged.keyValueProperties.addAll(modelToMerge.getKeyValueProperties());
         /* MAYBE FIND SOME CLEVER WAY IF NEEDED */
         merged.iterableProperties.addAll(modelToMerge.getIterableProperties());

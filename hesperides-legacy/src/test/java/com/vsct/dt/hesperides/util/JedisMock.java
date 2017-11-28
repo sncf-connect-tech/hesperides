@@ -1302,7 +1302,7 @@ public class JedisMock implements JedisCommands, MultiKeyCommands, AdvancedJedis
         listRedisKeys(this.redisList, listOfKeys, p);
         listRedisKeys(this.redisString, listOfKeys, p);
 
-       return listOfKeys.stream().collect(Collectors.toSet());
+        return listOfKeys.stream().collect(Collectors.toSet());
     }
 
     private void listRedisKeys(Map<String, ?> map, List<String> listOfKeys, Pattern p) {

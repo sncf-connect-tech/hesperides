@@ -19,23 +19,17 @@
 
 package integration.client;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import io.dropwizard.jackson.JsonSnakeCase;
-
 import com.vsct.dt.hesperides.storage.DomainVersionable;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Techno;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
+import io.dropwizard.jackson.JsonSnakeCase;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by emeric_martineau on 15/03/2017.
@@ -46,10 +40,10 @@ import com.vsct.dt.hesperides.util.HesperidesVersion;
 public final class ModuleClient extends DomainVersionable {
 
     @JsonProperty("name")
-    private final String  name;
+    private final String name;
 
     @JsonProperty("version")
-    private final String  version;
+    private final String version;
 
     @JsonProperty("working_copy")
     private final boolean workingCopy;
@@ -60,10 +54,10 @@ public final class ModuleClient extends DomainVersionable {
 
     @JsonCreator
     public ModuleClient(@JsonProperty("name") String name,
-                  @JsonProperty("version") String version,
-                  @JsonProperty("working_copy") boolean isWorkingCopy,
-                  @JsonProperty("technos") final Set<Techno> technos,
-                  @JsonProperty("version_id") final long versionID) {
+                        @JsonProperty("version") String version,
+                        @JsonProperty("working_copy") boolean isWorkingCopy,
+                        @JsonProperty("technos") final Set<Techno> technos,
+                        @JsonProperty("version_id") final long versionID) {
         super(versionID);
         //Maintain legacy construct
         this.name = name;

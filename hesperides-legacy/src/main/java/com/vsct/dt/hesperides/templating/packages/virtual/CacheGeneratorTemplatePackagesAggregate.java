@@ -19,15 +19,12 @@
 
 package com.vsct.dt.hesperides.templating.packages.virtual;
 
-import java.util.concurrent.ExecutorService;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.virtual.VirtualExecutorService;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.models.Models;
-import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
 import com.vsct.dt.hesperides.templating.packages.*;
 import com.vsct.dt.hesperides.templating.packages.cache.TemplatePackageCacheLoader;
@@ -35,6 +32,8 @@ import com.vsct.dt.hesperides.templating.packages.event.TemplatePackageContainer
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by emeric_martineau on 30/05/2016.

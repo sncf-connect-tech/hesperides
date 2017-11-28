@@ -40,8 +40,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
-* Created by william_montaz on 29/04/2015.
-*/
+ * Created by william_montaz on 29/04/2015.
+ */
 class ModuleRegistry implements ModuleRegistryInterface, TemplateRegistryInterface {
     /**
      * Logger.
@@ -61,9 +61,9 @@ class ModuleRegistry implements ModuleRegistryInterface, TemplateRegistryInterfa
     /**
      * Constructor.
      *
-     * @param store store of event for lazy load
+     * @param store                 store of event for lazy load
      * @param nbEventBeforePersiste nb event before store cache
-     * @param config cache config
+     * @param config                cache config
      */
     public ModuleRegistry(final EventStore store, final long nbEventBeforePersiste,
                           final HesperidesCacheParameter config) {

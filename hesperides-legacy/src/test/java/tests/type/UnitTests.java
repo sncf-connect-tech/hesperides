@@ -21,7 +21,7 @@ package tests.type;
 
 /**
  * Just for exclude unit test.
- *
+ * <p>
  * Created by emeric_martineau on 10/03/2017.
  */
 public interface UnitTests {

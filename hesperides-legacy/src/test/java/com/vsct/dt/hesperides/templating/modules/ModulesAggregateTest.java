@@ -43,6 +43,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,15 +52,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import tests.type.UnitTests;
-
 /**
  * Created by william_montaz on 02/12/2014.
  */
 @Category(UnitTests.class)
 public class ModulesAggregateTest {
 
-    private final EventBus       eventBus       = new EventBus();
+    private final EventBus eventBus = new EventBus();
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
     private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
     private final TemplatePackagesAggregate templatePackages = mock(TemplatePackagesAggregate.class);
@@ -84,7 +83,7 @@ public class ModulesAggregateTest {
 
     @After
     public void checkUnwantedEvents() {
-        
+
     }
 
     /**
@@ -121,7 +120,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = DuplicateResourceException.class)
-    public void should_not_create_working_copy_if_it_already_exists(){
+    public void should_not_create_working_copy_if_it_already_exists() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -136,7 +135,7 @@ public class ModulesAggregateTest {
      * GetModule
      */
     @Test
-    public void should_return_module(){
+    public void should_return_module() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -155,7 +154,7 @@ public class ModulesAggregateTest {
     }
 
     @Test
-    public void should_return_empty_optional_if_module_is_not_found(){
+    public void should_return_empty_optional_if_module_is_not_found() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -169,7 +168,7 @@ public class ModulesAggregateTest {
      * Update working copy
      */
     @Test
-    public void should_update_module_working_copy(){
+    public void should_update_module_working_copy() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -203,12 +202,12 @@ public class ModulesAggregateTest {
 
         poolRedis.checkSavedLastEventOnStream("module-my_module-the_version-wc",
                 new ModuleWorkingCopyUpdatedEvent(
-                    new Module("my_module", "the_version", true, Sets.newHashSet(newTechno), 2L)
-        ));
+                        new Module("my_module", "the_version", true, Sets.newHashSet(newTechno), 2L)
+                ));
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_not_update_module_if_not_existing_at_first(){
+    public void should_not_update_module_if_not_existing_at_first() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -216,7 +215,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = OutOfDateVersionException.class)
-    public void should_not_update_module_if_providing_too_low_versionid(){
+    public void should_not_update_module_if_providing_too_low_versionid() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -235,7 +234,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = IncoherentVersionException.class)
-    public void should_not_update_module_if_providing_to_high_versionid(){
+    public void should_not_update_module_if_providing_to_high_versionid() {
         ModuleKey moduleKey = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();
@@ -315,7 +314,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = DuplicateResourceException.class)
-    public void should_not_create_a_template_if_it_already_exists(){
+    public void should_not_create_a_template_if_it_already_exists() {
         Techno techno = new Techno("tomcat", "1", false);
 
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
@@ -399,7 +398,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_not_update_template_if_it_does_not_already_exists(){
+    public void should_not_update_template_if_it_does_not_already_exists() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -414,7 +413,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = Exception.class)
-    public void should_not_update_a_template_with_invalid_content(){
+    public void should_not_update_a_template_with_invalid_content() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -439,7 +438,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = OutOfDateVersionException.class)
-    public void should_not_update_template_if_provided_version_id_is_too_low(){
+    public void should_not_update_template_if_provided_version_id_is_too_low() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -467,7 +466,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = IncoherentVersionException.class)
-    public void should_not_update_template_if_version_id_is_too_high(){
+    public void should_not_update_template_if_version_id_is_too_high() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -537,7 +536,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_throw_an_exception_when_deleting_a_non_existing_template(){
+    public void should_throw_an_exception_when_deleting_a_non_existing_template() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         Techno techno = new Techno("tomcat", "1", false);
         modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
@@ -591,7 +590,7 @@ public class ModulesAggregateTest {
      */
 
     @Test
-    public void should_return_template(){
+    public void should_return_template() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -615,7 +614,7 @@ public class ModulesAggregateTest {
     }
 
     @Test
-    public void should_return_empty_option_if_getting_non_existing_template(){
+    public void should_return_empty_option_if_getting_non_existing_template() {
         ModuleWorkingCopyKey moduleKey = new ModuleWorkingCopyKey("my_module", "the_version");
         Techno techno = new Techno("tomcat", "1", false);
         modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
@@ -631,7 +630,8 @@ public class ModulesAggregateTest {
 
     @Test
     public void create_working_copy_from_workingcopy_should_copy_templates_with_new_namespace() {
-        ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");;
+        ModuleWorkingCopyKey fromModuleKey = new ModuleWorkingCopyKey("my_module", "the_version");
+        ;
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
                 .withLocation("location")
@@ -666,7 +666,7 @@ public class ModulesAggregateTest {
         List<Template> newTemplates = modulesWithEvent.getAllTemplates(newModuleKey);
 
         assertThat(newTemplates.size()).isEqualTo(2);
-        for(int i = 0; i<2; i++) {
+        for (int i = 0; i < 2; i++) {
             Template template = newTemplates.get(i);
             assertThat(template.getFilename()).isEqualTo("filename");
             assertThat(template.getLocation()).isEqualTo("location");
@@ -719,7 +719,7 @@ public class ModulesAggregateTest {
         List<Template> newTemplates = modulesWithEvent.getAllTemplates(newModuleKey);
 
         assertThat(newTemplates.size()).isEqualTo(2);
-        for(int i = 0; i<2; i++) {
+        for (int i = 0; i < 2; i++) {
             Template template = newTemplates.get(i);
             assertThat(template.getFilename()).isEqualTo("filename");
             assertThat(template.getLocation()).isEqualTo("location");
@@ -781,7 +781,7 @@ public class ModulesAggregateTest {
         List<Template> releaseTemplates = modulesWithEvent.getAllTemplates(releaseInfo);
 
         assertThat(releaseTemplates.size()).isEqualTo(2);
-        for(int i = 0; i<2; i++) {
+        for (int i = 0; i < 2; i++) {
             Template template = releaseTemplates.get(i);
             assertThat(template.getFilename()).isEqualTo("filename");
             assertThat(template.getLocation()).isEqualTo("location");
@@ -812,7 +812,7 @@ public class ModulesAggregateTest {
     }
 
     @Test
-    public void should_delete_module_and_all_templates_related_to_module(){
+    public void should_delete_module_and_all_templates_related_to_module() {
         ModuleWorkingCopyKey workingCopy = new ModuleWorkingCopyKey("my_module", "the_version");
         TemplateData templateData1 = TemplateData.withTemplateName("template1")
                 .withFilename("filename")
@@ -867,7 +867,7 @@ public class ModulesAggregateTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_throw_exception_when_trying_to_delete_unknown_module(){
+    public void should_throw_exception_when_trying_to_delete_unknown_module() {
         ModuleKey workingCopy = ModuleKey.withModuleName("my_module")
                 .withVersion(WorkingCopy.of("the_version"))
                 .build();

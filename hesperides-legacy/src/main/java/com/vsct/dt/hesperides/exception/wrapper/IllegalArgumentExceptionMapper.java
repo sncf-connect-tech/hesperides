@@ -21,8 +21,6 @@
 
 package com.vsct.dt.hesperides.exception.wrapper;
 
-import com.vsct.dt.hesperides.exception.wrapper.BaseExceptionMapper;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 

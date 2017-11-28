@@ -25,11 +25,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vsct.dt.hesperides.indexation.ElasticSearchClient;
 import com.vsct.dt.hesperides.indexation.model.ElasticSearchResponse;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.Set;

@@ -37,7 +37,7 @@ public class PlatformMapper {
                 platform.getApplicationName(),
                 platform.getApplicationVersion(),
                 platform.getModules().stream().map(module ->
-                    new PlatformIndexation.PlatformModuleIndexation(module.getName(), module.getVersion(), module.isWorkingCopy(), module.getPath())
+                        new PlatformIndexation.PlatformModuleIndexation(module.getName(), module.getVersion(), module.isWorkingCopy(), module.getPath())
                 ).collect(Collectors.toList())
         );
     }

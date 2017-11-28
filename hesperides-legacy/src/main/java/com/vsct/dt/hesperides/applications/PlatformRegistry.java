@@ -68,10 +68,10 @@ class PlatformRegistry implements PropertiesRegistryInterface, PlatformRegistryI
     /**
      * Constructor.
      *
-     * @param store store of event for lazy load
+     * @param store                 store of event for lazy load
      * @param nbEventBeforePersiste nb event before save
-     * @param config config of cache for platform
-     * @param configTimeLine config of cache for platform in the past
+     * @param config                config of cache for platform
+     * @param configTimeLine        config of cache for platform in the past
      */
     public PlatformRegistry(final EventStore store,
                             final long nbEventBeforePersiste,
@@ -210,7 +210,6 @@ class PlatformRegistry implements PropertiesRegistryInterface, PlatformRegistryI
      * @param platformName
      * @param path
      * @param timestamp
-     *
      * @return The properties entity or empty
      */
     @Override

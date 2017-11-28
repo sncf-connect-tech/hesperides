@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.templating.models.exception;
 
 /**
  * Exception raise when something is invalid in annotation.
- *
+ * <p>
  * Created by emeric_martineau on 05/11/2015.
  */
 public class ModelAnnotationException extends IllegalArgumentException {

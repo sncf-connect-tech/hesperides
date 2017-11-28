@@ -31,7 +31,7 @@ import java.util.Objects;
 public class HesperidesVersion {
 
     @JsonProperty(value = "name")
-    private String  versionName;
+    private String versionName;
 
     @JsonProperty(value = "working_copy")
     private boolean isWorkingCopy;

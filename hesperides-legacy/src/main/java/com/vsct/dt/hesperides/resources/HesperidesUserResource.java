@@ -36,14 +36,14 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * Created by tidiane_sidibe on 17/05/2016.
- *
+ * <p>
  * This is used to get information about the authenticated user.
  * It's called by the UI at the start time.
  */
 
 @Path("/users")
 @Api("/users")
-public class HesperidesUserResource extends  BaseResource {
+public class HesperidesUserResource extends BaseResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(HesperidesFilesResource.class);
 
     @Path("/auth")
@@ -51,7 +51,7 @@ public class HesperidesUserResource extends  BaseResource {
     @Timed
     @ApiOperation("Authenticates users. It returns useful information about the authenticated user.")
     @Produces(MediaType.APPLICATION_JSON)
-    public User authenticate (@Auth User user){
+    public User authenticate(@Auth User user) {
         LOGGER.debug(" Authenticated User : '{}' is producation user : {}.", user.getUsername(), user.isProdUser() ? "YES" : "NO");
         return user;
     }

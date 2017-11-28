@@ -43,7 +43,9 @@ public final class IndexNewModuleCommandBulk implements ElasticSearchIndexationC
 
     private final List<ModuleIndexation> modules;
 
-    public IndexNewModuleCommandBulk(final List<ModuleIndexation> modules) { this.modules = modules; }
+    public IndexNewModuleCommandBulk(final List<ModuleIndexation> modules) {
+        this.modules = modules;
+    }
 
     @Override
     public Void index(final ElasticSearchClient elasticSearchClient) {

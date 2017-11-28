@@ -24,7 +24,7 @@
  * Each module has a name and a version.
  * Main class in Modules
  * Each version can be working copy or release.
- *
+ * <p>
  * Created by william_montaz on 05/01/2015.
  */
 package com.vsct.dt.hesperides.templating.modules;

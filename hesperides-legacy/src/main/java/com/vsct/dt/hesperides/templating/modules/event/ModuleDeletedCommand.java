@@ -21,7 +21,10 @@ package com.vsct.dt.hesperides.templating.modules.event;
 
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.storage.HesperidesCommand;
-import com.vsct.dt.hesperides.templating.modules.*;
+import com.vsct.dt.hesperides.templating.modules.Module;
+import com.vsct.dt.hesperides.templating.modules.ModuleDeletedEvent;
+import com.vsct.dt.hesperides.templating.modules.ModuleKey;
+import com.vsct.dt.hesperides.templating.modules.ModuleRegistryInterface;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
 
 import java.util.Optional;
@@ -58,7 +61,7 @@ public class ModuleDeletedCommand implements HesperidesCommand<ModuleDeletedEven
 
         final Optional<Module> moduleOptional = moduleRegistry.getModule(moduleKey);
 
-        if(moduleOptional.isPresent()) {
+        if (moduleOptional.isPresent()) {
             return new ModuleDeletedEvent(moduleKey.getName(), moduleKey.getVersionName(), moduleKey.isWorkingCopy());
 
         } else {

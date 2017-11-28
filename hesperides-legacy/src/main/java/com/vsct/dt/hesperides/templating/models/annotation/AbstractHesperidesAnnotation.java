@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.templating.models.annotation;
 
 /**
  * Abstract hesperide annotation for property.
- *
+ * <p>
  * Created by emeric_martineau on 05/11/2015.
  */
 public abstract class AbstractHesperidesAnnotation implements HesperidesAnnotation {
@@ -40,7 +40,7 @@ public abstract class AbstractHesperidesAnnotation implements HesperidesAnnotati
     /**
      * Constructor.
      *
-     * @param name name of annotation
+     * @param name  name of annotation
      * @param value value of annotation
      */
     public AbstractHesperidesAnnotation(final String name, final String value) {

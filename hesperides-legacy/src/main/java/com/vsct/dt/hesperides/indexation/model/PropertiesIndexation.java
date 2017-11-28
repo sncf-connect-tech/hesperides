@@ -53,7 +53,8 @@ public final class PropertiesIndexation extends Data {
         this.iterableProperties = Sets.newHashSet(iterableProperties);
     }
 
-    @JsonProperty(value = "hesnamespace") //namespace is reserved keyword for elasticsearch, so we use hesnamespace instead
+    @JsonProperty(value = "hesnamespace")
+    //namespace is reserved keyword for elasticsearch, so we use hesnamespace instead
     public String getNamespace() {
         return namespace;
     }

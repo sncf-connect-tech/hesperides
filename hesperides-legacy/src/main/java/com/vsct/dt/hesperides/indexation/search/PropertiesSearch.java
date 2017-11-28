@@ -46,10 +46,10 @@ public final class PropertiesSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesSearch.class);
     public static final int SEARCH_SIZE = 50;
-    private final MustacheFactory mustacheFactory               = new DefaultMustacheFactory();
-    private final Mustache        mustacheSearchByNamespaceLike = mustacheFactory.compile("search.properties.hesnamespace.like.mustache");
+    private final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+    private final Mustache mustacheSearchByNamespaceLike = mustacheFactory.compile("search.properties.hesnamespace.like.mustache");
 
-    private final ObjectReader        elasticSearchPropertiesReader;
+    private final ObjectReader elasticSearchPropertiesReader;
     private final ElasticSearchClient elasticSearchClient;
 
     public PropertiesSearch(final ElasticSearchClient elasticSearchClient) {

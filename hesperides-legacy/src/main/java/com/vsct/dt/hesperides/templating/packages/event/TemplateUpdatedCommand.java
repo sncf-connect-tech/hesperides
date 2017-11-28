@@ -53,7 +53,7 @@ public class TemplateUpdatedCommand implements HesperidesCommand<TemplateUpdated
     public TemplateUpdatedEvent apply() {
         final Optional<Template> template = templateRegistry.getTemplate(packageKey.getNamespace(), templateData.getName());
 
-        if(template.isPresent()){
+        if (template.isPresent()) {
 
             template.get().tryCompareVersionID(templateData.getVersionID());
 

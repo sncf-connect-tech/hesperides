@@ -34,7 +34,6 @@ import com.vsct.dt.hesperides.indexation.ESServiceException;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.EventStore;
@@ -70,7 +69,6 @@ import tests.type.UnitTests;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -944,459 +942,459 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-            Response response = rawClient("/applications/_we_dont_care_/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "%20%09%00")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(platform)));
+        Response response = rawClient("/applications/_we_dont_care_/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "%20%09%00")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(platform)));
 
 
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_properties_if_application_name_is_not_valid () {
-            Response response = rawClient("/applications/%20%09%00/platforms/dfdfdf/properties")
-                    .queryParam("path", "#truc")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .get(Response.class);
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_properties_if_platform_name_is_not_valid () {
-            Response response = rawClient("/applications/tryruytur/platforms/%20%09%00/properties")
-                    .queryParam("path", "#truc")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .get(Response.class);
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_properties_if_path_is_not_valid () {
-            Response response = rawClient("/applications/tryruytur/platforms/dfdfdf/properties")
-                    .queryParam("path", "%20%09%00")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .get(Response.class);
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_properties_instance_model_if_application_name_is_not_valid () {
-            Response response = rawClient("/applications/%20%09%00/platforms/dfdfdf/properties/instance_model")
-                    .queryParam("path", "#truc")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .get(Response.class);
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_properties_instance_model_if_platform_name_is_not_valid () {
-            Response response = rawClient("/applications/tryruytur/platforms/%20%09%00/properties/instance_model")
-                    .queryParam("path", "#truc")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .get(Response.class);
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_properties_instance_model_if_path_is_not_valid () {
-            Response response = rawClient("/applications/tryruytur/platforms/dfdfdf/properties/instance_model")
-                    .queryParam("path", "%20%09%00")
-                    .request().header("Authorization", "Basic " + CREDENTIALS)
-                    .get(Response.class);
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_post_properties_if_application_name_is_not_valid () {
-            InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-            when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
-
-            Response response = rawClient("/applications/%20%09%00/platforms/pltfm_name/properties/instance_model")
-                    .queryParam("path", "some_path")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .get();
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_post_properties_if_platform_name_is_not_valid () {
-            InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-            when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
-
-            Response response = rawClient("/applications/app_name/platforms/%20%09%00/properties/instance_model")
-                    .queryParam("path", "some_path")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .get();
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_if_trying_to_save_properties_without_platform_name_valid () throws
-        JsonProcessingException {
-            Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
-
-            Response response = rawClient("/applications/my_app/platforms/%20%09%00/properties")
-                    .queryParam("path", "some_path")
-                    .queryParam("platform_vid", "1")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(properties)));
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_if_trying_to_save_properties_without_application_name_valid () throws
-        JsonProcessingException {
-            Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
-
-            Response response = rawClient("/applications/%20%09%00/platforms/my_pltfm/properties")
-                    .queryParam("path", "some_path")
-                    .queryParam("platform_vid", "1")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(MAPPER.writeValueAsString(properties)));
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_create_snapshot () throws JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-
-            withoutAuth("/applications/app_name/platforms/pltfm_name/take_snapshot")
-                    .post(Entity.json(null));
-        }
-
-        @Test
-        public void should_return_400_when_post_take_snapshot_if_platform_name_is_not_valid () throws
-        JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-            Response response = withoutAuth("/applications/app_name/platforms/%20%09%00/take_snapshot")
-                    .post(Entity.json(null));
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_post_take_snapshot_if_application_name_is_not_valid () throws
-        JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-            Response response = withoutAuth("/applications/%20%09%00/platforms/pltfm_name/take_snapshot")
-                    .post(Entity.json(null));
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_restore_snapshot () throws JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .withApplicationVersion("1.0.0.0")
-                    .withModules(Sets.newHashSet())
-                    .withVersion(1L)
-                    .isProduction();
-
-            PlatformData platform = builder1.build();
-
-            when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-
-            assertThat(rawClient("/applications/app_name/platforms/pltfm_name/restore_snapshot")
-                    .queryParam("timestamp", "1")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(null), Platform.class)).isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
-        }
-
-        @Test
-        public void should_return_400_when_post_restore_snapshot_if_platform_name_is_not_valid () throws
-        JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .withApplicationVersion("1.0.0.0")
-                    .withModules(Sets.newHashSet())
-                    .withVersion(1L)
-                    .isProduction();
-
-            PlatformData platform = builder1.build();
-
-            when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-            Response response = rawClient("/applications/app_name/platforms/%20%09%00/restore_snapshot")
-                    .queryParam("timestamp", "1")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(null));
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_post_restore_snapshot_if_application_name_is_not_valid () throws
-        JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .withApplicationVersion("1.0.0.0")
-                    .withModules(Sets.newHashSet())
-                    .withVersion(1L)
-                    .isProduction();
-
-            PlatformData platform = builder1.build();
-
-            when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-            Response response = rawClient("/applications/%20%09%00/platforms/pltfm_name/restore_snapshot")
-                    .queryParam("timestamp", "1")
-                    .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
-                    .post(Entity.json(null));
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_snapshot () throws JsonProcessingException {
-            PlatformKey platformKey = PlatformKey.withName("pltfm_name")
-                    .withApplicationName("app_name")
-                    .build();
-
-            List<Long> listInput = new ArrayList<>();
-            listInput.add(1L);
-            listInput.add(3L);
-            listInput.add(2L);
-
-            List listOuput = new ArrayList();
-            listOuput.add(3);
-            listOuput.add(2);
-            listOuput.add(1);
-
-            when(applications.getSnapshots(platformKey)).thenReturn(listInput);
-
-            assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/snapshots")
-                    .get(List.class)).isEqualTo(listOuput);
-        }
-
-        @Test
-        public void should_return_400_when_get_snapshot_if_platform_name_is_not_valid () throws
-        JsonProcessingException {
-            Response response = withoutAuth("/applications/app_name/platforms/%20%09%00/snapshots")
-                    .get();
-
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void should_return_400_when_get_snapshot_if_application_name_is_not_valid () throws
-        JsonProcessingException {
-            Response response = withoutAuth("/applications/%20%09%00/platforms/pltfm_name/snapshots")
-                    .get();
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
-
-        @Test
-        public void test_getGlobalPropertiesUsage () throws JsonProcessingException {
-
-
-            ApplicationModuleData module1 = ApplicationModuleData
-                    .withApplicationName("demoKatana")
-                    .withVersion("1.0.0")
-                    .withPath("#DEMO#CMS")
-                    .withId(0)
-                    .withInstances(Sets.newHashSet())
-                    .setWorkingcopy(true)
-                    .build();
-
-            ApplicationModuleData module2 = ApplicationModuleData
-                    .withApplicationName("demoKatana")
-                    .withVersion("1.0.0")
-                    .withPath("#DEMO#CMS")
-                    .withId(1)
-                    .withInstances(Sets.newHashSet())
-                    .setWorkingcopy(false)
-                    .build();
-
-            ApplicationModuleData module3 = ApplicationModuleData
-                    .withApplicationName("demoGlobal")
-                    .withVersion("1.0.0")
-                    .withPath("#DEMO#NJS")
-                    .withId(2)
-                    .withInstances(Sets.newHashSet())
-                    .isWorkingcopy()
-                    .build();
-
-
-            PlatformKey platformKey1 = PlatformKey.withName("USN1")
-                    .withApplicationName("KTN")
-                    .build();
-
-
-            PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey1.getName())
-                    .withApplicationName(platformKey1.getApplicationName())
-                    .withApplicationVersion("app_version")
-                    .withModules(Sets.newHashSet(module1, module2, module3))
-                    .withVersion(1L)
-                    .isProduction();
-
-
-            PlatformData pltfm1 = builder1.build();
-
-            Set<KeyValueValorisationData> g_prop = new HashSet<>();
-            Set<KeyValueValorisationData> prop_1 = new HashSet<>();
-            Set<KeyValueValorisationData> prop_2 = new HashSet<>();
-            Set<KeyValueValorisationData> prop_3 = new HashSet<>();
-
-
-            Set<KeyValuePropertyModel> model_1 = new HashSet<>();
-            Set<KeyValuePropertyModel> model_2 = new HashSet<>();
-            Set<KeyValuePropertyModel> model_3 = new HashSet<>();
-
-            g_prop.add(new KeyValueValorisationData("first_global", "first_global_value"));
-            g_prop.add(new KeyValueValorisationData("second_global", "second_global_value"));
-            g_prop.add(new KeyValueValorisationData("third_global", "third_global_value"));
-            g_prop.add(new KeyValueValorisationData("whole_global", "whole_global_value"));
-            g_prop.add(new KeyValueValorisationData("global", "global_value"));
-            g_prop.add(new KeyValueValorisationData("unused", "unused_value"));
-
-            prop_1.add(new KeyValueValorisationData("prop_11", "{{first_global}}"));
-            prop_1.add(new KeyValueValorisationData("prop_12", "{{whole_global}}"));
-
-            prop_2.add(new KeyValueValorisationData("prop_21", "{{second_global}}"));
-            prop_2.add(new KeyValueValorisationData("prop_22", "{{whole_global}}"));
-
-            prop_3.add(new KeyValueValorisationData("prop_31", "{{third_global}}"));
-            prop_3.add(new KeyValueValorisationData("prop_32", "{{whole_global}}"));
-
-            model_1.add(new KeyValuePropertyModel("global", ""));
-            model_2.add(new KeyValuePropertyModel("global", ""));
-            model_2.add(new KeyValuePropertyModel("prop_21", ""));
-
-            PropertiesData global_properties = new PropertiesData(g_prop, Sets.newHashSet());
-            PropertiesData properties_1 = new PropertiesData(prop_1, Sets.newHashSet());
-            PropertiesData properties_2 = new PropertiesData(prop_2, Sets.newHashSet());
-            PropertiesData properties_3 = new PropertiesData(prop_3, Sets.newHashSet());
-
-            PlatformKey platformKey = PlatformKey.withName("USN1")
-                    .withApplicationName("KTN")
-                    .build();
-
-            when(applications.getPlatform(any())).thenReturn(Optional.of(pltfm1));
-            when(applications.getProperties(platformKey, "#")).thenReturn(global_properties);
-            when(applications.getProperties(platformKey, module1.getPropertiesPath())).thenReturn(properties_1);
-            when(applications.getProperties(platformKey, module2.getPropertiesPath())).thenReturn(properties_2);
-            when(applications.getProperties(platformKey, module3.getPropertiesPath())).thenReturn(properties_3);
-
-            Optional<HesperidesPropertiesModel> opt_1 = Optional.of(new HesperidesPropertiesModel(model_1, Sets.newHashSet()));
-            Optional<HesperidesPropertiesModel> opt_2 = Optional.of(new HesperidesPropertiesModel(model_2, Sets.newHashSet()));
-            Optional<HesperidesPropertiesModel> opt_3 = Optional.of(new HesperidesPropertiesModel(model_3, Sets.newHashSet()));
-
-            when(modules.getModel(new ModuleKey(module2.getName(), Release.of(module2.getVersion())))).thenReturn(opt_2);
-            when(modules.getModel(new ModuleKey(module1.getName(), WorkingCopy.of(module1.getVersion())))).thenReturn(opt_1);
-            when(modules.getModel(new ModuleKey(module3.getName(), WorkingCopy.of(module3.getVersion())))).thenReturn(opt_3);
-
-
-            HashMap<String, ArrayList<HashMap>> response = withoutAuth("/applications/KTN/platforms/USN1/global_properties_usage").get(HashMap.class);
-
-            assertThat(response.get("first_global").size()).isEqualTo(1);
-            assertThat(response.get("second_global").size()).isEqualTo(1);
-            assertThat(response.get("third_global").size()).isEqualTo(1);
-            assertThat(response.get("whole_global").size()).isEqualTo(3);
-            assertThat(response.get("global").size()).isEqualTo(2);
-            assertThat(response.get("unused").size()).isEqualTo(0);
-
-            assertThat(response.get("first_global").get(0).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#WORKINGCOPY");
-            assertThat(response.get("second_global").get(0).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#RELEASE");
-            assertThat(response.get("third_global").get(0).get("path")).isEqualTo("#DEMO#NJS#demoGlobal#1.0.0#WORKINGCOPY");
-            assertThat(response.get("global").get(1).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#RELEASE");
-            assertThat(response.get("global").get(0).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#WORKINGCOPY");
-            assertThat(response.get("global").get(0).get("inModel")).isEqualTo(true);
-            assertThat(response.get("second_global").get(0).get("inModel")).isEqualTo(true);
-            assertThat(response.get("third_global").get(0).get("inModel")).isEqualTo(false);
-        }
-
-        @Test
-        public void no_npe_on_timeline_request_on_snapshot_events () {
-            ApplicationModuleData module1 = ApplicationModuleData
-                    .withApplicationName("module1")
-                    .withVersion("version")
-                    .withPath("#path#1#the_module_name#the_module_version#WORKINGCOPY")
-                    .withId(0)
-                    .withInstances(Sets.newHashSet())
-                    .isWorkingcopy()
-                    .build();
-
-            final PlatformKey platformKey = PlatformKey.withName("a_pltfm")
-                    .withApplicationName("an_app")
-                    .build();
-
-            PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey.getName())
-                    .withApplicationName(platformKey.getApplicationName())
-                    .withApplicationVersion("app_version")
-                    .withModules(Sets.newHashSet(module1))
-                    .withVersion(1L)
-                    .isProduction();
-
-            applicationsWithEvent.createPlatform(builder1.build());
-            applicationsWithEvent.takeSnapshot(platformKey);
-            Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("key", "prop_{{instance_key}}")), Sets.newHashSet());
-            applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
-                    "#path#1#the_module_name#the_module_version#WORKINGCOPY",
-                    PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
-            PropertiesData propertiesDataOutput = applicationsWithEvent.getProperties(
-                    platformKey,
-                    "#path#1#the_module_name#the_module_version#WORKINGCOPY",
-                    System.currentTimeMillis());
-
-            DefaultPropertiesConverter defaultPropertiesConverter = new DefaultPropertiesConverter();
-            PropertiesData propertiesDataInput = defaultPropertiesConverter.toPropertiesData(properties);
-            assertThat(propertiesDataInput.getKeyValueProperties()).isEqualTo(propertiesDataOutput.getKeyValueProperties());
-        }
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
+
+    @Test
+    public void should_return_400_when_get_properties_if_application_name_is_not_valid() {
+        Response response = rawClient("/applications/%20%09%00/platforms/dfdfdf/properties")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_get_properties_if_platform_name_is_not_valid() {
+        Response response = rawClient("/applications/tryruytur/platforms/%20%09%00/properties")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_get_properties_if_path_is_not_valid() {
+        Response response = rawClient("/applications/tryruytur/platforms/dfdfdf/properties")
+                .queryParam("path", "%20%09%00")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_get_properties_instance_model_if_application_name_is_not_valid() {
+        Response response = rawClient("/applications/%20%09%00/platforms/dfdfdf/properties/instance_model")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_get_properties_instance_model_if_platform_name_is_not_valid() {
+        Response response = rawClient("/applications/tryruytur/platforms/%20%09%00/properties/instance_model")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_get_properties_instance_model_if_path_is_not_valid() {
+        Response response = rawClient("/applications/tryruytur/platforms/dfdfdf/properties/instance_model")
+                .queryParam("path", "%20%09%00")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_post_properties_if_application_name_is_not_valid() {
+        InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+        when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
+
+        Response response = rawClient("/applications/%20%09%00/platforms/pltfm_name/properties/instance_model")
+                .queryParam("path", "some_path")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_post_properties_if_platform_name_is_not_valid() {
+        InstanceModel instanceModel = new InstanceModel(Sets.newHashSet());
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+        when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
+
+        Response response = rawClient("/applications/app_name/platforms/%20%09%00/properties/instance_model")
+                .queryParam("path", "some_path")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_if_trying_to_save_properties_without_platform_name_valid() throws
+            JsonProcessingException {
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
+
+        Response response = rawClient("/applications/my_app/platforms/%20%09%00/properties")
+                .queryParam("path", "some_path")
+                .queryParam("platform_vid", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_if_trying_to_save_properties_without_application_name_valid() throws
+            JsonProcessingException {
+        Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
+
+        Response response = rawClient("/applications/%20%09%00/platforms/my_pltfm/properties")
+                .queryParam("path", "some_path")
+                .queryParam("platform_vid", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_create_snapshot() throws JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        when(applications.takeSnapshot(platformKey)).thenReturn(1L);
+
+        withoutAuth("/applications/app_name/platforms/pltfm_name/take_snapshot")
+                .post(Entity.json(null));
+    }
+
+    @Test
+    public void should_return_400_when_post_take_snapshot_if_platform_name_is_not_valid() throws
+            JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        when(applications.takeSnapshot(platformKey)).thenReturn(1L);
+        Response response = withoutAuth("/applications/app_name/platforms/%20%09%00/take_snapshot")
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_post_take_snapshot_if_application_name_is_not_valid() throws
+            JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        when(applications.takeSnapshot(platformKey)).thenReturn(1L);
+        Response response = withoutAuth("/applications/%20%09%00/platforms/pltfm_name/take_snapshot")
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_restore_snapshot() throws JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("1.0.0.0")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder1.build();
+
+        when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
+
+        assertThat(rawClient("/applications/app_name/platforms/pltfm_name/restore_snapshot")
+                .queryParam("timestamp", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null), Platform.class)).isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
+    }
+
+    @Test
+    public void should_return_400_when_post_restore_snapshot_if_platform_name_is_not_valid() throws
+            JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("1.0.0.0")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder1.build();
+
+        when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
+        Response response = rawClient("/applications/app_name/platforms/%20%09%00/restore_snapshot")
+                .queryParam("timestamp", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_post_restore_snapshot_if_application_name_is_not_valid() throws
+            JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName("pltfm_name")
+                .withApplicationName("app_name")
+                .withApplicationVersion("1.0.0.0")
+                .withModules(Sets.newHashSet())
+                .withVersion(1L)
+                .isProduction();
+
+        PlatformData platform = builder1.build();
+
+        when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
+        Response response = rawClient("/applications/%20%09%00/platforms/pltfm_name/restore_snapshot")
+                .queryParam("timestamp", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_snapshot() throws JsonProcessingException {
+        PlatformKey platformKey = PlatformKey.withName("pltfm_name")
+                .withApplicationName("app_name")
+                .build();
+
+        List<Long> listInput = new ArrayList<>();
+        listInput.add(1L);
+        listInput.add(3L);
+        listInput.add(2L);
+
+        List listOuput = new ArrayList();
+        listOuput.add(3);
+        listOuput.add(2);
+        listOuput.add(1);
+
+        when(applications.getSnapshots(platformKey)).thenReturn(listInput);
+
+        assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/snapshots")
+                .get(List.class)).isEqualTo(listOuput);
+    }
+
+    @Test
+    public void should_return_400_when_get_snapshot_if_platform_name_is_not_valid() throws
+            JsonProcessingException {
+        Response response = withoutAuth("/applications/app_name/platforms/%20%09%00/snapshots")
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void should_return_400_when_get_snapshot_if_application_name_is_not_valid() throws
+            JsonProcessingException {
+        Response response = withoutAuth("/applications/%20%09%00/platforms/pltfm_name/snapshots")
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void test_getGlobalPropertiesUsage() throws JsonProcessingException {
+
+
+        ApplicationModuleData module1 = ApplicationModuleData
+                .withApplicationName("demoKatana")
+                .withVersion("1.0.0")
+                .withPath("#DEMO#CMS")
+                .withId(0)
+                .withInstances(Sets.newHashSet())
+                .setWorkingcopy(true)
+                .build();
+
+        ApplicationModuleData module2 = ApplicationModuleData
+                .withApplicationName("demoKatana")
+                .withVersion("1.0.0")
+                .withPath("#DEMO#CMS")
+                .withId(1)
+                .withInstances(Sets.newHashSet())
+                .setWorkingcopy(false)
+                .build();
+
+        ApplicationModuleData module3 = ApplicationModuleData
+                .withApplicationName("demoGlobal")
+                .withVersion("1.0.0")
+                .withPath("#DEMO#NJS")
+                .withId(2)
+                .withInstances(Sets.newHashSet())
+                .isWorkingcopy()
+                .build();
+
+
+        PlatformKey platformKey1 = PlatformKey.withName("USN1")
+                .withApplicationName("KTN")
+                .build();
+
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey1.getName())
+                .withApplicationName(platformKey1.getApplicationName())
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet(module1, module2, module3))
+                .withVersion(1L)
+                .isProduction();
+
+
+        PlatformData pltfm1 = builder1.build();
+
+        Set<KeyValueValorisationData> g_prop = new HashSet<>();
+        Set<KeyValueValorisationData> prop_1 = new HashSet<>();
+        Set<KeyValueValorisationData> prop_2 = new HashSet<>();
+        Set<KeyValueValorisationData> prop_3 = new HashSet<>();
+
+
+        Set<KeyValuePropertyModel> model_1 = new HashSet<>();
+        Set<KeyValuePropertyModel> model_2 = new HashSet<>();
+        Set<KeyValuePropertyModel> model_3 = new HashSet<>();
+
+        g_prop.add(new KeyValueValorisationData("first_global", "first_global_value"));
+        g_prop.add(new KeyValueValorisationData("second_global", "second_global_value"));
+        g_prop.add(new KeyValueValorisationData("third_global", "third_global_value"));
+        g_prop.add(new KeyValueValorisationData("whole_global", "whole_global_value"));
+        g_prop.add(new KeyValueValorisationData("global", "global_value"));
+        g_prop.add(new KeyValueValorisationData("unused", "unused_value"));
+
+        prop_1.add(new KeyValueValorisationData("prop_11", "{{first_global}}"));
+        prop_1.add(new KeyValueValorisationData("prop_12", "{{whole_global}}"));
+
+        prop_2.add(new KeyValueValorisationData("prop_21", "{{second_global}}"));
+        prop_2.add(new KeyValueValorisationData("prop_22", "{{whole_global}}"));
+
+        prop_3.add(new KeyValueValorisationData("prop_31", "{{third_global}}"));
+        prop_3.add(new KeyValueValorisationData("prop_32", "{{whole_global}}"));
+
+        model_1.add(new KeyValuePropertyModel("global", ""));
+        model_2.add(new KeyValuePropertyModel("global", ""));
+        model_2.add(new KeyValuePropertyModel("prop_21", ""));
+
+        PropertiesData global_properties = new PropertiesData(g_prop, Sets.newHashSet());
+        PropertiesData properties_1 = new PropertiesData(prop_1, Sets.newHashSet());
+        PropertiesData properties_2 = new PropertiesData(prop_2, Sets.newHashSet());
+        PropertiesData properties_3 = new PropertiesData(prop_3, Sets.newHashSet());
+
+        PlatformKey platformKey = PlatformKey.withName("USN1")
+                .withApplicationName("KTN")
+                .build();
+
+        when(applications.getPlatform(any())).thenReturn(Optional.of(pltfm1));
+        when(applications.getProperties(platformKey, "#")).thenReturn(global_properties);
+        when(applications.getProperties(platformKey, module1.getPropertiesPath())).thenReturn(properties_1);
+        when(applications.getProperties(platformKey, module2.getPropertiesPath())).thenReturn(properties_2);
+        when(applications.getProperties(platformKey, module3.getPropertiesPath())).thenReturn(properties_3);
+
+        Optional<HesperidesPropertiesModel> opt_1 = Optional.of(new HesperidesPropertiesModel(model_1, Sets.newHashSet()));
+        Optional<HesperidesPropertiesModel> opt_2 = Optional.of(new HesperidesPropertiesModel(model_2, Sets.newHashSet()));
+        Optional<HesperidesPropertiesModel> opt_3 = Optional.of(new HesperidesPropertiesModel(model_3, Sets.newHashSet()));
+
+        when(modules.getModel(new ModuleKey(module2.getName(), Release.of(module2.getVersion())))).thenReturn(opt_2);
+        when(modules.getModel(new ModuleKey(module1.getName(), WorkingCopy.of(module1.getVersion())))).thenReturn(opt_1);
+        when(modules.getModel(new ModuleKey(module3.getName(), WorkingCopy.of(module3.getVersion())))).thenReturn(opt_3);
+
+
+        HashMap<String, ArrayList<HashMap>> response = withoutAuth("/applications/KTN/platforms/USN1/global_properties_usage").get(HashMap.class);
+
+        assertThat(response.get("first_global").size()).isEqualTo(1);
+        assertThat(response.get("second_global").size()).isEqualTo(1);
+        assertThat(response.get("third_global").size()).isEqualTo(1);
+        assertThat(response.get("whole_global").size()).isEqualTo(3);
+        assertThat(response.get("global").size()).isEqualTo(2);
+        assertThat(response.get("unused").size()).isEqualTo(0);
+
+        assertThat(response.get("first_global").get(0).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#WORKINGCOPY");
+        assertThat(response.get("second_global").get(0).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#RELEASE");
+        assertThat(response.get("third_global").get(0).get("path")).isEqualTo("#DEMO#NJS#demoGlobal#1.0.0#WORKINGCOPY");
+        assertThat(response.get("global").get(1).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#RELEASE");
+        assertThat(response.get("global").get(0).get("path")).isEqualTo("#DEMO#CMS#demoKatana#1.0.0#WORKINGCOPY");
+        assertThat(response.get("global").get(0).get("inModel")).isEqualTo(true);
+        assertThat(response.get("second_global").get(0).get("inModel")).isEqualTo(true);
+        assertThat(response.get("third_global").get(0).get("inModel")).isEqualTo(false);
+    }
+
+    @Test
+    public void no_npe_on_timeline_request_on_snapshot_events() {
+        ApplicationModuleData module1 = ApplicationModuleData
+                .withApplicationName("module1")
+                .withVersion("version")
+                .withPath("#path#1#the_module_name#the_module_version#WORKINGCOPY")
+                .withId(0)
+                .withInstances(Sets.newHashSet())
+                .isWorkingcopy()
+                .build();
+
+        final PlatformKey platformKey = PlatformKey.withName("a_pltfm")
+                .withApplicationName("an_app")
+                .build();
+
+        PlatformData.IBuilder builder1 = PlatformData.withPlatformName(platformKey.getName())
+                .withApplicationName(platformKey.getApplicationName())
+                .withApplicationVersion("app_version")
+                .withModules(Sets.newHashSet(module1))
+                .withVersion(1L)
+                .isProduction();
+
+        applicationsWithEvent.createPlatform(builder1.build());
+        applicationsWithEvent.takeSnapshot(platformKey);
+        Properties properties = new Properties(Sets.newHashSet(new KeyValueValorisation("key", "prop_{{instance_key}}")), Sets.newHashSet());
+        applicationsWithEvent.createOrUpdatePropertiesInPlatform(platformKey,
+                "#path#1#the_module_name#the_module_version#WORKINGCOPY",
+                PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment);
+        PropertiesData propertiesDataOutput = applicationsWithEvent.getProperties(
+                platformKey,
+                "#path#1#the_module_name#the_module_version#WORKINGCOPY",
+                System.currentTimeMillis());
+
+        DefaultPropertiesConverter defaultPropertiesConverter = new DefaultPropertiesConverter();
+        PropertiesData propertiesDataInput = defaultPropertiesConverter.toPropertiesData(properties);
+        assertThat(propertiesDataInput.getKeyValueProperties()).isEqualTo(propertiesDataOutput.getKeyValueProperties());
+    }
+}

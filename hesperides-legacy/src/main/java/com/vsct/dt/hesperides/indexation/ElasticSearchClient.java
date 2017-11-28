@@ -52,6 +52,7 @@ public class ElasticSearchClient {
 
     /**
      * Getter for the httphost
+     *
      * @return HttpHost
      */
     public HttpHost getHost() {
@@ -60,6 +61,7 @@ public class ElasticSearchClient {
 
     /**
      * Getter the index
+     *
      * @return a string representing the index on elasticsearch
      */
     public String getIndex() {
@@ -69,6 +71,7 @@ public class ElasticSearchClient {
     /**
      * Getter to use the client somewhere else
      * Responsibility is given to the caller to handle connections
+     *
      * @return the HttpClient instance
      */
     public HttpClient getClient() {
@@ -110,7 +113,7 @@ public class ElasticSearchClient {
             } catch (final IOException e) {
                 throw new ESServiceException("ES is reachable but we failed to get response content", url, body, ElasticSearchClient.this.host.getHostName(), ElasticSearchClient.this.host.getPort(), ElasticSearchClient.this.index, e);
             } finally {
-                if(post != null){
+                if (post != null) {
                     post.releaseConnection();
                 }
             }
@@ -128,7 +131,7 @@ public class ElasticSearchClient {
             } catch (final IOException e) {
                 throw new ESServiceException("ES is reachable but we failed to get response content", url, "", ElasticSearchClient.this.host.getHostName(), ElasticSearchClient.this.host.getPort(), ElasticSearchClient.this.index, e);
             } finally {
-                if(delete != null){
+                if (delete != null) {
                     delete.releaseConnection();
                 }
             }
@@ -146,7 +149,7 @@ public class ElasticSearchClient {
             } catch (final IOException e) {
                 throw new ESServiceException("ES is reachable but we failed to get response content", url, "", ElasticSearchClient.this.host.getHostName(), ElasticSearchClient.this.host.getPort(), ElasticSearchClient.this.index, e);
             } finally {
-                if(get != null){
+                if (get != null) {
                     get.releaseConnection();
                 }
             }
