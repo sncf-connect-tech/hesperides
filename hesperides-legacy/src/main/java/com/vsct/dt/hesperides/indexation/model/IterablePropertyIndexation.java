@@ -41,7 +41,7 @@ import java.util.Set;
 @JsonPropertyOrder({"name", "comment", "model", "valorisations"})
 public final class IterablePropertyIndexation extends PropertyIndexation {
     private final Set<PropertyIndexation> model;
-    private final List<Valorisation>              valorisations;
+    private final List<Valorisation> valorisations;
 
     public IterablePropertyIndexation(final String name, final String comment) {
         this(name, comment, Sets.newHashSet(), Lists.newArrayList());

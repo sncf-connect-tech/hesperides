@@ -115,6 +115,7 @@ public class DefaultIterableValorisationConverter implements IterableValorisatio
 
     /**
      * Convert list of IterableValorisationData.IterableValorisationItemData to list of IterableValorisation.IterableValorisationItem.
+     *
      * @param list input
      * @return outpur
      */
@@ -130,6 +131,7 @@ public class DefaultIterableValorisationConverter implements IterableValorisatio
 
     /**
      * Convert list of IterableValorisation.IterableValorisationItem to list of IterableValorisationData.IterableValorisationItemData.
+     *
      * @param list input
      * @return outpur
      */

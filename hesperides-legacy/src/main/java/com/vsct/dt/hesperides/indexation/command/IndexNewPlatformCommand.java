@@ -49,7 +49,7 @@ public final class IndexNewPlatformCommand implements ElasticSearchIndexationCom
         try {
             platformAsString = ElasticSearchMappers.PLATFORM_WRITER.writeValueAsString(platform);
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Could not serialize platform "+platform);
+            LOGGER.error("Could not serialize platform " + platform);
             throw new RuntimeException(e);
         }
 

@@ -42,27 +42,27 @@ public class Platform {
     @NotNull
     @NotEmpty
     @JsonProperty("platform_name")
-    private final String                          platformName;
+    private final String platformName;
 
     @NotNull
     @NotEmpty
     @JsonProperty("application_name")
-    private final String                          applicationName;
+    private final String applicationName;
 
     @NotNull
     @NotEmpty
     @JsonProperty("application_version")
-    private final String                          applicationVersion;
+    private final String applicationVersion;
 
     @JsonProperty("modules")
     @JsonDeserialize(as = ImmutableSet.class)
     private final Set<ApplicationModule> modules;
 
     @JsonProperty("production")
-    private final boolean                         production; //default value, some events have not this field
+    private final boolean production; //default value, some events have not this field
 
     @JsonProperty("version_id")
-    private final long                            versionID; //initial default value
+    private final long versionID; //initial default value
 
     @JsonCreator
     public Platform(@JsonProperty("platform_name") final String platformName,
@@ -79,7 +79,7 @@ public class Platform {
         this.production = isProduction;
     }
 
-    public Platform(final PlatformKey key, final String applicationVersion, final boolean isProduction, final Set<ApplicationModule> modules, final long versionID){
+    public Platform(final PlatformKey key, final String applicationVersion, final boolean isProduction, final Set<ApplicationModule> modules, final long versionID) {
         this(key.getName(), key.getApplicationName(), applicationVersion, isProduction, modules, versionID);
     }
 

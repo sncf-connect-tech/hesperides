@@ -21,7 +21,7 @@
 
 /**
  * This is for managing the events in hesperides.
- *
+ * <p>
  * Created by tidiane_siidibe on 02/03/2016.
  */
 package com.vsct.dt.hesperides.events;

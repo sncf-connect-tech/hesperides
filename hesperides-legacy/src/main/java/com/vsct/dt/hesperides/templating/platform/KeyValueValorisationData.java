@@ -37,14 +37,14 @@ import java.util.regex.Pattern;
 
 /**
  * Created by william_montaz on 10/07/14.
- *
+ * <p>
  * Modified by tidiane_sidibe on 10/11/2016 : Adding whitespaces ignoring when using global properties
- *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
 @JsonPropertyOrder({"name", "value"})
-@JsonDeserialize//This annotation is important, it prevents KeyValueValorisation from using the Valorisation Deserializer, which would cause endless loops
+@JsonDeserialize
+//This annotation is important, it prevents KeyValueValorisation from using the Valorisation Deserializer, which would cause endless loops
 public final class KeyValueValorisationData extends ValorisationData {
 
     public static final Pattern VALORISATION_TEMPLATING_PATTERN = Pattern.compile("\\{\\{(.*?)\\}\\}");
@@ -84,8 +84,7 @@ public final class KeyValueValorisationData extends ValorisationData {
             String replacement = context.get(capture);
             if (replacement == null) {
                 return captured.group();
-            }
-            else {
+            } else {
                 return replacement;
             }
         });

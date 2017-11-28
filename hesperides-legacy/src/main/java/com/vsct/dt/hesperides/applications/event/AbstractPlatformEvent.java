@@ -49,8 +49,7 @@ public abstract class AbstractPlatformEvent<T> implements HesperidesCommand<T> {
                         .withInstances(module.getInstances())
                         .setWorkingcopy(module.isWorkingCopy())
                         .build();
-            }
-            else {
+            } else {
                 return module;
             }
         }).collect(Collectors.toSet());

@@ -37,6 +37,7 @@ public interface TimeStampedPlatformConverter {
 
     /**
      * Convert TimeStampedPlatformData to TimeStampedPlatform.
+     *
      * @param timeStampedPlatformData input
      * @return output
      */
@@ -44,6 +45,7 @@ public interface TimeStampedPlatformConverter {
 
     /**
      * Convert TimeStampedPlatform to TimeStampedPlatformData.
+     *
      * @param timeStampedPlatform input
      * @return output
      */

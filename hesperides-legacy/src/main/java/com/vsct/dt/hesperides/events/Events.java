@@ -25,14 +25,15 @@ import java.util.List;
 
 /**
  * Event aggragator interface.
- *
+ * <p>
  * Created by tidiane_sidibe on 01/03/2016.
  */
 public interface Events {
     /**
      * Gets the list of the events for the specified stream
+     *
      * @param streamName : the full name of the stream
-     * @param page     : Pagination page current page number
+     * @param page       : Pagination page current page number
      * @param size       : the size of the pagination
      * @return {@code Set<EventData>} a set of event data
      */

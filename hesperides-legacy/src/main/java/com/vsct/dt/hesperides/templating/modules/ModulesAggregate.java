@@ -19,13 +19,8 @@
 
 package com.vsct.dt.hesperides.templating.modules;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.storage.EventStore;
@@ -35,6 +30,10 @@ import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterf
 import com.vsct.dt.hesperides.templating.packages.AbstractTemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Service used to manage modules and related templates.
@@ -71,9 +70,10 @@ public class ModulesAggregate extends AbstractModulesAggregate {
 
     /**
      * Constructor using no particular UserProvider (used when there was no authentication)
-     * @param eventBus {@link com.google.common.eventbus.EventBus} used to propagate events
-     * @param eventStore {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
-     * @param templatePackages {@link com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate} used to get techno related tempaltes
+     *
+     * @param eventBus                {@link com.google.common.eventbus.EventBus} used to propagate events
+     * @param eventStore              {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
+     * @param templatePackages        {@link com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate} used to get techno related tempaltes
      * @param hesperidesConfiguration hesperides configuration
      */
     public ModulesAggregate(final EventBus eventBus, final EventStore eventStore,
@@ -88,10 +88,11 @@ public class ModulesAggregate extends AbstractModulesAggregate {
 
     /**
      * Constructor using a specific UserProvider
-     * @param eventBus {@link com.google.common.eventbus.EventBus} used to propagate events
-     * @param eventStore {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
-     * @param templatePackages {@link com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate} used to get techno related tempaltes
-     * @param userProvider {@link com.vsct.dt.hesperides.storage.UserProvider} used to get information about current user
+     *
+     * @param eventBus                {@link com.google.common.eventbus.EventBus} used to propagate events
+     * @param eventStore              {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
+     * @param templatePackages        {@link com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate} used to get techno related tempaltes
+     * @param userProvider            {@link com.vsct.dt.hesperides.storage.UserProvider} used to get information about current user
      * @param hesperidesConfiguration Hesperides configuration
      */
     public ModulesAggregate(final EventBus eventBus, final EventStore eventStore, final TemplatePackagesAggregate templatePackages,
@@ -105,9 +106,9 @@ public class ModulesAggregate extends AbstractModulesAggregate {
     /**
      * Init module.
      *
-     * @param eventStore {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
-     * @param templatePackages {@link com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate} used to get techno related tempaltes
-     * @param nbEventBeforePersiste nb event before store cache
+     * @param eventStore              {@link com.vsct.dt.hesperides.storage.EventStore} used to store events
+     * @param templatePackages        {@link com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate} used to get techno related tempaltes
+     * @param nbEventBeforePersiste   nb event before store cache
      * @param hesperidesConfiguration {@link com.vsct.dt.hesperides.HesperidesConfiguration} configuration hesperides
      */
     private void initModulesAggregate(final EventStore eventStore, final TemplatePackagesAggregate templatePackages,

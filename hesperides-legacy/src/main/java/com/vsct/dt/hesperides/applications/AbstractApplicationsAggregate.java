@@ -27,11 +27,13 @@ import com.vsct.dt.hesperides.applications.cache.ApplicationStoragePrefixInterfa
 import com.vsct.dt.hesperides.applications.event.*;
 import com.vsct.dt.hesperides.applications.properties.PropertiesRegistryInterface;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
-import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
+import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
-import com.vsct.dt.hesperides.templating.platform.*;
+import com.vsct.dt.hesperides.templating.platform.PlatformData;
+import com.vsct.dt.hesperides.templating.platform.PropertiesData;
+import com.vsct.dt.hesperides.templating.platform.TimeStampedPlatformData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,13 +178,14 @@ public abstract class AbstractApplicationsAggregate extends AbstractThreadAggreg
     }
 
     /**
-     *  Handler
+     * Handler
+     *
      * @param platform
      * @return
      */
     private PlatformData createPlatformFromExistingPlatformHandler(final PlatformData platform,
                                                                    final PlatformData originPlatform,
-                                                                   final Map<String, PropertiesData> originProperties){
+                                                                   final Map<String, PropertiesData> originProperties) {
         final PlatformCreatedFromExistingCommand hc = new PlatformCreatedFromExistingCommand(getPlatformRegistry(),
                 getPropertiesRegistry(), platform, originPlatform, originProperties);
 
@@ -217,7 +220,8 @@ public abstract class AbstractApplicationsAggregate extends AbstractThreadAggreg
     @Override
     public PropertiesData getProperties(final PlatformKey platformKey, final String path, final long timestamp) {
         return getPropertiesRegistry().getProperties(platformKey.getApplicationName(), platformKey.getName(), path,
-                timestamp).orElse(PropertiesData.empty());    }
+                timestamp).orElse(PropertiesData.empty());
+    }
 
     /**
      * Create or Update properties for a platform at the given path.
@@ -447,6 +451,7 @@ public abstract class AbstractApplicationsAggregate extends AbstractThreadAggreg
 
     /**
      * Get a set containing all platforms
+     *
      * @return an {@link java.util.Set} of {@link PlatformData}s
      */
     public Collection<PlatformData> getAll() {

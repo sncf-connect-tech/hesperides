@@ -24,9 +24,9 @@ import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
+import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.HesperidesCommand;
-import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.Models;
@@ -67,7 +67,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Constructor using no particular UserProvider (used when there was no authentication)
-     * @param eventBus {@link EventBus} used to propagate events
+     *
+     * @param eventBus   {@link EventBus} used to propagate events
      * @param eventStore {@link EventStore} used to store events
      */
     public AbstractModulesAggregate(final EventBus eventBus, final EventStore eventStore) {
@@ -76,8 +77,9 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Constructor using a specific UserProvider
-     * @param eventBus {@link EventBus} used to propagate events
-     * @param eventStore {@link EventStore} used to store events
+     *
+     * @param eventBus     {@link EventBus} used to propagate events
+     * @param eventStore   {@link EventStore} used to store events
      * @param userProvider {@link UserProvider} used to get information about current user
      */
     public AbstractModulesAggregate(final EventBus eventBus, final EventStore eventStore,
@@ -88,6 +90,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Convenient method used to apply actions on all modules (ex. Reindexation)
+     *
      * @param consumer {@link Consumer} performing actions on a single module
      */
     public void withAll(Consumer<Module> consumer) {
@@ -97,6 +100,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Convenient method used to apply actions on all templates. Templates are loosely tied to modules
+     *
      * @param consumer {@link Consumer} performing actions on a single template
      */
     public void withAllTemplates(Consumer<Template> consumer) {
@@ -106,6 +110,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Get a set containing all modules (moduels are unique)
+     *
      * @return an {@link Set} of {@link Module}s
      */
     @Override
@@ -115,6 +120,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Get a set containing all template
+     *
      * @return an {@link java.util.Set} of {@link Template}s
      */
     public Collection<Template> getAll() {
@@ -123,6 +129,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Get immutable representation of a module
+     *
      * @param moduleKey {@link ModuleKey} describing module
      * @return an {@link Optional} of a {@link Module}
      */
@@ -132,6 +139,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Get all templates related to a module
+     *
      * @param moduleKey {@link ModuleKey} describing module
      * @return {@link List} of {@link Template}
      */
@@ -142,7 +150,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Get a specific template in a module
-     * @param moduleKey {@link ModuleKey} describing module
+     *
+     * @param moduleKey    {@link ModuleKey} describing module
      * @param templateName Name of the template
      * @return an {@link Optional} of a {@link Template}
      */
@@ -153,11 +162,12 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
     /**
      * Returns the properties model of a module
      * It combines the model related to module specific tempaltes and the models related to technos
+     *
      * @param moduleKey @link com.vsct.dt.hesperides.templating.modules.ModuleKey} describing module
      * @return The {@link HesperidesPropertiesModel}
      */
     public Optional<HesperidesPropertiesModel> getModel(final ModuleKey moduleKey) {
-        if(! getModuleRegistry().existsModule(moduleKey)) return Optional.empty();
+        if (!getModuleRegistry().existsModule(moduleKey)) return Optional.empty();
 
         HesperidesPropertiesModel packageModel = getModels().getPropertiesModel(moduleKey.getNamespace());
 
@@ -175,6 +185,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Creates a working copy of a module
+     *
      * @param moduleSource {@link Module} representing the module
      * @return the {@link Module} created with its version ID
      */
@@ -187,6 +198,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
     /**
      * Updates a working copy of the module.
      * This method only updates the module object and not the templates related thus it is not possible to update fields representing the key of the module
+     *
      * @param module {@link Module} represneting the module
      * @return The updated {@link Module} with its new version ID
      */
@@ -207,7 +219,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
      * Version id provided in tempalte data has to be the same as the actual version id of the template
      * NB: Separation of module version id and template version id is questionnable as it does not really provide optimistic locking on the module object itself
      * Since it doesn't lead to any problems right now, no use to change it
-     * @param moduleKey {@link ModuleWorkingCopyKey} describing the module working copy
+     *
+     * @param moduleKey    {@link ModuleWorkingCopyKey} describing the module working copy
      * @param templateData Might need to change for TemplateVO
      * @return {@link Template} with its new version ID
      */
@@ -225,7 +238,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Creates a tempalte in a module working copy
-     * @param moduleKey {@link ModuleWorkingCopyKey} describing the module working copy
+     *
+     * @param moduleKey    {@link ModuleWorkingCopyKey} describing the module working copy
      * @param templateData Might need to change for TemplateVO
      * @return {@link Template} with its new version ID
      */
@@ -244,7 +258,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Removes a template in a module working copy
-     * @param moduleKey {@link ModuleWorkingCopyKey} describing the module working copy
+     *
+     * @param moduleKey    {@link ModuleWorkingCopyKey} describing the module working copy
      * @param templateName
      */
     public void deleteTemplateInWorkingCopy(final ModuleWorkingCopyKey moduleKey, final String templateName) {
@@ -259,7 +274,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
     /**
      * Creates a working copy of a module from another module
      * Templates are also copied from the source module
-     * @param newModuleKey {@link ModuleWorkingCopyKey} describing the module working copy
+     *
+     * @param newModuleKey  {@link ModuleWorkingCopyKey} describing the module working copy
      * @param fromModuleKey {@link ModuleKey} describing the module to copy from
      * @return
      */
@@ -270,7 +286,8 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
     /**
      * Creates a release from an existing working copy
      * Templates are copied
-     * @param fromModuleKey {@link ModuleWorkingCopyKey} describing the module working copy to create the release from
+     *
+     * @param fromModuleKey  {@link ModuleWorkingCopyKey} describing the module working copy to create the release from
      * @param releaseVersion The version of the release. This can be useful to transform a 1.0-SNAPSHOT working copy to a 1.0 release
      * @return
      */
@@ -283,6 +300,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
      * Create a module from another module
      * The operation is not really atomic since the module and the related templates could have been changed while the method execute
      * It is not likely to happened due to the low charge of hesperides
+     *
      * @param newModuleKey
      * @param fromModuleKey
      * @return the freshly created module
@@ -301,6 +319,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
 
     /**
      * Creates a new module with a set of templates
+     *
      * @param newModuleKey
      * @param moduleSource
      * @param templatesFrom Set of {@link Template} to add to the module created
@@ -310,7 +329,7 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
                                 final Set<Template> templatesFrom) {
 
         final ModuleCreatedCommand hc = new ModuleCreatedCommand(getModuleRegistry(), getTemplateRegistry(), newModuleKey,
-            moduleSource, templatesFrom);
+                moduleSource, templatesFrom);
 
         final ModuleCreatedEvent moduleCreatedEvent = this.tryAtomic(newModuleKey.getEntityName(), hc);
 
@@ -320,9 +339,10 @@ public abstract class AbstractModulesAggregate extends AbstractThreadAggregate
     /**
      * Deletes a module and all related templates
      * The module underlying stream is not actually deleted, just an event is posted
+     *
      * @param moduleKey {@link ModuleKey} to delete
      */
-    public void delete(final ModuleKey moduleKey){
+    public void delete(final ModuleKey moduleKey) {
 
         final ModuleDeletedCommand hc = new ModuleDeletedCommand(getModuleRegistry(), getTemplateRegistry(), moduleKey);
 

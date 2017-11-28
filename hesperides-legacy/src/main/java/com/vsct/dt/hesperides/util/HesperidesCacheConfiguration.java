@@ -57,6 +57,7 @@ public class HesperidesCacheConfiguration {
     public void setNbEventBeforePersiste(long nbEventBeforePersiste) {
         this.nbEventBeforePersiste = nbEventBeforePersiste;
     }
+
     public HesperidesCacheParameter getPlatformTimeline() {
         return platformTimeline;
     }

@@ -24,11 +24,11 @@ package com.vsct.dt.hesperides.applications;
 import java.util.Objects;
 
 /**
-* Created by william_montaz on 29/04/2015.
-*/
+ * Created by william_montaz on 29/04/2015.
+ */
 public class PlatformSnapshotKey implements SnapshotKey {
 
-    private final long        timestamp;
+    private final long timestamp;
     private final PlatformKey platformKey;
 
     public PlatformSnapshotKey(long timestamp, PlatformKey platformKey) {
@@ -38,7 +38,7 @@ public class PlatformSnapshotKey implements SnapshotKey {
 
     @Override
     public String getIdentifier() {
-        return "snapshot-platform-"+platformKey.getApplicationName()+"-"+platformKey.getName()+"-"+timestamp;
+        return "snapshot-platform-" + platformKey.getApplicationName() + "-" + platformKey.getName() + "-" + timestamp;
     }
 
     @Override

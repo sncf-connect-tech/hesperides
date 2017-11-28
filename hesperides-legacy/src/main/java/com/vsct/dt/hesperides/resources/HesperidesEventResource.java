@@ -28,8 +28,6 @@ import com.vsct.dt.hesperides.security.model.User;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -37,7 +35,7 @@ import java.util.List;
 
 /**
  * Created by tidiane_sidibe on 01/03/2016.
- *
+ * <p>
  * This exposes services for operations on events.
  */
 
@@ -45,7 +43,8 @@ import java.util.List;
 @Api("/events")
 public class HesperidesEventResource extends BaseResource {
     private final Events events;
-    public HesperidesEventResource (final Events events){
+
+    public HesperidesEventResource(final Events events) {
         this.events = events;
     }
 
@@ -58,7 +57,7 @@ public class HesperidesEventResource extends BaseResource {
                     "The default page number is 1 and the default pagination size is 25"
     )
     @Produces(MediaType.APPLICATION_JSON)
-    public List<EventData> getEventsList(@Auth User user, @PathParam("stream_name") final String streamName, @QueryParam("page") final int page, @QueryParam("size") final int size){
+    public List<EventData> getEventsList(@Auth User user, @PathParam("stream_name") final String streamName, @QueryParam("page") final int page, @QueryParam("size") final int size) {
 
         return this.events.getEventsList(streamName, page, size);
     }

@@ -23,11 +23,11 @@ package com.vsct.dt.hesperides.templating.platform;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
-import static com.google.common.base.Preconditions.checkArgument;
-
-import java.util.Set;
 
 /**
  * Created by emeric_martineau on 26/10/2015.

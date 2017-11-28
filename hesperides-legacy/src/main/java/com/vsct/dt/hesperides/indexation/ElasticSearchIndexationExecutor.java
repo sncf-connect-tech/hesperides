@@ -42,10 +42,10 @@ public class ElasticSearchIndexationExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchIndexationExecutor.class);
 
-    private final ExecutorService     singleThreadPool;
+    private final ExecutorService singleThreadPool;
     private final ElasticSearchClient elasticSearchClient;
-    private final int                 nRetries;
-    private final int                 waitBeforeRetryMs;
+    private final int nRetries;
+    private final int waitBeforeRetryMs;
 
     public ElasticSearchIndexationExecutor(final ElasticSearchClient elasticSearchClient, final int nRetries, final int waitBeforeRetryMs) {
         this.nRetries = nRetries;
@@ -93,10 +93,10 @@ public class ElasticSearchIndexationExecutor {
             private void withMaxRetry(final int maxRetry, final int wait, final Consumer<ElasticSearchIndexationCommand> consumer) {
                 int count = 1;
                 for (; ; ) {
-                    try{
+                    try {
                         consumer.accept(task);
                         return;
-                    } catch(Exception e){
+                    } catch (Exception e) {
                         if (count < maxRetry) {
                             LOGGER.warn("Indexation task failed. Retry in {} milliseconds", wait);
                             try {
@@ -120,12 +120,12 @@ public class ElasticSearchIndexationExecutor {
         /* Reset the index */
         HttpDelete deleteIndex = null;
         try {
-            deleteIndex = new HttpDelete("/"+elasticSearchClient.getIndex());
+            deleteIndex = new HttpDelete("/" + elasticSearchClient.getIndex());
             elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), deleteIndex);
         } catch (final Exception e) {
             LOGGER.info("Could not delete elastic search index. This mostly happens when there is no index already");
         } finally {
-            if(deleteIndex != null){
+            if (deleteIndex != null) {
                 deleteIndex.releaseConnection();
             }
         }
@@ -134,16 +134,16 @@ public class ElasticSearchIndexationExecutor {
 
         /* Add global mapping */
         HttpPut putGlobalMapping = null;
-        try(InputStream globalMappingFile = this.getClass().getClassLoader().getResourceAsStream("elasticsearch/global_mapping.json")) {
+        try (InputStream globalMappingFile = this.getClass().getClassLoader().getResourceAsStream("elasticsearch/global_mapping.json")) {
 
-            putGlobalMapping = new HttpPut("/"+elasticSearchClient.getIndex());
+            putGlobalMapping = new HttpPut("/" + elasticSearchClient.getIndex());
 
             putGlobalMapping.setEntity(new InputStreamEntity(globalMappingFile));
             elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putGlobalMapping);
 
             LOGGER.debug("Put new global mapping in {}", elasticSearchClient.getIndex());
         } finally {
-            if(putGlobalMapping != null){
+            if (putGlobalMapping != null) {
                 putGlobalMapping.releaseConnection();
             }
         }
@@ -153,15 +153,15 @@ public class ElasticSearchIndexationExecutor {
         for (final Mapping mapping : MAPPINGS) {
 
             HttpPut putMapping = null;
-            try(InputStream mappingFile = this.getClass().getClassLoader().getResourceAsStream(mapping.resource)){
+            try (InputStream mappingFile = this.getClass().getClassLoader().getResourceAsStream(mapping.resource)) {
 
-                putMapping = new HttpPut("/"+elasticSearchClient.getIndex()+"/" + mapping.documentName + "/_mapping");
+                putMapping = new HttpPut("/" + elasticSearchClient.getIndex() + "/" + mapping.documentName + "/_mapping");
                 putMapping.setEntity(new InputStreamEntity(mappingFile));
                 elasticSearchClient.getClient().execute(elasticSearchClient.getHost(), putMapping);
 
                 LOGGER.debug("Put new mapping in {}", mapping.documentName);
             } finally {
-                if(putMapping != null){
+                if (putMapping != null) {
                     putMapping.releaseConnection();
                 }
             }

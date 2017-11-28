@@ -31,7 +31,7 @@ import com.vsct.dt.hesperides.templating.platform.PlatformData;
 public final class PlatformUpdatedEvent {
     private final boolean copyingPropertiesForUpgradedModules;
     private final PlatformData platform;
-    private final String   applicationName;
+    private final String applicationName;
 
     @JsonCreator
     public PlatformUpdatedEvent(@JsonProperty("applicationName") final String applicationName,

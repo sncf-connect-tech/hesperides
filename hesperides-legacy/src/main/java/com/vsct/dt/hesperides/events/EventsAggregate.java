@@ -22,13 +22,10 @@
 package com.vsct.dt.hesperides.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.vsct.dt.hesperides.storage.Event;
 import com.vsct.dt.hesperides.storage.EventStore;
-
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.lifecycle.Managed;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +37,7 @@ import java.util.concurrent.*;
 
 /**
  * The aggregator for events.
- *
+ * <p>
  * Created by tidiane_sidibe on 01/03/2016.
  */
 public class EventsAggregate implements Events, Managed {
@@ -52,9 +49,10 @@ public class EventsAggregate implements Events, Managed {
 
     /**
      * The constructor of the aggregator
+     *
      * @param eventStore
      */
-    public EventsAggregate (final EventsConfiguration eventsConfiguration, final EventStore eventStore) {
+    public EventsAggregate(final EventsConfiguration eventsConfiguration, final EventStore eventStore) {
         this.eventStore = eventStore;
         this.executor = new ThreadPoolExecutor(
                 eventsConfiguration.getPoolMinSize(),
@@ -64,16 +62,16 @@ public class EventsAggregate implements Events, Managed {
     }
 
     @Override
-    public List<EventData> getEventsList(final String streamName, final int page, final int size){
+    public List<EventData> getEventsList(final String streamName, final int page, final int size) {
 
-        Callable<List<EventData> > task = () -> {
+        Callable<List<EventData>> task = () -> {
             List<Event> list = this.eventStore.getEventsList(streamName, page, size);
 
             List<EventData> events = new ArrayList<>();
 
             try {
                 // Converting the data field from String to Object : this is useful for the front-end uses
-                for (Event e : list){
+                for (Event e : list) {
                     Object data = MAPPER.readValue(e.getData(), Class.forName(e.getEventType()));
                     events.add(new EventData(e.getEventType(), data, e.getTimestamp(), e.getUser()));
                 }
@@ -81,7 +79,7 @@ public class EventsAggregate implements Events, Managed {
                 // Sort in inverse order
                 Collections.reverse(events);
                 return events;
-            }catch (IOException | ClassNotFoundException e){
+            } catch (IOException | ClassNotFoundException e) {
                 LOGGER.debug(" Error while convertingEvent to EventData. Message : {}", e.getMessage());
                 return null;
             }

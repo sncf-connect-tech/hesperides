@@ -39,14 +39,14 @@ import java.util.Set;
 /**
  * Created by william_montaz on 22/04/2015.
  */
-public class SnapshotRegistry<A extends JedisCommands&MultiKeyCommands&AdvancedJedisCommands&ScriptingCommands&BasicCommands&ClusterCommands&Closeable> implements SnapshotRegistryInterface {
+public class SnapshotRegistry<A extends JedisCommands & MultiKeyCommands & AdvancedJedisCommands & ScriptingCommands & BasicCommands & ClusterCommands & Closeable> implements SnapshotRegistryInterface {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisEventStore.class);
 
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
     private final Pool<A> connectionPool;
 
-    public  SnapshotRegistry(Pool<A> connectionPool) {
+    public SnapshotRegistry(Pool<A> connectionPool) {
         this.connectionPool = connectionPool;
     }
 

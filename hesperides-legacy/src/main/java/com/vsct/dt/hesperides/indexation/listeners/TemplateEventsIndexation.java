@@ -73,7 +73,7 @@ public class TemplateEventsIndexation implements TemplatePackageEventInterface {
 
     @Subscribe
     @Override
-    public void replayTemplatePackageDeletedEvent(final TemplatePackageDeletedEvent event){
+    public void replayTemplatePackageDeletedEvent(final TemplatePackageDeletedEvent event) {
         this.indexer.index(new DeleteTemplatePackageCommand(event));
     }
 }

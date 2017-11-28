@@ -52,7 +52,6 @@ public final class DefaultPlatformConverter implements PlatformConverter {
      * Convert PlatformDat object to Platform object
      *
      * @param platform input
-     *
      * @return output
      */
     @Override
@@ -61,14 +60,14 @@ public final class DefaultPlatformConverter implements PlatformConverter {
 
         for (ApplicationModule appModule : platform.getModules()) {
             listAppModule.add(
-                ApplicationModuleData
-                    .withApplicationName(appModule.getName())
-                    .withVersion(appModule.getVersion())
-                    .withPath(appModule.getPath())
-                    .withId(appModule.getId())
-                    .withInstances(toListInstanceData(appModule.getInstances()))
-                    .setWorkingcopy(appModule.isWorkingCopy())
-                    .build());
+                    ApplicationModuleData
+                            .withApplicationName(appModule.getName())
+                            .withVersion(appModule.getVersion())
+                            .withPath(appModule.getPath())
+                            .withId(appModule.getId())
+                            .withInstances(toListInstanceData(appModule.getInstances()))
+                            .setWorkingcopy(appModule.isWorkingCopy())
+                            .build());
         }
 
         return PlatformData.withPlatformName(platform.getPlatformName())
@@ -84,7 +83,6 @@ public final class DefaultPlatformConverter implements PlatformConverter {
      * Convert PlatformData object to Platform
      *
      * @param platformData input
-     *
      * @return output
      */
     @Override
@@ -107,6 +105,7 @@ public final class DefaultPlatformConverter implements PlatformConverter {
 
     /**
      * Convert a list of Instance to a list of InstanceData
+     *
      * @param listInstance list
      * @return list
      */
@@ -124,6 +123,7 @@ public final class DefaultPlatformConverter implements PlatformConverter {
 
     /**
      * Convert a list of Instance to a list of InstanceData
+     *
      * @param listInstance list
      * @return list
      */

@@ -39,13 +39,14 @@ import java.util.regex.Pattern;
 
 /**
  * Created by william_montaz on 10/07/14.
- *
+ * <p>
  * WARNING : don't override equals for REST input object
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
 @JsonPropertyOrder({"name", "value"})
-@JsonDeserialize//This annotation is important, it prevents KeyValueValorisation from using the Valorisation Deserializer, which would cause endless loops
+@JsonDeserialize
+//This annotation is important, it prevents KeyValueValorisation from using the Valorisation Deserializer, which would cause endless loops
 public final class KeyValueValorisation extends Valorisation {
 
     public static final Pattern valorisation_templating_pattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
@@ -89,8 +90,7 @@ public final class KeyValueValorisation extends Valorisation {
             String replacement = context.get(capture);
             if (replacement == null) {
                 return captured.group();
-            }
-            else {
+            } else {
                 return replacement;
             }
         });

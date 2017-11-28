@@ -34,7 +34,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Created by william_montaz on 03/03/2015.
  */
 public class ModuleKey extends TemplatePackageKey {
-    private ModuleKey(){}
+    private ModuleKey() {
+    }
 
     public ModuleKey(String name, HesperidesVersion version) {
         super(name, version);
@@ -78,6 +79,7 @@ public class ModuleKey extends TemplatePackageKey {
 
     /**
      * Builder method
+     *
      * @param name
      */
     public static IVersion withModuleName(String name) {

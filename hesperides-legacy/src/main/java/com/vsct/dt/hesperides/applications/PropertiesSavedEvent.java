@@ -27,18 +27,18 @@ import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 
 /**
  * Created by william_montaz on 13/10/2014.
- *
+ * <p>
  * Modified by tidiane_sidibe on 05/08/2016 : adding the comment to event
  */
 public final class PropertiesSavedEvent {
-    private final String     applicationName;
-    private final String     platformName;
-    private final String     path;
+    private final String applicationName;
+    private final String platformName;
+    private final String path;
     private final PropertiesData properties;
-    private final String    comment;
+    private final String comment;
 
     @JsonCreator
-    public PropertiesSavedEvent(@JsonProperty("applicationName")final String applicationName,
+    public PropertiesSavedEvent(@JsonProperty("applicationName") final String applicationName,
                                 @JsonProperty("platformName") final String platformName,
                                 @JsonProperty("path") final String path,
                                 @JsonProperty("properties") final PropertiesData properties,
@@ -66,7 +66,7 @@ public final class PropertiesSavedEvent {
         return path;
     }
 
-    public String getComment (){
+    public String getComment() {
         return comment;
     }
 

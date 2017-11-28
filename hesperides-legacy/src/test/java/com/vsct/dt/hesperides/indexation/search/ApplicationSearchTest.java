@@ -25,17 +25,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vsct.dt.hesperides.indexation.ElasticSearchClient;
 import com.vsct.dt.hesperides.indexation.model.ElasticSearchResponse;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 import java.util.Set;
 
 import static com.vsct.dt.hesperides.ElasticSearchMock.elasticSearchResponseWithEntities;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.*;
  */
 @Category(UnitTests.class)
 public class ApplicationSearchTest {
-    public static final int       SEARCH_SIZE     = 50;
+    public static final int SEARCH_SIZE = 50;
 
     final private ElasticSearchClient elasticSearchClient = mock(ElasticSearchClient.class);
     final private ElasticSearchClient.RequestExecuter executer = mock(ElasticSearchClient.RequestExecuter.class);
@@ -76,7 +75,7 @@ public class ApplicationSearchTest {
                         "      }\n" +
                         "   }\n" +
                         "}"
-                ))
+        ))
                 .thenReturn(elasticSearchResponse);
 
         Set<ApplicationSearchResponse> applications = applicationSearch.getApplicationsLike("application");

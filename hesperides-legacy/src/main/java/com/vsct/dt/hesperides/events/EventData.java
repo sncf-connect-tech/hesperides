@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * This represents an event to be sent to the view.
  * The data field is an Object, to make things easy for the view.
- *
+ * <p>
  * Created by tidiane_sidibe on 02/03/2016.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,14 +38,14 @@ public final class EventData {
     private long timestamp;
     private String user;
 
-    public EventData(){
+    public EventData() {
 
     }
 
-    public EventData (@JsonProperty("type") final String type,
-                      @JsonProperty("data") final Object data,
-                      @JsonProperty("timestamp")final long timestamp,
-                      @JsonProperty("user") final String user){
+    public EventData(@JsonProperty("type") final String type,
+                     @JsonProperty("data") final Object data,
+                     @JsonProperty("timestamp") final long timestamp,
+                     @JsonProperty("user") final String user) {
         this.type = type;
         this.data = data;
         this.timestamp = timestamp;

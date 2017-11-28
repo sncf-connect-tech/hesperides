@@ -52,7 +52,7 @@ public class TemplateDeletedCommand implements HesperidesCommand<TemplateDeleted
     public TemplateDeletedEvent apply() {
         Optional<Template> templateOptional = templateRegistry.getTemplate(packageKey.getNamespace(), templateName);
 
-        if(templateOptional.isPresent()){
+        if (templateOptional.isPresent()) {
             template = templateOptional.get();
 
             return new TemplateDeletedEvent(template.getNamespace(), template.getName(), template.getVersionID());

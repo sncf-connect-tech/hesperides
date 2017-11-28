@@ -36,7 +36,7 @@ import java.util.Objects;
 @JsonSnakeCase
 public final class ApplicationData {
 
-    private final String                  name;
+    private final String name;
     private final ImmutableList<PlatformData> platforms;
 
     @JsonCreator

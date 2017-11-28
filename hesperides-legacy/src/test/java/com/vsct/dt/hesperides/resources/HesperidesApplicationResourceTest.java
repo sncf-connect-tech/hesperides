@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.UniformInterfaceException;
 import com.vsct.dt.hesperides.HesperidesCacheParameter;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
 import com.vsct.dt.hesperides.applications.*;
@@ -36,10 +34,9 @@ import com.vsct.dt.hesperides.indexation.ESServiceException;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
+import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.EventStore;
-import com.vsct.dt.hesperides.storage.EventTimeProvider;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
@@ -56,22 +53,29 @@ import com.vsct.dt.hesperides.util.converter.PlatformConverter;
 import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
 import com.vsct.dt.hesperides.util.converter.TimeStampedPlatformConverter;
 import com.vsct.dt.hesperides.util.converter.impl.*;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.basic.BasicAuthProvider;
+import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import tests.type.UnitTests;
 
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -80,6 +84,8 @@ import static org.mockito.Mockito.*;
 /* AUTHENTICATION -> John_Doe:secret => Basic Sm9obl9Eb2U6c2VjcmV0 */   //header(HttpHeaders.AUTHORIZATION, "Basic Sm9obl9Eb2U6c2VjcmV0")
 @Category(UnitTests.class)
 public class HesperidesApplicationResourceTest {
+
+    private static final String CREDENTIALS = "Sm9obl9Eb2U6c2VjcmV0";
 
     private static final Applications applications = mock(Applications.class);
     private static final Modules modules = mock(Modules.class);
@@ -101,11 +107,18 @@ public class HesperidesApplicationResourceTest {
     private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
     private ApplicationsAggregate applicationsWithEvent;
 
+    private static final BasicCredentialAuthFilter<User> BASIC_AUTH_HANDLER =
+            new BasicCredentialAuthFilter.Builder<User>()
+                    .setAuthenticator(new SimpleAuthenticator())
+                    .setPrefix("Basic")
+                    .setRealm("AUTHENTICATION_PROVIDER")
+                    .buildAuthFilter();
+
     @ClassRule
-    public static ResourceTestRule simpleAuthResources = ResourceTestRule.builder()
-            .addProvider(new BasicAuthProvider<>(
-                    new SimpleAuthenticator(),
-                    "AUTHENTICATION_PROVIDER"))
+    public static final ResourceTestRule simpleAuthResources = ResourceTestRule.builder()
+            .addProvider(RolesAllowedDynamicFeature.class)
+            .addProvider(new AuthDynamicFeature(BASIC_AUTH_HANDLER))
+            .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
             .addResource(new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
                     APPLI_CONVERTER, PROPERTIES_CONVERTER, MODULE_RESOURCE))
             .addProvider(new DefaultExceptionMapper())
@@ -117,26 +130,17 @@ public class HesperidesApplicationResourceTest {
             .addProvider(new ForbiddenOperationExceptionMapper())
             .build();
 
-    @ClassRule
-    public static ResourceTestRule disabledAuthResources = ResourceTestRule.builder()
-            .addProvider(new DisabledAuthProvider())
-            .addResource(new HesperidesApplicationResource(applications, modules, applicationSearch, TIME_CONVERTER,
-                    APPLI_CONVERTER, PROPERTIES_CONVERTER, MODULE_RESOURCE))
-            .addProvider(new DefaultExceptionMapper())
-            .addProvider(new DuplicateResourceExceptionMapper())
-            .addProvider(new IncoherentVersionExceptionMapper())
-            .addProvider(new OutOfDateVersionExceptionMapper())
-            .addProvider(new MissingResourceExceptionMapper())
-            .addProvider(new IllegalArgumentExceptionMapper())
-            .build();
 
-
-    public com.sun.jersey.api.client.WebResource withAuth(String url) {
-        return simpleAuthResources.client().resource(url);
+    public Invocation.Builder withAuth(String url) {
+        return simpleAuthResources.client().target(url).request();
     }
 
-    public com.sun.jersey.api.client.WebResource withoutAuth(String url) {
-        return disabledAuthResources.client().resource(url);
+    public Invocation.Builder withoutAuth(String url) {
+        return withAuth(url).header("Authorization", "Basic Sm9obl9Eb2U6c2VjcmV0");
+    }
+
+    public WebTarget rawClient(String url) {
+        return simpleAuthResources.client().target(url);
     }
 
     @Before
@@ -197,56 +201,48 @@ public class HesperidesApplicationResourceTest {
 
         when(applicationSearch.getApplications("my_name")).thenReturn(elsResponse);
 
-        try {
-            withoutAuth("/applications/app_name").get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/app_name").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void get_application_should_return_401_if_not_authenticated() {
-        try {
-            withAuth("/applications/name").get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/name").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_search_applications_with_provided_name() throws ESServiceException {
-        ApplicationSearchResponse applicationSearchResponse1 =  new ApplicationSearchResponse("name1", "version1", "platform1");
-        ApplicationSearchResponse applicationSearchResponse2 =  new ApplicationSearchResponse("name2", "version2", "platform2");
+        ApplicationSearchResponse applicationSearchResponse1 = new ApplicationSearchResponse("name1", "version1", "platform1");
+        ApplicationSearchResponse applicationSearchResponse2 = new ApplicationSearchResponse("name2", "version2", "platform2");
 
         ApplicationListItem item1 = new ApplicationListItem("name1");
         ApplicationListItem item2 = new ApplicationListItem("name2");
 
         when(applicationSearch.getApplicationsLike("na")).thenReturn(Sets.newHashSet(applicationSearchResponse1, applicationSearchResponse2));
 
-        assertThat(withoutAuth("/applications/perform_search").queryParam("name", "na").post(new GenericType<Set<ApplicationListItem>>() {
+        assertThat(rawClient("/applications/perform_search").queryParam("name", "na").request().header("Authorization", "Basic " + CREDENTIALS).post(Entity.json(null), new GenericType<Set<ApplicationListItem>>() {
         })).isEqualTo(Sets.newHashSet(item1, item2));
     }
 
     @Test
     public void should_return_400_if_query_param_name_is_not_provided() {
-        try {
-            withoutAuth("/applications/perform_search").post(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/perform_search").post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void search_application_should_return_401_if_not_authenticated() {
-        try {
-            withAuth("/applications/perform_search").post(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/perform_search").post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -296,22 +292,18 @@ public class HesperidesApplicationResourceTest {
                 .build();
         when(applications.getPlatform(platformKey)).thenReturn(Optional.empty());
 
-        try {
-            withoutAuth("/applications/app_name/platforms/pltfm_name").get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/app_name/platforms/pltfm_name").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void get_platform_should_return_401_if_not_authenticated() {
-        try {
-            withAuth("/applications/app_name/platforms/pltfm_name").get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/app_name/platforms/pltfm_name").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -328,8 +320,7 @@ public class HesperidesApplicationResourceTest {
         when(applications.createPlatform(platform)).thenReturn(platform);
 
         assertThat(withoutAuth("/applications/app_name/platforms")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))))
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))), Platform.class))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
     }
 
@@ -350,40 +341,36 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        assertThat(withoutAuth("/applications/app_name/platforms")
+        assertThat(rawClient("/applications/app_name/platforms")
                 .queryParam("from_application", "the_app_from")
                 .queryParam("from_platform", "the_pltfm_from")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))))
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))), Platform.class))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
     }
 
     @Test
     public void should_return_400_when_creating_platform_from_but_from_application_query_param_is_missing() throws JsonProcessingException {
         Platform platform = new Platform("pltfm_name", "app_name", "app_version", true, Sets.newHashSet(), 1L);
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Response.class, MAPPER.writeValueAsString(platform));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(platform)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_creating_platform_from_but_from_platform_query_param_is_missing() throws JsonProcessingException {
         Platform platform = new Platform("pltfm_name", "app_name", "app_version", true, Sets.newHashSet(), 1L);
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Response.class, MAPPER.writeValueAsString(platform));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(platform)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -404,16 +391,14 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422");
-        } catch (UniformInterfaceException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -434,16 +419,14 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422");
-        } catch (UniformInterfaceException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -464,16 +447,14 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422");
-        } catch (UniformInterfaceException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -494,16 +475,14 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422");
-        } catch (UniformInterfaceException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -524,16 +503,14 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422");
-        } catch (UniformInterfaceException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -554,26 +531,22 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422");
-        } catch (UniformInterfaceException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
     public void create_platform_should_return_401_if_not_authenticated() {
-        try {
-            withAuth("/applications/app_name/platforms").post(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/app_name/platforms").post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -599,8 +572,7 @@ public class HesperidesApplicationResourceTest {
         when(applications.updatePlatform(platform1, false)).thenReturn(platform2);
 
         assertThat(withoutAuth("/applications/app_name/platforms")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .put(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform1))))
+                .put(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform1))), Platform.class))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform2));
     }
 
@@ -626,10 +598,10 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.updatePlatform(platform1, true)).thenReturn(platform2);
 
-        assertThat(withoutAuth("/applications/app_name/platforms")
+        assertThat(rawClient("/applications/app_name/platforms")
                 .queryParam("copyPropertiesForUpgradedModules", "true")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .put(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform1))))
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .put(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform1))), Platform.class))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform2));
     }
 
@@ -647,30 +619,26 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.updatePlatform(platform, false)).thenReturn(platform);
 
-        try {
-            withoutAuth("/applications/app_name/platforms")
-                    .queryParam("copyPropertiesForUpgradedModules", "false")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .put(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform)));
-            fail("Ne renvoie pas 422"); // Wrong statement
-        } catch (UniformInterfaceException e) {
-            // We should get a 422 Unprocessable Entity but we get a 500 Internal Server Error
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-            // We get a 500 Internal Server Error and compare it to a Client Error??
-        }
+        Response response = rawClient("/applications/app_name/platforms")
+                .queryParam("copyPropertiesForUpgradedModules", "false")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .put(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))));
+        // Wrong statement
+
+        // We should get a 422 Unprocessable Entity but we get a 500 Internal Server Error
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
+        // We get a 500 Internal Server Error and compare it to a Client Error??
     }
 
     @Test
     public void update_platform_should_return_401_if_not_authenticated() {
-        try {
-            Response response = withAuth("/applications/app_name/platforms").put(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/app_name/platforms").put(Entity.json(""), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
-    @Test(expected = UniformInterfaceException.class)
+    @Test(expected = InternalServerErrorException.class)
     public void should_return_properties_with_application_name_and_platform_name() throws JsonProcessingException {
         PropertiesData properties = new PropertiesData(Sets.newHashSet(), Sets.newHashSet());
         Properties properties2 = new Properties(Sets.newHashSet(), Sets.newHashSet());
@@ -679,37 +647,34 @@ public class HesperidesApplicationResourceTest {
                 .build();
         when(applications.getProperties(platformKey, "some_path")).thenReturn(properties);
 
-        assertThat(withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+        assertThat(rawClient("/applications/my_app/platforms/my_pltfm/properties")
                 .queryParam("path", "some_path")
-                .type(MediaType.APPLICATION_JSON_TYPE)
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
                 .get(Properties.class))
                 .isEqualTo(properties2);
     }
 
     @Test
-    public void should_return_400_if_getting_properties_and_path_query_param_is_missing() throws JsonProcessingException {
-        try {
-            withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+    public void should_return_400_if_getting_properties_and_path_query_param_is_missing() throws
+            JsonProcessingException {
+        Response response = withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void get_properties_should_return_401_if_not_authenticated() {
-        try {
-            withAuth("/applications/my_app/platforms/my_pltfm/properties").get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/my_app/platforms/my_pltfm/properties").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
-    public void should_save_properties_for_application_and_platform_with_path_and_platform_vid_query_params_not_empty() throws JsonProcessingException {
+    public void should_save_properties_for_application_and_platform_with_path_and_platform_vid_query_params_not_empty
+            () throws JsonProcessingException {
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
         Properties properties2 = new Properties(Sets.newHashSet(), Sets.newHashSet());
         PlatformKey platformKey = PlatformKey.withName("my_pltfm")
@@ -719,12 +684,12 @@ public class HesperidesApplicationResourceTest {
                 PROPERTIES_CONVERTER.toPropertiesData(properties), 1L, comment)).thenReturn(
                 PROPERTIES_CONVERTER.toPropertiesData(properties));
 
-        assertThat(withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+        assertThat(rawClient("/applications/my_app/platforms/my_pltfm/properties")
                 .queryParam("path", "some_path")
                 .queryParam("platform_vid", "1")
                 .queryParam("comment", "Test comment")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Properties.class, MAPPER.writeValueAsString(properties)))
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)), Properties.class))
                 .isEqualTo(properties2);
     }
 
@@ -749,12 +714,12 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createOrUpdatePropertiesInPlatform(platformKey, "some_path", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
 
-        withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+        rawClient("/applications/my_app/platforms/my_pltfm/properties")
                 .queryParam("path", "some_path")
                 .queryParam("platform_vid", "1")
                 .queryParam("comment", "Test comment")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Properties.class, MAPPER.writeValueAsString(properties));
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)), Properties.class);
 
         //Check that service is called with cleaned properties
         verify(applications).createOrUpdatePropertiesInPlatform(platformKey, "some_path",
@@ -762,7 +727,8 @@ public class HesperidesApplicationResourceTest {
     }
 
     @Test
-    public void should_save_only_valued_iterable_properties_and_not_null_or_empty_ones() throws JsonProcessingException {
+    public void should_save_only_valued_iterable_properties_and_not_null_or_empty_ones() throws
+            JsonProcessingException {
         // Iterable properties
         IterableValorisation.IterableValorisationItem itemIterable2 = new IterableValorisation.IterableValorisationItem("blockOfProperties", Sets.newHashSet(new KeyValueValorisation("name3", "value"), new KeyValueValorisation("name0", "")));
         IterableValorisation iterableValorisation2 = new IterableValorisation("iterable2", Lists.newArrayList(itemIterable2));
@@ -791,13 +757,12 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createOrUpdatePropertiesInPlatform(platformKey, "some_path", propertiesCleaned, 1L, comment)).thenReturn(propertiesCleaned);
 
-        Properties p = withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
+        Properties p = rawClient("/applications/my_app/platforms/my_pltfm/properties")
                 .queryParam("path", "some_path")
                 .queryParam("platform_vid", "1")
                 .queryParam("comment", "Test comment")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Properties.class, MAPPER.writeValueAsString(properties));
-
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)), Properties.class);
 
 
         //Check that service is called with cleaned properties
@@ -806,43 +771,39 @@ public class HesperidesApplicationResourceTest {
     }
 
     @Test
-    public void should_return_400_if_trying_to_save_properties_without_path_query_param_provided() throws JsonProcessingException {
+    public void should_return_400_if_trying_to_save_properties_without_path_query_param_provided() throws
+            JsonProcessingException {
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
-        try {
-            withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                    .queryParam("platform_vid", "1")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Response.class, MAPPER.writeValueAsString(properties));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("platform_vid", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void should_return_400_if_trying_to_save_properties_without_platform_vid_param_provided() throws JsonProcessingException {
+    public void should_return_400_if_trying_to_save_properties_without_platform_vid_param_provided() throws
+            JsonProcessingException {
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
-        try {
-            withoutAuth("/applications/my_app/platforms/my_pltfm/properties")
-                    .queryParam("path", "some_path")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Response.class, MAPPER.writeValueAsString(properties));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/my_app/platforms/my_pltfm/properties")
+                .queryParam("path", "some_path")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_saving_properties_and_not_authenticated() throws JsonProcessingException {
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
-        try {
-            withAuth("/applications/my_app/platforms/my_pltfm/properties").type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Response.class, MAPPER.writeValueAsString(properties));
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/applications/my_app/platforms/my_pltfm/properties")
+                .post(Entity.json(MAPPER.writeValueAsString(properties)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -853,73 +814,61 @@ public class HesperidesApplicationResourceTest {
                 .build();
         when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
 
-        assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/properties/instance_model")
+        assertThat(rawClient("/applications/app_name/platforms/pltfm_name/properties/instance_model")
                 .queryParam("path", "some_path")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                    .get(InstanceModel.class)).isEqualTo(instanceModel);
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .get(InstanceModel.class)).isEqualTo(instanceModel);
     }
 
     @Test
-    public void should_return_401_if_getting_instance_model_and_not_authenticated(){
-        try {
-            withAuth("/applications/app_name/platforms/pltfm_name/properties/instance_model")
-                    .queryParam("path", "some_path")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+    public void should_return_401_if_getting_instance_model_and_not_authenticated() {
+        Response response = rawClient("/applications/app_name/platforms/pltfm_name/properties/instance_model")
+                .queryParam("path", "some_path")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_application_name_is_not_valid() {
-        try {
-            withoutAuth("/applications/%20%09%00").get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/%20%09%00").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_application_name_is_not_valid_with_get() {
-        try {
-            withoutAuth("/applications/%20%09/platforms/eriotuoeri").get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/%20%09/platforms/eriotuoeri").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_platform_name_is_not_valid_with_get() {
-        try {
-            withoutAuth("/applications/app_name/platforms/%20%09").get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/app_name/platforms/%20%09").get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_application_name_is_not_valid_with_delete() {
-        try {
-            withoutAuth("/applications/%20%09/platforms/eriotuoeri").delete(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/%20%09/platforms/eriotuoeri").delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_platform_name_is_not_provided_with_delete() {
-        try {
-            withoutAuth("/applications/app_name/platforms/%20%09").delete(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/app_name/platforms/%20%09").delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -940,11 +889,11 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        assertThat(withoutAuth("/applications/%20%09%00/platforms")
+        assertThat(rawClient("/applications/%20%09%00/platforms")
                 .queryParam("from_application", "the_app_from")
                 .queryParam("from_platform", "the_pltfm_from")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Platform.class, MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))))
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(PLATFORM_CONVERTER.toPlatform(platform))), Platform.class))
                 .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
     }
 
@@ -965,17 +914,14 @@ public class HesperidesApplicationResourceTest {
                 .build();
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            assertThat(withoutAuth("/applications/_we_dont_care_/platforms")
-                    .queryParam("from_application", "%20%09%00")
-                    .queryParam("from_platform", "the_pltfm_from")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(platform)))
-                    .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
-             fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/_we_dont_care_/platforms")
+                .queryParam("from_application", "%20%09%00")
+                .queryParam("from_platform", "the_pltfm_from")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(platform)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -996,89 +942,80 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.createPlatformFromExistingPlatform(platform, fromPlatformKey)).thenReturn(platform);
 
-        try {
-            assertThat(withoutAuth("/applications/_we_dont_care_/platforms")
-                    .queryParam("from_application", "the_app_from")
-                    .queryParam("from_platform", "%20%09%00")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class, MAPPER.writeValueAsString(platform)))
-                    .isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/_we_dont_care_/platforms")
+                .queryParam("from_application", "the_app_from")
+                .queryParam("from_platform", "%20%09%00")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(platform)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_properties_if_application_name_is_not_valid() {
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/dfdfdf/properties")
-                    .queryParam("path", "#truc")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/%20%09%00/platforms/dfdfdf/properties")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_properties_if_platform_name_is_not_valid() {
-        try {
-            withoutAuth("/applications/tryruytur/platforms/%20%09%00/properties")
-                    .queryParam("path", "#truc")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/tryruytur/platforms/%20%09%00/properties")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_properties_if_path_is_not_valid() {
-        try {
-            withoutAuth("/applications/tryruytur/platforms/dfdfdf/properties")
-                    .queryParam("path", "%20%09%00")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/tryruytur/platforms/dfdfdf/properties")
+                .queryParam("path", "%20%09%00")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_properties_instance_model_if_application_name_is_not_valid() {
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/dfdfdf/properties/instance_model")
-                    .queryParam("path", "#truc")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/%20%09%00/platforms/dfdfdf/properties/instance_model")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_properties_instance_model_if_platform_name_is_not_valid() {
-        try {
-            withoutAuth("/applications/tryruytur/platforms/%20%09%00/properties/instance_model")
-                    .queryParam("path", "#truc")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/tryruytur/platforms/%20%09%00/properties/instance_model")
+                .queryParam("path", "#truc")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_properties_instance_model_if_path_is_not_valid() {
-        try {
-            withoutAuth("/applications/tryruytur/platforms/dfdfdf/properties/instance_model")
-                    .queryParam("path", "%20%09%00")
-                    .get(Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/tryruytur/platforms/dfdfdf/properties/instance_model")
+                .queryParam("path", "%20%09%00")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1089,15 +1026,13 @@ public class HesperidesApplicationResourceTest {
                 .build();
         when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
 
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/pltfm_name/properties/instance_model")
+        Response response = rawClient("/applications/%20%09%00/platforms/pltfm_name/properties/instance_model")
                 .queryParam("path", "some_path")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .get(InstanceModel.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1108,47 +1043,43 @@ public class HesperidesApplicationResourceTest {
                 .build();
         when(applications.getInstanceModel(platformKey, "some_path")).thenReturn(instanceModel);
 
-        try {
-            withoutAuth("/applications/app_name/platforms/%20%09%00/properties/instance_model")
-                    .queryParam("path", "some_path")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .get(InstanceModel.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/app_name/platforms/%20%09%00/properties/instance_model")
+                .queryParam("path", "some_path")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void should_return_400_if_trying_to_save_properties_without_platform_name_valid() throws JsonProcessingException {
+    public void should_return_400_if_trying_to_save_properties_without_platform_name_valid() throws
+            JsonProcessingException {
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
 
-        try {
-            withoutAuth("/applications/my_app/platforms/%20%09%00/properties")
-                    .queryParam("path", "some_path")
-                    .queryParam("platform_vid", "1")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Properties.class, MAPPER.writeValueAsString(properties));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/my_app/platforms/%20%09%00/properties")
+                .queryParam("path", "some_path")
+                .queryParam("platform_vid", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void should_return_400_if_trying_to_save_properties_without_application_name_valid() throws JsonProcessingException {
+    public void should_return_400_if_trying_to_save_properties_without_application_name_valid() throws
+            JsonProcessingException {
         Properties properties = new Properties(Sets.newHashSet(), Sets.newHashSet());
 
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/my_pltfm/properties")
-                    .queryParam("path", "some_path")
-                    .queryParam("platform_vid", "1")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Properties.class, MAPPER.writeValueAsString(properties));
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/%20%09%00/platforms/my_pltfm/properties")
+                .queryParam("path", "some_path")
+                .queryParam("platform_vid", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(properties)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1160,42 +1091,37 @@ public class HesperidesApplicationResourceTest {
         when(applications.takeSnapshot(platformKey)).thenReturn(1L);
 
         withoutAuth("/applications/app_name/platforms/pltfm_name/take_snapshot")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post();
+                .post(Entity.json(null));
     }
 
     @Test
-    public void should_return_400_when_post_take_snapshot_if_platform_name_is_not_valid() throws JsonProcessingException {
+    public void should_return_400_when_post_take_snapshot_if_platform_name_is_not_valid() throws
+            JsonProcessingException {
         PlatformKey platformKey = PlatformKey.withName("pltfm_name")
                 .withApplicationName("app_name")
                 .build();
 
         when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-        try {
-            withoutAuth("/applications/app_name/platforms/%20%09%00/take_snapshot")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post();
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/app_name/platforms/%20%09%00/take_snapshot")
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void should_return_400_when_post_take_snapshot_if_application_name_is_not_valid() throws JsonProcessingException {
+    public void should_return_400_when_post_take_snapshot_if_application_name_is_not_valid() throws
+            JsonProcessingException {
         PlatformKey platformKey = PlatformKey.withName("pltfm_name")
                 .withApplicationName("app_name")
                 .build();
 
         when(applications.takeSnapshot(platformKey)).thenReturn(1L);
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/pltfm_name/take_snapshot")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post();
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/applications/%20%09%00/platforms/pltfm_name/take_snapshot")
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1215,14 +1141,15 @@ public class HesperidesApplicationResourceTest {
 
         when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
 
-        assertThat(withoutAuth("/applications/app_name/platforms/pltfm_name/restore_snapshot")
+        assertThat(rawClient("/applications/app_name/platforms/pltfm_name/restore_snapshot")
                 .queryParam("timestamp", "1")
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .post(Platform.class)).isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null), Platform.class)).isEqualTo(PLATFORM_CONVERTER.toPlatform(platform));
     }
 
     @Test
-    public void should_return_400_when_post_restore_snapshot_if_platform_name_is_not_valid() throws JsonProcessingException {
+    public void should_return_400_when_post_restore_snapshot_if_platform_name_is_not_valid() throws
+            JsonProcessingException {
         PlatformKey platformKey = PlatformKey.withName("pltfm_name")
                 .withApplicationName("app_name")
                 .build();
@@ -1237,19 +1164,18 @@ public class HesperidesApplicationResourceTest {
         PlatformData platform = builder1.build();
 
         when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-        try {
-            withoutAuth("/applications/app_name/platforms/%20%09%00/restore_snapshot")
-                    .queryParam("timestamp", "1")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/app_name/platforms/%20%09%00/restore_snapshot")
+                .queryParam("timestamp", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void should_return_400_when_post_restore_snapshot_if_application_name_is_not_valid() throws JsonProcessingException {
+    public void should_return_400_when_post_restore_snapshot_if_application_name_is_not_valid() throws
+            JsonProcessingException {
         PlatformKey platformKey = PlatformKey.withName("pltfm_name")
                 .withApplicationName("app_name")
                 .build();
@@ -1264,15 +1190,13 @@ public class HesperidesApplicationResourceTest {
         PlatformData platform = builder1.build();
 
         when(applications.restoreSnapshot(platformKey, 1L)).thenReturn(platform);
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/pltfm_name/restore_snapshot")
-                    .queryParam("timestamp", "1")
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Platform.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/applications/%20%09%00/platforms/pltfm_name/restore_snapshot")
+                .queryParam("timestamp", "1")
+                .request(MediaType.APPLICATION_JSON_TYPE).header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1298,24 +1222,22 @@ public class HesperidesApplicationResourceTest {
     }
 
     @Test
-    public void should_return_400_when_get_snapshot_if_platform_name_is_not_valid() throws JsonProcessingException {
-        try {
-            withoutAuth("/applications/app_name/platforms/%20%09%00/snapshots")
-                    .get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+    public void should_return_400_when_get_snapshot_if_platform_name_is_not_valid() throws
+            JsonProcessingException {
+        Response response = withoutAuth("/applications/app_name/platforms/%20%09%00/snapshots")
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
-    public void should_return_400_when_get_snapshot_if_application_name_is_not_valid() throws JsonProcessingException {
-        try {
-            withoutAuth("/applications/%20%09%00/platforms/pltfm_name/snapshots")
-                    .get(List.class);
-        } catch (UniformInterfaceException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+    public void should_return_400_when_get_snapshot_if_application_name_is_not_valid() throws
+            JsonProcessingException {
+        Response response = withoutAuth("/applications/%20%09%00/platforms/pltfm_name/snapshots")
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test

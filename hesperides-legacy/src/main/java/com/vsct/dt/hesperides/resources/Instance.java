@@ -38,7 +38,7 @@ import java.util.Set;
 @JsonPropertyOrder({"name", "key_values"})
 public final class Instance {
     @JsonProperty("name")
-    private final String                    name;
+    private final String name;
 
     @JsonProperty("key_values")
     private final Set<KeyValueValorisation> keyValues;

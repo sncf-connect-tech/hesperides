@@ -42,7 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by william_montaz on 28/07/2015.
- *
+ * <p>
  * Modified by tidiane_sidibe on 10/11/2016 : Adding whitespaces ignoring when using global properties
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -66,9 +66,11 @@ public class ValorisationData {
         return name.trim();
     }
 
-    public MustacheScopeEntry<String, Object> toMustacheScopeEntry(){
+    public MustacheScopeEntry<String, Object> toMustacheScopeEntry() {
         throw new NotImplementedException();
-    };
+    }
+
+    ;
 
     @Override
     public boolean equals(Object o) {
@@ -87,9 +89,11 @@ public class ValorisationData {
         return name != null ? name.hashCode() : 0;
     }
 
-    public ValorisationData inject(Map<String, String> keyValueProperties){
+    public ValorisationData inject(Map<String, String> keyValueProperties) {
         throw new NotImplementedException();
-    };
+    }
+
+    ;
 
     /* Use a specific deserializer to handle polymorphism and avoid changing the existing API */
     public static class JacksonDeserializer extends StdDeserializer<ValorisationData> {
@@ -103,7 +107,7 @@ public class ValorisationData {
             ObjectMapper mapper = (ObjectMapper) jp.getCodec();
             ObjectNode obj = mapper.readTree(jp);
 
-            if(obj.get("value") != null){
+            if (obj.get("value") != null) {
                 /* This is a KeyValueValorisation */
                 return mapper.treeToValue(obj, KeyValueValorisationData.class);
             } else {

@@ -36,9 +36,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 
 /**
@@ -48,10 +46,10 @@ import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 @JsonSnakeCase
 @JsonPropertyOrder({"name", "version", "working_copy"})
 public class ApplicationModuleData {
-    private static final String VALORISATION_KEY_MODULE_NAME    = "hesperides.module.name";
+    private static final String VALORISATION_KEY_MODULE_NAME = "hesperides.module.name";
     private static final String VALORISATION_KEY_MODULE_VERSION = "hesperides.module.version";
-    private static final String VALORISATION_KEY_MODULE_PATH    = "hesperides.module.path";
-    private static final String VALORISATION_KEY_MODULE_FULL_PATH    = "hesperides.module.path.full";
+    private static final String VALORISATION_KEY_MODULE_PATH = "hesperides.module.path";
+    private static final String VALORISATION_KEY_MODULE_FULL_PATH = "hesperides.module.path.full";
 
     /**
      * This id is used to detect module updates when version or path is changed
@@ -59,16 +57,16 @@ public class ApplicationModuleData {
      */
     @JsonProperty("id")
     private int id;
-    private String        name;
+    private String name;
 
     @JsonProperty("version")
-    private String        version;
+    private String version;
 
     @JsonProperty("working_copy")
-    private boolean       workingCopy;
+    private boolean workingCopy;
 
     @JsonProperty("path")
-    private String        path;
+    private String path;
 
     @JsonProperty("instances")
     @JsonDeserialize(as = Set.class)
@@ -80,17 +78,17 @@ public class ApplicationModuleData {
 
     @JsonCreator
     protected ApplicationModuleData(@JsonProperty("name") final String name,
-                             @JsonProperty("version") final String version,
-                             @JsonProperty("working_copy") final boolean isWorkingCopy,
-                             @JsonProperty("path") final String path,
-                             @JsonProperty("instances") final Set<InstanceData> instances,
-                             @JsonProperty("id") final int moduleId) {
+                                    @JsonProperty("version") final String version,
+                                    @JsonProperty("working_copy") final boolean isWorkingCopy,
+                                    @JsonProperty("path") final String path,
+                                    @JsonProperty("instances") final Set<InstanceData> instances,
+                                    @JsonProperty("id") final int moduleId) {
         this.name = name;
         this.version = version;
         this.workingCopy = isWorkingCopy;
         StringBuilder builder = new StringBuilder();
         //We ensure that path will always start with # even if it is omitted by the caller
-        if (!path.startsWith("#")){
+        if (!path.startsWith("#")) {
             builder.append('#');
         }
         builder.append(path);
@@ -162,16 +160,16 @@ public class ApplicationModuleData {
         Since path always start with #, using split produces an array starting with an empty string, thus we need to offset by 1
          */
         String[] path_tokens = this.getPath().split("#");
-        for(int path_index = 1; path_index < path_tokens.length; path_index++ ){
-            predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_MODULE_PATH+"."+(path_index-1), path_tokens[path_index]));
+        for (int path_index = 1; path_index < path_tokens.length; path_index++) {
+            predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_MODULE_PATH + "." + (path_index - 1), path_tokens[path_index]));
         }
 
         return predefinedScope;
     }
 
-    public Optional<InstanceData> getInstance(String instanceName, Boolean simulate_empty){
-        for(InstanceData instance : instances){
-            if(instance.getName().equals(instanceName)){
+    public Optional<InstanceData> getInstance(String instanceName, Boolean simulate_empty) {
+        for (InstanceData instance : instances) {
+            if (instance.getName().equals(instanceName)) {
                 return Optional.of(instance);
             }
         }
@@ -182,7 +180,7 @@ public class ApplicationModuleData {
     }
 
 
-    public Optional<InstanceData> getInstance(String instanceName){
+    public Optional<InstanceData> getInstance(String instanceName) {
         return getInstance(instanceName, false);
     }
 

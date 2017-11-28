@@ -44,7 +44,7 @@ public final class TemplateListItem {
         //Jackson
     }
 
-    public TemplateListItem(String namespace, String name, String filename, String location){
+    public TemplateListItem(String namespace, String name, String filename, String location) {
         checkNotNull(namespace);
         checkNotNull(name);
         checkNotNull(filename);

@@ -21,25 +21,23 @@
 
 package com.vsct.dt.hesperides.storage;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.exception.runtime.StateLockedException;
 import com.vsct.dt.hesperides.security.model.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import static junit.framework.TestCase.fail;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
-import tests.type.UnitTests;
 
 /**
  * Created by wmontaz on 06/11/2014.
@@ -83,7 +81,7 @@ public class AbstractThreadAggregateTest {
     }
 
     @Test
-     public void should_apply_command_when_state_is_writable_using_threadlocal_user_informations() {
+    public void should_apply_command_when_state_is_writable_using_threadlocal_user_informations() {
 
         AggregateTestImpl testAggregate = new AggregateTestImpl();
 
@@ -126,7 +124,7 @@ public class AbstractThreadAggregateTest {
 
         try {
             testAggregate.tryAtomic("stream", command);
-        } catch(Exception e) {
+        } catch (Exception e) {
             assertThat(testAggregate.isWritable()).isFalse();
             return;
         }
@@ -145,7 +143,7 @@ public class AbstractThreadAggregateTest {
 
         try {
             testAggregate.tryAtomic("stream", command);
-        } catch(Exception e) {
+        } catch (Exception e) {
             assertThat(testAggregate.isWritable()).isTrue();
             return;
         }
@@ -165,7 +163,7 @@ public class AbstractThreadAggregateTest {
 
         try {
             testAggregate.tryAtomic("stream", command);
-        } catch(Exception e) {
+        } catch (Exception e) {
             assertThat(testAggregate.isWritable()).isFalse();
             return;
         }
@@ -183,7 +181,7 @@ public class AbstractThreadAggregateTest {
         /* Block the state */
         try {
             testAggregate.tryAtomic("stream", command);
-        } catch(Exception e) {
+        } catch (Exception e) {
             testAggregate.tryAtomic("stream", command);
         }
 

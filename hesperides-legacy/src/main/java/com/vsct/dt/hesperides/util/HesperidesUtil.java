@@ -21,13 +21,13 @@ package com.vsct.dt.hesperides.util;
 
 /**
  * Class for some util methods
- *
+ * <p>
  * Created by tidiane_sidibe on 26/09/2016.
  */
 public class HesperidesUtil {
 
-    public static ModuleInfo moduleInfoFromPath(final String path){
-        String [] parts = path.split("#");
+    public static ModuleInfo moduleInfoFromPath(final String path) {
+        String[] parts = path.split("#");
         return new ModuleInfo(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1].toUpperCase().equals("RELEASE"));
     }
 
@@ -51,7 +51,7 @@ public class HesperidesUtil {
             return version;
         }
 
-        public boolean isRelease (){
+        public boolean isRelease() {
             return this.release;
         }
 

@@ -36,7 +36,6 @@ public class HesperidesCacheBuilder {
      * Create cache with easy setup.
      *
      * @param config setup
-     *
      * @return cache
      */
     public static CacheBuilder<Object, Object> newBuilder(final HesperidesCacheParameter config) {
@@ -46,9 +45,8 @@ public class HesperidesCacheBuilder {
     /**
      * Create cache with easy setup.
      *
-     * @param config setup
+     * @param config  setup
      * @param weigher Guava weighter
-     *
      * @return cache
      */
     public static CacheBuilder<Object, Object> newBuilder(final HesperidesCacheParameter config,

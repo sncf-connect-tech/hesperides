@@ -24,15 +24,14 @@ package com.vsct.dt.hesperides.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 
 import static com.vsct.dt.hesperides.TestUtils.flattenJSON;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by william_montaz on 29/08/14.
@@ -44,7 +43,7 @@ public class TemplateListItemTest {
 
     @Test
     public void serializesToJSON() throws IOException {
-        final Template hesperidesTemplate = new Template("technos.nodejs.0","instance.sh", "{{INSTANCE_NAME}}.sh", "{{HOME}}/{{INSTANCE_NAME}}", "some_content", null, 1L);
+        final Template hesperidesTemplate = new Template("technos.nodejs.0", "instance.sh", "{{INSTANCE_NAME}}.sh", "{{HOME}}/{{INSTANCE_NAME}}", "some_content", null, 1L);
 
         final TemplateListItem templateListItem = new TemplateListItem(hesperidesTemplate);
 

@@ -46,16 +46,16 @@ public final class ApplicationModule {
     private final int id;
 
     @JsonProperty("name")
-    private final String        name;
+    private final String name;
 
     @JsonProperty("version")
-    private final String        version;
+    private final String version;
 
     @JsonProperty("working_copy")
-    private final boolean       workingCopy;
+    private final boolean workingCopy;
 
     @JsonProperty("path")
-    private final String        path;
+    private final String path;
 
     @JsonProperty("instances")
     @JsonDeserialize(as = Set.class)

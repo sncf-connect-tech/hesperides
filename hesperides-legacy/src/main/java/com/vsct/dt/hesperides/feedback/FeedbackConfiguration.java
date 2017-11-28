@@ -46,9 +46,15 @@ public class FeedbackConfiguration {
         return imagePathStorage;
     }
 
-    public String getHipchatSubdomain() { return hipchatSubdomain; }
+    public String getHipchatSubdomain() {
+        return hipchatSubdomain;
+    }
 
-    public String getHipchatId() { return hipchatId; }
+    public String getHipchatId() {
+        return hipchatId;
+    }
 
-    public String getHipchatToken() { return hipchatToken; }
+    public String getHipchatToken() {
+        return hipchatToken;
+    }
 }

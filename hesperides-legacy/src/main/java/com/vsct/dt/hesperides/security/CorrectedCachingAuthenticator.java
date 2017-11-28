@@ -24,24 +24,29 @@ package com.vsct.dt.hesperides.security;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.google.common.base.Optional;
-import com.google.common.cache.*;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheBuilderSpec;
+import com.google.common.cache.CacheStats;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
+
+import java.security.Principal;
+import java.util.Optional;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
 /**
-Reuses the CachingAuthenticator code but avoid to cache authentication when it is wrong,
-thus allowing the reuse to retry authentication
-
-It has actually been corrected since here -> https://github.com/dropwizard/dropwizard/pull/1084
+ * Reuses the CachingAuthenticator code but avoid to cache authentication when it is wrong,
+ * thus allowing the reuse to retry authentication
+ * <p>
+ * It has actually been corrected since here -> https://github.com/dropwizard/dropwizard/pull/1084
  */
-public class CorrectedCachingAuthenticator<C, P> implements Authenticator<C, P> {
-    private final Authenticator<C, P>          underlying;
-    private final Cache<C, Optional<P>> cache;
-    private final Meter                        cacheMisses;
-    private final Timer                        gets;
+public class CorrectedCachingAuthenticator<C, P> implements Authenticator<C, Principal> {
+    private final Authenticator<C, Principal> underlying;
+    private final Cache<C, Optional<Principal>> cache;
+    private final Meter cacheMisses;
+    private final Timer gets;
 
     /**
      * Creates a new cached authenticator.
@@ -51,8 +56,8 @@ public class CorrectedCachingAuthenticator<C, P> implements Authenticator<C, P> 
      * @param cacheSpec      a {@link CacheBuilderSpec}
      */
     public CorrectedCachingAuthenticator(MetricRegistry metricRegistry,
-                                Authenticator<C, P> authenticator,
-                                CacheBuilderSpec cacheSpec) {
+                                         Authenticator<C, Principal> authenticator,
+                                         CacheBuilderSpec cacheSpec) {
         this(metricRegistry, authenticator, CacheBuilder.from(cacheSpec));
     }
 
@@ -64,8 +69,8 @@ public class CorrectedCachingAuthenticator<C, P> implements Authenticator<C, P> 
      * @param builder        a {@link CacheBuilder}
      */
     public CorrectedCachingAuthenticator(MetricRegistry metricRegistry,
-                                Authenticator<C, P> authenticator,
-                                CacheBuilder<Object, Object> builder) {
+                                         Authenticator<C, Principal> authenticator,
+                                         CacheBuilder<Object, Object> builder) {
         this.underlying = authenticator;
         this.cacheMisses = metricRegistry.meter(name(authenticator.getClass(), "cache-misses"));
         this.gets = metricRegistry.timer(name(authenticator.getClass(), "gets"));
@@ -73,10 +78,10 @@ public class CorrectedCachingAuthenticator<C, P> implements Authenticator<C, P> 
     }
 
     @Override
-    public Optional<P> authenticate(C credentials) throws AuthenticationException {
+    public Optional<Principal> authenticate(C credentials) throws AuthenticationException {
         final Timer.Context context = gets.time();
         try {
-            Optional<P> optionalPrincipal = cache.getIfPresent(credentials);
+            Optional<Principal> optionalPrincipal = cache.getIfPresent(credentials);
             if (optionalPrincipal == null) {
                 cacheMisses.mark();
                 optionalPrincipal = underlying.authenticate(credentials);

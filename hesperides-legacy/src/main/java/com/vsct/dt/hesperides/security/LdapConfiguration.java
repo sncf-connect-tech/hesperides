@@ -21,13 +21,12 @@
 
 package com.vsct.dt.hesperides.security;
 
-import javax.validation.Valid;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
+import javax.validation.Valid;
 
 /**
  * Created by william_montaz on 23/02/2015.

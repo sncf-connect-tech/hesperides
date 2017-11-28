@@ -22,8 +22,8 @@ package com.vsct.dt.hesperides.templating.packages;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
-import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.AbstractThreadAggregate;
+import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.Models;
@@ -64,7 +64,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Constructor using no UserProvider (used when no loggin was possible)
-     * @param eventBus  The {@link EventBus} used to propagate events to other part of the application
+     *
+     * @param eventBus   The {@link EventBus} used to propagate events to other part of the application
      * @param eventStore The {@link EventStore} used to store events
      */
     public AbstractTemplatePackagesAggregate(final EventBus eventBus, final EventStore eventStore) {
@@ -73,8 +74,9 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Constructor using a specific UserProvider
-     * @param eventBus The {@link EventBus} used to propagate events to other part of the application
-     * @param eventStore The {@link EventStore} used to store events
+     *
+     * @param eventBus     The {@link EventBus} used to propagate events to other part of the application
+     * @param eventStore   The {@link EventStore} used to store events
      * @param userProvider A {@link UserProvider} that indicates which user is performing the request
      */
     public AbstractTemplatePackagesAggregate(final EventBus eventBus, final EventStore eventStore,
@@ -84,6 +86,7 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Helper method used to apply a treatment to all templates
+     *
      * @param consumer A {@link Consumer} implementation to perform treatment on a template
      */
     @Override
@@ -94,6 +97,7 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Get all templates for a template package
+     *
      * @param packageKey The key describing the template package
      * @return a {@link Set} of all templates belonging to the TemplatePackage
      */
@@ -109,7 +113,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Get a template
-     * @param packageKey The {@link TemplatePackageKey} describing the template package
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package
      * @param templateName The name field of the template
      * @return An {@link Optional} of a template
      */
@@ -120,8 +125,9 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Get a template
+     *
      * @param templateNamespace The namespace describing the tempalte package
-     * @param templateName The name field of the template
+     * @param templateName      The name field of the template
      * @return An {@link Optional} of a template
      */
     @Deprecated
@@ -132,7 +138,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Adds a new template to a working copy of a template package
-     * @param packageKey The {@link TemplatePackageKey} describing the template package. Whatever the key it will be transformed to a working copy.
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package. Whatever the key it will be transformed to a working copy.
      * @param templateData The data held by the template -> should be replaced by templateVO
      * @return The created {@link Template} with its versionID
      */
@@ -146,7 +153,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
      * The template content has to be validated
      * Fires a {@link TemplateCreatedEvent}
      * Will throw a {@link DuplicateResourceException} if the template already exists
-     * @param packageKey The {@link TemplatePackageKey} describing the template package
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package
      * @param templateData The data held by the template -> should be replaced by templateVO
      * @return The {@link Template} created with its new version id
      */
@@ -167,7 +175,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
      * The version id provided must match the actual version id of the template.
      * Fires a {@link TemplateUpdatedEvent}
      * Will throw {@link com.vsct.dt.hesperides.exception.runtime.MissingResourceException} if the template does not exists
-     * @param packageKey The {@link TemplatePackageKey} describing the template package. Whatever the key it will be transformed to a working copy.
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package. Whatever the key it will be transformed to a working copy.
      * @param templateData The data held by the template -> should be replaced by templateVO
      * @return the updated {@link Template} with its new version id
      */
@@ -182,7 +191,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
      * The version id provided must match the actual version id of the template.
      * Fires a {@link TemplateUpdatedEvent}
      * Will throw {@link com.vsct.dt.hesperides.exception.runtime.MissingResourceException} if the template does not exists
-     * @param packageKey The {@link TemplatePackageKey} describing the template package.
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package.
      * @param templateData The data held by the template -> should be replaced by templateVO
      * @return The updated {@link Template} with its new version id
      */
@@ -201,7 +211,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
      * Deletes a template in a working copy
      * Whatever package key is given it will be turned to a working copy
      * Will throw {@link com.vsct.dt.hesperides.exception.runtime.MissingResourceException} if the template does not exist
-     * @param packageKey The {@link TemplatePackageKey} describing the template package
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package
      * @param templateName The name field of the template
      */
     @Override
@@ -212,7 +223,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
     /**
      * Deletes a template in a working copy
      * Will throw {@link com.vsct.dt.hesperides.exception.runtime.MissingResourceException} if the template does not exist
-     * @param packageKey The {@link TemplatePackageKey} describing the template package
+     *
+     * @param packageKey   The {@link TemplatePackageKey} describing the template package
      * @param templateName The name field of the template
      */
     private void deleteTemplate(final TemplatePackageKey packageKey, final String templateName) {
@@ -223,6 +235,7 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Creates a release from a working copy
+     *
      * @param workingCopyKey the {@link TemplatePackageWorkingCopyKey} of the working copy to create a release from
      * @return The {@link TemplatePackageKey} of the created release
      */
@@ -237,6 +250,7 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     /**
      * Creates a working copy from another template package (working copy or release)
+     *
      * @param workingCopyKey The {@link TemplatePackageWorkingCopyKey} of the working copy to create
      * @param fromPackageKey The {@link TemplatePackageKey} of the template package to copy from
      * @return The {@link TemplatePackageKey} of the created working copy
@@ -251,7 +265,8 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
      * This function is not really atomic because a template might be change will getting the whole list,
      * It is really not likely to happened
      * Fires as many {@link TemplateCreatedEvent} as templates existing in the "from" template epackage
-     * @param newPackageInfo The {@link TemplatePackageKey} of the package to create
+     *
+     * @param newPackageInfo   The {@link TemplatePackageKey} of the package to create
      * @param fromPackageInfos The {@link TemplatePackageKey} of the package to create from
      * @return The {@link TemplatePackageKey} of the new package
      */
@@ -279,10 +294,11 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
     /**
      * Deletes a complete template package ie. all templates related to it
      * Actually, the event stream is preserved and a {@link TemplatePackageDeletedEvent} is fired
+     *
      * @param packageKey The {@link TemplatePackageKey}  to delete
      */
     @Override
-    public void delete(final TemplatePackageKey packageKey){
+    public void delete(final TemplatePackageKey packageKey) {
         final TemplatePackageDeletedCommand hc = new TemplatePackageDeletedCommand(getTemplateRegistry(), packageKey);
 
         this.tryAtomic(packageKey.getEntityName(), hc);
@@ -292,6 +308,7 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
     /**
      * Convenient method to get a template package model from the name, version and type
      * It should be replaced in favor of a method using the key object
+     *
      * @param name
      * @param version
      * @param isWorkingCopy
@@ -368,12 +385,12 @@ public abstract class AbstractTemplatePackagesAggregate extends AbstractThreadAg
 
     @Subscribe
     @Override
-    public void replayTemplatePackageDeletedEvent(final TemplatePackageDeletedEvent event){
-        try{
+    public void replayTemplatePackageDeletedEvent(final TemplatePackageDeletedEvent event) {
+        try {
             final HesperidesVersion version = event.isWorkingCopy() ? WorkingCopy.of(event.getPackageVersion()) : Release.of(event.getPackageVersion());
             final TemplatePackageKey packageKey = TemplatePackageKey.withName(event.getPackageName()).withVersion(version).build();
             AbstractTemplatePackagesAggregate.this.delete(packageKey);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOGGER.error("Error while replaying template package deleted event {}", e.getMessage());
         }
     }

@@ -32,7 +32,7 @@ import java.util.Set;
  * Created by william_montaz on 04/12/2014.
  */
 public final class ModuleCreatedEvent {
-    private final Module                 moduleCreated;
+    private final Module moduleCreated;
     private final ImmutableSet<Template> templates;
 
     @JsonCreator

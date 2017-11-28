@@ -40,15 +40,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
-import tests.type.UnitTests;
 
 /**
  * Created by william on 04/09/2014.
@@ -59,7 +61,7 @@ public class ApplicationsAggregateTest {
     private final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
     private final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> System.currentTimeMillis());
 
-    private EventBus         eventBus        = new EventBus();
+    private EventBus eventBus = new EventBus();
     private SnapshotRegistryInterface snapshotRegistryInterface = mock(SnapshotRegistry.class);
 
     private ApplicationsAggregate applicationsWithEvent;
@@ -154,7 +156,7 @@ public class ApplicationsAggregateTest {
     }
 
     @Test
-    public void should_create_platform_from_an_existing_one (){
+    public void should_create_platform_from_an_existing_one() {
         // Modules
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
@@ -190,15 +192,15 @@ public class ApplicationsAggregateTest {
         // Properties ( only the keyValues ones ! )
         Set<KeyValueValorisationData> keyValueProps = Sets.newHashSet();
 
-        keyValueProps.add( new KeyValueValorisationData("myProp1", "valOfMyProp1"));
-        keyValueProps.add( new KeyValueValorisationData("myProp2", "valOfMyProp2"));
-        keyValueProps.add( new KeyValueValorisationData("myProp3", "valOfMyProp3"));
+        keyValueProps.add(new KeyValueValorisationData("myProp1", "valOfMyProp1"));
+        keyValueProps.add(new KeyValueValorisationData("myProp2", "valOfMyProp2"));
+        keyValueProps.add(new KeyValueValorisationData("myProp3", "valOfMyProp3"));
 
         Set<KeyValueValorisationData> keyValueProps2 = Sets.newHashSet();
 
-        keyValueProps2.add( new KeyValueValorisationData("hisProp1", "valOfHisProp1"));
-        keyValueProps2.add( new KeyValueValorisationData("hisProp2", "valOfHisProp2"));
-        keyValueProps2.add( new KeyValueValorisationData("hisProp3", "valOfHisProp3"));
+        keyValueProps2.add(new KeyValueValorisationData("hisProp1", "valOfHisProp1"));
+        keyValueProps2.add(new KeyValueValorisationData("hisProp2", "valOfHisProp2"));
+        keyValueProps2.add(new KeyValueValorisationData("hisProp3", "valOfHisProp3"));
 
         applicationsWithEvent.createOrUpdatePropertiesInPlatform(fromPlatform.getKey(), "#SOME_PATH", new PropertiesData(keyValueProps, Sets.newHashSet()), 1, comment);
         applicationsWithEvent.createOrUpdatePropertiesInPlatform(fromPlatform.getKey(), "#SOME_OTHER_PATH", new PropertiesData(keyValueProps2, Sets.newHashSet()), 2, comment);
@@ -220,7 +222,7 @@ public class ApplicationsAggregateTest {
 
         // Check modules
         assertThat(createdFromPlatform.getModules().size()).isEqualTo(fromPlatform.getModules().size());
-        Set<Integer> createdIds = fromPlatform.getModules().stream().map( module -> module.getId()).collect(Collectors.toSet());
+        Set<Integer> createdIds = fromPlatform.getModules().stream().map(module -> module.getId()).collect(Collectors.toSet());
         assertThat(createdIds).isEqualTo(Sets.newHashSet(1, 2));
 
         // Check properties
@@ -230,12 +232,12 @@ public class ApplicationsAggregateTest {
     }
 
     @Test
-    public void should_fire_platform_created_event_when_a_platform_is_created(){
+    public void should_fire_platform_created_event_when_a_platform_is_created() {
 // TODO
     }
 
     @Test
-    public void should_not_create_platform_if_it_already_exists(){
+    public void should_not_create_platform_if_it_already_exists() {
 // TODO
     }
 
@@ -243,12 +245,12 @@ public class ApplicationsAggregateTest {
      * Platform update
      */
     @Test
-    public void should_update_platform_without_copying_properties_when_path_not_changed_and_no_copy_is_asked(){
+    public void should_update_platform_without_copying_properties_when_path_not_changed_and_no_copy_is_asked() {
 // TODO
     }
 
     @Test
-    public void should_update_platform_by_providing_module_id_to_new_modules_only(){
+    public void should_update_platform_by_providing_module_id_to_new_modules_only() {
         ApplicationModuleData module1 = ApplicationModuleData
                 .withApplicationName("module1")
                 .withVersion("version")
@@ -340,20 +342,19 @@ public class ApplicationsAggregateTest {
 
         //Id generation should have created ids 3,4,5
         Set<Integer> ids = modules.stream().map(module -> module.getId()).collect(Collectors.toSet());
-        assertThat(ids).isEqualTo(Sets.newHashSet(1,2,4,5,6));
+        assertThat(ids).isEqualTo(Sets.newHashSet(1, 2, 4, 5, 6));
     }
 
     @Test
-    public void should_update_platform_copying_properties_for_updated_modules_if_asked(){
+    public void should_update_platform_copying_properties_for_updated_modules_if_asked() {
 
     }
 
     //Add tests for version id
 
 
-
     @Test
-    public void should_delete_plateform_and_related_properties(){
+    public void should_delete_plateform_and_related_properties() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -398,13 +399,13 @@ public class ApplicationsAggregateTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_throw_exception_when_trying_to_delete_unknown_paltform(){
+    public void should_throw_exception_when_trying_to_delete_unknown_paltform() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
         applicationsWithEvent.delete(key);
     }
 
     @Test
-    public void snapshoting_platform_should_call_snapshot_service(){
+    public void snapshoting_platform_should_call_snapshot_service() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         ApplicationModuleData module1 = ApplicationModuleData
@@ -523,13 +524,13 @@ public class ApplicationsAggregateTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void should_throw_exception_when_trying_to_snapshot_unknown_platform(){
+    public void should_throw_exception_when_trying_to_snapshot_unknown_platform() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
         applicationsWithEvent.takeSnapshot(key);
     }
 
     @Test
-    public void should_restore_snapshot_with_an_updated_version_id_when_platform_exists(){
+    public void should_restore_snapshot_with_an_updated_version_id_when_platform_exists() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -577,7 +578,7 @@ public class ApplicationsAggregateTest {
     }
 
     @Test
-    public void should_restore_snapshot_with_version_id_at_1_when_platform_was_deleted(){
+    public void should_restore_snapshot_with_version_id_at_1_when_platform_was_deleted() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -660,7 +661,7 @@ public class ApplicationsAggregateTest {
     //This will not test a lot the structure of the instance properties itself, since it is already tested in PropertiesTest
     //We will just check the presence of one property
     @Test
-    public void get_instance_model_should_return_the_instance_model_for_a_given_platform_and_properties_path(){
+    public void get_instance_model_should_return_the_instance_model_for_a_given_platform_and_properties_path() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())
@@ -684,7 +685,7 @@ public class ApplicationsAggregateTest {
     }
 
     @Test(expected = MissingResourceException.class)
-    public void get_instance_model_should_throw_missing_ressource_exception_when_platform_is_missing(){
+    public void get_instance_model_should_throw_missing_ressource_exception_when_platform_is_missing() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
         applicationsWithEvent.getInstanceModel(key, "#some#path");
     }
@@ -692,7 +693,7 @@ public class ApplicationsAggregateTest {
     //This will not test a lot the structure of the instance properties itself, since it is already tested in PropertiesTest
     //We will just check the presence of one property coming from the global scope
     @Test
-    public void get_instance_model_should_also_include_platform_global_properties(){
+    public void get_instance_model_should_also_include_platform_global_properties() {
         PlatformKey key = new PlatformKey("FOO", "REL1");
 
         PlatformData.IBuilder builder2 = PlatformData.withPlatformName(key.getName())

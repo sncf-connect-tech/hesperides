@@ -49,7 +49,7 @@ public final class IndexNewModuleCommand implements ElasticSearchIndexationComma
         try {
             propertiesAsString = ElasticSearchMappers.MODULE_WRITER.writeValueAsString(module);
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Could not serialize module "+module);
+            LOGGER.error("Could not serialize module " + module);
             throw new RuntimeException(e);
         }
 

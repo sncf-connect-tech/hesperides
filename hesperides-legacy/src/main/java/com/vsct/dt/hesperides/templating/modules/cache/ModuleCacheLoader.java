@@ -175,7 +175,7 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
      * Store object in snapshot.
      *
      * @param moduleKey key of cache (same as cache.get(K))
-     * @param object object
+     * @param object    object
      */
     public void saveSnapshot(final ModuleKey moduleKey, final ModuleContainer object) {
         // Don't store snapshot of release, cause release contain only one event
@@ -191,7 +191,7 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
      * Store object in snapshot.
      *
      * @param moduleKey key of cache (same as cache.get(K))
-     * @param object object
+     * @param object    object
      */
     public void forceSaveSnapshot(final ModuleKey moduleKey, final ModuleContainer object, final long nbEvent) {
         // Don't store snapshot of release, cause release contain only one event
@@ -253,7 +253,7 @@ public class ModuleCacheLoader extends AbstractTemplateCacheLoader<ModuleKey, Mo
         final List<Template> listTemplates = new ArrayList<>();
 
         getAllModules((m, ma) ->
-            listTemplates.addAll(ma.getAllTemplates(m.getKey()))
+                listTemplates.addAll(ma.getAllTemplates(m.getKey()))
         );
 
         // Can't return null !!!!

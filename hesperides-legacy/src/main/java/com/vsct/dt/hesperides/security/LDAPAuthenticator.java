@@ -21,8 +21,6 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.google.common.base.Optional;
-
 import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
 import com.vsct.dt.hesperides.security.model.User;
 import io.dropwizard.auth.AuthenticationException;
@@ -37,16 +35,18 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.util.Hashtable;
+import java.util.Optional;
 
 /**
  * Created by william_montaz on 12/11/2014.
  */
 public final class LDAPAuthenticator implements Authenticator<BasicCredentials, User> {
 
-    private static final Logger LOGGER                          = LoggerFactory.getLogger(LDAPAuthenticator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LDAPAuthenticator.class);
 
     /**
      * AD matching rule.
+     *
      * @link https://msdn.microsoft.com/en-us/library/aa746475(v=vs.85).aspx
      */
     private static final String LDAP_MATCHING_RULE_IN_CHAIN_OID = "1.2.840.113556.1.4.1941";
@@ -88,7 +88,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
             LOGGER.debug("{} failed to authenticate {}", username);
         }
 
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private boolean checkIfUserBelongsToGroup(final AutoclosableDirContext context, final String userDN, final String groupName) throws
@@ -125,7 +125,7 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
 
         NamingEnumeration<SearchResult> memberOfSearchResults = context.search(userDN, memberOfSearch, searchControls);
 
-        if (memberOfSearchResults.hasMore()){
+        if (memberOfSearchResults.hasMore()) {
             return true;
         } else {
             return false;
@@ -145,12 +145,12 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
         if (results.hasMoreElements()) {
             searchResult = results.nextElement();
 
-            if (results.hasMoreElements()){
-                throw new AuthenticationException("Expected to find only one user for "+username+" but found more results");
+            if (results.hasMoreElements()) {
+                throw new AuthenticationException("Expected to find only one user for " + username + " but found more results");
             }
 
         } else {
-            throw new AuthenticationException("Unable to authenticate user "+username);
+            throw new AuthenticationException("Unable to authenticate user " + username);
         }
 
         return searchResult;

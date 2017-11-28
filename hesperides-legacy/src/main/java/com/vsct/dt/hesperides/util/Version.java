@@ -22,10 +22,10 @@
 package com.vsct.dt.hesperides.util;
 
 /**
-* Created by william_montaz on 23/01/2015.
-*/
+ * Created by william_montaz on 23/01/2015.
+ */
 public class Version {
-    private final String  version;
+    private final String version;
     private final boolean workingCopy;
 
     public Version(String version, boolean workingCopy) {
@@ -47,15 +47,15 @@ public class Version {
         String[] otherVersionNumbers = other.getVersion().split("\\.");
 
         int maxLen = thisVersionNumbers.length;
-        if(otherVersionNumbers.length > maxLen) maxLen = otherVersionNumbers.length;
+        if (otherVersionNumbers.length > maxLen) maxLen = otherVersionNumbers.length;
 
-        for(int i=0; i<maxLen; i++){
-            int thisDigit = ( i  < thisVersionNumbers.length ) ? Integer.parseInt(thisVersionNumbers[i]) : 0;
-            int otherDigit = ( i < otherVersionNumbers.length ) ? Integer.parseInt(otherVersionNumbers[i]) : 0;
-            if(thisDigit > otherDigit){
+        for (int i = 0; i < maxLen; i++) {
+            int thisDigit = (i < thisVersionNumbers.length) ? Integer.parseInt(thisVersionNumbers[i]) : 0;
+            int otherDigit = (i < otherVersionNumbers.length) ? Integer.parseInt(otherVersionNumbers[i]) : 0;
+            if (thisDigit > otherDigit) {
                 return true;
             }
-            if(thisDigit < otherDigit){
+            if (thisDigit < otherDigit) {
                 return false;
             }
         }

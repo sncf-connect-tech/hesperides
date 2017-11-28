@@ -44,12 +44,12 @@ public final class Module extends DomainVersionable {
     @NotNull
     @NotEmpty
     @JsonProperty("name")
-    private final String  name;
+    private final String name;
 
     @NotNull
     @NotEmpty
     @JsonProperty("version")
-    private final String  version;
+    private final String version;
 
     @JsonProperty("working_copy")
     private final boolean workingCopy;

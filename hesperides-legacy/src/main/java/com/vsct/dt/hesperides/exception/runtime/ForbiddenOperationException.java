@@ -26,7 +26,7 @@ package com.vsct.dt.hesperides.exception.runtime;
  */
 public class ForbiddenOperationException extends HesperidesException {
 
-    public ForbiddenOperationException(final String message){
+    public ForbiddenOperationException(final String message) {
         super(message);
     }
 

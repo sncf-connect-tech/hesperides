@@ -49,7 +49,7 @@ public final class IndexNewTemplateCommand implements ElasticSearchIndexationCom
         try {
             propertiesAsString = ElasticSearchMappers.TEMPLATE_WRITER.writeValueAsString(template);
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Could not serialize template "+template);
+            LOGGER.error("Could not serialize template " + template);
             throw new RuntimeException(e);
         }
 

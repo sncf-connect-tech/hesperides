@@ -26,7 +26,9 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
 import com.github.mustachejava.reflect.ReflectionObjectHandler;
 import com.github.mustachejava.util.Wrapper;
-import com.vsct.dt.hesperides.applications.*;
+import com.vsct.dt.hesperides.applications.Applications;
+import com.vsct.dt.hesperides.applications.MustacheScope;
+import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.IterablePropertyModel;
@@ -43,14 +45,12 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
 import com.vsct.dt.hesperides.util.TemplateContentGenerator;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.*;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -60,8 +60,8 @@ import java.util.stream.Collectors;
  */
 public class Files {
 
-    private final Applications              applications;
-    private final ModulesAggregate          modules;
+    private final Applications applications;
+    private final ModulesAggregate modules;
     private final TemplatePackagesAggregate templatePackages;
 
     private final DefaultMustacheFactory mustacheFactory;
@@ -76,6 +76,7 @@ public class Files {
 
     /**
      * List the files location for an instance of a specific platform
+     *
      * @param applicationName
      * @param platformName
      * @param path
@@ -101,14 +102,14 @@ public class Files {
                 new HesperidesVersion(moduleVersion, isModuleWorkingCopy)
         );
 
-        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
+        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release" + " defined for platform " + applicationName + "/" + platformName + " at path " + path)));
 
         Module module = modules.getModule(moduleKey).orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release")));
 
         List<Template> templates = modules.getAllTemplates(moduleKey);
 
         //Dont forget the technos
-        for(Techno techno : module.getTechnos()){
+        for (Techno techno : module.getTechnos()) {
 
             TemplatePackageKey packageInfo = new TemplatePackageKey(
                     techno.getName(),
@@ -165,12 +166,13 @@ public class Files {
         Mustache mustacheLocation = mustacheFactory.compile(new StringReader(template.getLocation()), "something");
         String location = TemplateContentGenerator.from(mustacheLocation).withScope(mustacheScope).generate();
 
-        return new HesperidesFile(template.getNamespace(), template.getName(), location,filename,
+        return new HesperidesFile(template.getNamespace(), template.getName(), location, filename,
                 convertRights(template.getRights()));
     }
 
     /**
      * Convert TemplateRights to HesperidesFileRights
+     *
      * @param rights
      * @return
      */
@@ -202,6 +204,7 @@ public class Files {
 
     /**
      * Convert TemplateFileRights to HesperidesRight
+     *
      * @param rights TemplateFileRights
      * @return HesperidesRight
      */
@@ -214,6 +217,7 @@ public class Files {
 
     /**
      * Evaluate a template with properties
+     *
      * @param applicationName
      * @param platformName
      * @param path
@@ -224,15 +228,15 @@ public class Files {
      * @return
      */
     public String getFile(String applicationName,
-            String platformName,
-            String path,
-            String moduleName,
-            String moduleVersion,
-            boolean isModuleWorkingCopy,
-            String instanceName,
-            String templateNamespace,
-            String templateName, HesperidesPropertiesModel model,
-            Boolean simulate) {
+                          String platformName,
+                          String path,
+                          String moduleName,
+                          String moduleVersion,
+                          boolean isModuleWorkingCopy,
+                          String instanceName,
+                          String templateNamespace,
+                          String templateName, HesperidesPropertiesModel model,
+                          Boolean simulate) {
 
         PlatformKey platformKey = PlatformKey.withName(platformName)
                 .withApplicationName(applicationName)
@@ -247,7 +251,7 @@ public class Files {
 
         hesperidesPlatformPredefinedScope.addAll(platformGlobalProperties.getKeyValueProperties());
 
-        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module "+moduleName+"/"+moduleVersion+"/"+(isModuleWorkingCopy ? "WorkingCopy":"Release" + " defined for platform "+applicationName+"/"+platformName +" at path "+path)));
+        ApplicationModuleData applicationModule = platform.findModule(moduleName, moduleVersion, isModuleWorkingCopy, path).orElseThrow(() -> new MissingResourceException("There is no module " + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release" + " defined for platform " + applicationName + "/" + platformName + " at path " + path)));
 
         //Get the instance
         InstanceData instance = applicationModule.getInstance(instanceName, simulate).orElseThrow(() -> new MissingResourceException("There is no instance " + instanceName + " in platform " + applicationName + "/" + platformName));
@@ -270,8 +274,8 @@ public class Files {
                 templateName, mustacheScope, moduleKey);
 
         //Test template is null
-        if(template == null){
-            throw new MissingResourceException("Could not find template "+templateNamespace+"/"+templateName);
+        if (template == null) {
+            throw new MissingResourceException("Could not find template " + templateNamespace + "/" + templateName);
         }
 
         Mustache mustacheTemplate = mustacheFactory.compile(new StringReader(template.getContent()), "something");
@@ -282,41 +286,41 @@ public class Files {
      * Manages an iterable property.
      * This makes use of recursion to manage inner iterable properties if existing
      *
-     * @param scopes : the mustache scope collection
-     * @param itpm : the iterable property model
+     * @param scopes            : the mustache scope collection
+     * @param itpm              : the iterable property model
      * @param templateNamespace : the template workspace
-     * @param templateName : the template name
+     * @param templateName      : the template name
      */
-    private void manageIterableProperty (ArrayList<MustacheScope> scopes, IterablePropertyModel itpm, String templateNamespace, String templateName){
+    private void manageIterableProperty(ArrayList<MustacheScope> scopes, IterablePropertyModel itpm, String templateNamespace, String templateName) {
 
         scopes.forEach(scope -> {
 
             itpm.getFields().forEach(p -> {
-                if ( p instanceof IterablePropertyModel ){
+                if (p instanceof IterablePropertyModel) {
                     // this is an inner iterable
                     manageIterableProperty((ArrayList<MustacheScope>) scope.get(p.getName()), (IterablePropertyModel) p, templateNamespace, templateName);
-                }else{
+                } else {
                     // check if the property exists in scope.
                     boolean _exists = isInScope(p.getName(), scope);
 
                     // required but not existing
-                    if (!_exists && p.isRequired()){
+                    if (!_exists && p.isRequired()) {
                         throw new MissingResourceException(String.format("Property '%s' in template '%s/%s' must be set.",
                                 p.getName(), templateNamespace, templateName));
                     }
 
                     // has default value and not existing
-                    if (!_exists && StringUtils.isNotEmpty(p.getDefaultValue())){
+                    if (!_exists && StringUtils.isNotEmpty(p.getDefaultValue())) {
                         scope.put(p.getName(), p.getDefaultValue());
                     }
 
                     // has pattern
-                    if (StringUtils.isNotEmpty(p.getPattern())){
+                    if (StringUtils.isNotEmpty(p.getPattern())) {
                         // get the value
                         String value = findProperty(p.getName(), scope);
                         Pattern pattern = Pattern.compile(p.getPattern());
                         Matcher matcher = pattern.matcher(value);
-                        if (!matcher.matches()){
+                        if (!matcher.matches()) {
                             throw new MissingResourceException(String.format(
                                     "Property '%s' in template '%s/%s' not match regular expression '%s'.",
                                     p.getName(), templateNamespace, templateName, p.getPattern()));
@@ -327,6 +331,7 @@ public class Files {
         });
 
     }
+
     /**
      * Manage module template.
      *
@@ -337,21 +342,20 @@ public class Files {
      * @param templateName
      * @param mustacheScope
      * @param moduleKey
-     *
      * @return
      */
     private Template manageModule(final String moduleName, final String moduleVersion,
-            final boolean isModuleWorkingCopy, final String templateNamespace,
-            final String templateName, final MustacheScope mustacheScope,
-            final ModuleKey moduleKey) {
+                                  final boolean isModuleWorkingCopy, final String templateNamespace,
+                                  final String templateName, final MustacheScope mustacheScope,
+                                  final ModuleKey moduleKey) {
         Template template = null;
 
-        if(templateNamespace.startsWith("modules")){
+        if (templateNamespace.startsWith("modules")) {
             template = modules.getTemplate(moduleKey, templateName).orElseThrow(()
                     -> new MissingResourceException("Could not find template " + templateName + " in module "
                     + moduleName + "/" + moduleVersion + "/" + (isModuleWorkingCopy ? "WorkingCopy" : "Release")));
-        } else if(templateNamespace.startsWith("packages")) {
-            template = templatePackages.getTemplate(templateNamespace, templateName).orElseThrow(() -> new MissingResourceException("Could not find template "+templateNamespace+"/"+templateName));
+        } else if (templateNamespace.startsWith("packages")) {
+            template = templatePackages.getTemplate(templateNamespace, templateName).orElseThrow(() -> new MissingResourceException("Could not find template " + templateNamespace + "/" + templateName));
         }
 
         HesperidesPropertiesModel templateModel
@@ -388,7 +392,7 @@ public class Files {
         }
 
         // Taking care of iterable properties
-        for (IterablePropertyModel itpm : templateModel.getIterableProperties()){
+        for (IterablePropertyModel itpm : templateModel.getIterableProperties()) {
 
             // Get the valuation for this
             if (mustacheScope.keySet().contains(itpm.getName())) {
@@ -406,9 +410,8 @@ public class Files {
     /**
      * Check if found property in scope.
      *
-     * @param name property name.
+     * @param name          property name.
      * @param mustacheScope scope
-     *
      * @return true if found else otherwise.
      */
     private static boolean isInScope(final String name, final MustacheScope mustacheScope) {
@@ -428,9 +431,8 @@ public class Files {
     /**
      * Find property in scope.
      *
-     * @param name property name.
+     * @param name          property name.
      * @param mustacheScope scope
-     *
      * @return true if not found.
      */
     private static String findProperty(final String name, final MustacheScope mustacheScope) {

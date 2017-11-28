@@ -59,9 +59,9 @@ public class TemplatePackageRegistry implements TemplateRegistryInterface {
     /**
      * Constructor.
      *
-     * @param store store of event for lazy load
+     * @param store                 store of event for lazy load
      * @param nbEventBeforePersiste nb event before store cache
-     * @param config config of cache
+     * @param config                config of cache
      */
     public TemplatePackageRegistry(final EventStore store, final long nbEventBeforePersiste,
                                    final HesperidesCacheParameter config) {

@@ -47,7 +47,7 @@ import org.junit.Before;
 public abstract class AbstractCacheTest {
     protected static final int NB_EVENT_BEFORE_STORE = 5;
 
-    protected final EventBus eventBus       = new EventBus();
+    protected final EventBus eventBus = new EventBus();
     protected final ManageableConnectionPoolMock poolRedis = new ManageableConnectionPoolMock();
     protected final EventStore eventStore = new RedisEventStore(poolRedis, poolRedis, () -> getTimeStamp());
     protected TemplatePackagesAggregate templatePackagesWithEvent;
@@ -104,7 +104,7 @@ public abstract class AbstractCacheTest {
 
         templatePackagesWithEvent.createTemplateInWorkingCopy(packageInfo, templateData);
 
-        for (int index = 1; index < max; index++ ) {
+        for (int index = 1; index < max; index++) {
             templateData = TemplateData.withTemplateName("nom du template")
                     .withFilename("filename" + index)
                     .withLocation("location")
@@ -124,7 +124,7 @@ public abstract class AbstractCacheTest {
 
         modulesWithEvent.createWorkingCopy(new Module(moduleKey, Sets.newHashSet(techno)));
 
-        for (int index = 1; index < max; index++ ) {
+        for (int index = 1; index < max; index++) {
             TemplateData templateData = TemplateData.withTemplateName("nom du template" + index)
                     .withFilename("filename")
                     .withLocation("location")

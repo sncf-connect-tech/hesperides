@@ -23,7 +23,7 @@ import com.vsct.dt.hesperides.templating.modules.*;
 
 /**
  * Interface to receive event of module.
- *
+ * <p>
  * Created by emeric_martineau on 15/01/2016.
  */
 public interface ModuleEventInterface {

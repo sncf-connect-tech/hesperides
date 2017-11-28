@@ -27,7 +27,7 @@ import java.util.Objects;
 public class PlatformTimelineKey {
 
     private final PlatformKey platformKey;
-    private final long        timestamp;
+    private final long timestamp;
 
     public PlatformTimelineKey(PlatformKey platformKey, long timestamp) {
         this.platformKey = platformKey;

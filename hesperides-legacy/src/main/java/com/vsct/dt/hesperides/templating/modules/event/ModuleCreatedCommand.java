@@ -21,7 +21,10 @@ package com.vsct.dt.hesperides.templating.modules.event;
 
 import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
 import com.vsct.dt.hesperides.storage.HesperidesCommand;
-import com.vsct.dt.hesperides.templating.modules.*;
+import com.vsct.dt.hesperides.templating.modules.Module;
+import com.vsct.dt.hesperides.templating.modules.ModuleCreatedEvent;
+import com.vsct.dt.hesperides.templating.modules.ModuleKey;
+import com.vsct.dt.hesperides.templating.modules.ModuleRegistryInterface;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRegistryInterface;
 

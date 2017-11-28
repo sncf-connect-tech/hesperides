@@ -45,7 +45,7 @@ public class HesperidesVersionsResource {
 
     private final Versions versions;
 
-    public HesperidesVersionsResource(String backendVersion, String APIVersion){
+    public HesperidesVersionsResource(String backendVersion, String APIVersion) {
         this.versions = new Versions(backendVersion, APIVersion);
     }
 

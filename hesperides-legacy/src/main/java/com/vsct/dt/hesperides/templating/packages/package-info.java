@@ -24,7 +24,7 @@
  * Each package has a name and a version.
  * Each version can be either working copy or release.
  * Main class is TemplatePackages.
- *
+ * <p>
  * Created by william_montaz on 05/01/2015.
  */
 package com.vsct.dt.hesperides.templating.packages;

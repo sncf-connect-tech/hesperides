@@ -30,6 +30,7 @@ import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
 public interface KeyValueValorisationConverter {
     /**
      * Convert KeyValueValorisation to KeyValueValorisationData.
+     *
      * @param keyValue input
      * @return output
      */
@@ -37,6 +38,7 @@ public interface KeyValueValorisationConverter {
 
     /**
      * Convert KeyValueValorisationData to KeyValueValorisation.
+     *
      * @param keyValue input
      * @return output
      */

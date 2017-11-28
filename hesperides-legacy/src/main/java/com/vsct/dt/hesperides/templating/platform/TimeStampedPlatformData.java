@@ -27,9 +27,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 
 /**
@@ -44,7 +42,7 @@ public class TimeStampedPlatformData extends AbstractPlatformData {
 
     @JsonCreator
     protected TimeStampedPlatformData(@JsonProperty("platform") PlatformData platform,
-                               @JsonProperty("timestamp") long timestamp) {
+                                      @JsonProperty("timestamp") long timestamp) {
         super(platform.getKey().getName(), platform.getKey().getApplicationName(), platform.getApplicationVersion(),
                 platform.isProduction(), platform.getModules(), platform.getVersionID());
         this.timestamp = timestamp;

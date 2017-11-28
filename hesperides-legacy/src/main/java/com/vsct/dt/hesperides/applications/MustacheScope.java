@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Created by william_montaz on 20/08/2015.
  */
+
 /**
  * We use a two pass processes.
  * That allows properties to refer to themselves
@@ -66,10 +67,10 @@ import java.util.stream.Collectors;
  */
 public class MustacheScope implements Map<String, Object> {
 
-    public Map<String, Object>  scope = new HashMap<>();
+    public Map<String, Object> scope = new HashMap<>();
 
-    public MustacheScope(Set<ValorisationData> valorisations){
-        for(ValorisationData valorisation: valorisations){
+    public MustacheScope(Set<ValorisationData> valorisations) {
+        for (ValorisationData valorisation : valorisations) {
             MustacheScopeEntry<String, Object> entry = valorisation.toMustacheScopeEntry();
             scope.put(entry.getKey(), entry.getValue());
         }
@@ -79,7 +80,7 @@ public class MustacheScope implements Map<String, Object> {
         return getMissingKeyValueProperties(scope);
     }
 
-    private Set<KeyValuePropertyModel> getMissingKeyValueProperties(Map<String, Object> scope){
+    private Set<KeyValuePropertyModel> getMissingKeyValueProperties(Map<String, Object> scope) {
         /* Iterate through the scope. There can be string scope object or lists (depending if it comes from KeyValue or Iterable properties) */
         Set<KeyValuePropertyModel> missingKeyValueProperties = new HashSet<>();
         for (Map.Entry<String, Object> entry : scope.entrySet()) {
@@ -116,12 +117,12 @@ public class MustacheScope implements Map<String, Object> {
 
         public InjectableMustacheScope inject(Map<String, String> injectedValues) {
 
-            if(injectedValues == null || injectedValues.size() == 0){
+            if (injectedValues == null || injectedValues.size() == 0) {
                 return this;
             }
 
             Set<ValorisationData> injectedValorisations = valorisations.stream().map(valorisation ->
-                valorisation.inject(injectedValues)
+                    valorisation.inject(injectedValues)
             ).collect(Collectors.toSet());
 
             return new InjectableMustacheScope(injectedValorisations);

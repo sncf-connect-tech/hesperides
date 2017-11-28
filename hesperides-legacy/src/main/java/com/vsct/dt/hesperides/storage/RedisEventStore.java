@@ -23,8 +23,6 @@ package com.vsct.dt.hesperides.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
-
 import com.vsct.dt.hesperides.util.ManageableJedisConnectionInterface;
 import io.dropwizard.jackson.Jackson;
 import org.slf4j.Logger;
@@ -44,7 +42,7 @@ import java.util.function.Consumer;
 /**
  * Created by william_montaz on 03/11/2014.
  */
-public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&AdvancedJedisCommands&ScriptingCommands&BasicCommands&ClusterCommands&Closeable> implements EventStore {
+public final class RedisEventStore<A extends JedisCommands & MultiKeyCommands & AdvancedJedisCommands & ScriptingCommands & BasicCommands & ClusterCommands & Closeable> implements EventStore {
 
     /**
      * Logger.
@@ -89,7 +87,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
     public RedisEventStore(final ManageableJedisConnectionInterface<A> dataPool,
                            final ManageableJedisConnectionInterface<A> snapshotPool,
-                            final EventTimeProvider timeProvider) {
+                           final EventTimeProvider timeProvider) {
         this.dataPool = dataPool.getPool();
         this.snapshotPool = snapshotPool.getPool();
         this.nRetry = dataPool.getnRetry();
@@ -115,8 +113,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
                     }
                     attempt++;
                     continue;
-                }
-                else {
+                } else {
                     LOGGER.error("JEDIS CONNECTION FAILED AFTER {} ATTEMPTS", nRetry);
                     throw e;
                 }
@@ -325,8 +322,8 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
 
                 LOGGER.debug("Store new snapshot for key {}.", redisSnapshotKey);
                 HesperidesSnapshotCacheEntry hsce = new HesperidesSnapshotCacheEntry(
-                            object.getClass().getCanonicalName(),
-                            MAPPER.writeValueAsString(object),
+                        object.getClass().getCanonicalName(),
+                        MAPPER.writeValueAsString(object),
                         nbEvent);
 
                 jedisSnapshot.rpush(redisSnapshotKey, MAPPER.writeValueAsString(hsce));
@@ -430,7 +427,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
                 double frequency = ((double) counter / durationMs) * 1000;
 
                 LOGGER.debug("Stream {} complete ({} events processed - duration {} ms - {} msg/sec - {} ms IO -"
-                        + "{} ms Serialization - {} ms processing)", streamName, counter, durationMs, frequency,
+                                + "{} ms Serialization - {} ms processing)", streamName, counter, durationMs, frequency,
                         ioAccumulator / 1000000, serializationAccumulator / 1000000, processingAccumulator / 1000000);
             }
         } catch (StoreReadingException | ClassNotFoundException | IOException e) {
@@ -480,7 +477,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
     public List<Event> getEventsList(final String streamName, final int page, final int size)
             throws StoreReadingException {
 
-        try (A jedis = dataPool.getResource()){
+        try (A jedis = dataPool.getResource()) {
 
             LOGGER.debug("Start Retrieving {} events for {}", size, streamName);
 
@@ -493,12 +490,12 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
             //
 
             // Calculating from where we should start retrieving
-                // Note : The default page number is 1 and the default pagination size is 25
-            long from =  len - ( (page > 0 ? page : 1 ) * (size > 0 ? size : 25));
+            // Note : The default page number is 1 and the default pagination size is 25
+            long from = len - ((page > 0 ? page : 1) * (size > 0 ? size : 25));
             from = (from > 0) ? from : 0;
 
             // Calculating til where we should retrieve. The total retrieved items should be equal to the size !
-            long to = -1 * (((page -1) * size) + 1);
+            long to = -1 * (((page - 1) * size) + 1);
 
             // Querying redis
             List<String> binaryEvents = jedis.lrange(streamName, from, to);
@@ -506,7 +503,7 @@ public final class RedisEventStore<A extends JedisCommands&MultiKeyCommands&Adva
             // Converting items from redis to Event objects
             List<Event> events = new ArrayList<>();
 
-            for (int index = 0; index < binaryEvents.size(); index ++){
+            for (int index = 0; index < binaryEvents.size(); index++) {
                 events.add(MAPPER.readValue(binaryEvents.get(index), Event.class));
             }
 

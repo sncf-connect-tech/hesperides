@@ -21,7 +21,7 @@ package com.vsct.dt.hesperides.storage;
 
 /**
  * Object return by findSnapshot method.
- *
+ * <p>
  * Created by emeric_martineau on 19/05/2016.
  */
 public class HesperidesSnapshotItem {

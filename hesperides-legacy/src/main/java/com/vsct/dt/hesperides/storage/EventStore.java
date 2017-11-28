@@ -24,14 +24,13 @@ package com.vsct.dt.hesperides.storage;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
  * Created by william_montaz on 10/10/2014.
- *
+ * <p>
  * Updated by Tidane SIDIBE on 01/03/2016.
- *      Adding the getEventList method
+ * Adding the getEventList method
  */
 /* Simple implementation of an event store not designed to be shared among multiple application instances */
 public interface EventStore {
@@ -60,8 +59,7 @@ public interface EventStore {
      *
      * @param streamName
      * @param offset
-     * @param timestamp lambda expression to validate event to be returned
-     *
+     * @param timestamp  lambda expression to validate event to be returned
      * @return
      */
     Optional<HesperidesSnapshotItem> findSnapshot(String streamName, long offset, long timestamp);
@@ -71,7 +69,7 @@ public interface EventStore {
      *
      * @param streamName
      * @param object
-     * @param offset number of event max before write snapshot
+     * @param offset     number of event max before write snapshot
      * @param <T>
      */
     <T> void storeSnapshot(String streamName, T object, long offset);
@@ -82,10 +80,10 @@ public interface EventStore {
      *
      * @param streamName
      * @param object
-     * @param nbEvent number of event
+     * @param nbEvent    number of event
      * @param <T>
      */
-    <T> void createSnapshot(String streamName, T object, long nbEvent) ;
+    <T> void createSnapshot(String streamName, T object, long nbEvent);
 
     /**
      * Load event by date.
@@ -95,7 +93,7 @@ public interface EventStore {
      * @param eventConsumer
      * @throws StoreReadingException
      */
-    void withEvents(String streamName, long stopTimestamp,  Consumer<Object> eventConsumer) throws StoreReadingException;
+    void withEvents(String streamName, long stopTimestamp, Consumer<Object> eventConsumer) throws StoreReadingException;
 
     /**
      * Load event by date.
@@ -124,7 +122,6 @@ public interface EventStore {
      * Return list of stream.
      *
      * @param term
-     *
      * @return list of stream
      */
     Set<String> getStreamsLike(String term);
@@ -144,7 +141,7 @@ public interface EventStore {
      * @throws {@link StoreReadingException} when things go wrong
      * @author Tidiane SIDIBE
      */
-    List<Event> getEventsList (final String streamName, final int page, final int size) throws StoreReadingException;
+    List<Event> getEventsList(final String streamName, final int page, final int size) throws StoreReadingException;
 
     /**
      * Clear cache.

@@ -52,7 +52,7 @@ public final class UpdateIndexedPlatformCommand implements ElasticSearchIndexati
         try {
             templateAsJson = ElasticSearchMappers.ES_DOC_PLATFORM_WRITER.writeValueAsString(DocWrapper.of(platform));
         } catch (final JsonProcessingException e) {
-            LOGGER.error("Could not serialize platform "+platform);
+            LOGGER.error("Could not serialize platform " + platform);
             throw new RuntimeException(e);
         }
 

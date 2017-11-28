@@ -22,7 +22,6 @@
 package com.vsct.dt.hesperides.storage;
 
 import com.google.common.eventbus.EventBus;
-
 import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.exception.runtime.StateLockedException;
 import io.dropwizard.lifecycle.Managed;
@@ -30,7 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,7 +49,7 @@ public abstract class AbstractThreadAggregate implements Managed, StoragePrefixI
     /**
      * Reference to the application bus to propagate events to listners
      */
-    private final EventBus   eventBus;
+    private final EventBus eventBus;
 
     /**
      * Describes if the aggregate allows write operations.
@@ -126,7 +127,7 @@ public abstract class AbstractThreadAggregate implements Managed, StoragePrefixI
                         }
 
                         return event;
-                    } catch(HesperidesException e) {
+                    } catch (HesperidesException e) {
                         //avoid blocking state with HesperidesExceptions
                         LOGGER.info("HesperidesException has been sent by command for entity '{}'. We dont block the state", entityName);
                         throw e;
@@ -151,9 +152,9 @@ public abstract class AbstractThreadAggregate implements Managed, StoragePrefixI
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             //Try to keep the real nature of the exception thrown
-            if(cause instanceof HesperidesException){
+            if (cause instanceof HesperidesException) {
                 throw (HesperidesException) cause;
-            } else if(cause instanceof RuntimeException){
+            } else if (cause instanceof RuntimeException) {
                 LOGGER.error("A problem occured when trying to execute command. This needs further investigation");
                 LOGGER.error(e.getMessage());
                 throw (RuntimeException) cause;

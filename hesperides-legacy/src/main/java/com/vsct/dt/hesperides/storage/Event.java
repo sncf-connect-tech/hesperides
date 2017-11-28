@@ -29,8 +29,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Objects;
 
 /**
-* Created by william_montaz on 22/01/2015.
-*/
+ * Created by william_montaz on 22/01/2015.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"eventType", "data"})
 public final class Event {

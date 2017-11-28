@@ -35,18 +35,17 @@ public interface PropertiesRegistryInterface {
      * @return The properties entity or empty
      */
     Optional<PropertiesData> getProperties(String applicationName, String platformName,
-                                                  String path);
+                                           String path);
 
     /**
      * @param applicationName
      * @param platformName
      * @param path
      * @param timestamp
-     *
      * @return The properties entity or empty
      */
     Optional<PropertiesData> getProperties(String applicationName, String platformName,
-                                                  String path, long timestamp);
+                                           String path, long timestamp);
 
     /**
      * @param fromApplication
@@ -62,7 +61,7 @@ public interface PropertiesRegistryInterface {
      * @param entity
      */
     void createOrUpdateProperties(String applicationName, String platformName, String path,
-                                         PropertiesData entity);
+                                  PropertiesData entity);
 
     /**
      * Remove item from cache.

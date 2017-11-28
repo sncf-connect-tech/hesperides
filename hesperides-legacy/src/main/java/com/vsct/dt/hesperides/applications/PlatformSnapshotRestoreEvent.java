@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 public class PlatformSnapshotRestoreEvent {
 
-    private final long             timestamp;
+    private final long timestamp;
     private final PlatformSnapshot snapshot;
 
     @JsonCreator

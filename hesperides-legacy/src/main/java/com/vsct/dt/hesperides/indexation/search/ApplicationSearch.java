@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 public class ApplicationSearch {
 
-    public static final int       SEARCH_SIZE     = 50;
+    public static final int SEARCH_SIZE = 50;
     /**
      * Mustache factory.
      */

@@ -44,10 +44,9 @@ public class Release {
      * Return true if text match with working copy.
      *
      * @param item text
-     *
      * @return
      */
-    public static  boolean is(final String item) {
+    public static boolean is(final String item) {
         return UC.equals(item.toUpperCase());
     }
 

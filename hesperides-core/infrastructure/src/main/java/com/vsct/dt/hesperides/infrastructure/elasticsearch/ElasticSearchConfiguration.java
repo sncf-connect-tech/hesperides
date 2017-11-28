@@ -22,15 +22,12 @@ package com.vsct.dt.hesperides.infrastructure.elasticsearch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 public class ElasticSearchConfiguration {
-    @NotEmpty
     @JsonProperty
     private String host;
 
-    @NotEmpty
     @JsonProperty
     private String index;
 

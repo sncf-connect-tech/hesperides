@@ -60,6 +60,7 @@ public class DefaultApplicationConverter implements ApplicationConverter {
 
     /**
      * Convert list of Platform to list of PlatformData
+     *
      * @param listPlatform input
      * @return output
      */
@@ -77,6 +78,7 @@ public class DefaultApplicationConverter implements ApplicationConverter {
 
     /**
      * Convert list of PlatformData to list of Platform
+     *
      * @param listPlatform input
      * @return output
      */

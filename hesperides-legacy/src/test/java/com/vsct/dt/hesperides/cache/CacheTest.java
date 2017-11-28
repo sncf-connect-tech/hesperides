@@ -33,27 +33,16 @@ import com.vsct.dt.hesperides.templating.packages.TemplatePackageWorkingCopyKey;
 import com.vsct.dt.hesperides.templating.packages.event.TemplatePackageContainer;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorModuleAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorTemplatePackagesAggregate;
-import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
-import com.vsct.dt.hesperides.templating.platform.InstanceData;
-import com.vsct.dt.hesperides.templating.platform.KeyValueValorisationData;
-import com.vsct.dt.hesperides.templating.platform.PlatformData;
-import com.vsct.dt.hesperides.templating.platform.PropertiesData;
+import com.vsct.dt.hesperides.templating.platform.*;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
-import tests.type.UnitTests;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by emeric_martineau on 07/06/2016.
@@ -325,7 +314,7 @@ public class CacheTest extends AbstractCacheTest {
         PlatformData newPtf = PlatformData
                 .withPlatformName(ptf.getPlatformName())
                 .withApplicationName(ptf.getApplicationName())
-                .withApplicationVersion( ptf.getApplicationVersion())
+                .withApplicationVersion(ptf.getApplicationVersion())
                 .withModules(modules)
                 .withVersion(ptf.getVersionID())
                 .build();
@@ -365,7 +354,6 @@ public class CacheTest extends AbstractCacheTest {
      * Create properties.
      *
      * @param keyValue "key" => "value"
-     *
      * @return
      */
     private static PropertiesData createPropertiesData(final String... keyValue) {
@@ -415,7 +403,7 @@ public class CacheTest extends AbstractCacheTest {
         PlatformData newPtf = PlatformData
                 .withPlatformName(ptf.getPlatformName())
                 .withApplicationName(ptf.getApplicationName())
-                .withApplicationVersion( ptf.getApplicationVersion())
+                .withApplicationVersion(ptf.getApplicationVersion())
                 .withModules(modules)
                 .withVersion(ptf.getVersionID())
                 .build();
@@ -442,10 +430,8 @@ public class CacheTest extends AbstractCacheTest {
      * Update properties and return timestamp
      *
      * @param platformKey platform key
-     * @param index index of propoerties
-     *
+     * @param index       index of propoerties
      * @return timestamp of update
-     *
      * @throws InterruptedException
      */
     private long updateProperties(final PlatformKey platformKey, final int index) throws InterruptedException {

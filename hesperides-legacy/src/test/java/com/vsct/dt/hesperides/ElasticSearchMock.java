@@ -22,8 +22,6 @@
 package com.vsct.dt.hesperides;
 
 import com.vsct.dt.hesperides.exception.runtime.NonUniqueResultException;
-import com.vsct.dt.hesperides.indexation.model.Data;
-import com.vsct.dt.hesperides.indexation.model.ElasticSearchEntity;
 import com.vsct.dt.hesperides.indexation.model.ElasticSearchResponse;
 
 import java.util.Arrays;

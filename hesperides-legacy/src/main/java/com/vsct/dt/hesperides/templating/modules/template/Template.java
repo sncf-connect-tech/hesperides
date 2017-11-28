@@ -21,7 +21,10 @@
 
 package com.vsct.dt.hesperides.templating.modules.template;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.vsct.dt.hesperides.storage.DomainVersionable;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import io.dropwizard.jackson.JsonSnakeCase;

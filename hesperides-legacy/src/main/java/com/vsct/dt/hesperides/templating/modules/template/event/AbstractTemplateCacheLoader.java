@@ -96,7 +96,6 @@ public abstract class AbstractTemplateCacheLoader<K, T extends TemplateContainer
      * Generate key to search in database.
      *
      * @param moduleKey module key
-     *
      * @return db key
      */
     protected String generateDbKey(final ModuleKey moduleKey) {
@@ -109,7 +108,6 @@ public abstract class AbstractTemplateCacheLoader<K, T extends TemplateContainer
      * Check if tempalte name exists.
      *
      * @param namespace name space
-     *
      * @return true/false
      */
     public boolean isNamespaceExist(final String namespace) {
@@ -133,7 +131,7 @@ public abstract class AbstractTemplateCacheLoader<K, T extends TemplateContainer
      * Store object in snapshot.
      *
      * @param namespace key of cache (same as cache.get(K))
-     * @param object object
+     * @param object    object
      */
     public void saveSnapshot(final String namespace, final T object) {
         final ModuleKey moduleKey = new ModuleKey(namespace);
@@ -151,7 +149,7 @@ public abstract class AbstractTemplateCacheLoader<K, T extends TemplateContainer
      * Store object in snapshot.
      *
      * @param namespace key of cache (same as cache.get(K))
-     * @param object object
+     * @param object    object
      */
     public void forceSaveSnapshot(final String namespace, final T object, final long nbEvent) {
         final ModuleKey moduleKey = new ModuleKey(namespace);

@@ -31,13 +31,12 @@ import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.util.Optional;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
-import tests.type.UnitTests;
 
 /**
  * Created by william_montaz on 27/02/2015.
@@ -45,11 +44,11 @@ import tests.type.UnitTests;
 @Category(UnitTests.class)
 public class PermissionAwareApplicationsProxyTest {
 
-    ApplicationsAggregate            applicationsAggregate = mock(ApplicationsAggregate.class);
-    UserContext                      userContext           = mock(UserContext.class);
-    PermissionAwareApplicationsProxy applications          = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
+    ApplicationsAggregate applicationsAggregate = mock(ApplicationsAggregate.class);
+    UserContext userContext = mock(UserContext.class);
+    PermissionAwareApplicationsProxy applications = new PermissionAwareApplicationsProxy(applicationsAggregate, userContext);
 
-    User prodUser    = new User("prod", true, false);
+    User prodUser = new User("prod", true, false);
     User nonProdUser = new User("non_prod", false, false);
 
     private final String comment = "Test comment";
@@ -103,9 +102,9 @@ public class PermissionAwareApplicationsProxyTest {
                 .withApplicationName("app")
                 .build();
 
-        try{
+        try {
             applications.createPlatformFromExistingPlatform(builder2.build(), fromPlatformKey);
-        } catch(ForbiddenOperationException e){
+        } catch (ForbiddenOperationException e) {
             verifyZeroInteractions(applicationsAggregate);
             throw e;
         }
@@ -239,7 +238,7 @@ public class PermissionAwareApplicationsProxyTest {
             //Clearly show we dont upgrade to production platform
             updatePlatform = builder2.build();
             applications.updatePlatform(updatePlatform, true);
-        } catch(ForbiddenOperationException e){
+        } catch (ForbiddenOperationException e) {
             verify(applicationsAggregate, never()).updatePlatform(updatePlatform, true);
             throw e;
         }
@@ -247,7 +246,7 @@ public class PermissionAwareApplicationsProxyTest {
     }
 
     @Test(expected = ForbiddenOperationException.class)
-    public void should_not_allow_non_prod_user_to_update_platform_to_production_platform(){
+    public void should_not_allow_non_prod_user_to_update_platform_to_production_platform() {
         when(userContext.getCurrentUser()).thenReturn(nonProdUser);
 
         //The existing platform is not production
@@ -274,24 +273,24 @@ public class PermissionAwareApplicationsProxyTest {
             updatePlatform = builder2.build();
             when(applicationsAggregate.getPlatform(existingPlatformKey)).thenReturn(Optional.of(existingPlatform));
             applications.updatePlatform(updatePlatform, true);
-        } catch(ForbiddenOperationException e){
+        } catch (ForbiddenOperationException e) {
             verify(applicationsAggregate, never()).updatePlatform(updatePlatform, true);
             throw e;
         }
     }
 
     @Test
-    public void should_allow_prod_user_to_update_production_platform(){
+    public void should_allow_prod_user_to_update_production_platform() {
         when(userContext.getCurrentUser()).thenReturn(prodUser);
     }
 
     @Test
-    public void should_allow_prod_user_to_update_platform_to_production_platform(){
+    public void should_allow_prod_user_to_update_platform_to_production_platform() {
         when(userContext.getCurrentUser()).thenReturn(prodUser);
     }
 
     @Test(expected = ForbiddenOperationException.class)
-    public void should_not_allow_non_prod_user_to_create_or_update_production_properties(){
+    public void should_not_allow_non_prod_user_to_create_or_update_production_properties() {
         when(userContext.getCurrentUser()).thenReturn(nonProdUser);
 
         //Existing platform is a production one
@@ -311,7 +310,7 @@ public class PermissionAwareApplicationsProxyTest {
         try {
             //We use null instead of properties because properties values just don't matter
             applications.createOrUpdatePropertiesInPlatform(existingPlatformKey, "some_path", null, 1L, comment);
-        } catch(ForbiddenOperationException e){
+        } catch (ForbiddenOperationException e) {
             verify(applicationsAggregate, never()).createOrUpdatePropertiesInPlatform(existingPlatformKey, "some_path", null, 1L, comment);
             throw e;
         }
@@ -319,10 +318,9 @@ public class PermissionAwareApplicationsProxyTest {
     }
 
     @Test
-    public void should_allow_production_user_to_create_or_update_production_properties(){
+    public void should_allow_production_user_to_create_or_update_production_properties() {
         when(userContext.getCurrentUser()).thenReturn(prodUser);
     }
-
 
 
 }

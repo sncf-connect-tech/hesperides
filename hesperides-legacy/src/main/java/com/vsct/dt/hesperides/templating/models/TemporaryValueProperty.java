@@ -23,7 +23,7 @@ package com.vsct.dt.hesperides.templating.models;
 
 /**
  * Temporary value to manage protected string.
- *
+ * <p>
  * Created by emeric_martineau on 05/11/2015.
  */
 public class TemporaryValueProperty {

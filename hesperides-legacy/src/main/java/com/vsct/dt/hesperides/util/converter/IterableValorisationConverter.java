@@ -30,6 +30,7 @@ import com.vsct.dt.hesperides.templating.platform.IterableValorisationData;
 public interface IterableValorisationConverter {
     /**
      * Convert Valorisation to ValorisationData.
+     *
      * @param val input
      * @return output
      */
@@ -37,6 +38,7 @@ public interface IterableValorisationConverter {
 
     /**
      * Convert IterableValorisation to IterableValorisationData.
+     *
      * @param val input
      * @return output
      */
@@ -44,6 +46,7 @@ public interface IterableValorisationConverter {
 
     /**
      * Convert IterableValorisationData.IterableValorisationItemData to IterableValorisation.IterableValorisationItem.
+     *
      * @param item input
      * @return output
      */
@@ -51,6 +54,7 @@ public interface IterableValorisationConverter {
 
     /**
      * Convert IterableValorisatio.IterableValorisationItem to IterableValorisationData.IterableValorisationItemData.
+     *
      * @param item input
      * @return output
      */

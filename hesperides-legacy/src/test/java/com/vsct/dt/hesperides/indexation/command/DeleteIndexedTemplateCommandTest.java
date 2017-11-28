@@ -25,15 +25,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vsct.dt.hesperides.indexation.ElasticSearchClient;
 import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
 import io.dropwizard.jackson.Jackson;
-import tests.type.UnitTests;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import tests.type.UnitTests;
 
 import java.io.IOException;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -43,12 +41,12 @@ import static org.mockito.Mockito.*;
 @Category(UnitTests.class)
 public class DeleteIndexedTemplateCommandTest {
 
-    final private        ElasticSearchClient                 elasticSearchClient = mock(ElasticSearchClient.class);
-    final private        ElasticSearchClient.RequestExecuter executer            = mock(ElasticSearchClient.RequestExecuter.class);
-    private static final ObjectMapper                        MAPPER              = Jackson.newObjectMapper();
+    final private ElasticSearchClient elasticSearchClient = mock(ElasticSearchClient.class);
+    final private ElasticSearchClient.RequestExecuter executer = mock(ElasticSearchClient.RequestExecuter.class);
+    private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
     @Before
-         public void resetMock() {
+    public void resetMock() {
         reset(elasticSearchClient);
         reset(executer);
         when(elasticSearchClient.withResponseReader(any())).thenReturn(executer);

@@ -29,8 +29,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ModuleDeletedEvent {
 
-    private final String  moduleName;
-    private final String  moduleVersion;
+    private final String moduleName;
+    private final String moduleVersion;
     private final boolean workingCopy;
 
     @JsonCreator

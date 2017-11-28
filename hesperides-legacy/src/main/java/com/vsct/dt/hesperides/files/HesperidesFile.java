@@ -38,7 +38,7 @@ public final class HesperidesFile {
     /**
      * Constructor for Jackson
      */
-    private HesperidesFile(){
+    private HesperidesFile() {
 
     }
 

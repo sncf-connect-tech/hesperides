@@ -29,14 +29,14 @@ import javax.ws.rs.core.Response;
  */
 public class BaseExceptionMapper {
 
-    protected final Response exceptionResponse(int status, Exception ex){
+    protected final Response exceptionResponse(int status, Exception ex) {
         return Response.status(status)
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(new ExceptionResponseWrapper(status, ex))
                 .build();
     }
 
-    protected final Response exceptionResponse(Response.Status status, Exception ex){
+    protected final Response exceptionResponse(Response.Status status, Exception ex) {
         return exceptionResponse(status.getStatusCode(), ex);
     }
 }

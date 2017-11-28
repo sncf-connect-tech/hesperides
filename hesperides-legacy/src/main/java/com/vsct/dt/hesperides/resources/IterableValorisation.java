@@ -38,13 +38,14 @@ import java.util.stream.Collectors;
 
 /**
  * Created by william_montaz on 11/07/14.
- *
+ * <p>
  * WARNING : don't override equals for REST input object
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSnakeCase
 @JsonPropertyOrder({"name", "iterable_valorisation_items"})
-@JsonDeserialize//This annotation is important, it prevents IterableValorisation from using the Valorisation Deserializer, which would cause endless loops
+@JsonDeserialize
+//This annotation is important, it prevents IterableValorisation from using the Valorisation Deserializer, which would cause endless loops
 public final class IterableValorisation extends Valorisation {
     private final List<IterableValorisationItem> iterableValorisationItems;
 
@@ -68,7 +69,7 @@ public final class IterableValorisation extends Valorisation {
 
     @JsonPropertyOrder({"title", "values"})
     public static class IterableValorisationItem {
-        private final String                    title;
+        private final String title;
         private final Set<Valorisation> values;
 
         @JsonCreator

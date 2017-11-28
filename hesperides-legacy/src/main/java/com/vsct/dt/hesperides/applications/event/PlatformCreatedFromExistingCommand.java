@@ -19,17 +19,14 @@
 
 package com.vsct.dt.hesperides.applications.event;
 
-import com.vsct.dt.hesperides.applications.PlatformCreatedEvent;
 import com.vsct.dt.hesperides.applications.PlatformCreatedFromExistingEvent;
 import com.vsct.dt.hesperides.applications.PlatformRegistryInterface;
 import com.vsct.dt.hesperides.applications.properties.PropertiesRegistryInterface;
-import com.vsct.dt.hesperides.exception.runtime.DuplicateResourceException;
 import com.vsct.dt.hesperides.templating.platform.ApplicationModuleData;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import com.vsct.dt.hesperides.templating.platform.PropertiesData;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -89,7 +86,7 @@ public class PlatformCreatedFromExistingCommand extends AbstractPlatformEvent<Pl
                 .setProduction(isProductionPlatform)
                 .build();
 
-        for (Map.Entry<String, PropertiesData> entry : originProperties.entrySet()){
+        for (Map.Entry<String, PropertiesData> entry : originProperties.entrySet()) {
             this.propertiesRegistry.createOrUpdateProperties(applicationName, platformName, entry.getKey(),
                     entry.getValue());
         }

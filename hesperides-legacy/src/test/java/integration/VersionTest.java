@@ -18,12 +18,10 @@
  */
 package integration;
 
+import com.vsct.dt.hesperides.resources.HesperidesVersionsResource.Versions;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-
 import tests.type.IntegrationTests;
-
-import com.vsct.dt.hesperides.resources.HesperidesVersionsResource.Versions;
 
 /**
  * Created by emeric_martineau on 10/03/2017.

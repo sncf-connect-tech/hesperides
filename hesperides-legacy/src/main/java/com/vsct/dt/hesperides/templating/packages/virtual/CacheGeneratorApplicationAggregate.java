@@ -18,8 +18,6 @@
  */
 package com.vsct.dt.hesperides.templating.packages.virtual;
 
-import java.util.concurrent.ExecutorService;
-
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vsct.dt.hesperides.HesperidesConfiguration;
@@ -34,6 +32,8 @@ import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by emeric_martineau on 07/11/2016.
@@ -86,7 +86,7 @@ public class CacheGeneratorApplicationAggregate extends AbstractApplicationsAggr
      * @param hesperidesConfiguration
      */
     public CacheGeneratorApplicationAggregate(final EventStore store,
-                                         final HesperidesConfiguration hesperidesConfiguration) {
+                                              final HesperidesConfiguration hesperidesConfiguration) {
         super(new EventBus(), store);
 
         this.virtualPlatformRegistry = new VirtualPlatformRegistry();

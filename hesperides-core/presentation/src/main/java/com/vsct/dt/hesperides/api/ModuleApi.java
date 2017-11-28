@@ -30,16 +30,20 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @Path("/toto")
 @Api("/toto")
 @Produces(MediaType.APPLICATION_JSON + "; charset=utf-8")
 @Consumes(MediaType.APPLICATION_JSON + "; charset=utf-8")
 public class ModuleApi {
+    private final Executor executor = Executors.newFixedThreadPool(50);
 
     private ModuleSearchRepository moduleSearchRepository;
 
@@ -51,14 +55,16 @@ public class ModuleApi {
     @GET
     //@Timed ?
     @ApiOperation("Get active module names")
-    public Collection<String> getActiveModulesName() {
-        /**
-         * Récupérer la liste des noms de modules qui n'ont pas été supprimés
-         */
-        List<String> moduleNames = new ArrayList<>();
-        for (Module module : moduleSearchRepository.getModules()) {
-            moduleNames.add(module.getName());
-        }
-        return moduleNames;
+    public void getActiveModulesName(@Suspended final AsyncResponse response) {
+        executor.execute(() -> {
+            /**
+             * Récupérer la liste des noms de modules qui n'ont pas été supprimés
+             */
+            List<String> moduleNames = new ArrayList<>();
+            for (Module module : moduleSearchRepository.getModules()) {
+                moduleNames.add(module.getName());
+            }
+            response.resume(moduleNames);
+        });
     }
 }

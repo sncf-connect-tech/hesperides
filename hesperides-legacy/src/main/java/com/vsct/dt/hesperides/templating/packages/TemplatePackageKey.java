@@ -41,7 +41,7 @@ public class TemplatePackageKey {
 
     @JsonProperty(value = "name")
     protected String name;
-    
+
     //Tweak to guarantee old API
     @JsonProperty(value = "version")
     protected String versionName;
@@ -49,14 +49,15 @@ public class TemplatePackageKey {
     //Tweak to guarantee old API
     @JsonProperty(value = "working_copy")
     protected boolean workingCopy;
-    
-    protected TemplatePackageKey(){}
+
+    protected TemplatePackageKey() {
+    }
 
     public TemplatePackageKey(final String name, final String version, final boolean isWorkingCopy) {
         this(name, new HesperidesVersion(version, isWorkingCopy));
     }
 
-    public TemplatePackageKey(final String name, HesperidesVersion version){
+    public TemplatePackageKey(final String name, HesperidesVersion version) {
         this.name = name;
         this.versionName = version.getVersionName();
         this.workingCopy = version.isWorkingCopy();
@@ -129,6 +130,7 @@ public class TemplatePackageKey {
 
     /**
      * Builder method
+     *
      * @param name
      */
     public static IVersion withName(String name) {

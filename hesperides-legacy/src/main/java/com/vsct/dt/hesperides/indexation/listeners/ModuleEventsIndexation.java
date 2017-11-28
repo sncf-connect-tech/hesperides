@@ -28,9 +28,9 @@ import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
 import com.vsct.dt.hesperides.indexation.model.ModuleIndexation;
 import com.vsct.dt.hesperides.indexation.model.TemplateIndexation;
+import com.vsct.dt.hesperides.templating.modules.*;
 import com.vsct.dt.hesperides.templating.modules.event.ModuleEventInterface;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
-import com.vsct.dt.hesperides.templating.modules.*;
 
 /**
  * Created by william_montaz on 22/01/2015.
@@ -92,7 +92,7 @@ public class ModuleEventsIndexation implements ModuleEventInterface {
 
     @Subscribe
     @Override
-    public void replayModuleDeletedEvent(final ModuleDeletedEvent event){
+    public void replayModuleDeletedEvent(final ModuleDeletedEvent event) {
         this.indexer.index(new DeleteModuleCommand(event));
     }
 }

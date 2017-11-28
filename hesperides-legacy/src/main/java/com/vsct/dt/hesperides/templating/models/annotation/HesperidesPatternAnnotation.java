@@ -21,7 +21,7 @@
 
 package com.vsct.dt.hesperides.templating.models.annotation;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by emeric_martineau on 05/11/2015.

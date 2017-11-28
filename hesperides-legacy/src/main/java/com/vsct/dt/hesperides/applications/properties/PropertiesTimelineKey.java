@@ -36,7 +36,7 @@ public class PropertiesTimelineKey {
     /**
      * Constructor.
      *
-     * @param key key
+     * @param key       key
      * @param timestamp timestamp
      */
     public PropertiesTimelineKey(final PropertiesKey key, final long timestamp) {

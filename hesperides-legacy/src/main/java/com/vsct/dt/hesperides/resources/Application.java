@@ -35,7 +35,7 @@ import java.util.Objects;
 @JsonSnakeCase
 public final class Application {
 
-    private final String                  name;
+    private final String name;
     private final Collection<Platform> platforms;
 
     @JsonCreator

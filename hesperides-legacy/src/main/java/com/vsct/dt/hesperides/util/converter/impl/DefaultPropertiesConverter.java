@@ -71,6 +71,7 @@ public class DefaultPropertiesConverter extends AbstractKeyConverter implements 
 
     /**
      * Convert list of IterableValorisation to list of IterableValorisationData.
+     *
      * @param list input
      * @return output
      */
@@ -86,6 +87,7 @@ public class DefaultPropertiesConverter extends AbstractKeyConverter implements 
 
     /**
      * Convert list of IterableValorisationData to list of IterableValorisation.
+     *
      * @param list input
      * @return output
      */
@@ -97,4 +99,5 @@ public class DefaultPropertiesConverter extends AbstractKeyConverter implements 
         }
 
         return newList;
-    }}
+    }
+}

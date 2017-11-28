@@ -104,15 +104,15 @@ public class TemplatePackageCacheLoader extends AbstractTemplateCacheLoader<Stri
 
             updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
         } else {
-                // Module builder
-                templatePackageContainer = createEventBuilder();
+            // Module builder
+            templatePackageContainer = createEventBuilder();
 
-                final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
-                        = new VirtualTemplatePackagesAggregate(getStore());
+            final VirtualTemplatePackagesAggregate virtualTemplatePackagesAggregate
+                    = new VirtualTemplatePackagesAggregate(getStore());
 
-                virtualTemplatePackagesAggregate.replay(redisKey);
+            virtualTemplatePackagesAggregate.replay(redisKey);
 
-                updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
+            updateTemplatePackagesContainer(namespace, templatePackageContainer, virtualTemplatePackagesAggregate);
         }
 
         // Can't return null !!!!

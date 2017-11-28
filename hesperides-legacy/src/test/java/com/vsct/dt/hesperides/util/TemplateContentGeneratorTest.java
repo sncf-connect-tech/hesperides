@@ -29,7 +29,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by william_montaz on 15/01/2015.
@@ -37,7 +37,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class TemplateContentGeneratorTest {
 
     @Test
-    public void should_generate_mustache_template_with_provided_context(){
+    public void should_generate_mustache_template_with_provided_context() {
         MustacheFactory factory = new DefaultMustacheFactory();
         Mustache mustache = factory.compile("template.mustache");
         Map<String, String> context = new HashMap<>();

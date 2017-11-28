@@ -29,7 +29,7 @@ import com.vsct.dt.hesperides.templating.platform.PlatformData;
  * Created by william_montaz on 10/12/2014.
  */
 public final class PlatformCreatedEvent {
-    private final String   applicationName;
+    private final String applicationName;
     private final PlatformData platform;
 
     @JsonCreator

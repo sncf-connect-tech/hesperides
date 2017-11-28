@@ -41,7 +41,7 @@ public class PlatformKey {
         this.name = keys[1];
     }
 
-    public PlatformKey(String applicationName, String platformName){
+    public PlatformKey(String applicationName, String platformName) {
         this.name = platformName;
         this.applicationName = applicationName;
     }
@@ -54,7 +54,7 @@ public class PlatformKey {
         return applicationName;
     }
 
-    public static IApplicationName withName(String name){
+    public static IApplicationName withName(String name) {
         return new Builder(name);
     }
 
@@ -99,7 +99,7 @@ public class PlatformKey {
         public PlatformKey build();
     }
 
-    private static class Builder implements IApplicationName, IBuild{
+    private static class Builder implements IApplicationName, IBuild {
 
         private PlatformKey instance = new PlatformKey();
 

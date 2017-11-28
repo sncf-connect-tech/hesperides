@@ -50,7 +50,7 @@ public class TemplatePackageDeletedCommand implements HesperidesCommand<Template
     public TemplatePackageDeletedEvent apply() {
         templates = templateRegistry.getAllTemplates(packageKey);
 
-        if(templates.size() == 0){
+        if (templates.size() == 0) {
             throw new MissingResourceException("There is no template package " + packageKey);
         } else {
             return new TemplatePackageDeletedEvent(packageKey.getName(), packageKey.getVersionName(),

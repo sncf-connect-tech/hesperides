@@ -44,7 +44,6 @@ import com.vsct.dt.hesperides.util.converter.PropertiesConverter;
 import com.vsct.dt.hesperides.util.converter.TimeStampedPlatformConverter;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-
 import io.dropwizard.auth.Auth;
 
 import javax.validation.Valid;
@@ -59,7 +58,7 @@ import static com.vsct.dt.hesperides.util.CheckArgument.isNonDisplayedChar;
 
 /**
  * Created by william_montaz on 11/07/14.
- *
+ * <p>
  * Modified by tidiane_sidibe on 05/08/2016 : adding the comment to event
  */
 @Path("/applications")
@@ -205,7 +204,7 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Get application with given name")
     public Response getApplication(@Auth final User user, @PathParam("application_name") final String name,
-            @QueryParam("hide_platform") final boolean hidePlatform) {
+                                   @QueryParam("hide_platform") final boolean hidePlatform) {
         checkQueryParameterNotEmpty("application_name", name);
 
         // Search if platform exists
@@ -235,7 +234,7 @@ public final class HesperidesApplicationResource extends BaseResource {
 
                         return applications.getPlatform(new PlatformKey(applicationSearchResponse.getName(),
                                 applicationSearchResponse.getPlatform()));
-                        })
+                    })
                     .filter(platformData -> platformData.isPresent())
                     .map(platformData -> platformData.get())
                     .collect(Collectors.toList());
@@ -254,7 +253,7 @@ public final class HesperidesApplicationResource extends BaseResource {
         checkQueryParameterNotEmpty("name", name);
 
         return applicationSearch.getApplicationsLike(name).stream().map(applicationSearchResponse ->
-                        new ApplicationListItem(applicationSearchResponse.getName())
+                new ApplicationListItem(applicationSearchResponse.getName())
         ).collect(Collectors.toSet());
     }
 
@@ -266,7 +265,7 @@ public final class HesperidesApplicationResource extends BaseResource {
         checkQueryParameterNotEmpty("applicationName", applicationName);
 
         return applicationSearch.getAllPlatforms(applicationName, platformName).stream().map(platformSearchResponse ->
-                        new PlatformListItem(platformSearchResponse.getName())
+                new PlatformListItem(platformSearchResponse.getName())
         ).collect(Collectors.toSet());
     }
 
@@ -285,7 +284,7 @@ public final class HesperidesApplicationResource extends BaseResource {
                 .withApplicationName(applicationName)
                 .build();
 
-        if(timestamp != null){
+        if (timestamp != null) {
             return entityWithConverterOrNotFound(applications.getPlatform(platformKey, timestamp), responseTimeConverter);
         } else {
             return entityWithConverterOrNotFound(applications.getPlatform(platformKey), responsePlatformConverter);
@@ -298,7 +297,7 @@ public final class HesperidesApplicationResource extends BaseResource {
     @ApiOperation("Deletes a platform on a given app")
     public Response deletePlatform(@Auth final User user,
                                    @PathParam("application_name") final String applicationName,
-                                   @PathParam("platform_name") final String platformName){
+                                   @PathParam("platform_name") final String platformName) {
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
 
@@ -314,12 +313,12 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Create platform for application with given name, possibly from an existing platform")
     public Platform createPlatform(@Auth final User user,
-                                     @PathParam("application_name") final String applicationName,
-                                     @QueryParam("from_application") final String fromApplication,
-                                     @QueryParam("from_platform") final String fromPlatform,
-                                     @Valid final Platform platform) {
+                                   @PathParam("application_name") final String applicationName,
+                                   @QueryParam("from_application") final String fromApplication,
+                                   @QueryParam("from_platform") final String fromPlatform,
+                                   @Valid final Platform platform) {
 
-        if((fromApplication == null || isNonDisplayedChar(fromApplication))
+        if ((fromApplication == null || isNonDisplayedChar(fromApplication))
                 && (fromPlatform == null || isNonDisplayedChar(fromPlatform))) {
             return platformConverter.toPlatform(applications.createPlatform(platformConverter.toPlatformData(platform)));
         } else {
@@ -342,9 +341,9 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Update platform for application with given name")
     public Platform updatePlatform(@Auth final User user,
-                                        @PathParam("application_name") final String applicationName,
-                                        @QueryParam("copyPropertiesForUpgradedModules") final boolean copyPropertiesForUpgradedModules,
-                                        @Valid final Platform platform) {
+                                   @PathParam("application_name") final String applicationName,
+                                   @QueryParam("copyPropertiesForUpgradedModules") final boolean copyPropertiesForUpgradedModules,
+                                   @Valid final Platform platform) {
         return platformConverter.toPlatform(
                 applications.updatePlatform(
                         platformConverter.toPlatformData(platform), copyPropertiesForUpgradedModules));
@@ -355,10 +354,10 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Get properties with the given path in a platform")
     public Properties getProperties(@Auth final User user,
-                                      @PathParam("application_name") final String applicationName,
-                                      @PathParam("platform_name") final String platformName,
-                                      @QueryParam("path") final String path,
-                                      @QueryParam("timestamp") final Long timestamp) {
+                                    @PathParam("application_name") final String applicationName,
+                                    @PathParam("platform_name") final String platformName,
+                                    @QueryParam("path") final String path,
+                                    @QueryParam("timestamp") final Long timestamp) {
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
         checkQueryParameterNotEmpty("path", path);
@@ -400,12 +399,12 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Save properties in a platform with the given path")
     public Properties saveProperties(@Auth final User user,
-                                       @PathParam("application_name") final String applicationName,
-                                       @PathParam("platform_name") final String platformName,
-                                       @QueryParam("path") final String path,
-                                       @QueryParam("platform_vid") final Long platformID, //Using Long wrapper object helps preventing Java Primitive Default value of 0
-                                       @QueryParam("comment") final String comment,
-                                       @Valid final Properties properties) {
+                                     @PathParam("application_name") final String applicationName,
+                                     @PathParam("platform_name") final String platformName,
+                                     @QueryParam("path") final String path,
+                                     @QueryParam("platform_vid") final Long platformID, //Using Long wrapper object helps preventing Java Primitive Default value of 0
+                                     @QueryParam("comment") final String comment,
+                                     @Valid final Properties properties) {
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
         checkQueryParameterNotEmpty("path", path);
@@ -435,7 +434,7 @@ public final class HesperidesApplicationResource extends BaseResource {
     @ApiOperation("Take a snapshot of the platform")
     public Response takeSnapshot(@Auth final User user,
                                  @PathParam("application_name") final String applicationName,
-                                 @PathParam("platform_name") final String platformName){
+                                 @PathParam("platform_name") final String platformName) {
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
 
@@ -453,9 +452,9 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Take a snapshot of the platform")
     public Platform restaureSnapshot(@Auth final User user,
-                                 @PathParam("application_name") final String applicationName,
-                                 @PathParam("platform_name") final String platformName,
-                                 @QueryParam("timestamp") final long timestamp){
+                                     @PathParam("application_name") final String applicationName,
+                                     @PathParam("platform_name") final String platformName,
+                                     @QueryParam("timestamp") final long timestamp) {
 
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
@@ -473,8 +472,8 @@ public final class HesperidesApplicationResource extends BaseResource {
     @Timed
     @ApiOperation("Get the list of timestamps corresponding to snapshots of the platform")
     public List<Long> getSnapshots(@Auth final User user,
-                                 @PathParam("application_name") final String applicationName,
-                                 @PathParam("platform_name") final String platformName){
+                                   @PathParam("application_name") final String applicationName,
+                                   @PathParam("platform_name") final String platformName) {
         checkQueryParameterNotEmpty("application_name", applicationName);
         checkQueryParameterNotEmpty("platform_name", platformName);
 

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Create module when recieve event.
  * Use to load a module.
- *
+ * <p>
  * Created by emeric_martineau on 15/01/2016.
  */
 public class ModuleContainer implements TemplateContainerInterface {

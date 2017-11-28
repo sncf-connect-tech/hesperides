@@ -18,19 +18,6 @@
  */
 package integration;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.fest.assertions.api.Assertions.assertThat;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import integration.client.ModuleClient;
-import integration.client.PlatformClient;
-import redis.clients.jedis.Jedis;
-import tests.type.IntegrationTests;
-
 import com.vsct.dt.hesperides.resources.ApplicationModule;
 import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.Properties;
@@ -40,6 +27,18 @@ import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateFileRights;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateRights;
 import com.vsct.dt.hesperides.util.HesperidesVersion;
+import integration.client.ModuleClient;
+import integration.client.PlatformClient;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import redis.clients.jedis.Jedis;
+import tests.type.IntegrationTests;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created by emeric_martineau on 10/03/2017.
@@ -93,7 +92,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
     /**
      * Template package properties path.
      *
-     * @return  properties path
+     * @return properties path
      */
     private String getTemplatePackagePath() {
         return "packages#" + getTemplatePackageName() + "#" + TEMPLATE_PACKAGE_VERSION + "#WORKINGCOPY";
@@ -168,7 +167,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
      * @return key
      */
     private String getPlatformRedisKey() {
-        return  "platform-" + getApplicationName() + "-" + PLATFORM_NAME;
+        return "platform-" + getApplicationName() + "-" + PLATFORM_NAME;
     }
 
     /**
@@ -349,7 +348,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
     private void create_module() {
         System.out.println("Create module");
 
-        final ModuleClient module =  new ModuleClient(new ModuleKey(getModuleName(), new HesperidesVersion(MODULE_VERSION, true)), new HashSet<>());
+        final ModuleClient module = new ModuleClient(new ModuleKey(getModuleName(), new HesperidesVersion(MODULE_VERSION, true)), new HashSet<>());
         this.hesClient.module().createWorkingcopy(module);
     }
 
@@ -604,7 +603,6 @@ public class IntegrationTest extends AbstractIntegrationTest {
      * Default template create with content.
      *
      * @param content
-     *
      * @return
      */
     private static Template createTemplate(final String content) {
@@ -614,9 +612,8 @@ public class IntegrationTest extends AbstractIntegrationTest {
     /**
      * Create a template with specified content.
      *
-     * @param content the content
+     * @param content   the content
      * @param versionId id of tempalte
-     *
      * @return
      */
     private static Template createTemplate(final String content, final int versionId) {
@@ -630,9 +627,9 @@ public class IntegrationTest extends AbstractIntegrationTest {
      * Check that template is correctly created.
      *
      * @param templateToCreate object sent to hesperides
-     * @param templateCreated object receive from hesperides
-     * @param versionId version id to be is in templateCreated
-     * @param namespace namespace of template
+     * @param templateCreated  object receive from hesperides
+     * @param versionId        version id to be is in templateCreated
+     * @param namespace        namespace of template
      */
     private static void checkTemplate(final Template templateToCreate, final Template templateCreated, final int versionId, final String namespace) {
         assertThat(templateCreated.getNamespace()).isEqualTo(namespace);
