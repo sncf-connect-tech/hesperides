@@ -44,8 +44,10 @@ import org.junit.experimental.categories.Category;
 import tests.type.UnitTests;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Optional;
 
@@ -62,30 +64,14 @@ import static org.mockito.Mockito.reset;
 @Category(UnitTests.class)
 public class HesperidesFullIndexationResourceTest {
 
+    private static final String CREDENTIALS = "Sm9obl9Eb2U6c2VjcmV0";
+
     private static final ModulesAggregate MODULES_AGGREGATE = mock(ModulesAggregate.class);
     private static final TemplatePackagesAggregate TEMPLATE_PACKAGES_AGGREGATE = mock(TemplatePackagesAggregate.class);
     private static final ApplicationsAggregate APPLICATIONS_AGGREGATE = mock(ApplicationsAggregate.class);
     private static final ElasticSearchIndexationExecutor ELASTIC_SEARCH_INDEXATION_EXECUTOR = mock(ElasticSearchIndexationExecutor.class);
 
     public static final ObjectMapper MAPPER = Jackson.newObjectMapper();
-
-    private static class TechUserAuthenticator implements Authenticator<BasicCredentials, User> {
-        private static final User USER = new User("tech", false, true);
-
-        @Override
-        public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
-            return Optional.of(USER);
-        }
-    }
-
-    private static class NoTechUserAuthenticator implements Authenticator<BasicCredentials, User> {
-        private static final User USER = new User("tech", false, false);
-
-        @Override
-        public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
-            return Optional.of(USER);
-        }
-    }
 
     private static final BasicCredentialAuthFilter<User> BASIC_AUTH_HANDLER =
             new BasicCredentialAuthFilter.Builder<User>()
@@ -94,7 +80,7 @@ public class HesperidesFullIndexationResourceTest {
                     .setRealm("AUTHENTICATION_PROVIDER")
                     .buildAuthFilter();
     @ClassRule
-    public static ResourceTestRule techAuthResources = ResourceTestRule.builder()
+    public static ResourceTestRule simpleAuthResources = ResourceTestRule.builder()
             .addProvider(RolesAllowedDynamicFeature.class)
             .addProvider(new AuthDynamicFeature(BASIC_AUTH_HANDLER))
             .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
@@ -103,30 +89,18 @@ public class HesperidesFullIndexationResourceTest {
             .addProvider(new ForbiddenOperationExceptionMapper())
             .build();
 
-    @ClassRule
-    public static ResourceTestRule noTechAuthResources = ResourceTestRule.builder()
-            .addProvider(new DisabledAuthProvider())
-            .addResource(new HesperidesFullIndexationResource(ELASTIC_SEARCH_INDEXATION_EXECUTOR, APPLICATIONS_AGGREGATE, MODULES_AGGREGATE,
-                    TEMPLATE_PACKAGES_AGGREGATE))
-            .addProvider(new ForbiddenOperationExceptionMapper())
-            .build();
 
-
-    public WebTarget withTechAuth(String url) {
-        return techAuthResources.client().target(url);
+    public WebTarget rawClient(String url) {
+        return simpleAuthResources.client().target(url);
     }
 
-    public WebTarget withNoTechAuth(String url) {
-        return noTechAuthResources.client().target(url);
+    public Invocation.Builder withAuth(String url) {
+        return rawClient(url).request();
     }
 
-    //    public com.sun.jersey.api.client.WebResource.Builder withTechAuth(String url) {
-//        return techAuthResources.client().resource(url).header("Authorization", "Basic Sm9obl9Eb2U6c2VjcmV0");
-//    }
-//
-//    public com.sun.jersey.api.client.WebResource.Builder withNoTechAuth(String url) {
-//        return noTechAuthResources.client().resource(url).header("Authorization", "Basic Sm9obl9Eb2U6c2VjcmV0");
-//    }
+    public Invocation.Builder withoutAuth(String url) {
+        return withAuth(url).header("Authorization", "Basic " + CREDENTIALS);
+    }
 
 
     @Before
@@ -137,21 +111,16 @@ public class HesperidesFullIndexationResourceTest {
     }
 
     @Test
-    public void should_return_403_forbiden_when_clear_applications_caches() {
-        try {
-            withNoTechAuth("/indexation/perform_reindex").request()
-                    .post(Entity.json(null));
-            fail("Ne renvoie pas le status 403");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
-        }
+    public void should_return_401_unauthorized_when_clear_applications_caches() {
+            Response response = withAuth("/indexation/perform_reindex").post(null);
+            assertThat(response.getStatus()).isEqualTo(Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_works_when_clear_applications_caches() {
         try {
-            withTechAuth("/indexation/perform_reindex")
-                    .request().post(Entity.json(null));
+            withoutAuth("/indexation/perform_reindex")
+                    .post(Entity.json(null));
         } catch (ResponseProcessingException e) {
             fail("Le service devrait fonctionner");
         }

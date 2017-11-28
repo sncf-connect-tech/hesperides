@@ -46,7 +46,7 @@
     </modules>
 
     <properties>
-        <dropwizard.version>1.2.1</dropwizard.version>
+        <dropwizard.version>1.2.2</dropwizard.version>
         <es.version>6.0.0</es.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.9.2</jackson.version>

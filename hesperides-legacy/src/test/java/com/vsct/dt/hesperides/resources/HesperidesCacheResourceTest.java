@@ -46,8 +46,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import tests.type.UnitTests;
 
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Optional;
 
@@ -63,6 +65,8 @@ import static org.mockito.Mockito.reset;
 @Category(UnitTests.class)
 public class HesperidesCacheResourceTest {
 
+    private static final String CREDENTIALS = "Sm9obl9Eb2U6c2VjcmV0";
+
     private static final ModulesAggregate MODULES_AGGREGATE = mock(ModulesAggregate.class);
     private static final TemplatePackagesAggregate TEMPLATE_PACKAGES_AGGREGATE = mock(TemplatePackagesAggregate.class);
     private static final ApplicationsAggregate APPLICATIONS_AGGREGATE = mock(ApplicationsAggregate.class);
@@ -73,34 +77,15 @@ public class HesperidesCacheResourceTest {
 
     public static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
-    private static class TechUserAuthenticator implements Authenticator<BasicCredentials, User> {
-        private static final User USER = new User("tech", false, true);
-
-        @Override
-        public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
-            return Optional.of(USER);
-        }
-    }
-
-    private static class NoTechUserAuthenticator implements Authenticator<BasicCredentials, User> {
-        private static final User USER = new User("tech", false, false);
-
-        @Override
-        public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
-            return Optional.of(USER);
-        }
-    }
-
     private static final BasicCredentialAuthFilter<User> BASIC_AUTH_HANDLER =
             new BasicCredentialAuthFilter.Builder<User>()
                     .setAuthenticator(new SimpleAuthenticator())
-//                    .setAuthorizer(new ExampleAuthorizer())
                     .setPrefix("Basic")
                     .setRealm("AUTHENTICATION_PROVIDER")
                     .buildAuthFilter();
 
     @ClassRule
-    public static ResourceTestRule techAuthResources = ResourceTestRule.builder()
+    public static ResourceTestRule simpleAuthResources = ResourceTestRule.builder()
             .addProvider(RolesAllowedDynamicFeature.class)
             .addProvider(new AuthDynamicFeature(BASIC_AUTH_HANDLER))
             .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
@@ -109,30 +94,17 @@ public class HesperidesCacheResourceTest {
             .addProvider(new ForbiddenOperationExceptionMapper())
             .build();
 
-    @ClassRule
-    public static ResourceTestRule noTechAuthResources = ResourceTestRule.builder()
-            .addProvider(new DisabledAuthProvider())
-            .addResource(new HesperidesCacheResource(TEMPLATE_PACKAGES_AGGREGATE, MODULES_AGGREGATE, APPLICATIONS_AGGREGATE,
-                    CACHE_GENERATOR_TEMPLATE_PACKAGES_AGGREGATE, CACHE_GENERATOR_MODULE_AGGREGATE, CACHE_GENERATOR_APPLICATION_AGGREGATE))
-            .addProvider(new ForbiddenOperationExceptionMapper())
-            .build();
-
-
-    public WebTarget withTechAuth(String url) {
-        return techAuthResources.client().target(url);
+    public WebTarget rawClient(String url) {
+        return simpleAuthResources.client().target(url);
     }
 
-    public WebTarget withNoTechAuth(String url) {
-        return noTechAuthResources.client().target(url);
+    public Invocation.Builder withAuth(String url) {
+        return rawClient(url).request();
     }
 
-//    public com.sun.jersey.api.client.WebResource.Builder withTechAuth(String url) {
-//        return techAuthResources.client().resource(url).header("Authorization", "Basic Sm9obl9Eb2U6c2VjcmV0");
-//    }
-//
-//    public com.sun.jersey.api.client.WebResource.Builder withNoTechAuth(String url) {
-//        return noTechAuthResources.client().resource(url).header("Authorization", "Basic Sm9obl9Eb2U6c2VjcmV0");
-//    }
+    public Invocation.Builder withoutAuth(String url) {
+        return withAuth(url).header("Authorization", "Basic " + CREDENTIALS);
+    }
 
 
     @Before
@@ -143,20 +115,15 @@ public class HesperidesCacheResourceTest {
     }
 
     @Test
-    public void should_return_403_forbiden_when_clear_applications_caches() {
-        try {
-            withNoTechAuth("/cache/applications").request()
-                    .delete();
-            fail("Ne renvoie pas le status 403");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
-        }
+    public void should_return_401_forbiden_when_clear_applications_caches() {
+        Response response = withAuth("/cache/applications").delete();
+        assertThat(response.getStatus()).isEqualTo(Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_works_when_clear_applications_caches() {
         try {
-            withTechAuth("/cache/applications").request()
+            withoutAuth("/cache/applications")
                     .delete();
         } catch (ResponseProcessingException e) {
             fail("Le service devrait fonctionner");
@@ -164,20 +131,16 @@ public class HesperidesCacheResourceTest {
     }
 
     @Test
-    public void should_return_403_forbiden_when_clear_modules_caches() {
-        try {
-            withNoTechAuth("/cache/modules").request()
-                    .delete();
-            fail("Ne renvoie pas le status 403");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
-        }
+    public void should_return_401_forbiden_when_clear_modules_caches() {
+        Response response = withAuth("/cache/modules")
+                .delete();
+        assertThat(response.getStatus()).isEqualTo(Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_works_when_clear_modules_caches() {
         try {
-            withTechAuth("/cache/modules").request()
+            withAuth("/cache/modules")
                     .delete();
         } catch (ResponseProcessingException e) {
             fail("Le service devrait fonctionner");
@@ -185,20 +148,15 @@ public class HesperidesCacheResourceTest {
     }
 
     @Test
-    public void should_return_403_forbiden_when_clear_templates_packages_caches() {
-        try {
-            withNoTechAuth("/cache/templates/packages").request()
-                    .delete();
-            fail("Ne renvoie pas le status 403");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Status.FORBIDDEN.getStatusCode());
-        }
+    public void should_return_401_forbiden_when_clear_templates_packages_caches() {
+        Response response = withAuth("/cache/templates/packages").delete();
+        assertThat(response.getStatus()).isEqualTo(Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_works_when_clear_templates_packages_caches() {
         try {
-            withTechAuth("/cache/templates/packages").request()
+            withAuth("/cache/templates/packages")
                     .delete();
         } catch (ResponseProcessingException e) {
             fail("Le service devrait fonctionner");

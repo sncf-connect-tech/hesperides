@@ -30,7 +30,6 @@ import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearchResponse;
-import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
@@ -57,7 +56,7 @@ import org.junit.experimental.categories.Category;
 import tests.type.UnitTests;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.ResponseProcessingException;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -76,6 +75,8 @@ import static org.mockito.Mockito.*;
 /* AUTHENTICATION -> John_Doe:secret => Basic Sm9obl9Eb2U6c2VjcmV0 */
 @Category(UnitTests.class)
 public class HesperidesModuleClientResourceTest {
+
+    private static final String CREDENTIALS = "Sm9obl9Eb2U6c2VjcmV0";
 
     private static final Modules modules = mock(Modules.class);
     private static final ModuleSearch moduleSearch = mock(ModuleSearch.class);
@@ -103,27 +104,17 @@ public class HesperidesModuleClientResourceTest {
             .addProvider(new IllegalArgumentExceptionMapper())
             .build();
 
-    @ClassRule
-    public static ResourceTestRule disabledAuthResources = ResourceTestRule.builder()
-            .addProvider(new DisabledAuthProvider())
-            .addResource(new HesperidesModuleResource(modules, moduleSearch))
-            .addProvider(new DefaultExceptionMapper())
-            .addProvider(new DuplicateResourceExceptionMapper())
-            .addProvider(new IncoherentVersionExceptionMapper())
-            .addProvider(new OutOfDateVersionExceptionMapper())
-            .addProvider(new MissingResourceExceptionMapper())
-            .addProvider(new IllegalArgumentExceptionMapper())
-            .build();
-
-
-    public WebTarget withAuth(String url) {
+    public WebTarget rawClient(String url) {
         return simpleAuthResources.client().target(url);
     }
 
-    public WebTarget withoutAuth(String url) {
-        return disabledAuthResources.client().target(url);
+    public Invocation.Builder withAuth(String url) {
+        return rawClient(url).request();
     }
 
+    public Invocation.Builder withoutAuth(String url) {
+        return withAuth(url).header("Authorization", "Basic " + CREDENTIALS);
+    }
 
     @Before
     public void setup() {
@@ -143,7 +134,7 @@ public class HesperidesModuleClientResourceTest {
         String[] awaitedResponseList = {"module_name"};
 
         assert (Arrays.equals(
-                withoutAuth("/modules").request().get(List.class).toArray(), awaitedResponseList));
+                withoutAuth("/modules").get(List.class).toArray(), awaitedResponseList));
     }
 
     /**
@@ -158,7 +149,7 @@ public class HesperidesModuleClientResourceTest {
         String[] awaitedResponseList = {"module_version"};
 
         assert (Arrays.equals(
-                withoutAuth("/modules/module_name").request().get(List.class).toArray(), awaitedResponseList));
+                withoutAuth("/modules/module_name").get(List.class).toArray(), awaitedResponseList));
     }
 
     /**
@@ -173,7 +164,7 @@ public class HesperidesModuleClientResourceTest {
         String[] awaitedResponseList = {Release.LC};
 
         assert (Arrays.equals(
-                withoutAuth("/modules/module_name/module_version").request().get(List.class).toArray(), awaitedResponseList));
+                withoutAuth("/modules/module_name/module_version").get(List.class).toArray(), awaitedResponseList));
     }
 
     /**
@@ -202,9 +193,10 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModule(moduleInfo1)).thenReturn(Optional.of(module1));
         when(modules.getModule(moduleInfo2)).thenReturn(Optional.of(module2));
 
-        assertThat(withoutAuth("/modules/perform_search")
+        assertThat(rawClient("/modules/perform_search")
                 .queryParam("terms", "term1#term2#term3")
-                .request().post(Entity.json(null), new GenericType<List<Module>>() {
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null), new GenericType<List<Module>>() {
                 })).isEqualTo(Lists.newArrayList(module1, module2));
     }
 
@@ -230,33 +222,30 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModule(moduleInfo1)).thenReturn(Optional.of(module1));
         when(modules.getModule(moduleInfo2)).thenReturn(Optional.of(module2));
 
-        assertThat(withoutAuth("/modules/perform_search")
+        assertThat(rawClient("/modules/perform_search")
                 .queryParam("terms", "module_name1 module_version")
-                .request().post(Entity.json(null), new GenericType<List<Module>>() {
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null), new GenericType<List<Module>>() {
                 })).isEqualTo(Lists.newArrayList(module1));
     }
 
 
     @Test
     public void should_return_400_if_terms_query_param_is_missing() {
-        try {
-            withoutAuth("/modules/perform_search")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/perform_search")
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_perform_search_and_not_authenticated() {
-        try {
-            withAuth("/modules/perform_search")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/perform_search")
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -292,19 +281,17 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getAllTemplates(moduleInfo)).thenReturn(Lists.newArrayList(template1, template2));
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                .request().get(new GenericType<List<TemplateListItem>>() {
+                .get(new GenericType<List<TemplateListItem>>() {
                 })).isEqualTo(Lists.newArrayList(templateListItem1, templateListItem2));
     }
 
     @Test
     public void should_return_401_if_getting_list_of_all_templates_in_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/workingcopy/templates")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/workingcopy/templates")
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -340,19 +327,17 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getAllTemplates(moduleInfo)).thenReturn(Lists.newArrayList(template1, template2));
 
         assertThat(withoutAuth("/modules/module_name/module_version/release/templates")
-                .request().get(new GenericType<List<TemplateListItem>>() {
+                .get(new GenericType<List<TemplateListItem>>() {
                 })).isEqualTo(Lists.newArrayList(templateListItem1, templateListItem2));
     }
 
     @Test
     public void should_return_401_if_getting_list_of_all_templates_in_release_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/release/templates")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/release/templates")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -376,7 +361,7 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getTemplate(moduleInfo, "template_name")).thenReturn(Optional.of(template));
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/templates/template_name")
-                .request().get(Template.class)).isEqualTo(template);
+                .get(Template.class)).isEqualTo(template);
     }
 
     @Test
@@ -386,23 +371,17 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.getTemplate(moduleInfo, "unknown")).thenReturn(Optional.empty());
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/templates/unknown").request().get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/templates/unknown").get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_template_from_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/workingcopy/templates/unknown")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/workingcopy/templates/unknown")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -426,7 +405,7 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getTemplate(moduleInfo, "name")).thenReturn(Optional.of(template));
 
         assertThat(withoutAuth("/modules/module_name/module_version/release/templates/name")
-                .request().get(Template.class)).isEqualTo(template);
+                .get(Template.class)).isEqualTo(template);
     }
 
     @Test
@@ -436,23 +415,17 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.getTemplate(moduleInfo, "unknown")).thenReturn(Optional.empty());
 
-        try {
-            withoutAuth("/modules/module_name/module_version/release/templates/unknown").request().get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/release/templates/unknown").get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_template_from_release_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/release/templates/unknown")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/release/templates/unknown")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -466,19 +439,17 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModel(new ModuleKey("module_name", Release.of("module_version")))).thenReturn(Optional.of(model));
 
         assertThat(withoutAuth("/modules/module_name/module_version/release/model")
-                .request().get(HesperidesPropertiesModel.class))
+                .get(HesperidesPropertiesModel.class))
                 .isEqualTo(model);
     }
 
     @Test
     public void should_return_401_if_getting_properties_model_for_release_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/release/model")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/release/model")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -487,12 +458,8 @@ public class HesperidesModuleClientResourceTest {
                 .withVersion(Release.of("module_version"))
                 .build();
         when(modules.getModel(moduleInfo)).thenReturn(Optional.empty());
-        try {
-            withoutAuth("/modules/module_name/module_version/release/model").request().get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/release/model").get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     /**
@@ -506,19 +473,17 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModel(new ModuleKey("module_name", WorkingCopy.of("module_version")))).thenReturn(Optional.of(model));
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/model")
-                .request().get(HesperidesPropertiesModel.class))
+                .get(HesperidesPropertiesModel.class))
                 .isEqualTo(model);
     }
 
     @Test
     public void should_return_401_if_getting_properties_model_for_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/workingcopy/model")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/workingcopy/model")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -527,12 +492,8 @@ public class HesperidesModuleClientResourceTest {
                 .withVersion(WorkingCopy.of("module_version"))
                 .build();
         when(modules.getModel(moduleInfo)).thenReturn(Optional.empty());
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/model").request().get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/model").get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     /**
@@ -572,7 +533,7 @@ public class HesperidesModuleClientResourceTest {
         when(modules.createTemplateInWorkingCopy(moduleInfo, templateData)).thenReturn(templateAfter);
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                .request()
+
                 .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class)).isEqualTo(templateAfter);
     }
 
@@ -599,15 +560,12 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         when(modules.createTemplateInWorkingCopy(moduleInfo, templateData)).thenThrow(new DuplicateResourceException("Non unique"));
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            fail("Ne renvoie pas 409");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/templates")
 
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -624,15 +582,12 @@ public class HesperidesModuleClientResourceTest {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
         when(modules.getModule(moduleInfo)).thenReturn(Optional.empty());
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/templates")
 
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -640,14 +595,12 @@ public class HesperidesModuleClientResourceTest {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
         when(modules.getModule(moduleInfo)).thenReturn(Optional.empty());
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/templates/template_name")
-                    .request()
-                    .delete();
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/templates/template_name")
+
+                .delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -664,25 +617,21 @@ public class HesperidesModuleClientResourceTest {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "module_version");
         when(modules.getModule(moduleInfo)).thenReturn(Optional.empty());
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                    .request()
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/templates")
+
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_creating_template_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/workingcopy/templates")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/workingcopy/templates")
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -722,7 +671,7 @@ public class HesperidesModuleClientResourceTest {
         when(modules.updateTemplateInWorkingCopy(moduleInfo, templateData)).thenReturn(templateAfter);
 
         assertThat(withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                .request()
+
                 .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class)).isEqualTo(templateAfter);
     }
 
@@ -750,25 +699,21 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
         when(modules.updateTemplateInWorkingCopy(moduleInfo, templateData)).thenThrow(new MissingResourceException("Not found"));
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy/templates")
-                    .request()
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy/templates")
+
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_updating_template_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/workingcopy/templates").request()
-                    .put(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/workingcopy/templates")
+                .put(Entity.json(""), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -786,7 +731,7 @@ public class HesperidesModuleClientResourceTest {
         when(modules.createWorkingCopy(moduleBefore)).thenReturn(moduleAfter);
 
         assertThat(withoutAuth("/modules")
-                .request()
+
                 .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class))
                 .isEqualTo(moduleAfter);
     }
@@ -798,13 +743,11 @@ public class HesperidesModuleClientResourceTest {
                 .withVersion(WorkingCopy.of("1.6.0"))
                 .build();
         doThrow(new DuplicateResourceException("")).when(modules).createWorkingCopy(moduleBefore);
-        try {
-            withoutAuth("/modules").request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            fail("Ne renvoie pas 409");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        }
+        Response response = withoutAuth("/modules")
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -818,17 +761,15 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
 
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_name", "the_name_from")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            Assertions.fail("Ne renvoie pas 422");
-        } catch (ResponseProcessingException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_name", "the_name_from")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+
+
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -842,17 +783,13 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
 
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_name", "the_name_from")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            Assertions.fail("Ne renvoie pas 422");
-        } catch (ResponseProcessingException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_name", "the_name_from")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -866,17 +803,13 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
 
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_name", "the_name_from")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            Assertions.fail("Ne renvoie pas 422");
-        } catch (ResponseProcessingException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_name", "the_name_from")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -890,17 +823,13 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
 
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_name", "the_name_from")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            Assertions.fail("Ne renvoie pas 422");
-        } catch (ResponseProcessingException e) {
-            assertThat(Response.Status.Family.CLIENT_ERROR.equals(e.getResponse().getStatus()));
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_name", "the_name_from")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+        assertThat(Response.Status.Family.CLIENT_ERROR.equals(response.getStatus()));
     }
 
     @Test
@@ -914,57 +843,51 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.createWorkingCopyFrom(moduleKey, fromModuleKey)).thenReturn(moduleAfter);
 
-        assertThat(withoutAuth("/modules")
+        assertThat(rawClient("/modules")
                 .queryParam("from_module_name", "the_name_from")
                 .queryParam("from_module_version", "the_version_from")
                 .queryParam("from_is_working_copy", "false")
-                .request()
+                .request().header("Authorization", "Basic " + CREDENTIALS)
                 .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class)).isEqualTo(moduleAfter);
     }
 
     @Test
     public void should_return_400_if_create_working_copy_from_and_from_module_name_query_param_is_missing() throws JsonProcessingException {
         Module moduleBefore = new Module("module_name", "module_version", true, Sets.newHashSet(), 0L);
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_create_working_copy_from_and_from_module_version_query_param_is_missing() throws JsonProcessingException {
         Module moduleBefore = new Module("module_name", "module_version", true, Sets.newHashSet(), 0L);
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_name", "the__name_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_name", "the__name_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_create_working_copy_from_and_from_is_working_copy_query_param_is_missing() throws JsonProcessingException {
         Module moduleBefore = new Module("module_name", "module_version", true, Sets.newHashSet(), 0L);
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_module_name", "the__name_from")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_module_name", "the__name_from")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -978,28 +901,23 @@ public class HesperidesModuleClientResourceTest {
 
         Module moduleBefore = new Module("module_name", "module_version", true, Sets.newHashSet(), 0L);
 
-        try {
-            withoutAuth("/modules")
-                    .queryParam("from_module_name", "the_name_from")
-                    .queryParam("from_module_version", "the_version_from")
-                    .queryParam("from_is_working_copy", "false")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = rawClient("/modules")
+                .queryParam("from_module_name", "the_name_from")
+                .queryParam("from_module_version", "the_version_from")
+                .queryParam("from_is_working_copy", "false")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_creating_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules")
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -1016,7 +934,7 @@ public class HesperidesModuleClientResourceTest {
         when(modules.updateWorkingCopy(moduleBefore)).thenReturn(moduleAfter);
 
         assertThat(withoutAuth("/modules")
-                .request()
+
                 .put(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class))
                 .isEqualTo(moduleAfter);
     }
@@ -1026,25 +944,21 @@ public class HesperidesModuleClientResourceTest {
         Module moduleBefore = new Module("module_name", "1.6.0", true, Sets.newHashSet(), 1L);
 
         doThrow(new MissingResourceException("")).when(modules).updateWorkingCopy(moduleBefore);
-        try {
-            withoutAuth("/modules")
-                    .request()
-                    .put(Entity.json(MAPPER.writeValueAsString(moduleBefore)), Module.class);
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules")
+
+                .put(Entity.json(MAPPER.writeValueAsString(moduleBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_updating_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules").request()
-                    .put(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules")
+                .put(Entity.json(""), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -1056,7 +970,7 @@ public class HesperidesModuleClientResourceTest {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
         Module module = new Module(moduleInfo, new HashSet<>());
         when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
-        withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name").request().delete();
+        withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name").delete();
         verify(modules).deleteTemplateInWorkingCopy(moduleInfo, "the_name");
     }
 
@@ -1068,24 +982,20 @@ public class HesperidesModuleClientResourceTest {
         when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
 
         doThrow(new MissingResourceException("Not found")).when(modules).deleteTemplateInWorkingCopy(moduleInfo, "the_name");
-        try {
-            withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name").request()
-                    .delete();
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name")
+                .delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_deleting_template_in_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name").request()
-                    .delete(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/the_module_name/the_module_version/workingcopy/templates/the_name")
+                .delete(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -1101,7 +1011,7 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
 
-        assertThat(withoutAuth("/modules/module_name/module_version/workingcopy").request().get(Module.class)).isEqualTo(module);
+        assertThat(withoutAuth("/modules/module_name/module_version/workingcopy").get(Module.class)).isEqualTo(module);
     }
 
     @Test
@@ -1111,23 +1021,17 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.getModule(moduleInfo)).thenThrow(new MissingResourceException("missing"));
 
-        try {
-            withoutAuth("/modules/module_name/module_version/workingcopy").request().get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/workingcopy").get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_module_working_copy_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/workingcopy")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/workingcopy")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -1142,7 +1046,7 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.getModule(moduleInfo)).thenReturn(Optional.of(module));
 
-        assertThat(withoutAuth("/modules/module_name/module_version/release").request().get(Module.class)).isEqualTo(module);
+        assertThat(withoutAuth("/modules/module_name/module_version/release").get(Module.class)).isEqualTo(module);
     }
 
 
@@ -1153,23 +1057,18 @@ public class HesperidesModuleClientResourceTest {
                 .build();
         when(modules.getModule(moduleInfo)).thenThrow(new MissingResourceException("missing"));
 
-        try {
-            withoutAuth("/modules/module_name/module_version/release").request().get(Response.class);
-            fail("Ne renvoie pas le status 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/module_version/release").get(Response.class);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_getting_module_release_and_not_authenticated() {
-        try {
-            withAuth("/modules/module_name/module_version/release")
-                    .request().get(Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = withAuth("/modules/module_name/module_version/release")
+                .get(Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     /**
@@ -1182,37 +1081,35 @@ public class HesperidesModuleClientResourceTest {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
         when(modules.createRelease(moduleInfo, "the_release_version")).thenReturn(module);
 
-        assertThat(withoutAuth("/modules/create_release")
+        assertThat(rawClient("/modules/create_release")
                 .queryParam("module_name", "the_module_name")
                 .queryParam("module_version", "the_module_version")
                 .queryParam("release_version", "the_release_version")
-                .request().post(Entity.json(null), Module.class)).isEqualTo(module);
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(""), Module.class)).isEqualTo(module);
     }
 
     @Test
     public void should_return_400_if_create_release_and_module_name_query_param_is_missing() {
-        try {
-            withoutAuth("/modules/create_release")
-                    .queryParam("module_version", "the_module_version")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("module_version", "the_module_version")
+                .queryParam("release_version", "the_release_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null), Response.class);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_if_create_release_and_module_version_query_param_is_missing() {
-        try {
-            withoutAuth("/modules/create_release")
-                    .queryParam("module_name", "the_module_name")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("module_name", "the_module_name")
+                .queryParam("release_version", "the_release_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1221,298 +1118,248 @@ public class HesperidesModuleClientResourceTest {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("the_module_name", "the_module_version");
         when(modules.createRelease(moduleInfo, "the_module_version")).thenReturn(module);
 
-        assertThat(withoutAuth("/modules/create_release")
+        assertThat(rawClient("/modules/create_release")
                 .queryParam("module_name", "the_module_name")
                 .queryParam("module_version", "the_module_version")
-                .request().post(Entity.json(null), Module.class)).isEqualTo(module);
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(""), Module.class)).isEqualTo(module);
     }
 
     @Test
     public void should_return_missing_if_create_release_when_working_copy_missing() {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "1.6.0");
         doThrow(new MissingResourceException("There is no working copy for version 1.6.0. You should create a working copy before releasing")).when(modules).createRelease(moduleInfo, "the_release_version");
-        try {
-            withoutAuth("/modules/create_release")
-                    .queryParam("module_name", "module_name")
-                    .queryParam("module_version", "1.6.0")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null));
-            fail("Ne renvoie pas 404");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("module_name", "module_name")
+                .queryParam("module_version", "1.6.0")
+                .queryParam("release_version", "the_release_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
     public void should_return_409_conflict_if_create_existing_release() {
         ModuleWorkingCopyKey moduleInfo = new ModuleWorkingCopyKey("module_name", "1.6.0");
         doThrow(new DuplicateResourceException("There is no working copy for version 1.6.0. You should create a working copy before releasing")).when(modules).createRelease(moduleInfo, "the_release_version");
-        try {
-            withoutAuth("/modules/create_release")
-                    .queryParam("module_name", "module_name")
-                    .queryParam("module_version", "1.6.0")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null));
-            fail("Ne renvoie pas 409");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("module_name", "module_name")
+                .queryParam("module_version", "1.6.0")
+                .queryParam("release_version", "the_release_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void should_return_401_if_creating_release_and_not_authenticated() {
-        try {
-            withAuth("/modules/create_release")
-                    .queryParam("module_name", "module_name")
-                    .queryParam("module_version", "1.6.0")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null), Response.class);
-            fail("Ne renvoie pas 401");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("module_name", "module_name")
+                .queryParam("module_version", "1.6.0")
+                .queryParam("release_version", "the_release_version")
+                .request()
+                .post(Entity.json(null), Response.class);
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_modulename_list() {
-        try {
-            withoutAuth("/modules/%20%09%00").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_modulename_with_version_list_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_modulename_with_version_list_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_moduletype_with_version_list_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/module_type").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/module_type").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_moduletype_with_version_list_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/module_type").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/module_type").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_moduletype_with_version_list_with_module_type_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/1.0.0.0/%20%09%00")
-                    .request()
-                    .get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/1.0.0.0/%20%09%00")
+
+                .get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_list_template_workingcopy_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_list_template_workingcopy_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_delete_module_workingcopy_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_delete_module_workingcopy_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_delete_module_release_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/release").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/release").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_delete_module_release_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/release").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/release").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_template_release_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/release/templates").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/release/templates").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_template_release_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/release/templates").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/release/templates").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_one_template_workingcopy_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates/template_name").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates/template_name").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_one_template_workingcopy_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates/template_name").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates/template_name").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_one_template_workingcopy_with_template_name_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/1.0.0.0/workingcopy/templates/%20%09%00").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/1.0.0.0/workingcopy/templates/%20%09%00").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_one_template_release_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/release/templates/template_name").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/release/templates/template_name").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_one_template_release_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/release/templates/template_name").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/release/templates/template_name").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_one_template_release_with_template_name_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/1.0.0.0/release/templates/%20%09%00").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/1.0.0.0/release/templates/%20%09%00").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_model_release_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/release/model").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/release/model").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_model_release_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/release/model").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/release/model").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_model_workingcopy_with_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/model").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/model").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_model_workingcopy_with_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/model").request().get(List.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy/model").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1526,14 +1373,12 @@ public class HesperidesModuleClientResourceTest {
                 null,
                 1L);
 
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates")
-                    .request()
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates")
+
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1546,14 +1391,12 @@ public class HesperidesModuleClientResourceTest {
                 "some content",
                 null,
                 1L);
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
-                    .request()
-                    .put(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
+
+                .put(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1567,14 +1410,12 @@ public class HesperidesModuleClientResourceTest {
                 null,
                 1L);
 
-        try {
-            withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/1.0.0.0/workingcopy/templates")
+
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1588,31 +1429,27 @@ public class HesperidesModuleClientResourceTest {
                 null,
                 1L);
 
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
+
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_create_working_with_from_module_name_not_valid() throws JsonProcessingException {
         Module module = new Module("module_name", "module_version", false, Sets.newHashSet(), 1L);
 
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
-                    .queryParam("from_module_name", "%20%09%00")
-                    .queryParam("from_module_version", "from_module_version")
-                    .queryParam("from_is_working_copy", "true")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(module)), Module.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/module_name/%20%09%00/workingcopy/templates")
+                .queryParam("from_module_name", "%20%09%00")
+                .queryParam("from_module_version", "from_module_version")
+                .queryParam("from_is_working_copy", "true")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(module)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1626,17 +1463,15 @@ public class HesperidesModuleClientResourceTest {
                 null,
                 1L);
 
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
-                    .queryParam("from_module_name", "from_module_name")
-                    .queryParam("from_module_version", "%20%09%00")
-                    .queryParam("from_is_working_copy", "true")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/module_name/%20%09%00/workingcopy/templates")
+                .queryParam("from_module_name", "from_module_name")
+                .queryParam("from_module_version", "%20%09%00")
+                .queryParam("from_is_working_copy", "true")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1650,112 +1485,94 @@ public class HesperidesModuleClientResourceTest {
                 null,
                 1L);
 
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy/templates")
-                    .queryParam("from_module_name", "from_module_name")
-                    .queryParam("from_module_version", "from_module_version")
-                    .request()
-                    .post(Entity.json(MAPPER.writeValueAsString(templateBefore)), Template.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/module_name/%20%09%00/workingcopy/templates")
+                .queryParam("from_module_name", "from_module_name")
+                .queryParam("from_module_version", "from_module_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(MAPPER.writeValueAsString(templateBefore)));
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     // TODO updateWorkingCopy
     @Test
     public void should_return_400_when_delete_template_in_workingcopy_when_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/the_module_version/workingcopy/templates/the_name").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/the_module_version/workingcopy/templates/the_name").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_delete_template_in_workingcopy_when_version_name_not_valid() {
-        try {
-            withoutAuth("/modules/the_module_name/%20%09%00/workingcopy/templates/the_name").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/the_module_name/%20%09%00/workingcopy/templates/the_name").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_delete_template_in_workingcopy_when_tamplate_name_not_valid() {
-        try {
-            withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/%20%09%00").request().delete();
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/the_module_name/the_module_version/workingcopy/templates/%20%09%00").delete();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_module_workingcopy_when_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/module_version/workingcopy").request().get(Module.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/module_version/workingcopy").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_module_workingcopy_when_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/workingcopy").request().get(Module.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/workingcopy").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_module_release_when_module_name_not_valid() {
-        try {
-            withoutAuth("/modules/%20%09%00/module_version/release").request().get(Module.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/%20%09%00/module_version/release").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_when_get_module_release_when_version_not_valid() {
-        try {
-            withoutAuth("/modules/module_name/%20%09%00/release").request().get(Module.class);
-            fail("Ne renvoie pas 400");
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = withoutAuth("/modules/module_name/%20%09%00/release").get();
+
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_whencreate_release_from_existing_workingcopy_when_module_name_is_not_valid() {
-        try {
-            withoutAuth("/modules/create_release")
-                    .queryParam("%20%09%00", "the_module_name")
-                    .queryParam("module_version", "the_module_version")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null), Module.class);
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("%20%09%00", "the_module_name")
+                .queryParam("module_version", "the_module_version")
+                .queryParam("release_version", "the_release_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void should_return_400_whencreate_release_from_existing_workingcopy_when_module_version_is_not_valid() {
-        try {
-            withoutAuth("/modules/create_release")
-                    .queryParam("module_name", "the_module_name")
-                    .queryParam("%20%09%00", "the_module_version")
-                    .queryParam("release_version", "the_release_version")
-                    .request().post(Entity.json(null), Module.class);
-        } catch (ResponseProcessingException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        Response response = rawClient("/modules/create_release")
+                .queryParam("module_name", "the_module_name")
+                .queryParam("%20%09%00", "the_module_version")
+                .queryParam("release_version", "the_release_version")
+                .request().header("Authorization", "Basic " + CREDENTIALS)
+                .post(Entity.json(null));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 }
