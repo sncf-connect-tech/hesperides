@@ -36,7 +36,7 @@ import com.vsct.dt.hesperides.resources.KeyValueValorisation;
 import com.vsct.dt.hesperides.resources.PermissionAwareApplicationsProxy;
 import com.vsct.dt.hesperides.resources.Properties;
 import com.vsct.dt.hesperides.security.UserContext;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;

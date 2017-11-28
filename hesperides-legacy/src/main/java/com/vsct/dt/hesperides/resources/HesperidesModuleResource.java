@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.vsct.dt.hesperides.exception.runtime.MissingResourceException;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearchResponse;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.Module;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;

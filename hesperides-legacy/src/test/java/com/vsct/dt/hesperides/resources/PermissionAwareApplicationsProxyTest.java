@@ -26,7 +26,7 @@ import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.exception.runtime.ForbiddenOperationException;
 import com.vsct.dt.hesperides.security.UserContext;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.templating.platform.PlatformData;
 import org.junit.Before;
 import org.junit.Test;

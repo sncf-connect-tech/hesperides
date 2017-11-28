@@ -20,10 +20,12 @@
  */
 package com.vsct.dt.hesperides.api;
 
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.domain.modules.Module;
 import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import io.dropwizard.auth.Auth;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,10 +35,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Path("/toto")
 @Api("/toto")
@@ -55,15 +57,18 @@ public class ModuleApi {
     @GET
     //@Timed ?
     @ApiOperation("Get active module names")
-    public void getActiveModulesName(@Suspended final AsyncResponse response) {
+    public void getActiveModulesName(@Auth final User user, @Suspended final AsyncResponse response) {
+        // Essai de l'exécution asynchrone
         executor.execute(() -> {
-            /**
-             * Récupérer la liste des noms de modules qui n'ont pas été supprimés
-             */
-            List<String> moduleNames = new ArrayList<>();
-            for (Module module : moduleSearchRepository.getModules()) {
-                moduleNames.add(module.getName());
-            }
+            // Récupère la liste des noms de modules qui n'ont pas été supprimés
+            // Le type Set permet d'évacuer les doublons
+            Set<String> moduleNames = moduleSearchRepository.getModules().stream()
+                    .map(Module::getName)
+                    .collect(Collectors.toSet());
+//            Set<String> moduleNames = new HashSet<>();
+//            for (Module module : moduleSearchRepository.getModules()) {
+//                moduleNames.add(module.getName());
+//            }
             response.resume(moduleNames);
         });
     }

@@ -35,7 +35,7 @@ import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
 import com.vsct.dt.hesperides.indexation.search.ModuleSearch;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.storage.EventStore;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;

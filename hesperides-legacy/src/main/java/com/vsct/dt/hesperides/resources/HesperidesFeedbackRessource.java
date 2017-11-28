@@ -21,7 +21,7 @@ package com.vsct.dt.hesperides.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.feedback.Feedbacks;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;

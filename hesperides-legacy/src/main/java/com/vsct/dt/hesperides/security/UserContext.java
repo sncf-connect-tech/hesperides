@@ -21,8 +21,6 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.vsct.dt.hesperides.security.model.User;
-
 /**
  * Created by william_montaz on 27/02/2015.
  */

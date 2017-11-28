@@ -26,7 +26,7 @@ import com.bazaarvoice.dropwizard.assets.AssetsConfiguration;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackObject;
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import org.junit.Before;
 import org.junit.Test;
 

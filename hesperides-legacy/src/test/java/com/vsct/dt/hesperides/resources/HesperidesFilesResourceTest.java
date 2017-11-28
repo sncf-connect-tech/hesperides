@@ -35,7 +35,7 @@ import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.files.HesperidesFile;
 import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.models.KeyValuePropertyModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;

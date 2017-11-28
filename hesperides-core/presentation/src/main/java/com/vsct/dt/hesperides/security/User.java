@@ -19,7 +19,7 @@
  *
  */
 
-package com.vsct.dt.hesperides.security.model;
+package com.vsct.dt.hesperides.security;
 
 import java.security.Principal;
 

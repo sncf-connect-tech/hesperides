@@ -31,7 +31,7 @@ import com.vsct.dt.hesperides.exception.wrapper.*;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearch;
 import com.vsct.dt.hesperides.indexation.search.TemplateSearchResponse;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.template.Template;
 import com.vsct.dt.hesperides.templating.modules.template.TemplateData;

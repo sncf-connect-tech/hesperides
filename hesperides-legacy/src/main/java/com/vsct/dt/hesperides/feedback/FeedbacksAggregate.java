@@ -27,7 +27,7 @@ import com.vsct.dt.hesperides.MainApplication;
 import com.vsct.dt.hesperides.exception.runtime.HesperidesException;
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpEntity;

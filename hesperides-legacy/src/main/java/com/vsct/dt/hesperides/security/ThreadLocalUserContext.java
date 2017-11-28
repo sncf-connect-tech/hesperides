@@ -21,7 +21,6 @@
 
 package com.vsct.dt.hesperides.security;
 
-import com.vsct.dt.hesperides.security.model.User;
 import com.vsct.dt.hesperides.storage.UserInfo;
 import com.vsct.dt.hesperides.storage.UserProvider;
 import io.dropwizard.jersey.setup.JerseyEnvironment;

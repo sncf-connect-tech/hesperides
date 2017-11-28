@@ -24,7 +24,7 @@ import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.cache.HesperidesCacheResource;
 import com.vsct.dt.hesperides.exception.wrapper.ForbiddenOperationExceptionMapper;
 import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.security.model.User;
+import com.vsct.dt.hesperides.security.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.vsct.dt.hesperides.templating.packages.virtual.CacheGeneratorApplicationAggregate;
