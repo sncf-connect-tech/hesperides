@@ -19,43 +19,21 @@
  *
  */
 
-package com.vsct.dt.hesperides.security;
+package com.vsct.dt.hesperides.api.authentication;
 
-import java.security.Principal;
+import com.vsct.dt.hesperides.api.authentication.User;
+import io.dropwizard.auth.AuthenticationException;
+import io.dropwizard.auth.Authenticator;
+import io.dropwizard.auth.basic.BasicCredentials;
+
+import java.util.Optional;
 
 /**
  * Created by william_montaz on 12/11/2014.
  */
-public class User implements Principal {
-    /**
-     * Convenient 'untracked user' information
-     */
-    public static final User UNTRACKED = new User("untracked", false, true);
-
-    private final String username;
-    private final boolean prodUser;
-    private final boolean techUser;
-
-    public User(final String username, boolean prodUser, boolean techUser) {
-        this.username = username;
-        this.prodUser = prodUser;
-        this.techUser = techUser;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public boolean isProdUser() {
-        return prodUser;
-    }
-
-    public boolean isTechUser() {
-        return techUser;
-    }
-
+public final class SimpleAuthenticator implements Authenticator<BasicCredentials, User> {
     @Override
-    public String getName() {
-        return username;
+    public Optional<User> authenticate(final BasicCredentials basicCredentials) throws AuthenticationException {
+        return Optional.of(new User(basicCredentials.getUsername(), true, true));
     }
 }

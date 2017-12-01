@@ -26,7 +26,7 @@ import com.vsct.dt.hesperides.files.Files;
 import com.vsct.dt.hesperides.files.HesperidesFile;
 import com.vsct.dt.hesperides.files.HesperidesFileRights;
 import com.vsct.dt.hesperides.files.HesperidesRight;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;

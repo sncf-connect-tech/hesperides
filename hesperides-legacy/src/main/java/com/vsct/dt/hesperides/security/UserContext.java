@@ -21,6 +21,8 @@
 
 package com.vsct.dt.hesperides.security;
 
+import com.vsct.dt.hesperides.api.authentication.User;
+
 /**
  * Created by william_montaz on 27/02/2015.
  */

@@ -56,9 +56,9 @@ import com.vsct.dt.hesperides.infrastructure.elasticsearch.ElasticSearchConfigur
 import com.vsct.dt.hesperides.infrastructure.elasticsearch.modules.ElasticSearchModuleSearchRepository;
 import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
 import com.vsct.dt.hesperides.resources.*;
-import com.vsct.dt.hesperides.security.SimpleAuthenticator;
+import com.vsct.dt.hesperides.api.authentication.SimpleAuthenticator;
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
@@ -118,7 +118,7 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
             protected void configure() {
                 bind(RedisConfiguration.class).toInstance(hesperidesConfiguration.getRedisConfiguration());
                 bind(ElasticSearchConfiguration.class).toInstance(hesperidesConfiguration.getElasticSearchConfiguration());
-                bind(ModuleSearchRepository.class).to(ElasticSearchModuleSearchRepository.class).asEagerSingleton(); //TODO Singleton?
+                bind(ModuleSearchRepository.class).to(ElasticSearchModuleSearchRepository.class);
                 bind(MustacheFactory.class).to(DefaultMustacheFactory.class);
             }
         });

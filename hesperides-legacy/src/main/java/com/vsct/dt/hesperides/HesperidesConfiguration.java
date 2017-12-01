@@ -32,8 +32,8 @@ import com.vsct.dt.hesperides.infrastructure.elasticsearch.ElasticSearchConfigur
 import com.vsct.dt.hesperides.proxy.ProxyConfiguration;
 import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
-import com.vsct.dt.hesperides.security.SimpleAuthenticator;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.SimpleAuthenticator;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
 import io.dropwizard.Configuration;

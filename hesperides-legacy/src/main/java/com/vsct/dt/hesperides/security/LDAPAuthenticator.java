@@ -21,6 +21,7 @@
 
 package com.vsct.dt.hesperides.security;
 
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.security.model.LdapPoolConfiguration;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;

@@ -28,7 +28,7 @@ import com.vsct.dt.hesperides.applications.InstanceModel;
 import com.vsct.dt.hesperides.applications.PlatformKey;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearch;
 import com.vsct.dt.hesperides.indexation.search.ApplicationSearchResponse;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.templating.models.HesperidesPropertiesModel;
 import com.vsct.dt.hesperides.templating.modules.ModuleKey;
 import com.vsct.dt.hesperides.templating.modules.Modules;

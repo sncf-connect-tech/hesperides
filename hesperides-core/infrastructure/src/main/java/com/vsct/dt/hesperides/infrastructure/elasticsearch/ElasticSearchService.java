@@ -32,7 +32,6 @@ import org.elasticsearch.client.RestClient;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 
 public class ElasticSearchService {
     private final ElasticSearchClient elasticSearchClient;
@@ -48,10 +47,9 @@ public class ElasticSearchService {
         ResponseHits responseHits = null;
         RestClient restClient = this.elasticSearchClient.getRestClient();
         String endpoint = "/" + this.elasticSearchConfiguration.getIndex() + url;
-        Map<String, String> params = Collections.emptyMap();
         try {
             HttpEntity entity = new NStringEntity(requestBody, ContentType.APPLICATION_JSON);
-            Response response = restClient.performRequest(method, endpoint, params, entity);
+            Response response = restClient.performRequest(method, endpoint, Collections.emptyMap(), entity);
             responseHits = new ObjectMapper().readValue(response.getEntity().getContent(), typeReference);
         } catch (IOException e) {
             e.printStackTrace(); //TODO Gérer l'exception

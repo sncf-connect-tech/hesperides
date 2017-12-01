@@ -20,13 +20,14 @@
  */
 package com.vsct.dt.hesperides.api;
 
-import com.vsct.dt.hesperides.security.User;
+import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.domain.modules.Module;
 import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import io.dropwizard.auth.Auth;
+import org.glassfish.jersey.server.ManagedAsync;
 
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -55,21 +56,27 @@ public class ModuleApi {
     }
 
     @GET
-    //@Timed ?
+    @Timed
+    @PermitAll
     @ApiOperation("Get active module names")
-    public void getActiveModulesName(@Auth final User user, @Suspended final AsyncResponse response) {
-        // Essai de l'exécution asynchrone
-        executor.execute(() -> {
-            // Récupère la liste des noms de modules qui n'ont pas été supprimés
-            // Le type Set permet d'évacuer les doublons
-            Set<String> moduleNames = moduleSearchRepository.getModules().stream()
-                    .map(Module::getName)
-                    .collect(Collectors.toSet());
-//            Set<String> moduleNames = new HashSet<>();
-//            for (Module module : moduleSearchRepository.getModules()) {
-//                moduleNames.add(module.getName());
-//            }
-            response.resume(moduleNames);
-        });
+    public Set<String> getModuleNames() {
+        return moduleSearchRepository.getModules().stream()
+                .map(Module::getName)
+                .collect(Collectors.toSet());
     }
+
+//    @GET
+//    @Timed
+//    @PermitAll
+//    @ApiOperation("Get active module names")
+//    @ManagedAsync
+//    public void getModuleNames(@Suspended final AsyncResponse response) {
+//        // Exécution asynchrone
+//        executor.execute(() -> {
+//            Set<String> moduleNames = moduleSearchRepository.getModules().stream()
+//                    .map(Module::getName)
+//                    .collect(Collectors.toSet());
+//            response.resume(moduleNames);
+//        });
+//    }
 }

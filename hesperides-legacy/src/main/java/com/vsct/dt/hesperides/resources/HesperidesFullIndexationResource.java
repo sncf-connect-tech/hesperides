@@ -31,7 +31,7 @@ import com.vsct.dt.hesperides.indexation.command.IndexNewTemplateCommandBulk;
 import com.vsct.dt.hesperides.indexation.mapper.ModuleMapper;
 import com.vsct.dt.hesperides.indexation.mapper.PlatformMapper;
 import com.vsct.dt.hesperides.indexation.mapper.TemplateMapper;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
 import com.wordnik.swagger.annotations.Api;

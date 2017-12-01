@@ -26,7 +26,6 @@ import org.elasticsearch.client.RestClient;
 import javax.inject.Inject;
 
 public class ElasticSearchClient {
-
     private final ElasticSearchConfiguration elasticSearchConfiguration;
 
     @Inject

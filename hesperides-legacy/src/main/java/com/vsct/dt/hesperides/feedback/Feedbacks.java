@@ -23,7 +23,7 @@
 package com.vsct.dt.hesperides.feedback;
 
 import com.vsct.dt.hesperides.feedback.jsonObject.FeedbackJson;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.User;
 
 /**
  * Feedback aggragator interface.

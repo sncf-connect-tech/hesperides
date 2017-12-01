@@ -24,7 +24,7 @@ package com.vsct.dt.hesperides.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.vsct.dt.hesperides.events.EventData;
 import com.vsct.dt.hesperides.events.Events;
-import com.vsct.dt.hesperides.security.User;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import io.dropwizard.auth.Auth;
