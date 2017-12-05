@@ -308,16 +308,6 @@
             </plugin>
         </plugins>
     </build>
-    <distributionManagement>
-        <repository>
-            <id>dt-releases</id>
-            <url>http://nexus.socrate.vsct.fr:50080/nexus/content/repositories/dt-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>dt-snapshots</id>
-            <url>http://nexus.socrate.vsct.fr:50080/nexus/content/repositories/dt-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
     <scm>
         <connection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</connection>
         <developerConnection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</developerConnection>
