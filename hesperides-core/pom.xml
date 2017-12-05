@@ -9,7 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hesperides-core</artifactId>
+    <artifactId>core</artifactId>
+    <groupId>com.vsct.dt.hesperides</groupId>
+
     <packaging>pom</packaging>
     <modules>
         <module>application</module>
@@ -22,22 +24,22 @@
         <dependencies>
             <!-- DDD -->
             <dependency>
-                <groupId>com.vsct.dt.hesperides</groupId>
+                <groupId>com.vsct.dt.hesperides.core</groupId>
                 <artifactId>presentation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.vsct.dt.hesperides</groupId>
+                <groupId>com.vsct.dt.hesperides.core</groupId>
                 <artifactId>application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.vsct.dt.hesperides</groupId>
+                <groupId>com.vsct.dt.hesperides.core</groupId>
                 <artifactId>domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.vsct.dt.hesperides</groupId>
+                <groupId>com.vsct.dt.hesperides.core</groupId>
                 <artifactId>infrastructure</artifactId>
                 <version>${project.version}</version>
             </dependency>

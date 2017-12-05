@@ -14,22 +14,22 @@
     <dependencies>
         <!-- DDD -->
         <dependency>
-            <groupId>com.vsct.dt.hesperides</groupId>
+            <groupId>com.vsct.dt.hesperides.core</groupId>
             <artifactId>presentation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vsct.dt.hesperides</groupId>
+            <groupId>com.vsct.dt.hesperides.core</groupId>
             <artifactId>application</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vsct.dt.hesperides</groupId>
+            <groupId>com.vsct.dt.hesperides.core</groupId>
             <artifactId>domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vsct.dt.hesperides</groupId>
+            <groupId>com.vsct.dt.hesperides.core</groupId>
             <artifactId>infrastructure</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -184,7 +184,6 @@
     </dependencies>
 
     <build>
-        <finalName>hesperides</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
