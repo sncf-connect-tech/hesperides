@@ -25,10 +25,12 @@ import cucumber.api.java8.En;
 import cucumber.api.junit.Cucumber;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.mock;
 
+@Ignore
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/resources/features") //classpath:features
 public class CucumberTest implements En {
