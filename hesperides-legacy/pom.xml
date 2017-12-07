@@ -309,11 +309,6 @@
             </plugin>
         </plugins>
     </build>
-    <scm>
-        <connection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</connection>
-        <developerConnection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</developerConnection>
-        <tag>3.1.1-SNAPSHOT</tag>
-    </scm>
 
     <profiles>
         <profile>
