@@ -70,6 +70,8 @@ pipeline {
 				branch 'develop'
 			}
 			steps {
+				input 'Release?'
+				milestone 1
 				// milestone + maven release (crée la branche release et déploie sur le nexus)
 				sleep 1
 			}
