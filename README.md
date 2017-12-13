@@ -25,7 +25,7 @@ or :
 Build:
 =====
 
-Build the whole project :
+Build the whole project:
 ```shell
 $ mvn package
 ```
