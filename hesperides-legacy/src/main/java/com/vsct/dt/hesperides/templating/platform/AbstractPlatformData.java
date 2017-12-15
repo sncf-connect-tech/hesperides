@@ -44,6 +44,7 @@ public abstract class AbstractPlatformData extends DomainVersionable {
     private static final String VALORISATION_KEY_APP_NAME = "hesperides.application.name";
     private static final String VALORISATION_KEY_APP_VERSION = "hesperides.application.version";
     private static final String VALORISATION_KEY_PLTFM_NAME = "hesperides.platform.name";
+    private static final String VALORISATION_KEY_PLTFM_IS_PROD = "hesperides.platform.isProduction";
 
     protected String platformName;
     protected String applicationName;
@@ -120,6 +121,7 @@ public abstract class AbstractPlatformData extends DomainVersionable {
         predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_APP_NAME, this.applicationName));
         predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_APP_VERSION, this.applicationVersion));
         predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_PLTFM_NAME, this.platformName));
+        predefinedScope.add(new KeyValueValorisationData(VALORISATION_KEY_PLTFM_IS_PROD, this.isProduction() ? "true" : "false"));
         return predefinedScope;
     }
 }
