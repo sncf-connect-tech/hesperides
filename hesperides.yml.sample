@@ -104,6 +104,10 @@ server:
     type: http
     port: 8080
     bindHost: localhost
+corsConfiguration:
+  headers: "Authorization,X-Requested-With,Content-Type,Accept,Origin"
+  origins: "*"
+  methods: "OPTIONS,GET,PUT,POST,DELETE,HEAD"
 # Logging settings
 logging:
   level: INFO

@@ -116,6 +116,10 @@ public final class HesperidesConfiguration extends Configuration implements Asse
     @JsonProperty
     private EventsConfiguration eventsConfiguration;
 
+    @Valid
+    @JsonProperty
+    private CorsConfiguration corsConfiguration;
+
     public HesperidesConfiguration() {
     }
 
@@ -230,5 +234,13 @@ public final class HesperidesConfiguration extends Configuration implements Asse
 
     public ProxyConfiguration getProxyConfiguration() {
         return proxyConfiguration;
+    }
+
+    public CorsConfiguration getCorsConfiguration() {
+        return corsConfiguration;
+    }
+
+    public void setCorsConfiguration(CorsConfiguration corsConfiguration) {
+        this.corsConfiguration = corsConfiguration;
     }
 }

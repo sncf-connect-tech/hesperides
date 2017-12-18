@@ -90,9 +90,14 @@ import io.dropwizard.client.HttpClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.apache.http.client.HttpClient;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+import java.util.EnumSet;
 
 public final class MainApplication extends Application<HesperidesConfiguration> {
 
@@ -174,6 +179,14 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
         //If you want to use @Auth to inject a custom Principal type into your resource
         environment.jersey().register(new AuthValueFactoryProvider.Binder(User.class));
 
+
+        // CORS configuration if conf exist
+        if (hesperidesConfiguration.getCorsConfiguration() != null &&
+                hesperidesConfiguration.getCorsConfiguration().getHeaders() != null &&
+                hesperidesConfiguration.getCorsConfiguration().getMethods() != null &&
+                hesperidesConfiguration.getCorsConfiguration().getOrigins() != null) {
+            enableCorsHeaders(hesperidesConfiguration, environment);
+        }
 
         LOGGER.debug("Creating Redis connection pool");
 
@@ -355,5 +368,22 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
             /* Reset the index */
             fullIndexationResource.resetIndex();
         }
+    }
+
+
+    private void enableCorsHeaders(HesperidesConfiguration hesperidesConfiguration, Environment env) {
+        final FilterRegistration.Dynamic cors = env.servlets().addFilter("CORS", CrossOriginFilter.class);
+
+        // Configure CORS parameters
+        //cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
+        //cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "Authorization,X-Requested-With,Content-Type,Accept,Origin");
+        //cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, hesperidesConfiguration.getCorsConfiguration().getOrigins());
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, hesperidesConfiguration.getCorsConfiguration().getHeaders());
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, hesperidesConfiguration.getCorsConfiguration().getMethods());
+
+        // Add URL mapping
+        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     }
 }
