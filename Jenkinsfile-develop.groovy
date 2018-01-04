@@ -4,54 +4,65 @@ pipeline {
 		maven 'maven3'
 	}
 	stages {
-		stage('BUILD AND PUSH') {
+		stage('Build and push') {
 			steps {
 				sh 'mvn clean deploy'
 			}
 		}
-		stage('DEPLOY DEV') {
+		stage('Deploy dev') {
 			steps {
-				// Appeler un job rundeck (pprundeck.start...)
-				sleep 0
+				script {
+					def Map options = [
+							serveur: "deadbabyboy",
+							refresh_puppet_agent: "complet_noop"
+					]
+					devrundeck.startAndWaitWithAutofill("HES", "refresh_puppet_agent", options)
+				}
 			}
 		}
-		stage('MOCKED TESTS') {
+		stage('Mocked tests') {
 			steps {
 				// Tests bouchonnés (BDD, profil Maven)
-				sleep 0
+				echo 'Mocked tests'
 			}
 		}
-		stage('DEPLOY INT') {
+		stage('Deploy int') {
 			steps {
 				// Appeler un job rundeck (pprundeck.start...)
-				sleep 0
+				script {
+					def Map options = [
+							serveur: "scat",
+							refresh_puppet_agent: "complet_noop"
+					]
+					devrundeck.startAndWaitWithAutofill("HES", "refresh_puppet_agent", options)
+				}
 			}
 		}
-		stage('INTEGRATION TESTS') {
+		stage('Integration tests') {
 			steps {
 				// Tests débouchonnés (BDD, profil Maven)
-				sleep 0
+				echo 'Integration tests'
 			}
 		}
-		stage('DEPLOY PERF') {
+		stage('Deploy perf') {
 			steps {
 				// Créer une plateforme de tests de perf
 				// Appeler un job rundeck (pprundeck.start...)
-				sleep 0
+				echo 'Deploy perf'
 			}
 		}
-		stage('PERF TESTS') {
+		stage('Perf tests') {
 			steps {
 				// Tests de perf (tir gatling:execute)
-				sleep 0
+				echo 'Perf tests'
 			}
 		}
-		stage('RELEASE') {
+		stage('Release') {
 			steps {
 				//input 'Release?'
 				//milestone 1
 				// milestone + maven release (crée la branche release et déploie sur le nexus)
-				sleep 0
+				echo 'Release'
 			}
 		}
 	}
