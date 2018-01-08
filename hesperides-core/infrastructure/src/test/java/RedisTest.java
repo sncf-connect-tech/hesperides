@@ -49,7 +49,7 @@ public class RedisTest {
     public Jedis getJedis() {
         JedisPool pool = new JedisPool(
                 new JedisPoolConfig(),
-                "localhost",
+                "127.0.0.1",
                 6380,
                 12000);
         return pool.getResource();
