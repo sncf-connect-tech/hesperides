@@ -34,10 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RedisTest {
     @Test
     public void testEmbeddedRedis() throws IOException {
-        RedisServer redisServer = RedisServer.builder()
-                .port(6380)
-                .setting("maxmemory 128M") //maxheap 128M
-                .build();
+        RedisServer redisServer = RedisServer.builder() .port(6380) .setting("maxheap 128M") .setting("daemonize no") .setting("appendonly no") .build();
         redisServer.start();
 
         Jedis jedis = getJedis();
