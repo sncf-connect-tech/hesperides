@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RedisTest {
     @Test
     public void testEmbeddedRedis() throws IOException {
-        RedisServer redisServer = new RedisServer(1984);
+        RedisServer redisServer = new RedisServer(6379);
         redisServer.start();
 
         Jedis jedis = getJedis();
@@ -50,7 +50,7 @@ public class RedisTest {
         JedisPool pool = new JedisPool(
                 new JedisPoolConfig(),
                 "localhost",
-                1984,
+                6379,
                 12000);
         return pool.getResource();
     }
