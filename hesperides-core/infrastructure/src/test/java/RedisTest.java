@@ -19,40 +19,61 @@
  *
  */
 
-import ai.grakn.redismock.RedisServer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.*;
+import redis.embedded.RedisServer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RedisTest {
 
-    private static RedisServer server = null;
-
-    @Before
-    public void before() throws IOException {
-        server = RedisServer.newRedisServer();  // bind to a random port
-        server.start();
-    }
-
     @Test
-    public void test() {
-        Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
-//        jedis.rpush("a", "b");
-//        Set<String> s = jedis.keys("*");
-//        assertThat(s.size()).isEqualTo(1);
+    public void testEmbeddedRedis() throws IOException {
+        RedisServer redisServer = RedisServer.builder().port(6380).setting("maxmemory 128M").setting("daemonize no").setting("appendonly no").build();
+        redisServer.start();
+
+        Jedis jedis = getJedis();
+        jedis.rpush("a", "b");
+        Set<String> s = jedis.keys("*");
+
+        assertThat(s.size()).isEqualTo(1);
+
+        redisServer.stop();
     }
 
-    @After
-    public void after() {
-        server.stop();
-        server = null;
+    public Jedis getJedis() {
+        JedisPool pool = new JedisPool(
+                new JedisPoolConfig(),
+                "127.0.0.1",
+                6380,
+                12000);
+        return pool.getResource();
+    }
+
+    /**
+     * Get all the keys matching the pattern, using a cursor and ScanParam.
+     * Before, we used jedis.keys(pattern) which is not adapted to massive stores.
+     * See https://stackoverflow.com/questions/33842026/how-to-use-scan-commands-in-jedis
+     * and https://stackoverflow.com/questions/13135573/extracting-keys-from-redis
+     *
+     * @param pattern
+     * @return
+     */
+    public List<String> getKeys(final String pattern) {
+        List<String> result = new ArrayList<>();
+        // https://redis.io/commands/scan#the-count-option
+        ScanParams scanParams = new ScanParams().count(100).match(pattern);
+        String cursor = ScanParams.SCAN_POINTER_START;
+        do {
+            ScanResult<String> scanResult = getJedis().scan(cursor, scanParams);
+            result.addAll(scanResult.getResult());
+            cursor = scanResult.getStringCursor();
+        } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
+        return result;
     }
 }
