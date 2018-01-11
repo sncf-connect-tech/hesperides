@@ -18,7 +18,7 @@
  *
  *
  */
-package com.vsct.dt.hesperides.bdd;
+package com.vsct.dt.hesperides.modules;
 
 import cucumber.api.java8.En;
 

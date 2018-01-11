@@ -60,6 +60,7 @@
     <modules>
         <module>hesperides-core</module>
         <module>hesperides-legacy</module>
+        <module>hesperides-bdd</module>
     </modules>
 
     <properties>

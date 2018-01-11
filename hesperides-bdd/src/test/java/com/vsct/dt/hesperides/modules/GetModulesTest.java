@@ -18,7 +18,7 @@
  *
  *
  */
-package com.vsct.dt.hesperides.bdd;
+package com.vsct.dt.hesperides.modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -33,11 +33,9 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.ClassRule;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import tests.type.UnitTests;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/test/resources/features/get_modules.feature")
-@Category(UnitTests.class)
+@CucumberOptions(features = "src/test/resources/features/get-modules.feature")
 public class GetModulesTest {
 
     private static Injector createInjector() {
