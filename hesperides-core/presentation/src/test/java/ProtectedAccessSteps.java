@@ -19,7 +19,6 @@
  *
  */
 
-import cucumber.api.CucumberOptions;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,7 +26,6 @@ import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@CucumberOptions(features = "src/test/resources/features/protected_access.feature")
 public class ProtectedAccessSteps implements En {
     private Response response;
 

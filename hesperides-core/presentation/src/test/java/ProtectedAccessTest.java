@@ -39,7 +39,7 @@ import javax.ws.rs.core.Response;
 import static org.mockito.Mockito.mock;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/test/resources/features/protected_access.feature")
+@CucumberOptions(features = "src/test/resources/features/protected-access.feature")
 public class ProtectedAccessTest {
     private static final String AUTHENTICATION_TOKEN = "Sm9obl9Eb2U6c2VjcmV0";
 

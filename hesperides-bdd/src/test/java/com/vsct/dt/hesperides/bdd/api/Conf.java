@@ -18,7 +18,7 @@
  *
  *
  */
-package com.vsct.dt.hesperides.modules;
+package com.vsct.dt.hesperides.bdd.api;
 
 public class Conf {
     public static final String REDIS_HOST = "localhost";
