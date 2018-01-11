@@ -21,12 +21,14 @@
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.embedded.RedisServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore
 public class JedisTest {
 
     private static RedisServer server = null;
