@@ -54,8 +54,8 @@ public class RedisClient {
      * @return
      */
     public List<String> getKeys(final String pattern) {
-        return (List<String>) getJedis().keys(pattern);
-//        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
+        result.addAll(getJedis().keys(pattern));
 //        // https://redis.io/commands/scan#the-count-option
 //        ScanParams scanParams = new ScanParams().count(100).match(pattern);
 //        String cursor = ScanParams.SCAN_POINTER_START;
@@ -64,7 +64,7 @@ public class RedisClient {
 //            result.addAll(scanResult.getResult());
 //            cursor = scanResult.getStringCursor();
 //        } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
-//        return result;
+        return result;
     }
 
 }
