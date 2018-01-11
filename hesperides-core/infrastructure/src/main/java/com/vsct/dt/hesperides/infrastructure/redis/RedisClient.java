@@ -20,7 +20,9 @@
  */
 package com.vsct.dt.hesperides.infrastructure.redis;
 
-import redis.clients.jedis.*;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -36,12 +38,10 @@ public class RedisClient {
     }
 
     public Jedis getJedis() {
-        JedisPool pool = new JedisPool(
-                new JedisPoolConfig(),
+        return new Jedis(
                 redisConfiguration.getHost(),
                 redisConfiguration.getPort(),
                 redisConfiguration.getTimeout());
-        return pool.getResource();
     }
 
     /**
@@ -54,16 +54,17 @@ public class RedisClient {
      * @return
      */
     public List<String> getKeys(final String pattern) {
-        List<String> result = new ArrayList<>();
-        // https://redis.io/commands/scan#the-count-option
-        ScanParams scanParams = new ScanParams().count(100).match(pattern);
-        String cursor = ScanParams.SCAN_POINTER_START;
-        do {
-            ScanResult<String> scanResult = getJedis().scan(cursor, scanParams);
-            result.addAll(scanResult.getResult());
-            cursor = scanResult.getStringCursor();
-        } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
-        return result;
+        return (List<String>) getJedis().keys(pattern);
+//        List<String> result = new ArrayList<>();
+//        // https://redis.io/commands/scan#the-count-option
+//        ScanParams scanParams = new ScanParams().count(100).match(pattern);
+//        String cursor = ScanParams.SCAN_POINTER_START;
+//        do {
+//            ScanResult<String> scanResult = getJedis().scan(cursor, scanParams);
+//            result.addAll(scanResult.getResult());
+//            cursor = scanResult.getStringCursor();
+//        } while (!ScanParams.SCAN_POINTER_START.equals(cursor));
+//        return result;
     }
 
 }
