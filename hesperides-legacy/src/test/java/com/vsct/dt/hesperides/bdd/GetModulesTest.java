@@ -18,7 +18,7 @@
  *
  *
  */
-package bdd;
+package com.vsct.dt.hesperides.bdd;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -28,15 +28,14 @@ import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
 import com.vsct.dt.hesperides.infrastructure.redis.RedisModuleSearchRepository;
 import cucumber.api.CucumberOptions;
-import cucumber.api.java8.En;
 import cucumber.api.junit.Cucumber;
 import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = "src/test/resources/features/test.feature")
-public class CucumberTest implements En {
+@CucumberOptions(features = "src/test/resources/features/get_modules.feature")
+public class GetModulesTest {
 
     private static Injector createInjector() {
         return Guice.createInjector(new AbstractModule() {

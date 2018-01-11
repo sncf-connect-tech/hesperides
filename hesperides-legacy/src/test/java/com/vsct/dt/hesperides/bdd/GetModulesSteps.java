@@ -18,32 +18,15 @@
  *
  *
  */
-package bdd.fullstack;
+package com.vsct.dt.hesperides.bdd;
 
-import bdd.Conf;
-import bdd.CucumberTest;
-import bdd.Hooks;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.vsct.dt.hesperides.api.ModuleApi;
-import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
-import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
-import com.vsct.dt.hesperides.infrastructure.redis.RedisModuleSearchRepository;
-import cucumber.api.CucumberOptions;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java8.En;
-import io.dropwizard.testing.junit.ResourceTestRule;
-import org.junit.ClassRule;
-import redis.clients.jedis.Jedis;
-import redis.embedded.RedisServer;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StepDefinitions implements En {
+public class GetModulesSteps implements En {
 
     private void insertModule() {
         Hooks.jedis.rpush("module-foo", "bar");
@@ -51,14 +34,14 @@ public class StepDefinitions implements En {
 
     private Set<String> modules = null;
 
-    public StepDefinitions() {
+    public GetModulesSteps() {
         Given("^There is at least one existing module$", () -> {
             insertModule();
         });
         Given("^There is no modules$", () -> {
         });
         When("^a user retrieves the module's list$", () -> {
-            modules = CucumberTest.resources.getJerseyTest().target("/toto").request().get(Set.class);
+            modules = GetModulesTest.resources.getJerseyTest().target("/toto").request().get(Set.class);
         });
         Then("^he should get the modules' list$", () -> {
             assertThat(modules.size()).isGreaterThan(0);

@@ -19,13 +19,11 @@
  *
  */
 
-import ai.grakn.redismock.RedisServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
-
-import java.io.IOException;
+import redis.embedded.RedisServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,15 +32,15 @@ public class JedisTest {
     private static RedisServer server = null;
 
     @Before
-    public void before() throws IOException {
-        server = RedisServer.newRedisServer();  // bind to a random port
+    public void before() {
+        server = RedisServer.builder().port(1234).build();
         server.start();
     }
 
     @Test
     public void test() {
-        Jedis jedis = new Jedis(server.getHost(), server.getBindPort());
-        jedis.rpush("a", "b");
+        Jedis jedis = new Jedis("localhost", 1234);
+        jedis.rpush("foo", "bar");
         assertThat(jedis.keys("*").size()).isEqualTo(1);
     }
 

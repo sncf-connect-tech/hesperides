@@ -18,7 +18,7 @@
  *
  *
  */
-package bdd;
+package com.vsct.dt.hesperides.bdd;
 
 import ai.grakn.redismock.RedisServer;
 import cucumber.api.java.After;

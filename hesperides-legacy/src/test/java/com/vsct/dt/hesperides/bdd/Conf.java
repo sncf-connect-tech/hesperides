@@ -18,9 +18,9 @@
  *
  *
  */
-package bdd;
+package com.vsct.dt.hesperides.bdd;
 
 public class Conf {
     public static final String REDIS_HOST = "localhost";
-    public static final int REDIS_PORT = 4325;
+    public static final int REDIS_PORT = 12345;
 }
