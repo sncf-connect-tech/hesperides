@@ -18,7 +18,7 @@
  *
  *
  */
-package com.vsct.dt.hesperides.bdd.api.modules;
+package com.vsct.dt.hesperides.bdd.api;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/resources/features")
-public class GetModulesTest {
+public class FullstackMockedTest {
 
     private static Injector createInjector() {
         return Guice.createInjector(new AbstractModule() {

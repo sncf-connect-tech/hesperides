@@ -20,35 +20,38 @@
  */
 package com.vsct.dt.hesperides.bdd.api.modules;
 
-import com.vsct.dt.hesperides.bdd.api.Hooks;
+import com.vsct.dt.hesperides.bdd.api.FullstackMockedTest;
+import com.vsct.dt.hesperides.bdd.api.utils.JedisUtil;
 import cucumber.api.java8.En;
+import  static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class GetModulesSteps implements En {
+    private JedisUtil jedisUtil;
 
-    private void insertModule() {
-//        Hooks.jedis.rpush("module-foo", "bar");
-    }
+    public GetModulesSteps(final JedisUtil jedisUtil) {
+        this.jedisUtil = jedisUtil;
 
-    private Set<String> modules = null;
-
-    public GetModulesSteps() {
         Given("^There is at least one existing module$", () -> {
             insertModule();
         });
         Given("^There is no modules$", () -> {
         });
         When("^a user retrieves the module's list$", () -> {
-//            modules = GetModulesTest.resources.getJerseyTest().target("/toto").request().get(Set.class);
+            modules = FullstackMockedTest.resources.getJerseyTest().target("/toto").request().get(Set.class);
         });
         Then("^he should get the modules' list$", () -> {
-//            assertThat(modules.size()).isGreaterThan(0);
+            assertThat(modules.size()).isGreaterThan(0);
         });
         Then("^he should get an empty list$", () -> {
-//            assertThat(modules.size()).isEqualTo(0);
+            assertThat(modules.size()).isEqualTo(0);
         });
     }
+
+    private void insertModule() {
+        jedisUtil.getJedis().rpush("module-foo", "bar");
+    }
+
+    private Set<String> modules = null;
 }

@@ -18,35 +18,32 @@
  *
  *
  */
-package com.vsct.dt.hesperides.bdd.api;
+package com.vsct.dt.hesperides.bdd.api.utils;
 
 import ai.grakn.redismock.RedisServer;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
+import com.vsct.dt.hesperides.bdd.api.Conf;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 
-public class Hooks {
-    private RedisServer server;
-    public static Jedis jedis;
+public class RedisUtil {
+    private RedisServer redis;
 
-    @Before
-    public void before() throws IOException {
-        System.out.println("\nBEFORE");
-        server = new RedisServer(Conf.REDIS_PORT);
-        server.start();
-        jedis = new Jedis(Conf.REDIS_HOST, Conf.REDIS_PORT);
+    public RedisUtil() throws IOException {
+        redis = new RedisServer(Conf.REDIS_PORT);
     }
 
-    @After
-    public void after() {
-        System.out.println("\nAFTER");
-        if (jedis != null && jedis.isConnected()) {
-            jedis.disconnect();
+    public void startRedis() {
+        try {
+            redis.start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (server != null) {
-            server.stop();
+    }
+
+    public void stopRedis() {
+        if (redis != null) {
+            redis.stop();
         }
     }
 }
