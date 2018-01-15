@@ -18,31 +18,18 @@
  *
  *
  */
-package com.vsct.dt.hesperides.bdd.api.utils;
 
-import ai.grakn.redismock.RedisServer;
-import com.vsct.dt.hesperides.bdd.api.Conf;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.Response;
 
-import java.io.IOException;
+public class ResourcesUtil {
+    private static final String AUTHENTICATION_TOKEN = "Sm9obl9Eb2U6c2VjcmV0";
 
-public class RedisUtil {
-    private RedisServer redis;
-
-    public RedisUtil() throws IOException {
-        redis = new RedisServer(Conf.REDIS_PORT);
-    }
-
-    public void startRedis() {
-        try {
-            redis.start();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public Response query(final String url, boolean isAuthenticated) {
+        Invocation.Builder requestBuilder = ProtectedAccessTest.resources.target(url).request();
+        if (isAuthenticated) {
+            requestBuilder.header("Authorization", "Basic " + AUTHENTICATION_TOKEN);
         }
-    }
-
-    public void stopRedis() {
-        if (redis != null) {
-            redis.stop();
-        }
+        return requestBuilder.get();
     }
 }

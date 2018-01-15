@@ -24,7 +24,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.vsct.dt.hesperides.api.ModuleApi;
-import com.vsct.dt.hesperides.bdd.api.Conf;
 import com.vsct.dt.hesperides.domain.modules.ModuleSearchRepository;
 import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
 import com.vsct.dt.hesperides.infrastructure.redis.RedisModuleSearchRepository;
@@ -54,6 +53,10 @@ public class FullstackMockedTest {
     private static Injector injector = createInjector();
 
     @ClassRule
+    /**
+     * Il semblerait qu'il n'y ait pas d'autre choix que de déclarer le ResourceTestRule en static ici...
+     * J'ai essayé de le mettre ailleurs ou même de l'initialiser ailleurs, sans succès.
+     */
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(injector.getInstance(ModuleApi.class))
             .build();

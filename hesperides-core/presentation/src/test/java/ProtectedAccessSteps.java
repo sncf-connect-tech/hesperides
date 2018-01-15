@@ -29,12 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProtectedAccessSteps implements En {
     private Response response;
 
-    public ProtectedAccessSteps() {
+    public ProtectedAccessSteps(final ResourcesUtil resourcesUtil) {
         When("^an (un)?authenticated user tries to retrieve the modules name$", (final String notAuthenticated) -> {
             boolean isAuthenticated = StringUtils.isEmpty(notAuthenticated);
-            response = ProtectedAccessTest.query("/toto", isAuthenticated);
+            response = resourcesUtil.query("/toto", isAuthenticated);
         });
-
         Then("^he should( not)? be authorized to get them$", (final String notAuthorized) -> {
             Response.Status expectedStatus = StringUtils.isBlank(notAuthorized) ? Response.Status.OK : Response.Status.UNAUTHORIZED;
             assertThat(response.getStatus()).isEqualTo(expectedStatus.getStatusCode());

@@ -33,17 +33,12 @@ import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Response;
-
 import static org.mockito.Mockito.mock;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/resources/features/protected-access.feature")
 public class ProtectedAccessTest {
-    private static final String AUTHENTICATION_TOKEN = "Sm9obl9Eb2U6c2VjcmV0";
-
-    private static final BasicCredentialAuthFilter<User> BASIC_AUTH_HANDLER =
+    private static BasicCredentialAuthFilter<User> BASIC_AUTH_HANDLER =
             new BasicCredentialAuthFilter.Builder<User>()
                     .setAuthenticator(new SimpleAuthenticator())
                     .setPrefix("Basic")
@@ -51,19 +46,11 @@ public class ProtectedAccessTest {
                     .buildAuthFilter();
 
     @ClassRule
-    public static final ResourceTestRule RULE = ResourceTestRule.builder()
+    public static ResourceTestRule resources = ResourceTestRule.builder()
             .setTestContainerFactory(new GrizzlyWebTestContainerFactory())
             .addProvider(RolesAllowedDynamicFeature.class)
             .addProvider(new AuthDynamicFeature(BASIC_AUTH_HANDLER))
             .addProvider(new AuthValueFactoryProvider.Binder<>(User.class))
             .addResource(mock(ModuleApi.class))
             .build();
-
-    public static Response query(final String url, boolean isAuthenticated) {
-        Invocation.Builder requestBuilder = RULE.getJerseyTest().target(url).request();
-        if (isAuthenticated) {
-            requestBuilder.header("Authorization", "Basic " + AUTHENTICATION_TOKEN);
-        }
-        return requestBuilder.get();
-    }
 }

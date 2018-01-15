@@ -23,13 +23,19 @@ package com.vsct.dt.hesperides.bdd.api.modules;
 import com.vsct.dt.hesperides.bdd.api.FullstackMockedTest;
 import com.vsct.dt.hesperides.bdd.api.utils.JedisUtil;
 import cucumber.api.java8.En;
-import  static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GetModulesSteps implements En {
     private JedisUtil jedisUtil;
 
+    /**
+     * Injection de dépendances => Permet de partager une ressource (ici jedisUtil) avec le Hook
+     * 
+     * @param jedisUtil
+     */
     public GetModulesSteps(final JedisUtil jedisUtil) {
         this.jedisUtil = jedisUtil;
 
