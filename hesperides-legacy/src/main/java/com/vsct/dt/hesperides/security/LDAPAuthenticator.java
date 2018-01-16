@@ -81,7 +81,8 @@ public final class LDAPAuthenticator implements Authenticator<BasicCredentials, 
                 final boolean prodUser = checkIfUserBelongsToGroup(context, userSearched.getNameInNamespace(), configuration.getProdGroupName());
                 final boolean techUser = checkIfUserBelongsToGroup(context, userSearched.getNameInNamespace(), configuration.getTechGroupName());
 
-                return Optional.of(new User(username, prodUser, techUser));
+                User user = new User(username, prodUser, techUser);
+                return Optional.of(user);
             }
 
         } catch (NamingException e) {
