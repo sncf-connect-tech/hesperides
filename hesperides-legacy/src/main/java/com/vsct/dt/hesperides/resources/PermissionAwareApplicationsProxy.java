@@ -22,6 +22,7 @@
 package com.vsct.dt.hesperides.resources;
 
 import com.google.common.collect.Lists;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.InstanceModel;

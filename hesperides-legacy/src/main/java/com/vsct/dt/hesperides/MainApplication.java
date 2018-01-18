@@ -30,6 +30,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.vsct.dt.hesperides.api.ModuleApi;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.applications.Applications;
 import com.vsct.dt.hesperides.applications.ApplicationsAggregate;
 import com.vsct.dt.hesperides.applications.SnapshotRegistry;
@@ -56,9 +57,10 @@ import com.vsct.dt.hesperides.infrastructure.elasticsearch.ElasticSearchConfigur
 import com.vsct.dt.hesperides.infrastructure.elasticsearch.modules.ElasticSearchModuleSearchRepository;
 import com.vsct.dt.hesperides.infrastructure.redis.RedisConfiguration;
 import com.vsct.dt.hesperides.resources.*;
-import com.vsct.dt.hesperides.api.authentication.SimpleAuthenticator;
+import com.vsct.dt.hesperides.security.BasicAuthProviderWithUserContextHolder;
+import com.vsct.dt.hesperides.security.CorrectedCachingAuthenticator;
+import com.vsct.dt.hesperides.security.DisabledAuthProvider;
 import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
-import com.vsct.dt.hesperides.api.authentication.User;
 import com.vsct.dt.hesperides.storage.RedisEventStore;
 import com.vsct.dt.hesperides.templating.modules.ModulesAggregate;
 import com.vsct.dt.hesperides.templating.packages.TemplatePackagesAggregate;
@@ -85,7 +87,9 @@ import com.wordnik.swagger.reader.ClassReaders;
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
+import io.dropwizard.auth.basic.BasicCredentials;
 import io.dropwizard.client.HttpClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -98,6 +102,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.util.EnumSet;
+import javax.ws.rs.container.ContainerRequestFilter;
+import java.util.Optional;
 
 public final class MainApplication extends Application<HesperidesConfiguration> {
 
@@ -152,32 +158,32 @@ public final class MainApplication extends Application<HesperidesConfiguration> 
 
         // Authentication
         LOGGER.debug("Using Authentication Provider {}", hesperidesConfiguration.getAuthenticatorType());
-//        Optional<Authenticator<BasicCredentials, User>> authenticator = hesperidesConfiguration.getAuthenticator();
-//        InjectableProvider<Auth, Parameter> authProvider;
+        Optional<Authenticator<BasicCredentials, User>> authenticator = hesperidesConfiguration.getAuthenticator();
+        ContainerRequestFilter authProvider;
         ThreadLocalUserContext userContext = new ThreadLocalUserContext(environment.jersey());
-//        if (authenticator.isPresent()) {
-//            authProvider = new BasicAuthProviderWithUserContextHolder(
-//                    new CorrectedCachingAuthenticator<>(
-//                            environment.metrics(),
-//                            authenticator.get(),
-//                            hesperidesConfiguration.getAuthenticationCachePolicy()
-//                    ),
-//                    "LOGIN AD POUR HESPERIDES",
-//                    userContext,
-//                    hesperidesConfiguration.useDefaultUserWhenAuthentFails());
-//        } else {
-//            authProvider = new DisabledAuthProvider();
-//        }
-//        environment.jersey().register(authProvider);
+        if (authenticator.isPresent()) {
+            authProvider = new BasicAuthProviderWithUserContextHolder(
+                    new CorrectedCachingAuthenticator(
+                            environment.metrics(),
+                            authenticator.get(),
+                            hesperidesConfiguration.getAuthenticationCachePolicy()
+                    ),
+                    "LOGIN AD POUR HESPERIDES",
+                    userContext,
+                    hesperidesConfiguration.useDefaultUserWhenAuthentFails());
 
-        environment.jersey().register(new AuthDynamicFeature(
-                new BasicCredentialAuthFilter.Builder<User>()
-                        .setAuthenticator(new SimpleAuthenticator())
-                        .setRealm("LOGIN AD POUR HESPERIDES")
-                        .buildAuthFilter()));
-        environment.jersey().register(RolesAllowedDynamicFeature.class);
-        //If you want to use @Auth to inject a custom Principal type into your resource
-        environment.jersey().register(new AuthValueFactoryProvider.Binder(User.class));
+            environment.jersey().register(new AuthDynamicFeature(
+                    new BasicCredentialAuthFilter.Builder<User>()
+                            .setAuthenticator(authenticator.get())
+                            .setRealm("LOGIN AD POUR HESPERIDES")
+                            .buildAuthFilter()));
+//            environment.jersey().register(RolesAllowedDynamicFeature.class);
+            //If you want to use @Auth to inject a custom Principal type into your resource
+            environment.jersey().register(new AuthValueFactoryProvider.Binder(User.class));
+        } else {
+            authProvider = new DisabledAuthProvider();
+        }
+        environment.jersey().register(authProvider);
 
 
         // CORS configuration if conf exist

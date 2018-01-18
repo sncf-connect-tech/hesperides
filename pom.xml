@@ -26,7 +26,7 @@
     <groupId>com.vsct.dt</groupId>
     <artifactId>hesperides</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.1.3</version>
     <build>
         <plugins>
             <plugin>
@@ -43,7 +43,7 @@
     <scm>
         <connection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</connection>
         <developerConnection>scm:git:https://github.com/voyages-sncf-technologies/hesperides.git</developerConnection>
-        <tag>3.1.2-SNAPSHOT</tag>
+        <tag>3.1.3</tag>
     </scm>
 
     <distributionManagement>
@@ -60,6 +60,7 @@
     <modules>
         <module>hesperides-core</module>
         <module>hesperides-legacy</module>
+        <module>hesperides-bdd</module>
     </modules>
 
     <properties>

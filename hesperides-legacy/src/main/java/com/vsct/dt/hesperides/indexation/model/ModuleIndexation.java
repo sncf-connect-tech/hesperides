@@ -49,7 +49,7 @@ public final class ModuleIndexation extends Data {
     @JsonCreator
     public ModuleIndexation(@JsonProperty("name") final String name,
                             @JsonProperty("version") final String version,
-                            @JsonProperty("workingCopy") final boolean workingCopy,
+                            @JsonProperty("working_copy") final boolean workingCopy,
                             @JsonProperty("technos") final List<TemplatePackageIndexation> technos) {
         this.name = name;
         this.version = version;
@@ -78,7 +78,7 @@ public final class ModuleIndexation extends Data {
         return "HesperidesModule{" +
                 "name='" + name + '\'' +
                 ", version='" + version + '\'' +
-                ", workingCopy=" + workingCopy +
+                ", working_copy=" + workingCopy +
                 '}';
     }
 

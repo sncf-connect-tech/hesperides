@@ -21,28 +21,18 @@
 
 package com.vsct.dt.hesperides.security;
 
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+
 /**
  * Created by william_montaz on 21/11/2014.
  */
-public final class DisabledAuthProvider {
-//public final class DisabledAuthProvider implements InjectableProvider<Auth, Parameter> {
-//
-//    @Override
-//    public ComponentScope getScope() {
-//        return ComponentScope.PerRequest;
-//    }
-//
-//    @Override
-//    public Injectable getInjectable(final ComponentContext componentContext, final Auth auth, final Parameter parameter) {
-//        return new DisabledAuthInjectable();
-//    }
-//
-//    private static class DisabledAuthInjectable extends AbstractHttpContextInjectable<User> {
-//
-//        @Override
-//        public User getValue(final HttpContext httpContext) {
-//            return User.UNTRACKED;
-//        }
-//    }
-//
+@Provider
+public final class DisabledAuthProvider implements ContainerRequestFilter {
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+
+    }
 }

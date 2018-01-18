@@ -24,8 +24,10 @@ package com.vsct.dt.hesperides.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vsct.dt.hesperides.api.authentication.User;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import io.dropwizard.auth.Auth;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import javax.ws.rs.Consumes;
@@ -49,7 +51,6 @@ public class HesperidesVersionsResource {
         this.versions = new Versions(backendVersion, APIVersion);
     }
 
-    @Path("/")
     @GET
     @Timed
     @ApiOperation(

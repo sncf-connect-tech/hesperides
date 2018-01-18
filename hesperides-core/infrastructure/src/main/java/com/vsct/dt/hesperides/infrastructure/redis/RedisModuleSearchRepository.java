@@ -42,10 +42,10 @@ public class RedisModuleSearchRepository implements ModuleSearchRepository {
     @Override
     public List<Module> getModules() {
         List<Module> modules = new ArrayList<>();
-        /*for (String key : redisClient.getKeys(String.format("%s*", prefix))) {
+        for (String key : redisClient.getKeys(String.format("%s*", prefix))) {
             Module module = new Module(key.replace(prefix, ""));
             modules.add(module);
-        }*/
+        }
         return modules;
     }
 }

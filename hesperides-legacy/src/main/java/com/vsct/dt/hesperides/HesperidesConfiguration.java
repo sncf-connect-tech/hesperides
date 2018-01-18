@@ -34,6 +34,7 @@ import com.vsct.dt.hesperides.security.LDAPAuthenticator;
 import com.vsct.dt.hesperides.security.LdapConfiguration;
 import com.vsct.dt.hesperides.api.authentication.SimpleAuthenticator;
 import com.vsct.dt.hesperides.api.authentication.User;
+import com.vsct.dt.hesperides.security.ThreadLocalUserContext;
 import com.vsct.dt.hesperides.storage.RetryRedisConfiguration;
 import com.vsct.dt.hesperides.util.HesperidesCacheConfiguration;
 import io.dropwizard.Configuration;
