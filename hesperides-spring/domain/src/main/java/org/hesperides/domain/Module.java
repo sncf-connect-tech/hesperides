@@ -20,17 +20,12 @@
  */
 package org.hesperides.domain;
 
+import lombok.Value;
+
 /**
  * Immutable domain entity
  */
+@Value
 public class Module {
-    private final String name;
-
-    public Module(final String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    String name;
 }
