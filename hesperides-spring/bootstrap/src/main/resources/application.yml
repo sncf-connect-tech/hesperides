@@ -1,4 +1,4 @@
-server.port=8081
+server.port: 8081
 
 spring.application.name=Hespérides Spring Boot
 
@@ -6,14 +6,15 @@ spring.application.name=Hespérides Spring Boot
 #security.user.name=john
 #security.user.password=123
 
-ldap.enabled = true
-
 ####### LDAP ##############
-ldap.urls= ldap://adumar.groupevsc.com:389
-ldap.base.dn= dc=example,dc=com
-ldap.username= cn=read-only-admin,dc=example,dc=com
-ldap.password= password
-ldap.user.dn.pattern = uid={0}
+ldap:
+  enabled: true
+
+  urls: ldap://adumar.groupevsc.com:389
+  base.dn: dc=example,dc=com
+  username: cn=read-only-admin,dc=example,dc=com
+  password: password
+  user.dn.pattern: uid={0}
 
 #spring.data.elasticsearch.cluster-name=elasticsearch-tlhostis
 #spring.data.elasticsearch.cluster-nodes=localhost:9300
