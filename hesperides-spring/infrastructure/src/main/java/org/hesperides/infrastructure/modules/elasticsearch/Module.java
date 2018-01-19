@@ -18,9 +18,26 @@
  *
  *
  */
-package org.hesperides.infrastructure.elasticsearch;
+package org.hesperides.infrastructure.modules.elasticsearch;
 
-import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
 
-public interface ModuleRepository extends ElasticsearchRepository<Module, String> {
+@Document(indexName = "hesperides", type = "modules")
+public class Module {
+    @Id
+    private Long id;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public org.hesperides.domain.Module toDomainModule() {
+        return new org.hesperides.domain.Module(this.name);
+    }
 }

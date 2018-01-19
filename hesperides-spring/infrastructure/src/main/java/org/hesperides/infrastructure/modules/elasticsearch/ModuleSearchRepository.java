@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.infrastructure.elasticsearch;
+package org.hesperides.infrastructure.modules.elasticsearch;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

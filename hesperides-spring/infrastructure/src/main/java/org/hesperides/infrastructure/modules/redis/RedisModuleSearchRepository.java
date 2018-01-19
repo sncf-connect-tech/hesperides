@@ -18,26 +18,17 @@
  *
  *
  */
-package org.hesperides.infrastructure.elasticsearch;
+package org.hesperides.infrastructure.modules.redis;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
+import org.hesperides.domain.Module;
+import org.hesperides.domain.ModuleSearchRepository;
 
-@Document(indexName = "hesperides", type = "modules")
-public class Module {
-    @Id
-    private Long id;
-    private String name;
+import java.util.Arrays;
+import java.util.List;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public org.hesperides.domain.Module toDomainModule() {
-        return new org.hesperides.domain.Module(this.name);
+public class RedisModuleSearchRepository implements ModuleSearchRepository {
+    @Override
+    public List<Module> getModules() {
+        return Arrays.asList(new Module("foo"));
     }
 }

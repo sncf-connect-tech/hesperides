@@ -22,7 +22,6 @@ package org.hesperides.presentation;
 
 import org.hesperides.domain.Module;
 import org.hesperides.domain.ModuleSearchRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,8 +33,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/rest/modules")
 public class ModuleController {
 
-    @Autowired
-    ModuleSearchRepository moduleSearchRepository;
+    private final ModuleSearchRepository moduleSearchRepository;
+
+    public ModuleController(ModuleSearchRepository moduleSearchRepository) {
+        this.moduleSearchRepository = moduleSearchRepository;
+    }
 
     @RequestMapping(method = RequestMethod.GET)
     public Collection<String> getModules() {

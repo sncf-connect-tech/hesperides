@@ -1,6 +1,6 @@
 server.port: 8081
 
-spring.application.name: Hespérides Spring Boot
+spring.application.name: Hesperides Spring Boot
 
 # security.basic.enabled=true
 # security.user.name=john

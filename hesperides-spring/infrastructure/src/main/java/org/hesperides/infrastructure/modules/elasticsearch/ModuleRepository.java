@@ -18,17 +18,9 @@
  *
  *
  */
-package org.hesperides.infrastructure.redis;
+package org.hesperides.infrastructure.modules.elasticsearch;
 
-import org.hesperides.domain.Module;
-import org.hesperides.domain.ModuleSearchRepository;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class RedisModuleSearchRepository implements ModuleSearchRepository {
-    @Override
-    public List<Module> getModules() {
-        return Arrays.asList(new Module("foo"));
-    }
+public interface ModuleRepository extends ElasticsearchRepository<Module, String> {
 }
