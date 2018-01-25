@@ -21,12 +21,14 @@
 package org.hesperides.infrastructure.modules.elasticsearch;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@Profile("!local")
 public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearchRepository {
 
     @Autowired

@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.Modules;
 import org.hesperides.domain.ModuleSearchRepository;
+import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.commands.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.presentation.exceptions.NotFoundException;
@@ -35,6 +36,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 
+import static org.hesperides.domain.modules.ModuleType.release;
+import static org.hesperides.domain.modules.ModuleType.workingcopy;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
 @Api("/modules")
@@ -57,27 +60,14 @@ public class ModuleController extends BaseResource {
         return moduleSearchRepository.getModulesNames();
     }
 
-    /**
-     * todo pour l'instant on considère que la clé de l'aggregat Module c'est nom+version. dans la réalité il faut ajouter workingcopy/release !
-     */
     @ApiOperation("Get info for a given module release/working-copy")
-//    @Path("/{module_name}/{module_version}/{module_type}")
-    @GetMapping("/{module_name}/{module_version}")
+    @GetMapping("/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<ModuleView> getModuleInfo(
                                 @PathVariable("module_name") final String moduleName,
-                                @PathVariable("module_version") final String moduleVersion
-//                                @PathParam("module_type") final String moduleType
+                                @PathVariable("module_version") final String moduleVersion,
+                                @PathVariable("module_type") final ModuleType moduleType
     ) {
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion);
-
-//        if (WorkingCopy.is(moduleType)) {
-//            moduleKey = new ModuleKey(moduleName, WorkingCopy.of(moduleVersion));
-//        } else if (Release.is(moduleType)) {
-//            moduleKey = new ModuleKey(moduleName, Release.of(moduleVersion));
-//        } else {
-//            throw new MissingResourceException(moduleType + " is not a valid module type. Choose either workingcopy or release");
-//        }
-
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
         return modules.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new NotFoundException("Could not find module info for " + moduleKey));
     }
 
@@ -101,7 +91,9 @@ public class ModuleController extends BaseResource {
             checkQueryParameterNotEmpty("from_module_version", from_module_version);
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
-            Module.Key created = modules.createWorkingCopyFrom(module.getName(), module.getVersion(), from_module_name, from_module_version);
+            Module.Key from = new Module.Key(from_module_name, from_module_version, isFromWorkingCopy ? workingcopy: release);
+
+            Module.Key created = modules.createWorkingCopyFrom(module.getName(), module.getVersion(), from);
 
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
         }

@@ -7,6 +7,7 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.events.ModuleCopiedEvent;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 
@@ -25,10 +26,11 @@ public class Module {
     public static class Key {
         String name;
         String version;
+        ModuleType versionType;
 
         @JsonIgnore
         public URI getURI() {
-            return URI.create("/rest/modules/" + name + "/" + version);
+            return URI.create("/rest/modules/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
     }
 

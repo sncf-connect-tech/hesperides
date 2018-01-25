@@ -34,3 +34,8 @@ On va voir si on peut tuner chaque élément pour coller à l'existant hespérid
 ## Query processing
 
 on peut utiliser le framework pour faire les queries (la partie read de CQRS) faut voir comment ça marche.
+
+# Migration des events actuels
+
+Un problème qu'on va rapidement avoir sera la relecture des events legacy dans la nouvelle version.
+cf. https://docs.axonframework.org/part3/repositories-and-event-stores.html#event-upcasting pour voir si ça peut aider.

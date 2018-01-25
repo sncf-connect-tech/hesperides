@@ -22,7 +22,7 @@ class ModuleTest {
     @Test
     void when_create_module_command_then_expect_module_created() {
 
-        Module.Key id = new Module.Key("module_test","123");
+        Module.Key id = new Module.Key("module_test","123", ModuleType.workingcopy);
         fixture.given()
                 .when(new CreateModuleCommand(id))
                 .expectEvents(new ModuleCreatedEvent(id));
@@ -32,8 +32,8 @@ class ModuleTest {
     @Test
     void when_copy_module_command_then_expect_module_created_from_another_module() {
 
-        Module.Key id = new Module.Key("module_test","123");
-        Module.Key source = new Module.Key("module_test","1234");
+        Module.Key id = new Module.Key("module_test","123", ModuleType.workingcopy);
+        Module.Key source = new Module.Key("module_test","1234", ModuleType.workingcopy);
         fixture.given()
                 .when(new CopyModuleCommand(id,source))
                 .expectEvents(new ModuleCopiedEvent(id, source));

@@ -4,12 +4,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.messaging.MetaData;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.ModuleSearchRepository;
+import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.commands.Module;
-import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
+import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
+@Profile("local")
 public class LocalModuleRepository implements ModuleSearchRepository {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
@@ -27,10 +31,18 @@ public class LocalModuleRepository implements ModuleSearchRepository {
     }
 
     @EventSourcingHandler
-    private void on(Object event) {
+    private void on(Object event, MetaData metaData) {
       log.debug("got event {}", event);
       if (event instanceof ModuleCreatedEvent) {
-          MODULE_MAP.put(((ModuleCreatedEvent) event).getModuleKey(), new ModuleView(((ModuleCreatedEvent) event).getModuleKey()));
+          ModuleCreatedEvent event1 = (ModuleCreatedEvent) event;
+          MODULE_MAP.put(((ModuleCreatedEvent) event).getModuleKey(),
+                  new ModuleView(
+                          event1.getModuleKey().getName(),
+                          event1.getModuleKey().getVersion(),
+                          event1.getModuleKey().getVersionType() == ModuleType.workingcopy,
+                          1
+                          )
+                  );
       }
     }
 

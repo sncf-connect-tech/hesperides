@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-// @JsonSnakeCase //todo trouve un truc qui remplace ça.
 @JsonPropertyOrder({"name", "version", "working_copy", "technos", "version_id"})
 public final class Module extends DomainVersionable {
 
@@ -42,7 +41,7 @@ public final class Module extends DomainVersionable {
         this.name = name;
         this.version = version;
         this.workingCopy = isWorkingCopy;
-        this.technos = ImmutableSet.copyOf(technos);
+        this.technos = technos != null ? ImmutableSet.copyOf(technos) : ImmutableSet.of();
     }
 
     public String getName() {
