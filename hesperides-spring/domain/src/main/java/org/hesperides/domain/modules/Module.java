@@ -3,12 +3,14 @@ package org.hesperides.domain.modules;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.spring.stereotype.Aggregate;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 /**
  * this is the main module aggregate
  */
+@Aggregate
 public class Module {
 
     @AggregateIdentifier
