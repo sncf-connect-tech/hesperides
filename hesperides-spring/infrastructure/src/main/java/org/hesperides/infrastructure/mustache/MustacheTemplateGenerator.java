@@ -19,7 +19,7 @@
  *
  */
 
-package org.hesperides.infrastructure.elasticsearch.mustache;
+package org.hesperides.infrastructure.mustache;
 
 import com.github.mustachejava.Mustache;
 import com.google.common.collect.Maps;

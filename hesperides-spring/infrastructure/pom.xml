@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>${elastic.search.client.version}</version>
+            <version>6.1.2</version>
         </dependency>
         <!-- Mustache -->
         <dependency>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elastic.search.version}</version>
+            <version>1.7.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>

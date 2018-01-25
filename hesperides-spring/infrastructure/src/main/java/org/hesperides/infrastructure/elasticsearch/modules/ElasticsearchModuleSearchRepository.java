@@ -18,15 +18,16 @@
  *
  *
  */
-package org.hesperides.infrastructure.elasticsearch;
+package org.hesperides.infrastructure.elasticsearch.modules;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import org.hesperides.infrastructure.elasticsearch.mustache.MustacheTemplateGenerator;
+import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.hesperides.infrastructure.elasticsearch.response.Hit;
 import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
+import org.hesperides.infrastructure.mustache.MustacheTemplateGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,10 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearchRepository {
+public class ElasticsearchModuleSearchRepository implements org.hesperides.domain.ModuleSearchRepository {
 
     @Autowired
-    ElasticSearchService elasticSearchService;
+    ElasticsearchService elasticsearchService;
     MustacheFactory mustacheFactory = new DefaultMustacheFactory();
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
 
@@ -45,7 +46,7 @@ public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearc
     public List<org.hesperides.domain.Module> getModules() {
         Mustache mustache = mustacheFactory.compile(MUSTACHE_SEARCH_ALL);
         String requestBody = MustacheTemplateGenerator.from(mustache).generate();
-        ResponseHits responseHits =elasticSearchService.getResponseHits("POST","/modules/_search",requestBody,new TypeReference<ResponseHits<Module>>(){
+        ResponseHits responseHits = elasticsearchService.getResponseHits("POST", "/modules/_search", requestBody, new TypeReference<ResponseHits<ElasticsearchModule>>() {
         });
 
         return elasticSearchModulesToDomainModules(responseHits);
@@ -54,9 +55,9 @@ public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearc
     private List<org.hesperides.domain.Module> elasticSearchModulesToDomainModules(final ResponseHits responseHits) {
         List<org.hesperides.domain.Module> modules = new ArrayList<>();
         if (responseHits != null && responseHits.getHits() != null && responseHits.getHits().getHits() != null) {
-            List<Hit<Module>> hits = responseHits.getHits().getHits();
-            for (Hit<Module> hit : hits) {
-                Module elasticSearchModule = hit.getSource();
+            List<Hit<ElasticsearchModule>> hits = responseHits.getHits().getHits();
+            for (Hit<ElasticsearchModule> hit : hits) {
+                ElasticsearchModule elasticSearchModule = hit.getSource();
                 org.hesperides.domain.Module module = elasticSearchModule.toDomainModule();
                 modules.add(module);
             }

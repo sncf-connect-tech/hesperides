@@ -22,12 +22,12 @@ package org.hesperides.infrastructure.elasticsearch;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,17 +35,17 @@ import java.io.IOException;
 import java.util.Collections;
 
 @Service
-public class ElasticSearchService {
+public class ElasticsearchService {
     @Autowired
-    ElasticSearchClient elasticSearchClient;
+    ElasticsearchClient elasticsearchClient;
     @Autowired
-    ElasticSearchConfiguration elasticSearchConfiguration;
+    ElasticsearchConfiguration elasticsearchConfiguration;
 
 
     public ResponseHits getResponseHits(final String method, final String url, final String requestBody, final TypeReference typeReference) {
         ResponseHits responseHits = null;
-        RestClient restClient = this.elasticSearchClient.getRestClient();
-        String endpoint = "/" + this.elasticSearchConfiguration.getIndex() + url;
+        RestClient restClient = this.elasticsearchClient.getRestClient();
+        String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + url;
         try {
             HttpEntity entity = new NStringEntity(requestBody, ContentType.APPLICATION_JSON);
             Response response = restClient.performRequest(method, endpoint, Collections.emptyMap(), entity);

@@ -21,7 +21,6 @@
 package org.hesperides.infrastructure.security;
 
 import org.hesperides.domain.security.AuthenticationProvider;
-import org.hesperides.infrastructure.config.LdapConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;

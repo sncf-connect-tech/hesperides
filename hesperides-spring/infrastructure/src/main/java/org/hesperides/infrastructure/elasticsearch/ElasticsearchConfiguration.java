@@ -20,26 +20,37 @@
  */
 package org.hesperides.infrastructure.elasticsearch;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.data.annotation.Id;
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Module {
-    @Id
-    private Long id;
-    private String name;
-    @JsonProperty("working_copy")
-    private boolean working_copy;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-    public String getName() {
-        return name;
+@Component
+@ConfigurationProperties("elasticsearch")
+public class ElasticsearchConfiguration {
+    private String host;
+    private String index;
+    private int port;
+
+    public String getHost() {
+        return host;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setHost(String host) {
+        this.host = host;
     }
 
-    public org.hesperides.domain.Module toDomainModule() {
-        return new org.hesperides.domain.Module(this.name);
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

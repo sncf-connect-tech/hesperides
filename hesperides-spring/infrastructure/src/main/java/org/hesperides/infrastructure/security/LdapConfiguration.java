@@ -18,16 +18,13 @@
  *
  *
  */
-package org.hesperides.infrastructure.config;
+package org.hesperides.infrastructure.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties("ldap")
-/**
- * TODO Mettre dans un common ou config
- */
 public class LdapConfiguration {
     private String url;
     private String domain;
