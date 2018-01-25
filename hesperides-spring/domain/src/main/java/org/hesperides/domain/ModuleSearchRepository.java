@@ -23,5 +23,5 @@ package org.hesperides.domain;
 import java.util.List;
 
 public interface ModuleSearchRepository {
-    List<Module> getModules();
+    List<String> getModulesNames();
 }

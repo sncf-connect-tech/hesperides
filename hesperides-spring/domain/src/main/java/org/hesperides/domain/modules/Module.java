@@ -7,6 +7,8 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 
+import java.net.URI;
+
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 /**
@@ -20,6 +22,10 @@ public class Module {
     public static class Key {
         String name;
         String version;
+
+        public URI getURI() {
+            return URI.create("/rest/modules/" + name + "/" + version);
+        }
     }
 
     @AggregateIdentifier

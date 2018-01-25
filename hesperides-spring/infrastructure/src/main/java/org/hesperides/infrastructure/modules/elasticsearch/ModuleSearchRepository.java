@@ -33,10 +33,10 @@ public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearc
     ModuleRepository moduleRepository;
 
     @Override
-    public List<org.hesperides.domain.Module> getModules() {
-        List<org.hesperides.domain.Module> modules = new ArrayList<>();
+    public List<String> getModulesNames() {
+        List<String> modules = new ArrayList<>();
         for (Module elasticsearchModule : moduleRepository.findAll()) {
-            modules.add(elasticsearchModule.toDomainModule());
+            modules.add(elasticsearchModule.getName());
         }
         return modules;
     }

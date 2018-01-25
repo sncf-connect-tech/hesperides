@@ -19,7 +19,7 @@
  *
  */
 
-package org.hesperides.presentation;
+package org.hesperides.presentation.controllers;
 
 abstract class BaseResource {
 

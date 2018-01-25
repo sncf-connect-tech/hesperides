@@ -36,8 +36,4 @@ public class Module {
     public void setName(String name) {
         this.name = name;
     }
-
-    public org.hesperides.domain.Module toDomainModule() {
-        return new org.hesperides.domain.Module(this.name);
-    }
 }
