@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.auth;
+package org.hesperides.presentation.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

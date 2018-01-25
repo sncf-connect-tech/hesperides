@@ -24,42 +24,45 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.modules.queries.ModulesNamesQuery;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.hesperides.infrastructure.elasticsearch.response.Hit;
 import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
 import org.hesperides.infrastructure.mustache.MustacheTemplateGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class ElasticsearchModuleSearchRepository implements org.hesperides.domain.ModuleSearchRepository {
+@Profile("!local")
+public class ElasticsearchModuleSearchRepository {
 
     @Autowired
     ElasticsearchService elasticsearchService;
     MustacheFactory mustacheFactory = new DefaultMustacheFactory();
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
 
-    @Override
-    public List<org.hesperides.domain.Module> getModules() {
+    @QueryHandler
+    private List<String> queryAllModuleNames(ModulesNamesQuery query) {
         Mustache mustache = mustacheFactory.compile(MUSTACHE_SEARCH_ALL);
         String requestBody = MustacheTemplateGenerator.from(mustache).generate();
         ResponseHits responseHits = elasticsearchService.getResponseHits("POST", "/modules/_search", requestBody, new TypeReference<ResponseHits<ElasticsearchModule>>() {
         });
 
-        return elasticSearchModulesToDomainModules(responseHits);
+        return elasticSearchModulesToModuleNames(responseHits);
     }
 
-    private List<org.hesperides.domain.Module> elasticSearchModulesToDomainModules(final ResponseHits responseHits) {
-        List<org.hesperides.domain.Module> modules = new ArrayList<>();
+    private List<String> elasticSearchModulesToModuleNames(final ResponseHits responseHits) {
+        List<String> modules = new ArrayList<>();
         if (responseHits != null && responseHits.getHits() != null && responseHits.getHits().getHits() != null) {
             List<Hit<ElasticsearchModule>> hits = responseHits.getHits().getHits();
             for (Hit<ElasticsearchModule> hit : hits) {
                 ElasticsearchModule elasticSearchModule = hit.getSource();
-                org.hesperides.domain.Module module = elasticSearchModule.toDomainModule();
-                modules.add(module);
+                modules.add(elasticSearchModule.getName());
             }
         }
         return modules;
