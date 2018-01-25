@@ -1,4 +1,4 @@
-package org.hesperides.domain.modules;
+package org.hesperides.domain.modules.commands;
 
 import lombok.Value;
 import org.axonframework.commandhandling.TargetAggregateIdentifier;

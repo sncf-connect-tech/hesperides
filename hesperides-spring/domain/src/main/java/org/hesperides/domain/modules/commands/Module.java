@@ -1,11 +1,14 @@
-package org.hesperides.domain.modules;
+package org.hesperides.domain.modules.commands;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.modules.events.ModuleCopiedEvent;
+import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 
 import java.net.URI;
 
@@ -23,6 +26,7 @@ public class Module {
         String name;
         String version;
 
+        @JsonIgnore
         public URI getURI() {
             return URI.create("/rest/modules/" + name + "/" + version);
         }

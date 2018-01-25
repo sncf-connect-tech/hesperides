@@ -25,14 +25,14 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.Modules;
 import org.hesperides.domain.ModuleSearchRepository;
-import org.hesperides.domain.modules.Module;
+import org.hesperides.domain.modules.commands.Module;
+import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.presentation.exceptions.NotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
@@ -63,7 +63,7 @@ public class ModuleController extends BaseResource {
     @ApiOperation("Get info for a given module release/working-copy")
 //    @Path("/{module_name}/{module_version}/{module_type}")
     @GetMapping("/{module_name}/{module_version}")
-    public ResponseEntity<Module> getModuleInfo(
+    public ResponseEntity<ModuleView> getModuleInfo(
                                 @PathVariable("module_name") final String moduleName,
                                 @PathVariable("module_version") final String moduleVersion
 //                                @PathParam("module_type") final String moduleType

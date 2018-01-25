@@ -1,9 +1,12 @@
 package org.hesperides.application;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.domain.modules.CopyModuleCommand;
-import org.hesperides.domain.modules.CreateModuleCommand;
-import org.hesperides.domain.modules.Module;
+import org.axonframework.queryhandling.QueryGateway;
+import org.hesperides.domain.modules.commands.CopyModuleCommand;
+import org.hesperides.domain.modules.commands.CreateModuleCommand;
+import org.hesperides.domain.modules.commands.Module;
+import org.hesperides.domain.modules.queries.ModuleByIdQuery;
+import org.hesperides.domain.modules.queries.ModuleView;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,8 +17,11 @@ public class Modules {
 
     private final CommandGateway commandGateway;
 
-    public Modules(CommandGateway commandGateway) {
+    private final QueryGateway queryGateway;
+
+    public Modules(CommandGateway commandGateway, QueryGateway queryGateway) {
         this.commandGateway = commandGateway;
+        this.queryGateway = queryGateway;
     }
 
     public Module.Key createWorkingCopy(String moduleName, String moduleVersion) {
@@ -37,7 +43,11 @@ public class Modules {
         }
     }
 
-    public Optional<Module> getModule(Module.Key moduleKey) {
-        return Optional.empty();
+    public Optional<ModuleView> getModule(Module.Key moduleKey) {
+        try {
+            return Optional.ofNullable(queryGateway.send(new ModuleByIdQuery(moduleKey), ModuleView.class).get());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
