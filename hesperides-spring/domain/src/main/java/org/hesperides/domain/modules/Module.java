@@ -1,5 +1,7 @@
 package org.hesperides.domain.modules;
 
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventhandling.EventHandler;
@@ -10,34 +12,43 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 /**
  * this is the main module aggregate
  */
+@Slf4j
 @Aggregate
 public class Module {
 
-    @AggregateIdentifier
-    private String name;
+    @Value
+    public static class Key {
+        String name;
+        String version;
+    }
 
-    private String version;
+    @AggregateIdentifier
+    Key key;
 
     public Module() {}
 
     @CommandHandler
     public Module(CreateModuleCommand command) {
-        apply(new ModuleCreatedEvent(command.getName()));
+        apply(new ModuleCreatedEvent(command.getModuleKey()));
     }
 
     @CommandHandler
-    public void releaseModule(ReleaseModuleCommand command) {
-        apply(new ModuleReleasedEvent(this.name, command.getNewVersion()));
+    public Module(CopyModuleCommand command) {
+        apply(new ModuleCopiedEvent(command.getModuleKey(), command.getSourceModuleKey()));
     }
 
     @EventHandler
-    public void on(ModuleReleasedEvent event) {
-        this.version = event.getVersion();
+    @SuppressWarnings("unused")
+    private void on(ModuleCreatedEvent event) {
+        this.key = event.getModuleKey();
+        log.debug("module créé.");
     }
 
     @EventHandler
-    public void on(ModuleCreatedEvent event) {
-        this.name = event.getName();
-        this.version = "SNAPSHOT";
+    @SuppressWarnings("unused")
+    private void on(ModuleCopiedEvent event) {
+        this.key = event.getModuleKey();
+        // set les trucs du module en copiant depuis l'event.
+        log.debug("module copié.");
     }
 }

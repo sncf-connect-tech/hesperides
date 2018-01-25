@@ -4,8 +4,10 @@ import lombok.Value;
 import org.axonframework.commandhandling.TargetAggregateIdentifier;
 
 @Value
-public class CreateModuleCommand {
+public class CopyModuleCommand {
 
     @TargetAggregateIdentifier
     Module.Key moduleKey;
+
+    Module.Key sourceModuleKey;
 }

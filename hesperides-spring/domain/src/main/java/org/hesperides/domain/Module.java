@@ -20,6 +20,7 @@
  */
 package org.hesperides.domain;
 
+import lombok.Builder;
 import lombok.Value;
 
 /**

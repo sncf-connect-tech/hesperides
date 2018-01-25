@@ -8,7 +8,9 @@
         </encoder>
     </appender>
 
-    <root level="debug">
+    <logger name="org.hesperides" level="debug"/>
+
+    <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
