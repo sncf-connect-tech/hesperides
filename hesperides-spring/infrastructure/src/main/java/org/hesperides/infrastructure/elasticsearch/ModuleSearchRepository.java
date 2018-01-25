@@ -20,6 +20,13 @@
  */
 package org.hesperides.infrastructure.elasticsearch;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import org.hesperides.infrastructure.elasticsearch.mustache.MustacheTemplateGenerator;
+import org.hesperides.infrastructure.elasticsearch.response.Hit;
+import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -30,13 +37,29 @@ import java.util.List;
 public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearchRepository {
 
     @Autowired
-    ModuleRepository moduleRepository;
+    ElasticSearchService elasticSearchService;
+    MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+    private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
 
     @Override
     public List<org.hesperides.domain.Module> getModules() {
+        Mustache mustache = mustacheFactory.compile(MUSTACHE_SEARCH_ALL);
+        String requestBody = MustacheTemplateGenerator.from(mustache).generate();
+        ResponseHits responseHits =elasticSearchService.getResponseHits("POST","/modules/_search",requestBody,new TypeReference<ResponseHits<Module>>(){
+        });
+
+        return elasticSearchModulesToDomainModules(responseHits);
+    }
+
+    private List<org.hesperides.domain.Module> elasticSearchModulesToDomainModules(final ResponseHits responseHits) {
         List<org.hesperides.domain.Module> modules = new ArrayList<>();
-        for (Module elasticsearchModule : moduleRepository.findAll()) {
-            modules.add(elasticsearchModule.toDomainModule());
+        if (responseHits != null && responseHits.getHits() != null && responseHits.getHits().getHits() != null) {
+            List<Hit<Module>> hits = responseHits.getHits().getHits();
+            for (Hit<Module> hit : hits) {
+                Module elasticSearchModule = hit.getSource();
+                org.hesperides.domain.Module module = elasticSearchModule.toDomainModule();
+                modules.add(module);
+            }
         }
         return modules;
     }

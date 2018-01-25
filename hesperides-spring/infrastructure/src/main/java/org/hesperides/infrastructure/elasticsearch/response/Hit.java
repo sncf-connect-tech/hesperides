@@ -18,28 +18,21 @@
  *
  *
  */
-package org.hesperides.infrastructure.elasticsearch;
+package org.hesperides.infrastructure.elasticsearch.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.data.annotation.Id;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Module {
-    @Id
-    private Long id;
-    private String name;
-    @JsonProperty("working_copy")
-    private boolean working_copy;
+public class Hit<T> {
+    @JsonProperty(value = "_source")
+    private T source;
 
-    public String getName() {
-        return name;
+    public T getSource() {
+        return source;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public org.hesperides.domain.Module toDomainModule() {
-        return new org.hesperides.domain.Module(this.name);
+    public void setSource(T source) {
+        this.source = source;
     }
 }

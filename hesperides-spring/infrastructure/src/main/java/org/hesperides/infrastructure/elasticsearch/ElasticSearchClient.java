@@ -1,3 +1,4 @@
+
 /*
  *
  * This file is part of the Hesperides distribution.
@@ -20,26 +21,21 @@
  */
 package org.hesperides.infrastructure.elasticsearch;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.data.annotation.Id;
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Module {
-    @Id
-    private Long id;
-    private String name;
-    @JsonProperty("working_copy")
-    private boolean working_copy;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-    public String getName() {
-        return name;
-    }
+@Component
+public class ElasticSearchClient {
+    @Autowired
+    ElasticSearchConfiguration elasticSearchConfiguration;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public org.hesperides.domain.Module toDomainModule() {
-        return new org.hesperides.domain.Module(this.name);
+    public RestClient getRestClient() {
+        HttpHost httpHost = new HttpHost(this.elasticSearchConfiguration.getHost(), this.elasticSearchConfiguration.getPort());
+        return RestClient.builder(httpHost).build(); //TODO .setFailureListener()
     }
 }
