@@ -1,3 +1,4 @@
+
 /*
  *
  * This file is part of the Hesperides distribution.
@@ -18,30 +19,20 @@
  *
  *
  */
-package org.hesperides.infrastructure.modules.elasticsearch;
+package org.hesperides.infrastructure.elasticsearch;
 
-import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.queries.ModulesNamesQuery;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Repository
-@Profile("!local")
-public class ModuleSearchRepository {
-
+@Component
+public class ElasticsearchClient {
     @Autowired
-    ModuleRepository moduleRepository;
+    ElasticsearchConfiguration elasticsearchConfiguration;
 
-    @QueryHandler
-    public List<String> getModulesNames(ModulesNamesQuery query) {
-        List<String> modules = new ArrayList<>();
-        for (Module elasticsearchModule : moduleRepository.findAll()) {
-            modules.add(elasticsearchModule.getName());
-        }
-        return modules;
+    public RestClient getRestClient() {
+        HttpHost httpHost = new HttpHost(this.elasticsearchConfiguration.getHost(), this.elasticsearchConfiguration.getPort());
+        return RestClient.builder(httpHost).build(); //TODO .setFailureListener()
     }
 }

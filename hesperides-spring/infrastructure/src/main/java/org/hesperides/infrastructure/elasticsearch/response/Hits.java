@@ -18,9 +18,21 @@
  *
  *
  */
-package org.hesperides.infrastructure.modules.elasticsearch;
+package org.hesperides.infrastructure.elasticsearch.response;
 
-import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-public interface ModuleRepository extends ElasticsearchRepository<Module, String> {
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Hits<T> {
+    private List<Hit<T>> hits;
+
+    public List<Hit<T>> getHits() {
+        return hits;
+    }
+
+    public void setHits(List<Hit<T>> hits) {
+        this.hits = hits;
+    }
 }
