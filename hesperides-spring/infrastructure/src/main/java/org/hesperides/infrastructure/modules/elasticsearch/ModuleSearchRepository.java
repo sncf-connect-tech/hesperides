@@ -20,6 +20,8 @@
  */
 package org.hesperides.infrastructure.modules.elasticsearch;
 
+import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.modules.queries.ModulesNamesQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -29,13 +31,13 @@ import java.util.List;
 
 @Repository
 @Profile("!local")
-public class ModuleSearchRepository implements org.hesperides.domain.ModuleSearchRepository {
+public class ModuleSearchRepository {
 
     @Autowired
     ModuleRepository moduleRepository;
 
-    @Override
-    public List<String> getModulesNames() {
+    @QueryHandler
+    public List<String> getModulesNames(ModulesNamesQuery query) {
         List<String> modules = new ArrayList<>();
         for (Module elasticsearchModule : moduleRepository.findAll()) {
             modules.add(elasticsearchModule.getName());

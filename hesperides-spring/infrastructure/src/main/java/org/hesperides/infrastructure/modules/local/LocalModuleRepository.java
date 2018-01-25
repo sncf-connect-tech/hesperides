@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.ModuleSearchRepository;
 import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.commands.Module;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.modules.queries.ModulesNamesQuery;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -22,32 +22,29 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
-public class LocalModuleRepository implements ModuleSearchRepository {
+public class LocalModuleRepository {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
 
-    public List<String> getModulesNames() {
-        return ImmutableList.copyOf(MODULE_MAP.keySet()).stream().map(Module.Key::getName).collect(Collectors.toList());
-    }
-
     @EventSourcingHandler
-    private void on(Object event, MetaData metaData) {
-      log.debug("got event {}", event);
-      if (event instanceof ModuleCreatedEvent) {
-          ModuleCreatedEvent event1 = (ModuleCreatedEvent) event;
-          MODULE_MAP.put(((ModuleCreatedEvent) event).getModuleKey(),
-                  new ModuleView(
-                          event1.getModuleKey().getName(),
-                          event1.getModuleKey().getVersion(),
-                          event1.getModuleKey().getVersionType() == ModuleType.workingcopy,
-                          1
-                          )
-                  );
-      }
+    private void on(ModuleCreatedEvent event) {
+      MODULE_MAP.put(event.getModuleKey(),
+              new ModuleView(
+                      event.getModuleKey().getName(),
+                      event.getModuleKey().getVersion(),
+                      event.getModuleKey().getVersionType() == ModuleType.workingcopy,
+                      1
+                      )
+              );
     }
 
     @QueryHandler
     private ModuleView query(ModuleByIdQuery query) {
         return MODULE_MAP.get(query.getKey());
+    }
+
+    @QueryHandler
+    private List<String> queryAllModuleNames(ModulesNamesQuery query) {
+        return ImmutableList.copyOf(MODULE_MAP.keySet()).stream().map(Module.Key::getName).collect(Collectors.toList());
     }
 }

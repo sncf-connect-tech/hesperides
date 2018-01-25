@@ -8,8 +8,10 @@ import org.hesperides.domain.modules.commands.CreateModuleCommand;
 import org.hesperides.domain.modules.commands.Module;
 import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.modules.queries.ModulesNamesQuery;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -47,6 +49,26 @@ public class Modules {
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
         try {
             return Optional.ofNullable(queryGateway.send(new ModuleByIdQuery(moduleKey), ModuleView.class).get());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * trouvé ici: https://stackoverflow.com/questions/5207163/how-to-do-myclassstring-class-in-java
+     * @param tClass
+     * @param <T2>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    static public <T2> Class<List<T2>> listOf(Class<T2> tClass)
+    {
+        return (Class<List<T2>>)(Class<?>)(List.class);
+    }
+
+    public List<String> getModulesNames() {
+        try {
+            return queryGateway.send(new ModulesNamesQuery(), listOf(String.class)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }

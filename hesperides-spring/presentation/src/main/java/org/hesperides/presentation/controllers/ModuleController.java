@@ -24,7 +24,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.Modules;
-import org.hesperides.domain.ModuleSearchRepository;
 import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.commands.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
@@ -45,19 +44,16 @@ import static org.springframework.http.HttpStatus.SEE_OTHER;
 @RequestMapping("/modules")
 public class ModuleController extends BaseResource {
 
-    private final ModuleSearchRepository moduleSearchRepository;
-
     private final Modules modules;
 
-    public ModuleController(ModuleSearchRepository moduleSearchRepository, Modules modules) {
-        this.moduleSearchRepository = moduleSearchRepository;
+    public ModuleController(Modules modules) {
         this.modules = modules;
     }
 
     @ApiOperation("Get all module names")
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Collection<String> getModulesNames() {
-        return moduleSearchRepository.getModulesNames();
+        return modules.getModulesNames();
     }
 
     @ApiOperation("Get info for a given module release/working-copy")
