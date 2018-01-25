@@ -1,7 +1,7 @@
 package org.hesperides.domain.modules.events;
 
 import lombok.Value;
-import org.hesperides.domain.modules.commands.Module;
+import org.hesperides.domain.modules.Module;
 
 @Value
 public class ModuleCopiedEvent {

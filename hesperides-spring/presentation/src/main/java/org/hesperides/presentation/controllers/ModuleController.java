@@ -24,8 +24,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.Modules;
+import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.ModuleType;
-import org.hesperides.domain.modules.commands.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.presentation.exceptions.NotFoundException;
 import org.springframework.http.MediaType;
@@ -72,13 +72,13 @@ public class ModuleController extends BaseResource {
     public ResponseEntity createWorkingCopy(@RequestParam(value = "from_module_name", required = false) final String from_module_name,
                                       @RequestParam(value = "from_module_version", required = false) final String from_module_version,
                                       @RequestParam(value = "from_is_working_copy",required = false) final Boolean isFromWorkingCopy,
-                                      @Valid @RequestBody final org.hesperides.presentation.legacydtos.Module module) {
+                                      @Valid @RequestBody final ModuleInput module) {
 
         if ((from_module_name == null || StringUtils.isBlank(from_module_name))
                 && (from_module_version == null || StringUtils.isBlank(from_module_version))
                 && isFromWorkingCopy == null) {
 
-            Module.Key created = modules.createWorkingCopy(module.getName(), module.getVersion());
+            Module.Key created = modules.createWorkingCopy(module.getKey() );
 
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
 
@@ -89,7 +89,7 @@ public class ModuleController extends BaseResource {
 
             Module.Key from = new Module.Key(from_module_name, from_module_version, isFromWorkingCopy ? workingcopy: release);
 
-            Module.Key created = modules.createWorkingCopyFrom(module.getName(), module.getVersion(), from);
+            Module.Key created = modules.createWorkingCopyFrom(from, module.getKey());
 
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
         }

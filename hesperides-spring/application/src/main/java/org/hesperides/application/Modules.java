@@ -2,10 +2,10 @@ package org.hesperides.application;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.queryhandling.QueryGateway;
+import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.commands.CopyModuleCommand;
 import org.hesperides.domain.modules.commands.CreateModuleCommand;
-import org.hesperides.domain.modules.commands.Module;
 import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.ModulesNamesQuery;
@@ -27,20 +27,18 @@ public class Modules {
         this.queryGateway = queryGateway;
     }
 
-    public Module.Key createWorkingCopy(String moduleName, String moduleVersion) {
+    public Module.Key createWorkingCopy(Module.Key newModuleKey) {
 
         try {
-            return (Module.Key) commandGateway.send(new CreateModuleCommand(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy)))
-                    .get();
+            return (Module.Key) commandGateway.send(new CreateModuleCommand(newModuleKey)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Module.Key createWorkingCopyFrom(String name, String version, Module.Key from) {
+    public Module.Key createWorkingCopyFrom(Module.Key from, Module.Key to) {
         try {
-            return (Module.Key) commandGateway.send(new CopyModuleCommand(new Module.Key(name, version, ModuleType.workingcopy),
-                    from)).get();
+            return (Module.Key) commandGateway.send(new CopyModuleCommand(to, from)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
