@@ -13,6 +13,16 @@
     <artifactId>bootstrap</artifactId>
 
     <dependencies>
+        <!-- DDD -->
+        <dependency>
+            <groupId>org.hesperides</groupId>
+            <artifactId>presentation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hesperides</groupId>
+            <artifactId>infrastructure</artifactId>
+        </dependency>
+        <!-- Spring Boot dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -21,14 +31,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.hesperides</groupId>
-            <artifactId>presentation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hesperides</groupId>
-            <artifactId>infrastructure</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -40,6 +46,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

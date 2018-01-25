@@ -23,21 +23,26 @@ package org.hesperides.presentation;
 import org.hesperides.domain.Module;
 import org.hesperides.domain.ModuleSearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rest/modules")
 public class ModuleController {
+    private ModuleSearchRepository moduleSearchRepository;
 
     @Autowired
-    ModuleSearchRepository moduleSearchRepository;
+    public ModuleController(final ModuleSearchRepository moduleSearchRepository) {
+        this.moduleSearchRepository = moduleSearchRepository;
+    }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public Collection<String> getModules() {
         return moduleSearchRepository.getModules().stream()
                 .map(Module::getName)
