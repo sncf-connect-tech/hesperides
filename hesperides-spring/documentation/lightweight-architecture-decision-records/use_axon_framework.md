@@ -13,6 +13,7 @@ c'est clairement intéressant, on a pas envie de gérer ça à la main.
 Tout d'abord, il faut avoir des notions sur les concepts d'Event Sourcing et CQRS.
 
 Pour cela, on peut lire la doc Axon ici: https://docs.axonframework.org/part1/architecture-overview.html
+Utile aussi: http://cqrs.nu/
 
 Un fois qu'on à les bases, on peut commencer à coder: 
 
