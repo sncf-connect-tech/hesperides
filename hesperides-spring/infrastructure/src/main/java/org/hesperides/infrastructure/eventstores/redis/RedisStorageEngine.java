@@ -46,12 +46,8 @@ public class RedisStorageEngine implements EventStorageEngine {
             public List<String> execute(RedisOperations operations) throws DataAccessException {
                 operations.multi();
                 events.stream()
-                        .map(EventMessage::getPayload)
-                        .filter(event -> event instanceof ModuleCreatedEvent)
-                        .map(ModuleCreatedEvent.class::cast)
-                        .forEach(event -> {
-                            operations.opsForList().rightPush(moduleKeyToString(event.getModuleKey()), serialize(event));
-                        });
+                        .filter(event -> event instanceof DomainEventMessage)
+                        .forEach(event -> operations.opsForList().rightPush(((DomainEventMessage) event).getAggregateIdentifier(), serialize(event.getPayload())));
                 return operations.exec();
             }
         });
@@ -68,24 +64,29 @@ public class RedisStorageEngine implements EventStorageEngine {
     @Override
     public void storeSnapshot(DomainEventMessage<?> snapshot) {
 
+        log.debug("storing snapshot (todo)");
+
     }
 
     @Override
     public Stream<? extends TrackedEventMessage<?>> readEvents(TrackingToken trackingToken, boolean mayBlock) {
+
+        log.debug("Read events. (tracked)");
+
         return null;
     }
 
     @Override
     public DomainEventStream readEvents(String aggregateIdentifier, long firstSequenceNumber) {
+
+        log.debug("Read events.");
+
         return null;
     }
 
     @Override
     public Optional<DomainEventMessage<?>> readSnapshot(String aggregateIdentifier) {
+        log.debug("reading snapshot (todo)");
         return Optional.empty();
-    }
-
-    private String moduleKeyToString(Module.Key key) {
-        return "module-" + key.getName() + "-" + key.getVersion() + "-" + key.getVersionType().getMinimizedForm();
     }
 }
