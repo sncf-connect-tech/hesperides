@@ -1,11 +1,10 @@
 package org.hesperides.application;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.commands.CopyModuleCommand;
 import org.hesperides.domain.modules.commands.CreateModuleCommand;
+import org.hesperides.domain.modules.queries.AsyncModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.ModulesNamesQuery;
@@ -20,9 +19,9 @@ public class Modules {
 
     private final CommandGateway commandGateway;
 
-    private final QueryGateway queryGateway;
+    private final AsyncModuleQueries queryGateway;
 
-    public Modules(CommandGateway commandGateway, QueryGateway queryGateway) {
+    public Modules(CommandGateway commandGateway, AsyncModuleQueries queryGateway) {
         this.commandGateway = commandGateway;
         this.queryGateway = queryGateway;
     }
@@ -45,30 +44,10 @@ public class Modules {
     }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
-        try {
-            return Optional.ofNullable(queryGateway.send(new ModuleByIdQuery(moduleKey), ModuleView.class).get());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * trouvé ici: https://stackoverflow.com/questions/5207163/how-to-do-myclassstring-class-in-java
-     * @param tClass
-     * @param <T2>
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    static public <T2> Class<List<T2>> listOf(Class<T2> tClass)
-    {
-        return (Class<List<T2>>)(Class<?>)(List.class);
+        return queryGateway.query(new ModuleByIdQuery(moduleKey));
     }
 
     public List<String> getModulesNames() {
-        try {
-            return queryGateway.send(new ModulesNamesQuery(), listOf(String.class)).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+      return queryGateway.queryAllModuleNames(new ModulesNamesQuery());
     }
 }

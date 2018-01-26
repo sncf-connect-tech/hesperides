@@ -11,17 +11,19 @@ import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.queries.ModuleByIdQuery;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.ModulesNamesQuery;
+import org.hesperides.domain.modules.queries.ModulesQueries;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
 @Profile("local")
-public class LocalModuleRepository {
+public class LocalModuleRepository implements ModulesQueries {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
 
@@ -38,12 +40,12 @@ public class LocalModuleRepository {
     }
 
     @QueryHandler
-    private ModuleView query(ModuleByIdQuery query) {
-        return MODULE_MAP.get(query.getKey());
+    public Optional<ModuleView> query(ModuleByIdQuery query) {
+        return Optional.ofNullable(MODULE_MAP.get(query.getKey()));
     }
 
     @QueryHandler
-    private List<String> queryAllModuleNames(ModulesNamesQuery query) {
+    public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         return ImmutableList.copyOf(MODULE_MAP.keySet()).stream().map(Module.Key::getName).collect(Collectors.toList());
     }
 }

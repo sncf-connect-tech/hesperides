@@ -22,7 +22,6 @@
 package com.vsct.dt.hesperides.indexation;
 
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.vsct.dt.hesperides.infrastructure.elasticsearch.ElasticSearchConfiguration;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
