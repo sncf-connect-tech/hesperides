@@ -1,0 +1,23 @@
+server.port: 8081
+server.contextPath: /rest
+
+spring:
+  application.name: Hespérides Spring Boot
+
+# security.basic.enabled=true
+# security.user.name=john
+# security.user.password=123
+
+####### LDAP ##############
+ldap:
+  enabled: true
+
+  urls: ldap://adumar.groupevsc.com:389
+  base.dn: dc=example,dc=com
+  username: cn=read-only-admin,dc=example,dc=com
+  password: password
+  user.dn.pattern: uid={0}
+
+# spring.data.elasticsearch.cluster-name=elasticsearch-tlhostis
+# spring.data.elasticsearch.cluster-nodes=localhost:9300
+# spring.data.elasticsearch.repositories.enabled=true

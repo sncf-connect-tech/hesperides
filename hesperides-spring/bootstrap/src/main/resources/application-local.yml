@@ -1,0 +1,10 @@
+#
+# Specific configuration for local profile.
+#
+
+management:
+  security:
+    enabled: false
+
+endpoints:
+  enabled: true
