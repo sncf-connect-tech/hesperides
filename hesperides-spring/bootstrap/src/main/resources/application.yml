@@ -4,20 +4,30 @@ server.contextPath: /rest
 spring:
   application.name: Hespérides Spring Boot
 
+######## REDIS ############
+  redis:
+    host: TO_SET
+    port: 123456
+
 # security.basic.enabled=true
 # security.user.name=john
 # security.user.password=123
 
 ####### LDAP ##############
 ldap:
-  enabled: true
+  url: TO_SET
+  domain: TO_SET
+  userSearchBase: TO_SET
+  usernameAttribute: TO_SET
+  connectTimeout: 1000
+  readTimeout: 1000
 
-  urls: ldap://adumar.groupevsc.com:389
-  base.dn: dc=example,dc=com
-  username: cn=read-only-admin,dc=example,dc=com
-  password: password
-  user.dn.pattern: uid={0}
+elasticsearch:
+  host: TO_SET
+  port: 132456
+  index: TO_SET
 
 # spring.data.elasticsearch.cluster-name=elasticsearch-tlhostis
 # spring.data.elasticsearch.cluster-nodes=localhost:9300
 # spring.data.elasticsearch.repositories.enabled=true
+
