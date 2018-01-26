@@ -1,33 +1,18 @@
-server.port: 8081
-server.contextPath: /rest
+spring.application.name: Hespérides Spring Boot
 
-spring:
-  application.name: Hespérides Spring Boot
+server:
+  port: 8081
+  contextPath: /rest
 
-######## REDIS ############
-  redis:
-    host: TO_SET
-    port: 123456
-
-# security.basic.enabled=true
-# security.user.name=john
-# security.user.password=123
-
-####### LDAP ##############
 ldap:
-  url: TO_SET
-  domain: TO_SET
-  userSearchBase: TO_SET
-  usernameAttribute: TO_SET
-  connectTimeout: 1000
-  readTimeout: 1000
+  url:
+  domain:
+  userSearchBase:
+  usernameAttribute:
+  connectTimeout:
+  readTimeout:
 
 elasticsearch:
-  host: TO_SET
-  port: 132456
-  index: TO_SET
-
-# spring.data.elasticsearch.cluster-name=elasticsearch-tlhostis
-# spring.data.elasticsearch.cluster-nodes=localhost:9300
-# spring.data.elasticsearch.repositories.enabled=true
-
+  host:
+  port:
+  index:
