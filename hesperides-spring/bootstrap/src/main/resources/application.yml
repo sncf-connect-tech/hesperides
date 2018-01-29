@@ -11,6 +11,8 @@ ldap:
   usernameAttribute:
   connectTimeout:
   readTimeout:
+  prodGroupName:
+  techGroupName:
 
 elasticsearch:
   host:

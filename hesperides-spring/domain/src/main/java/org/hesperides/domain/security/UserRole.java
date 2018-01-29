@@ -18,24 +18,9 @@
  *
  *
  */
-package org.hesperides.infrastructure.security;
+package org.hesperides.domain.security;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
-@Component
-@ConfigurationProperties("ldap")
-@Getter
-@Setter
-public class LdapConfiguration {
-    private String url;
-    private String domain;
-    private String userSearchBase;
-    private String usernameAttribute;
-    private String connectTimeout;
-    private String readTimeout;
-    private String prodGroupName;
-    private String techGroupName;
+public class UserRole {
+    public static final String PROD = "ROLE_PROD";
+    public static final String TECH = "ROLE_TECH";
 }
