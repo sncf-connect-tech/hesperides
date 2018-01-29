@@ -25,7 +25,10 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.modules.queries.ModuleByIdQuery;
+import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.ModulesNamesQuery;
+import org.hesperides.domain.modules.queries.ModulesQueries;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.hesperides.infrastructure.elasticsearch.response.Hit;
 import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
@@ -36,18 +39,29 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Profile("!local")
-public class ElasticsearchModuleSearchRepository {
+public class ElasticsearchModuleSearchRepository implements ModulesQueries {
 
     @Autowired
     ElasticsearchService elasticsearchService;
     MustacheFactory mustacheFactory = new DefaultMustacheFactory();
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
 
+    /**
+     *
+     * @param query
+     * @return
+     */
+    @Override
+    public Optional<ModuleView> query(ModuleByIdQuery query) {
+        return Optional.empty(); //TODO
+    }
+
     @QueryHandler
-    private List<String> queryAllModuleNames(ModulesNamesQuery query) {
+    public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         Mustache mustache = mustacheFactory.compile(MUSTACHE_SEARCH_ALL);
         String requestBody = MustacheTemplateGenerator.from(mustache).generate();
         ResponseHits responseHits = elasticsearchService.getResponseHits("POST", "/modules/_search", requestBody, new TypeReference<ResponseHits<ElasticsearchModule>>() {
