@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class ElasticsearchConfiguration {
     private String host;
     private String index;
-    private int port;
+    private Integer port;
 
     public String getHost() {
         return host;
@@ -46,11 +46,11 @@ public class ElasticsearchConfiguration {
         this.index = index;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(Integer port) {
         this.port = port;
     }
 }
