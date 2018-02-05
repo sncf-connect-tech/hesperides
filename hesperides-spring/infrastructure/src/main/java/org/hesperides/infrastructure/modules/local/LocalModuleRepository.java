@@ -7,9 +7,11 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.ModuleType;
+import org.hesperides.domain.modules.TemplateContent;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateDeletedEvent;
+import org.hesperides.domain.modules.events.TemplateUpdatedEvent;
 import org.hesperides.domain.modules.queries.*;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
@@ -27,6 +29,7 @@ public class LocalModuleRepository implements ModulesQueries {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
     private static final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();
+    private static final Map<Pair<Module.Key, String>, TemplateContent> TEMPLATE_CONTENT_MAP = Maps.newHashMap();
 
     @EventSourcingHandler
     private void on(ModuleCreatedEvent event) {
@@ -42,18 +45,35 @@ public class LocalModuleRepository implements ModulesQueries {
 
     @EventSourcingHandler
     private void on(TemplateCreatedEvent event) {
-        TEMPLATE_VIEW_MAP.put(Pair.of(event.getModuleKey(), event.getTemplate().getName()), new TemplateView(
+        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
+        TEMPLATE_VIEW_MAP.put(key, new TemplateView(
                 event.getTemplate().getName(),
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                  + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
                 event.getTemplate().getLocation()
         ));
+        TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
+    }
+
+    @EventSourcingHandler
+    private void on(TemplateUpdatedEvent event) {
+        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
+        TEMPLATE_VIEW_MAP.put(key, new TemplateView(
+                event.getTemplate().getName(),
+                "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
+                        + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
+                event.getTemplate().getFilename(),
+                event.getTemplate().getLocation()
+        ));
+        TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
 
     @EventSourcingHandler
     private void on(TemplateDeletedEvent event) {
-        TEMPLATE_VIEW_MAP.remove(Pair.of(event.getModuleKey(), event.getTemplateName()));
+        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplateName());
+        TEMPLATE_VIEW_MAP.remove(key);
+        TEMPLATE_CONTENT_MAP.remove(key);
     }
 
     @QueryHandler

@@ -7,11 +7,9 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.Template;
-import org.hesperides.domain.modules.events.ModuleCopiedEvent;
-import org.hesperides.domain.modules.events.ModuleCreatedEvent;
-import org.hesperides.domain.modules.events.TemplateCreatedEvent;
-import org.hesperides.domain.modules.events.TemplateDeletedEvent;
+import org.hesperides.domain.modules.events.*;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
+import org.hesperides.domain.modules.exceptions.TemplateWasNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +55,19 @@ public class ModuleAggregate {
     }
 
     @CommandHandler
+    public void updateTemplate(UpdateTemplateCommand command) {
+        log.debug("Applying update template command...");
+
+        // check qu'on a déjà un template avec ce nom, sinon erreur:
+        if (!this.templates.containsKey(command.getTemplate().getName())) {
+            throw new TemplateWasNotFoundException(key, command.getTemplate().getName());
+        }
+
+        apply(new TemplateUpdatedEvent(key, command.getTemplate()));
+    }
+
+
+    @CommandHandler
     public void deleteTemplate(DeleteTemplateCommand command) {
         // si le template n'existe pas, cette command n'a pas d'effet de bord.
         if (this.templates.containsKey(command.getTemplateName())) {
@@ -83,6 +94,12 @@ public class ModuleAggregate {
     private void on(TemplateCreatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("template ajouté. ");
+    }
+
+    @EventSourcingHandler
+    private void on(TemplateUpdatedEvent event) {
+        this.templates.put(event.getTemplate().getName(), event.getTemplate());
+        log.debug("template update. ");
     }
 
     @EventSourcingHandler

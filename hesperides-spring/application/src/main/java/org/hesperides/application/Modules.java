@@ -3,15 +3,13 @@ package org.hesperides.application;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.Template;
-import org.hesperides.domain.modules.commands.CopyModuleCommand;
-import org.hesperides.domain.modules.commands.CreateModuleCommand;
-import org.hesperides.domain.modules.commands.CreateTemplateCommand;
-import org.hesperides.domain.modules.commands.DeleteTemplateCommand;
+import org.hesperides.domain.modules.commands.*;
 import org.hesperides.domain.modules.queries.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -54,11 +52,13 @@ public class Modules {
         }
     }
 
+    public CompletableFuture<Object> updateTemplateInWorkingCopy(Module.Key key, Template template) throws Throwable {
+        return commandGateway.send(new UpdateTemplateCommand(key, template));
+    }
+
     public void deleteTemplate(Module.Key key, String templateName) throws Throwable {
         try {
             commandGateway.send(new DeleteTemplateCommand(key, templateName)).get();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         } catch (ExecutionException e) {
             throw e.getCause();
         }
