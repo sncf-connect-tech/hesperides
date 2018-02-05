@@ -8,4 +8,8 @@ public class TemplateView {
     String name;
 
     String namespace;
+
+    String filename;
+
+    String location;
 }

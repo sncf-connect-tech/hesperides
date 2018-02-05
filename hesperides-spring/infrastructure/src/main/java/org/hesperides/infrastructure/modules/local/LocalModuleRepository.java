@@ -11,7 +11,6 @@ import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateDeletedEvent;
 import org.hesperides.domain.modules.queries.*;
-import org.hesperides.domain.modules.queries.ModulesQueries;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
@@ -46,7 +45,9 @@ public class LocalModuleRepository implements ModulesQueries {
         TEMPLATE_VIEW_MAP.put(Pair.of(event.getModuleKey(), event.getTemplate().getName()), new TemplateView(
                 event.getTemplate().getName(),
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
-                 + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase()
+                 + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
+                event.getTemplate().getFilename(),
+                event.getTemplate().getLocation()
         ));
     }
 
