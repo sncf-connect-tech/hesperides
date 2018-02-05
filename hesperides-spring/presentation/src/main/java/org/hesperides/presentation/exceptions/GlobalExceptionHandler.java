@@ -1,14 +1,11 @@
 package org.hesperides.presentation.exceptions;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.axonframework.commandhandling.model.AggregateNotFoundException;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
 import org.hesperides.domain.modules.exceptions.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;

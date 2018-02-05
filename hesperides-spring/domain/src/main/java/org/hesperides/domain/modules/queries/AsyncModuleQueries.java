@@ -1,7 +1,6 @@
 package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
-import org.hesperides.domain.modules.Module;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

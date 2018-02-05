@@ -1,7 +1,5 @@
 package org.hesperides.domain.modules.queries;
 
-import org.hesperides.domain.modules.Module;
-
 import java.util.List;
 import java.util.Optional;
 

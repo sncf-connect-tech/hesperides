@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.Modules;
 import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.ModuleType;
-import org.hesperides.domain.modules.Template;
 import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.springframework.http.MediaType;
@@ -34,13 +33,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.Collection;
 
 import static org.hesperides.domain.modules.ModuleType.release;
 import static org.hesperides.domain.modules.ModuleType.workingcopy;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
-import static org.springframework.web.util.UriComponentsBuilder.*;
 
 @Api("/modules")
 @RestController

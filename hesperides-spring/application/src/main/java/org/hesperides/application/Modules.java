@@ -5,10 +5,8 @@ import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.Template;
 import org.hesperides.domain.modules.commands.CopyModuleCommand;
 import org.hesperides.domain.modules.commands.CreateModuleCommand;
-import org.hesperides.domain.modules.commands.DeleteTemplateCommand;
-import org.hesperides.domain.modules.queries.AsyncModuleQueries;
 import org.hesperides.domain.modules.commands.CreateTemplateCommand;
-import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
+import org.hesperides.domain.modules.commands.DeleteTemplateCommand;
 import org.hesperides.domain.modules.queries.*;
 import org.springframework.stereotype.Component;
 

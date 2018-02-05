@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.MissingResourceException;
-import java.util.concurrent.ExecutionException;
 
 import static org.hesperides.domain.modules.ModuleType.workingcopy;
 import static org.springframework.http.HttpStatus.SEE_OTHER;

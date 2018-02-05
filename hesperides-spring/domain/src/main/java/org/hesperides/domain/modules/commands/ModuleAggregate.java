@@ -13,9 +13,7 @@ import org.hesperides.domain.modules.events.TemplateCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateDeletedEvent;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
