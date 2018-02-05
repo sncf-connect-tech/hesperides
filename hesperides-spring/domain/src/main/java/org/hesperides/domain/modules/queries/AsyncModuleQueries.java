@@ -1,6 +1,7 @@
 package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
+import org.hesperides.domain.modules.Module;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -49,6 +50,15 @@ public class AsyncModuleQueries implements ModulesQueries {
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         try {
             return queryGateway.send(new ModulesNamesQuery(), listOf(String.class)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
+        try {
+            return queryGateway.send(query,optionalOf(TemplateView.class)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
