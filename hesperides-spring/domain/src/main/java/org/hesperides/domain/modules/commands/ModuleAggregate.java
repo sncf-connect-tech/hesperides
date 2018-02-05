@@ -10,10 +10,13 @@ import org.hesperides.domain.modules.Template;
 import org.hesperides.domain.modules.events.ModuleCopiedEvent;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
+import org.hesperides.domain.modules.events.TemplateDeletedEvent;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
@@ -28,9 +31,10 @@ public class ModuleAggregate {
     @AggregateIdentifier
     Module.Key key;
 
-    List<Template> templates = new ArrayList<>();
+    Map<String, Template> templates = new HashMap<>();
 
-    public ModuleAggregate() {}
+    public ModuleAggregate() {
+    }
 
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
@@ -47,11 +51,19 @@ public class ModuleAggregate {
         log.debug("Applying create template command...");
 
         // check qu'on a pas déjà un template avec ce nom, sinon erreur:
-        if (this.templates.stream().map(Template::getName).anyMatch(name -> name.equals(command.getTemplate().getName()))) {
+        if (this.templates.containsKey(command.getTemplate().getName())) {
             throw new DuplicateTemplateCreationException(command.getTemplate());
         }
 
         apply(new TemplateCreatedEvent(key, command.getTemplate()));
+    }
+
+    @CommandHandler
+    public void deleteTemplate(DeleteTemplateCommand command) {
+        // si le template n'existe pas, cette command n'a pas d'effet de bord.
+        if (this.templates.containsKey(command.getTemplateName())) {
+            apply(new TemplateDeletedEvent(key, command.getTemplateName()));
+        }
     }
 
     @EventSourcingHandler
@@ -71,7 +83,13 @@ public class ModuleAggregate {
 
     @EventSourcingHandler
     private void on(TemplateCreatedEvent event) {
-        this.templates.add(event.getTemplate());
+        this.templates.put(event.getTemplate().getName(), event.getTemplate());
+        log.debug("template ajouté. ");
+    }
+
+    @EventSourcingHandler
+    private void on(TemplateDeletedEvent event) {
+        this.templates.remove(event.getTemplateName());
         log.debug("template ajouté. ");
     }
 }

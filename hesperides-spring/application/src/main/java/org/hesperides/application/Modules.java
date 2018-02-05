@@ -5,6 +5,7 @@ import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.Template;
 import org.hesperides.domain.modules.commands.CopyModuleCommand;
 import org.hesperides.domain.modules.commands.CreateModuleCommand;
+import org.hesperides.domain.modules.commands.DeleteTemplateCommand;
 import org.hesperides.domain.modules.queries.AsyncModuleQueries;
 import org.hesperides.domain.modules.commands.CreateTemplateCommand;
 import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
@@ -46,11 +47,8 @@ public class Modules {
 
     public void createTemplateInWorkingCopy(Module.Key key, Template template) throws Throwable {
 
-        // create command
-        CreateTemplateCommand createTemplateCommand = new CreateTemplateCommand(key, template);
-
         try {
-            commandGateway.send(createTemplateCommand).get();
+            commandGateway.send(new CreateTemplateCommand(key, template)).get();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
@@ -58,6 +56,15 @@ public class Modules {
         }
     }
 
+    public void deleteTemplate(Module.Key key, String templateName) throws Throwable {
+        try {
+            commandGateway.send(new DeleteTemplateCommand(key, templateName)).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
+    }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
         return queryGateway.query(new ModuleByIdQuery(moduleKey));

@@ -9,6 +9,7 @@ import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.ModuleType;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
+import org.hesperides.domain.modules.events.TemplateDeletedEvent;
 import org.hesperides.domain.modules.queries.*;
 import org.hesperides.domain.modules.queries.ModulesQueries;
 import org.springframework.context.annotation.Profile;
@@ -47,6 +48,11 @@ public class LocalModuleRepository implements ModulesQueries {
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                  + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase()
         ));
+    }
+
+    @EventSourcingHandler
+    private void on(TemplateDeletedEvent event) {
+        TEMPLATE_VIEW_MAP.remove(Pair.of(event.getModuleKey(), event.getTemplateName()));
     }
 
     @QueryHandler

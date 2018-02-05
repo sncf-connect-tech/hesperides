@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.MissingResourceException;
 import java.util.concurrent.ExecutionException;
 
 import static org.hesperides.domain.modules.ModuleType.workingcopy;
@@ -56,4 +57,16 @@ public class TemplateController extends BaseResource {
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, workingcopy);
         return modules.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateWasNotFoundException(moduleKey, templateName));
     }
+
+    @DeleteMapping("/workingcopy/templates/{template_name}")
+    @ApiOperation("Delete template in the working copy of a version")
+    public ResponseEntity deleteTemplateInWorkingCopy(
+                                            @PathVariable("module_name") final String moduleName,
+                                            @PathVariable("module_version") final String moduleVersion,
+                                            @PathVariable("template_name") final String templateName) throws Throwable {
+
+        this.modules.deleteTemplate(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), templateName);
+        return ResponseEntity.accepted().build();
+    }
+
 }
