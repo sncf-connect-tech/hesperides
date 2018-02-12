@@ -25,10 +25,8 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.queries.ModuleByIdQuery;
-import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.domain.modules.queries.ModulesNamesQuery;
-import org.hesperides.domain.modules.queries.ModulesQueries;
+import org.hesperides.domain.modules.Module;
+import org.hesperides.domain.modules.queries.*;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.hesperides.infrastructure.elasticsearch.response.Hit;
 import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
@@ -36,6 +34,7 @@ import org.hesperides.infrastructure.mustache.MustacheTemplateGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +67,11 @@ public class ElasticsearchModuleSearchRepository implements ModulesQueries {
         });
 
         return elasticSearchModulesToModuleNames(responseHits);
+    }
+
+    @Override
+    public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
+        throw new NotImplementedException(); // todo
     }
 
     private List<String> elasticSearchModulesToModuleNames(final ResponseHits responseHits) {

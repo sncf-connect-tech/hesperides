@@ -2,16 +2,14 @@ package org.hesperides.application;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.commands.CopyModuleCommand;
-import org.hesperides.domain.modules.commands.CreateModuleCommand;
-import org.hesperides.domain.modules.queries.AsyncModuleQueries;
-import org.hesperides.domain.modules.queries.ModuleByIdQuery;
-import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.domain.modules.queries.ModulesNamesQuery;
+import org.hesperides.domain.modules.Template;
+import org.hesperides.domain.modules.commands.*;
+import org.hesperides.domain.modules.queries.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -43,11 +41,38 @@ public class Modules {
         }
     }
 
+    public void createTemplateInWorkingCopy(Module.Key key, Template template) throws Throwable {
+
+        try {
+            commandGateway.send(new CreateTemplateCommand(key, template)).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
+    }
+
+    public CompletableFuture<Object> updateTemplateInWorkingCopy(Module.Key key, Template template) throws Throwable {
+        return commandGateway.send(new UpdateTemplateCommand(key, template));
+    }
+
+    public void deleteTemplate(Module.Key key, String templateName) throws Throwable {
+        try {
+            commandGateway.send(new DeleteTemplateCommand(key, templateName)).get();
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
+    }
+
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
         return queryGateway.query(new ModuleByIdQuery(moduleKey));
     }
 
     public List<String> getModulesNames() {
       return queryGateway.queryAllModuleNames(new ModulesNamesQuery());
+    }
+
+    public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
+        return queryGateway.queryTemplateByName(new TemplateByNameQuery(moduleKey, templateName));
     }
 }

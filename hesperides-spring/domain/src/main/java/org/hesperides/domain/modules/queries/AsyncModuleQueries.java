@@ -53,4 +53,13 @@ public class AsyncModuleQueries implements ModulesQueries {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
+        try {
+            return queryGateway.send(query,optionalOf(TemplateView.class)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

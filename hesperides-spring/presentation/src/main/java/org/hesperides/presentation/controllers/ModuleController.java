@@ -26,8 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.Modules;
 import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.ModuleType;
+import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.presentation.exceptions.NotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,26 +59,26 @@ public class ModuleController extends BaseResource {
     @ApiOperation("Get info for a given module release/working-copy")
     @GetMapping("/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<ModuleView> getModuleInfo(
-                                @PathVariable("module_name") final String moduleName,
-                                @PathVariable("module_version") final String moduleVersion,
-                                @PathVariable("module_type") final ModuleType moduleType
+            @PathVariable("module_name") final String moduleName,
+            @PathVariable("module_version") final String moduleVersion,
+            @PathVariable("module_type") final ModuleType moduleType
     ) {
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return modules.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new NotFoundException("Could not find module info for " + moduleKey));
+        return modules.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleWasNotFoundException(moduleKey));
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")
     @PostMapping
     public ResponseEntity createWorkingCopy(@RequestParam(value = "from_module_name", required = false) final String from_module_name,
-                                      @RequestParam(value = "from_module_version", required = false) final String from_module_version,
-                                      @RequestParam(value = "from_is_working_copy",required = false) final Boolean isFromWorkingCopy,
-                                      @Valid @RequestBody final ModuleInput module) {
+                                            @RequestParam(value = "from_module_version", required = false) final String from_module_version,
+                                            @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
+                                            @Valid @RequestBody final ModuleInput module) {
 
         if ((from_module_name == null || StringUtils.isBlank(from_module_name))
                 && (from_module_version == null || StringUtils.isBlank(from_module_version))
                 && isFromWorkingCopy == null) {
 
-            Module.Key created = modules.createWorkingCopy(module.getKey() );
+            Module.Key created = modules.createWorkingCopy(module.getKey());
 
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
 
@@ -87,7 +87,7 @@ public class ModuleController extends BaseResource {
             checkQueryParameterNotEmpty("from_module_version", from_module_version);
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
-            Module.Key from = new Module.Key(from_module_name, from_module_version, isFromWorkingCopy ? workingcopy: release);
+            Module.Key from = new Module.Key(from_module_name, from_module_version, isFromWorkingCopy ? workingcopy : release);
 
             Module.Key created = modules.createWorkingCopyFrom(from, module.getKey());
 

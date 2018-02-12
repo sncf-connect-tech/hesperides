@@ -2,12 +2,13 @@ package org.hesperides.domain.modules.commands;
 
 import lombok.Value;
 import org.axonframework.commandhandling.TargetAggregateIdentifier;
+import org.hesperides.domain.modules.Module;
+import org.hesperides.domain.modules.Template;
 
 @Value
-public class ReleaseModuleCommand {
-
+public class UpdateTemplateCommand {
     @TargetAggregateIdentifier
-    String name;
+    Module.Key moduleKey;
 
-    String newVersion;
+    Template template;
 }
