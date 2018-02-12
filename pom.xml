@@ -58,9 +58,7 @@
     </distributionManagement>
 
     <modules>
-        <module>hesperides-core</module>
-        <module>hesperides-legacy</module>
-        <module>hesperides-bdd</module>
+        <module>hesperides-spring</module>
     </modules>
 
     <properties>
