@@ -25,7 +25,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.Module;
 import org.hesperides.domain.modules.queries.*;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.hesperides.infrastructure.elasticsearch.response.Hit;

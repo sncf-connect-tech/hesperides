@@ -1,4 +1,4 @@
-package org.hesperides.domain.modules;
+package org.hesperides.domain.modules.entities;
 
 import lombok.Value;
 

@@ -9,8 +9,6 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
-import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisOperations;

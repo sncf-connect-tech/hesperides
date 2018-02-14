@@ -5,6 +5,8 @@ import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.hesperides.domain.modules.commands.CopyModuleCommand;
 import org.hesperides.domain.modules.commands.CreateModuleCommand;
 import org.hesperides.domain.modules.commands.ModuleAggregate;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.ModuleType;
 import org.hesperides.domain.modules.events.ModuleCopiedEvent;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.junit.jupiter.api.BeforeEach;

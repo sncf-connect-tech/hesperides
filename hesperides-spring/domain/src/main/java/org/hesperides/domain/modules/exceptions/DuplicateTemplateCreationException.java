@@ -1,6 +1,6 @@
 package org.hesperides.domain.modules.exceptions;
 
-import org.hesperides.domain.modules.Template;
+import org.hesperides.domain.modules.entities.Template;
 
 public class DuplicateTemplateCreationException extends RuntimeException {
     public DuplicateTemplateCreationException(Template template) {

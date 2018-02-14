@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.hesperides.domain.modules.Template;
+import org.hesperides.domain.modules.entities.Template;
 
 import javax.validation.constraints.NotNull;
 

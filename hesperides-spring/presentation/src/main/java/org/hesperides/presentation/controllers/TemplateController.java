@@ -2,10 +2,10 @@ package org.hesperides.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hesperides.application.Modules;
-import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.ModuleType;
-import org.hesperides.domain.modules.Template;
+import org.hesperides.application.ModuleUseCases;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.ModuleType;
+import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.exceptions.TemplateWasNotFoundException;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.function.BiConsumer;
 
-import static org.hesperides.domain.modules.ModuleType.workingcopy;
+import static org.hesperides.domain.modules.entities.ModuleType.workingcopy;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 
@@ -25,10 +25,10 @@ import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 @RequestMapping("/modules/{module_name}/{module_version}")
 public class TemplateController extends BaseResource {
 
-    private final Modules modules;
+    private final ModuleUseCases moduleUseCases;
 
-    public TemplateController(Modules modules) {
-        this.modules = modules;
+    public TemplateController(ModuleUseCases moduleUseCases) {
+        this.moduleUseCases = moduleUseCases;
     }
 
     @PostMapping("/workingcopy/templates")
@@ -41,7 +41,7 @@ public class TemplateController extends BaseResource {
         // map input to domain instance:
         Template template = templateInput.toDomainInstance();
 
-        modules.createTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), template);
+        moduleUseCases.createTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), template);
         URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                 .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
         return ResponseEntity.status(SEE_OTHER).location(location).build();
@@ -55,7 +55,7 @@ public class TemplateController extends BaseResource {
             @PathVariable("template_name") final String templateName) {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, workingcopy);
-        return modules.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateWasNotFoundException(moduleKey, templateName));
+        return moduleUseCases.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateWasNotFoundException(moduleKey, templateName));
     }
 
     @DeleteMapping("/workingcopy/templates/{template_name}")
@@ -65,7 +65,7 @@ public class TemplateController extends BaseResource {
                                             @PathVariable("module_version") final String moduleVersion,
                                             @PathVariable("template_name") final String templateName) throws Throwable {
 
-        this.modules.deleteTemplate(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), templateName);
+        this.moduleUseCases.deleteTemplate(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), templateName);
         return ResponseEntity.accepted().build();
     }
 
@@ -79,7 +79,7 @@ public class TemplateController extends BaseResource {
         Template template = templateInput.toDomainInstance();
 
         DeferredResult<ResponseEntity> result = new DeferredResult<>();
-        modules.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), template)
+        moduleUseCases.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, ModuleType.workingcopy), template)
                 .thenApply(o -> {
                     URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                             .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();

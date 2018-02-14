@@ -1,8 +1,8 @@
 package org.hesperides.application;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.Template;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.commands.*;
 import org.hesperides.domain.modules.queries.*;
 import org.springframework.stereotype.Component;
@@ -13,13 +13,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Component
-public class Modules {
+public class ModuleUseCases {
 
     private final CommandGateway commandGateway;
 
     private final AsyncModuleQueries queryGateway;
 
-    public Modules(CommandGateway commandGateway, AsyncModuleQueries queryGateway) {
+    public ModuleUseCases(CommandGateway commandGateway, AsyncModuleQueries queryGateway) {
         this.commandGateway = commandGateway;
         this.queryGateway = queryGateway;
     }

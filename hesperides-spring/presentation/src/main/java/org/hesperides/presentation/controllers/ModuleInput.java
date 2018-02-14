@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableSet;
-import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.ModuleType;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.ModuleType;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;

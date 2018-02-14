@@ -1,6 +1,6 @@
 package org.hesperides.presentation.controllers;
 
-import org.hesperides.application.Modules;
+import org.hesperides.application.ModuleUseCases;
 import org.hesperides.presentation.config.TestAppConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,13 +30,13 @@ public class ModuleControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private Modules modules;
+    private ModuleUseCases moduleUseCases;
 
     @Test
     @WithMockUser
     public void getModulesNamesTest() throws Exception {
         List<String> modulesList = Arrays.asList("module1", "module2", "module3");
-        given(modules.getModulesNames()).willReturn(modulesList);
+        given(moduleUseCases.getModulesNames()).willReturn(modulesList);
 
         this.mvc.perform(get("/modules")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE))

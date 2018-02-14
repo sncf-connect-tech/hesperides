@@ -23,9 +23,9 @@ package org.hesperides.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.application.Modules;
-import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.ModuleType;
+import org.hesperides.application.ModuleUseCases;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.ModuleType;
 import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.springframework.http.MediaType;
@@ -35,8 +35,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 
-import static org.hesperides.domain.modules.ModuleType.release;
-import static org.hesperides.domain.modules.ModuleType.workingcopy;
+import static org.hesperides.domain.modules.entities.ModuleType.release;
+import static org.hesperides.domain.modules.entities.ModuleType.workingcopy;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
 @Api("/modules")
@@ -44,16 +44,16 @@ import static org.springframework.http.HttpStatus.SEE_OTHER;
 @RequestMapping("/modules")
 public class ModuleController extends BaseResource {
 
-    private final Modules modules;
+    private final ModuleUseCases moduleUseCases;
 
-    public ModuleController(Modules modules) {
-        this.modules = modules;
+    public ModuleController(ModuleUseCases moduleUseCases) {
+        this.moduleUseCases = moduleUseCases;
     }
 
     @ApiOperation("Get all module names")
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Collection<String> getModulesNames() {
-        return modules.getModulesNames();
+        return moduleUseCases.getModulesNames();
     }
 
     @ApiOperation("Get info for a given module release/working-copy")
@@ -64,7 +64,7 @@ public class ModuleController extends BaseResource {
             @PathVariable("module_type") final ModuleType moduleType
     ) {
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return modules.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleWasNotFoundException(moduleKey));
+        return moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleWasNotFoundException(moduleKey));
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")
@@ -78,7 +78,7 @@ public class ModuleController extends BaseResource {
                 && (from_module_version == null || StringUtils.isBlank(from_module_version))
                 && isFromWorkingCopy == null) {
 
-            Module.Key created = modules.createWorkingCopy(module.getKey());
+            Module.Key created = moduleUseCases.createWorkingCopy(module.getKey());
 
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
 
@@ -89,7 +89,7 @@ public class ModuleController extends BaseResource {
 
             Module.Key from = new Module.Key(from_module_name, from_module_version, isFromWorkingCopy ? workingcopy : release);
 
-            Module.Key created = modules.createWorkingCopyFrom(from, module.getKey());
+            Module.Key created = moduleUseCases.createWorkingCopyFrom(from, module.getKey());
 
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
         }

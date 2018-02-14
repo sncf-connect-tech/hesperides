@@ -1,6 +1,6 @@
 package org.hesperides.domain.modules.exceptions;
 
-import org.hesperides.domain.modules.Module;
+import org.hesperides.domain.modules.entities.Module;
 
 public class ModuleWasNotFoundException extends NotFoundException {
 
