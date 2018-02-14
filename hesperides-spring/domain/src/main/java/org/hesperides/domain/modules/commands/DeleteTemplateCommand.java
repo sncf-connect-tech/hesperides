@@ -6,9 +6,7 @@ import org.hesperides.domain.modules.entities.Module;
 
 @Value
 public class DeleteTemplateCommand {
-
     @TargetAggregateIdentifier
     Module.Key moduleKey;
-
     String templateName;
 }

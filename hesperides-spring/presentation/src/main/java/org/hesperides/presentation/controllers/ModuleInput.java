@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableSet;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.ModuleType;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
+/**
+ * Exemple de donnée qu'on reçoit au format JSON et qui est transformé en objet Java
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"name", "version", "working_copy", "technos"})
 public final class ModuleInput {
@@ -46,7 +48,7 @@ public final class ModuleInput {
     }
 
     Module.Key getKey() {
-        return new Module.Key(name, version, workingCopy ? ModuleType.workingcopy : ModuleType.release);
+        return new Module.Key(name, version, workingCopy ? Module.Type.workingcopy : Module.Type.release);
     }
 
     /**

@@ -1,15 +1,16 @@
 package org.hesperides.domain.modules.commands;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.domain.modules.Module;
-import org.hesperides.domain.modules.Template;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.events.*;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.modules.exceptions.TemplateWasNotFoundException;
+import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,19 +19,17 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 
 /**
- * this is the main module aggregate
+ * Cette classe n'est utilisée que par des Commandes
+ * C'est un des principaux agrégats (entité racine)
+ * Les Query utilisent des View (représentation de données)
  */
 @Slf4j
 @Aggregate
-public class ModuleAggregate {
-
+@NoArgsConstructor
+class ModuleAggregate {
     @AggregateIdentifier
     Module.Key key;
-
     Map<String, Template> templates = new HashMap<>();
-
-    public ModuleAggregate() {
-    }
 
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
@@ -60,7 +59,7 @@ public class ModuleAggregate {
 
         // check qu'on a déjà un template avec ce nom, sinon erreur:
         if (!this.templates.containsKey(command.getTemplate().getName())) {
-            throw new TemplateWasNotFoundException(key, command.getTemplate().getName());
+            throw new TemplateNotFoundException(key, command.getTemplate().getName());
         }
 
         apply(new TemplateUpdatedEvent(key, command.getTemplate()));

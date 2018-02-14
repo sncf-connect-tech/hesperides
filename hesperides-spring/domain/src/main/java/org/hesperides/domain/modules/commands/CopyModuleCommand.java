@@ -6,9 +6,7 @@ import org.hesperides.domain.modules.entities.Module;
 
 @Value
 public class CopyModuleCommand {
-
     @TargetAggregateIdentifier
     Module.Key moduleKey;
-
     Module.Key sourceModuleKey;
 }

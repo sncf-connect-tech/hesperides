@@ -7,9 +7,7 @@ import org.hesperides.domain.modules.entities.Template;
 
 @Value
 public class CreateTemplateCommand {
-
     @TargetAggregateIdentifier
     Module.Key moduleKey;
-
     Template template;
 }

@@ -12,11 +12,15 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
 
+/**
+ * Centralisation de la gestion des exceptions (bien pratique)
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * se produit quand on veut executer une commande sur un aggregat qui n'existe pas.
+     *
      * @param ex
      * @return
      */
@@ -32,6 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * se produit sur les queries.
+     *
      * @param ex
      * @return
      */
@@ -45,5 +50,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
         }
-        return new ResponseEntity<Object>(body != null ? body: ex.getMessage(), headers, status);    }
+        return new ResponseEntity<Object>(body != null ? body : ex.getMessage(), headers, status);
+    }
 }

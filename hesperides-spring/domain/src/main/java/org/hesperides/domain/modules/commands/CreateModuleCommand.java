@@ -6,7 +6,6 @@ import org.hesperides.domain.modules.entities.Module;
 
 @Value
 public class CreateModuleCommand {
-
     @TargetAggregateIdentifier
     Module.Key moduleKey;
 }

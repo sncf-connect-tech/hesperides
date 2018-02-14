@@ -9,6 +9,5 @@ import org.hesperides.domain.modules.entities.Template;
 public class UpdateTemplateCommand {
     @TargetAggregateIdentifier
     Module.Key moduleKey;
-
     Template template;
 }

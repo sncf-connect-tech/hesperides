@@ -30,7 +30,7 @@ public class ElasticsearchModule {
     private Long id;
     private String name;
     @JsonProperty("working_copy")
-    private boolean working_copy;
+    private boolean isWorkingCopy;
 
     public String getName() {
         return name;

@@ -1,9 +1,9 @@
 package org.hesperides.application;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.hesperides.domain.modules.commands.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.commands.*;
 import org.hesperides.domain.modules.queries.*;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +12,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Ensemble des cas d'utilisation liés à l'agrégat Module
+ */
 @Component
 public class ModuleUseCases {
 
@@ -53,6 +56,10 @@ public class ModuleUseCases {
     }
 
     public CompletableFuture<Object> updateTemplateInWorkingCopy(Module.Key key, Template template) throws Throwable {
+        /**
+         * TODO
+         * Généraliser ce type d'appel pour éviter les try catch
+         */
         return commandGateway.send(new UpdateTemplateCommand(key, template));
     }
 
@@ -69,7 +76,7 @@ public class ModuleUseCases {
     }
 
     public List<String> getModulesNames() {
-      return queryGateway.queryAllModuleNames(new ModulesNamesQuery());
+        return queryGateway.queryAllModuleNames(new ModulesNamesQuery());
     }
 
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {

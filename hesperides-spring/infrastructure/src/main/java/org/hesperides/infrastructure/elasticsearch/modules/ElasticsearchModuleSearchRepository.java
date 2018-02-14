@@ -49,7 +49,6 @@ public class ElasticsearchModuleSearchRepository implements ModulesQueries {
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
 
     /**
-     *
      * @param query
      * @return
      */

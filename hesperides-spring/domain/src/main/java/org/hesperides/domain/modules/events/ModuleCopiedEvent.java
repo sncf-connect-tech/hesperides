@@ -5,8 +5,6 @@ import org.hesperides.domain.modules.entities.Module;
 
 @Value
 public class ModuleCopiedEvent {
-
     Module.Key moduleKey;
-
     Module.Key sourceModuleKey;
 }

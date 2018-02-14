@@ -1,17 +1,16 @@
-package org.hesperides.domain.modules;
+package org.hesperides.domain.modules.commands;
 
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
-import org.hesperides.domain.modules.commands.CopyModuleCommand;
-import org.hesperides.domain.modules.commands.CreateModuleCommand;
-import org.hesperides.domain.modules.commands.ModuleAggregate;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.ModuleType;
 import org.hesperides.domain.modules.events.ModuleCopiedEvent;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Exemple de test unitaire sur les commandes
+ */
 class ModuleAggregateTest {
 
     private FixtureConfiguration<ModuleAggregate> fixture;
@@ -24,7 +23,7 @@ class ModuleAggregateTest {
     @Test
     void when_create_module_command_then_expect_module_created() {
 
-        Module.Key id = new Module.Key("module_test","123", ModuleType.workingcopy);
+        Module.Key id = new Module.Key("module_test", "123", Module.Type.workingcopy);
         fixture.given()
                 .when(new CreateModuleCommand(id))
                 .expectEvents(new ModuleCreatedEvent(id));
@@ -34,10 +33,10 @@ class ModuleAggregateTest {
     @Test
     void when_copy_module_command_then_expect_module_created_from_another_module() {
 
-        Module.Key id = new Module.Key("module_test","123", ModuleType.workingcopy);
-        Module.Key source = new Module.Key("module_test","1234", ModuleType.workingcopy);
+        Module.Key id = new Module.Key("module_test", "123", Module.Type.workingcopy);
+        Module.Key source = new Module.Key("module_test", "1234", Module.Type.workingcopy);
         fixture.given()
-                .when(new CopyModuleCommand(id,source))
+                .when(new CopyModuleCommand(id, source))
                 .expectEvents(new ModuleCopiedEvent(id, source));
     }
 

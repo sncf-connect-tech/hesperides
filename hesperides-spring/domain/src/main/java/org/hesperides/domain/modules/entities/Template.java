@@ -7,30 +7,25 @@ import lombok.Value;
 
 @Value
 public class Template {
-
     String name;
-
     String filename;
-
     String location;
-
     String content;
-
-    Template.TemplateRights rights;
+    Rights rights;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TemplateRights {
-        TemplateFileRights user;
-        TemplateFileRights group;
-        TemplateFileRights other;
+    public static class Rights {
+        FileRights user;
+        FileRights group;
+        FileRights other;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TemplateFileRights {
+    public static class FileRights {
         Boolean read;
         Boolean write;
         Boolean execute;

@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({"id", "name", "namespace", "filename", "location", "content", "rights"})
-public class TemplateInput  {
+public class TemplateInput {
 
     @NotNull
     private final String name;
@@ -21,16 +21,16 @@ public class TemplateInput  {
     @NotNull
     private final String content;
     @NotNull
-    private final Template.TemplateRights rights;
+    private final Template.Rights rights;
 
     @JsonCreator
     public TemplateInput(
-                    @JsonProperty("name") final String name,
-                    @JsonProperty("filename") final String filename,
-                    @JsonProperty("location") final String location,
-                    @JsonProperty("content") final String content,
-                    @JsonProperty("rights") final Template.TemplateRights rights
-                    ) {
+            @JsonProperty("name") final String name,
+            @JsonProperty("filename") final String filename,
+            @JsonProperty("location") final String location,
+            @JsonProperty("content") final String content,
+            @JsonProperty("rights") final Template.Rights rights
+    ) {
         this.name = name;
         this.location = location;
         this.filename = filename;
@@ -58,11 +58,11 @@ public class TemplateInput  {
         return location;
     }
 
-    public Template.TemplateRights getRights() {
+    public Template.Rights getRights() {
         return rights;
     }
 
     public Template toDomainInstance() {
-        return new Template( name, filename, location, content, rights);
+        return new Template(name, filename, location, content, rights);
     }
 }

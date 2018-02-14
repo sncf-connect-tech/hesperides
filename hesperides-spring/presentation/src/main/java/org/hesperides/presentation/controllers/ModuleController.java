@@ -25,8 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.ModuleType;
-import org.hesperides.domain.modules.exceptions.ModuleWasNotFoundException;
+import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +34,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 
-import static org.hesperides.domain.modules.entities.ModuleType.release;
-import static org.hesperides.domain.modules.entities.ModuleType.workingcopy;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
 @Api("/modules")
@@ -61,36 +58,33 @@ public class ModuleController extends BaseResource {
     public ResponseEntity<ModuleView> getModuleInfo(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
-            @PathVariable("module_type") final ModuleType moduleType
-    ) {
+            @PathVariable("module_type") final Module.Type moduleType) {
+
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleWasNotFoundException(moduleKey));
+        return moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")
     @PostMapping
-    public ResponseEntity createWorkingCopy(@RequestParam(value = "from_module_name", required = false) final String from_module_name,
-                                            @RequestParam(value = "from_module_version", required = false) final String from_module_version,
+    public ResponseEntity createWorkingCopy(@RequestParam(value = "from_module_name", required = false) final String fromModuleName,
+                                            @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
                                             @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
                                             @Valid @RequestBody final ModuleInput module) {
 
-        if ((from_module_name == null || StringUtils.isBlank(from_module_name))
-                && (from_module_version == null || StringUtils.isBlank(from_module_version))
+        if ((fromModuleName == null || StringUtils.isBlank(fromModuleName))
+                && (fromModuleVersion == null || StringUtils.isBlank(fromModuleVersion))
                 && isFromWorkingCopy == null) {
 
             Module.Key created = moduleUseCases.createWorkingCopy(module.getKey());
-
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
 
         } else {
-            checkQueryParameterNotEmpty("from_module_name", from_module_name);
-            checkQueryParameterNotEmpty("from_module_version", from_module_version);
+            checkQueryParameterNotEmpty("from_module_name", fromModuleName);
+            checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
-            Module.Key from = new Module.Key(from_module_name, from_module_version, isFromWorkingCopy ? workingcopy : release);
-
+            Module.Key from = new Module.Key(fromModuleName, fromModuleVersion, isFromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
             Module.Key created = moduleUseCases.createWorkingCopyFrom(from, module.getKey());
-
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
         }
     }

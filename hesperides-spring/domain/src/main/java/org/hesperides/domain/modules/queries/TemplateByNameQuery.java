@@ -5,7 +5,6 @@ import org.hesperides.domain.modules.entities.Module;
 
 @Value
 public class TemplateByNameQuery {
-
     Module.Key moduleKey;
     String templateName;
 }

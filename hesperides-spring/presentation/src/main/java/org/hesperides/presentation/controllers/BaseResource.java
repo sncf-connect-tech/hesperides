@@ -21,6 +21,10 @@
 
 package org.hesperides.presentation.controllers;
 
+/**
+ * On utilise cette classe de manière temporaire pour coller au legacy
+ * Mais il faut la supprimer et faire quelque chose de plus propre
+ */
 abstract class BaseResource {
 
 //    final protected <E, T> Response entityWithConverterOrNotFound(final Optional<T> optional, ResponseConverter<T, E> converter) {

@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
- * lance les query via Axon.
+ * Lance les query via Axon
  */
 @Component
 public class AsyncModuleQueries implements ModulesQueries {
@@ -20,7 +20,7 @@ public class AsyncModuleQueries implements ModulesQueries {
     }
 
     /**
-     * trouvé ici: https://stackoverflow.com/questions/5207163/how-to-do-myclassstring-class-in-java
+     * Trouvé ici: https://stackoverflow.com/questions/5207163/how-to-do-myclassstring-class-in-java
      *
      * @param tClass
      * @param <T2>
@@ -57,7 +57,7 @@ public class AsyncModuleQueries implements ModulesQueries {
     @Override
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
         try {
-            return queryGateway.send(query,optionalOf(TemplateView.class)).get();
+            return queryGateway.send(query, optionalOf(TemplateView.class)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }

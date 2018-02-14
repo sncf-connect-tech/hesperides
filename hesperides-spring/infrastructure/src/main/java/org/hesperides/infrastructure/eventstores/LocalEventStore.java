@@ -5,9 +5,8 @@ import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageE
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-
 /**
- * in memory event storage if local profile is used.
+ * In memory event storage if local profile is used
  */
 @Component
 @Profile("local")

@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.ModuleType;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateDeletedEvent;
@@ -32,14 +31,14 @@ public class LocalModuleRepository implements ModulesQueries {
 
     @EventSourcingHandler
     private void on(ModuleCreatedEvent event) {
-      MODULE_MAP.put(event.getModuleKey(),
-              new ModuleView(
-                      event.getModuleKey().getName(),
-                      event.getModuleKey().getVersion(),
-                      event.getModuleKey().getVersionType() == ModuleType.workingcopy,
-                      1
-                      )
-              );
+        MODULE_MAP.put(event.getModuleKey(),
+                new ModuleView(
+                        event.getModuleKey().getName(),
+                        event.getModuleKey().getVersion(),
+                        event.getModuleKey().getVersionType() == Module.Type.workingcopy,
+                        1
+                )
+        );
     }
 
     @EventSourcingHandler
@@ -48,7 +47,7 @@ public class LocalModuleRepository implements ModulesQueries {
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
                 event.getTemplate().getName(),
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
-                 + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
+                        + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
                 event.getTemplate().getLocation()
         ));

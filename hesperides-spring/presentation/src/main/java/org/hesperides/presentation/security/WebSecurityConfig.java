@@ -29,6 +29,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+/**
+ * L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure
+ * L'authentification est testée pour chaque use case dans le module bootstrap
+ * Mais doit bouger dans un module réservé aux tests
+ */
 @Configuration
 @Profile("!local")
 @EnableWebSecurity
@@ -42,6 +47,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        /**
+         * Pour désactiver CSRF ?
+         */
         http.csrf().disable()
                 .authorizeRequests()
                 .anyRequest()

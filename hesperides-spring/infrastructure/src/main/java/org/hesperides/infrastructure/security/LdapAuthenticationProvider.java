@@ -63,6 +63,11 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Override
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
         String username = auth.getName();
+        /**
+         * TODO
+         * Tester un mot de passe avec une lettre accentuée
+         * Il paraît que ça plante => Gérer le cas
+         */
         String password = (String) auth.getCredentials();
         DirContext ctx = buildSearchContext(username, password);
         return searchUser(ctx, username);

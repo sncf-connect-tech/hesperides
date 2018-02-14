@@ -4,7 +4,7 @@ import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 
 /**
- * recherche un module par sa clé.
+ * Recherche un module par sa clé
  */
 @Value
 public class ModuleByIdQuery {
