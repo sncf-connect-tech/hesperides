@@ -30,6 +30,16 @@ public class ElasticsearchConfiguration {
     private String index;
     private Integer port;
 
+    public boolean isShouldResetIndexOnStartUp() {
+        return shouldResetIndexOnStartUp;
+    }
+
+    public void setShouldResetIndexOnStartUp(boolean shouldResetIndexOnStartUp) {
+        this.shouldResetIndexOnStartUp = shouldResetIndexOnStartUp;
+    }
+
+    private boolean shouldResetIndexOnStartUp = false;
+
     public String getHost() {
         return host;
     }

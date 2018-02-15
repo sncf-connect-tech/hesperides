@@ -1,0 +1,45 @@
+{
+    "properties": {
+        "name": {
+            "type": "multi_field",
+            "fields": {
+                "name": {
+                    "type": "string",
+                    "analyzer": "my_analyzer"
+                },
+                "untouched": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                }
+            }
+        },
+        "platform_name": {
+            "type": "multi_field",
+            "fields": {
+                "platform_name": {
+                    "type": "string"
+                },
+                "lower_white_space": {
+                    "type": "string",
+                    "analyzer": "case_insensitive_analyzer"
+                }
+            }
+        },
+        "modules": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "version": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
+                "working_copy": {
+                    "type": "boolean",
+                    "index": "not_analyzed"
+                }
+            }
+        }
+    }
+}

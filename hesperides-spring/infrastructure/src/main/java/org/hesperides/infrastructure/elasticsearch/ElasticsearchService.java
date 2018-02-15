@@ -20,76 +20,206 @@
  */
 package org.hesperides.infrastructure.elasticsearch;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.MustacheFactory;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
+import org.hesperides.infrastructure.elasticsearch.response.Hit;
 import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hesperides.infrastructure.mustache.MustacheTemplateGenerator;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.google.common.collect.ImmutableMap.of;
 
 @Slf4j
 @Service
 public class ElasticsearchService {
-    @Autowired
-    ElasticsearchClient elasticsearchClient;
-    @Autowired
-    ElasticsearchConfiguration elasticsearchConfiguration;
 
+    private static final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+    private static final String[] MAPPINGS = new String[]{
+            "evaluatedproperties",
+            "templates",
+            "platforms",
+            "modules",
+            "instances"
+    };
+    private static LoadingCache<String, MustacheTemplateGenerator.TemplateMaker> mustacheCache = CacheBuilder.newBuilder()
+            .build(new CacheLoader<String, MustacheTemplateGenerator.TemplateMaker>() {
+                @Override
+                public MustacheTemplateGenerator.TemplateMaker load(String key) throws Exception {
+                    return MustacheTemplateGenerator.from(mustacheFactory.compile("els/queries/" + key));
+                }
+            });
 
-    public ResponseHits getResponseHits(final String method, final String url, final String requestBody, final TypeReference typeReference) {
-        ResponseHits responseHits = null;
-        RestClient restClient = this.elasticsearchClient.getRestClient();
+    private final ElasticsearchConfiguration elasticsearchConfiguration;
+    private final ObjectMapper objectMapper;
+    private final RestClient restClient;
+
+    public ElasticsearchService(ElasticsearchClient elasticsearchClient,
+                                ElasticsearchConfiguration elasticsearchConfiguration,
+                                ObjectMapper objectMapper) {
+        this.elasticsearchConfiguration = elasticsearchConfiguration;
+        this.objectMapper = objectMapper;
+        this.restClient = elasticsearchClient.getRestClient();
+    }
+
+    @PostConstruct
+    public void ensureMainIndexExist() throws IOException {
+
+        if (elasticsearchConfiguration.isShouldResetIndexOnStartUp()) {
+            reset();
+        } else {
+            String endpoint = "/" + this.elasticsearchConfiguration.getIndex();
+            try {
+                restClient.performRequest("GET", endpoint);
+            } catch (ResponseException e) {
+                if (e.getResponse().getStatusLine().getStatusCode() == 404) {
+                    log.info("hummm... looks like we need to create the hesperides index...");
+                    reset();
+                    log.info("done.");
+                }
+            }
+        }
+    }
+
+    private ResponseHits getResponseHits(final String url, final String mustacheTemplate, Map<String, Object> parameters) {
+        String requestBody = mustacheCache.getUnchecked(mustacheTemplate).put(parameters).generate();
+        return getResponseHits("GET", url, requestBody);
+    }
+
+    private ResponseHits getResponseHits(final String method, final String url, final String requestBody) {
         String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + url;
         try {
             HttpEntity entity = new NStringEntity(requestBody, ContentType.APPLICATION_JSON);
             Response response = restClient.performRequest(method, endpoint, Collections.emptyMap(), entity);
-            responseHits = new ObjectMapper().readValue(response.getEntity().getContent(), typeReference);
-        } catch (ResponseException e) {
 
-            // si on est sur du 404, alors tente de créer l'index.
-            if (hesperidesIndexIsNotPresent(e)) {
-                log.warn("Hesperides index was not found, create it");
-                // on crée l'index et on recommence la requete.
-                createHesperidesIndex();
-                return getResponseHits(method, url, requestBody, typeReference);
+            return objectMapper.readValue(response.getEntity().getContent(), ResponseHits.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResponseHits search(final String document, final String mustacheTemplate, Map<String, Object> parameters) {
+        return getResponseHits("/" + document + "/_search", mustacheTemplate, parameters);
+    }
+
+    public ResponseHits search(final String document, final String mustacheTemplate) {
+        return getResponseHits("/" + document + "/_search", mustacheTemplate, of());
+    }
+
+    public <T> List<T> searchForSome(final String document, final String mustacheTemplate, Map<String, Object> parameters, Class<T> responseType) {
+        ResponseHits search = search(document, mustacheTemplate, parameters);
+        return search.getHits().getHits().stream().map(Hit::getSource).map(jsonNode -> treeToValue(responseType, jsonNode)).collect(Collectors.toList());
+    }
+
+    private <T> T treeToValue(Class<T> responseType, JsonNode jsonNode) {
+        try {
+            return objectMapper.treeToValue(jsonNode, responseType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> List<T> searchForSome(final String document, final String mustacheTemplate, Class<T> responseType) {
+        return searchForSome(document, mustacheTemplate, of(), responseType);
+    }
+
+    public Optional<Hit> get(final String document) {
+        String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" +document;
+        try {
+            Response response = restClient.performRequest("GET", endpoint);
+            if (response.getStatusLine().getStatusCode() == 200) {
+                return Optional.of(objectMapper.readValue(response.getEntity().getContent(), Hit.class));
+            } else if (response.getStatusLine().getStatusCode() == 404) {
+                return Optional.empty();
+            } else {
+                throw new RuntimeException("status not expected from ELS: " + response.getStatusLine().getStatusCode());
             }
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        return responseHits;
     }
 
-    private boolean hesperidesIndexIsNotPresent(ResponseException e) {
-        // si on est sur du 404, alors tente de créer l'index.
-        return e.getResponse().getStatusLine().getStatusCode() == 404 && entityContainsIndexMissingException(e.getResponse().getEntity());
+    public <T> Optional<T> getOne(final String document, Class<T> reponseType) {
+        return get(document).map(hit -> treeToValue(reponseType, hit.getSource()));
     }
 
-    private boolean entityContainsIndexMissingException(HttpEntity entity) {
+    public <T> Optional<T> searchForOne(final String document, final String mustacheTemplate, Map<String, Object> parameters, Class<T> responseType) {
+        ResponseHits search = search(document, mustacheTemplate, parameters);
+        if (search.getHits().getHits().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(treeToValue(responseType, search.getHits().getHits().get(0).getSource()));
+    }
+
+    public Response index(String document, Object content) {
+        String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" + document;
+
         try {
-            String e = EntityUtils.toString(entity);
-            return e != null && e.contains("IndexMissingException[[hesperides] missing]");
+            HttpEntity entity = new NStringEntity(objectMapper.writeValueAsString(content), ContentType.APPLICATION_JSON);
+            return restClient.performRequest("POST", endpoint, Collections.emptyMap(), entity);
         } catch (IOException e) {
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
-    private void createHesperidesIndex() {
+    public void reset() throws IOException {
+        /* Reset the index */
         try {
-            elasticsearchClient.getRestClient().performRequest("PUT", "/" + this.elasticsearchConfiguration.getIndex());
-        } catch (IOException e) {
-            throw new RuntimeException("could not create hesperides index: " + e.getMessage(), e);
+            restClient.performRequest("DELETE", "/" + this.elasticsearchConfiguration.getIndex());
+        } catch (final Exception e) {
+            log.info("Could not delete elastic search index. This mostly happens when there is no index already");
         }
+
+        log.debug("Deleted Hesperides index {}", elasticsearchConfiguration.getIndex());
+
+        /* Add global mapping */
+        try (InputStream globalMappingFile = new ClassPathResource("/els/index/global_mapping.json").getInputStream()) {
+
+            Response response = restClient.performRequest("PUT", "/" + elasticsearchConfiguration.getIndex(),
+                            of(), new InputStreamEntity(globalMappingFile));
+
+            log.debug("Put new global mapping in {}: {}", elasticsearchConfiguration.getIndex(), response.getStatusLine());
+        }
+
+        /* Add documents mapping
+         */
+        for (final String mapping : MAPPINGS) {
+
+            try (InputStream mappingFile = new ClassPathResource("/els/index/" + mapping + "_mapping.json").getInputStream()) {
+
+                Response response = restClient.performRequest("PUT",
+                        "/" + elasticsearchConfiguration.getIndex() + "/" + mapping + "/_mapping",
+                        of(),
+                        new InputStreamEntity(mappingFile)
+                );
+
+                log.debug("Put new mapping in {}: {}", mapping, response.getStatusLine());
+            }
+        }
+
     }
 }

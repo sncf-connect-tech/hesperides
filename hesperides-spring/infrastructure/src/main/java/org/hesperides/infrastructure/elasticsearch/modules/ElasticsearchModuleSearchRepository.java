@@ -20,67 +20,87 @@
  */
 package org.hesperides.infrastructure.elasticsearch.modules;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+import com.google.common.collect.ImmutableList;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.util.EntityUtils;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.elasticsearch.client.Response;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.queries.*;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
-import org.hesperides.infrastructure.elasticsearch.response.Hit;
-import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
-import org.hesperides.infrastructure.mustache.MustacheTemplateGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableMap.of;
+
+@Slf4j
 @Repository
 @Profile("!local")
 public class ElasticsearchModuleSearchRepository implements ModulesQueries {
 
-    @Autowired
-    ElasticsearchService elasticsearchService;
-    MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+    private static final String SEARCH_MODULE_NAME_VERSION_WORKINGCOPY_MUSTACHE = "search.module.name.version.workingcopy.mustache";
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
 
-    /**
-     * @param query
-     * @return
-     */
+    private final ElasticsearchService elasticsearchService;
+
+    private static final int POSITIVE_MASK = 0x7FFFFFFF;//-> 0111 1111 1111 1111.... thus removes the first bit
+
+    public ElasticsearchModuleSearchRepository(ElasticsearchService elasticsearchService) {
+        this.elasticsearchService = elasticsearchService;
+    }
+
+    @QueryHandler
     @Override
     public Optional<ModuleView> query(ModuleByIdQuery query) {
-        return Optional.empty(); //TODO
+        return elasticsearchService
+                .getOne(hashOf(query.getKey()), ModuleIndexation.class)
+                .map(ModuleIndexation::toModuleView);
     }
 
     @QueryHandler
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
-        Mustache mustache = mustacheFactory.compile(MUSTACHE_SEARCH_ALL);
-        String requestBody = MustacheTemplateGenerator.from(mustache).generate();
-        ResponseHits responseHits = elasticsearchService.getResponseHits("POST", "/modules/_search", requestBody, new TypeReference<ResponseHits<ElasticsearchModule>>() {
-        });
-
-        return elasticSearchModulesToModuleNames(responseHits);
+        return elasticsearchService
+                .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleView.class)
+                .stream().map(ModuleView::getName).collect(Collectors.toList());
     }
 
+    @QueryHandler
     @Override
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
-        throw new NotImplementedException(); // todo
+        return Optional.empty(); //todo implement this.
     }
 
-    private List<String> elasticSearchModulesToModuleNames(final ResponseHits responseHits) {
-        List<String> modules = new ArrayList<>();
-        if (responseHits != null && responseHits.getHits() != null && responseHits.getHits().getHits() != null) {
-            List<Hit<ElasticsearchModule>> hits = responseHits.getHits().getHits();
-            for (Hit<ElasticsearchModule> hit : hits) {
-                ElasticsearchModule elasticSearchModule = hit.getSource();
-                modules.add(elasticSearchModule.getName());
-            }
-        }
-        return modules;
+    /**
+     * indexation
+     *
+     * @param event
+     */
+    @EventSourcingHandler
+    public void indexNewModule(ModuleCreatedEvent event) throws IOException {
+
+        Response modules = elasticsearchService.index(hashOf(event.getModuleKey()), new ModuleIndexation(
+                        event.getModuleKey().getName(),
+                        event.getModuleKey().getVersion(),
+                        event.getModuleKey().isWorkingCopy(),
+                        ImmutableList.of()
+                )
+        );
+
+        log.debug("nouveau module indexé ? {}, {}", modules.getStatusLine(),
+                EntityUtils.toString(modules.getEntity()));
+    }
+
+    private String hashOf(Module.Key key) {
+        int hash = Objects.hash(key.getName(), key.getVersion(), key.isWorkingCopy());
+        hash = hash & POSITIVE_MASK;
+        return "modules/" + hash;
     }
 }

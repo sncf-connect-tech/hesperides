@@ -10,7 +10,11 @@
 
     <logger name="org.hesperides" level="debug"/>
 
-    <logger name="org.springframework.web" level="trace"/>
+    <logger name="org.springframework.web" level="warn"/>
+    <logger name="org.springframework" level="warn"/>
+
+    <!-- active les traces ELS -->
+    <logger name="tracer" level="trace"/>
 
     <root level="info">
         <appender-ref ref="STDOUT" />

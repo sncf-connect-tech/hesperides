@@ -23,14 +23,43 @@ package org.hesperides.infrastructure.elasticsearch.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResponseHits<T> {
-    private Hits<T> hits;
+public class ResponseHits {
+    private Hits hits;
 
-    public Hits<T> getHits() {
+    public Hits getHits() {
         return hits;
     }
 
-    public void setHits(Hits<T> hits) {
+    public void setHits(Hits hits) {
         this.hits = hits;
     }
+
+    /*
+   {
+  "took": 6,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "failed": 0
+  },
+  "hits": {
+    "total": 1,
+    "max_score": 0.53148466,
+    "hits": [
+      {
+        "_index": "hesperides",
+        "_type": "modules",
+        "_id": "595694859",
+        "_score": 0.53148466,
+        "_source": {
+          "working_copy": true,
+          "name": "test2",
+          "version": "123456"
+        }
+      }
+    ]
+  }
+}
+     */
 }

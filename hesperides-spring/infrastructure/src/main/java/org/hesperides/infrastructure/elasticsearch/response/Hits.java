@@ -25,14 +25,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Hits<T> {
-    private List<Hit<T>> hits;
+public class Hits {
+    private List<Hit> hits;
 
-    public List<Hit<T>> getHits() {
+    public List<Hit> getHits() {
         return hits;
     }
 
-    public void setHits(List<Hit<T>> hits) {
+    public void setHits(List<Hit> hits) {
         this.hits = hits;
     }
 }

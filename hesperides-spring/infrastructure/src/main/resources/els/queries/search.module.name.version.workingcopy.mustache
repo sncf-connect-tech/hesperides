@@ -1,0 +1,30 @@
+{
+    "_source": ["name", "version", "working_copy"],
+	"query": {
+		"bool": {
+			"must": [
+				{
+					"term": {
+						"name": "{{name}}"
+					}
+				},
+				{
+					"term": {
+						"version": "{{version}}"
+					}
+				},
+				{
+					"term": {
+						"working_copy": "{{is_working_copy}}"
+					}
+				}
+			],
+			"must_not": [],
+			"should": []
+		}
+	},
+	"from": 0,
+	"size": 1,
+	"sort": [],
+	"aggs": {}
+}

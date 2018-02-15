@@ -22,17 +22,33 @@ package org.hesperides.infrastructure.elasticsearch.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Hit<T> {
+public class Hit {
     @JsonProperty(value = "_source")
-    private T source;
+    private JsonNode source;
 
-    public T getSource() {
+    @JsonProperty("_version")
+    private int elsVersion;
+
+    public int getElsVersion() {
+        return elsVersion;
+    }
+
+    public void setElsVersion(int elsVersion) {
+        this.elsVersion = elsVersion;
+    }
+
+    public JsonNode getSource() {
         return source;
     }
 
-    public void setSource(T source) {
+    public void setSource(JsonNode source) {
         this.source = source;
     }
 }

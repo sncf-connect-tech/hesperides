@@ -78,6 +78,7 @@ class ModuleAggregate {
     @SuppressWarnings("unused")
     private void on(ModuleCreatedEvent event) {
         this.key = event.getModuleKey();
+
         log.debug("module créé. (aggregate is live ? {})", isLive());
     }
 

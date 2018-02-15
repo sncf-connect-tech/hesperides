@@ -30,6 +30,11 @@ public class Module {
         public String toString() {
             return "module-" + name + "-" + version + "-" + versionType.getMinimizedForm();
         }
+
+        @JsonIgnore
+        public boolean isWorkingCopy() {
+            return versionType == Type.workingcopy;
+        }
     }
 
     /**
