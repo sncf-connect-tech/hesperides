@@ -13,6 +13,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
@@ -47,13 +48,13 @@ public class TemplateController extends BaseResource {
 
     @GetMapping("/workingcopy/templates/{template_name}")
     @ApiOperation("Get template bundled in a module for a version workingcopy")
-    public TemplateView getTemplateInWorkingCopy(
+    public CompletableFuture<TemplateView> getTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("template_name") final String templateName) {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
-        return moduleUseCases.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
+        return moduleUseCases.getTemplate(moduleKey, templateName).thenApply(optionalTemplate -> optionalTemplate.orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName)));
     }
 
     @DeleteMapping("/workingcopy/templates/{template_name}")
@@ -69,33 +70,17 @@ public class TemplateController extends BaseResource {
 
     @PutMapping("/workingcopy/templates")
     @ApiOperation("Update template in the workingcopy of a module")
-    public DeferredResult<ResponseEntity> updateTemplateInWorkingCopy(
+    public CompletableFuture<ResponseEntity> updateTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @Valid @RequestBody final TemplateInput templateInput) throws Throwable {
         // map input to domain instance:
         Template template = templateInput.toDomainInstance();
-
-        /**
-         * TODO
-         * Voir s'il y a moyen d'utiliser CompletableFuture
-         * Et généraliser ce type d'appel
-         */
-        DeferredResult<ResponseEntity> result = new DeferredResult<>();
-        moduleUseCases.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), template)
+        return moduleUseCases.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), template)
                 .thenApply(o -> {
                     URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                             .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
                     return ResponseEntity.status(SEE_OTHER).location(location).build();
-                })
-                .whenCompleteAsync(completeDeferredResult(result));
-        return result;
-    }
-
-    private BiConsumer<Object, Throwable> completeDeferredResult(DeferredResult result) {
-        return (o, throwable) -> {
-            result.setErrorResult(throwable);
-            result.setErrorResult(o);
-        };
+                });
     }
 }

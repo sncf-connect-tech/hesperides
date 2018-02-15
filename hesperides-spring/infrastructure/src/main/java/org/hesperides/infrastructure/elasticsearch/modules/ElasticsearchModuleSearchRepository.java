@@ -68,8 +68,8 @@ public class ElasticsearchModuleSearchRepository implements ModulesQueries {
     @QueryHandler
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         return elasticsearchService
-                .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleView.class)
-                .stream().map(ModuleView::getName).collect(Collectors.toList());
+                .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleIndexation.class)
+                .stream().map(ModuleIndexation::getName).collect(Collectors.toList());
     }
 
     @QueryHandler

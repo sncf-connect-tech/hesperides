@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,7 +40,7 @@ public class ModuleControllerTest {
     @WithMockUser
     public void getModulesNamesTest() throws Exception {
         List<String> modulesList = Arrays.asList("module1", "module2", "module3");
-        given(moduleUseCases.getModulesNames()).willReturn(modulesList);
+        given(moduleUseCases.getModulesNames()).willReturn(CompletableFuture.completedFuture(modulesList));
 
         this.mvc.perform(get("/modules")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE))

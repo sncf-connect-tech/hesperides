@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
@@ -49,19 +51,19 @@ public class ModuleController extends BaseResource {
 
     @ApiOperation("Get all module names")
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Collection<String> getModulesNames() {
+    public CompletableFuture<List<String>> getModulesNames() {
         return moduleUseCases.getModulesNames();
     }
 
     @ApiOperation("Get info for a given module release/working-copy")
     @GetMapping("/{module_name}/{module_version}/{module_type}")
-    public ResponseEntity<ModuleView> getModuleInfo(
+    public CompletableFuture<ResponseEntity<ModuleView>> getModuleInfo(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("module_type") final Module.Type moduleType) {
 
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
+        return moduleUseCases.getModule(moduleKey).thenApply(optionalView -> optionalView.map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey)));
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")
