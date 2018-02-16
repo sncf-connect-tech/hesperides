@@ -21,7 +21,6 @@
 package org.hesperides.infrastructure.elasticsearch;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -148,12 +147,13 @@ public class ElasticsearchService {
     }
 
     public Optional<Hit> get(final String document) {
-        String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" +document;
+        String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" + document;
         try {
             Response response = restClient.performRequest("GET", endpoint);
-            if (response.getStatusLine().getStatusCode() == 200) {
-                return Optional.of(objectMapper.readValue(response.getEntity().getContent(), Hit.class));
-            } else if (response.getStatusLine().getStatusCode() == 404) {
+            return Optional.of(objectMapper.readValue(response.getEntity().getContent(), Hit.class));
+        } catch (ResponseException e) {
+            Response response = e.getResponse();
+            if (response.getStatusLine().getStatusCode() == 404) {
                 return Optional.empty();
             } else {
                 throw new RuntimeException("status not expected from ELS: " + response.getStatusLine().getStatusCode());
@@ -200,7 +200,7 @@ public class ElasticsearchService {
         try (InputStream globalMappingFile = new ClassPathResource("/els/index/global_mapping.json").getInputStream()) {
 
             Response response = restClient.performRequest("PUT", "/" + elasticsearchConfiguration.getIndex(),
-                            of(), new InputStreamEntity(globalMappingFile));
+                    of(), new InputStreamEntity(globalMappingFile));
 
             log.debug("Put new global mapping in {}: {}", elasticsearchConfiguration.getIndex(), response.getStatusLine());
         }

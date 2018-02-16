@@ -34,32 +34,4 @@ public class ResponseHits {
         this.hits = hits;
     }
 
-    /*
-   {
-  "took": 6,
-  "timed_out": false,
-  "_shards": {
-    "total": 1,
-    "successful": 1,
-    "failed": 0
-  },
-  "hits": {
-    "total": 1,
-    "max_score": 0.53148466,
-    "hits": [
-      {
-        "_index": "hesperides",
-        "_type": "modules",
-        "_id": "595694859",
-        "_score": 0.53148466,
-        "_source": {
-          "working_copy": true,
-          "name": "test2",
-          "version": "123456"
-        }
-      }
-    ]
-  }
-}
-     */
 }

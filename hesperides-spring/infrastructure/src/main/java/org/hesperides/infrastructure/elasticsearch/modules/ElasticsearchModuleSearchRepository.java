@@ -44,7 +44,7 @@ import static com.google.common.collect.ImmutableMap.of;
 @Slf4j
 @Repository
 @Profile("!local")
-public class ElasticsearchModuleSearchRepository implements ModulesQueries {
+public class ElasticsearchModuleSearchRepository {
 
     private static final String SEARCH_MODULE_NAME_VERSION_WORKINGCOPY_MUSTACHE = "search.module.name.version.workingcopy.mustache";
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
@@ -58,7 +58,6 @@ public class ElasticsearchModuleSearchRepository implements ModulesQueries {
     }
 
     @QueryHandler
-    @Override
     public Optional<ModuleView> query(ModuleByIdQuery query) {
         return elasticsearchService
                 .getOne(hashOf(query.getKey()), ModuleIndexation.class)
@@ -73,9 +72,13 @@ public class ElasticsearchModuleSearchRepository implements ModulesQueries {
     }
 
     @QueryHandler
-    @Override
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
         return Optional.empty(); //todo implement this.
+    }
+
+    @QueryHandler
+    public Boolean query(ModuleAlreadyExistsQuery query) {
+        return query(new ModuleByIdQuery(query.getKey())).isPresent();
     }
 
     /**

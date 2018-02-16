@@ -37,11 +37,6 @@ class ModuleAggregate {
     }
 
     @CommandHandler
-    public ModuleAggregate(CopyModuleCommand command) {
-        apply(new ModuleCopiedEvent(command.getModuleKey(), command.getSourceModuleKey()));
-    }
-
-    @CommandHandler
     public void createTemplate(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 

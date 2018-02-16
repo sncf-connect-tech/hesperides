@@ -6,7 +6,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 
 @Value
-public class UpdateTemplateCommand {
+class UpdateTemplateCommand {
     @TargetAggregateIdentifier
     Module.Key moduleKey;
     Template template;

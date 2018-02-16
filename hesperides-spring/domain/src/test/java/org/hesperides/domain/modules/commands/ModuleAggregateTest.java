@@ -30,15 +30,15 @@ class ModuleAggregateTest {
 
     }
 
-    @Test
-    void when_copy_module_command_then_expect_module_created_from_another_module() {
-
-        Module.Key id = new Module.Key("module_test", "123", Module.Type.workingcopy);
-        Module.Key source = new Module.Key("module_test", "1234", Module.Type.workingcopy);
-        fixture.given()
-                .when(new CopyModuleCommand(id, source))
-                .expectEvents(new ModuleCopiedEvent(id, source));
-    }
+//    @Test
+//    void when_copy_module_command_then_expect_module_created_from_another_module() {
+//
+//        Module.Key id = new Module.Key("module_test", "123", Module.Type.workingcopy);
+//        Module.Key source = new Module.Key("module_test", "1234", Module.Type.workingcopy);
+//        fixture.given()
+//                .when(new CopyModuleCommand(id, source))
+//                .expectEvents(new ModuleCopiedEvent(id, source));
+//    }
 
 //
 //    @Test

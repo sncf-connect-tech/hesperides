@@ -51,19 +51,19 @@ public class ModuleController extends BaseResource {
 
     @ApiOperation("Get all module names")
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public CompletableFuture<List<String>> getModulesNames() {
+    public List<String> getModulesNames() {
         return moduleUseCases.getModulesNames();
     }
 
     @ApiOperation("Get info for a given module release/working-copy")
     @GetMapping("/{module_name}/{module_version}/{module_type}")
-    public CompletableFuture<ResponseEntity<ModuleView>> getModuleInfo(
+    public ResponseEntity<ModuleView> getModuleInfo(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("module_type") final Module.Type moduleType) {
 
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return moduleUseCases.getModule(moduleKey).thenApply(optionalView -> optionalView.map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey)));
+        return moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")

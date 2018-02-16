@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.modules.local;
+package org.hesperides.infrastructure.local.modules;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
-public class LocalModuleRepository implements ModulesQueries {
+public class LocalModuleRepository {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
     private static final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();
@@ -75,6 +75,11 @@ public class LocalModuleRepository implements ModulesQueries {
     }
 
     @QueryHandler
+    public boolean query(ModuleAlreadyExistsQuery query) {
+        return query(new ModuleByIdQuery(query.getKey())).isPresent();
+    }
+
+    @QueryHandler
     public Optional<ModuleView> query(ModuleByIdQuery query) {
         return Optional.ofNullable(MODULE_MAP.get(query.getKey()));
     }
@@ -85,7 +90,6 @@ public class LocalModuleRepository implements ModulesQueries {
     }
 
     @QueryHandler
-    @Override
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
         return Optional.ofNullable(TEMPLATE_VIEW_MAP.get(Pair.of(query.getModuleKey(), query.getTemplateName())));
     }

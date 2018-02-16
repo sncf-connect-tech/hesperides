@@ -35,7 +35,7 @@ public class TemplateController extends BaseResource {
     public ResponseEntity createTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
-            @Valid @RequestBody final TemplateInput templateInput) throws Throwable {
+            @Valid @RequestBody final TemplateInput templateInput) {
 
         // map input to domain instance:
         Template template = templateInput.toDomainInstance();
@@ -48,13 +48,13 @@ public class TemplateController extends BaseResource {
 
     @GetMapping("/workingcopy/templates/{template_name}")
     @ApiOperation("Get template bundled in a module for a version workingcopy")
-    public CompletableFuture<TemplateView> getTemplateInWorkingCopy(
+    public TemplateView getTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("template_name") final String templateName) {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
-        return moduleUseCases.getTemplate(moduleKey, templateName).thenApply(optionalTemplate -> optionalTemplate.orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName)));
+        return moduleUseCases.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
     }
 
     @DeleteMapping("/workingcopy/templates/{template_name}")
@@ -62,7 +62,7 @@ public class TemplateController extends BaseResource {
     public ResponseEntity deleteTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
-            @PathVariable("template_name") final String templateName) throws Throwable {
+            @PathVariable("template_name") final String templateName) {
 
         this.moduleUseCases.deleteTemplate(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), templateName);
         return ResponseEntity.accepted().build();
@@ -70,17 +70,15 @@ public class TemplateController extends BaseResource {
 
     @PutMapping("/workingcopy/templates")
     @ApiOperation("Update template in the workingcopy of a module")
-    public CompletableFuture<ResponseEntity> updateTemplateInWorkingCopy(
+    public ResponseEntity updateTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
-            @Valid @RequestBody final TemplateInput templateInput) throws Throwable {
+            @Valid @RequestBody final TemplateInput templateInput) {
         // map input to domain instance:
         Template template = templateInput.toDomainInstance();
-        return moduleUseCases.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), template)
-                .thenApply(o -> {
-                    URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
-                            .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
-                    return ResponseEntity.status(SEE_OTHER).location(location).build();
-                });
+        moduleUseCases.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), template);
+        URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
+                .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
+        return ResponseEntity.status(SEE_OTHER).location(location).build();
     }
 }
