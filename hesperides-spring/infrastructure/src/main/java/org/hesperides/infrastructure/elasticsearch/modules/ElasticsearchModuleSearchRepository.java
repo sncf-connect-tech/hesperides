@@ -26,6 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.elasticsearch.client.Response;
+import org.hesperides.domain.modules.ModulesRepository;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.queries.*;
@@ -44,7 +45,7 @@ import static com.google.common.collect.ImmutableMap.of;
 @Slf4j
 @Repository
 @Profile("!local")
-public class ElasticsearchModuleSearchRepository {
+public class ElasticsearchModuleSearchRepository implements ModulesRepository {
 
     private static final String SEARCH_MODULE_NAME_VERSION_WORKINGCOPY_MUSTACHE = "search.module.name.version.workingcopy.mustache";
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";
@@ -57,6 +58,7 @@ public class ElasticsearchModuleSearchRepository {
         this.elasticsearchService = elasticsearchService;
     }
 
+    @Override
     @QueryHandler
     public Optional<ModuleView> query(ModuleByIdQuery query) {
         return elasticsearchService
@@ -64,6 +66,7 @@ public class ElasticsearchModuleSearchRepository {
                 .map(ModuleIndexation::toModuleView);
     }
 
+    @Override
     @QueryHandler
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         return elasticsearchService
@@ -71,11 +74,7 @@ public class ElasticsearchModuleSearchRepository {
                 .stream().map(ModuleIndexation::getName).collect(Collectors.toList());
     }
 
-    @QueryHandler
-    public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
-        return Optional.empty(); //todo implement this.
-    }
-
+    @Override
     @QueryHandler
     public Boolean query(ModuleAlreadyExistsQuery query) {
         return query(new ModuleByIdQuery(query.getKey())).isPresent();
