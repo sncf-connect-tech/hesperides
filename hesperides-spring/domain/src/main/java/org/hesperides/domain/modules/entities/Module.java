@@ -26,6 +26,11 @@ public class Module {
             return URI.create("/rest/modules/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
 
+        @JsonIgnore
+        public String getNamespace() {
+            return "modules#" + name + "#" + version + "#" + versionType.name().toUpperCase();
+        }
+
         @Override
         public String toString() {
             return "module-" + name + "-" + version + "-" + versionType.getMinimizedForm();
