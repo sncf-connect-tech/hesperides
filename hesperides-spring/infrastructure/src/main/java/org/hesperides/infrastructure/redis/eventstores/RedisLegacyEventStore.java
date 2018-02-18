@@ -1,7 +1,6 @@
-package org.hesperides.infrastructure.eventstores;
+package org.hesperides.infrastructure.redis.eventstores;
 
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
-import org.hesperides.infrastructure.eventstores.redis.RedisStorageEngine;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 

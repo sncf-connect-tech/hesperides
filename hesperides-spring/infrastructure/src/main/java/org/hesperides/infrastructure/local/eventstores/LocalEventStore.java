@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.eventstores;
+package org.hesperides.infrastructure.local.eventstores;
 
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;

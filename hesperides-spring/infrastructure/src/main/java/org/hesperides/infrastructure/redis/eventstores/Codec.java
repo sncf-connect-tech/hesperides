@@ -1,7 +1,6 @@
-package org.hesperides.infrastructure.eventstores.redis;
+package org.hesperides.infrastructure.redis.eventstores;
 
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
 
 import java.util.List;
 
