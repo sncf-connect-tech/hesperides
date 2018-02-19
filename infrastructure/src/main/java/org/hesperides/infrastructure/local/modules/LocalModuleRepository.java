@@ -5,11 +5,8 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.events.ModuleCreatedEvent;
-import org.hesperides.domain.modules.events.TemplateCreatedEvent;
-import org.hesperides.domain.modules.events.TemplateDeletedEvent;
-import org.hesperides.domain.modules.events.TemplateUpdatedEvent;
 import org.hesperides.domain.modules.queries.ModuleRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateRepository;
@@ -79,12 +76,12 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @QueryHandler
     public Boolean query(ModuleAlreadyExistsQuery query) {
-        return query(new ModuleByIdQuery(query.getKey())).isPresent();
+        return query(new ModuleByIdQuery(query.getModuleKey())).isPresent();
     }
 
     @QueryHandler
     public Optional<ModuleView> query(ModuleByIdQuery query) {
-        return Optional.ofNullable(MODULE_MAP.get(query.getKey()));
+        return Optional.ofNullable(MODULE_MAP.get(query.getModuleKey()));
     }
 
     @QueryHandler

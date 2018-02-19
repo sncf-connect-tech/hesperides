@@ -63,6 +63,6 @@ public class TemplateInput {
     }
 
     public Template toDomainInstance() {
-        return new Template(name, filename, location, content, rights);
+        return new Template(name, filename, location, content, rights, null); // TODO Est-ce qu'on ajoute la clé du module dans cette vue ?
     }
 }

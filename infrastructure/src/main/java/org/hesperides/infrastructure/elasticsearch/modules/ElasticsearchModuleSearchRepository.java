@@ -26,8 +26,11 @@ import org.apache.http.util.EntityUtils;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.elasticsearch.client.Response;
+import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
+import org.hesperides.domain.modules.ModuleByIdQuery;
+import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.ModulesNamesQuery;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.queries.ModuleRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
@@ -60,7 +63,7 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
     @QueryHandler
     public Optional<ModuleView> query(ModuleByIdQuery query) {
         return elasticsearchService
-                .getOne(hashOf(query.getKey()), ModuleIndexation.class)
+                .getOne(hashOf(query.getModuleKey()), ModuleIndexation.class)
                 .map(ModuleIndexation::toModuleView);
     }
 
@@ -75,7 +78,7 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
     @Override
     @QueryHandler
     public Boolean query(ModuleAlreadyExistsQuery query) {
-        return query(new ModuleByIdQuery(query.getKey())).isPresent();
+        return query(new ModuleByIdQuery(query.getModuleKey())).isPresent();
     }
 
     /**
