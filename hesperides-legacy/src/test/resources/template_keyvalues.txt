@@ -1,5 +1,0 @@
-com.hesperides.property1=some_not_templated_value
-com.hesperides.property2={{{property2|property2 sert a quelquechose}}}
-com.hesperides.property3={{{property3|property3 sert a quelquechose}}}
-com.hesperides.property4=some_not_templated_value
-com.hesperides.property5={{{property5|property5 sert a quelquechose}}}

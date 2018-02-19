@@ -1,6 +1,0 @@
-{
-    "name": "instance.sh",
-    "hesnamespace": "technos.nodejs.0",
-    "filename": "{{INSTANCE_NAME}}.sh",
-    "location": "{{HOME}}/{{INSTANCE_NAME}}"
-}
