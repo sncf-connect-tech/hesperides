@@ -35,7 +35,8 @@ public class TemplateController extends BaseResource {
             @Valid @RequestBody final TemplateInput templateInput) {
 
         // map input to domain instance:
-        Template template = templateInput.toDomainInstance();
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        Template template = templateInput.toDomainInstance(moduleKey);
 
         moduleUseCases.createTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), template);
         URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
@@ -72,7 +73,8 @@ public class TemplateController extends BaseResource {
             @PathVariable("module_version") final String moduleVersion,
             @Valid @RequestBody final TemplateInput templateInput) {
         // map input to domain instance:
-        Template template = templateInput.toDomainInstance();
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        Template template = templateInput.toDomainInstance(moduleKey);
         moduleUseCases.updateTemplateInWorkingCopy(new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy), template);
         URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                 .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 
 import javax.validation.constraints.NotNull;
@@ -62,7 +63,7 @@ public class TemplateInput {
         return rights;
     }
 
-    public Template toDomainInstance() {
-        return new Template(name, filename, location, content, rights, null); // TODO Est-ce qu'on ajoute la clé du module dans cette vue ?
+    public Template toDomainInstance(final Module.Key moduleKey) {
+        return new Template(name, filename, location, content, rights, moduleKey);
     }
 }
