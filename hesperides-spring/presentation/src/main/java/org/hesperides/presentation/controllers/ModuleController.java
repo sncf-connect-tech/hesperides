@@ -33,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
@@ -49,7 +51,7 @@ public class ModuleController extends BaseResource {
 
     @ApiOperation("Get all module names")
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Collection<String> getModulesNames() {
+    public List<String> getModulesNames() {
         return moduleUseCases.getModulesNames();
     }
 

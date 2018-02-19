@@ -1,10 +1,12 @@
-package org.hesperides.infrastructure.modules.local;
+package org.hesperides.infrastructure.local.modules;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.modules.ModulesRepository;
+import org.hesperides.domain.modules.TemplatesRepository;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
-public class LocalModuleRepository implements ModulesQueries {
+public class LocalModuleRepository implements ModulesRepository, TemplatesRepository {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
     private static final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();
@@ -75,6 +77,11 @@ public class LocalModuleRepository implements ModulesQueries {
     }
 
     @QueryHandler
+    public Boolean query(ModuleAlreadyExistsQuery query) {
+        return query(new ModuleByIdQuery(query.getKey())).isPresent();
+    }
+
+    @QueryHandler
     public Optional<ModuleView> query(ModuleByIdQuery query) {
         return Optional.ofNullable(MODULE_MAP.get(query.getKey()));
     }
@@ -84,8 +91,8 @@ public class LocalModuleRepository implements ModulesQueries {
         return ImmutableList.copyOf(MODULE_MAP.keySet()).stream().map(Module.Key::getName).collect(Collectors.toList());
     }
 
-    @QueryHandler
     @Override
+    @QueryHandler
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
         return Optional.ofNullable(TEMPLATE_VIEW_MAP.get(Pair.of(query.getModuleKey(), query.getTemplateName())));
     }

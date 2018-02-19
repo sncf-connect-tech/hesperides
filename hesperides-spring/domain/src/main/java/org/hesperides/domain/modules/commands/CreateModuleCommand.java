@@ -5,7 +5,7 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier;
 import org.hesperides.domain.modules.entities.Module;
 
 @Value
-public class CreateModuleCommand {
+class CreateModuleCommand {
     @TargetAggregateIdentifier
     Module.Key moduleKey;
 }

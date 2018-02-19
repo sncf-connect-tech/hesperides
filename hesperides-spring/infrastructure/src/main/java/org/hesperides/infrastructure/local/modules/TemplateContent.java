@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.modules.local;
+package org.hesperides.infrastructure.local.modules;
 
 import lombok.Value;
 

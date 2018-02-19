@@ -35,7 +35,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * Mais doit bouger dans un module réservé aux tests
  */
 @Configuration
-@Profile("!local")
+@Profile("!noldap")
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {

@@ -5,7 +5,7 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier;
 import org.hesperides.domain.modules.entities.Module;
 
 @Value
-public class DeleteTemplateCommand {
+class DeleteTemplateCommand {
     @TargetAggregateIdentifier
     Module.Key moduleKey;
     String templateName;

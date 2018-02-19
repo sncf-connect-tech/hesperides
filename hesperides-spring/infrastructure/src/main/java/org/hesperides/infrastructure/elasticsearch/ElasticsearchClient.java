@@ -28,8 +28,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ElasticsearchClient {
-    @Autowired
-    ElasticsearchConfiguration elasticsearchConfiguration;
+    private final ElasticsearchConfiguration elasticsearchConfiguration;
+
+    public ElasticsearchClient(ElasticsearchConfiguration elasticsearchConfiguration) {
+        this.elasticsearchConfiguration = elasticsearchConfiguration;
+    }
 
     public RestClient getRestClient() {
         HttpHost httpHost = new HttpHost(this.elasticsearchConfiguration.getHost(), this.elasticsearchConfiguration.getPort());

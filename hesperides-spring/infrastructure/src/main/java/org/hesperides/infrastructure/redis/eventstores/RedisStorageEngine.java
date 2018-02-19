@@ -1,7 +1,5 @@
-package org.hesperides.infrastructure.eventstores.redis;
+package org.hesperides.infrastructure.redis.eventstores;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.TrackedEventMessage;
@@ -10,7 +8,6 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,14 +21,12 @@ import java.util.stream.Stream;
 @Component
 public class RedisStorageEngine implements EventStorageEngine {
 
-    private final ListOperations<String, String> list;
     private final StringRedisTemplate template;
-    private final ObjectMapper objectMapper;
+    private final Codec codec;
 
-    public RedisStorageEngine(StringRedisTemplate template, ObjectMapper objectMapper) {
-        list = template.opsForList();
+    public RedisStorageEngine(StringRedisTemplate template, Codec codec) {
         this.template = template;
-        this.objectMapper = objectMapper;
+        this.codec = codec;
     }
 
     @Override
@@ -45,18 +40,12 @@ public class RedisStorageEngine implements EventStorageEngine {
                 operations.multi();
                 events.stream()
                         .filter(event -> event instanceof DomainEventMessage)
-                        .forEach(event -> operations.opsForList().rightPush(((DomainEventMessage) event).getAggregateIdentifier(), serialize(event.getPayload())));
+                        .forEach(event -> operations.opsForList()
+                                .rightPush(((DomainEventMessage) event).getAggregateIdentifier(),
+                                        codec.code((DomainEventMessage) event)));
                 return operations.exec();
             }
         });
-    }
-
-    private String serialize(Object event) {
-        try {
-            return objectMapper.writeValueAsString(event);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -77,9 +66,10 @@ public class RedisStorageEngine implements EventStorageEngine {
     @Override
     public DomainEventStream readEvents(String aggregateIdentifier, long firstSequenceNumber) {
 
-        log.debug("Read events.");
-
-        return null;
+        log.debug("Read events from {}", firstSequenceNumber);
+        List<String> range = template.opsForList().range(aggregateIdentifier, firstSequenceNumber, -1);
+        log.debug("Read: {}", range);
+        return DomainEventStream.of(codec.decode(aggregateIdentifier, firstSequenceNumber, range));
     }
 
     @Override

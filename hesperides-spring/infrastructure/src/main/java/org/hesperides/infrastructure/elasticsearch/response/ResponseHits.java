@@ -23,14 +23,15 @@ package org.hesperides.infrastructure.elasticsearch.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResponseHits<T> {
-    private Hits<T> hits;
+public class ResponseHits {
+    private Hits hits;
 
-    public Hits<T> getHits() {
+    public Hits getHits() {
         return hits;
     }
 
-    public void setHits(Hits<T> hits) {
+    public void setHits(Hits hits) {
         this.hits = hits;
     }
+
 }

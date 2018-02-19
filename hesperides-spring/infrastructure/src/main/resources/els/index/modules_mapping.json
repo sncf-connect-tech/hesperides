@@ -1,0 +1,12 @@
+{
+    "properties": {
+        "name": {
+            "type": "string",
+            "analyzer": "case_insensitive_analyzer"
+        },
+        "version": {
+            "type": "string",
+            "analyzer": "case_insensitive_analyzer"
+        }
+    }
+}
