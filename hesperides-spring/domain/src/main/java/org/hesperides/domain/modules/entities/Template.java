@@ -14,6 +14,8 @@ public class Template {
     String content;
     Rights rights;
 
+    Module.Key moduleKey;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -31,4 +33,12 @@ public class Template {
         Boolean write;
         Boolean execute;
     }
+
+    public TemplateView buildTemplateView() {
+        return new TemplateView(name,
+                moduleKey.getNamespace(),
+                filename,
+                location);
+    }
+
 }

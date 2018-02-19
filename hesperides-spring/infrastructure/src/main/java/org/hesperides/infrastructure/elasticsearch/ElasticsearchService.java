@@ -30,6 +30,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.nio.entity.NStringEntity;
@@ -79,12 +80,12 @@ public class ElasticsearchService {
     private final ObjectMapper objectMapper;
     private final RestClient restClient;
 
-    public ElasticsearchService(ElasticsearchClient elasticsearchClient,
-                                ElasticsearchConfiguration elasticsearchConfiguration,
+    public ElasticsearchService(ElasticsearchConfiguration elasticsearchConfiguration,
                                 ObjectMapper objectMapper) {
         this.elasticsearchConfiguration = elasticsearchConfiguration;
         this.objectMapper = objectMapper;
-        this.restClient = elasticsearchClient.getRestClient();
+        HttpHost httpHost = new HttpHost(this.elasticsearchConfiguration.getHost(), this.elasticsearchConfiguration.getPort());
+        this.restClient = RestClient.builder(httpHost).build(); //TODO .setFailureListener()
     }
 
     @PostConstruct

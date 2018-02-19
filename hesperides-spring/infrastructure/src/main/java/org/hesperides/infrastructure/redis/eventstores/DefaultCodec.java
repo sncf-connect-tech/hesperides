@@ -24,7 +24,7 @@ class DefaultCodec implements Codec {
         xStream.setClassLoader(Thread.currentThread().getContextClassLoader());
         List<DomainEventMessage<?>> list = new ArrayList<>();
 
-        for (String s: data) {
+        for (String s : data) {
             DomainEventMessage<?> event = (DomainEventMessage<?>) xStream.fromXML(s);
             list.add(event);
         }

@@ -32,9 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 

@@ -1,6 +1,10 @@
 package org.hesperides.domain.modules.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.hesperides.domain.modules.CreateModuleCommand;
+import org.hesperides.domain.modules.CreateTemplateCommand;
+import org.hesperides.domain.modules.DeleteTemplateCommand;
+import org.hesperides.domain.modules.UpdateTemplateCommand;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 import org.springframework.stereotype.Component;

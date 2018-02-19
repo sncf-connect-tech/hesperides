@@ -9,12 +9,9 @@ import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;

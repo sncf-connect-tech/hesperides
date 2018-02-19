@@ -1,18 +1,16 @@
 package org.hesperides.application;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.application.exceptions.DuplicateModuleException;
-import org.hesperides.domain.modules.commands.*;
+import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.queries.*;
+import org.hesperides.domain.modules.queries.ModuleQueries;
+import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -30,7 +28,7 @@ public class ModuleUseCases {
 
     /**
      * creer une working copy, vérifie que le module n'existe pas déjà.
-     *
+     * <p>
      * On test si le module existe déjà ou pas dans cette couche car un aggregat (un module)
      * n'as pas accès aux autres aggregats.
      *
@@ -46,9 +44,9 @@ public class ModuleUseCases {
 
     /**
      * créer un template dans un module déjà existant.
-     *
+     * <p>
      * Si le module n'existe pas, une erreur sera levée par Axon (l'aggregat n'est pas trouvé)
-     *
+     * <p>
      * Si le template existe déjà dans le module, c'est le module lui-même qui levera une exception.
      *
      * @param key

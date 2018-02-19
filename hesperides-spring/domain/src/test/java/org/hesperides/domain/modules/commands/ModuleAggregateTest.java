@@ -2,9 +2,9 @@ package org.hesperides.domain.modules.commands;
 
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.events.*;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,7 @@ class ModuleAggregateTest {
 
     private Module.Key id = new Module.Key("module_test", "123", Module.Type.workingcopy);
     private Template.Rights rights = new Template.Rights();
-    private Template template = new Template("template1", "file1.txt","/", "content", rights);
+    private Template template = new Template("template1", "file1.txt", "/", "content", rights, id);
 
     @BeforeEach
     void setUp() {
@@ -36,8 +36,8 @@ class ModuleAggregateTest {
     @Test
     void when_create_template_then_expect_template_created() {
         fixture.given(new ModuleCreatedEvent(id))
-        .when(new CreateTemplateCommand(id, template))
-        .expectEvents(new TemplateCreatedEvent(id, template));
+                .when(new CreateTemplateCommand(id, template))
+                .expectEvents(new TemplateCreatedEvent(id, template));
     }
 
     @Test
@@ -77,7 +77,6 @@ class ModuleAggregateTest {
                 .when(new DeleteTemplateCommand(id, template.getName()))
                 .expectEvents(new TemplateDeletedEvent(id, template.getName()));
     }
-
 
 
 //    @Test

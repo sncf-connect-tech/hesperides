@@ -1,10 +1,9 @@
-package org.hesperides.domain.modules;
+package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.queries.ModuleAlreadyExistsQuery;
-import org.hesperides.domain.modules.queries.ModuleByIdQuery;
-import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.domain.modules.queries.ModulesNamesQuery;
+import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
+import org.hesperides.domain.modules.ModuleByIdQuery;
+import org.hesperides.domain.modules.ModulesNamesQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +11,7 @@ import java.util.Optional;
 /**
  * stock et query les modules
  */
-public interface ModulesRepository {
+public interface ModuleRepository {
     @QueryHandler
     Optional<ModuleView> query(ModuleByIdQuery query);
 

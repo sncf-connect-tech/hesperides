@@ -5,14 +5,15 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.ModulesRepository;
-import org.hesperides.domain.modules.TemplatesRepository;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateCreatedEvent;
 import org.hesperides.domain.modules.events.TemplateDeletedEvent;
 import org.hesperides.domain.modules.events.TemplateUpdatedEvent;
-import org.hesperides.domain.modules.queries.*;
+import org.hesperides.domain.modules.queries.ModuleRepository;
+import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.modules.queries.TemplateRepository;
+import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
-public class LocalModuleRepository implements ModulesRepository, TemplatesRepository {
+public class LocalModuleRepository implements ModuleRepository, TemplateRepository {
 
     private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
     private static final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();

@@ -1,16 +1,15 @@
 package org.hesperides.infrastructure.redis.modules;
 
 import com.thoughtworks.xstream.XStream;
-import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.TemplatesRepository;
+import org.hesperides.domain.modules.TemplateByNameQuery;
+import org.hesperides.domain.modules.TemplateCreatedEvent;
+import org.hesperides.domain.modules.TemplateDeletedEvent;
+import org.hesperides.domain.modules.TemplateUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.events.TemplateCreatedEvent;
-import org.hesperides.domain.modules.events.TemplateDeletedEvent;
-import org.hesperides.domain.modules.events.TemplateUpdatedEvent;
-import org.hesperides.domain.modules.queries.TemplateByNameQuery;
+import org.hesperides.domain.modules.queries.TemplateRepository;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,12 +22,12 @@ import java.util.Optional;
  */
 @Component
 @Profile("!local")
-public class RedisTemplatesRepository implements TemplatesRepository {
+public class RedisTemplateRepository implements TemplateRepository {
 
     private final StringRedisTemplate template;
     private final XStream xStream = new XStream();
 
-    public RedisTemplatesRepository(StringRedisTemplate template) {
+    public RedisTemplateRepository(StringRedisTemplate template) {
         this.template = template;
     }
 
@@ -45,7 +44,7 @@ public class RedisTemplatesRepository implements TemplatesRepository {
 
     @EventSourcingHandler
     public void on(TemplateCreatedEvent event) {
-        String payload = xStream.toXML(event.buildTemplateView());
+        String payload = xStream.toXML(event.getTemplate().buildTemplateView());
         template.opsForValue().set(getKey(event.getModuleKey(), event.getTemplate()), payload);
     }
 
@@ -65,6 +64,6 @@ public class RedisTemplatesRepository implements TemplatesRepository {
     }
 
     private String getKey(Module.Key moduleKey, String name) {
-        return moduleKey.toString() + "_" +name;
+        return moduleKey.toString() + "_" + name;
     }
 }

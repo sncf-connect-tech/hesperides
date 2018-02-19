@@ -26,10 +26,10 @@ import org.apache.http.util.EntityUtils;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.elasticsearch.client.Response;
-import org.hesperides.domain.modules.ModulesRepository;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.events.ModuleCreatedEvent;
-import org.hesperides.domain.modules.queries.*;
+import org.hesperides.domain.modules.queries.ModuleRepository;
+import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -40,12 +40,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.ImmutableMap.of;
-
 @Slf4j
 @Repository
 @Profile("!local")
-public class ElasticsearchModuleSearchRepository implements ModulesRepository {
+public class ElasticsearchModuleSearchRepository implements ModuleRepository {
 
     private static final String SEARCH_MODULE_NAME_VERSION_WORKINGCOPY_MUSTACHE = "search.module.name.version.workingcopy.mustache";
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";

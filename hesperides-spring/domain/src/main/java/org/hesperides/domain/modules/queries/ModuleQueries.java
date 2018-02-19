@@ -2,12 +2,15 @@ package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
+import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
+import org.hesperides.domain.modules.ModuleByIdQuery;
+import org.hesperides.domain.modules.ModulesNamesQuery;
+import org.hesperides.domain.modules.TemplateByNameQuery;
 import org.hesperides.domain.modules.entities.Module;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
