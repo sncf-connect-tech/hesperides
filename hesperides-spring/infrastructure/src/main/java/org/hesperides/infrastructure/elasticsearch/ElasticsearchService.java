@@ -39,6 +39,7 @@ import org.elasticsearch.client.RestClient;
 import org.hesperides.infrastructure.elasticsearch.response.Hit;
 import org.hesperides.infrastructure.elasticsearch.response.ResponseHits;
 import org.hesperides.infrastructure.mustache.MustacheTemplateGenerator;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,7 @@ import static com.google.common.collect.ImmutableMap.of;
 
 @Slf4j
 @Service
+@Profile("!local")
 public class ElasticsearchService {
 
     private static final MustacheFactory mustacheFactory = new DefaultMustacheFactory();

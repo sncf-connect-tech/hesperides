@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-@Profile("local")
+@Profile("noldap")
 public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
