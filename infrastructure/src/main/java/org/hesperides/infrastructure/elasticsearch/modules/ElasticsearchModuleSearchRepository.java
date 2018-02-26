@@ -74,6 +74,18 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
 
     @Override
     @QueryHandler
+    public List<String> queryModuleTypes(ModuleTypesQuery query) {
+        return elasticsearchService
+                .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleIndexation.class)
+                .stream()
+                .filter(module -> module.getName().equalsIgnoreCase(query.getModuleName()))
+                .filter(module -> module.getVersion().equalsIgnoreCase(query.getModuleVersion()))
+                .map(ModuleIndexation::toModuleTypeView)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @QueryHandler
     public List<String> queryModuleVersions(ModuleVersionsQuery query) {
         return elasticsearchService
                 .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleIndexation.class)

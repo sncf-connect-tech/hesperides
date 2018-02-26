@@ -90,6 +90,15 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     }
 
     @QueryHandler
+    public List<String> queryModuleTypes(ModuleTypesQuery query) {
+        return ImmutableList.copyOf(MODULE_MAP.values()).stream()
+                .filter(module -> module.getName().equalsIgnoreCase(query.getModuleName()))
+                .filter(module -> module.getVersion().equalsIgnoreCase(query.getModuleVersion()))
+                .map(module -> toModuleTypeView(module.isWorking_copy()))
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
     public List<String> queryModuleVersions(ModuleVersionsQuery query) {
         return ImmutableList.copyOf(MODULE_MAP.values()).stream()
                 .filter(module -> module.getName().equalsIgnoreCase(query.getModuleName()))
@@ -100,5 +109,9 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     @QueryHandler
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
         return Optional.ofNullable(TEMPLATE_VIEW_MAP.get(Pair.of(query.getModuleKey(), query.getTemplateName())));
+    }
+
+    private String toModuleTypeView(Boolean workingCopy) {
+        return workingCopy ? "workingcopy" : "release";
     }
 }

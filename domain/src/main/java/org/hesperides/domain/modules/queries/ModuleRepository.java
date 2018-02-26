@@ -1,10 +1,7 @@
 package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
-import org.hesperides.domain.modules.ModuleByIdQuery;
-import org.hesperides.domain.modules.ModuleVersionsQuery;
-import org.hesperides.domain.modules.ModulesNamesQuery;
+import org.hesperides.domain.modules.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +15,9 @@ public interface ModuleRepository {
 
     @QueryHandler
     List<String> queryAllModuleNames(ModulesNamesQuery query);
+
+    @QueryHandler
+    List<String> queryModuleTypes(ModuleTypesQuery query);
 
     @QueryHandler
     List<String> queryModuleVersions(ModuleVersionsQuery query);

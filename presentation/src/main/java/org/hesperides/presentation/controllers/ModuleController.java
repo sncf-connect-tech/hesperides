@@ -67,7 +67,7 @@ public class ModuleController extends BaseResource {
         log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleType: {}", moduleName, moduleVersion, moduleType);
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
         ResponseEntity<ModuleView> module = moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
-        log.debug("return getModuleInfo {}", module.getBody().toString());
+        log.debug("return getModuleInfo: {}", module.getBody().toString());
         return module;
     }
 
@@ -76,8 +76,18 @@ public class ModuleController extends BaseResource {
     public List<String> getModuleVersions(@PathVariable("module_name") final String moduleName) {
         log.debug("getModuleVersions moduleName: {}", moduleName);
         List<String> moduleVersions = moduleUseCases.getModuleVersions(moduleName);
-        log.debug("getModuleVersions {}", moduleVersions.toString());
+        log.debug("return getModuleVersions: {}", moduleVersions.toString());
         return moduleVersions;
+    }
+
+    @ApiOperation("Get all types for a given module version")
+    @GetMapping(path = "/{module_name}/{module_version}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<String> getModuleTypes(@PathVariable("module_name") final String moduleName,
+                                       @PathVariable("module_version") final String moduleVersion) {
+        log.debug("getModuleTypes moduleName: {}, moduleVersion: {}", moduleName, moduleVersion);
+        List<String> moduleTypes = moduleUseCases.getModuleTypes(moduleName, moduleVersion);
+        log.debug("return getModuleTypes: {}", moduleTypes.toString());
+        return moduleTypes;
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")

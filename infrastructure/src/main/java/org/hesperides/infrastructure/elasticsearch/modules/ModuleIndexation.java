@@ -72,4 +72,9 @@ public final class ModuleIndexation {
     public ModuleView toModuleView() {
         return new ModuleView(name, version, workingCopy, 0);
     }
+
+    @JsonIgnore
+    public String toModuleTypeView() {
+        return workingCopy ? "workingcopy" : "release";
+    }
 }

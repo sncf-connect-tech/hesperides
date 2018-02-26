@@ -14,4 +14,5 @@ data class ModuleCreatedEvent(val moduleKey: Module.Key)
 data class ModuleAlreadyExistsQuery(val moduleKey: Module.Key)
 data class ModuleByIdQuery(val moduleKey: Module.Key)
 class ModulesNamesQuery
-class ModuleVersionsQuery(val moduleName: String)
+data class ModuleTypesQuery(val moduleName: String, val moduleVersion: String)
+data class ModuleVersionsQuery(val moduleName: String)

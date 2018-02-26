@@ -76,6 +76,10 @@ public class ModuleUseCases {
         return queries.getModuleVersions(moduleName);
     }
 
+    public List<String> getModuleTypes(String moduleName, String moduleVersion) {
+        return queries.getModuleTypes(moduleName, moduleVersion);
+    }
+
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
         return queries.getTemplate(moduleKey, templateName);
     }

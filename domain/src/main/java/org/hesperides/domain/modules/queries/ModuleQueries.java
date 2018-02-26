@@ -63,6 +63,10 @@ public class ModuleQueries {
         return querySync(new ModuleVersionsQuery(moduleName), listOf(String.class));
     }
 
+    public List<String> getModuleTypes(String moduleName, String moduleVersion) {
+        return querySync(new ModuleTypesQuery(moduleName, moduleVersion), listOf(String.class));
+    }
+
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
         return querySync(new TemplateByNameQuery(moduleKey, templateName), optionalOf(TemplateView.class));
     }
