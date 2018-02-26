@@ -26,10 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.elasticsearch.client.Response;
-import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
-import org.hesperides.domain.modules.ModuleByIdQuery;
-import org.hesperides.domain.modules.ModuleCreatedEvent;
-import org.hesperides.domain.modules.ModulesNamesQuery;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
@@ -73,6 +70,16 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
         return elasticsearchService
                 .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleIndexation.class)
                 .stream().map(ModuleIndexation::getName).collect(Collectors.toList());
+    }
+
+    @Override
+    @QueryHandler
+    public List<String> queryModuleVersions(ModuleVersionsQuery query) {
+        return elasticsearchService
+                .searchForSome("modules", MUSTACHE_SEARCH_ALL, ModuleIndexation.class)
+                .stream()
+                .filter(module -> module.getName().equalsIgnoreCase(query.getModuleName()))
+                .map(ModuleIndexation::getVersion).collect(Collectors.toList());
     }
 
     @Override

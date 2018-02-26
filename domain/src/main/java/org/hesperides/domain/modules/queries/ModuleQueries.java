@@ -2,10 +2,7 @@ package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
-import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
-import org.hesperides.domain.modules.ModuleByIdQuery;
-import org.hesperides.domain.modules.ModulesNamesQuery;
-import org.hesperides.domain.modules.TemplateByNameQuery;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +57,10 @@ public class ModuleQueries {
 
     public List<String> getModulesNames() {
         return querySync(new ModulesNamesQuery(), listOf(String.class));
+    }
+
+    public List<String> getModuleVersions(String moduleName) {
+        return querySync(new ModuleVersionsQuery(moduleName), listOf(String.class));
     }
 
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {

@@ -22,6 +22,7 @@ package org.hesperides.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
@@ -36,6 +37,7 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
+@Slf4j
 @Api("/modules")
 @RestController
 @RequestMapping("/modules")
@@ -50,18 +52,32 @@ public class ModuleController extends BaseResource {
     @ApiOperation("Get all module names")
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<String> getModulesNames() {
-        return moduleUseCases.getModulesNames();
+        log.debug("getModulesNames");
+        List<String> modulesNames = moduleUseCases.getModulesNames();
+        log.debug("return getModulesNames: {}", modulesNames.toString());
+        return modulesNames;
     }
 
     @ApiOperation("Get info for a given module release/working-copy")
-    @GetMapping("/{module_name}/{module_version}/{module_type}")
+    @GetMapping(path = "/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<ModuleView> getModuleInfo(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("module_type") final Module.Type moduleType) {
-
+        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleType: {}", moduleName, moduleVersion, moduleType);
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
+        ResponseEntity<ModuleView> module = moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
+        log.debug("return getModuleInfo {}", module.getBody().toString());
+        return module;
+    }
+
+    @ApiOperation("Get all versions for a given module")
+    @GetMapping(path = "/{module_name}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<String> getModuleVersions(@PathVariable("module_name") final String moduleName) {
+        log.debug("getModuleVersions moduleName: {}", moduleName);
+        List<String> moduleVersions = moduleUseCases.getModuleVersions(moduleName);
+        log.debug("getModuleVersions {}", moduleVersions.toString());
+        return moduleVersions;
     }
 
     @ApiOperation("Create a working copy (possibly from a release)")
