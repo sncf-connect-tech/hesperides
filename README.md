@@ -1,7 +1,6 @@
-[![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=master)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
+# Hesperides Back
 
-Backend Hesperides
-========
+[![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=feature/springboot)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
 
 Hesperides is an open source tool with a frontend (hesperides-gui) and a backend (hesperides).
 
@@ -9,63 +8,40 @@ It lets you easily generate content from a template file (using mustache) in a g
 
 Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesperides frontend.
 
-Requirements:
-=====
-
- * Docker
-
-or :
+## Requirements
 
  * Java 8 (openjdk, sun)
+ 
+ Choose between
+
+ * Docker (see docker-compose files inside `docker` folder)
+
+or
 
  * elasticSearch 1.7.5
 
  * redis 3.0.3
 
-Build:
-=====
+## Build
 
 Build the whole project:
-```shell
-$ mvn package
-```
+ 
+    mvn package
 
-Run:
-=====
 
-Init hesperides configuration :
-```shell
-$ cp hesperides.yml.sample hesperides.yml
-```
-(Config file is ready to be used, be careful of the "overrides" value to point on the right path)
+## Run
 
-Run the backend :
-```shell
-$ java -jar hesperides-1.0.0-SNAPSHOT.jar server PATH_TO_YOUR_HESPERIDES_YML_FILE
-```
+Run the backend
 
-Run integration test for cache
-=====
+    java -jar hesperides.jar
 
-To check if new cache working fine, run integration test.
 
-Set environment variables:
-```
-HESPERIDES_USER=<your_ldap_username>
-HESPERIDES_PASS=<your_ldap_password>
-HESPERIDES_URL=<e.g. http://localhost:8080>
-REDIS_URL=<e.g. 192.168.2.3:2600>
-REDIS_CACHE_URL=<e.g. 192.168.2.59:3000>
-```
-
-Then run test class `integration.IntegrationTest`
-
-Documentation:
-=====
+## Documentation
 
 Available online at <https://voyages-sncf-technologies.github.io/hesperides-gui/>
 
-Development:
-=====
+## Development
 
 Do you have changes to contribute? Please see the Development page.
+
+This project includes a postman collection, check `documentation/postman` folder.
