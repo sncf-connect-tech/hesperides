@@ -129,6 +129,42 @@
 					"response": []
 				},
 				{
+					"name": "getModuleTypes",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
 					"name": "createWorkingCopy",
 					"event": [
 						{

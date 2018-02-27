@@ -81,7 +81,7 @@ public class ModuleController extends BaseResource {
     }
 
     @ApiOperation("Get all types for a given module version")
-    @GetMapping(path = "/{module_name}/{module_version}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(path = "/{module_name}/{module_version:.+}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<String> getModuleTypes(@PathVariable("module_name") final String moduleName,
                                        @PathVariable("module_version") final String moduleVersion) {
         log.debug("getModuleTypes moduleName: {}, moduleVersion: {}", moduleName, moduleVersion);
