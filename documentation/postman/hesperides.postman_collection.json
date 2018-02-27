@@ -217,6 +217,48 @@
 						"description": ""
 					},
 					"response": []
+				},
+				{
+					"name": "updateWorkingCopy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"{{module_name}}\",\n\t\"version\": \"{{module_version}}\",\n\t\"working_copy\": {{module_type_boolean}},\n\t\"technos\": []\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules"
+							]
+						},
+						"description": ""
+					},
+					"response": []
 				}
 			]
 		}

@@ -5,10 +5,12 @@ import org.hesperides.domain.modules.entities.Module
 
 // Command
 data class CreateModuleCommand(@TargetAggregateIdentifier val moduleKey: Module.Key)
+data class UpdateModuleCommand(@TargetAggregateIdentifier val moduleKey: Module.Key)
 
 // Event
 data class ModuleCopiedEvent(val moduleKey: Module.Key, val sourceModuleKey: Module.Key)
 data class ModuleCreatedEvent(val moduleKey: Module.Key)
+data class ModuleUpdateEvent(val moduleKey: Module.Key)
 
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: Module.Key)

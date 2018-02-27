@@ -114,4 +114,13 @@ public class ModuleController extends BaseResource {
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
         }
     }
+
+    @ApiOperation("Update a module working copy")
+    @PutMapping
+    public ResponseEntity updateWorkingCopy(@Valid @RequestBody final ModuleInput module) {
+        log.info("Updating module workingcopy {}", module.toString());
+        Module.Key updated = moduleUseCases.updateWorkingCopy(module.getKey());
+        return ResponseEntity.status(SEE_OTHER).location(updated.getURI()).build();
+    }
+
 }

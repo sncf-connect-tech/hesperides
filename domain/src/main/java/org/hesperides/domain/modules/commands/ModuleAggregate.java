@@ -37,6 +37,12 @@ class ModuleAggregate {
     }
 
     @CommandHandler
+    public ModuleAggregate(UpdateModuleCommand command) {
+        log.debug("Applying update module command...");
+        apply(new ModuleUpdateEvent(command.getModuleKey()));
+    }
+
+    @CommandHandler
     public void createTemplate(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 
@@ -83,6 +89,14 @@ class ModuleAggregate {
         this.key = event.getModuleKey();
         // set les trucs du module en copiant depuis l'event.
         log.debug("module copié.");
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    private void on(ModuleUpdateEvent event) {
+        this.key = event.getModuleKey();
+
+        log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler

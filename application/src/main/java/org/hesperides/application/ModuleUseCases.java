@@ -1,6 +1,7 @@
 package org.hesperides.application;
 
 import org.hesperides.application.exceptions.DuplicateModuleException;
+import org.hesperides.application.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
@@ -40,6 +41,13 @@ public class ModuleUseCases {
             throw new DuplicateModuleException(newModuleKey);
         }
         return commands.createModule(newModuleKey);
+    }
+
+    public Module.Key updateWorkingCopy(Module.Key moduleKey) {
+        if (!queries.moduleExist(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
+        }
+        return commands.updateModule(moduleKey);
     }
 
     /**

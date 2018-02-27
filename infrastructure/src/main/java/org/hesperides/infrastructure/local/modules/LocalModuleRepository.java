@@ -42,6 +42,18 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     }
 
     @EventSourcingHandler
+    private void on(ModuleUpdateEvent event) {
+        MODULE_MAP.put(event.getModuleKey(),
+                new ModuleView(
+                        event.getModuleKey().getName(),
+                        event.getModuleKey().getVersion(),
+                        event.getModuleKey().getVersionType() == Module.Type.workingcopy,
+                        1
+                )
+        );
+    }
+
+    @EventSourcingHandler
     private void on(TemplateCreatedEvent event) {
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
