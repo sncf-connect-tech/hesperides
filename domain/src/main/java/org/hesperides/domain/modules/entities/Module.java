@@ -1,8 +1,6 @@
 package org.hesperides.domain.modules.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.Value;
 
 import java.net.URI;
 import java.util.List;
@@ -12,21 +10,16 @@ import java.util.List;
  */
 @Value
 public class Module {
-    @Getter
-    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    @EqualsAndHashCode
+    @Value
     public static class Key {
         String name;
         String version;
         Type versionType;
 
-        @JsonIgnore
         public URI getURI() {
             return URI.create("/rest/modules/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
 
-        @JsonIgnore
         public String getNamespace() {
             return "modules#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
@@ -36,16 +29,12 @@ public class Module {
             return "module-" + name + "-" + version + "-" + versionType.getMinimizedForm();
         }
 
-        @JsonIgnore
         public boolean isWorkingCopy() {
             return versionType == Type.workingcopy;
         }
     }
 
-    /**
-     * Type de module possible
-     */
-    public static enum Type {
+    public enum Type {
         workingcopy("wc"),
         release("release");
 

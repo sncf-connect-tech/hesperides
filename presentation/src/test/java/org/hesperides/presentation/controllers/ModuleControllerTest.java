@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Exemple de test unitaire de controller
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(org.hesperides.presentation.controllers.ModuleController.class)
+@WebMvcTest(org.hesperides.presentation.controllers.BaseController.class)
 @ContextConfiguration(classes = TestAppConfig.class)
 public class ModuleControllerTest {
 

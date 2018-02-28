@@ -1,0 +1,224 @@
+{
+	"info": {
+		"name": "Hesperides",
+		"_postman_id": "3aff1868-b4b0-5334-eee8-eef4626e1bf4",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "modules",
+			"description": "",
+			"item": [
+				{
+					"name": "getModulesNames",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "getModuleInfo",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/{{module_type}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "getModuleVersions",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "getModuleTypes",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "createWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "de15381b-c9ca-436b-99ca-1ff3d91ba2fe",
+								"type": "text/javascript",
+								"exec": [
+									"pm.globals.set(\"module_type_boolean\", pm.module_type !== \"workingcopy\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"{{module_name}}\",\n\t\"version\": \"{{module_version}}\",\n\t\"working_copy\": {{module_type_boolean}},\n\t\"technos\": []\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
