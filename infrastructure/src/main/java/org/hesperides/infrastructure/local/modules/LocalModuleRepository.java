@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,12 +27,12 @@ import java.util.stream.Collectors;
 @Profile("local")
 public class LocalModuleRepository implements ModuleRepository, TemplateRepository {
 
-    private static final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
-    private static final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();
-    private static final Map<Pair<Module.Key, String>, TemplateContent> TEMPLATE_CONTENT_MAP = Maps.newHashMap();
+    private final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
+    private final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();
+    private final Map<Pair<Module.Key, String>, TemplateContent> TEMPLATE_CONTENT_MAP = Maps.newHashMap();
 
     @EventSourcingHandler
-    private void on(ModuleCreatedEvent event) {
+    public void on(ModuleCreatedEvent event) {
         MODULE_MAP.put(event.getModuleKey(),
                 new ModuleView(
                         event.getModuleKey().getName(),
@@ -42,7 +44,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     }
 
     @EventSourcingHandler
-    private void on(TemplateCreatedEvent event) {
+    public void on(TemplateCreatedEvent event) {
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
                 event.getTemplate().getName(),
@@ -55,7 +57,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     }
 
     @EventSourcingHandler
-    private void on(TemplateUpdatedEvent event) {
+    public void on(TemplateUpdatedEvent event) {
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
                 event.getTemplate().getName(),
@@ -68,7 +70,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     }
 
     @EventSourcingHandler
-    private void on(TemplateDeletedEvent event) {
+    public void on(TemplateDeletedEvent event) {
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplateName());
         TEMPLATE_VIEW_MAP.remove(key);
         TEMPLATE_CONTENT_MAP.remove(key);
