@@ -25,7 +25,7 @@ package org.hesperides.presentation.controllers;
  * On utilise cette classe de manière temporaire pour coller au legacy
  * Mais il faut la supprimer et faire quelque chose de plus propre
  */
-abstract class BaseResource {
+abstract class BaseController {
 
 //    final protected <E, T> Response entityWithConverterOrNotFound(final Optional<T> optional, ResponseConverter<T, E> converter) {
 //        return optional.map(t -> Response.ok(converter.convert(t)).build()).orElseThrow(() -> new MissingResourceException("Requested entity is missing"));

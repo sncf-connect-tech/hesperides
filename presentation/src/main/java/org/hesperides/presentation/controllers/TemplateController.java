@@ -19,7 +19,7 @@ import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 @Api("/modules")
 @RestController
 @RequestMapping("/modules/{module_name}/{module_version}")
-public class TemplateController extends BaseResource {
+public class TemplateController extends BaseController {
 
     private final ModuleUseCases moduleUseCases;
 
