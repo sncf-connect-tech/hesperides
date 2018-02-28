@@ -11,6 +11,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Exemple de donnée qu'on reçoit au format JSON et qui est transformé en objet Java
@@ -36,15 +37,20 @@ public final class ModuleInput {
     @JsonDeserialize(as = ImmutableSet.class)
     private final Set<Techno> technos;
 
+    @JsonProperty("version_id")
+    private final Long versionID;
+
     @JsonCreator
     public ModuleInput(@JsonProperty("name") String name,
                        @JsonProperty("version") String version,
                        @JsonProperty("working_copy") boolean isWorkingCopy,
-                       @JsonProperty("technos") final Set<Techno> technos) {
+                       @JsonProperty("technos") final Set<Techno> technos,
+                       @JsonProperty("version_id") final Long versionID) {
         this.name = name;
         this.version = version;
         this.workingCopy = isWorkingCopy;
         this.technos = technos != null ? ImmutableSet.copyOf(technos) : ImmutableSet.of();
+        this.versionID = versionID;
     }
 
     Module.Key getKey() {
@@ -88,5 +94,18 @@ public final class ModuleInput {
         public String getName() {
             return name;
         }
+
+        public static org.hesperides.domain.modules.entities.Techno toDomainInstance() {
+            return new org.hesperides.domain.modules.entities.Techno();
+        }
     }
+
+    public Module toDomainInstance() {
+        return new Module(
+                getKey(),
+                technos.stream().map(techno -> Techno.toDomainInstance()).collect(Collectors.toList()),
+                versionID
+        );
+    }
+
 }

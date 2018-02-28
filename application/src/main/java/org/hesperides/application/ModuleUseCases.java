@@ -2,6 +2,7 @@ package org.hesperides.application;
 
 import org.hesperides.application.exceptions.DuplicateModuleException;
 import org.hesperides.application.exceptions.ModuleNotFoundException;
+import org.hesperides.application.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
@@ -36,18 +37,22 @@ public class ModuleUseCases {
      * @param newModuleKey
      * @return
      */
-    public Module.Key createWorkingCopy(Module.Key newModuleKey) {
+    public Module.Key createWorkingCopy(Module.Key newModuleKey, Module module) {
         if (queries.moduleExist(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
-        return commands.createModule(newModuleKey);
+        return commands.createModule(newModuleKey, module);
     }
 
-    public Module.Key updateWorkingCopy(Module.Key moduleKey) {
-        if (!queries.moduleExist(moduleKey)) {
+    public Module.Key updateWorkingCopy(Module.Key moduleKey, Module module) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
+        if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        return commands.updateModule(moduleKey);
+        if (!Long.valueOf(optionalModuleView.get().getVersion_id()).equals(module.getVersionID() - 1)) {
+            throw new OutOfDateVersionException(optionalModuleView.get().getVersion_id() + 1, module.getVersionID());
+        }
+        return commands.updateModule(moduleKey, module);
     }
 
     /**

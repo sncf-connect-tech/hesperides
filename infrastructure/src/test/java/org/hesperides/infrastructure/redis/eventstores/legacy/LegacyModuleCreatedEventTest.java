@@ -27,6 +27,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class LegacyModuleCreatedEventTest extends AbstractLegacyCodecTest {
 
     @Test
     public void code() throws IOException {
-        ModuleCreatedEvent moduleCreatedEvent = new ModuleCreatedEvent(new Module.Key("foo-war", "1.0", Module.Type.workingcopy));
+        ModuleCreatedEvent moduleCreatedEvent = new ModuleCreatedEvent(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
         DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleCreatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
         String expectedJson = uglifyJsonLegacyEvent(getResource(JSON_PATH));

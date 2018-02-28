@@ -33,13 +33,13 @@ class ModuleAggregate {
 
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
-        apply(new ModuleCreatedEvent(command.getModuleKey()));
+        apply(new ModuleCreatedEvent(command.getModuleKey(), command.getModule()));
     }
 
     @CommandHandler
     public ModuleAggregate(UpdateModuleCommand command) {
         log.debug("Applying update module command...");
-        apply(new ModuleUpdateEvent(command.getModuleKey()));
+        apply(new ModuleUpdatedEvent(command.getModuleKey(), command.getModule()));
     }
 
     @CommandHandler
@@ -93,7 +93,7 @@ class ModuleAggregate {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleUpdateEvent event) {
+    private void on(ModuleUpdatedEvent event) {
         this.key = event.getModuleKey();
 
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());

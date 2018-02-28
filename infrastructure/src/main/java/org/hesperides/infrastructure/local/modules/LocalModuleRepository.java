@@ -42,7 +42,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     }
 
     @EventSourcingHandler
-    private void on(ModuleUpdateEvent event) {
+    private void on(ModuleUpdatedEvent event) {
         MODULE_MAP.put(event.getModuleKey(),
                 new ModuleView(
                         event.getModuleKey().getName(),

@@ -70,7 +70,7 @@ public final class ModuleIndexation {
 
     @JsonIgnore
     public ModuleView toModuleView() {
-        return new ModuleView(name, version, workingCopy, 0);
+        return new ModuleView(name, version, workingCopy, 0L);
     }
 
     @JsonIgnore

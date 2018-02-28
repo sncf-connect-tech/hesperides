@@ -3,6 +3,7 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 import com.google.gson.Gson;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +34,9 @@ class LegacyCodec implements Codec {
 //        } else if (event.getPayload() instanceof AnotherEvent) {
 //            eventType = AnotherLegacyEvent.EVENT_TYPE;
 //            data = AnotherLegacyEvent.fromDomainEvent((AnotherEvent) event.getPayload());
+        } else if (event.getPayload() instanceof ModuleUpdatedEvent) {
+            eventType = LegacyModuleUpdatedEvent.EVENT_TYPE;
+            data = LegacyModuleUpdatedEvent.fromDomainEvent((ModuleUpdatedEvent) event.getPayload());
         } else {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }

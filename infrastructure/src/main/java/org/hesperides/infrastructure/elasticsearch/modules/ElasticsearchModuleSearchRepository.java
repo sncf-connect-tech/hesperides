@@ -121,7 +121,7 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
     }
 
     @EventSourcingHandler
-    public void indexUpdateModule(ModuleUpdateEvent event) throws IOException {
+    public void indexUpdateModule(ModuleUpdatedEvent event) throws IOException {
 
         Response modules = elasticsearchService.index(hashOf(event.getModuleKey()), new ModuleIndexation(
                         event.getModuleKey().getName(),
