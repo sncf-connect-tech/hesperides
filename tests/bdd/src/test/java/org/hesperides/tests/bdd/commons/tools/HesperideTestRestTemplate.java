@@ -1,5 +1,6 @@
 package org.hesperides.tests.bdd.commons.tools;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +8,8 @@ import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriTemplateHandler;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 
 @Component
@@ -19,12 +19,16 @@ public class HesperideTestRestTemplate {
     private final TestRestTemplate template;
     private final ResponseErrorHandler noopResponseHandler;
 
-    public HesperideTestRestTemplate(Environment environment, TestRestTemplate template) {
+    public HesperideTestRestTemplate(Environment environment, @Autowired(required = false) TestRestTemplate template) {
         super();
         this.environment = environment;
         this.template = template;
-        this.noopResponseHandler = template.getRestTemplate().getErrorHandler();
-        template.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
+        if (template != null) {
+            this.noopResponseHandler = template.getRestTemplate().getErrorHandler();
+            template.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
+        } else {
+            this.noopResponseHandler = null;
+        }
     }
 
     @FunctionalInterface

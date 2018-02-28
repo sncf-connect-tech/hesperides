@@ -20,7 +20,6 @@
  */
 package org.hesperides.security;
 
-import org.hesperides.HesperidesSpringApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,12 +35,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+/**
+ * ce test fonctionne en mode MVC mocké (donc pas de server tomcat démarré)
+ * mais nécessite le ldap pour fonctionner. je ne sais pas pourquoi.
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles(profiles={"local"})
 public class SecuritySampleTest {
     @Autowired
     private WebApplicationContext context;
