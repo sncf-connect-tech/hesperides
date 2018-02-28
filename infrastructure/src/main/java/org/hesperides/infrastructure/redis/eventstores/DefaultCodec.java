@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@ConditionalOnProperty(prefix = "redis", name = "codec", havingValue = "default", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "redis", name = "codec", havingValue = "default")
 class DefaultCodec implements Codec {
 
     private static final XStream xStream = new XStream();
