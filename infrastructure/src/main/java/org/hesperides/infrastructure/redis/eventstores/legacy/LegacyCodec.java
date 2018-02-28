@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Attention, ce qui va suivre est très moche...
- * Mais ça fait le boulot, c'est à peu près lisible et c'est censé disparaître (lol)
+ * C'est moche mais ça fait le boulot, c'est lisible et c'est censé disparaître.
+ * On a tenté de gérer ce mapping avec la librairie Jolt, mais la transformation est trop complexe.
+ * Donc on le fait à la main.
  * J'assume ce choix (Thomas L'Hostis)
  */
 @Component
