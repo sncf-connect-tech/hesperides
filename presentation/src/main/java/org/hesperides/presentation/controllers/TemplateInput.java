@@ -1,67 +1,23 @@
 package org.hesperides.presentation.controllers;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 
 import javax.validation.constraints.NotNull;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"id", "name", "namespace", "filename", "location", "content", "rights"})
+@Value
 public class TemplateInput {
-
     @NotNull
-    private final String name;
+    String name;
     @NotNull
-    private final String filename;
+    String filename;
     @NotNull
-    private final String location;
+    String location;
     @NotNull
-    private final String content;
+    String content;
     @NotNull
-    private final Template.Rights rights;
-
-    @JsonCreator
-    public TemplateInput(
-            @JsonProperty("name") final String name,
-            @JsonProperty("filename") final String filename,
-            @JsonProperty("location") final String location,
-            @JsonProperty("content") final String content,
-            @JsonProperty("rights") final Template.Rights rights
-    ) {
-        this.name = name;
-        this.location = location;
-        this.filename = filename;
-        this.content = content;
-        this.rights = rights;
-    }
-
-    /*
-    PUBLIC API
-     */
-
-    public String getName() {
-        return name;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public Template.Rights getRights() {
-        return rights;
-    }
+    Template.Rights rights;
 
     public Template toDomainInstance(final Module.Key moduleKey) {
         return new Template(name, filename, location, content, rights, moduleKey);
