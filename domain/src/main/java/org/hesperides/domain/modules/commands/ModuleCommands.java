@@ -1,10 +1,7 @@
 package org.hesperides.domain.modules.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.domain.modules.CreateModuleCommand;
-import org.hesperides.domain.modules.CreateTemplateCommand;
-import org.hesperides.domain.modules.DeleteTemplateCommand;
-import org.hesperides.domain.modules.UpdateTemplateCommand;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 import org.springframework.stereotype.Component;
@@ -21,8 +18,12 @@ public class ModuleCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Module.Key createModule(Module.Key key) {
-        return commandGateway.sendAndWait(new CreateModuleCommand(key));
+    public Module.Key createModule(Module module) {
+        return commandGateway.sendAndWait(new CreateModuleCommand(module));
+    }
+
+    public Module.Key updateModule(Module module) {
+        return commandGateway.sendAndWait(new UpdateModuleCommand(module));
     }
 
     public void createTemplateInWorkingCopy(Module.Key key, Template template) {

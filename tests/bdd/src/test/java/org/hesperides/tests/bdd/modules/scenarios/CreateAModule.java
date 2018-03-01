@@ -19,7 +19,7 @@ public class CreateAModule extends SpringIntegrationTest {
 
     @Given("^a module to create$")
     public void aModuleToCreate() {
-        moduleInput = new ModuleInput("test", "123", true, ImmutableSet.of());
+        moduleInput = new ModuleInput("test", "123", true, ImmutableSet.of(), 1L);
     }
 
     @When("^creating a new module$")

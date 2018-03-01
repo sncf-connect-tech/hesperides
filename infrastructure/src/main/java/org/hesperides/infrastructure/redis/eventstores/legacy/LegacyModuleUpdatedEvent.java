@@ -24,31 +24,33 @@ import com.google.gson.Gson;
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
-import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.Techno;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Value
-public class LegacyModuleCreatedEvent {
-    public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleCreatedEvent";
+public class LegacyModuleUpdatedEvent {
 
-    LegacyModule moduleCreated;
+    public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
+
+    LegacyModule moduleUpdated;
     Collection templates;
 
     /**
      * Mapping d'un évènement de la nouvelle application en évènement legacy
      */
-    public static String fromDomainEvent(ModuleCreatedEvent domainEvent) {
+    public static String fromDomainEvent(ModuleUpdatedEvent domainEvent) {
         Module.Key moduleKey = domainEvent.getModule().getKey();
         LegacyModule legacyModule = new LegacyModule(
                 moduleKey.getName(),
                 moduleKey.getVersion(),
                 moduleKey.isWorkingCopy(),
                 new ArrayList(), // Toujours une liste de technos vide lors de la création d'un module
-                1L); // Le version_id est toujours 1 lors de la création d'un module
-        return new Gson().toJson(new LegacyModuleCreatedEvent(legacyModule, new ArrayList()));
+                domainEvent.getModule().getVersionID());
+        return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
     }
 
     /**
@@ -59,19 +61,20 @@ public class LegacyModuleCreatedEvent {
      * @param firstSequenceNumber
      * @return
      */
-    public static DomainEventMessage<ModuleCreatedEvent> toDomainEventMessage(String jsonData, String aggregateIdentifier, long firstSequenceNumber) {
-        LegacyModuleCreatedEvent legacyModuleCreatedEvent = new Gson().fromJson(jsonData, LegacyModuleCreatedEvent.class);
-        ModuleCreatedEvent moduleCreatedEvent = legacyModuleCreatedEvent.toDomainEvent();
-        return new GenericDomainEventMessage(ModuleCreatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleCreatedEvent);
+    public static DomainEventMessage<ModuleUpdatedEvent> toDomainEventMessage(String jsonData, String aggregateIdentifier, long firstSequenceNumber) {
+        LegacyModuleUpdatedEvent legacyModuleUpdatedEvent = new Gson().fromJson(jsonData, LegacyModuleUpdatedEvent.class);
+        ModuleUpdatedEvent moduleUpdatedEvent = legacyModuleUpdatedEvent.toDomainEvent();
+        return new GenericDomainEventMessage(ModuleUpdatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleUpdatedEvent);
     }
 
-    private ModuleCreatedEvent toDomainEvent() {
-        LegacyModule legacyModule = this.getModuleCreated();
+    private ModuleUpdatedEvent toDomainEvent() {
+        LegacyModule legacyModule = this.getModuleUpdated();
         Module.Key moduleKey = new Module.Key(
                 legacyModule.getName(),
                 legacyModule.getVersion(),
                 legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
         Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleCreatedEvent(module);
+        return new ModuleUpdatedEvent(module);
     }
+
 }

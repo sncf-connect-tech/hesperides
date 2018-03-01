@@ -51,4 +51,10 @@ public class Module {
 
     Key key;
     List<Techno> technos;
+    Long versionID;
+
+    public Long getVersionID() {
+        return versionID != null ? versionID : 1L;
+    }
+
 }

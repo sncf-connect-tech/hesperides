@@ -11,6 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 
@@ -31,22 +33,24 @@ public class ModuleUseCasesTest {
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {
 
         Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
+        Module module = new Module(key, new ArrayList<>(), 1L);
 
         given(queryGateway.moduleExist(any())).willReturn(true);
         given(commandGateway.createModule(any())).willReturn(key);
 
-        useCases.createWorkingCopy(key);
+        useCases.createWorkingCopy(module);
     }
 
     @Test
     public void createWorkingCopy_should_pass_when_working_copy_do_not_exists() {
 
         Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
+        Module module = new Module(key, new ArrayList<>(), 1L);
 
         given(queryGateway.moduleExist(any())).willReturn(false);
         given(commandGateway.createModule(any())).willReturn(key);
 
-        useCases.createWorkingCopy(key);
+        useCases.createWorkingCopy(module);
     }
 
 }
