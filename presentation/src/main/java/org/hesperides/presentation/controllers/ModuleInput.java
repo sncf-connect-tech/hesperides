@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Value
 public final class ModuleInput {
@@ -23,6 +24,9 @@ public final class ModuleInput {
 
     Set<Techno> technos;
 
+    @SerializedName("version_id")
+    Long versionID;
+
     Module.Key getKey() {
         return new Module.Key(name, version, isWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
     }
@@ -33,5 +37,18 @@ public final class ModuleInput {
         @SerializedName("working_copy")
         boolean isWorkingCopy;
         String name;
+
+        static org.hesperides.domain.modules.entities.Techno toDomainInstance() {
+            return new org.hesperides.domain.modules.entities.Techno();
+        }
     }
+
+    public Module toDomainInstance() {
+        return new Module(
+                new Module.Key(name, version, Module.Type.release),
+                technos.stream().map(techno -> Techno.toDomainInstance()).collect(Collectors.toList()),
+                versionID
+        );
+    }
+
 }

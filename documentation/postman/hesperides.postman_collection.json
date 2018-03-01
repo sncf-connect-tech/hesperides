@@ -245,7 +245,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"{{module_name}}\",\n\t\"version\": \"{{module_version}}\",\n\t\"working_copy\": {{module_type_boolean}},\n\t\"technos\": []\n}"
+							"raw": "{\n\t\"name\": \"{{module_name}}\",\n\t\"version\": \"{{module_version}}\",\n\t\"working_copy\": {{module_type_boolean}},\n\t\"technos\": [],\n\t\"version_id\": 1\n}"
 						},
 						"url": {
 							"raw": "{{hesperides_url}}/modules",

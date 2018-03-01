@@ -17,7 +17,7 @@ public class ExistingModuleContext extends SpringIntegrationTest {
     @Given("^an existing module$")
     public void anExistingModule() throws Throwable {
         moduleKey = new Module.Key("test","123", Module.Type.workingcopy);
-        moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of());
+        moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
         moduleLocation = template.postForLocationReturnAbsoluteURI("/modules", moduleInput);
     }
 
