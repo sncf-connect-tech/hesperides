@@ -25,6 +25,7 @@
         <module>domain</module>
         <module>infrastructure</module>
         <module>bootstrap</module>
+        <module>tests/bdd</module>
     </modules>
 
     <properties>
@@ -38,6 +39,7 @@
         <logback-core.version>1.2.3</logback-core.version>
         <metrics.version>4.0.2</metrics.version>
         <elasticsearch-rest-client.version>6.1.2</elasticsearch-rest-client.version>
+        <cucumber.version>1.2.5</cucumber.version>
     </properties>
 
     <dependencies>
@@ -70,6 +72,12 @@
             <dependency>
                 <groupId>org.hesperides</groupId>
                 <artifactId>infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -140,6 +148,27 @@
                 <artifactId>hamcrest-core</artifactId>
                 <version>${hamcrest-core.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-test</artifactId>
+                <version>4.2.4.RELEASE</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>info.cukes</groupId>
+                <artifactId>cucumber-junit</artifactId>
+                <version>${cucumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.cukes</groupId>
+                <artifactId>cucumber-java</artifactId>
+                <version>${cucumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.cukes</groupId>
+                <artifactId>cucumber-spring</artifactId>
+                <version>${cucumber.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
