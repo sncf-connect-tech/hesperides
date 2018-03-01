@@ -108,10 +108,10 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
     @EventSourcingHandler
     public void indexNewModule(ModuleCreatedEvent event) throws IOException {
 
-        Response modules = elasticsearchService.index(hashOf(event.getModuleKey()), new ModuleIndexation(
-                        event.getModuleKey().getName(),
-                        event.getModuleKey().getVersion(),
-                        event.getModuleKey().isWorkingCopy(),
+        Response modules = elasticsearchService.index(hashOf(event.getModule().getKey()), new ModuleIndexation(
+                        event.getModule().getKey().getName(),
+                        event.getModule().getKey().getVersion(),
+                        event.getModule().getKey().isWorkingCopy(),
                         ImmutableList.of()
                 )
         );
@@ -123,10 +123,10 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
     @EventSourcingHandler
     public void indexUpdateModule(ModuleUpdatedEvent event) throws IOException {
 
-        Response modules = elasticsearchService.index(hashOf(event.getModuleKey()), new ModuleIndexation(
-                        event.getModuleKey().getName(),
-                        event.getModuleKey().getVersion(),
-                        event.getModuleKey().isWorkingCopy(),
+        Response modules = elasticsearchService.index(hashOf(event.getModule().getKey()), new ModuleIndexation(
+                        event.getModule().getKey().getName(),
+                        event.getModule().getKey().getVersion(),
+                        event.getModule().getKey().isWorkingCopy(),
                         ImmutableList.of()
                 )
         );

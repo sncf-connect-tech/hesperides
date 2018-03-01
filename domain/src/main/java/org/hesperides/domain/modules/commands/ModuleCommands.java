@@ -18,12 +18,12 @@ public class ModuleCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Module.Key createModule(Module.Key key, Module module) {
-        return commandGateway.sendAndWait(new CreateModuleCommand(key, module));
+    public Module.Key createModule(Module module) {
+        return commandGateway.sendAndWait(new CreateModuleCommand(module));
     }
 
-    public Module.Key updateModule(Module.Key key, Module module) {
-        return commandGateway.sendAndWait(new UpdateModuleCommand(key, module));
+    public Module.Key updateModule(Module module) {
+        return commandGateway.sendAndWait(new UpdateModuleCommand(module));
     }
 
     public void createTemplateInWorkingCopy(Module.Key key, Template template) {

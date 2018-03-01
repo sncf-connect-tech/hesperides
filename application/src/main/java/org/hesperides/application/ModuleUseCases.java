@@ -34,25 +34,25 @@ public class ModuleUseCases {
      * On test si le module existe déjà ou pas dans cette couche car un aggregat (un module)
      * n'as pas accès aux autres aggregats.
      *
-     * @param newModuleKey
+     * @param module
      * @return
      */
-    public Module.Key createWorkingCopy(Module.Key newModuleKey, Module module) {
-        if (queries.moduleExist(newModuleKey)) {
-            throw new DuplicateModuleException(newModuleKey);
+    public Module.Key createWorkingCopy(Module module) {
+        if (queries.moduleExist(module.getKey())) {
+            throw new DuplicateModuleException(module.getKey());
         }
-        return commands.createModule(newModuleKey, module);
+        return commands.createModule(module);
     }
 
-    public Module.Key updateWorkingCopy(Module.Key moduleKey, Module module) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
+    public Module.Key updateWorkingCopy(Module module) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
         if (!optionalModuleView.isPresent()) {
-            throw new ModuleNotFoundException(moduleKey);
+            throw new ModuleNotFoundException(module.getKey());
         }
         if (!Long.valueOf(optionalModuleView.get().getVersion_id()).equals(module.getVersionID() - 1)) {
             throw new OutOfDateVersionException(optionalModuleView.get().getVersion_id() + 1, module.getVersionID());
         }
-        return commands.updateModule(moduleKey, module);
+        return commands.updateModule(module);
     }
 
     /**

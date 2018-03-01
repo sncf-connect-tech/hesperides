@@ -31,11 +31,11 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @EventSourcingHandler
     public void on(ModuleCreatedEvent event) {
-        MODULE_MAP.put(event.getModuleKey(),
+        MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
-                        event.getModuleKey().getName(),
-                        event.getModuleKey().getVersion(),
-                        event.getModuleKey().getVersionType() == Module.Type.workingcopy,
+                        event.getModule().getKey().getName(),
+                        event.getModule().getKey().getVersion(),
+                        event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
                         1
                 )
         );
@@ -43,11 +43,11 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @EventSourcingHandler
     private void on(ModuleUpdatedEvent event) {
-        MODULE_MAP.put(event.getModuleKey(),
+        MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
-                        event.getModuleKey().getName(),
-                        event.getModuleKey().getVersion(),
-                        event.getModuleKey().getVersionType() == Module.Type.workingcopy,
+                        event.getModule().getKey().getName(),
+                        event.getModule().getKey().getVersion(),
+                        event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
                         1
                 )
         );
@@ -126,4 +126,5 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     private String toModuleTypeView(Boolean workingCopy) {
         return workingCopy ? "workingcopy" : "release";
     }
+
 }

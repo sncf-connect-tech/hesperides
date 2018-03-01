@@ -39,7 +39,7 @@ public class LegacyModuleCreatedEventTest extends AbstractLegacyCodecTest {
 
     @Test
     public void code() throws IOException {
-        ModuleCreatedEvent moduleCreatedEvent = new ModuleCreatedEvent(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
+        ModuleCreatedEvent moduleCreatedEvent = new ModuleCreatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
         DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleCreatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
         String expectedJson = uglifyJsonLegacyEvent(getResource(JSON_PATH));
@@ -57,7 +57,7 @@ public class LegacyModuleCreatedEventTest extends AbstractLegacyCodecTest {
         assertEquals(ModuleCreatedEvent.class.getName(), domainEventMessage.getPayloadType().getName());
 
         ModuleCreatedEvent event = domainEventMessage.getPayload();
-        Module.Key moduleKey = event.getModuleKey();
+        Module.Key moduleKey = event.getModule().getKey();
 
         assertEquals("foo-war", moduleKey.getName());
         assertEquals("1.0", moduleKey.getVersion());

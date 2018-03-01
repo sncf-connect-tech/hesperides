@@ -4,13 +4,13 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier
 import org.hesperides.domain.modules.entities.Module
 
 // Command
-data class CreateModuleCommand(@TargetAggregateIdentifier val moduleKey: Module.Key, val module: Module)
-data class UpdateModuleCommand(@TargetAggregateIdentifier val moduleKey: Module.Key, val module: Module)
+data class CreateModuleCommand(val module: Module)
+data class UpdateModuleCommand(val module: Module)
 
 // Event
 data class ModuleCopiedEvent(val moduleKey: Module.Key, val sourceModuleKey: Module.Key)
-data class ModuleCreatedEvent(val moduleKey: Module.Key, val module: Module)
-data class ModuleUpdatedEvent(val moduleKey: Module.Key, val module: Module)
+data class ModuleCreatedEvent(val module: Module)
+data class ModuleUpdatedEvent(val module: Module)
 
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: Module.Key)

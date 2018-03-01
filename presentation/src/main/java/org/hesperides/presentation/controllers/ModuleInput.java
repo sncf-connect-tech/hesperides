@@ -45,7 +45,11 @@ public final class ModuleInput {
 
     public Module toDomainInstance() {
         return new Module(
-                new Module.Key(name, version, Module.Type.release),
+                new Module.Key(
+                        name,
+                        version,
+                        isWorkingCopy ? Module.Type.workingcopy : Module.Type.release
+                ),
                 technos.stream().map(techno -> Techno.toDomainInstance()).collect(Collectors.toList()),
                 versionID
         );

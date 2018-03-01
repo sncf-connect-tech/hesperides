@@ -36,9 +36,9 @@ public class ModuleUseCasesTest {
         Module module = new Module(key, new ArrayList<>(), 1L);
 
         given(queryGateway.moduleExist(any())).willReturn(true);
-        given(commandGateway.createModule(any(), any())).willReturn(key);
+        given(commandGateway.createModule(any())).willReturn(key);
 
-        useCases.createWorkingCopy(key, module);
+        useCases.createWorkingCopy(module);
     }
 
     @Test
@@ -48,9 +48,9 @@ public class ModuleUseCasesTest {
         Module module = new Module(key, new ArrayList<>(), 1L);
 
         given(queryGateway.moduleExist(any())).willReturn(false);
-        given(commandGateway.createModule(any(), any())).willReturn(key);
+        given(commandGateway.createModule(any())).willReturn(key);
 
-        useCases.createWorkingCopy(key, module);
+        useCases.createWorkingCopy(module);
     }
 
 }

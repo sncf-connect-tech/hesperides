@@ -33,6 +33,7 @@ import java.util.Collection;
 
 @Value
 public class LegacyModuleUpdatedEvent {
+
     public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
 
     LegacyModule moduleUpdated;
@@ -42,7 +43,7 @@ public class LegacyModuleUpdatedEvent {
      * Mapping d'un évènement de la nouvelle application en évènement legacy
      */
     public static String fromDomainEvent(ModuleUpdatedEvent domainEvent) {
-        Module.Key moduleKey = domainEvent.getModuleKey();
+        Module.Key moduleKey = domainEvent.getModule().getKey();
         LegacyModule legacyModule = new LegacyModule(
                 moduleKey.getName(),
                 moduleKey.getVersion(),
@@ -73,7 +74,7 @@ public class LegacyModuleUpdatedEvent {
                 legacyModule.getVersion(),
                 legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
         Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleUpdatedEvent(moduleKey, module);
+        return new ModuleUpdatedEvent(module);
     }
 
 }

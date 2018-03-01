@@ -41,7 +41,7 @@ public class LegacyModuleCreatedEvent {
      * Mapping d'un évènement de la nouvelle application en évènement legacy
      */
     public static String fromDomainEvent(ModuleCreatedEvent domainEvent) {
-        Module.Key moduleKey = domainEvent.getModuleKey();
+        Module.Key moduleKey = domainEvent.getModule().getKey();
         LegacyModule legacyModule = new LegacyModule(
                 moduleKey.getName(),
                 moduleKey.getVersion(),
@@ -72,6 +72,6 @@ public class LegacyModuleCreatedEvent {
                 legacyModule.getVersion(),
                 legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
         Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleCreatedEvent(moduleKey, module);
+        return new ModuleCreatedEvent(module);
     }
 }

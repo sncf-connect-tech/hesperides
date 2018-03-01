@@ -101,7 +101,7 @@ public class ModuleController extends BaseController {
                 && (fromModuleVersion == null || StringUtils.isBlank(fromModuleVersion))
                 && isFromWorkingCopy == null) {
 
-            Module.Key created = moduleUseCases.createWorkingCopy(module.getKey(), module.toDomainInstance());
+            Module.Key created = moduleUseCases.createWorkingCopy(module.toDomainInstance());
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
 
         } else {
@@ -119,7 +119,7 @@ public class ModuleController extends BaseController {
     @PutMapping
     public ResponseEntity updateWorkingCopy(@Valid @RequestBody final ModuleInput module) {
         log.info("Updating module workingcopy {}", module.toString());
-        Module.Key updated = moduleUseCases.updateWorkingCopy(module.getKey(), module.toDomainInstance());
+        Module.Key updated = moduleUseCases.updateWorkingCopy(module.toDomainInstance());
         return ResponseEntity.status(SEE_OTHER).location(updated.getURI()).build();
     }
 
