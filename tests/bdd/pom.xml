@@ -16,6 +16,7 @@
         <dependency>
             <groupId>org.hesperides</groupId>
             <artifactId>bootstrap</artifactId>
+            <version>${parent.version}</version>
             <scope>test</scope>
         </dependency>
 
