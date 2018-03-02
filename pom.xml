@@ -41,6 +41,7 @@
         <metrics.version>4.0.2</metrics.version>
         <elasticsearch-rest-client.version>6.1.2</elasticsearch-rest-client.version>
         <cucumber.version>1.2.5</cucumber.version>
+        <kotlin.version>1.2.21</kotlin.version>
     </properties>
 
     <dependencies>
@@ -170,6 +171,16 @@
                 <groupId>info.cukes</groupId>
                 <artifactId>cucumber-spring</artifactId>
                 <version>${cucumber.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test</artifactId>
+                <version>${kotlin.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
