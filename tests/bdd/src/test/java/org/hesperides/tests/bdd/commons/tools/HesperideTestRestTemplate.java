@@ -5,12 +5,17 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class HesperideTestRestTemplate {
@@ -19,16 +24,21 @@ public class HesperideTestRestTemplate {
     private final TestRestTemplate template;
     private final ResponseErrorHandler noopResponseHandler;
 
-    public HesperideTestRestTemplate(Environment environment, @Autowired(required = false) TestRestTemplate template) {
+    public HesperideTestRestTemplate(Environment environment, TestRestTemplate template) {
         super();
         this.environment = environment;
         this.template = template;
-        if (template != null) {
-            this.noopResponseHandler = template.getRestTemplate().getErrorHandler();
-            template.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
-        } else {
-            this.noopResponseHandler = null;
-        }
+        this.noopResponseHandler = template.getRestTemplate().getErrorHandler();
+        template.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
+
+        // supprime les mapper jackson:
+        List<HttpMessageConverter<?>> converters = template.getRestTemplate().getMessageConverters().stream()
+                .filter(httpMessageConverter -> !(httpMessageConverter instanceof MappingJackson2HttpMessageConverter))
+                .collect(Collectors.toList());
+
+        // ajouter notre converter Gson:
+        converters.add(new GsonHttpMessageConverter());
+        template.getRestTemplate().setMessageConverters(converters);
     }
 
     @FunctionalInterface
