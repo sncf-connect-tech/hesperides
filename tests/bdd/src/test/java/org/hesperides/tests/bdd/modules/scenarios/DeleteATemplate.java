@@ -2,16 +2,15 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.hesperides.tests.bdd.SpringIntegrationTest;
+import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DeleteATemplate extends SpringIntegrationTest {
+public class DeleteATemplate extends CucumberSpringBean {
 
     @Autowired
     private ExistingTemplateContext existingTemplateContext;

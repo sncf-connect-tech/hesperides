@@ -17,7 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 @ActiveProfiles(profiles = {"local", "noldap"})
 @ContextConfiguration
 @DirtiesContext
-public class SpringIntegrationTest {
+public class CucumberSpringBean {
 
     @Autowired
     protected HesperideTestRestTemplate template;

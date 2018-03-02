@@ -2,14 +2,14 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.hesperides.tests.bdd.SpringIntegrationTest;
+import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DeleteAModule extends SpringIntegrationTest{
+public class DeleteAModule extends CucumberSpringBean {
 
     @Autowired
     ExistingModuleContext moduleContext;
