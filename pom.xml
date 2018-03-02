@@ -26,6 +26,7 @@
         <module>infrastructure</module>
         <module>bootstrap</module>
         <module>tests/bdd</module>
+        <module>tests/tech</module>
     </modules>
 
     <properties>
@@ -182,6 +183,7 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
                         <finalName>hesperides-${project.version}</finalName>
+                        <classifier>app</classifier>
                     </configuration>
                     <dependencies>
                         <dependency>
