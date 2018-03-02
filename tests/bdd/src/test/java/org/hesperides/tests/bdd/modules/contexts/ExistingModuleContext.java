@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableSet;
 import cucumber.api.java.en.Given;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.presentation.controllers.ModuleInput;
-import org.hesperides.tests.bdd.SpringIntegrationTest;
+import org.hesperides.tests.bdd.CucumberSpringBean;
 
 import java.net.URI;
 
-public class ExistingModuleContext extends SpringIntegrationTest {
+public class ExistingModuleContext extends CucumberSpringBean {
 
     private ModuleInput moduleInput;
     private URI moduleLocation;

@@ -5,7 +5,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.presentation.controllers.TemplateInput;
-import org.hesperides.tests.bdd.SpringIntegrationTest;
+import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CreateATemplate extends SpringIntegrationTest {
+public class CreateATemplate extends CucumberSpringBean {
 
     private TemplateInput templateInput;
     private URI templateLocation;

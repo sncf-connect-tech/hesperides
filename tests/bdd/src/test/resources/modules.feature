@@ -10,7 +10,7 @@ Feature: modules related features
     When creating a new module
     Then the module is successfully created
 
-  Scenario: delete a module working copy
-    Given an existing module
-    When deleting this module
-    Then the module is successfully deleted
+#  Scenario: delete a module working copy
+#    Given an existing module
+#    When deleting this module
+#    Then the module is successfully deleted
