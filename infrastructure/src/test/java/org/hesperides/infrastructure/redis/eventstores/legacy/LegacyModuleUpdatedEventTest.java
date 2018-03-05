@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 
 public class LegacyModuleUpdatedEventTest extends AbstractLegacyCodecTest {
 
-    private static final String JSON_PATH = "src/test/resources/moduleUpdatedEvent.json";
+    private static final String JSON_PATH = "moduleUpdatedEvent.json";
 
     @Test
     public void code() throws IOException {
