@@ -35,7 +35,7 @@ public class LegacyModuleUpdatedEvent {
 
     public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
 
-    LegacyModule moduleUpdated;
+    LegacyModule updated;
     Collection templates;
 
     /**
@@ -67,7 +67,7 @@ public class LegacyModuleUpdatedEvent {
     }
 
     private ModuleUpdatedEvent toDomainEvent() {
-        LegacyModule legacyModule = this.getModuleUpdated();
+        LegacyModule legacyModule = this.getUpdated();
         Module.Key moduleKey = new Module.Key(
                 legacyModule.getName(),
                 legacyModule.getVersion(),

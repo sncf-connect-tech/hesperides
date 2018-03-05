@@ -1,0 +1,6 @@
+{
+  "eventType": "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent",
+  "data": "{\"updated\":{\"name\":\"foo-war\",\"version\":\"1.0\",\"working_copy\":true,\"technos\":[],\"version_id\":1},\"templates\":[]}",
+  "timestamp": 1,
+  "user": "robert"
+}

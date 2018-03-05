@@ -22,7 +22,7 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
-import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.junit.Test;
 
@@ -34,30 +34,30 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class LegacyModuleCreatedEventTest extends AbstractLegacyCodecTest {
+public class LegacyModuleUpdatedEventTest extends AbstractLegacyCodecTest {
 
-    private static final String JSON_PATH = "moduleCreatedEvent.json";
+    private static final String JSON_PATH = "src/test/resources/moduleUpdatedEvent.json";
 
     @Test
     public void code() throws IOException {
-        ModuleCreatedEvent moduleCreatedEvent = new ModuleCreatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleCreatedEvent);
+        ModuleUpdatedEvent moduleUpdatedEvent = new ModuleUpdatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
+        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleUpdatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
-        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
+        String expectedJson = uglifyJsonLegacyEvent(getResource(JSON_PATH));
         assertEquals(expectedJson, actualJson);
     }
 
     @Test
     public void decode() throws IOException {
-        String inputJson = getResourceContent(JSON_PATH);
+        String inputJson = getResource(JSON_PATH);
         List<DomainEventMessage<?>> list = new LegacyCodec().decode("id", 0, Collections.singletonList(inputJson));
-        DomainEventMessage<ModuleCreatedEvent> domainEventMessage = (DomainEventMessage<ModuleCreatedEvent>) list.get(0);
+        DomainEventMessage<ModuleUpdatedEvent> domainEventMessage = (DomainEventMessage<ModuleUpdatedEvent>) list.get(0);
 
         assertEquals("id", domainEventMessage.getAggregateIdentifier());
         assertEquals(0, domainEventMessage.getSequenceNumber());
-        assertEquals(ModuleCreatedEvent.class.getName(), domainEventMessage.getPayloadType().getName());
+        assertEquals(ModuleUpdatedEvent.class.getName(), domainEventMessage.getPayloadType().getName());
 
-        ModuleCreatedEvent event = domainEventMessage.getPayload();
+        ModuleUpdatedEvent event = domainEventMessage.getPayload();
         Module.Key moduleKey = event.getModule().getKey();
 
         assertEquals("foo-war", moduleKey.getName());

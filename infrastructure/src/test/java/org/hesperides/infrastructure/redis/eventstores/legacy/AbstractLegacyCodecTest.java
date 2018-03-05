@@ -31,13 +31,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-public abstract class AbstractLegacyCodecTest {
+abstract class AbstractLegacyCodecTest {
 
     /**
      * Récupère une instance de LegacyCodec où les méthodes getContextUsername
      * et getLegacyTimestampFromEventTimestamp sont mockées
      */
-    protected LegacyCodec getMockedLegacyCodec() {
+    LegacyCodec getMockedLegacyCodec() {
         LegacyCodec codec = spy(LegacyCodec.class);
         doReturn("robert").when(codec).getContextUsername();
         doReturn(1L).when(codec).getLegacyTimestampFromEventTimestamp(any());
@@ -54,7 +54,7 @@ public abstract class AbstractLegacyCodecTest {
     /**
      * Applatit un json formatté (pretty printed)
      */
-    protected String uglifyJsonLegacyEvent(final String prettyJson) {
+    String uglifyJsonLegacyEvent(final String prettyJson) {
         Gson gson = new Gson();
         return gson.toJson(gson.fromJson(prettyJson, LegacyEvent.class));
     }
