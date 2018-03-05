@@ -36,9 +36,8 @@ public class LegacyModuleUpdatedEvent {
 
     public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
 
-    LegacyModule moduleUpdated;
+    LegacyModule updated;
     Collection templates;
-    String userName;
 
     /**
      * Mapping d'un évènement de la nouvelle application en évènement legacy
@@ -51,25 +50,25 @@ public class LegacyModuleUpdatedEvent {
                 moduleKey.isWorkingCopy(),
                 new ArrayList(), // Toujours une liste de technos vide lors de la création d'un module
                 domainEvent.getModule().getVersionID());
-        return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList(), domainEvent.getUser().getName()));
+        return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
     }
 
     /**
      * Mapping du json legacy vers un évènement du domaine de la nouvelle application
      *
-     * @param jsonData
+     * @param legacyEvent
      * @param aggregateIdentifier
      * @param firstSequenceNumber
      * @return
      */
-    public static DomainEventMessage<ModuleUpdatedEvent> toDomainEventMessage(String jsonData, String aggregateIdentifier, long firstSequenceNumber) {
-        LegacyModuleUpdatedEvent legacyModuleUpdatedEvent = new Gson().fromJson(jsonData, LegacyModuleUpdatedEvent.class);
-        ModuleUpdatedEvent moduleUpdatedEvent = legacyModuleUpdatedEvent.toDomainEvent();
+    public static DomainEventMessage<ModuleUpdatedEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long firstSequenceNumber) {
+        LegacyModuleUpdatedEvent legacyModuleUpdatedEvent = new Gson().fromJson(legacyEvent.getData(), LegacyModuleUpdatedEvent.class);
+        ModuleUpdatedEvent moduleUpdatedEvent = legacyModuleUpdatedEvent.toDomainEvent(legacyEvent.getUser());
         return new GenericDomainEventMessage(ModuleUpdatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleUpdatedEvent);
     }
 
-    private ModuleUpdatedEvent toDomainEvent() {
-        LegacyModule legacyModule = this.getModuleUpdated();
+    private ModuleUpdatedEvent toDomainEvent(String userName) {
+        LegacyModule legacyModule = this.getUpdated();
         Module.Key moduleKey = new Module.Key(
                 legacyModule.getName(),
                 legacyModule.getVersion(),

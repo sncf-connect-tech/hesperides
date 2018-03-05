@@ -11,7 +11,6 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * ces tests fonctionnent en mode "RANDOM_PORT", c'est à dire avec un serveur tomcat
  * démarré sur un port random.
- *
  */
 @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = {"local", "noldap"})

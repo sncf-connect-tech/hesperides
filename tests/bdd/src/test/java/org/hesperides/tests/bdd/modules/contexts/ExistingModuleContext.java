@@ -16,7 +16,7 @@ public class ExistingModuleContext extends CucumberSpringBean {
 
     @Given("^an existing module$")
     public void anExistingModule() throws Throwable {
-        moduleKey = new Module.Key("test","123", Module.Type.workingcopy);
+        moduleKey = new Module.Key("test", "123", Module.Type.workingcopy);
         moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
         moduleLocation = template.postForLocationReturnAbsoluteURI("/modules", moduleInput);
     }

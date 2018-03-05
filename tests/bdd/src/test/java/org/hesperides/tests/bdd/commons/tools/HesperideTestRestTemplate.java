@@ -46,6 +46,7 @@ public class HesperideTestRestTemplate {
 
     /**
      * permet d'executer un appel sans avoir des exceptions qui sortent de partout...
+     *
      * @param worker
      * @param <R>
      * @return
@@ -64,7 +65,7 @@ public class HesperideTestRestTemplate {
         return URI.create("http://localhost:" + port + relativeUri.toString());
     }
 
-    public URI postForLocationReturnAbsoluteURI(String s, Object moduleInput, Object...params) {
+    public URI postForLocationReturnAbsoluteURI(String s, Object moduleInput, Object... params) {
         return absoluteURI(template.postForLocation(s, moduleInput, params));
     }
 

@@ -62,6 +62,9 @@ class LegacyCodec implements Codec {
                 case LegacyModuleCreatedEvent.EVENT_TYPE:
                     events.add(LegacyModuleCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
                     break;
+                case LegacyModuleUpdatedEvent.EVENT_TYPE:
+                    events.add(LegacyModuleUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
 //                case AnotherLegacyEvent.EVENT_TYPE:
 //                    events.add(AnotherLegacyEvent.toDomainEventMessage(legacyEvent.getData(), aggregateIdentifier, firstSequenceNumber));
 //                    break;

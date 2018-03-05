@@ -61,8 +61,8 @@ public class LegacyModuleCreatedEvent {
      * @return
      */
     public static DomainEventMessage<ModuleCreatedEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long firstSequenceNumber) {
-        String jsonData = legacyEvent.getData();
-        LegacyModuleCreatedEvent legacyModuleCreatedEvent = new Gson().fromJson(jsonData, LegacyModuleCreatedEvent.class);
+        // todo factoriser ce code
+        LegacyModuleCreatedEvent legacyModuleCreatedEvent = new Gson().fromJson(legacyEvent.getData(), LegacyModuleCreatedEvent.class);
         ModuleCreatedEvent moduleCreatedEvent = legacyModuleCreatedEvent.toDomainEvent(legacyEvent.getUser());
         return new GenericDomainEventMessage(ModuleCreatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleCreatedEvent);
     }

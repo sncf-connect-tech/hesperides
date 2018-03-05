@@ -20,31 +20,14 @@
  */
 package org.hesperides.infrastructure.elasticsearch.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonElement;
+import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@Value
 public class Hit {
-    @JsonProperty(value = "_source")
-    private JsonNode source;
-
-    @JsonProperty("_version")
-    private int elsVersion;
-
-    public int getElsVersion() {
-        return elsVersion;
-    }
-
-    public void setElsVersion(int elsVersion) {
-        this.elsVersion = elsVersion;
-    }
-
-    public JsonNode getSource() {
-        return source;
-    }
-
-    public void setSource(JsonNode source) {
-        this.source = source;
-    }
+    @SerializedName("_source")
+    private final JsonElement source;
+    @SerializedName("_version")
+    private final int elsVersion;
 }

@@ -22,21 +22,22 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-public abstract class AbstractLegacyCodecTest {
+abstract class AbstractLegacyCodecTest {
 
     /**
      * Récupère une instance de LegacyCodec où les méthodes getContextUsername
      * et getLegacyTimestampFromEventTimestamp sont mockées
      */
-    protected LegacyCodec getMockedLegacyCodec() {
+    LegacyCodec getMockedLegacyCodec() {
         LegacyCodec codec = spy(LegacyCodec.class);
         doReturn(1L).when(codec).getLegacyTimestampFromEventTimestamp(any());
         return codec;
@@ -45,14 +46,14 @@ public abstract class AbstractLegacyCodecTest {
     /**
      * Récupère le contenu d'un fichier à partir de son path
      */
-    protected String getResource(final String path) throws IOException {
-        return FileUtils.readFileToString(new File(path));
+    protected String getResourceContent(final String path) throws IOException {
+        return FileUtils.readFileToString(new ClassPathResource(path).getFile(), UTF_8);
     }
 
     /**
      * Applatit un json formatté (pretty printed)
      */
-    protected String uglifyJsonLegacyEvent(final String prettyJson) {
+    String uglifyJsonLegacyEvent(final String prettyJson) {
         Gson gson = new Gson();
         return gson.toJson(gson.fromJson(prettyJson, LegacyEvent.class));
     }
