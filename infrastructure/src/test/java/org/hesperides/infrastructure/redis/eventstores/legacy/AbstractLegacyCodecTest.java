@@ -39,7 +39,6 @@ abstract class AbstractLegacyCodecTest {
      */
     LegacyCodec getMockedLegacyCodec() {
         LegacyCodec codec = spy(LegacyCodec.class);
-        doReturn("robert").when(codec).getContextUsername();
         doReturn(1L).when(codec).getLegacyTimestampFromEventTimestamp(any());
         return codec;
     }

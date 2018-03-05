@@ -33,8 +33,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
+import static org.hesperides.domain.security.User.fromPrincipal;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
 
 @Slf4j
@@ -92,7 +94,8 @@ public class ModuleController extends BaseController {
 
     @ApiOperation("Create a working copy (possibly from a release)")
     @PostMapping
-    public ResponseEntity createWorkingCopy(@RequestParam(value = "from_module_name", required = false) final String fromModuleName,
+    public ResponseEntity createWorkingCopy(Principal currentUser,
+                                            @RequestParam(value = "from_module_name", required = false) final String fromModuleName,
                                             @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
                                             @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
                                             @Valid @RequestBody final ModuleInput module) {
@@ -101,7 +104,7 @@ public class ModuleController extends BaseController {
                 && (fromModuleVersion == null || StringUtils.isBlank(fromModuleVersion))
                 && isFromWorkingCopy == null) {
 
-            Module.Key created = moduleUseCases.createWorkingCopy(module.toDomainInstance());
+            Module.Key created = moduleUseCases.createWorkingCopy(module.toDomainInstance(), fromPrincipal(currentUser));
             return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
 
         } else {
@@ -117,9 +120,9 @@ public class ModuleController extends BaseController {
 
     @ApiOperation("Update a module working copy")
     @PutMapping
-    public ResponseEntity updateWorkingCopy(@Valid @RequestBody final ModuleInput module) {
+    public ResponseEntity updateWorkingCopy(Principal principal, @Valid @RequestBody final ModuleInput module) {
         log.info("Updating module workingcopy {}", module.toString());
-        Module.Key updated = moduleUseCases.updateWorkingCopy(module.toDomainInstance());
+        Module.Key updated = moduleUseCases.updateWorkingCopy(module.toDomainInstance(), fromPrincipal(principal));
         return ResponseEntity.status(SEE_OTHER).location(updated.getURI()).build();
     }
 

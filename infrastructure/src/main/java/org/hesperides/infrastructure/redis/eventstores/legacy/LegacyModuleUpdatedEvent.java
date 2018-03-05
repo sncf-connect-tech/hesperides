@@ -26,6 +26,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.security.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,25 +56,25 @@ public class LegacyModuleUpdatedEvent {
     /**
      * Mapping du json legacy vers un évènement du domaine de la nouvelle application
      *
-     * @param jsonData
+     * @param legacyEvent
      * @param aggregateIdentifier
      * @param firstSequenceNumber
      * @return
      */
-    public static DomainEventMessage<ModuleUpdatedEvent> toDomainEventMessage(String jsonData, String aggregateIdentifier, long firstSequenceNumber) {
-        LegacyModuleUpdatedEvent legacyModuleUpdatedEvent = new Gson().fromJson(jsonData, LegacyModuleUpdatedEvent.class);
-        ModuleUpdatedEvent moduleUpdatedEvent = legacyModuleUpdatedEvent.toDomainEvent();
+    public static DomainEventMessage<ModuleUpdatedEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long firstSequenceNumber) {
+        LegacyModuleUpdatedEvent legacyModuleUpdatedEvent = new Gson().fromJson(legacyEvent.getData(), LegacyModuleUpdatedEvent.class);
+        ModuleUpdatedEvent moduleUpdatedEvent = legacyModuleUpdatedEvent.toDomainEvent(legacyEvent.getUser());
         return new GenericDomainEventMessage(ModuleUpdatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleUpdatedEvent);
     }
 
-    private ModuleUpdatedEvent toDomainEvent() {
+    private ModuleUpdatedEvent toDomainEvent(String userName) {
         LegacyModule legacyModule = this.getUpdated();
         Module.Key moduleKey = new Module.Key(
                 legacyModule.getName(),
                 legacyModule.getVersion(),
                 legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
         Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleUpdatedEvent(module);
+        return new ModuleUpdatedEvent(module, new User(userName));
     }
 
 }
