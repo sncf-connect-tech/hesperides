@@ -29,23 +29,11 @@ import java.util.List;
 
 @Value
 public final class ModuleIndexation {
-
     private final String name;
     private final String version;
     @SerializedName("working_copy")
     private final boolean workingCopy;
     private final List<TemplatePackageIndexation> technos;
-
-//    @JsonCreator
-//    public ModuleIndexation(@JsonProperty("name") final String name,
-//                            @JsonProperty("version") final String version,
-//                            @JsonProperty("working_copy") final boolean workingCopy,
-//                            @JsonProperty("technos") final List<TemplatePackageIndexation> technos) {
-//        this.name = name;
-//        this.version = version;
-//        this.workingCopy = workingCopy;
-//        this.technos = technos == null ? ImmutableList.of() : Lists.newArrayList(technos);
-//    }
 
     public ModuleView toModuleView() {
         return new ModuleView(name, version, workingCopy, 0L);
