@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,13 +42,13 @@ public class LegacyModuleUpdatedEventTest extends AbstractLegacyCodecTest {
         ModuleUpdatedEvent moduleUpdatedEvent = new ModuleUpdatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
         DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleUpdatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
-        String expectedJson = uglifyJsonLegacyEvent(getResource(JSON_PATH));
+        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
         assertEquals(expectedJson, actualJson);
     }
 
     @Test
     public void decode() throws IOException {
-        String inputJson = getResource(JSON_PATH);
+        String inputJson = getResourceContent(JSON_PATH);
         List<DomainEventMessage<?>> list = new LegacyCodec().decode("id", 0, Collections.singletonList(inputJson));
         DomainEventMessage<ModuleUpdatedEvent> domainEventMessage = (DomainEventMessage<ModuleUpdatedEvent>) list.get(0);
 
