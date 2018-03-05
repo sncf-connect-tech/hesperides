@@ -20,19 +20,11 @@
  */
 package org.hesperides.infrastructure.elasticsearch.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Value;
 
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@Value
 public class Hits {
-    private List<Hit> hits;
-
-    public List<Hit> getHits() {
-        return hits;
-    }
-
-    public void setHits(List<Hit> hits) {
-        this.hits = hits;
-    }
+    private final List<Hit> hits;
 }

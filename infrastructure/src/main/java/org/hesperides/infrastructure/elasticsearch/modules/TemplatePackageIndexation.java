@@ -21,40 +21,13 @@
 
 package org.hesperides.infrastructure.elasticsearch.modules;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 
-/**
- * Created by william_montaz on 05/12/2014.
- */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"name", "version", "working_copy"})
+@Value
 public final class TemplatePackageIndexation {
-
     private final String version;
+    @SerializedName("working_copy")
     private final boolean workingCopy;
     private final String name;
-
-    @JsonCreator
-    public TemplatePackageIndexation(@JsonProperty("name") final String name,
-                                     @JsonProperty("version") final String version,
-                                     @JsonProperty("working_copy") final boolean workingCopy) {
-        this.name = name;
-        this.version = version;
-        this.workingCopy = workingCopy;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public boolean isWorkingCopy() {
-        return workingCopy;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

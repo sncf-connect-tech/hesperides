@@ -20,15 +20,14 @@
  */
 package org.hesperides.infrastructure.elasticsearch;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -47,6 +46,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,13 +77,12 @@ public class ElasticsearchService {
             });
 
     private final ElasticsearchConfiguration elasticsearchConfiguration;
-    private final ObjectMapper objectMapper;
+    private final Gson gson;
     private final RestClient restClient;
 
-    public ElasticsearchService(ElasticsearchConfiguration elasticsearchConfiguration,
-                                ObjectMapper objectMapper) {
+    public ElasticsearchService(ElasticsearchConfiguration elasticsearchConfiguration) {
         this.elasticsearchConfiguration = elasticsearchConfiguration;
-        this.objectMapper = objectMapper;
+        this.gson = new Gson();
         HttpHost httpHost = new HttpHost(this.elasticsearchConfiguration.getHost(), this.elasticsearchConfiguration.getPort());
         this.restClient = RestClient.builder(httpHost).build(); //TODO .setFailureListener()
     }
@@ -117,11 +116,15 @@ public class ElasticsearchService {
         try {
             HttpEntity entity = new NStringEntity(requestBody, ContentType.APPLICATION_JSON);
             Response response = restClient.performRequest(method, endpoint, Collections.emptyMap(), entity);
-
-            return objectMapper.readValue(response.getEntity().getContent(), ResponseHits.class);
+            String content = getEntityContent(response.getEntity());
+            return gson.fromJson(content, ResponseHits.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getEntityContent(HttpEntity httpEntity) throws IOException {
+        return IOUtils.toString(httpEntity.getContent(), StandardCharsets.UTF_8);
     }
 
     public ResponseHits search(final String document, final String mustacheTemplate, Map<String, Object> parameters) {
@@ -134,15 +137,7 @@ public class ElasticsearchService {
 
     public <T> List<T> searchForSome(final String document, final String mustacheTemplate, Map<String, Object> parameters, Class<T> responseType) {
         ResponseHits search = search(document, mustacheTemplate, parameters);
-        return search.getHits().getHits().stream().map(Hit::getSource).map(jsonNode -> treeToValue(responseType, jsonNode)).collect(Collectors.toList());
-    }
-
-    private <T> T treeToValue(Class<T> responseType, JsonNode jsonNode) {
-        try {
-            return objectMapper.treeToValue(jsonNode, responseType);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return search.getHits().getHits().stream().map(Hit::getSource).map(jsonNode -> gson.fromJson(jsonNode, responseType)).collect(Collectors.toList());
     }
 
     public <T> List<T> searchForSome(final String document, final String mustacheTemplate, Class<T> responseType) {
@@ -153,7 +148,8 @@ public class ElasticsearchService {
         String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" + document;
         try {
             Response response = restClient.performRequest("GET", endpoint);
-            return Optional.of(objectMapper.readValue(response.getEntity().getContent(), Hit.class));
+            String content = getEntityContent(response.getEntity());
+            return Optional.of(gson.fromJson(content, Hit.class));
         } catch (ResponseException e) {
             Response response = e.getResponse();
             if (response.getStatusLine().getStatusCode() == 404) {
@@ -167,7 +163,7 @@ public class ElasticsearchService {
     }
 
     public <T> Optional<T> getOne(final String document, Class<T> reponseType) {
-        return get(document).map(hit -> treeToValue(reponseType, hit.getSource()));
+        return get(document).map(hit -> gson.fromJson(hit.getSource(), reponseType));
     }
 
     public <T> Optional<T> searchForOne(final String document, final String mustacheTemplate, Map<String, Object> parameters, Class<T> responseType) {
@@ -175,14 +171,14 @@ public class ElasticsearchService {
         if (search.getHits().getHits().isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(treeToValue(responseType, search.getHits().getHits().get(0).getSource()));
+        return Optional.of(gson.fromJson(search.getHits().getHits().get(0).getSource(), responseType));
     }
 
     public Response index(String document, Object content) {
         String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" + document;
 
         try {
-            HttpEntity entity = new NStringEntity(objectMapper.writeValueAsString(content), ContentType.APPLICATION_JSON);
+            HttpEntity entity = new NStringEntity(gson.toJson(content), ContentType.APPLICATION_JSON);
             return restClient.performRequest("POST", endpoint, Collections.emptyMap(), entity);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -21,59 +21,36 @@
 
 package org.hesperides.infrastructure.elasticsearch.modules;
 
-import com.fasterxml.jackson.annotation.*;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 import org.hesperides.domain.modules.queries.ModuleView;
 
 import java.util.List;
 
-/**
- * Created by william_montaz on 02/12/2014.
- */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({"name", "version", "working_copy", "technos"})
+@Value
 public final class ModuleIndexation {
 
     private final String name;
     private final String version;
+    @SerializedName("working_copy")
     private final boolean workingCopy;
     private final List<TemplatePackageIndexation> technos;
 
-    @JsonCreator
-    public ModuleIndexation(@JsonProperty("name") final String name,
-                            @JsonProperty("version") final String version,
-                            @JsonProperty("working_copy") final boolean workingCopy,
-                            @JsonProperty("technos") final List<TemplatePackageIndexation> technos) {
-        this.name = name;
-        this.version = version;
-        this.workingCopy = workingCopy;
-        this.technos = technos == null ? ImmutableList.of() : Lists.newArrayList(technos);
-    }
+//    @JsonCreator
+//    public ModuleIndexation(@JsonProperty("name") final String name,
+//                            @JsonProperty("version") final String version,
+//                            @JsonProperty("working_copy") final boolean workingCopy,
+//                            @JsonProperty("technos") final List<TemplatePackageIndexation> technos) {
+//        this.name = name;
+//        this.version = version;
+//        this.workingCopy = workingCopy;
+//        this.technos = technos == null ? ImmutableList.of() : Lists.newArrayList(technos);
+//    }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    @JsonProperty("working_copy")
-    public boolean isWorkingCopy() {
-        return workingCopy;
-    }
-
-    public List<TemplatePackageIndexation> getTechnos() {
-        return Lists.newArrayList(technos);
-    }
-
-    @JsonIgnore
     public ModuleView toModuleView() {
         return new ModuleView(name, version, workingCopy, 0L);
     }
 
-    @JsonIgnore
     public String toModuleTypeView() {
         return workingCopy ? "workingcopy" : "release";
     }
