@@ -41,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles={"local"})
+@ActiveProfiles(profiles = {"local"})
 public class SecuritySampleTest {
     @Autowired
     private WebApplicationContext context;

@@ -1,6 +1,5 @@
 package org.hesperides.tests.bdd.commons.tools;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,6 +46,7 @@ public class HesperideTestRestTemplate {
 
     /**
      * permet d'executer un appel sans avoir des exceptions qui sortent de partout...
+     *
      * @param worker
      * @param <R>
      * @return
@@ -66,7 +65,7 @@ public class HesperideTestRestTemplate {
         return URI.create("http://localhost:" + port + relativeUri.toString());
     }
 
-    public URI postForLocationReturnAbsoluteURI(String s, Object moduleInput, Object...params) {
+    public URI postForLocationReturnAbsoluteURI(String s, Object moduleInput, Object... params) {
         return absoluteURI(template.postForLocation(s, moduleInput, params));
     }
 
