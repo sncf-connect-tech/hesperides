@@ -1,12 +1,13 @@
 package org.hesperides.tests.bdd.commons.contexts;
 
-import cucumber.api.java.en.Given;
+import cucumber.api.java8.En;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 
-public class UserContext extends CucumberSpringBean {
+public class UserContext extends CucumberSpringBean implements En {
 
-    @Given("^an authenticated user$")
-    public void aAuthenticatedUser() {
-        template.addCreds("user", "password");
+    public UserContext() {
+        Given("^an authenticated user$", () -> {
+            template.addCreds("user", "password");
+        });
     }
 }
