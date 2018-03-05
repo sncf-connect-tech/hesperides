@@ -26,7 +26,6 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Techno;
 
 import java.util.ArrayList;
 import java.util.Collection;

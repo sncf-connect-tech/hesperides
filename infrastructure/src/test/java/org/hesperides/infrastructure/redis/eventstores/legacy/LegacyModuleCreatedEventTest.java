@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,20 +35,20 @@ import static org.junit.Assert.assertEquals;
 
 public class LegacyModuleCreatedEventTest extends AbstractLegacyCodecTest {
 
-    private static final String JSON_PATH = "src/test/resources/moduleCreatedEvent.json";
+    private static final String JSON_PATH = "moduleCreatedEvent.json";
 
     @Test
     public void code() throws IOException {
         ModuleCreatedEvent moduleCreatedEvent = new ModuleCreatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
         DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleCreatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
-        String expectedJson = uglifyJsonLegacyEvent(getResource(JSON_PATH));
+        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
         assertEquals(expectedJson, actualJson);
     }
 
     @Test
     public void decode() throws IOException {
-        String inputJson = getResource(JSON_PATH);
+        String inputJson = getResourceContent(JSON_PATH);
         List<DomainEventMessage<?>> list = new LegacyCodec().decode("id", 0, Collections.singletonList(inputJson));
         DomainEventMessage<ModuleCreatedEvent> domainEventMessage = (DomainEventMessage<ModuleCreatedEvent>) list.get(0);
 

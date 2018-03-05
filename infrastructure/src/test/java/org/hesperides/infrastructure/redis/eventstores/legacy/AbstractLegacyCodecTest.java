@@ -22,10 +22,11 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -46,8 +47,8 @@ abstract class AbstractLegacyCodecTest {
     /**
      * Récupère le contenu d'un fichier à partir de son path
      */
-    String getResource(final String path) throws IOException {
-        return FileUtils.readFileToString(new File(path));
+    protected String getResourceContent(final String path) throws IOException {
+        return FileUtils.readFileToString(new ClassPathResource(path).getFile(), UTF_8);
     }
 
     /**
