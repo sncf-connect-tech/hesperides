@@ -26,6 +26,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.security.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,24 +55,25 @@ public class LegacyModuleCreatedEvent {
     /**
      * Mapping du json legacy vers un évènement du domaine de la nouvelle application
      *
-     * @param jsonData
+     * @param legacyEvent
      * @param aggregateIdentifier
      * @param firstSequenceNumber
      * @return
      */
-    public static DomainEventMessage<ModuleCreatedEvent> toDomainEventMessage(String jsonData, String aggregateIdentifier, long firstSequenceNumber) {
+    public static DomainEventMessage<ModuleCreatedEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long firstSequenceNumber) {
+        String jsonData = legacyEvent.getData();
         LegacyModuleCreatedEvent legacyModuleCreatedEvent = new Gson().fromJson(jsonData, LegacyModuleCreatedEvent.class);
-        ModuleCreatedEvent moduleCreatedEvent = legacyModuleCreatedEvent.toDomainEvent();
+        ModuleCreatedEvent moduleCreatedEvent = legacyModuleCreatedEvent.toDomainEvent(legacyEvent.getUser());
         return new GenericDomainEventMessage(ModuleCreatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleCreatedEvent);
     }
 
-    private ModuleCreatedEvent toDomainEvent() {
+    private ModuleCreatedEvent toDomainEvent(String userName) {
         LegacyModule legacyModule = this.getModuleCreated();
         Module.Key moduleKey = new Module.Key(
                 legacyModule.getName(),
                 legacyModule.getVersion(),
                 legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
         Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleCreatedEvent(module);
+        return new ModuleCreatedEvent(module, new User(userName));
     }
 }

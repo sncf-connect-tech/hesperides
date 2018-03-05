@@ -4,6 +4,7 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.security.User;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,23 +19,23 @@ public class ModuleCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Module.Key createModule(Module module) {
-        return commandGateway.sendAndWait(new CreateModuleCommand(module));
+    public Module.Key createModule(Module module, User user) {
+        return commandGateway.sendAndWait(new CreateModuleCommand(module, user));
     }
 
-    public Module.Key updateModule(Module module) {
-        return commandGateway.sendAndWait(new UpdateModuleCommand(module));
+    public Module.Key updateModule(Module module, User user) {
+        return commandGateway.sendAndWait(new UpdateModuleCommand(module, user));
     }
 
-    public void createTemplateInWorkingCopy(Module.Key key, Template template) {
-        commandGateway.sendAndWait(new CreateTemplateCommand(key, template));
+    public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {
+        commandGateway.sendAndWait(new CreateTemplateCommand(key, template, user));
     }
 
-    public void updateTemplateInWorkingCopy(Module.Key key, Template template) {
-        commandGateway.sendAndWait(new UpdateTemplateCommand(key, template));
+    public void updateTemplateInWorkingCopy(Module.Key key, Template template, User user) {
+        commandGateway.sendAndWait(new UpdateTemplateCommand(key, template, user));
     }
 
-    public void deleteTemplate(Module.Key key, String templateName) {
-        commandGateway.sendAndWait(new DeleteTemplateCommand(key, templateName));
+    public void deleteTemplate(Module.Key key, String templateName, User user) {
+        commandGateway.sendAndWait(new DeleteTemplateCommand(key, templateName, user));
     }
 }

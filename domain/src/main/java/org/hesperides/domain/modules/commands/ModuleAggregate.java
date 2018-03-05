@@ -34,13 +34,13 @@ class ModuleAggregate {
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
 
-        apply(new ModuleCreatedEvent(command.getModule()));
+        apply(new ModuleCreatedEvent(command.getModule(), command.getUser()));
     }
 
     @CommandHandler
     public ModuleAggregate(UpdateModuleCommand command) {
         log.debug("Applying update module command...");
-        apply(new ModuleUpdatedEvent(command.getModule()));
+        apply(new ModuleUpdatedEvent(command.getModule(), command.getUser()));
     }
 
     @CommandHandler
@@ -52,7 +52,7 @@ class ModuleAggregate {
             throw new DuplicateTemplateCreationException(command.getTemplate());
         }
 
-        apply(new TemplateCreatedEvent(key, command.getTemplate()));
+        apply(new TemplateCreatedEvent(key, command.getTemplate(), command.getUser()));
     }
 
     @CommandHandler
@@ -64,7 +64,7 @@ class ModuleAggregate {
             throw new TemplateNotFoundException(key, command.getTemplate().getName());
         }
 
-        apply(new TemplateUpdatedEvent(key, command.getTemplate()));
+        apply(new TemplateUpdatedEvent(key, command.getTemplate(), command.getUser()));
     }
 
 
@@ -72,7 +72,7 @@ class ModuleAggregate {
     public void deleteTemplate(DeleteTemplateCommand command) {
         // si le template n'existe pas, cette command n'a pas d'effet de bord.
         if (this.templates.containsKey(command.getTemplateName())) {
-            apply(new TemplateDeletedEvent(key, command.getTemplateName()));
+            apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }
     }
 

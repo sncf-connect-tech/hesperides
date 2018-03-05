@@ -4,6 +4,7 @@ import org.hesperides.application.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueries;
+import org.hesperides.domain.security.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,9 @@ public class ModuleUseCasesTest {
         Module module = new Module(key, new ArrayList<>(), 1L);
 
         given(queryGateway.moduleExist(any())).willReturn(true);
-        given(commandGateway.createModule(any())).willReturn(key);
+        given(commandGateway.createModule(any(), any())).willReturn(key);
 
-        useCases.createWorkingCopy(module);
+        useCases.createWorkingCopy(module, new User("robert"));
     }
 
     @Test
@@ -48,9 +49,9 @@ public class ModuleUseCasesTest {
         Module module = new Module(key, new ArrayList<>(), 1L);
 
         given(queryGateway.moduleExist(any())).willReturn(false);
-        given(commandGateway.createModule(any())).willReturn(key);
+        given(commandGateway.createModule(any(), any())).willReturn(key);
 
-        useCases.createWorkingCopy(module);
+        useCases.createWorkingCopy(module, new User("robert"));
     }
 
 }

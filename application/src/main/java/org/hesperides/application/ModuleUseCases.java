@@ -9,6 +9,7 @@ import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateView;
+import org.hesperides.domain.security.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -35,16 +36,17 @@ public class ModuleUseCases {
      * n'as pas accès aux autres aggregats.
      *
      * @param module
+     * @param user
      * @return
      */
-    public Module.Key createWorkingCopy(Module module) {
+    public Module.Key createWorkingCopy(Module module, User user) {
         if (queries.moduleExist(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
-        return commands.createModule(module);
+        return commands.createModule(module, user);
     }
 
-    public Module.Key updateWorkingCopy(Module module) {
+    public Module.Key updateWorkingCopy(Module module, User user) {
         Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
@@ -52,7 +54,7 @@ public class ModuleUseCases {
         if (!Long.valueOf(optionalModuleView.get().getVersion_id()).equals(module.getVersionID() - 1)) {
             throw new OutOfDateVersionException(optionalModuleView.get().getVersion_id() + 1, module.getVersionID());
         }
-        return commands.updateModule(module);
+        return commands.updateModule(module, user);
     }
 
     /**
@@ -61,20 +63,20 @@ public class ModuleUseCases {
      * Si le module n'existe pas, une erreur sera levée par Axon (l'aggregat n'est pas trouvé)
      * <p>
      * Si le template existe déjà dans le module, c'est le module lui-même qui levera une exception.
-     *
-     * @param key
+     *  @param key
      * @param template
+     * @param user
      */
-    public void createTemplateInWorkingCopy(Module.Key key, Template template) {
-        commands.createTemplateInWorkingCopy(key, template);
+    public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {
+        commands.createTemplateInWorkingCopy(key, template, user);
     }
 
-    public void updateTemplateInWorkingCopy(Module.Key key, Template template) {
-        commands.updateTemplateInWorkingCopy(key, template);
+    public void updateTemplateInWorkingCopy(Module.Key key, Template template, User user) {
+        commands.updateTemplateInWorkingCopy(key, template, user);
     }
 
-    public void deleteTemplate(Module.Key key, String templateName) {
-        commands.deleteTemplate(key, templateName);
+    public void deleteTemplate(Module.Key key, String templateName, User user) {
+        commands.deleteTemplate(key, templateName, user);
     }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {

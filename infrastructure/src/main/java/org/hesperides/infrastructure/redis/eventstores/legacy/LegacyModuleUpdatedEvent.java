@@ -26,7 +26,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Techno;
+import org.hesperides.domain.security.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +38,7 @@ public class LegacyModuleUpdatedEvent {
 
     LegacyModule moduleUpdated;
     Collection templates;
+    String userName;
 
     /**
      * Mapping d'un évènement de la nouvelle application en évènement legacy
@@ -50,7 +51,7 @@ public class LegacyModuleUpdatedEvent {
                 moduleKey.isWorkingCopy(),
                 new ArrayList(), // Toujours une liste de technos vide lors de la création d'un module
                 domainEvent.getModule().getVersionID());
-        return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
+        return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList(), domainEvent.getUser().getName()));
     }
 
     /**
@@ -74,7 +75,7 @@ public class LegacyModuleUpdatedEvent {
                 legacyModule.getVersion(),
                 legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
         Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleUpdatedEvent(module);
+        return new ModuleUpdatedEvent(module, new User(userName));
     }
 
 }

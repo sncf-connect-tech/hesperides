@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
+import org.hesperides.domain.security.UserEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -41,7 +41,8 @@ class LegacyCodec implements Codec {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }
 
-        return new Gson().toJson(new LegacyEvent(eventType, data, getLegacyTimestampFromEventTimestamp(event.getTimestamp()), getContextUsername()));
+        String user = ((UserEvent) event.getPayload()).getUser().getName();
+        return new Gson().toJson(new LegacyEvent(eventType, data, getLegacyTimestampFromEventTimestamp(event.getTimestamp()), user));
     }
 
     /**
@@ -49,10 +50,6 @@ class LegacyCodec implements Codec {
      */
     protected Long getLegacyTimestampFromEventTimestamp(Instant timestamp) {
         return Timestamp.from(timestamp).getTime();
-    }
-
-    protected String getContextUsername() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     @Override
@@ -63,7 +60,7 @@ class LegacyCodec implements Codec {
             LegacyEvent legacyEvent = new Gson().fromJson(legacyJsonData, LegacyEvent.class);
             switch (legacyEvent.getEventType()) {
                 case LegacyModuleCreatedEvent.EVENT_TYPE:
-                    events.add(LegacyModuleCreatedEvent.toDomainEventMessage(legacyEvent.getData(), aggregateIdentifier, firstSequenceNumber));
+                    events.add(LegacyModuleCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
                     break;
 //                case AnotherLegacyEvent.EVENT_TYPE:
 //                    events.add(AnotherLegacyEvent.toDomainEventMessage(legacyEvent.getData(), aggregateIdentifier, firstSequenceNumber));
