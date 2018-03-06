@@ -30,13 +30,10 @@ class LegacyCodec implements Codec {
 
         if (event.getPayload() instanceof ModuleCreatedEvent) {
             eventType = LegacyModuleCreatedEvent.EVENT_TYPE;
-            data = LegacyModuleCreatedEvent.fromDomainEvent((ModuleCreatedEvent) event.getPayload());
-//        } else if (event.getPayload() instanceof AnotherEvent) {
-//            eventType = AnotherLegacyEvent.EVENT_TYPE;
-//            data = AnotherLegacyEvent.fromDomainEvent((AnotherEvent) event.getPayload());
+            data = LegacyModuleCreatedEvent.fromDomainEventMessage(event);
         } else if (event.getPayload() instanceof ModuleUpdatedEvent) {
             eventType = LegacyModuleUpdatedEvent.EVENT_TYPE;
-            data = LegacyModuleUpdatedEvent.fromDomainEvent((ModuleUpdatedEvent) event.getPayload());
+            data = LegacyModuleUpdatedEvent.fromDomainEventMessage(event);
         } else {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }
@@ -65,9 +62,6 @@ class LegacyCodec implements Codec {
                 case LegacyModuleUpdatedEvent.EVENT_TYPE:
                     events.add(LegacyModuleUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
                     break;
-//                case AnotherLegacyEvent.EVENT_TYPE:
-//                    events.add(AnotherLegacyEvent.toDomainEventMessage(legacyEvent.getData(), aggregateIdentifier, firstSequenceNumber));
-//                    break;
                 default:
                     throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");
             }

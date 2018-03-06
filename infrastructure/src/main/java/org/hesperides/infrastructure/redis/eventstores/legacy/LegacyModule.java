@@ -20,18 +20,26 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Value;
+import org.hesperides.domain.modules.entities.Module;
 
 import java.util.Collection;
 
 /**
- * L'utilisation de Gson pour sérialisation/désérialisation permet l'utilisation de Lombok
+ * L'utilisation de Gson pour sérialiser/désérialiser permet l'utilisation de Lombok
  */
 @Value
 public class LegacyModule {
     String name;
     String version;
-    boolean working_copy; // Pas de camelCase pour correspondre aux données du Redis
+    @SerializedName("working_copy")
+    boolean workingCopy;
     Collection technos;
-    Long version_id; // Même chose, cela nous évite de mettre des annotations
+    @SerializedName("version_id")
+    Long versionId;
+
+    public Module.Type getModuleType() {
+        return workingCopy ? Module.Type.workingcopy : Module.Type.release;
+    }
 }

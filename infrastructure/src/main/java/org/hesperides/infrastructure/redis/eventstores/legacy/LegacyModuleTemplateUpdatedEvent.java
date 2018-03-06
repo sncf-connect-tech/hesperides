@@ -31,6 +31,6 @@ public class LegacyModuleTemplateUpdatedEvent {
     LegacyModuleTemplate created;
 
     /**
-     * TODO : méthodes fromDomainEvent, toDomainEventMessage et toDomainEvent
+     * TODO : méthodes fromDomainEventMessage, toDomainEventMessage et toDomainEvent
      */
 }
