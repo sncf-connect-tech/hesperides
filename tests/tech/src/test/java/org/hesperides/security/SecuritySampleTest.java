@@ -35,6 +35,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 /**
  * ce test fonctionne en mode MVC mocké (donc pas de server tomcat démarré)
  * mais nécessite le ldap pour fonctionner. je ne sais pas pourquoi.
@@ -55,51 +58,51 @@ public class SecuritySampleTest {
 
     @Test
     public void anonymousUserIsUnauthorized() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/security/principal")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
-        mvc.perform(MockMvcRequestBuilders.get("/security/authentication")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
-        mvc.perform(MockMvcRequestBuilders.get("/security/tech")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-or-tech")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-and-tech")).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+        mvc.perform(get("/security/principal")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/security/authentication")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/security/prod")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/security/tech")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/security/prod-or-tech")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/security/prod-and-tech")).andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser
     public void authenticatedUserIsAuthorized() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/security/principal")).andExpect(MockMvcResultMatchers.status().isOk());
-        mvc.perform(MockMvcRequestBuilders.get("/security/authentication")).andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(get("/security/principal")).andExpect(status().isOk());
+        mvc.perform(get("/security/authentication")).andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void basicUserIsForbidden() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod")).andExpect(MockMvcResultMatchers.status().isForbidden());
-        mvc.perform(MockMvcRequestBuilders.get("/security/tech")).andExpect(MockMvcResultMatchers.status().isForbidden());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-or-tech")).andExpect(MockMvcResultMatchers.status().isForbidden());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-and-tech")).andExpect(MockMvcResultMatchers.status().isForbidden());
+        mvc.perform(get("/security/prod")).andExpect(status().isForbidden());
+        mvc.perform(get("/security/tech")).andExpect(status().isForbidden());
+        mvc.perform(get("/security/prod-or-tech")).andExpect(status().isForbidden());
+        mvc.perform(get("/security/prod-and-tech")).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "PROD")
     public void prodUserIsAuthorized() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod")).andExpect(MockMvcResultMatchers.status().isOk());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-or-tech")).andExpect(MockMvcResultMatchers.status().isOk());
-        mvc.perform(MockMvcRequestBuilders.get("/security/tech")).andExpect(MockMvcResultMatchers.status().isForbidden());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-and-tech")).andExpect(MockMvcResultMatchers.status().isForbidden());
+        mvc.perform(get("/security/prod")).andExpect(status().isOk());
+        mvc.perform(get("/security/prod-or-tech")).andExpect(status().isOk());
+        mvc.perform(get("/security/tech")).andExpect(status().isForbidden());
+        mvc.perform(get("/security/prod-and-tech")).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = "TECH")
     public void techUserIsAuthorized() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/security/tech")).andExpect(MockMvcResultMatchers.status().isOk());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-or-tech")).andExpect(MockMvcResultMatchers.status().isOk());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod")).andExpect(MockMvcResultMatchers.status().isForbidden());
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-and-tech")).andExpect(MockMvcResultMatchers.status().isForbidden());
+        mvc.perform(get("/security/tech")).andExpect(status().isOk());
+        mvc.perform(get("/security/prod-or-tech")).andExpect(status().isOk());
+        mvc.perform(get("/security/prod")).andExpect(status().isForbidden());
+        mvc.perform(get("/security/prod-and-tech")).andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = {"TECH", "PROD"})
     public void techProdUserIsAuthorized() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/security/prod-and-tech")).andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(get("/security/prod-and-tech")).andExpect(status().isOk());
     }
 }

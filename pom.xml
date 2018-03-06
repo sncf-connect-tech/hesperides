@@ -164,7 +164,7 @@
             </dependency>
             <dependency>
                 <groupId>info.cukes</groupId>
-                <artifactId>cucumber-java</artifactId>
+                <artifactId>cucumber-java8</artifactId>
                 <version>${cucumber.version}</version>
             </dependency>
             <dependency>
