@@ -51,7 +51,7 @@ public class RedisTemplateRepository implements TemplateRepository {
     @EventSourcingHandler
     private void on(TemplateUpdatedEvent event) {
         // ecrase le template existant.
-        on(new TemplateCreatedEvent(event.getModuleKey(), event.getTemplate()));
+        on(new TemplateCreatedEvent(event.getModuleKey(), event.getTemplate(), event.getUser()));
     }
 
     @EventSourcingHandler

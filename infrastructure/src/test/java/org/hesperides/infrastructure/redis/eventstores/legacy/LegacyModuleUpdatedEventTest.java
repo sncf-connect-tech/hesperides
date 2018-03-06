@@ -24,6 +24,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.security.User;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class LegacyModuleUpdatedEventTest extends AbstractLegacyCodecTest {
 
     @Test
     public void code() throws IOException {
-        ModuleUpdatedEvent moduleUpdatedEvent = new ModuleUpdatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L));
+        ModuleUpdatedEvent moduleUpdatedEvent = new ModuleUpdatedEvent(new Module(new Module.Key("foo-war", "1.0", Module.Type.workingcopy), new ArrayList<>(), 1L), new User("robert"));
         DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0L, moduleUpdatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
         String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
