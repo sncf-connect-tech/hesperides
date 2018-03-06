@@ -26,6 +26,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.security.UserEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +56,7 @@ public class LegacyModuleUpdatedEvent extends AbstractLegacyEvent {
         return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
     }
 
-    public static DomainEventMessage<?> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long sequenceNumber) {
+    public static DomainEventMessage<? extends UserEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long sequenceNumber) {
         return legacyEvent.toDomainEventMessage(aggregateIdentifier, sequenceNumber, LegacyModuleUpdatedEvent.class, ModuleUpdatedEvent.class);
     }
 

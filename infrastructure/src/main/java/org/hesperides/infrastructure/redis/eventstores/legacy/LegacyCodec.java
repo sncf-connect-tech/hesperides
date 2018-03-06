@@ -38,12 +38,13 @@ class LegacyCodec implements Codec {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }
 
-        String user = ((UserEvent) event.getPayload()).getUser().getName();
-        return new Gson().toJson(new LegacyEvent(eventType, data, getLegacyTimestampFromEventTimestamp(event.getTimestamp()), user));
+        String username = ((UserEvent) event.getPayload()).getUser().getName();
+        Long timestamp = getLegacyTimestampFromEventTimestamp(event.getTimestamp());
+        return new Gson().toJson(new LegacyEvent(eventType, data, timestamp, username));
     }
 
     /**
-     * J'aurais préféré mettre ces deux méthodes dans LegacyEvent mais ça simplifie les tests
+     * J'aurais préféré mettre cette méthode dans LegacyEvent mais ça simplifie les tests
      */
     protected Long getLegacyTimestampFromEventTimestamp(Instant timestamp) {
         return Timestamp.from(timestamp).getTime();
