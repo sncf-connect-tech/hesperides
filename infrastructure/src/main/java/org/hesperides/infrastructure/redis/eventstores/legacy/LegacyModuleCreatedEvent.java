@@ -23,7 +23,6 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 import com.google.gson.Gson;
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
@@ -40,6 +39,7 @@ public class LegacyModuleCreatedEvent extends AbstractLegacyEvent {
 
     /**
      * Mapping d'un évènement de la nouvelle application en évènement legacy
+     *
      * @param domainEventMessage
      */
     public static String fromDomainEventMessage(DomainEventMessage domainEventMessage) {

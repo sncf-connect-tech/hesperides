@@ -63,7 +63,8 @@ public class ModuleUseCases {
      * Si le module n'existe pas, une erreur sera levée par Axon (l'aggregat n'est pas trouvé)
      * <p>
      * Si le template existe déjà dans le module, c'est le module lui-même qui levera une exception.
-     *  @param key
+     *
+     * @param key
      * @param template
      * @param user
      */
