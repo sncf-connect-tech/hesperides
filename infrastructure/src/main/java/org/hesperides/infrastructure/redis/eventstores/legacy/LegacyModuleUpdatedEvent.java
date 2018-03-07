@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import com.google.gson.Gson;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class LegacyModuleUpdatedEvent extends AbstractLegacyEvent {
 
     public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
