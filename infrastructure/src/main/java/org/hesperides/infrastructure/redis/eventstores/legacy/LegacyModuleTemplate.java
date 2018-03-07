@@ -20,6 +20,7 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 
 @Value
@@ -30,7 +31,8 @@ public class LegacyModuleTemplate {
     String location;
     String content;
     Rights rights;
-    long version_id;
+    @SerializedName("version_id")
+    long versionId;
 
     @Value
     static class Rights {

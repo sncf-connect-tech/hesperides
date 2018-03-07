@@ -23,16 +23,16 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 import com.google.gson.Gson;
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.security.UserEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Value
-public class LegacyModuleUpdatedEvent {
+public class LegacyModuleUpdatedEvent extends AbstractLegacyEvent {
 
     public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleWorkingCopyUpdatedEvent";
 
@@ -41,8 +41,11 @@ public class LegacyModuleUpdatedEvent {
 
     /**
      * Mapping d'un évènement de la nouvelle application en évènement legacy
+     *
+     * @param domainEventMessage
      */
-    public static String fromDomainEvent(ModuleUpdatedEvent domainEvent) {
+    public static String fromDomainEventMessage(DomainEventMessage domainEventMessage) {
+        ModuleUpdatedEvent domainEvent = (ModuleUpdatedEvent) domainEventMessage.getPayload();
         Module.Key moduleKey = domainEvent.getModule().getKey();
         LegacyModule legacyModule = new LegacyModule(
                 moduleKey.getName(),
@@ -53,28 +56,19 @@ public class LegacyModuleUpdatedEvent {
         return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
     }
 
-    /**
-     * Mapping du json legacy vers un évènement du domaine de la nouvelle application
-     *
-     * @param legacyEvent
-     * @param aggregateIdentifier
-     * @param firstSequenceNumber
-     * @return
-     */
-    public static DomainEventMessage<ModuleUpdatedEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long firstSequenceNumber) {
-        LegacyModuleUpdatedEvent legacyModuleUpdatedEvent = new Gson().fromJson(legacyEvent.getData(), LegacyModuleUpdatedEvent.class);
-        ModuleUpdatedEvent moduleUpdatedEvent = legacyModuleUpdatedEvent.toDomainEvent(legacyEvent.getUser());
-        return new GenericDomainEventMessage(ModuleUpdatedEvent.class.getName(), aggregateIdentifier, firstSequenceNumber, moduleUpdatedEvent);
+    public static DomainEventMessage<? extends UserEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long sequenceNumber) {
+        return legacyEvent.toDomainEventMessage(aggregateIdentifier, sequenceNumber, LegacyModuleUpdatedEvent.class, ModuleUpdatedEvent.class);
     }
 
-    private ModuleUpdatedEvent toDomainEvent(String userName) {
+    @Override
+    protected ModuleUpdatedEvent toDomainEvent(String username) {
         LegacyModule legacyModule = this.getUpdated();
         Module.Key moduleKey = new Module.Key(
                 legacyModule.getName(),
                 legacyModule.getVersion(),
-                legacyModule.isWorking_copy() ? Module.Type.workingcopy : Module.Type.release);
-        Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersion_id());
-        return new ModuleUpdatedEvent(module, new User(userName));
+                legacyModule.getModuleType());
+        Module module = new Module(moduleKey, new ArrayList<>(), legacyModule.getVersionId());
+        return new ModuleUpdatedEvent(module, new User(username));
     }
 
 }

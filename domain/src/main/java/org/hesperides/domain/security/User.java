@@ -13,7 +13,6 @@ public class User {
     String name;
 
     /**
-     *
      * @param principal le principal tel que la plateforme (i.e. tomcat) nous la renvoi
      * @return un objet User.
      */

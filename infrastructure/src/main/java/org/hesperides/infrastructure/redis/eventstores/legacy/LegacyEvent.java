@@ -20,7 +20,11 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
+import com.google.gson.Gson;
 import lombok.Value;
+import org.axonframework.eventsourcing.DomainEventMessage;
+import org.axonframework.eventsourcing.GenericDomainEventMessage;
+import org.hesperides.domain.security.UserEvent;
 
 @Value
 public class LegacyEvent {
@@ -28,4 +32,19 @@ public class LegacyEvent {
     String data;
     Long timestamp;
     String user;
+
+    /**
+     * Mapping des données du Redis au format JSON vers un évènement du domaine de la nouvelle application
+     *
+     * @param aggregateIdentifier
+     * @param sequenceNumber
+     * @param legacyEventClass
+     * @param domainEventClass
+     * @return
+     */
+    public DomainEventMessage<? extends UserEvent> toDomainEventMessage(String aggregateIdentifier, long sequenceNumber, Class<? extends AbstractLegacyEvent> legacyEventClass, Class<? extends UserEvent> domainEventClass) {
+        AbstractLegacyEvent abstractLegacyEvent = new Gson().fromJson(data, legacyEventClass);
+        UserEvent userEvent = abstractLegacyEvent.toDomainEvent(user);
+        return new GenericDomainEventMessage(domainEventClass.getName(), aggregateIdentifier, sequenceNumber, userEvent);
+    }
 }

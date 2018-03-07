@@ -20,17 +20,8 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
-import lombok.Value;
+import org.hesperides.domain.security.UserEvent;
 
-@Value
-public class LegacyModuleTemplateCreatedEvent {
-    public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleCreatedEvent";
-
-    String moduleName;
-    String moduleVersion;
-    LegacyModuleTemplate created;
-
-    /**
-     * TODO : méthodes fromDomainEventMessage, toDomainEventMessage et toDomainEvent
-     */
+public abstract class AbstractLegacyEvent {
+    protected abstract UserEvent toDomainEvent(final String username);
 }

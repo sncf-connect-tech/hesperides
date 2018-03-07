@@ -30,23 +30,21 @@ class LegacyCodec implements Codec {
 
         if (event.getPayload() instanceof ModuleCreatedEvent) {
             eventType = LegacyModuleCreatedEvent.EVENT_TYPE;
-            data = LegacyModuleCreatedEvent.fromDomainEvent((ModuleCreatedEvent) event.getPayload());
-//        } else if (event.getPayload() instanceof AnotherEvent) {
-//            eventType = AnotherLegacyEvent.EVENT_TYPE;
-//            data = AnotherLegacyEvent.fromDomainEvent((AnotherEvent) event.getPayload());
+            data = LegacyModuleCreatedEvent.fromDomainEventMessage(event);
         } else if (event.getPayload() instanceof ModuleUpdatedEvent) {
             eventType = LegacyModuleUpdatedEvent.EVENT_TYPE;
-            data = LegacyModuleUpdatedEvent.fromDomainEvent((ModuleUpdatedEvent) event.getPayload());
+            data = LegacyModuleUpdatedEvent.fromDomainEventMessage(event);
         } else {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }
 
-        String user = ((UserEvent) event.getPayload()).getUser().getName();
-        return new Gson().toJson(new LegacyEvent(eventType, data, getLegacyTimestampFromEventTimestamp(event.getTimestamp()), user));
+        String username = ((UserEvent) event.getPayload()).getUser().getName();
+        Long timestamp = getLegacyTimestampFromEventTimestamp(event.getTimestamp());
+        return new Gson().toJson(new LegacyEvent(eventType, data, timestamp, username));
     }
 
     /**
-     * J'aurais préféré mettre ces deux méthodes dans LegacyEvent mais ça simplifie les tests
+     * J'aurais préféré mettre cette méthode dans LegacyEvent mais ça simplifie les tests
      */
     protected Long getLegacyTimestampFromEventTimestamp(Instant timestamp) {
         return Timestamp.from(timestamp).getTime();
@@ -65,9 +63,6 @@ class LegacyCodec implements Codec {
                 case LegacyModuleUpdatedEvent.EVENT_TYPE:
                     events.add(LegacyModuleUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
                     break;
-//                case AnotherLegacyEvent.EVENT_TYPE:
-//                    events.add(AnotherLegacyEvent.toDomainEventMessage(legacyEvent.getData(), aggregateIdentifier, firstSequenceNumber));
-//                    break;
                 default:
                     throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");
             }
