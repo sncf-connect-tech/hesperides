@@ -14,27 +14,34 @@ import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 /**
  * les templates sont stockés dans Redis.
  */
-@Component
+@Repository
 @Profile("!local")
 public class RedisTemplateRepository implements TemplateRepository {
 
-    private final StringRedisTemplate template;
+    /**
+     * Attention ! Ne pas confondre les deux notions de template :
+     * - StringRedisTemplate est un objet qui permet d'accéder aux données Redis
+     * - RedisTemplateRepository représente un dépôt Redis pour les templates Hespérides
+     * Cela prête à confusion...
+     */
+    private final StringRedisTemplate redisTemplate;
     private final XStream xStream = new XStream();
 
-    public RedisTemplateRepository(StringRedisTemplate template) {
-        this.template = template;
+    public RedisTemplateRepository(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
     @QueryHandler
     @Override
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
-        String payload = template.opsForValue().get(getKey(query.getModuleKey(), query.getTemplateName()));
+        String payload = redisTemplate.opsForValue().get(getKey(query.getModuleKey(), query.getTemplateName()));
         if (payload == null) {
             return Optional.empty();
         }
@@ -44,19 +51,20 @@ public class RedisTemplateRepository implements TemplateRepository {
 
     @EventSourcingHandler
     public void on(TemplateCreatedEvent event) {
+        // On persiste l'état du template sous forme de vue
         String payload = xStream.toXML(event.getTemplate().buildTemplateView());
-        template.opsForValue().set(getKey(event.getModuleKey(), event.getTemplate()), payload);
+        redisTemplate.opsForValue().set(getKey(event.getModuleKey(), event.getTemplate()), payload);
     }
 
     @EventSourcingHandler
     private void on(TemplateUpdatedEvent event) {
-        // ecrase le template existant.
+        // ecrase le redisTemplate existant.
         on(new TemplateCreatedEvent(event.getModuleKey(), event.getTemplate(), event.getUser()));
     }
 
     @EventSourcingHandler
     private void on(TemplateDeletedEvent event) {
-        template.delete(getKey(event.getModuleKey(), event.getTemplateName()));
+        redisTemplate.delete(getKey(event.getModuleKey(), event.getTemplateName()));
     }
 
     private String getKey(Module.Key moduleKey, Template template) {
