@@ -70,12 +70,12 @@
             <!-- DDD -->
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>presentation</artifactId>
+                <artifactId>application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>application</artifactId>
+                <artifactId>bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -88,10 +88,19 @@
                 <artifactId>infrastructure</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>bootstrap</artifactId>
+                <artifactId>presentation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>tests-bdd</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>test-tech</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
