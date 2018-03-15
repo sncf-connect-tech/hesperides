@@ -44,6 +44,9 @@ Some variables are set as environment variables:
 * ELASTICSEARCH_PORT
 * ELASTICSEARCH_INDEX
 
+* REDIS_HOST
+* REDIS_PORT
+
 See `boostrap/src/main/resources/application.yml`
 
 Run Elasticsearch and Redis via Docker

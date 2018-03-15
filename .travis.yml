@@ -3,7 +3,7 @@ language: java
 jdk:
   - oraclejdk8
 
-sudo: false
+sudo: required
 
 service:
   - docker
@@ -25,8 +25,6 @@ stages:
   - name: build
   - name: test
   - name: docker
-    if: (type != pull_request) AND (NOT (fork))
-
 
 jobs:
   include:
@@ -35,11 +33,5 @@ jobs:
     - stage: test
       script: ./mvnw test
     - stage: docker
-      script:
-        - docker login -u $DOCKER_USER -p $DOCKER_PASS
-        - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH | sed -e 's/\//-/g' -e 's/\#//g' ; fi`
-        - export IMAGE=hesperides/hesperides
-        - docker build -t $IMAGE:$COMMIT .
-        - docker tag $IMAGE:$COMMIT $IMAGE:$TAG
-        - docker push $IMAGE:$TAG
-        - echo "✓ Docker image build and pushed to docker hub"
+      if: type != pull_request AND fork = false
+      script: ./.travis/docker_build_push.sh
