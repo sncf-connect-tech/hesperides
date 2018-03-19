@@ -31,8 +31,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 /**
  * L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure
- * L'authentification est testée pour chaque use case dans le module bootstrap
- * Mais doit bouger dans un module réservé aux tests
+ * L'authentification est testée pour chaque use case dans le module tests/tech
  */
 @Configuration
 @Profile("!noldap")
