@@ -4,6 +4,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
+import org.axonframework.commandhandling.model.AggregateMember;
+import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.modules.*;
@@ -12,6 +14,7 @@ import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,18 +22,21 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 
 /**
- * Cette classe n'est utilisée que par des Commandes
- * C'est un des principaux agrégats (entité racine)
- * Les Query utilisent des View (représentation de données)
+ * Un agrégat est l'entité racine d'un groupe d'entités.
+ * Cette classe n'est utilisée que par des Commands.
+ * Les Queries utilisent des Views (représentation de données).
  */
 @Slf4j
 @Aggregate
+/**
+ * Axon utilise le constructeur vide pour créer une instance vide
+ * avant de l'initialiser à partir des évènements passés.
+ */
 @NoArgsConstructor
-class ModuleAggregate {
-
+class ModuleAggregate implements Serializable {
     @AggregateIdentifier
     private Module.Key key;
-
+    @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
 
     @CommandHandler
