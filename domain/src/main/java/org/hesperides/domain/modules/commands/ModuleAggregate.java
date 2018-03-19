@@ -35,13 +35,12 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 @NoArgsConstructor
 class ModuleAggregate implements Serializable {
     @AggregateIdentifier
-    Module.Key key;
+    private Module.Key key;
     @AggregateMember
-    Map<String, Template> templates = new HashMap<>();
+    private Map<String, Template> templates = new HashMap<>();
 
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
-
         apply(new ModuleCreatedEvent(command.getModule(), command.getUser()));
     }
 
@@ -52,6 +51,13 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
+    public ModuleAggregate(DeleteModuleCommand command) {
+        log.debug("Applying delete module command...");
+        apply(new ModuleDeletedEvent(command.getModule(), command.getUser()));
+    }
+
+    @CommandHandler
+    @SuppressWarnings("unused")
     public void createTemplate(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 
@@ -64,6 +70,7 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
+    @SuppressWarnings("unused")
     public void updateTemplate(UpdateTemplateCommand command) {
         log.debug("Applying update template command...");
 
@@ -77,6 +84,7 @@ class ModuleAggregate implements Serializable {
 
 
     @CommandHandler
+    @SuppressWarnings("unused")
     public void deleteTemplate(DeleteTemplateCommand command) {
         // si le template n'existe pas, cette command n'a pas d'effet de bord.
         if (this.templates.containsKey(command.getTemplateName())) {
@@ -106,6 +114,14 @@ class ModuleAggregate implements Serializable {
         this.key = event.getModule().getKey();
 
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    private void on(ModuleDeletedEvent event) {
+        this.key = event.getModule().getKey();
+
+        log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
