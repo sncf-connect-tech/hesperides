@@ -27,6 +27,10 @@ public class ModuleCommands {
         return commandGateway.sendAndWait(new UpdateModuleCommand(module, user));
     }
 
+    public void deleteModule(Module module, User user) {
+        commandGateway.sendAndWait(new DeleteModuleCommand(module, user));
+    }
+
     public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {
         commandGateway.sendAndWait(new CreateTemplateCommand(key, template, user));
     }
@@ -38,4 +42,5 @@ public class ModuleCommands {
     public void deleteTemplate(Module.Key key, String templateName, User user) {
         commandGateway.sendAndWait(new DeleteTemplateCommand(key, templateName, user));
     }
+
 }

@@ -185,6 +185,16 @@ public class ElasticsearchService {
         }
     }
 
+    public Response delete(String document) {
+        String endpoint = "/" + this.elasticsearchConfiguration.getIndex() + "/" + document;
+
+        try {
+            return restClient.performRequest("DELETE", endpoint, Collections.emptyMap());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void reset() throws IOException {
         /* Reset the index */
         try {

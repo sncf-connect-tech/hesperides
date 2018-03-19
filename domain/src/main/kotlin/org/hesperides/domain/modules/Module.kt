@@ -7,11 +7,13 @@ import org.hesperides.domain.security.UserEvent
 // Command
 data class CreateModuleCommand(val module: Module, val user: User)
 data class UpdateModuleCommand(val module: Module, val user: User)
+data class DeleteModuleCommand(val module: Module, val user: User)
 
 // Event
 data class ModuleCopiedEvent(val moduleKey: Module.Key, val sourceModuleKey: Module.Key, override val user: User) : UserEvent(user)
 data class ModuleCreatedEvent(val module: Module, override val user: User) : UserEvent(user)
 data class ModuleUpdatedEvent(val module: Module, override val user: User) : UserEvent(user)
+data class ModuleDeletedEvent(val module: Module, override val user: User) : UserEvent(user)
 
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: Module.Key)
