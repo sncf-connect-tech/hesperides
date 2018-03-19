@@ -57,6 +57,22 @@ public class ModuleUseCases {
         return commands.updateModule(module, user);
     }
 
+    public void deleteWorkingCopy(Module module, User user) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
+        if (!optionalModuleView.isPresent()) {
+            throw new ModuleNotFoundException(module.getKey());
+        }
+        commands.deleteModule(module, user);
+    }
+
+    public void deleteRelease(Module module, User user) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
+        if (!optionalModuleView.isPresent()) {
+            throw new ModuleNotFoundException(module.getKey());
+        }
+        commands.deleteModule(module, user);
+    }
+
     /**
      * créer un template dans un module déjà existant.
      * <p>

@@ -1,8 +1,7 @@
 {
 	"info": {
-		"name": "Hesperides",
 		"_postman_id": "3aff1868-b4b0-5334-eee8-eef4626e1bf4",
-		"description": "",
+		"name": "Hesperides",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -39,8 +38,7 @@
 							"path": [
 								"modules"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -88,8 +86,7 @@
 								"{{module_version}}",
 								"{{module_type}}"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -123,8 +120,7 @@
 								"modules",
 								"{{module_name}}"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -159,8 +155,7 @@
 								"{{module_name}}",
 								"{{module_version}}"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -213,8 +208,7 @@
 							"path": [
 								"modules"
 							]
-						},
-						"description": ""
+						}
 					},
 					"response": []
 				},
@@ -255,8 +249,79 @@
 							"path": [
 								"modules"
 							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteWorkingCopy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
 						},
-						"description": ""
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/workingcopy",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"workingcopy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteRelease",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/release",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"release"
+							]
+						}
 					},
 					"response": []
 				}

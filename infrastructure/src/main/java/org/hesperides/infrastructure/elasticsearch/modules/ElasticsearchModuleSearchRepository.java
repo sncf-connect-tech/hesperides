@@ -106,6 +106,7 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
      * @param event
      */
     @EventSourcingHandler
+    @SuppressWarnings("unused")
     public void indexNewModule(ModuleCreatedEvent event) throws IOException {
 
         Response modules = elasticsearchService.index(hashOf(event.getModule().getKey()), new ModuleIndexation(
@@ -121,6 +122,7 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
     }
 
     @EventSourcingHandler
+    @SuppressWarnings("unused")
     public void indexUpdateModule(ModuleUpdatedEvent event) throws IOException {
 
         Response modules = elasticsearchService.index(hashOf(event.getModule().getKey()), new ModuleIndexation(
@@ -135,9 +137,20 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
                 EntityUtils.toString(modules.getEntity()));
     }
 
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    public void removeDeleteModule(ModuleDeletedEvent event) throws IOException {
+
+        Response modules = elasticsearchService.delete(hashOf(event.getModule().getKey()));
+
+        log.debug("suppression module ? {}, {}", modules.getStatusLine(),
+                EntityUtils.toString(modules.getEntity()));
+    }
+
     private String hashOf(Module.Key key) {
         int hash = Objects.hash(key.getName(), key.getVersion(), key.isWorkingCopy());
         hash = hash & POSITIVE_MASK;
         return "modules/" + hash;
     }
+
 }

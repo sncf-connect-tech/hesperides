@@ -3,6 +3,7 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 import com.google.gson.Gson;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
+import org.hesperides.domain.modules.ModuleDeletedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
@@ -34,6 +35,9 @@ class LegacyCodec implements Codec {
         } else if (event.getPayload() instanceof ModuleUpdatedEvent) {
             eventType = LegacyModuleUpdatedEvent.EVENT_TYPE;
             data = LegacyModuleUpdatedEvent.fromDomainEventMessage(event);
+        } else if (event.getPayload() instanceof ModuleDeletedEvent) {
+            eventType = LegacyModuleDeletedEvent.EVENT_TYPE;
+            data = LegacyModuleDeletedEvent.fromDomainEventMessage(event);
         } else {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }
@@ -62,6 +66,9 @@ class LegacyCodec implements Codec {
                     break;
                 case LegacyModuleUpdatedEvent.EVENT_TYPE:
                     events.add(LegacyModuleUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyModuleDeletedEvent.EVENT_TYPE:
+                    events.add(LegacyModuleDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
                     break;
                 default:
                     throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");

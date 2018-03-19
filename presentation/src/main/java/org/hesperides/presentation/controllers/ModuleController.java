@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
@@ -100,6 +101,8 @@ public class ModuleController extends BaseController {
                                             @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
                                             @Valid @RequestBody final ModuleInput module) {
 
+        log.info("createWorkingCopy {}", module.toString());
+
         if ((fromModuleName == null || StringUtils.isBlank(fromModuleName))
                 && (fromModuleVersion == null || StringUtils.isBlank(fromModuleVersion))
                 && isFromWorkingCopy == null) {
@@ -120,10 +123,49 @@ public class ModuleController extends BaseController {
 
     @ApiOperation("Update a module working copy")
     @PutMapping
-    public ResponseEntity updateWorkingCopy(Principal principal, @Valid @RequestBody final ModuleInput module) {
+    public ResponseEntity updateWorkingCopy(Principal principal,
+                                            @Valid @RequestBody final ModuleInput module) {
         log.info("Updating module workingcopy {}", module.toString());
         Module.Key updated = moduleUseCases.updateWorkingCopy(module.toDomainInstance(), fromPrincipal(principal));
         return ResponseEntity.status(SEE_OTHER).location(updated.getURI()).build();
+    }
+
+    @ApiOperation("Deletes the working copy")
+    @DeleteMapping(path = "/{module_name}/{module_version}/workingcopy")
+    public ResponseEntity deleteWorkingCopy(Principal currentUser,
+                                            @PathVariable(value = "module_name") final String moduleName,
+                                            @PathVariable(value = "module_version") final String moduleVersion) {
+
+        log.info("deleteWorkingCopy {} {}", moduleName, moduleVersion);
+
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        Module module = new Module(moduleKey, new ArrayList<>(), Long.MIN_VALUE);
+
+        moduleUseCases.deleteWorkingCopy(module, fromPrincipal(currentUser));
+
+        checkQueryParameterNotEmpty("module_name", moduleName);
+        checkQueryParameterNotEmpty("module_version", moduleVersion);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Deletes the release")
+    @DeleteMapping(path = "/{module_name}/{module_version}/release")
+    public ResponseEntity deleteRelease(Principal currentUser,
+                                        @PathVariable(value = "module_name") final String moduleName,
+                                        @PathVariable(value = "module_version") final String moduleVersion) {
+
+        log.info("deleteRelease {} {}", moduleName, moduleVersion);
+
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
+        Module module = new Module(moduleKey, new ArrayList<>(), Long.MIN_VALUE);
+
+        moduleUseCases.deleteRelease(module, fromPrincipal(currentUser));
+
+        checkQueryParameterNotEmpty("module_name", moduleName);
+        checkQueryParameterNotEmpty("module_version", moduleVersion);
+
+        return ResponseEntity.ok().build();
     }
 
 }
