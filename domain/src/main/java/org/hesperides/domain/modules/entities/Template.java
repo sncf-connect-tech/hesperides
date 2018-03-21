@@ -40,5 +40,4 @@ public class Template {
                 filename,
                 location);
     }
-
 }

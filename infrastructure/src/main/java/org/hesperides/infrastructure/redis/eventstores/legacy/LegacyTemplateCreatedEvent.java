@@ -20,50 +20,43 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
-import com.google.gson.Gson;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.hesperides.domain.modules.ModuleDeletedEvent;
+import org.hesperides.domain.modules.TemplateCreatedEvent;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.security.UserEvent;
 
-import java.util.ArrayList;
-
 @Value
-@EqualsAndHashCode(callSuper = true)
-public class LegacyModuleDeletedEvent extends AbstractLegacyEvent {
-
-    public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleDeletedEvent";
+public class LegacyTemplateCreatedEvent extends AbstractLegacyEvent {
+    public static final String EVENT_TYPE = "com.vsct.dt.hesperides.templating.modules.ModuleTemplateCreatedEvent";
 
     String moduleName;
     String moduleVersion;
-    boolean workingCopy;
+    LegacyTemplate created;
 
-    /**
-     * Mapping d'un évènement de la nouvelle application en évènement legacy
-     *
-     * @param domainEventMessage
-     */
     public static String fromDomainEventMessage(DomainEventMessage domainEventMessage) {
-        ModuleDeletedEvent domainEvent = (ModuleDeletedEvent) domainEventMessage.getPayload();
-        Module.Key moduleKey = domainEvent.getModule().getKey();
-        return LEGACY_GSON_SERIALIZER.toJson(new LegacyModuleDeletedEvent(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy()));
+        TemplateCreatedEvent domainEvent = (TemplateCreatedEvent) domainEventMessage.getPayload();
+        Template template = domainEvent.getTemplate();
+        LegacyTemplate legacyTemplate = LegacyTemplate.fromDomainTemplate(template, domainEventMessage.getSequenceNumber());
+        return LEGACY_GSON_SERIALIZER.toJson(new LegacyTemplateCreatedEvent(template.getModuleKey().getName(), template.getModuleKey().getVersion(), legacyTemplate));
     }
 
     public static DomainEventMessage<? extends UserEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long sequenceNumber) {
-        return legacyEvent.toDomainEventMessage(aggregateIdentifier, sequenceNumber, LegacyModuleDeletedEvent.class, ModuleDeletedEvent.class);
+        return legacyEvent.toDomainEventMessage(aggregateIdentifier, sequenceNumber, LegacyTemplateCreatedEvent.class, TemplateCreatedEvent.class);
     }
 
     @Override
-    protected ModuleDeletedEvent toDomainEvent(String username) {
-        Module.Key moduleKey = new Module.Key(
-                getModuleName(),
-                getModuleVersion(),
-                isWorkingCopy() ? Module.Type.workingcopy : Module.Type.release);
-        Module module = new Module(moduleKey, new ArrayList<>(), Long.MIN_VALUE);
-        return new ModuleDeletedEvent(module, new User(username));
-    }
+    protected TemplateCreatedEvent toDomainEvent(String username) {
+        LegacyTemplate legacyTemplate = this.getCreated();
 
+        Module.Key moduleKey = new Module.Key(
+                this.getModuleName(),
+                this.getModuleVersion(),
+                legacyTemplate.getModuleTypeFromNamespace());
+
+        Template template = legacyTemplate.toDomainTemplate(moduleKey);
+        return new TemplateCreatedEvent(moduleKey, template, new User(username));
+    }
 }

@@ -1,0 +1,6 @@
+{
+  "eventType": "com.vsct.dt.hesperides.templating.modules.ModuleTemplateDeletedEvent",
+  "data": "{\"moduleName\":\"foo-war\",\"moduleVersion\":\"1.0\",\"templateName\":\"foo-template\"}",
+  "timestamp": 1,
+  "user": "robert"
+}

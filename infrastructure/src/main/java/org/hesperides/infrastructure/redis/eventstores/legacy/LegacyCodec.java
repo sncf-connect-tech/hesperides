@@ -2,9 +2,7 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import com.google.gson.Gson;
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.hesperides.domain.modules.ModuleCreatedEvent;
-import org.hesperides.domain.modules.ModuleDeletedEvent;
-import org.hesperides.domain.modules.ModuleUpdatedEvent;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,6 +36,15 @@ class LegacyCodec implements Codec {
         } else if (event.getPayload() instanceof ModuleDeletedEvent) {
             eventType = LegacyModuleDeletedEvent.EVENT_TYPE;
             data = LegacyModuleDeletedEvent.fromDomainEventMessage(event);
+        } else if (event.getPayload() instanceof TemplateCreatedEvent) {
+            eventType = LegacyTemplateCreatedEvent.EVENT_TYPE;
+            data = LegacyTemplateCreatedEvent.fromDomainEventMessage(event);
+        } else if (event.getPayload() instanceof TemplateUpdatedEvent) {
+            eventType = LegacyTemplateUpdatedEvent.EVENT_TYPE;
+            data = LegacyTemplateUpdatedEvent.fromDomainEventMessage(event);
+        } else if (event.getPayload() instanceof TemplateDeletedEvent) {
+            eventType = LegacyTemplateDeletedEvent.EVENT_TYPE;
+            data = LegacyTemplateDeletedEvent.fromDomainEventMessage(event);
         } else {
             throw new UnsupportedOperationException("Serialization for class " + event.getPayloadType() + " is not implemented");
         }
@@ -69,6 +76,15 @@ class LegacyCodec implements Codec {
                     break;
                 case LegacyModuleDeletedEvent.EVENT_TYPE:
                     events.add(LegacyModuleDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyTemplateCreatedEvent.EVENT_TYPE:
+                    events.add(LegacyTemplateCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyTemplateUpdatedEvent.EVENT_TYPE:
+                    events.add(LegacyTemplateUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyTemplateDeletedEvent.EVENT_TYPE:
+                    events.add(LegacyTemplateDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
                     break;
                 default:
                     throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");

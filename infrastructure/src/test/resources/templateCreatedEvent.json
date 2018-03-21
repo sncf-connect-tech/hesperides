@@ -1,0 +1,6 @@
+{
+  "eventType": "com.vsct.dt.hesperides.templating.modules.ModuleTemplateCreatedEvent",
+  "data": "{\"moduleName\":\"foo-war\",\"moduleVersion\":\"1.0\",\"created\":{\"name\":\"foo-template\",\"namespace\":\"modules#foo-war#1.0#WORKINGCOPY\",\"filename\":\"foo_template.json\",\"location\":\"/destination\",\"content\":\"Foo={{foo}}\",\"rights\":{\"user\":{\"read\":true,\"write\":false,\"execute\":null},\"group\":{\"read\":true,\"write\":false,\"execute\":null},\"other\":null},\"version_id\":1}}",
+  "timestamp": 1,
+  "user": "robert"
+}

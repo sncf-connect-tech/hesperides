@@ -20,8 +20,15 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.hesperides.domain.security.UserEvent;
 
 public abstract class AbstractLegacyEvent {
+    /**
+     * Instance Gson spécifique à la sérialisation des évènements du domaine vers ceux de l'application existante
+     */
+    protected static Gson LEGACY_GSON_SERIALIZER = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
+
     protected abstract UserEvent toDomainEvent(final String username);
 }
