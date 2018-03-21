@@ -22,23 +22,23 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.GenericDomainEventMessage;
-import org.hesperides.domain.modules.ModuleDeletedEvent;
+import org.hesperides.domain.modules.TemplateDeletedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
-public class LegacyModuleDeletedEventTest extends AbstractLegacyCodecTest {
+public class LegacyTemplateDeletedEventTest extends AbstractLegacyCodecTest {
 
-    private static final String JSON_PATH = "moduleDeletedEvent.json";
+    private static final String JSON_PATH = "templateDeletedEvent.json";
 
     @Test
     public void code() throws IOException {
-        ModuleDeletedEvent moduleDeletedEvent = new ModuleDeletedEvent(new Module(getSampleModuleKey(), new ArrayList<>(), 1L), getSampleUser());
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 1, moduleDeletedEvent);
+        Module.Key key = getSampleModuleKey();
+        TemplateDeletedEvent templateDeletedEvent = new TemplateDeletedEvent(key, "foo-template", getSampleUser());
+        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0, templateDeletedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
         String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
         assertEquals(expectedJson, actualJson);
@@ -46,11 +46,12 @@ public class LegacyModuleDeletedEventTest extends AbstractLegacyCodecTest {
 
     @Test
     public void decode() throws IOException {
-        ModuleDeletedEvent event = getEventFromJson(JSON_PATH, ModuleDeletedEvent.class);
-        Module.Key moduleKey = event.getModule().getKey();
+        TemplateDeletedEvent event = getEventFromJson(JSON_PATH, TemplateDeletedEvent.class);
 
-        assertEquals("foo-war", moduleKey.getName());
-        assertEquals("1.0", moduleKey.getVersion());
-        assertEquals(Module.Type.workingcopy, moduleKey.getVersionType());
+        assertEquals("foo-war", event.getModuleKey().getName());
+        assertEquals("1.0", event.getModuleKey().getVersion());
+        assertEquals(null, event.getModuleKey().getVersionType());
+        assertEquals("foo-template", event.getTemplateName());
+        assertEquals("robert", event.getUser().getName());
     }
 }

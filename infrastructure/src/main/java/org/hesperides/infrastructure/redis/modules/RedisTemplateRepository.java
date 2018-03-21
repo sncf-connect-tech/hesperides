@@ -13,7 +13,6 @@ import org.hesperides.domain.modules.queries.TemplateRepository;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

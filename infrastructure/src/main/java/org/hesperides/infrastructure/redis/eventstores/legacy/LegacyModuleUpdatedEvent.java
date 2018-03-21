@@ -55,7 +55,7 @@ public class LegacyModuleUpdatedEvent extends AbstractLegacyEvent {
                 moduleKey.isWorkingCopy(),
                 new ArrayList(), // Toujours une liste de technos vide lors de la création d'un module
                 domainEvent.getModule().getVersionID());
-        return new Gson().toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
+        return LEGACY_GSON_SERIALIZER.toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
     }
 
     public static DomainEventMessage<? extends UserEvent> toDomainEventMessage(LegacyEvent legacyEvent, String aggregateIdentifier, long sequenceNumber) {
