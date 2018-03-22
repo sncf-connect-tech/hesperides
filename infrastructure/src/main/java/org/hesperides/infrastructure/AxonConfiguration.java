@@ -34,11 +34,9 @@ public class AxonConfiguration {
             Class<?> aClass = Class.forName(bd.getBeanClassName());
             ProcessingGroup processingGroup = aClass.getAnnotation(ProcessingGroup.class);
             String name = Optional.ofNullable(processingGroup).map(ProcessingGroup::value).orElse(aClass.getPackage().getName());
-            registerTrackingProcessor(name);
+            eventHandlingConfiguration.registerTrackingProcessor(name);
         }
     }
 
-    private void registerTrackingProcessor(String name) {
-        eventHandlingConfiguration.registerTrackingProcessor(name);
-    }
+
 }
