@@ -28,8 +28,12 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - SPRING_PROFILES_ACTIVE=noldap
       - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_INDEX=hesperides
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
     restart: always
     networks:
       - hesperides-network
