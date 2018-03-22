@@ -2,6 +2,8 @@ package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.responsetypes.ResponseTypes;
+import org.hesperides.domain.framework.OptionalResponseType;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.springframework.stereotype.Component;
@@ -22,26 +24,25 @@ public class ModuleQueries {
         this.queryGateway = queryGateway;
     }
 
-    @SuppressWarnings("unchecked")
-    static private <T2> Class<Optional<T2>> optionalOf(Class<T2> tClass) {
-        return (Class<Optional<T2>>) (Class<?>) (Optional.class);
-    }
-
-    /**
-     * Trouvé ici: https://stackoverflow.com/questions/5207163/how-to-do-myclassstring-class-in-java
-     *
-     * @param tClass
-     * @param <T2>
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    static private <T2> Class<List<T2>> listOf(Class<T2> tClass) {
-        return (Class<List<T2>>) (Class<?>) (List.class);
-    }
-
     private <R> R querySync(Object query, Class<R> responseType) {
         try {
-            return queryGateway.send(query, responseType).get();
+            return queryGateway.query(query, responseType).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new QueryExecutionException(e.getMessage(), e);
+        }
+    }
+
+    private <R> Optional<R> querySyncOptional(Object query, Class<R> responseType) {
+        try {
+            return queryGateway.query(query, OptionalResponseType.optionalInstancesOf(responseType)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new QueryExecutionException(e.getMessage(), e);
+        }
+    }
+
+    private <R> List<R> querySyncList(Object query, Class<R> responseType) {
+        try {
+            return queryGateway.query(query, ResponseTypes.multipleInstancesOf(responseType)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new QueryExecutionException(e.getMessage(), e);
         }
@@ -52,22 +53,22 @@ public class ModuleQueries {
     }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
-        return querySync(new ModuleByIdQuery(moduleKey), optionalOf(ModuleView.class));
+        return querySyncOptional(new ModuleByIdQuery(moduleKey), ModuleView.class);
     }
 
     public List<String> getModulesNames() {
-        return querySync(new ModulesNamesQuery(), listOf(String.class));
+        return querySyncList(new ModulesNamesQuery(), String.class);
     }
 
     public List<String> getModuleVersions(String moduleName) {
-        return querySync(new ModuleVersionsQuery(moduleName), listOf(String.class));
+        return querySyncList(new ModuleVersionsQuery(moduleName), String.class);
     }
 
     public List<String> getModuleTypes(String moduleName, String moduleVersion) {
-        return querySync(new ModuleTypesQuery(moduleName, moduleVersion), listOf(String.class));
+        return querySyncList(new ModuleTypesQuery(moduleName, moduleVersion), String.class);
     }
 
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
-        return querySync(new TemplateByNameQuery(moduleKey, templateName), optionalOf(TemplateView.class));
+        return querySyncOptional(new TemplateByNameQuery(moduleKey, templateName), TemplateView.class);
     }
 }
