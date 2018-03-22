@@ -1,6 +1,7 @@
 package org.hesperides.presentation.exceptions;
 
 import org.axonframework.commandhandling.model.AggregateNotFoundException;
+import org.hesperides.domain.modules.exceptions.DuplicateException;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.NotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -29,8 +30,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getAggregateIdentifier() + ": " + ex.getMessage());
     }
 
-    @ExceptionHandler(DuplicateTemplateCreationException.class)
-    public ResponseEntity handleDuplicateTemplateCreation(DuplicateTemplateCreationException ex) {
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity handleDuplicateTemplateCreation(DuplicateException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
