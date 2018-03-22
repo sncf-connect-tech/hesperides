@@ -60,6 +60,10 @@ Run backend manually
 Run backend using Docker
 
     docker run -d [-e ENV_VAR=ENV_VALUE] -p 8080:8080 --network hesperides_hesperides-network hesperides/hesperides-spring
+    
+Run without redis, ldap or elasticsearch
+
+    java -jar bootstrap/target/hesperides-spring.jar -Dspring.profiles.active=noldap,local
 
 ## Documentation
 
@@ -69,4 +73,4 @@ Available online at <https://voyages-sncf-technologies.github.io/hesperides-gui/
 
 Do you have changes to contribute? Please see the Development page.
 
-This project includes a postman collection, check `documenta'tion/postman` folder.
+This project includes a postman collection, check `documentation/postman` folder.
