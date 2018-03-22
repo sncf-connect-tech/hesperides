@@ -1,6 +1,8 @@
 spring:
   application.name: HESPERIDES
 
+  profiles.active: ${SPRING_PROFILES_ACTIVE:default}
+
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
