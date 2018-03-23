@@ -11,6 +11,7 @@ import org.hesperides.domain.modules.queries.ModuleRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateRepository;
 import org.hesperides.domain.modules.queries.TemplateView;
+import org.hesperides.infrastructure.views.TrackedProjection;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
+@TrackedProjection
 public class LocalModuleRepository implements ModuleRepository, TemplateRepository {
 
     private final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
@@ -32,6 +34,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(ModuleCreatedEvent event) {
+        log.debug("handling event {}", event);
         MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
                         event.getModule().getKey().getName(),
@@ -45,6 +48,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     @EventSourcingHandler
     @SuppressWarnings("unused")
     private void on(ModuleUpdatedEvent event) {
+        log.debug("handling event {}", event);
         MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
                         event.getModule().getKey().getName(),
@@ -57,13 +61,15 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleDeletedEvent event) {
+    public void on(ModuleDeletedEvent event) {
+        log.debug("handling event {}", event);
         MODULE_MAP.remove(event.getModule().getKey());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(TemplateCreatedEvent event) {
+        log.debug("handling event {}", event);
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
                 event.getTemplate().getName(),
@@ -78,6 +84,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(TemplateUpdatedEvent event) {
+        log.debug("handling event {}", event);
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
                 event.getTemplate().getName(),
@@ -92,6 +99,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(TemplateDeletedEvent event) {
+        log.debug("handling event {}", event);
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplateName());
         TEMPLATE_VIEW_MAP.remove(key);
         TEMPLATE_CONTENT_MAP.remove(key);
