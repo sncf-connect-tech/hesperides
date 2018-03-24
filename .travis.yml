@@ -32,6 +32,10 @@ jobs:
       script: ./mvnw clean package -Dmaven.test.skip=true
     - stage: test
       script: ./mvnw test
+    - stage: test
+      env:
+        - INTEGRATION TEST
+      script: ./mvnw -pl tests/integration verify -P integration-test
     - stage: docker
       if: type != pull_request AND fork = false
       script: ./.travis/docker_build_push.sh
