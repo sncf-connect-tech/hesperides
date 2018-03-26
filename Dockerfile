@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jre-alpine
 
 COPY bootstrap/target/hesperides-*.jar hesperides-spring.jar
 

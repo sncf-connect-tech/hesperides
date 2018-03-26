@@ -26,6 +26,7 @@
         <module>infrastructure</module>
         <module>bootstrap</module>
         <module>tests/bdd</module>
+        <module>tests/integration</module>
         <module>tests/tech</module>
     </modules>
 
@@ -36,7 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Dependencies -->
-        <axon-spring-boot-starter.version>3.1.2</axon-spring-boot-starter.version>
+        <axon-spring-boot-starter.version>3.2</axon-spring-boot-starter.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <commons-io.version>2.6</commons-io.version>
         <cucumber.version>1.2.5</cucumber.version>
@@ -54,6 +55,9 @@
         <spring-security-test.version>4.2.4.RELEASE</spring-security-test.version>
         <swagger.version>1.5.18</swagger.version>
         <!-- Plugins -->
+        <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
+        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
     </properties>
 
     <dependencies>

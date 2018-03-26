@@ -27,9 +27,9 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
  */
 @Slf4j
 @Aggregate
-/**
- * Axon utilise le constructeur vide pour créer une instance vide
- * avant de l'initialiser à partir des évènements passés.
+/*
+  Axon utilise le constructeur vide pour créer une instance vide
+  avant de l'initialiser à partir des évènements passés.
  */
 @NoArgsConstructor
 class ModuleAggregate implements Serializable {
