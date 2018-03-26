@@ -103,12 +103,12 @@ public class ModuleController extends BaseController {
 
         log.info("createWorkingCopy {}", module.toString());
 
-        if ((fromModuleName == null || StringUtils.isBlank(fromModuleName))
-                && (fromModuleVersion == null || StringUtils.isBlank(fromModuleVersion))
+        Module.Key createdModuleKey;
+        if (StringUtils.isBlank(fromModuleName)
+                && StringUtils.isBlank(fromModuleVersion)
                 && isFromWorkingCopy == null) {
 
-            Module.Key created = moduleUseCases.createWorkingCopy(module.toDomainInstance(), fromPrincipal(currentUser));
-            return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
+            createdModuleKey = moduleUseCases.createWorkingCopy(module.toDomainInstance(), fromPrincipal(currentUser));
 
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
@@ -116,9 +116,10 @@ public class ModuleController extends BaseController {
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
             Module.Key from = new Module.Key(fromModuleName, fromModuleVersion, isFromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
-            Module.Key created = moduleUseCases.createWorkingCopyFrom(from, module.getKey());
-            return ResponseEntity.status(SEE_OTHER).location(created.getURI()).build();
+            createdModuleKey = moduleUseCases.createWorkingCopyFrom(from, module.getKey());
         }
+
+        return ResponseEntity.status(SEE_OTHER).location(createdModuleKey.getURI()).build();
     }
 
     @ApiOperation("Update a module working copy")
@@ -167,5 +168,4 @@ public class ModuleController extends BaseController {
 
         return ResponseEntity.ok().build();
     }
-
 }

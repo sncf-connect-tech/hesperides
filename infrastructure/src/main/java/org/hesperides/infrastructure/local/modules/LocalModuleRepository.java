@@ -44,7 +44,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleUpdatedEvent event) {
+    public void on(ModuleUpdatedEvent event) {
         MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
                         event.getModule().getKey().getName(),
@@ -57,7 +57,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleDeletedEvent event) {
+    public void on(ModuleDeletedEvent event) {
         MODULE_MAP.remove(event.getModule().getKey());
     }
 

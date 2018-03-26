@@ -15,7 +15,7 @@ Feature: modules related features
     When updating this module
     Then the module is successfully updated
 
-#  Scenario: delete a module working copy
-#    Given an existing module
-#    When deleting this module
-#    Then the module is successfully deleted
+  Scenario: delete a module working copy
+    Given an existing module
+    When deleting this module
+    Then the module is successfully deleted

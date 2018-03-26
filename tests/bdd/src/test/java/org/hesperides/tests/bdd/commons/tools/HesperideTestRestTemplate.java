@@ -1,6 +1,5 @@
 package org.hesperides.tests.bdd.commons.tools;
 
-import org.hesperides.presentation.controllers.ModuleInput;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -13,7 +12,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.List;

@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.controllers.ModuleInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.commons.tools.HesperideTestRestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
@@ -21,11 +23,11 @@ public class CreateAModule extends CucumberSpringBean implements En {
         });
 
         When("^creating a new module$", () -> {
-            moduleLocation = template.postForLocationReturnAbsoluteURI("/modules", moduleInput);
+            moduleLocation = rest.postForLocationReturnAbsoluteURI("/modules", moduleInput);
         });
 
         Then("^the module is successfully created$", () -> {
-            ResponseEntity<String> responseEntity = template.getForEntity(moduleLocation, String.class);
+            ResponseEntity<String> responseEntity = rest.getForEntity(moduleLocation, String.class);
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });
     }

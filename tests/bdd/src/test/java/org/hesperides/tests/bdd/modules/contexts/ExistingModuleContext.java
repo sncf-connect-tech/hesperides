@@ -5,6 +5,8 @@ import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.presentation.controllers.ModuleInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.commons.tools.HesperideTestRestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
 
@@ -18,7 +20,7 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
         Given("^an existing module$", () -> {
             moduleKey = new Module.Key("test", "123", Module.Type.workingcopy);
             moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
-            moduleLocation = template.postForLocationReturnAbsoluteURI("/modules", moduleInput);
+            moduleLocation = rest.postForLocationReturnAbsoluteURI("/modules", moduleInput);
         });
     }
 
