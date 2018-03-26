@@ -11,7 +11,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>test-integration</artifactId>
+    <artifactId>tests-integration</artifactId>
 
     <dependencies>
         <dependency>
