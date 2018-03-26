@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.presentation.controllers.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.commons.tools.HesperideTestRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
@@ -29,5 +28,9 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
 
     public URI getTemplateLocation() {
         return templateLocation;
+    }
+
+    public ExistingModuleContext getExistingModuleContext() {
+        return existingModuleContext;
     }
 }

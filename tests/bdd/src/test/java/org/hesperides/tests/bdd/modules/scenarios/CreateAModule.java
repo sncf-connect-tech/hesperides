@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.controllers.ModuleInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.commons.tools.HesperideTestRestTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;

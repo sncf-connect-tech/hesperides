@@ -18,7 +18,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
     private URI templateLocation;
 
     @Autowired
-    private ExistingModuleContext moduleContext;
+    private ExistingModuleContext existingModuleContext;
 
     public CreateATemplate() {
         Given("^a template to create$", () -> {
@@ -28,7 +28,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         });
 
         When("^adding a new template$", () -> {
-            templateLocation = rest.postForLocationReturnAbsoluteURI(moduleContext.getModuleLocation().toString() + "/templates", templateInput);
+            templateLocation = rest.postForLocationReturnAbsoluteURI(existingModuleContext.getModuleLocation().toString() + "/templates", templateInput);
         });
 
         Then("^the module contains the new template$", () -> {
