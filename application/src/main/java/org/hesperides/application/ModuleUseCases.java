@@ -51,8 +51,8 @@ public class ModuleUseCases {
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
-        if (!Long.valueOf(optionalModuleView.get().getVersion_id()).equals(module.getVersionID() - 1)) {
-            throw new OutOfDateVersionException(optionalModuleView.get().getVersion_id() + 1, module.getVersionID());
+        if (!Long.valueOf(optionalModuleView.get().getVersionId()).equals(module.getVersionId() - 1)) {
+            throw new OutOfDateVersionException(optionalModuleView.get().getVersionId() + 1, module.getVersionId());
         }
         return commands.updateModule(module, user);
     }
@@ -80,20 +80,20 @@ public class ModuleUseCases {
      * <p>
      * Si le template existe déjà dans le module, c'est le module lui-même qui levera une exception.
      *
-     * @param key
+     * @param moduleKey
      * @param template
      * @param user
      */
-    public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {
-        commands.createTemplateInWorkingCopy(key, template, user);
+    public void createTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
+        commands.createTemplateInWorkingCopy(moduleKey, template, user);
     }
 
-    public void updateTemplateInWorkingCopy(Module.Key key, Template template, User user) {
-        commands.updateTemplateInWorkingCopy(key, template, user);
+    public void updateTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
+        commands.updateTemplateInWorkingCopy(moduleKey, template, user);
     }
 
-    public void deleteTemplate(Module.Key key, String templateName, User user) {
-        commands.deleteTemplate(key, templateName, user);
+    public void deleteTemplate(Module.Key moduleKey, String templateName, User user) {
+        commands.deleteTemplate(moduleKey, templateName, user);
     }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
@@ -116,7 +116,7 @@ public class ModuleUseCases {
         return queries.getTemplate(moduleKey, templateName);
     }
 
-    public Module.Key createWorkingCopyFrom(Module.Key from, Module.Key key) {
+    public Module.Key createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey) {
         throw new IllegalArgumentException("TODO"); //TODO
     }
 }
