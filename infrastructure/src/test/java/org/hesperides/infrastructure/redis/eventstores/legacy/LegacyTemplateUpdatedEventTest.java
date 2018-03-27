@@ -20,8 +20,6 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
-import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.TemplateUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
@@ -30,7 +28,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class LegacyTemplateUpdatedEventTest extends AbstractLegacyCodecTest {
 
@@ -51,11 +48,7 @@ public class LegacyTemplateUpdatedEventTest extends AbstractLegacyCodecTest {
                 new Template.FileRights(true, false, null)
         ), 2L, moduleKey);
         TemplateUpdatedEvent templateUpdatedEvent = new TemplateUpdatedEvent(moduleKey, template, getSampleUser());
-
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0, templateUpdatedEvent);
-        String actualJson = getMockedLegacyCodec().code(domainEventMessage);
-        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
-        assertEquals(expectedJson, actualJson);
+        assertEventEncoding(templateUpdatedEvent, JSON_PATH);
     }
 
     @Test
