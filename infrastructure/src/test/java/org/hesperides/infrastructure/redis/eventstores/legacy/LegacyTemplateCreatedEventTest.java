@@ -42,10 +42,10 @@ public class LegacyTemplateCreatedEventTest extends AbstractLegacyCodecTest {
                 new Template.FileRights(true, false, null),
                 new Template.FileRights(true, false, null),
                 new Template.FileRights(true, false, null)
-        ), moduleKey);
+        ), 1L, moduleKey);
         TemplateCreatedEvent templateCreatedEvent = new TemplateCreatedEvent(moduleKey, template, getSampleUser());
 
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 1, templateCreatedEvent);
+        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0, templateCreatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
         String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
         assertEquals(expectedJson, actualJson);
@@ -72,6 +72,7 @@ public class LegacyTemplateCreatedEventTest extends AbstractLegacyCodecTest {
         assertEquals(null, event.getTemplate().getRights().getGroup().getExecute());
         assertEquals(null, event.getTemplate().getRights().getOther().getExecute());
 
+        assertEquals(1L, event.getTemplate().getVersionId().longValue());
         assertEquals("robert", event.getUser().getName());
     }
 }

@@ -24,7 +24,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         When("^updating this template$", () -> {
             Template.FileRights rights = new Template.FileRights(true, true, true);
             TemplateInput templateInput = new TemplateInput("templateName", "template.name", "template.location", "content-bis",
-                    new Template.Rights(rights, rights, rights));
+                    new Template.Rights(rights, rights, rights), 1L);
             Module.Key moduleKey = existingTemplateContext.getExistingModuleContext().getModuleKey();
             templateLocation = rest.putForLocationReturnAbsoluteURI(
                     "/modules/{id}/{version}/workingcopy/templates/",
@@ -36,6 +36,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         Then("^the template is successfully updated", () -> {
             ResponseEntity<String> responseEntity = rest.getForEntity(templateLocation, String.class);
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
+            //TODO Vérifier que la version a été incrémentée
         });
     }
 }

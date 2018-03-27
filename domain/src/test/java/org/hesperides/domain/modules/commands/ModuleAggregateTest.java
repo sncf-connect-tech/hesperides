@@ -23,7 +23,7 @@ class ModuleAggregateTest {
     private Module.Key moduleKey = new Module.Key("module_test", "123", Module.Type.workingcopy);
     private Module module = new Module(moduleKey, new ArrayList<>(), 1L);
     private Template.Rights rights = new Template.Rights();
-    private Template template = new Template("template1", "file1.txt", "/", "content", rights, moduleKey);
+    private Template template = new Template("template1", "file1.txt", "/", "content", rights, 1L, moduleKey);
     private User user = new User("default_name");
 
     @BeforeEach

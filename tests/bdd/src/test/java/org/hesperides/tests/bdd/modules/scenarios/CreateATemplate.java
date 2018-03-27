@@ -24,7 +24,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         Given("^a template to create$", () -> {
             Template.FileRights rights = new Template.FileRights(true, true, true);
             templateInput = new TemplateInput("templateName", "template.name", "template.location", "content",
-                    new Template.Rights(rights, rights, rights));
+                    new Template.Rights(rights, rights, rights), 1L);
         });
 
         When("^adding a new template$", () -> {

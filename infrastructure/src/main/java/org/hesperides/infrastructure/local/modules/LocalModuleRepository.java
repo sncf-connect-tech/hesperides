@@ -76,7 +76,8 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                         + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
-                event.getTemplate().getLocation()
+                event.getTemplate().getLocation(),
+                event.getTemplate().getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
@@ -91,7 +92,8 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                         + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
-                event.getTemplate().getLocation()
+                event.getTemplate().getLocation(),
+                event.getTemplate().getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }

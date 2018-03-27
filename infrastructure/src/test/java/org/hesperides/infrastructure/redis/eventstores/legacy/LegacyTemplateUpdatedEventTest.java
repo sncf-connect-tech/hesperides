@@ -30,6 +30,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class LegacyTemplateUpdatedEventTest extends AbstractLegacyCodecTest {
 
@@ -48,10 +49,10 @@ public class LegacyTemplateUpdatedEventTest extends AbstractLegacyCodecTest {
                 new Template.FileRights(true, false, null),
                 new Template.FileRights(true, false, null),
                 new Template.FileRights(true, false, null)
-        ), moduleKey);
+        ), 2L, moduleKey);
         TemplateUpdatedEvent templateUpdatedEvent = new TemplateUpdatedEvent(moduleKey, template, getSampleUser());
 
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 2L, templateUpdatedEvent);
+        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0, templateUpdatedEvent);
         String actualJson = getMockedLegacyCodec().code(domainEventMessage);
         String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
         assertEquals(expectedJson, actualJson);
@@ -78,6 +79,7 @@ public class LegacyTemplateUpdatedEventTest extends AbstractLegacyCodecTest {
         assertEquals(null, event.getTemplate().getRights().getGroup().getExecute());
         assertEquals(null, event.getTemplate().getRights().getOther().getExecute());
 
+        assertEquals(2L, event.getTemplate().getVersionId().longValue());
         assertEquals("robert", event.getUser().getName());
     }
 }

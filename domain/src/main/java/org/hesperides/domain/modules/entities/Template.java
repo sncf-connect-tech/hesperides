@@ -13,7 +13,7 @@ public class Template {
     String location;
     String content;
     Rights rights;
-
+    Long versionId;
     Module.Key moduleKey;
 
     @Data
@@ -38,6 +38,7 @@ public class Template {
         return new TemplateView(name,
                 moduleKey.getNamespace(),
                 filename,
-                location);
+                location,
+                versionId);
     }
 }
