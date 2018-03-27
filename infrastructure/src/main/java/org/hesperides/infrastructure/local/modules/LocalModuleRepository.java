@@ -47,7 +47,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleUpdatedEvent event) {
+    public void on(ModuleUpdatedEvent event) {
         log.debug("handling event {}", event);
         MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
@@ -145,5 +145,4 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     private String toModuleTypeView(Boolean workingCopy) {
         return workingCopy ? "workingcopy" : "release";
     }
-
 }

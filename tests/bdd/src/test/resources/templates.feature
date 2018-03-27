@@ -11,6 +11,11 @@ Feature: modules templates
     When adding a new template
     Then the module contains the new template
 
+  Scenario: update a existing template from a module working copy
+    Given an existing template in this module
+    When updating this template
+    Then the template is successfully updated
+
   Scenario: delete a template from a module working copy
     Given an existing template in this module
     When deleting this template

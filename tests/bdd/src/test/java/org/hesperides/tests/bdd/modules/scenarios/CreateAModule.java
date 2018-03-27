@@ -21,11 +21,11 @@ public class CreateAModule extends CucumberSpringBean implements En {
         });
 
         When("^creating a new module$", () -> {
-            moduleLocation = template.postForLocationReturnAbsoluteURI("/modules", moduleInput);
+            moduleLocation = rest.postForLocationReturnAbsoluteURI("/modules", moduleInput);
         });
 
         Then("^the module is successfully created$", () -> {
-            ResponseEntity<String> responseEntity = template.getForEntity(moduleLocation, String.class);
+            ResponseEntity<String> responseEntity = rest.getForEntity(moduleLocation, String.class);
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });
     }

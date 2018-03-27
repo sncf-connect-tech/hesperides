@@ -7,7 +7,7 @@ public class UserContext extends CucumberSpringBean implements En {
 
     public UserContext() {
         Given("^an authenticated user$", () -> {
-            template.addCreds("user", "password");
+            rest.addCreds("user", "password");
         });
     }
 }
