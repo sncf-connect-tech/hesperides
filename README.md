@@ -2,6 +2,10 @@
 
 [![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=feature/springboot)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
 
+[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![GitHub issues](https://img.shields.io/github/issues/voyages-sncf-technologies/hesperides.svg)](https://github.com/voyages-sncf-technologies/hesperides/issues)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 Hesperides is an open source tool generating content from a template file (using mustache) in a given environment.
 
 Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesperides frontend.
@@ -69,8 +73,13 @@ Run without redis, ldap or elasticsearch
 
 Available online at <https://voyages-sncf-technologies.github.io/hesperides-gui/>
 
-## Development
+## License
 
-Do you have changes to contribute? Please see the Development page.
+Hesperides is licensed under the GPL V3 license
+
+## Contributing
+
+Do you have changes to contribute? Please see the [CONTRIBUTING](CONTRIBUTING.md) page.
+We are open to pull requests. Please first discuss your intentions via [Issues](https://github.com/voyages-sncf-technologies/hesperides/issues).
 
 This project includes a postman collection, check `documentation/postman` folder.
