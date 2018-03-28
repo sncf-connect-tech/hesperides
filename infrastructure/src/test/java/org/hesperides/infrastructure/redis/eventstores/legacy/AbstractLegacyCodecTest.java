@@ -23,6 +23,7 @@ package org.hesperides.infrastructure.redis.eventstores.legacy;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.axonframework.eventsourcing.DomainEventMessage;
+import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.security.UserEvent;
@@ -39,6 +40,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 abstract class AbstractLegacyCodecTest {
+
+    protected Module.Key getSampleModuleKey() {
+        return (new Module.Key("foo-war", "1.0", Module.Type.workingcopy));
+    }
+
+    protected User getSampleUser() {
+        return new User("robert");
+    }
 
     /**
      * Récupère une instance de LegacyCodec où les méthodes getContextUsername
@@ -79,11 +88,10 @@ abstract class AbstractLegacyCodecTest {
         assertEquals(payloadType, domainEventMessage.getPayloadType().getName());
     }
 
-    protected Module.Key getSampleModuleKey() {
-        return (new Module.Key("foo-war", "1.0", Module.Type.workingcopy));
-    }
-
-    protected User getSampleUser() {
-        return new User("robert");
+    protected void assertEventEncoding(UserEvent domainEvent, String jsonPath) throws IOException {
+        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 0, domainEvent);
+        String actualJson = getMockedLegacyCodec().code(domainEventMessage);
+        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(jsonPath));
+        assertEquals(expectedJson, actualJson);
     }
 }

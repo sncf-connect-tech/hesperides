@@ -25,7 +25,7 @@ public final class ModuleInput {
     Set<Techno> technos;
 
     @SerializedName("version_id")
-    Long versionID;
+    Long versionId;
 
     Module.Key getKey() {
         return new Module.Key(name, version, isWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
@@ -51,7 +51,7 @@ public final class ModuleInput {
                         isWorkingCopy ? Module.Type.workingcopy : Module.Type.release
                 ),
                 technos.stream().map(techno -> Techno.toDomainInstance()).collect(Collectors.toList()),
-                versionID
+                versionId
         );
     }
 

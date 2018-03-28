@@ -20,7 +20,7 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
         Given("^an existing template in this module$", () -> {
             Template.FileRights rights = new Template.FileRights(true, true, true);
             templateInput = new TemplateInput("templateName", "template.name", "template.location", "content",
-                    new Template.Rights(rights, rights, rights));
+                    new Template.Rights(rights, rights, rights), 0L);
             templateLocation = rest.postForLocationReturnAbsoluteURI("/modules/{id}/{version}/workingcopy/templates/", templateInput,
                     existingModuleContext.getModuleKey().getName(), existingModuleContext.getModuleKey().getVersion());
         });

@@ -40,7 +40,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
-                        1
+                        1L
                 )
         );
     }
@@ -54,7 +54,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
-                        1
+                        event.getModule().getVersionId()
                 )
         );
     }
@@ -76,7 +76,8 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                         + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
-                event.getTemplate().getLocation()
+                event.getTemplate().getLocation(),
+                event.getTemplate().getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
@@ -91,7 +92,8 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                         + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
-                event.getTemplate().getLocation()
+                event.getTemplate().getLocation(),
+                event.getTemplate().getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
@@ -125,7 +127,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
         return ImmutableList.copyOf(MODULE_MAP.values()).stream()
                 .filter(module -> module.getName().equalsIgnoreCase(query.getModuleName()))
                 .filter(module -> module.getVersion().equalsIgnoreCase(query.getModuleVersion()))
-                .map(module -> toModuleTypeView(module.isWorking_copy()))
+                .map(module -> toModuleTypeView(module.isWorkingCopy()))
                 .collect(Collectors.toList());
     }
 

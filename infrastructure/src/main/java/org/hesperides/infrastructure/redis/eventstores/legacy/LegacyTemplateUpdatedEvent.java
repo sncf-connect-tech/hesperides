@@ -39,7 +39,7 @@ public class LegacyTemplateUpdatedEvent extends AbstractLegacyEvent {
     public static String fromDomainEventMessage(DomainEventMessage domainEventMessage) {
         TemplateUpdatedEvent domainEvent = (TemplateUpdatedEvent) domainEventMessage.getPayload();
         Template template = domainEvent.getTemplate();
-        LegacyTemplate legacyTemplate = LegacyTemplate.fromDomainTemplate(template, domainEventMessage.getSequenceNumber());
+        LegacyTemplate legacyTemplate = LegacyTemplate.fromDomainTemplate(template);
         return LEGACY_GSON_SERIALIZER.toJson(new LegacyTemplateUpdatedEvent(template.getModuleKey().getName(), template.getModuleKey().getVersion(), legacyTemplate));
     }
 

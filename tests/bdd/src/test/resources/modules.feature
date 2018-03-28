@@ -19,3 +19,9 @@ Feature: modules related features
     Given an existing module
     When deleting this module
     Then the module is successfully deleted
+
+  Scenario: conflict while updating an existing module
+    Given an existing module
+    And this module is being modified alongside
+    When updating this module
+    Then the module update is rejected

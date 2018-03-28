@@ -80,8 +80,8 @@ public class HesperideTestRestTemplate {
         rest.getRestTemplate().getInterceptors().add(new BasicAuthorizationInterceptor(user, password));
     }
 
-    public ResponseEntity<String> getForEntity(URI moduleLocation, Class<String> stringClass) {
-        return rest.getForEntity(moduleLocation, stringClass);
+    public <T> ResponseEntity<T> getForEntity(URI url, Class<T> responseType) {
+        return rest.getForEntity(url, responseType);
     }
 
     public void delete(URI templateLocation) {

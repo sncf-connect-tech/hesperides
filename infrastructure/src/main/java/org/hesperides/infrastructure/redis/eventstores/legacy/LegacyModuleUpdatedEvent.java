@@ -53,7 +53,7 @@ public class LegacyModuleUpdatedEvent extends AbstractLegacyEvent {
                 moduleKey.getVersion(),
                 moduleKey.isWorkingCopy(),
                 new ArrayList(), // Toujours une liste de technos vide lors de la création d'un module
-                domainEvent.getModule().getVersionID());
+                domainEvent.getModule().getVersionId());
         return LEGACY_GSON_SERIALIZER.toJson(new LegacyModuleUpdatedEvent(legacyModule, new ArrayList()));
     }
 

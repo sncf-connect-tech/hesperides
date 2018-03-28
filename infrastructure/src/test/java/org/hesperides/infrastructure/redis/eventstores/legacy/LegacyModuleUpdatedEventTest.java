@@ -20,8 +20,6 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
-import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.junit.Test;
@@ -38,10 +36,7 @@ public class LegacyModuleUpdatedEventTest extends AbstractLegacyCodecTest {
     @Test
     public void code() throws IOException {
         ModuleUpdatedEvent moduleUpdatedEvent = new ModuleUpdatedEvent(new Module(getSampleModuleKey(), new ArrayList<>(), 1L), getSampleUser());
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 1, moduleUpdatedEvent);
-        String actualJson = getMockedLegacyCodec().code(domainEventMessage);
-        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
-        assertEquals(expectedJson, actualJson);
+        assertEventEncoding(moduleUpdatedEvent, JSON_PATH);
     }
 
     @Test

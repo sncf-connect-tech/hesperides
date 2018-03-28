@@ -2,6 +2,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.modules.queries.TemplateView;
 import org.hesperides.presentation.controllers.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class CreateATemplate extends CucumberSpringBean implements En {
 
@@ -24,15 +26,16 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         Given("^a template to create$", () -> {
             Template.FileRights rights = new Template.FileRights(true, true, true);
             templateInput = new TemplateInput("templateName", "template.name", "template.location", "content",
-                    new Template.Rights(rights, rights, rights));
+                    new Template.Rights(rights, rights, rights), 0L);
         });
 
         When("^adding a new template$", () -> {
             templateLocation = rest.postForLocationReturnAbsoluteURI(existingModuleContext.getModuleLocation().toString() + "/templates", templateInput);
         });
 
-        Then("^the module contains the new template$", () -> {
-            ResponseEntity<String> responseEntity = rest.getForEntity(templateLocation, String.class);
+        Then("^the template is successfully created and the module contains the new template$", () -> {
+            ResponseEntity<TemplateView> responseEntity = rest.getForEntity(templateLocation, TemplateView.class);
+            assertEquals(1L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });
     }
