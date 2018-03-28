@@ -9,5 +9,5 @@ public class ModuleView {
     String version;
     @SerializedName("working_copy")
     boolean workingCopy;
-    long versionId;
+    Long versionId;
 }

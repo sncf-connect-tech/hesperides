@@ -40,7 +40,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
-                        1
+                        1L
                 )
         );
     }
@@ -54,7 +54,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
-                        1
+                        event.getModule().getVersionId()
                 )
         );
     }

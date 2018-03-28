@@ -44,18 +44,28 @@ public class ModuleUseCases {
         if (queries.moduleExist(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
+        // Initialisation de la version
+        Module newModule = new Module(
+                module.getKey(),
+                module.getTechnos(),
+                1L);
         return commands.createModule(module, user);
     }
 
     public Module.Key updateWorkingCopy(Module module, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
-        if (!optionalModuleView.isPresent()) {
+        Optional<ModuleView> moduleView = queries.getModule(module.getKey());
+        if (!moduleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
-        if (!Long.valueOf(optionalModuleView.get().getVersionId()).equals(module.getVersionId() - 1)) {
-            throw new OutOfDateVersionException(optionalModuleView.get().getVersionId() + 1, module.getVersionId());
+        if (!moduleView.get().getVersionId().equals(module.getVersionId())) {
+            throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
         }
-        return commands.updateModule(module, user);
+        // Mise à jour de la version
+        Module moduleWithUpdatedVersion = new Module(
+                module.getKey(),
+                module.getTechnos(),
+                module.getVersionId() + 1);
+        return commands.updateModule(moduleWithUpdatedVersion, user);
     }
 
     public void deleteWorkingCopy(Module module, User user) {

@@ -34,9 +34,10 @@ public final class ModuleIndexation {
     @SerializedName("working_copy")
     private final boolean workingCopy;
     private final List<TemplatePackageIndexation> technos;
+    private final Long versionId;
 
     public ModuleView toModuleView() {
-        return new ModuleView(name, version, workingCopy, 0L);
+        return new ModuleView(name, version, workingCopy, versionId);
     }
 
     public String toModuleTypeView() {
