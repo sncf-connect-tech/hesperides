@@ -86,7 +86,16 @@ public class ModuleUseCases {
      * @param user
      */
     public void createTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
-        commands.createTemplateInWorkingCopy(moduleKey, template, user);
+        // Initialise la version
+        Template newTemplate = new Template(
+                template.getName(),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                template.getRights(),
+                1L,
+                moduleKey);
+        commands.createTemplateInWorkingCopy(moduleKey, newTemplate, user);
     }
 
     public void updateTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
