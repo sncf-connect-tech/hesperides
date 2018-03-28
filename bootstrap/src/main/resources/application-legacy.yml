@@ -1,0 +1,7 @@
+#
+# Specific configuration for legacy profile.
+#
+spring:
+  redis:
+    host: daxmort
+    port: 58379

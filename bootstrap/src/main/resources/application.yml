@@ -23,3 +23,12 @@ elasticsearch:
   host: ${ELASTICSEARCH_HOST:localhost}
   port: ${ELASTICSEARCH_PORT:9200}
   index: ${ELASTICSEARCH_INDEX:hesperides}
+
+# Spring actuator configuration.
+management:
+  context-path: "/manage"
+  security:
+    enabled: false
+
+endpoints:
+  enabled: true
