@@ -9,6 +9,7 @@ import java.util.Optional;
 
 /**
  * response type. cette classe devrait aller dans Axon.
+ *
  * @param <R>
  */
 public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
@@ -25,7 +26,7 @@ public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
 
     @SuppressWarnings("unchecked")
     private boolean isOptional(Type responseType) {
-        return ((Class)((ParameterizedType) responseType).getRawType()).isAssignableFrom(Optional.class);
+        return ((Class) ((ParameterizedType) responseType).getRawType()).isAssignableFrom(Optional.class);
     }
 
     @Override

@@ -5,7 +5,6 @@ import cucumber.api.java8.En;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.presentation.controllers.ModuleInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.junit.Assert;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;

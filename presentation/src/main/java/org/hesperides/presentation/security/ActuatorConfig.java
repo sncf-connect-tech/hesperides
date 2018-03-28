@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
-public class ActuatorConfig  extends WebSecurityConfigurerAdapter {
+public class ActuatorConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

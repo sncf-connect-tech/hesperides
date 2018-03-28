@@ -1,25 +1,19 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.application.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.hesperides.presentation.controllers.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class UpdateATemplate extends CucumberSpringBean implements En {
 
@@ -37,7 +31,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         When("^updating this template$", () -> {
             try {
                 updateTemplate();
-            } catch (Exception e){
+            } catch (Exception e) {
                 exception = e;
             }
         });
