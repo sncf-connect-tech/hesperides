@@ -4,18 +4,19 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.GenericDomainEventEntry;
+import org.axonframework.eventsourcing.eventstore.GlobalSequenceTrackingToken;
 import org.axonframework.eventsourcing.eventstore.TrackedDomainEventData;
 import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
-import org.hesperides.infrastructure.redis.eventstores.LegacyRedisStorageEngine;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -69,20 +70,20 @@ class LegacyCodec implements Codec {
     }
 
     @Override
-    public Stream<TrackedEventData<?>> decodeAsTrackedDomainEventData(String aggregateIdentifier, long firstSequenceNumber, List<String> data) {
-        return decode(aggregateIdentifier, firstSequenceNumber, data)
-                .stream()
-                .map(domainEventMessage -> new TrackedDomainEventData<>(new LegacyRedisStorageEngine.RedisTrackingToken(aggregateIdentifier),
-                    new GenericDomainEventEntry<>(domainEventMessage.getType(),
-                        domainEventMessage.getAggregateIdentifier(),
-                        domainEventMessage.getSequenceNumber(),
-                        "",
-                        domainEventMessage.getTimestamp(),
-                        domainEventMessage.getPayloadType().getName(),
-                        null,
-                        domainEventMessage.getPayload(),
-                        "")
-                        ));
+    public TrackedEventData<?> decodeEventAsTrackedDomainEventData(String aggregateIdentifier, long firstSequenceNumber, String data, GlobalSequenceTrackingToken trackingToken) {
+
+        DomainEventMessage<?> domainEventMessage = decode(aggregateIdentifier, firstSequenceNumber, Collections.singletonList(data)).get(0);
+
+        return new TrackedDomainEventData<>(trackingToken,  new GenericDomainEventEntry<>(domainEventMessage.getType(),
+                domainEventMessage.getAggregateIdentifier(),
+                domainEventMessage.getSequenceNumber(),
+                "",
+                domainEventMessage.getTimestamp(),
+                domainEventMessage.getPayloadType().getName(),
+                null,
+                domainEventMessage.getPayload(),
+                "")
+        );
     }
 
     @Override

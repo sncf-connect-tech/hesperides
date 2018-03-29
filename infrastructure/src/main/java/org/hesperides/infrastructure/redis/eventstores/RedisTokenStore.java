@@ -2,8 +2,10 @@ package org.hesperides.infrastructure.redis.eventstores;
 
 import com.thoughtworks.xstream.XStream;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.common.Assert;
 import org.axonframework.eventhandling.tokenstore.TokenStore;
 import org.axonframework.eventhandling.tokenstore.UnableToClaimTokenException;
+import org.axonframework.eventsourcing.eventstore.GlobalSequenceTrackingToken;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -26,9 +28,8 @@ import static java.util.Optional.ofNullable;
 @Component
 public class RedisTokenStore implements TokenStore {
 
+    public static final String TOKENS = "a_tokens";
     private final StringRedisTemplate redis;
-
-    private final XStream xStream = new XStream();
 
     public RedisTokenStore(StringRedisTemplate template) {
         this.redis = template;
@@ -36,18 +37,21 @@ public class RedisTokenStore implements TokenStore {
 
     @Override
     public void storeToken(TrackingToken token, String processorName, int segment) throws UnableToClaimTokenException {
-        log.debug("store token {}, segment = {}", processorName, segment);
-        redis.opsForValue().set("a_token_" + processorName + "_" + segment, xStream.toXML(token));
+        log.debug("store token for processor = {}, segment = {}: {}", processorName, segment, token);
+        redis.opsForHash().put(TOKENS,  processorName + "_" + segment, ""+((GlobalSequenceTrackingToken)token).getGlobalIndex());
     }
 
     @Override
     public TrackingToken fetchToken(String processorName, int segment) throws UnableToClaimTokenException {
-        log.debug("fetch token");
-        return ofNullable(redis.opsForValue().get("a_token_" + processorName + "_" + segment))
-                .map(sToken -> {
-                    xStream.setClassLoader(Thread.currentThread().getContextClassLoader());
-                    return (TrackingToken) xStream.fromXML(sToken);
-                }).orElse(null);
+        log.debug("fetch token for processor : {}", processorName);
+
+        String hashKey = processorName + "_" + segment;
+        if (redis.opsForHash().hasKey(TOKENS, hashKey)) {
+            return new GlobalSequenceTrackingToken(Long.parseLong((String)redis.opsForHash().get(TOKENS, hashKey)));
+        } else {
+            // pas de token: on part du début.
+            return new GlobalSequenceTrackingToken(0);
+        }
     }
 
     @Override
@@ -61,4 +65,5 @@ public class RedisTokenStore implements TokenStore {
         log.debug("fetch segments.");
         return new int[0]; // actuellement, ne gère pas les segments car on ne sait pas ce que c'est.
     }
+
 }

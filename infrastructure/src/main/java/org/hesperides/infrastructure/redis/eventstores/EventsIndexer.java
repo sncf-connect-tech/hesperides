@@ -1,8 +1,14 @@
 package org.hesperides.infrastructure.redis.eventstores;
 
 import com.google.common.collect.Lists;
+import lombok.Value;
+import lombok.experimental.Wither;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
@@ -10,10 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * index les events
@@ -21,6 +29,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 class EventsIndexer {
+
+    static final String A_EVENTS_INDEX_LIST = "a_events_index_list";
+    static final String A_EVENTS_INDEX_SET  = "a_events_index_set";
+
 
     private final DefaultRedisScript<Long> indexEventsScript;
     private final StringRedisTemplate template;
@@ -93,6 +105,47 @@ class EventsIndexer {
         log.info("{}", watch.prettyPrint());
         log.info("Processed: keys: {}, noop: {}, ok: {}", indexer.keyCount, indexer.noopCount, indexer.okCount);
         log.info("done. total time: {} ms", watch.getTotalTimeMillis());
+    }
+
+    /**
+     * @param start
+     * @param end
+     * @return la liste des events (sous forme de string) entre l'index start et end.
+     */
+    public List<EventDescriptor> findEventsData(long start, long end) {
+        List<EventDescriptor> eventDescriptors = template.opsForList().range(A_EVENTS_INDEX_LIST, start, end)
+                .stream()
+                .map(this::parseEventDescriptor)
+                .collect(Collectors.toList());
+        // ok pipeline la recherche:
+        List<Object> events = template.executePipelined(new SessionCallback<Object>() {
+            @Override
+            public Object execute(RedisOperations operations) throws DataAccessException {
+                eventDescriptors.forEach(eventDescriptor ->
+                        operations.opsForList()
+                                .range(eventDescriptor.aggregateId, eventDescriptor.eventIndex - 1, eventDescriptor.eventIndex - 1));
+                return null;
+            }
+        });
+
+        Iterator<Object> eIt = events.iterator();
+
+        return eventDescriptors.stream().map(eventDescriptor -> {
+            List<String> currentEvents = (List<String>) eIt.next();
+            return eventDescriptor.withEventData(currentEvents.get(0));
+        }).collect(Collectors.toList());
+    }
+
+    private EventDescriptor parseEventDescriptor(String s) {
+        String[] split = s.split(":");
+        return new EventDescriptor(split[0], Integer.parseInt(split[1]), null);
+    }
+
+    @Value
+    class EventDescriptor {
+        String aggregateId;
+        int eventIndex;
+        @Wither String eventData;
     }
 
     class MultiThreadedIndexer {
