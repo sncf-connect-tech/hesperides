@@ -1,10 +1,10 @@
 package org.hesperides.infrastructure.redis.eventstores;
 
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface Codec {
 
@@ -12,7 +12,5 @@ public interface Codec {
 
     List<DomainEventMessage<?>> decode(String aggregateIdentifier, long firstSequenceNumber, List<String> data);
 
-    default DomainEventMessage<?> decode(String aggregateIdentifier, long firstSequenceNumber, String data) {
-        return decode(aggregateIdentifier, firstSequenceNumber, Collections.singletonList(data)).get(0);
-    }
+    Stream<TrackedEventData<?>> decodeAsTrackedDomainEventData(String aggregateIdentifier, long firstSequenceNumber, List<String> data);
 }
