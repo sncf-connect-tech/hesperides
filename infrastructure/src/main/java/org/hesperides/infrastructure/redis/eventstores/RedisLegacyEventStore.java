@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("!local")
 public class RedisLegacyEventStore extends EmbeddedEventStore {
-    public RedisLegacyEventStore(RedisStorageEngine redisStorageEngine) {
+    public RedisLegacyEventStore(LegacyRedisStorageEngine redisStorageEngine) {
         super(redisStorageEngine);
     }
 }

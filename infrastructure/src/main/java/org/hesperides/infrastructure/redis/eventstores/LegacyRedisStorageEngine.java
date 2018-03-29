@@ -11,36 +11,91 @@ import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.axonframework.serialization.Serializer;
 import org.hesperides.domain.security.UserEvent;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Stockage des events dans Redis.
+ *
+ * On utilise la structure du legacy:
+ * Key: un aggregat
+ * Values: les events pour cet aggregat sous forme de list.
+ *
+ * Le problème de ce système c'est qu'il nous manque un index, pour les tracking processors.
+ *
+ * Un tracking processor doit avoir un marque page pour savoir où est-ce qu'il s'est arrêter de lire les
+ * events.
+ *
+ * Il faut donc avoir un index linéaire de tous les events. (il y a environ 20000 clés et 500000 events)
+ *
+ * On peut tenter en utilisant un HSET avec comme clé le timestamp de chaque event. Mais c'est trop lent à construire
+ * Dans ce cas, le 'marque page' (token) est le timestamp
+ *
+ * On peut également utiliser une liste qui va stocker la liste des tous les events sequentiellement.
+ * on ne va pas dupliquer les events: l'idée est de stocker dans cette liste le couple {aggregate_identifier:event_indice} qui identifie un event.
+ *
+ * Dans ce cas, le 'marque page' est l'indice dans la liste. on pourra utiliser un {@link org.axonframework.eventsourcing.eventstore.GlobalSequenceTrackingToken}
+ *
+ * Le problème qu'on va avoir avec cette solution, c'est qu'on n'est pas tolérant à la reprise: si on veut réindexer un event déjà indexé, la liste n'est pas
+ * suffisante, il faut ajouter un HSET qui va permettre de gérer l'unicité des events.
+ *
+ * Dernier problème, lors de l'ajout de nouveau events par le legacy, on n'est pas notifié et notre index devient rapidement obsolète.
+ * Solution: implementer un lister sur les clés et les listes d'events pour maintenir l'index à jour.
+ */
 @Slf4j
 @Component
-public class RedisStorageEngine extends AbstractEventStorageEngine {
+public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
 
     public static final String AGGREGATES_INDEX = "a_aggregates_index";
 
     private final StringRedisTemplate template;
     private final Codec codec;
+    private final EventsIndex eventsIndex;
+    private final EventsListener eventsListener;
 
-    public RedisStorageEngine(StringRedisTemplate template, Codec codec) {
+    public LegacyRedisStorageEngine(StringRedisTemplate template, Codec codec) {
         super(null, null, null, null);
         this.template = template;
         this.codec = codec;
+
+        this.eventsIndex = new EventsIndex();
+        this.eventsListener = new EventsListener();
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("Starting legacy redis storage.");
+
+        // check si on a l'index des events
+        eventsIndex.rebuildIfNecessary();
+
+        // se met à l'écoute des nouveaux events.
+        this.eventsListener.start();
+    }
+
+    @PreDestroy
+    public void done() {
+        this.eventsListener.stop();
     }
 
     @Override
@@ -88,16 +143,6 @@ public class RedisStorageEngine extends AbstractEventStorageEngine {
 
     @Override
     protected Stream<? extends TrackedEventData<?>> readEventData(TrackingToken trackingToken, boolean mayBlock) {
-
-        if (trackingToken == null) {
-
-            // réindex (si nécessaire)
-            log.debug("full scan of event store was required !");
-
-            rebuildAggregateIndex();
-
-            log.debug("Event index is consistent, Streaming all events.");
-        }
 
         int batchSize = 20;
         EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
@@ -153,63 +198,6 @@ public class RedisStorageEngine extends AbstractEventStorageEngine {
         }
     }
 
-    private void rebuildAggregateIndex() {
-
-        StopWatch watch = new StopWatch();
-
-        List<String> keys = retrieveAllKeys(watch);
-
-        // desactivation du système de persistence, parce qu'on va ajouter beaucoup de clé !!
-        String currentSave = getCurrentSaveConfiguration(watch);
-
-        // desactive rdb
-        disableRdb(watch);
-
-        watch.start("indexing aggregates.");
-        MultiThreadedIndexer indexer = new MultiThreadedIndexer();
-        indexer.process(keys);
-        watch.stop();
-
-        // restore rdb
-        restoreSaveConfiguration(currentSave);
-
-        log.info("{}", watch.prettyPrint());
-        log.info("Processed: keys: {}, noop: {}, ok: {}", indexer.keyCount, indexer.noopCount, indexer.okCount);
-        log.info("done. total time: {} ms", watch.getTotalTimeMillis());
-    }
-
-    private List<String> retrieveAllKeys(StopWatch watch) {
-        watch.start("retrieve all keys ");
-        List<String> keys = template.keys("*").stream().filter(this::isAEventSourcedKey).collect(Collectors.toList());
-        watch.stop();
-        return keys;
-    }
-
-    private void restoreSaveConfiguration(String currentSave) {
-        template.getConnectionFactory().getConnection().setConfig("save", currentSave);
-    }
-
-    private void disableRdb(StopWatch watch) {
-        watch.start("Disable redis 'save' processing");
-        template.getConnectionFactory().getConnection().setConfig("save", "");
-        watch.stop();
-    }
-
-    private String getCurrentSaveConfiguration(StopWatch watch) {
-        watch.start("Saving redis current 'save' configuration");
-        List<String> saveList = template.getConnectionFactory().getConnection().getConfig("save");
-        String currentSave = "";
-        if (!saveList.isEmpty()) {
-            currentSave = saveList.get(1);
-        }
-        log.info("Saving 'save' configuration : {}", currentSave);
-        watch.stop();
-        return currentSave;
-    }
-
-    private boolean isAEventSourcedKey(Object key) {
-        return key.toString().startsWith("module-") || key.toString().startsWith("platform-") || key.toString().startsWith("template_package-");
-    }
 
     private static class EventStreamSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
 
@@ -282,56 +270,147 @@ public class RedisStorageEngine extends AbstractEventStorageEngine {
         }
     }
 
-    class MultiThreadedIndexer {
 
-        AtomicInteger keyCount = new AtomicInteger();
-        AtomicInteger okCount = new AtomicInteger();
-        AtomicInteger koCount = new AtomicInteger();
-        AtomicInteger noopCount = new AtomicInteger();
+    /**
+     * index les events
+     */
+    private class EventsIndex {
 
-        public void process(List<String> keys) {
+        static final String A_EVENTS_INDEX_LIST = "a_events_index_list";
+        static final String A_EVENTS_INDEX_SET  = "a_events_index_set";
+        final DefaultRedisScript<Long> indexEventsScript = new DefaultRedisScript<>();
 
-            int processorsCount = 10;
-            List<List<String>> batches = Lists.partition(keys, keys.size() / processorsCount);
-
-            ExecutorService threadPool = Executors.newFixedThreadPool(batches.size() + 1);
-
-            List<Callable<Object>> callables = batches.stream().map(batch -> Executors.callable(() -> doWithBatchOfKeys(batch))).collect(Collectors.toList());
-
-            // thread de contrôle.
-            ScheduledExecutorService controlService = Executors.newSingleThreadScheduledExecutor();
-            controlService.scheduleAtFixedRate(() -> log.info("current key count {}, ok={}, ko={}, noop={}",
-                    keyCount.get(), okCount.get(), koCount.get(), noopCount.get()), 1, 1, TimeUnit.SECONDS);
-
-            try {
-                threadPool.invokeAll(callables);
-            } catch (InterruptedException e) {
-                log.error(e.getMessage(), e);
-                Thread.currentThread().interrupt();
-            }
-            controlService.shutdownNow();
+        EventsIndex() {
+            indexEventsScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("redis/index_events.lua")));
+            indexEventsScript.setResultType(Long.class);
         }
 
-        void doWithBatchOfKeys(List<String> batch) {
-            List<Object> results = template.executePipelined(new SessionCallback<Void>() {
-                @Override
-                public Void execute(RedisOperations operations) throws DataAccessException {
-                    for (String key : batch) {
-                        keyCount.incrementAndGet();
-                        template.opsForZSet().add(AGGREGATES_INDEX, key, 1);
-                    }
-                    return null;
+        private List<String> retrieveAllKeys(StopWatch watch) {
+            watch.start("retrieve all keys ");
+            List<String> keys = template.keys("*").stream().filter(this::isAEventSourcedKey).collect(Collectors.toList());
+            watch.stop();
+            return keys;
+        }
+
+        private void restoreSaveConfiguration(String currentSave) {
+            template.getConnectionFactory().getConnection().setConfig("save", currentSave);
+        }
+
+        private void disableRdb(StopWatch watch) {
+            watch.start("Disable redis 'save' processing");
+            template.getConnectionFactory().getConnection().setConfig("save", "");
+            watch.stop();
+        }
+
+        private String getCurrentSaveConfiguration(StopWatch watch) {
+            watch.start("Saving redis current 'save' configuration");
+            List<String> saveList = template.getConnectionFactory().getConnection().getConfig("save");
+            String currentSave = "";
+            if (!saveList.isEmpty()) {
+                currentSave = saveList.get(1);
+            }
+            log.info("Saving 'save' configuration : {}", currentSave);
+            watch.stop();
+            return currentSave;
+        }
+
+        private boolean isAEventSourcedKey(Object key) {
+            return key.toString().startsWith("module-") || key.toString().startsWith("platform-") || key.toString().startsWith("template_package-");
+        }
+
+        void rebuildIfNecessary() {
+
+//            if (template.hasKey(A_EVENTS_INDEX_LIST) && template.hasKey(A_EVENTS_INDEX_SET)) {
+//                log.info("no need to rebuild index ...");
+//                return;
+//            }
+            // rebuild l'index ici.
+            StopWatch watch = new StopWatch();
+
+            List<String> keys = retrieveAllKeys(watch);
+
+            // desactivation du système de persistence, parce qu'on va ajouter beaucoup de clé !!
+            String currentSave = getCurrentSaveConfiguration(watch);
+
+            // desactive rdb
+            disableRdb(watch);
+
+            watch.start("indexing aggregates.");
+            MultiThreadedIndexer indexer = new MultiThreadedIndexer();
+            indexer.process(keys);
+            watch.stop();
+
+            // restore rdb
+            restoreSaveConfiguration(currentSave);
+
+            log.info("{}", watch.prettyPrint());
+            log.info("Processed: keys: {}, noop: {}, ok: {}", indexer.keyCount, indexer.noopCount, indexer.okCount);
+            log.info("done. total time: {} ms", watch.getTotalTimeMillis());
+        }
+
+        class MultiThreadedIndexer {
+
+            AtomicInteger keyCount = new AtomicInteger();
+            AtomicInteger okCount = new AtomicInteger();
+            AtomicInteger koCount = new AtomicInteger();
+            AtomicInteger noopCount = new AtomicInteger();
+
+            void process(List<String> keys) {
+
+                int processorsCount = 50;
+                List<List<String>> batches = Lists.partition(keys, keys.size() / processorsCount);
+
+                ExecutorService threadPool = Executors.newFixedThreadPool(batches.size() + 2);
+
+                List<Callable<Object>> callables = batches.stream().map(batch -> Executors.callable(() -> doWithBatchOfKeys(batch))).collect(Collectors.toList());
+
+                // thread de contrôle.
+                ScheduledExecutorService controlService = Executors.newSingleThreadScheduledExecutor();
+                controlService.scheduleAtFixedRate(() -> log.info("current key count {}, ok={}, ko={}, noop={}",
+                        keyCount.get(), okCount.get(), koCount.get(), noopCount.get()), 1, 1, TimeUnit.SECONDS);
+
+                try {
+                    threadPool.invokeAll(callables);
+                } catch (InterruptedException e) {
+                    log.error(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
-            });
-            results.forEach(result -> {
-                if (result instanceof Boolean) {
-                    if ((Boolean) result) {
-                        okCount.incrementAndGet();
-                    } else {
-                        noopCount.incrementAndGet();
+                controlService.shutdownNow();
+            }
+
+            void doWithBatchOfKeys(List<String> batch) {
+
+                for (String key : batch) {
+                    keyCount.incrementAndGet();
+                    try {
+                        long result = template.execute(indexEventsScript, Collections.singletonList(key));
+                        if (result > 0) {
+                            okCount.incrementAndGet();
+                        } else {
+                            noopCount.incrementAndGet();
+                        }
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
+                        koCount.incrementAndGet();
                     }
                 }
-            });
+            }
+        }
+
+    }
+
+    /**
+     * écoute les nouveaux events. utilise le système de pub/sub de Redis
+     *
+     * TODO !!!
+     */
+    private class EventsListener {
+        public void stop() {
+
+        }
+
+        public void start() {
+
         }
     }
 }

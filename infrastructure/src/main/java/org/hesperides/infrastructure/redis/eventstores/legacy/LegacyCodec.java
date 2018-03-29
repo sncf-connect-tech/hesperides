@@ -9,7 +9,7 @@ import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
-import org.hesperides.infrastructure.redis.eventstores.RedisStorageEngine;
+import org.hesperides.infrastructure.redis.eventstores.LegacyRedisStorageEngine;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +72,7 @@ class LegacyCodec implements Codec {
     public Stream<TrackedEventData<?>> decodeAsTrackedDomainEventData(String aggregateIdentifier, long firstSequenceNumber, List<String> data) {
         return decode(aggregateIdentifier, firstSequenceNumber, data)
                 .stream()
-                .map(domainEventMessage -> new TrackedDomainEventData<>(new RedisStorageEngine.RedisTrackingToken(aggregateIdentifier),
+                .map(domainEventMessage -> new TrackedDomainEventData<>(new LegacyRedisStorageEngine.RedisTrackingToken(aggregateIdentifier),
                     new GenericDomainEventEntry<>(domainEventMessage.getType(),
                         domainEventMessage.getAggregateIdentifier(),
                         domainEventMessage.getSequenceNumber(),
