@@ -18,7 +18,7 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
         Given("^an existing module$", () -> {
             moduleKey = new Module.Key("test", "123", Module.Type.workingcopy);
             moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
-            moduleLocation = template.postForLocationReturnAbsoluteURI("/modules", moduleInput);
+            moduleLocation = rest.postForLocationReturnAbsoluteURI("/modules", moduleInput);
         });
     }
 

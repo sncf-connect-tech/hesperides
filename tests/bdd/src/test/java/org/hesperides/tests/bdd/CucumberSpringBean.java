@@ -19,5 +19,5 @@ import org.springframework.test.context.ContextConfiguration;
 public class CucumberSpringBean {
 
     @Autowired
-    protected HesperideTestRestTemplate template;
+    protected HesperideTestRestTemplate rest;
 }

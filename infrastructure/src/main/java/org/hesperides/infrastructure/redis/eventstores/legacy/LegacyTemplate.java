@@ -77,29 +77,30 @@ public class LegacyTemplate {
 
     public Template toDomainTemplate(Module.Key moduleKey) {
         return new Template(
-                this.getName(),
-                this.getFilename(),
-                this.getLocation(),
-                this.getContent(),
+                name,
+                filename,
+                location,
+                content,
                 new Template.Rights(
                         new Template.FileRights(
-                                this.getRights().getUser().getRead(),
-                                this.getRights().getUser().getWrite(),
-                                this.getRights().getUser().getExecute()
+                                rights.getUser().getRead(),
+                                rights.getUser().getWrite(),
+                                rights.getUser().getExecute()
                         ),
                         new Template.FileRights(
-                                this.getRights().getGroup().getRead(),
-                                this.getRights().getGroup().getWrite(),
-                                this.getRights().getGroup().getExecute()
+                                rights.getGroup().getRead(),
+                                rights.getGroup().getWrite(),
+                                rights.getGroup().getExecute()
                         ),
                         // Les droits "other" ne sont pas définis dans l'application actuelle
                         new Template.FileRights(null, null, null)
                 ),
+                versionId,
                 moduleKey
         );
     }
 
-    public static LegacyTemplate fromDomainTemplate(Template template, long versionId) {
+    public static LegacyTemplate fromDomainTemplate(Template template) {
         return new LegacyTemplate(
                 template.getName(),
                 template.getModuleKey().getNamespace(),
@@ -120,6 +121,6 @@ public class LegacyTemplate {
                         // Les droits "other" ne sont pas définis dans l'application actuelle
                         null
                 ),
-                versionId);
+                template.getVersionId());
     }
 }

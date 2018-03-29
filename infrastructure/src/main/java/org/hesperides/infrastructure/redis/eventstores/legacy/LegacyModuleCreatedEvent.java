@@ -20,7 +20,6 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
-import com.google.gson.Gson;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;

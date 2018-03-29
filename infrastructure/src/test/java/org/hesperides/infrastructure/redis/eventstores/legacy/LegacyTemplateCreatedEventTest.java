@@ -20,8 +20,6 @@
  */
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
-import org.axonframework.eventsourcing.DomainEventMessage;
-import org.axonframework.eventsourcing.GenericDomainEventMessage;
 import org.hesperides.domain.modules.TemplateCreatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
@@ -42,13 +40,9 @@ public class LegacyTemplateCreatedEventTest extends AbstractLegacyCodecTest {
                 new Template.FileRights(true, false, null),
                 new Template.FileRights(true, false, null),
                 new Template.FileRights(true, false, null)
-        ), moduleKey);
+        ), 1L, moduleKey);
         TemplateCreatedEvent templateCreatedEvent = new TemplateCreatedEvent(moduleKey, template, getSampleUser());
-
-        DomainEventMessage<?> domainEventMessage = new GenericDomainEventMessage("type", "identifier", 1, templateCreatedEvent);
-        String actualJson = getMockedLegacyCodec().code(domainEventMessage);
-        String expectedJson = uglifyJsonLegacyEvent(getResourceContent(JSON_PATH));
-        assertEquals(expectedJson, actualJson);
+        assertEventEncoding(templateCreatedEvent, JSON_PATH);
     }
 
     @Test
@@ -72,6 +66,7 @@ public class LegacyTemplateCreatedEventTest extends AbstractLegacyCodecTest {
         assertEquals(null, event.getTemplate().getRights().getGroup().getExecute());
         assertEquals(null, event.getTemplate().getRights().getOther().getExecute());
 
+        assertEquals(1L, event.getTemplate().getVersionId().longValue());
         assertEquals("robert", event.getUser().getName());
     }
 }

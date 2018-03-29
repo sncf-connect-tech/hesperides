@@ -2,6 +2,8 @@ package org.hesperides.tests.bdd.commons.tools;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -19,24 +21,24 @@ import java.util.stream.Collectors;
 public class HesperideTestRestTemplate {
 
     private final Environment environment;
-    private final TestRestTemplate template;
+    private final TestRestTemplate rest;
     private final ResponseErrorHandler noopResponseHandler;
 
-    public HesperideTestRestTemplate(Environment environment, TestRestTemplate template) {
+    public HesperideTestRestTemplate(Environment environment, TestRestTemplate rest) {
         super();
         this.environment = environment;
-        this.template = template;
-        this.noopResponseHandler = template.getRestTemplate().getErrorHandler();
-        template.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
+        this.rest = rest;
+        this.noopResponseHandler = rest.getRestTemplate().getErrorHandler();
+        rest.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
 
         // supprime les mapper jackson:
-        List<HttpMessageConverter<?>> converters = template.getRestTemplate().getMessageConverters().stream()
+        List<HttpMessageConverter<?>> converters = rest.getRestTemplate().getMessageConverters().stream()
                 .filter(httpMessageConverter -> !(httpMessageConverter instanceof MappingJackson2HttpMessageConverter))
                 .collect(Collectors.toList());
 
         // ajouter notre converter Gson:
         converters.add(new GsonHttpMessageConverter());
-        template.getRestTemplate().setMessageConverters(converters);
+        rest.getRestTemplate().setMessageConverters(converters);
     }
 
     @FunctionalInterface
@@ -53,10 +55,10 @@ public class HesperideTestRestTemplate {
      */
     public <R> R doWithErrorHandlerDisabled(WorkWithDisabledErrorHandlerTemplate<R> worker) {
         // do not handle error for us.
-        template.getRestTemplate().setErrorHandler(noopResponseHandler);
-        R response = worker.doDisabled(template);
+        rest.getRestTemplate().setErrorHandler(noopResponseHandler);
+        R response = worker.doDisabled(rest);
         // restore default error handler.
-        template.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
+        rest.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
         return response;
     }
 
@@ -65,19 +67,24 @@ public class HesperideTestRestTemplate {
         return URI.create("http://localhost:" + port + relativeUri.toString());
     }
 
-    public URI postForLocationReturnAbsoluteURI(String s, Object moduleInput, Object... params) {
-        return absoluteURI(template.postForLocation(s, moduleInput, params));
+    public URI putForLocationReturnAbsoluteURI(String url, Object input, Object... params) {
+        ResponseEntity responseEntity = rest.exchange(url, HttpMethod.PUT, new HttpEntity<>(input), String.class, params);
+        return absoluteURI(responseEntity.getHeaders().getLocation());
+    }
+
+    public URI postForLocationReturnAbsoluteURI(String url, Object input, Object... params) {
+        return absoluteURI(rest.postForLocation(url, input, params));
     }
 
     public void addCreds(String user, String password) {
-        template.getRestTemplate().getInterceptors().add(new BasicAuthorizationInterceptor(user, password));
+        rest.getRestTemplate().getInterceptors().add(new BasicAuthorizationInterceptor(user, password));
     }
 
-    public ResponseEntity<String> getForEntity(URI moduleLocation, Class<String> stringClass) {
-        return template.getForEntity(moduleLocation, stringClass);
+    public <T> ResponseEntity<T> getForEntity(URI url, Class<T> responseType) {
+        return rest.getForEntity(url, responseType);
     }
 
     public void delete(URI templateLocation) {
-        template.delete(templateLocation);
+        rest.delete(templateLocation);
     }
 }

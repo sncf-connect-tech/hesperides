@@ -115,7 +115,8 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().isWorkingCopy(),
-                        ImmutableList.of()
+                        ImmutableList.of(),
+                        event.getModule().getVersionId()
                 )
         );
 
@@ -131,7 +132,8 @@ public class ElasticsearchModuleSearchRepository implements ModuleRepository {
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().isWorkingCopy(),
-                        ImmutableList.of()
+                        ImmutableList.of(),
+                        event.getModule().getVersionId()
                 )
         );
 

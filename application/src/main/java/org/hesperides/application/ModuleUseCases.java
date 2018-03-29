@@ -6,6 +6,7 @@ import org.hesperides.application.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateView;
@@ -43,18 +44,28 @@ public class ModuleUseCases {
         if (queries.moduleExist(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
+        // Initialisation de la version
+        Module newModule = new Module(
+                module.getKey(),
+                module.getTechnos(),
+                1L);
         return commands.createModule(module, user);
     }
 
     public Module.Key updateWorkingCopy(Module module, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
-        if (!optionalModuleView.isPresent()) {
+        Optional<ModuleView> moduleView = queries.getModule(module.getKey());
+        if (!moduleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
-        if (!Long.valueOf(optionalModuleView.get().getVersion_id()).equals(module.getVersionID() - 1)) {
-            throw new OutOfDateVersionException(optionalModuleView.get().getVersion_id() + 1, module.getVersionID());
+        if (!moduleView.get().getVersionId().equals(module.getVersionId())) {
+            throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
         }
-        return commands.updateModule(module, user);
+        // Mise à jour de la version
+        Module moduleWithUpdatedVersion = new Module(
+                module.getKey(),
+                module.getTechnos(),
+                module.getVersionId() + 1);
+        return commands.updateModule(moduleWithUpdatedVersion, user);
     }
 
     public void deleteWorkingCopy(Module module, User user) {
@@ -80,20 +91,47 @@ public class ModuleUseCases {
      * <p>
      * Si le template existe déjà dans le module, c'est le module lui-même qui levera une exception.
      *
-     * @param key
+     * @param moduleKey
      * @param template
      * @param user
      */
-    public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {
-        commands.createTemplateInWorkingCopy(key, template, user);
+    public void createTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
+        // Initialise la version
+        Template newTemplate = new Template(
+                template.getName(),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                template.getRights(),
+                1L,
+                moduleKey);
+        commands.createTemplateInWorkingCopy(moduleKey, newTemplate, user);
     }
 
-    public void updateTemplateInWorkingCopy(Module.Key key, Template template, User user) {
-        commands.updateTemplateInWorkingCopy(key, template, user);
+    public void updateTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
+        Optional<TemplateView> templateView = queries.getTemplate(moduleKey, template.getName());
+        if (!templateView.isPresent()) {
+            throw new TemplateNotFoundException(moduleKey, template.getName());
+        }
+        if (!templateView.get().getVersionId().equals(template.getVersionId())) {
+            throw new OutOfDateVersionException(templateView.get().getVersionId(), template.getVersionId());
+        }
+
+        // Met à jour la version
+        Template templateWithUpdatedVersion = new Template(
+                template.getName(),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                template.getRights(),
+                template.getVersionId() + 1,
+                moduleKey);
+
+        commands.updateTemplateInWorkingCopy(moduleKey, templateWithUpdatedVersion, user);
     }
 
-    public void deleteTemplate(Module.Key key, String templateName, User user) {
-        commands.deleteTemplate(key, templateName, user);
+    public void deleteTemplate(Module.Key moduleKey, String templateName, User user) {
+        commands.deleteTemplate(moduleKey, templateName, user);
     }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
@@ -116,7 +154,7 @@ public class ModuleUseCases {
         return queries.getTemplate(moduleKey, templateName);
     }
 
-    public Module.Key createWorkingCopyFrom(Module.Key from, Module.Key key) {
+    public Module.Key createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey) {
         throw new IllegalArgumentException("TODO"); //TODO
     }
 }

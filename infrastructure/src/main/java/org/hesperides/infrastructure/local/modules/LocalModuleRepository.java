@@ -40,21 +40,21 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
-                        1
+                        1L
                 )
         );
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleUpdatedEvent event) {
+    public void on(ModuleUpdatedEvent event) {
         log.debug("handling event {}", event);
         MODULE_MAP.put(event.getModule().getKey(),
                 new ModuleView(
                         event.getModule().getKey().getName(),
                         event.getModule().getKey().getVersion(),
                         event.getModule().getKey().getVersionType() == Module.Type.workingcopy,
-                        1
+                        event.getModule().getVersionId()
                 )
         );
     }
@@ -76,7 +76,8 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                         + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
-                event.getTemplate().getLocation()
+                event.getTemplate().getLocation(),
+                event.getTemplate().getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
@@ -91,7 +92,8 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
                         + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
                 event.getTemplate().getFilename(),
-                event.getTemplate().getLocation()
+                event.getTemplate().getLocation(),
+                event.getTemplate().getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
@@ -125,7 +127,7 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
         return ImmutableList.copyOf(MODULE_MAP.values()).stream()
                 .filter(module -> module.getName().equalsIgnoreCase(query.getModuleName()))
                 .filter(module -> module.getVersion().equalsIgnoreCase(query.getModuleVersion()))
-                .map(module -> toModuleTypeView(module.isWorking_copy()))
+                .map(module -> toModuleTypeView(module.isWorkingCopy()))
                 .collect(Collectors.toList());
     }
 
@@ -145,5 +147,4 @@ public class LocalModuleRepository implements ModuleRepository, TemplateReposito
     private String toModuleTypeView(Boolean workingCopy) {
         return workingCopy ? "workingcopy" : "release";
     }
-
 }

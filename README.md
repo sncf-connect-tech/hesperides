@@ -2,9 +2,24 @@
 
 [![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg?branch=feature/springboot)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
 
+[![](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![](https://img.shields.io/github/issues/voyages-sncf-technologies/hesperides.svg)](https://github.com/voyages-sncf-technologies/hesperides/issues)
+[![](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)](https://img.shields.io/github/contributors/voyages-sncf-technologies/hesperides.svg)
+[![](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 Hesperides is an open source tool generating content from a template file (using mustache) in a given environment.
 
 Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesperides frontend.
+
+:exclamation: :exclamation: :exclamation:
+
+**The project is currently being rework**
+
+See branch `feature/springboot` for the new version under construction
+
+See branch `master` for the production version 
+
+:exclamation: :exclamation: :exclamation:
 
 ## Requirements
 
@@ -33,6 +48,8 @@ Build Docker image
 ## Run
 
 Some variables are set as environment variables:
+* SPRING_PROFILES_ACTIVE
+
 * LDAP_URL
 * LDAP_DOMAIN
 * LDAP_USER_SEARCH_BASE
@@ -69,8 +86,13 @@ Run without redis, ldap or elasticsearch
 
 Available online at <https://voyages-sncf-technologies.github.io/hesperides-gui/>
 
-## Development
+## License
 
-Do you have changes to contribute? Please see the Development page.
+Hesperides is licensed under the GPL V3 license
+
+## Contributing
+
+Do you have changes to contribute? Please see the [CONTRIBUTING](CONTRIBUTING.md) page.
+We are open to pull requests. Please first discuss your intentions via [Issues](https://github.com/voyages-sncf-technologies/hesperides/issues).
 
 This project includes a postman collection, check `documentation/postman` folder.

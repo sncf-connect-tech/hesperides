@@ -21,11 +21,12 @@ import java.nio.charset.Charset;
 @Slf4j
 @Component
 @Profile("local_persisted_to_file") // <-- n'utilise pas celui ci pour les tests
-@Primary                            // <-- si on a en même temps le profil local utilisé, on prend ce bean plutôt que LocalEventStore
+@Primary
+// <-- si on a en même temps le profil local utilisé, on prend ce bean plutôt que LocalEventStore
 public class LocalPersistedEventStore extends EmbeddedEventStore {
 
     private final static XStream xStream = new XStream();
-    private final static File localEventStoreFile = new File(FileUtils.getTempDirectory(),"hesperide_local_event_store.xml");
+    private final static File localEventStoreFile = new File(FileUtils.getTempDirectory(), "hesperide_local_event_store.xml");
 
     public LocalPersistedEventStore() throws IOException {
         super(loadFromDisk());

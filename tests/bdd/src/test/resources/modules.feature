@@ -10,7 +10,18 @@ Feature: modules related features
     When creating a new module
     Then the module is successfully created
 
-#  Scenario: delete a module working copy
-#    Given an existing module
-#    When deleting this module
-#    Then the module is successfully deleted
+  Scenario: update a module working copy
+    Given an existing module
+    When updating this module
+    Then the module is successfully updated
+
+  Scenario: delete a module working copy
+    Given an existing module
+    When deleting this module
+    Then the module is successfully deleted
+
+  Scenario: conflict while updating an existing module
+    Given an existing module
+    And this module is being modified alongside
+    When updating this module
+    Then the module update is rejected
