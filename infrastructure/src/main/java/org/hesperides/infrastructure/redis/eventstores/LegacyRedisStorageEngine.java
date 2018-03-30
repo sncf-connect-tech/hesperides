@@ -6,7 +6,7 @@ import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.*;
 import org.axonframework.serialization.*;
 import org.axonframework.serialization.xml.XStreamSerializer;
-import org.hesperides.domain.security.UserEvent;
+import org.hesperides.infrastructure.redis.RedisConfiguration;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
@@ -59,13 +59,15 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
     private final Codec codec;
     private final EventsIndexer eventsIndexer;
     private final EventsListener eventsListener;
+    private final RedisConfiguration config;
 
-    public LegacyRedisStorageEngine(StringRedisTemplate template, Codec codec) {
+    public LegacyRedisStorageEngine(StringRedisTemplate template, Codec codec, RedisConfiguration config) {
         super(new PleaseDoNothingSerializer(), null, null, new PleaseDoNothingSerializer());
         this.template = template;
         this.codec = codec;
 
         this.eventsIndexer = new EventsIndexer(template);
+        this.config = config;
         this.eventsListener = new EventsListener();
     }
 
@@ -147,53 +149,35 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
     @Override
     protected Stream<? extends TrackedEventData<?>> readEventData(TrackingToken trackingToken, boolean mayBlock) {
 
+        log.debug("Need to read data from trackingToken {}", trackingToken);
+
         // tente une implémentation naive
-        GlobalSequenceTrackingToken start = trackingToken == null ? new GlobalSequenceTrackingToken(0) : (GlobalSequenceTrackingToken) trackingToken;
-        List<? extends TrackedEventData<?>> trackedEventData = fetchTrackedEvents(start,
-                10
-                //(int) (eventsIndexer.getEventsCount() - start.getGlobalIndex())
-        );
-        return trackedEventData.stream();
+//        GlobalSequenceTrackingToken start = trackingToken == null ? new GlobalSequenceTrackingToken(0) : ((GlobalSequenceTrackingToken) trackingToken).next();
+//        int batchSize = 10;
+//        List<? extends TrackedEventData<?>> trackedEventData = fetchTrackedEvents(start,
+//                batchSize
+//                //(int) (eventsIndexer.getEventsCount() - start.getGlobalIndex())
+//        );
+//        // attention, si rien n'est remonté, c'est soit qu'on a atteind la fin de la liste, soit qu'on a rien réussi a désérialiser.
+//        if (trackedEventData.isEmpty()) {
+//            // on avance quand même pour voir si y a pas d'autre events après:
+//            // bref, c'est pas bon.
+//        }
+//
+//        return trackedEventData.stream();
 
+        // charge les events a fetcher:
 
-//        int batchSize = 1;
-//        EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
-//                lastItem -> fetchTrackedEvents(lastItem == null ? trackingToken : lastItem.trackingToken(), batchSize),
-//                batchSize, true);
-//        return StreamSupport.stream(spliterator, false);
+        int batchSize = 10;
+
+        EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
+                lastItem -> fetchTrackedEvents(getStartToken(lastItem), batchSize),
+                batchSize, true);
+        return StreamSupport.stream(spliterator, false);
     }
 
-    private List<? extends TrackedEventData<?>> fetchTrackedEvents(TrackingToken trackingToken, int batchSize) {
-
-        GlobalSequenceTrackingToken token = (GlobalSequenceTrackingToken) trackingToken;
-
-        // récupère le point de départ:
-        long start = token.getGlobalIndex();
-
-        List<EventsIndexer.EventDescriptor> events = eventsIndexer.findEventsData(start, start + batchSize);
-
-        List<TrackedEventData<?>> result = new ArrayList<>();
-
-        GlobalSequenceTrackingToken current = token;
-
-        for (EventsIndexer.EventDescriptor event : events) {
-            try {
-                TrackedEventData<?> eventData =
-                        codec.decodeEventAsTrackedDomainEventData(
-                                event.getAggregateId(),
-                                0, event.getEventData(), current
-                        );
-
-                current = current.next();
-
-                result.add(eventData);
-            } catch (Exception e) {
-                // en cas d'erreur, on laisse tomber la clé
-                log.error("could not read an event of aggregate {}, error was:{}, skip this event.",
-                        event.getAggregateId(), e.getMessage());
-            }
-        }
-        return result;
+    private GlobalSequenceTrackingToken getStartToken(TrackedEventData<?> lastItem) {
+        return lastItem == null ? new GlobalSequenceTrackingToken(0) : ((GlobalSequenceTrackingToken) lastItem.trackingToken()).next();
     }
 
     private static class EventStreamSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
@@ -226,10 +210,54 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
                     return false;
                 }
             }
-            action.accept(lastItem = iterator.next());
+            T t = lastItem = iterator.next();
+            action.accept(t);
             return true;
         }
     }
+
+
+    private List<? extends TrackedEventData<?>> fetchTrackedEvents(TrackingToken trackingToken, int batchSize) {
+
+        GlobalSequenceTrackingToken token = (GlobalSequenceTrackingToken) trackingToken;
+
+        // récupère le point de départ:
+        long start = token.getGlobalIndex();
+
+        List<EventsIndexer.EventDescriptor> events = eventsIndexer.findEventsData(start, start + batchSize - 1);
+
+        List<TrackedEventData<?>> result = new ArrayList<>();
+
+        GlobalSequenceTrackingToken current = token;
+
+        for (EventsIndexer.EventDescriptor event : events) {
+            try {
+                TrackedEventData<?> eventData =
+                        codec.decodeEventAsTrackedDomainEventData(
+                                event.getAggregateId(),
+                                0, event.getEventData(), current
+                        );
+
+                current = current.next();
+
+                result.add(eventData);
+            } catch (Exception e) {
+                // en cas d'erreur, on laisse tomber la clé
+                log.error("could not read an event of aggregate {}, error was:{}, skip this event.",
+                        event.getAggregateId(), e.getMessage());
+            }
+        }
+
+        // vérifie qu'on a bien au moins un element, sinon on ne peut plus avancer.
+        // sauf, evidement si on est à la fin du stream.
+        if (result.isEmpty() && start < eventsIndexer.getEventsCount()) {
+            // ok on doit rejouer, en avançant le pointeur de la taille du batch
+            return fetchTrackedEvents(new GlobalSequenceTrackingToken(start + batchSize), batchSize);
+        }
+        return result;
+    }
+
+
 
     private static class MyXStreamSerializer extends XStreamSerializer {
 

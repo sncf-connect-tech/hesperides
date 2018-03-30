@@ -5,3 +5,9 @@ spring:
   redis:
     host: daxmort
     port: 58379
+
+elasticsearch:
+  shouldResetIndexOnStartUp: true
+
+redis:
+  shouldResetEventTrackingTokenOnStartUp: true

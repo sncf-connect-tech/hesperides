@@ -1,22 +1,15 @@
 package org.hesperides.infrastructure.redis.eventstores;
 
-import com.thoughtworks.xstream.XStream;
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.common.Assert;
 import org.axonframework.eventhandling.tokenstore.TokenStore;
 import org.axonframework.eventhandling.tokenstore.UnableToClaimTokenException;
 import org.axonframework.eventsourcing.eventstore.GlobalSequenceTrackingToken;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
+import org.hesperides.infrastructure.redis.RedisConfiguration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.Connection;
 
-import java.util.Optional;
-
-import static java.util.Optional.ofNullable;
+import javax.annotation.PostConstruct;
 
 /**
  * le store pour les vues Redis.
@@ -30,9 +23,18 @@ public class RedisTokenStore implements TokenStore {
 
     public static final String TOKENS = "a_tokens";
     private final StringRedisTemplate redis;
+    private final RedisConfiguration config;
 
-    public RedisTokenStore(StringRedisTemplate template) {
+    public RedisTokenStore(StringRedisTemplate template, RedisConfiguration config) {
         this.redis = template;
+        this.config = config;
+    }
+
+    @PostConstruct
+    public void resetStore() {
+        if (config.isShouldResetEventTrackingTokenOnStartUp()) {
+            this.redis.delete(TOKENS);
+        }
     }
 
     @Override
