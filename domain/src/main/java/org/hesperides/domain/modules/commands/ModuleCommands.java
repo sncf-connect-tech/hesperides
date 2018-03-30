@@ -15,6 +15,7 @@ public class ModuleCommands {
 
     private final CommandGateway commandGateway;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public ModuleCommands(CommandGateway commandGateway) {
         this.commandGateway = commandGateway;
     }

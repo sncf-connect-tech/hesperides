@@ -33,12 +33,6 @@ public class LegacyTemplateUpdatedEventTest extends AbstractLegacyCodecTest {
 
     private static final String JSON_PATH = "templateUpdatedEvent.json";
 
-    /**
-     * TODO Faire attention au numéro de séquence généré par Axon par rapport à celui défini dans le legacy
-     * Pas sûr qu'on le gère bien
-     * Etudier les impacts (dans le legacy notamment)
-     */
-
     @Test
     public void code() throws IOException {
         Module.Key moduleKey = getSampleModuleKey();

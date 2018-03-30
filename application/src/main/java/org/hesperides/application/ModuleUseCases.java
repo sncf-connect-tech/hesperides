@@ -49,7 +49,7 @@ public class ModuleUseCases {
                 module.getKey(),
                 module.getTechnos(),
                 1L);
-        return commands.createModule(module, user);
+        return commands.createModule(newModule, user);
     }
 
     public Module.Key updateWorkingCopy(Module module, User user) {
