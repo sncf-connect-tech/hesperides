@@ -116,7 +116,7 @@ class LegacyCodec implements Codec {
                         throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");
                 }
             } catch (Exception e) {
-                log.error("Could not deserialize event {} of aggregate {}", legacyJsonData, aggregateIdentifier, e);
+                log.error("Could not deserialize event {} of aggregate {}: {}", legacyJsonData, aggregateIdentifier, e.getMessage());
                 throw e;
             }
         }

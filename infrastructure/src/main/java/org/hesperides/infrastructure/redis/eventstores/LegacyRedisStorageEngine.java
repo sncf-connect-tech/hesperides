@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.*;
-import org.axonframework.serialization.Serializer;
+import org.axonframework.serialization.*;
+import org.axonframework.serialization.xml.XStreamSerializer;
 import org.hesperides.domain.security.UserEvent;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
@@ -60,7 +61,7 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
     private final EventsListener eventsListener;
 
     public LegacyRedisStorageEngine(StringRedisTemplate template, Codec codec) {
-        super(null, null, null, null);
+        super(new PleaseDoNothingSerializer(), null, null, new PleaseDoNothingSerializer());
         this.template = template;
         this.codec = codec;
 
@@ -73,7 +74,7 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
         log.info("Starting legacy redis storage.");
 
         // check si on a l'index des events
-    //    eventsIndexer.rebuildIfNecessary();
+       // eventsIndexer.rebuildIfNecessary();
 
         // se met à l'écoute des nouveaux events.
         this.eventsListener.start();
@@ -146,11 +147,20 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
     @Override
     protected Stream<? extends TrackedEventData<?>> readEventData(TrackingToken trackingToken, boolean mayBlock) {
 
-        int batchSize = 1;
-        EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
-                lastItem -> fetchTrackedEvents(lastItem == null ? trackingToken : lastItem.trackingToken(), batchSize),
-                batchSize, true);
-        return StreamSupport.stream(spliterator, false);
+        // tente une implémentation naive
+        GlobalSequenceTrackingToken start = trackingToken == null ? new GlobalSequenceTrackingToken(0) : (GlobalSequenceTrackingToken) trackingToken;
+        List<? extends TrackedEventData<?>> trackedEventData = fetchTrackedEvents(start,
+                10
+                //(int) (eventsIndexer.getEventsCount() - start.getGlobalIndex())
+        );
+        return trackedEventData.stream();
+
+
+//        int batchSize = 1;
+//        EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
+//                lastItem -> fetchTrackedEvents(lastItem == null ? trackingToken : lastItem.trackingToken(), batchSize),
+//                batchSize, true);
+//        return StreamSupport.stream(spliterator, false);
     }
 
     private List<? extends TrackedEventData<?>> fetchTrackedEvents(TrackingToken trackingToken, int batchSize) {
@@ -218,6 +228,57 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
             }
             action.accept(lastItem = iterator.next());
             return true;
+        }
+    }
+
+    private static class MyXStreamSerializer extends XStreamSerializer {
+
+        MyXStreamSerializer() {
+            super();
+            this.getXStream().setClassLoader(Thread.currentThread().getContextClassLoader());
+        }
+
+        @Override
+        public Class classForType(SerializedType type) {
+
+            return super.classForType(type);
+        }
+    }
+
+    private static class PleaseDoNothingSerializer implements Serializer {
+
+        @Override
+        public <T> SerializedObject<T> serialize(Object object, Class<T> expectedRepresentation) {
+            return new SimpleSerializedObject(object, object.getClass(), typeForClass(object.getClass()));
+        }
+
+        @Override
+        public <T> boolean canSerializeTo(Class<T> expectedRepresentation) {
+            return true; // je peux tout faire !
+        }
+
+        @Override
+        public <S, T> T deserialize(SerializedObject<S> serializedObject) {
+            return (T) serializedObject.getData(); // identity deserialize
+        }
+
+        @Override
+        public Class classForType(SerializedType type) throws UnknownSerializedTypeException {
+            try {
+                return  Thread.currentThread().getContextClassLoader().loadClass(type.getName());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public SerializedType typeForClass(Class type) {
+            return new SimpleSerializedType(type.getName(), "");
+        }
+
+        @Override
+        public Converter getConverter() {
+            return null;
         }
     }
 

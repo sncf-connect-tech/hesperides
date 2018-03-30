@@ -136,6 +136,10 @@ class EventsIndexer {
         }).collect(Collectors.toList());
     }
 
+    public long getEventsCount() {
+        return template.opsForHash().size(A_EVENTS_INDEX_SET);
+    }
+
     private EventDescriptor parseEventDescriptor(String s) {
         String[] split = s.split(":");
         return new EventDescriptor(split[0], Integer.parseInt(split[1]), null);
