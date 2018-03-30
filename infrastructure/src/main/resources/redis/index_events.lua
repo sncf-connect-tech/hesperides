@@ -11,7 +11,7 @@ for i = 1, redis.call('LLEN', current_aggregate) do
     local event_id = current_aggregate .. ':' .. i
     local result = redis.call('HSET', 'a_events_index_set', event_id, '0')
     if (result == 1) then
-        r = redis.call('LPUSH', 'a_events_index_list', event_id)
+        r = redis.call('RPUSH', 'a_events_index_list', event_id)
     end
 end
 

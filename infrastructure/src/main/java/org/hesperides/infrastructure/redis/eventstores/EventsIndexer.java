@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import lombok.Value;
 import lombok.experimental.Wither;
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * index les events
@@ -31,10 +29,10 @@ import java.util.stream.Stream;
 class EventsIndexer {
 
     static final String A_EVENTS_INDEX_LIST = "a_events_index_list";
-    static final String A_EVENTS_INDEX_SET  = "a_events_index_set";
-
+    static final String A_EVENTS_INDEX_SET = "a_events_index_set";
 
     private final DefaultRedisScript<Long> indexEventsScript;
+    private final DefaultRedisScript<Long> indexEventScript;
     private final StringRedisTemplate template;
 
     EventsIndexer(StringRedisTemplate template) {
@@ -42,6 +40,10 @@ class EventsIndexer {
         indexEventsScript = new DefaultRedisScript<>();
         indexEventsScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("redis/index_events.lua")));
         indexEventsScript.setResultType(Long.class);
+
+        indexEventScript = new DefaultRedisScript<>();
+        indexEventScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("redis/index_event.lua")));
+        indexEventScript.setResultType(Long.class);
     }
 
     private List<String> retrieveAllKeys(StopWatch watch) {
@@ -145,11 +147,17 @@ class EventsIndexer {
         return new EventDescriptor(split[0], Integer.parseInt(split[1]), null);
     }
 
+    public void indexEvent(String aggregateIdentifier, String eventContent) {
+        Long result = template.execute(indexEventScript, Collections.singletonList(aggregateIdentifier), eventContent);
+        log.debug("result! {}", result);
+    }
+
     @Value
     class EventDescriptor {
         String aggregateId;
         int eventIndex;
-        @Wither String eventData;
+        @Wither
+        String eventData;
     }
 
     class MultiThreadedIndexer {
@@ -160,8 +168,11 @@ class EventsIndexer {
         AtomicInteger noopCount = new AtomicInteger();
 
         void process(List<String> keys) {
+            if (keys.isEmpty()) {
+                return;
+            }
 
-            int processorsCount = 50;
+            int processorsCount = Math.min(50, keys.size());
             List<List<String>> batches = Lists.partition(keys, keys.size() / processorsCount);
 
             ExecutorService threadPool = Executors.newFixedThreadPool(batches.size() + 2);

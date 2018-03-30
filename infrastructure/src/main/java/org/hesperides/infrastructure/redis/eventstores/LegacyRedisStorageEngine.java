@@ -77,7 +77,7 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
         log.info("Starting legacy redis storage.");
 
         // check si on a l'index des events
-       // eventsIndexer.rebuildIfNecessary();
+        eventsIndexer.rebuildIfNecessary();
 
         // se met à l'écoute des nouveaux events.
         this.eventsListener.start();
@@ -92,23 +92,11 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
     protected void appendEvents(List<? extends EventMessage<?>> events, Serializer serializer) {
         log.debug("append {} events to redis", events.size());
 
-        template.execute(new SessionCallback<List<String>>() {
-            @Override
-            public List<String> execute(RedisOperations operations) throws DataAccessException {
-                operations.multi();
-
-                // ajouter les events sur les clés adhoc
-                events.stream()
-                        .filter(event -> event instanceof DomainEventMessage)
-                        .forEach(event -> {
-                            String aggregateIdentifier = ((DomainEventMessage) event).getAggregateIdentifier();
-                            operations.opsForList().rightPush(aggregateIdentifier, codec.code((DomainEventMessage) event));
-                            // met à jour l'index de tous les events
-                            operations.opsForZSet().add(AGGREGATES_INDEX, aggregateIdentifier, 1);
-                        });
-                return operations.exec();
-            }
-        });
+        // boucle sur chaque event:
+        events.stream()
+                .filter(event -> event instanceof DomainEventMessage)
+                .map(event -> (DomainEventMessage) event)
+                .forEach(event -> eventsIndexer.indexEvent(event.getAggregateIdentifier(), codec.code(event)));
     }
 
     @Override
@@ -166,42 +154,41 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
         int batchSize = 50;
 
         EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
-                lastItem -> fetchTrackedEvents(getStartToken(lastItem), batchSize),
-                batchSize, true);
+                lastItem -> fetchTrackedEvents(getStartToken(lastItem, trackingToken), batchSize));
         return StreamSupport.stream(spliterator, false);
     }
 
-    private GlobalSequenceTrackingToken getStartToken(TrackedEventData<?> lastItem) {
-        return lastItem == null ? new GlobalSequenceTrackingToken(0) : ((GlobalSequenceTrackingToken) lastItem.trackingToken()).next();
+    private GlobalSequenceTrackingToken getStartToken(TrackedEventData<?> lastItem, TrackingToken trackingToken) {
+        if (lastItem != null) {
+            return ((GlobalSequenceTrackingToken) lastItem.trackingToken()).next();
+        } else {
+            if (trackingToken != null) {
+                return ((GlobalSequenceTrackingToken) trackingToken).next();
+            } else {
+                return new GlobalSequenceTrackingToken(0);
+            }
+        }
     }
 
     private static class EventStreamSpliterator<T> extends Spliterators.AbstractSpliterator<T> {
 
         private final Function<T, List<? extends T>> fetchFunction;
-        private final int batchSize;
-        private final boolean fetchUntilEmpty;
         private Iterator<? extends T> iterator;
         private T lastItem;
-        private int sizeOfLastBatch;
 
-        private EventStreamSpliterator(Function<T, List<? extends T>> fetchFunction, int batchSize,
-                                       boolean fetchUntilEmpty) {
+        private EventStreamSpliterator(Function<T, List<? extends T>> fetchFunction) {
             super(Long.MAX_VALUE, NONNULL | ORDERED | DISTINCT | CONCURRENT);
             this.fetchFunction = fetchFunction;
-            this.batchSize = batchSize;
-            this.fetchUntilEmpty = fetchUntilEmpty;
         }
 
         @Override
         public boolean tryAdvance(Consumer<? super T> action) {
             Objects.requireNonNull(action);
             if (iterator == null || !iterator.hasNext()) {
-                if (iterator != null && batchSize > sizeOfLastBatch && !fetchUntilEmpty) {
-                    return false;
-                }
                 List<? extends T> items = fetchFunction.apply(lastItem);
                 iterator = items.iterator();
-                if ((sizeOfLastBatch = items.size()) == 0) {
+                if (items.isEmpty()) {
+                    log.debug("End of stream !");
                     return false;
                 }
             }
