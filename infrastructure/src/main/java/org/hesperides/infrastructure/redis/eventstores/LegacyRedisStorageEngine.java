@@ -163,7 +163,7 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
 
         // charge les events a fetcher:
 
-        int batchSize = 10;
+        int batchSize = 50;
 
         EventStreamSpliterator<? extends TrackedEventData<?>> spliterator = new EventStreamSpliterator<>(
                 lastItem -> fetchTrackedEvents(getStartToken(lastItem), batchSize),
@@ -225,6 +225,7 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
         GlobalSequenceTrackingToken current = token;
 
         for (EventsIndexer.EventDescriptor event : events) {
+            counterService.increment(getClass().getSimpleName() + ".fetchEvents.process");
             try {
                 TrackedEventData<?> eventData =
                         codec.decodeEventAsTrackedDomainEventData(
@@ -235,11 +236,11 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
                 current = current.next();
 
                 result.add(eventData);
-                counterService.increment(getClass().getSimpleName() + ".fetchEvent.success");
+                counterService.increment(getClass().getSimpleName() + ".fetchEvents.success");
 
             } catch (Exception e) {
                 // compte les erreurs.
-                counterService.increment(getClass().getSimpleName() + ".fetchEvent.errors." + e.getClass().getSimpleName());
+                counterService.increment(getClass().getSimpleName() + ".fetchEvents.errors." + e.getClass().getSimpleName());
 //                // en cas d'erreur, on laisse tomber la clé
 //                log.error("could not read an event of aggregate {}, error was:{}, skip this event.",
 //                        event.getAggregateId(), e.getMessage());

@@ -14,7 +14,7 @@
     <logger name="org.springframework" level="warn"/>
 
     <!-- active les traces ELS -->
-    <logger name="tracer" level="trace"/>
+    <logger name="tracer" level="info"/>
 
     <root level="info">
         <appender-ref ref="STDOUT" />

@@ -91,33 +91,28 @@ class LegacyCodec implements Codec {
         List<DomainEventMessage<?>> events = new ArrayList<>();
 
         for (String legacyJsonData : data) {
-            try {
-                LegacyEvent legacyEvent = new Gson().fromJson(legacyJsonData, LegacyEvent.class);
-                switch (legacyEvent.getEventType()) {
-                    case LegacyModuleCreatedEvent.EVENT_TYPE:
-                        events.add(LegacyModuleCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
-                        break;
-                    case LegacyModuleUpdatedEvent.EVENT_TYPE:
-                        events.add(LegacyModuleUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
-                        break;
-                    case LegacyModuleDeletedEvent.EVENT_TYPE:
-                        events.add(LegacyModuleDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
-                        break;
-                    case LegacyTemplateCreatedEvent.EVENT_TYPE:
-                        events.add(LegacyTemplateCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
-                        break;
-                    case LegacyTemplateUpdatedEvent.EVENT_TYPE:
-                        events.add(LegacyTemplateUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
-                        break;
-                    case LegacyTemplateDeletedEvent.EVENT_TYPE:
-                        events.add(LegacyTemplateDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");
-                }
-            } catch (Exception e) {
-                log.error("Could not deserialize an event of aggregate {}: {}", aggregateIdentifier, e.getMessage());
-                throw e;
+            LegacyEvent legacyEvent = new Gson().fromJson(legacyJsonData, LegacyEvent.class);
+            switch (legacyEvent.getEventType()) {
+                case LegacyModuleCreatedEvent.EVENT_TYPE:
+                    events.add(LegacyModuleCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyModuleUpdatedEvent.EVENT_TYPE:
+                    events.add(LegacyModuleUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyModuleDeletedEvent.EVENT_TYPE:
+                    events.add(LegacyModuleDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyTemplateCreatedEvent.EVENT_TYPE:
+                    events.add(LegacyTemplateCreatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyTemplateUpdatedEvent.EVENT_TYPE:
+                    events.add(LegacyTemplateUpdatedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                case LegacyTemplateDeletedEvent.EVENT_TYPE:
+                    events.add(LegacyTemplateDeletedEvent.toDomainEventMessage(legacyEvent, aggregateIdentifier, firstSequenceNumber));
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Deserialization for class " + legacyEvent.getEventType() + " is not implemented");
             }
         }
 
