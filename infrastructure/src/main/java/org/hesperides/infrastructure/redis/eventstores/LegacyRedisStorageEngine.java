@@ -5,8 +5,8 @@ import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventsourcing.DomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.*;
 import org.axonframework.serialization.*;
-import org.axonframework.serialization.xml.XStreamSerializer;
 import org.hesperides.infrastructure.redis.RedisConfiguration;
+import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
@@ -59,15 +59,16 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
     private final Codec codec;
     private final EventsIndexer eventsIndexer;
     private final EventsListener eventsListener;
-    private final RedisConfiguration config;
 
-    public LegacyRedisStorageEngine(StringRedisTemplate template, Codec codec, RedisConfiguration config) {
+    private final CounterService counterService;
+
+    public LegacyRedisStorageEngine(StringRedisTemplate template, Codec codec, CounterService counterService) {
         super(new PleaseDoNothingSerializer(), null, null, new PleaseDoNothingSerializer());
         this.template = template;
         this.codec = codec;
 
         this.eventsIndexer = new EventsIndexer(template);
-        this.config = config;
+        this.counterService = counterService;
         this.eventsListener = new EventsListener();
     }
 
@@ -158,12 +159,6 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
 //                batchSize
 //                //(int) (eventsIndexer.getEventsCount() - start.getGlobalIndex())
 //        );
-//        // attention, si rien n'est remonté, c'est soit qu'on a atteind la fin de la liste, soit qu'on a rien réussi a désérialiser.
-//        if (trackedEventData.isEmpty()) {
-//            // on avance quand même pour voir si y a pas d'autre events après:
-//            // bref, c'est pas bon.
-//        }
-//
 //        return trackedEventData.stream();
 
         // charge les events a fetcher:
@@ -216,7 +211,6 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
         }
     }
 
-
     private List<? extends TrackedEventData<?>> fetchTrackedEvents(TrackingToken trackingToken, int batchSize) {
 
         GlobalSequenceTrackingToken token = (GlobalSequenceTrackingToken) trackingToken;
@@ -241,10 +235,14 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
                 current = current.next();
 
                 result.add(eventData);
+                counterService.increment(getClass().getSimpleName() + ".fetchEvent.success");
+
             } catch (Exception e) {
-                // en cas d'erreur, on laisse tomber la clé
-                log.error("could not read an event of aggregate {}, error was:{}, skip this event.",
-                        event.getAggregateId(), e.getMessage());
+                // compte les erreurs.
+                counterService.increment(getClass().getSimpleName() + ".fetchEvent.errors." + e.getClass().getSimpleName());
+//                // en cas d'erreur, on laisse tomber la clé
+//                log.error("could not read an event of aggregate {}, error was:{}, skip this event.",
+//                        event.getAggregateId(), e.getMessage());
             }
         }
 
@@ -255,22 +253,6 @@ public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
             return fetchTrackedEvents(new GlobalSequenceTrackingToken(start + batchSize), batchSize);
         }
         return result;
-    }
-
-
-
-    private static class MyXStreamSerializer extends XStreamSerializer {
-
-        MyXStreamSerializer() {
-            super();
-            this.getXStream().setClassLoader(Thread.currentThread().getContextClassLoader());
-        }
-
-        @Override
-        public Class classForType(SerializedType type) {
-
-            return super.classForType(type);
-        }
     }
 
     private static class PleaseDoNothingSerializer implements Serializer {
