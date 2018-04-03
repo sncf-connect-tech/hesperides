@@ -25,3 +25,8 @@ Feature: modules related features
     And this module is being modified alongside
     When updating this module
     Then the module update is rejected
+
+#  Scenario: create a copy of an existing module
+#    Given an existing module
+#    When creating a copy of this module
+#    Then the module is successfully created

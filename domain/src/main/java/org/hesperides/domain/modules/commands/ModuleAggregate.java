@@ -11,6 +11,7 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
+import org.hesperides.domain.modules.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 
 import java.io.Serializable;
@@ -40,13 +41,24 @@ class ModuleAggregate implements Serializable {
 
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
-        apply(new ModuleCreatedEvent(command.getModule(), command.getUser()));
+        log.debug("Applying create module command...");
+        // Initialise le version_id
+        Module module = new Module(
+                command.getModule().getKey(),
+                command.getModule().getTechnos(),
+                1L);
+        apply(new ModuleCreatedEvent(module, command.getUser()));
     }
 
     @CommandHandler
     public ModuleAggregate(UpdateModuleCommand command) {
         log.debug("Applying update module command...");
-        apply(new ModuleUpdatedEvent(command.getModule(), command.getUser()));
+        // Met à jour le version_id
+        Module moduleWithUpdatedVersionId = new Module(
+                command.getModule().getKey(),
+                command.getModule().getTechnos(),
+                command.getModule().getVersionId() + 1);
+        apply(new ModuleUpdatedEvent(moduleWithUpdatedVersionId, command.getUser()));
     }
 
     @CommandHandler
@@ -65,7 +77,17 @@ class ModuleAggregate implements Serializable {
             throw new DuplicateTemplateCreationException(command.getTemplate());
         }
 
-        apply(new TemplateCreatedEvent(key, command.getTemplate(), command.getUser()));
+        // Initialise le version_id
+        Template newTemplate = new Template(
+                command.getTemplate().getName(),
+                command.getTemplate().getFilename(),
+                command.getTemplate().getLocation(),
+                command.getTemplate().getContent(),
+                command.getTemplate().getRights(),
+                1L,
+                command.getModuleKey());
+
+        apply(new TemplateCreatedEvent(key, newTemplate, command.getUser()));
     }
 
     @CommandHandler
@@ -74,13 +96,28 @@ class ModuleAggregate implements Serializable {
         log.debug("Applying update template command...");
 
         // check qu'on a déjà un template avec ce nom, sinon erreur:
-        if (!this.templates.containsKey(command.getTemplate().getName())) {
+        if (!templates.containsKey(command.getTemplate().getName())) {
             throw new TemplateNotFoundException(key, command.getTemplate().getName());
         }
+        // Vérifie que le template n'a été modifié entre temps
+        Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
+        Long actualVersionId = command.getTemplate().getVersionId();
+        if (!expectedVersionId.equals(actualVersionId)) {
+            throw new OutOfDateVersionException(expectedVersionId, actualVersionId);
+        }
 
-        apply(new TemplateUpdatedEvent(key, command.getTemplate(), command.getUser()));
+        // Met à jour le version_id
+        Template templateWithUpdatedVersionId = new Template(
+                command.getTemplate().getName(),
+                command.getTemplate().getFilename(),
+                command.getTemplate().getLocation(),
+                command.getTemplate().getContent(),
+                command.getTemplate().getRights(),
+                command.getTemplate().getVersionId() + 1,
+                command.getModuleKey());
+
+        apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
     }
-
 
     @CommandHandler
     @SuppressWarnings("unused")
