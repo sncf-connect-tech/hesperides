@@ -23,7 +23,7 @@ import javax.annotation.PostConstruct;
 @Profile("!local")
 public class RedisTokenStore implements TokenStore {
 
-    public static final String TOKENS = "a_tokens";
+    private static final String TOKENS = "a_tokens";
     private final StringRedisTemplate redis;
     private final RedisConfiguration config;
 
