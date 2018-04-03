@@ -6,6 +6,7 @@ import org.axonframework.eventhandling.tokenstore.UnableToClaimTokenException;
 import org.axonframework.eventsourcing.eventstore.GlobalSequenceTrackingToken;
 import org.axonframework.eventsourcing.eventstore.TrackingToken;
 import org.hesperides.infrastructure.redis.RedisConfiguration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import javax.annotation.PostConstruct;
  */
 @Slf4j
 @Component
+@Profile("!local")
 public class RedisTokenStore implements TokenStore {
 
     public static final String TOKENS = "a_tokens";

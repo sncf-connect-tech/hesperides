@@ -7,6 +7,7 @@ import org.axonframework.eventsourcing.eventstore.*;
 import org.axonframework.serialization.*;
 import org.hesperides.infrastructure.redis.RedisConfiguration;
 import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.SessionCallback;
@@ -51,9 +52,8 @@ import java.util.stream.StreamSupport;
  */
 @Slf4j
 @Component
+@Profile("!local")
 public class LegacyRedisStorageEngine extends AbstractEventStorageEngine {
-
-    public static final String AGGREGATES_INDEX = "a_aggregates_index";
 
     private final StringRedisTemplate template;
     private final Codec codec;

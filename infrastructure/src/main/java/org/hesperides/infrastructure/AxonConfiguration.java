@@ -22,7 +22,7 @@ public class AxonConfiguration {
     @Autowired
     private EventHandlingConfiguration eventHandlingConfiguration;
 
-    @Autowired
+    @Autowired(required = false)
     private RedisTokenStore redisTokenStore;
 
     @PostConstruct
@@ -39,12 +39,10 @@ public class AxonConfiguration {
             Class<?> aClass = Class.forName(bd.getBeanClassName());
             ProcessingGroup processingGroup = aClass.getAnnotation(ProcessingGroup.class);
             String name = Optional.ofNullable(processingGroup).map(ProcessingGroup::value).orElse(aClass.getPackage().getName());
-            if (aClass.getAnnotation(TrackedProjection.class).useRedis()) {
+            if (aClass.getAnnotation(TrackedProjection.class).useRedis() && redisTokenStore != null) {
                 eventHandlingConfiguration.registerTokenStore(name, configuration -> redisTokenStore);
             }
             eventHandlingConfiguration.registerTrackingProcessor(name);
         }
     }
-
-
 }
