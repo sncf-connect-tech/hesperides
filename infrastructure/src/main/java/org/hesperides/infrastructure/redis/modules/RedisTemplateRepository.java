@@ -24,6 +24,8 @@ import java.util.Optional;
 @Profile("!local")
 public class RedisTemplateRepository implements TemplateRepository {
 
+    private static final String TEMPLATE_VIEWS = "a_template_views";
+
     /**
      * Attention ! Ne pas confondre les deux notions de template :
      * - StringRedisTemplate est un objet qui permet d'accéder aux données Redis
@@ -40,7 +42,7 @@ public class RedisTemplateRepository implements TemplateRepository {
     @QueryHandler
     @Override
     public Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query) {
-        String payload = redisTemplate.opsForValue().get(getKey(query.getModuleKey(), query.getTemplateName()));
+        String payload = (String) redisTemplate.opsForHash().get(TEMPLATE_VIEWS, getKey(query.getModuleKey(), query.getTemplateName()));
         if (payload == null) {
             return Optional.empty();
         }
@@ -52,7 +54,7 @@ public class RedisTemplateRepository implements TemplateRepository {
     public void on(TemplateCreatedEvent event) {
         // On persiste l'état du template sous forme de vue
         String payload = xStream.toXML(event.getTemplate().buildTemplateView());
-        redisTemplate.opsForValue().set(getKey(event.getModuleKey(), event.getTemplate()), payload);
+        redisTemplate.opsForHash().put(TEMPLATE_VIEWS, getKey(event.getModuleKey(), event.getTemplate()), payload);
     }
 
     @EventSourcingHandler
@@ -63,7 +65,7 @@ public class RedisTemplateRepository implements TemplateRepository {
 
     @EventSourcingHandler
     private void on(TemplateDeletedEvent event) {
-        redisTemplate.delete(getKey(event.getModuleKey(), event.getTemplateName()));
+        redisTemplate.opsForHash().delete(TEMPLATE_VIEWS, getKey(event.getModuleKey(), event.getTemplateName()));
     }
 
     private String getKey(Module.Key moduleKey, Template template) {
@@ -71,6 +73,6 @@ public class RedisTemplateRepository implements TemplateRepository {
     }
 
     private String getKey(Module.Key moduleKey, String name) {
-        return moduleKey.toString() + "_" + name;
+        return "template_view_" + moduleKey.toString() + "_" + name;
     }
 }

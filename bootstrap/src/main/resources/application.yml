@@ -7,6 +7,10 @@ spring:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
 
+#  boot:
+#    admin:
+#      url: http://localhost:8081
+
 server:
   port: ${SERVER_PORT:8080}
   contextPath: /rest
@@ -23,3 +27,12 @@ elasticsearch:
   host: ${ELASTICSEARCH_HOST:localhost}
   port: ${ELASTICSEARCH_PORT:9200}
   index: ${ELASTICSEARCH_INDEX:hesperides}
+
+# Spring actuator configuration.
+management:
+  context-path: "/manage"
+  security:
+    enabled: false
+
+endpoints:
+  enabled: true

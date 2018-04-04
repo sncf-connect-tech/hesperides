@@ -37,18 +37,28 @@ public class LegacyTemplate {
     @SerializedName("version_id")
     long versionId;
 
-    @Value
-    static class Rights {
-        Right user;
-        Right group;
-        Right other;
-
-        @Value
-        static class Right {
-            Boolean read;
-            Boolean write;
-            Boolean execute;
-        }
+    public static LegacyTemplate fromDomainTemplate(Template template) {
+        return new LegacyTemplate(
+                template.getName(),
+                template.getModuleKey().getNamespace(),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                new LegacyTemplate.Rights(
+                        new LegacyTemplate.Rights.Right(
+                                template.getRights().getUser().getRead(),
+                                template.getRights().getUser().getWrite(),
+                                template.getRights().getUser().getExecute()
+                        ),
+                        new LegacyTemplate.Rights.Right(
+                                template.getRights().getGroup().getRead(),
+                                template.getRights().getGroup().getWrite(),
+                                template.getRights().getGroup().getExecute()
+                        ),
+                        // Les droits "other" ne sont pas définis dans l'application actuelle
+                        null
+                ),
+                template.getVersionId());
     }
 
     /**
@@ -81,46 +91,34 @@ public class LegacyTemplate {
                 filename,
                 location,
                 content,
-                new Template.Rights(
-                        new Template.FileRights(
-                                rights.getUser().getRead(),
-                                rights.getUser().getWrite(),
-                                rights.getUser().getExecute()
-                        ),
-                        new Template.FileRights(
-                                rights.getGroup().getRead(),
-                                rights.getGroup().getWrite(),
-                                rights.getGroup().getExecute()
-                        ),
-                        // Les droits "other" ne sont pas définis dans l'application actuelle
-                        new Template.FileRights(null, null, null)
-                ),
+                this.rights != null ? this.rights.toDomain() : new Template.Rights(new Template.FileRights(), new Template.FileRights(), new Template.FileRights()),
                 versionId,
                 moduleKey
         );
     }
 
-    public static LegacyTemplate fromDomainTemplate(Template template) {
-        return new LegacyTemplate(
-                template.getName(),
-                template.getModuleKey().getNamespace(),
-                template.getFilename(),
-                template.getLocation(),
-                template.getContent(),
-                new LegacyTemplate.Rights(
-                        new LegacyTemplate.Rights.Right(
-                                template.getRights().getUser().getRead(),
-                                template.getRights().getUser().getWrite(),
-                                template.getRights().getUser().getExecute()
-                        ),
-                        new LegacyTemplate.Rights.Right(
-                                template.getRights().getGroup().getRead(),
-                                template.getRights().getGroup().getWrite(),
-                                template.getRights().getGroup().getExecute()
-                        ),
-                        // Les droits "other" ne sont pas définis dans l'application actuelle
-                        null
-                ),
-                template.getVersionId());
+    @Value
+    static class Rights {
+        Right user;
+        Right group;
+        Right other;
+
+        Template.Rights toDomain() {
+            Template.FileRights uRights = user != null ? user.toDomain() : new Template.FileRights();
+            Template.FileRights gRights = group != null ? group.toDomain() : new Template.FileRights();
+            // Les droits "other" ne sont pas définis dans l'application actuelle
+            return new Template.Rights(uRights, gRights, new Template.FileRights());
+        }
+
+        @Value
+        static class Right {
+            Boolean read;
+            Boolean write;
+            Boolean execute;
+
+            Template.FileRights toDomain() {
+                return new Template.FileRights(read, write, execute);
+            }
+        }
     }
 }

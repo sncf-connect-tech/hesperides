@@ -3,9 +3,11 @@ package org.hesperides.infrastructure;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.EventHandlingConfiguration;
 import org.axonframework.config.ProcessingGroup;
+import org.hesperides.infrastructure.redis.eventstores.RedisTokenStore;
 import org.hesperides.infrastructure.views.TrackedProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -19,6 +21,9 @@ public class AxonConfiguration {
 
     @Autowired
     private EventHandlingConfiguration eventHandlingConfiguration;
+
+    @Autowired(required = false)
+    private RedisTokenStore redisTokenStore;
 
     @PostConstruct
     public void startTrackingProjections() throws ClassNotFoundException {
@@ -34,9 +39,10 @@ public class AxonConfiguration {
             Class<?> aClass = Class.forName(bd.getBeanClassName());
             ProcessingGroup processingGroup = aClass.getAnnotation(ProcessingGroup.class);
             String name = Optional.ofNullable(processingGroup).map(ProcessingGroup::value).orElse(aClass.getPackage().getName());
+            if (aClass.getAnnotation(TrackedProjection.class).useRedis() && redisTokenStore != null) {
+                eventHandlingConfiguration.registerTokenStore(name, configuration -> redisTokenStore);
+            }
             eventHandlingConfiguration.registerTrackingProcessor(name);
         }
     }
-
-
 }

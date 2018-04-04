@@ -1,7 +1,12 @@
 package org.hesperides.infrastructure.redis.eventstores.legacy;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.DomainEventMessage;
+import org.axonframework.eventsourcing.eventstore.GenericDomainEventEntry;
+import org.axonframework.eventsourcing.eventstore.GlobalSequenceTrackingToken;
+import org.axonframework.eventsourcing.eventstore.TrackedDomainEventData;
+import org.axonframework.eventsourcing.eventstore.TrackedEventData;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.infrastructure.redis.eventstores.Codec;
@@ -11,7 +16,9 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * C'est moche mais ça fait le boulot, c'est lisible et c'est censé disparaître.
@@ -19,6 +26,7 @@ import java.util.List;
  * Donc on le fait à la main.
  * J'assume ce choix (Thomas L'Hostis)
  */
+@Slf4j
 @Component
 @ConditionalOnProperty(prefix = "redis", name = "codec", havingValue = "legacy", matchIfMissing = true)
 class LegacyCodec implements Codec {
@@ -59,6 +67,23 @@ class LegacyCodec implements Codec {
      */
     protected Long getLegacyTimestampFromEventTimestamp(Instant timestamp) {
         return Timestamp.from(timestamp).getTime();
+    }
+
+    @Override
+    public TrackedEventData<?> decodeEventAsTrackedDomainEventData(String aggregateIdentifier, long firstSequenceNumber, String data, GlobalSequenceTrackingToken trackingToken) {
+
+        DomainEventMessage<?> domainEventMessage = decode(aggregateIdentifier, firstSequenceNumber, Collections.singletonList(data)).get(0);
+
+        return new TrackedDomainEventData<>(trackingToken,  new GenericDomainEventEntry<>(domainEventMessage.getType(),
+                domainEventMessage.getAggregateIdentifier(),
+                domainEventMessage.getSequenceNumber(),
+                "",
+                domainEventMessage.getTimestamp(),
+                domainEventMessage.getPayloadType().getName(),
+                null,
+                domainEventMessage.getPayload(),
+                "")
+        );
     }
 
     @Override

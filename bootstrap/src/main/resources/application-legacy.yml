@@ -1,0 +1,15 @@
+#
+# Specific configuration for legacy profile.
+#
+spring:
+  redis:
+#    host: daxmort
+#    port: 58379
+    host: localhost
+    port: 6379
+
+elasticsearch:
+  shouldResetIndexOnStartUp: true
+
+redis:
+  shouldResetEventTrackingTokenOnStartUp: true

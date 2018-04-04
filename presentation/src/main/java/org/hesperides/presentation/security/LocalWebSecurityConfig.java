@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Profile("noldap")
 public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private static final String PATHWORD = "password";
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
@@ -21,8 +23,8 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("tech").password("password").roles("TECH")
-                .and().withUser("prod").password("password").roles("PROD")
-                .and().withUser("user").password("password").roles("USER");
+                .withUser("tech").password(PATHWORD).roles("TECH")
+                .and().withUser("prod").password(PATHWORD).roles("PROD")
+                .and().withUser("user").password(PATHWORD).roles("USER");
     }
 }
