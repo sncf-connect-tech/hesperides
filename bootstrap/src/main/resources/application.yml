@@ -7,9 +7,9 @@ spring:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
 
-  boot:
-    admin:
-      url: http://localhost:8081
+#  boot:
+#    admin:
+#      url: http://localhost:8081
 
 server:
   port: ${SERVER_PORT:8080}
