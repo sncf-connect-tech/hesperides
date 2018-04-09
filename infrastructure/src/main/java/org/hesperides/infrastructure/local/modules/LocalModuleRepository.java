@@ -7,7 +7,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleRepository;
+import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateRepository;
 import org.hesperides.domain.modules.queries.TemplateView;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Repository
 @Profile("local")
 @TrackedProjection
-public class LocalModuleRepository implements ModuleRepository, TemplateRepository {
+public class LocalModuleRepository implements ModuleQueriesRepository, TemplateRepository {
 
     private final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
     private final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();

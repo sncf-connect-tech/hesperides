@@ -1,6 +1,14 @@
 spring:
   application.name: HESPERIDES
 
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/hesperides
+    username: user
+    password: password
+
+  jpa.hibernate.ddl-auto: create-drop
+
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
 
   redis:

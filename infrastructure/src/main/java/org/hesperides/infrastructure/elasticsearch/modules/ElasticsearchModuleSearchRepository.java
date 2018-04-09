@@ -28,7 +28,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.elasticsearch.client.Response;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleRepository;
+import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.infrastructure.elasticsearch.ElasticsearchService;
 import org.springframework.context.annotation.Profile;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("!local")
-public class ElasticsearchModuleSearchRepository implements ModuleRepository {
+public class ElasticsearchModuleSearchRepository implements ModuleQueriesRepository {
 
     private static final String SEARCH_MODULE_NAME_VERSION_WORKINGCOPY_MUSTACHE = "search.module.name.version.workingcopy.mustache";
     private static final String MUSTACHE_SEARCH_ALL = "search.module.all.mustache";

@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * stock et query les modules
  */
-public interface ModuleRepository {
+public interface ModuleQueriesRepository {
     @QueryHandler
     Optional<ModuleView> query(ModuleByIdQuery query);
 
