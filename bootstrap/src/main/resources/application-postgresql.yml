@@ -5,4 +5,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/hesperides
     username: user
     password: password
-  jpa.hibernate.ddl-auto: create-drop
+  jpa:
+    hibernate.ddl-auto: create-drop
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
