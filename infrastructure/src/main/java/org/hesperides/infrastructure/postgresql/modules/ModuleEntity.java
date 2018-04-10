@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.postgresql;
+package org.hesperides.infrastructure.postgresql.modules;
 
 import lombok.*;
 import org.hesperides.domain.modules.entities.Module;

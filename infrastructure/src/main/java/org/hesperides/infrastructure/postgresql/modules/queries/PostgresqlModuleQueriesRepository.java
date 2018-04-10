@@ -5,7 +5,7 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.infrastructure.postgresql.ModuleEntity;
+import org.hesperides.infrastructure.postgresql.modules.ModuleEntity;
 import org.hesperides.infrastructure.postgresql.modules.PostgresqlModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

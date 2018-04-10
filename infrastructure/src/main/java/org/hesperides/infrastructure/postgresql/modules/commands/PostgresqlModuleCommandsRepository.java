@@ -6,7 +6,7 @@ import org.hesperides.domain.modules.ModuleDeletedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
-import org.hesperides.infrastructure.postgresql.ModuleEntity;
+import org.hesperides.infrastructure.postgresql.modules.ModuleEntity;
 import org.hesperides.infrastructure.postgresql.modules.PostgresqlModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
