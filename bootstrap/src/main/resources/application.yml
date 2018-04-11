@@ -1,19 +1,7 @@
 spring:
   application.name: HESPERIDES
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/hesperides
-    username: user
-    password: password
-
-  jpa.hibernate.ddl-auto: create-drop
-
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
-
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -26,8 +14,3 @@ ldap:
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:1000}
   readTimeout: ${LDAP_READ_TIMEOUT:1000}
-
-elasticsearch:
-  host: ${ELASTICSEARCH_HOST:localhost}
-  port: ${ELASTICSEARCH_PORT:9200}
-  index: ${ELASTICSEARCH_INDEX:hesperides}
