@@ -33,6 +33,13 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
+        <!-- Axon -->
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-mongo</artifactId>
+            <version>${axon-spring-boot-starter.version}</version>
+        </dependency>
+
         <!-- Various -->
         <dependency>
             <groupId>org.postgresql</groupId>

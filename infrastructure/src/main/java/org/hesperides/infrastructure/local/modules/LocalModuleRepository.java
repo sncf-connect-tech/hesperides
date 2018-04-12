@@ -11,7 +11,6 @@ import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateRepository;
 import org.hesperides.domain.modules.queries.TemplateView;
-import org.hesperides.infrastructure.views.TrackedProjection;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
-@TrackedProjection
 public class LocalModuleRepository implements ModuleQueriesRepository, TemplateRepository {
 
     private final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
