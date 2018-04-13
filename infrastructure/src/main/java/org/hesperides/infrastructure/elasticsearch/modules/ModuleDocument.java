@@ -8,7 +8,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName = "hesperides", type = "moduleEntity")
+@Document(indexName = "hesperides", type = "modules")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

@@ -1,7 +1,5 @@
 ---
-spring:
-  data:
-    elasticsearch:
-      cluster-nodes: localhost:9400
-      cluster-name: hesperides-sfr
-      properties:
+elasticsearch:
+  clustername: hesperides
+  host: localhost
+  port: 9200
