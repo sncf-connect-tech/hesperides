@@ -38,8 +38,8 @@ public final class ModuleInput {
         boolean isWorkingCopy;
         String name;
 
-        static org.hesperides.domain.modules.entities.Techno toDomainInstance() {
-            return new org.hesperides.domain.modules.entities.Techno();
+        static org.hesperides.domain.technos.entities.Techno toDomainInstance() {
+            return new org.hesperides.domain.technos.entities.Techno();
         }
     }
 

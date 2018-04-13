@@ -1,6 +1,7 @@
 package org.hesperides.domain.modules.entities;
 
 import lombok.Value;
+import org.hesperides.domain.technos.entities.Techno;
 
 import java.net.URI;
 import java.util.List;
