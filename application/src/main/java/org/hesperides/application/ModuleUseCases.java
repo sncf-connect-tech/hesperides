@@ -4,7 +4,7 @@ import org.hesperides.application.exceptions.DuplicateModuleException;
 import org.hesperides.application.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.modules.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;

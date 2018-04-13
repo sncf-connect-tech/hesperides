@@ -4,7 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hesperides.application.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.http.ResponseEntity;

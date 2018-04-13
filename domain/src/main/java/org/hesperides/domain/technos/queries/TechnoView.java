@@ -3,7 +3,7 @@ package org.hesperides.domain.technos.queries;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.Template;
 
 @Value
 public class TechnoView {

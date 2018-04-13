@@ -18,7 +18,13 @@ public class CreateATechno extends CucumberSpringBean implements En {
 
     public CreateATechno() {
         Given("^a techno to create$", () -> {
-            technoInput = new TechnoInput("testTechno", "test.json", "/home/test", "{test:test}", -1L,
+            technoInput = new TechnoInput(
+                    "fichierTest",
+                    "test.json",
+                    "/home/test",
+                    "{test:test}",
+                    -1L,
+                    "packages#testtechno#1.2.3#WORKINGCOPY",
                     new RightsInput(
                             new RightsInput.FileRights(null, null, null),
                             new RightsInput.FileRights(null, null, null),
@@ -27,7 +33,7 @@ public class CreateATechno extends CucumberSpringBean implements En {
         });
 
         When("^creating a new techno$", () -> {
-            technoLocation = rest.postForLocationReturnAbsoluteURI("/technos", technoInput);
+            technoLocation = rest.postForLocationReturnAbsoluteURI("/templates/packages/testtechno/1.2.3/workingcopy/templates", technoInput);
         });
 
 

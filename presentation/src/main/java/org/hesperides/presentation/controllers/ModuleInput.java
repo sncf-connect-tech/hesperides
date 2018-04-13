@@ -3,6 +3,7 @@ package org.hesperides.presentation.controllers;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -22,25 +23,13 @@ public final class ModuleInput {
     @SerializedName("working_copy")
     boolean isWorkingCopy;
 
-    Set<Techno> technos;
+    Set<TechnoInput> technos;
 
     @SerializedName("version_id")
     Long versionId;
 
     Module.Key getKey() {
-        return new Module.Key(name, version, isWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
-    }
-
-    @Value
-    public static final class Techno {
-        String version;
-        @SerializedName("working_copy")
-        boolean isWorkingCopy;
-        String name;
-
-        static org.hesperides.domain.technos.entities.Techno toDomainInstance() {
-            return new org.hesperides.domain.technos.entities.Techno();
-        }
+        return new Module.Key(name, version, isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
     }
 
     public Module toDomainInstance() {
@@ -48,9 +37,9 @@ public final class ModuleInput {
                 new Module.Key(
                         name,
                         version,
-                        isWorkingCopy ? Module.Type.workingcopy : Module.Type.release
+                        isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release
                 ),
-                technos.stream().map(techno -> Techno.toDomainInstance()).collect(Collectors.toList()),
+                technos.stream().map(techno -> techno.toDomainInstance()).collect(Collectors.toList()),
                 versionId
         );
     }

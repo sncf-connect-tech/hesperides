@@ -23,27 +23,21 @@ package org.hesperides.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.TechnoUseCases;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.technos.exceptions.TechnoNotFoundException;
-import org.hesperides.domain.technos.queries.TechnoView;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
-import static org.springframework.http.HttpStatus.SEE_OTHER;
 
 @Slf4j
-@Api("/technos")
+@Api("/templates/packages")
 @RestController
-@RequestMapping("/technos")
+@RequestMapping("/templates/packages")
 public class TechnoController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
@@ -53,9 +47,16 @@ public class TechnoController extends BaseController {
     }
 
     @ApiOperation("Create a working copy")
-    @PostMapping
-    public ResponseEntity createWorkingCopy(Principal currentUser, @Valid @RequestBody final TechnoInput techno) {
+    @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    public ResponseEntity createWorkingCopy(Principal currentUser,
+                                            @PathVariable(value = "techno_name") final String technoName,
+                                            @PathVariable(value = "techno_version") final String technoVersion,
+                                            @Valid @RequestBody final TechnoInput techno) {
         log.info("createWorkingCopy {}", techno.toString());
-        return null;
+
+        Techno.Key createdTechnoKey = technoUseCases.createWorkingCopy(techno.toDomainInstance(technoVersion, true), fromPrincipal(currentUser));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(createdTechnoKey);
     }
 }

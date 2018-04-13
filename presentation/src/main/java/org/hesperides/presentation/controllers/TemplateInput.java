@@ -3,7 +3,7 @@ package org.hesperides.presentation.controllers;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.Template;
 
 import javax.validation.constraints.NotNull;
 

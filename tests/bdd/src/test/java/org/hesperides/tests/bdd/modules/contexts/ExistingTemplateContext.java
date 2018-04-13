@@ -1,7 +1,7 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.presentation.controllers.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.beans.factory.annotation.Autowired;

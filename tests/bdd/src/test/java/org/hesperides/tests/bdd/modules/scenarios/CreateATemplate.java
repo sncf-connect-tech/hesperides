@@ -1,7 +1,7 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.hesperides.presentation.controllers.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;

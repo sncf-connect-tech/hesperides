@@ -1,4 +1,4 @@
-package org.hesperides.domain.modules.entities;
+package org.hesperides.domain.templatecontainer.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class Template {
     String content;
     Rights rights;
     Long versionId;
-    Module.Key moduleKey;
+    TemplateContainer.Key moduleKey;
 
     @Data
     @NoArgsConstructor
