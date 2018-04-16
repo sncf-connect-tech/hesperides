@@ -1,6 +1,7 @@
 package org.hesperides.infrastructure.elasticsearch.modules;
 
 import org.hesperides.domain.modules.entities.Module;
+import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ElasticsearchModuleRepository extends ElasticsearchRepository<ModuleDocument, String> {
 
-    List<ModuleDocument> findAll();
+    Page<ModuleDocument> findAll();
 
     ModuleDocument findOneByNameAndVersionAndVersionType(String name, String version, Module.Type versionType);
 

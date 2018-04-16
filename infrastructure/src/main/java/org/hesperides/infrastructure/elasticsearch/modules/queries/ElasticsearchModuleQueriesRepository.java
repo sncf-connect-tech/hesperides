@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,8 +32,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
     @QueryHandler
     @Override
     public Optional<ModuleView> query(ModuleByIdQuery query) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
+        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
                 query.getModuleKey().getVersionType());
@@ -53,6 +53,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
     @Override
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         return elasticsearchModuleRepository.findAll()
+                .getContent()
                 .stream()
                 .map(ModuleDocument::getName)
                 .collect(Collectors.toList());
@@ -85,14 +86,10 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
     @QueryHandler
     @Override
     public Boolean query(ModuleAlreadyExistsQuery query) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
+        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
                 query.getModuleKey().getVersionType());
-        if (moduleDocument != null) {
-            return true;
-        }
-        return false;
+        return moduleDocument != null;
     }
 }
