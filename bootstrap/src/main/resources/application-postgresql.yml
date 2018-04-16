@@ -2,9 +2,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/hesperides
-    username: user
-    password: password
+    url: jdbc:postgresql://${POSTGRESQL_HOST:localhost}:${POSTGRESQL_PORT:5432}/${POSTGRESQL_DATABASE:hesperides}
+    username: ${POSTGRESQL_DATABASE_USERNAME}
+    password: ${POSTGRESQL_DATABASE_PASSWORD}
   jpa:
     hibernate.ddl-auto: create-drop
     properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect

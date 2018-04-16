@@ -29,11 +29,11 @@ See branch `master` for the production version
 
  * Docker (see docker-compose & Dockerfile files)
 
-and
+and one of these:
 
- * elasticSearch 1.7.5
-
- * redis 3.0.3
+ * elasticSearch
+ * mongo
+ * postgresql
 
 ## Build
 
@@ -61,14 +61,20 @@ Some variables are set as environment variables:
 * ELASTICSEARCH_PORT
 * ELASTICSEARCH_INDEX
 
-* REDIS_HOST
-* REDIS_PORT
+* MONGO_HOST
+* MONGO_PORT
+
+* POSTGRESQL_HOST
+* POSTGRESQL_PORT
+* POSTGRESQL_DATABASE
+* POSTGRESQL_DATABASE_USERNAME
+* POSTGRESQL_DATABASE_PASSWORD
 
 See `boostrap/src/main/resources/application.yml`
 
-Run Elasticsearch and Redis via Docker
+Run backend via Docker
 
-    docker-compose -f docker-compose-dev.yml up -d
+    docker-compose -f docker-compose-[BACKEND].yml up -d
 
 Run backend manually
 
@@ -78,7 +84,7 @@ Run backend using Docker
 
     docker run -d [-e ENV_VAR=ENV_VALUE] -p 8080:8080 --network hesperides_hesperides-network hesperides/hesperides-spring
     
-Run without redis, ldap or elasticsearch
+Run without ldap or elasticsearch
 
     java -jar bootstrap/target/hesperides-spring.jar -Dspring.profiles.active=noldap,local
 
