@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
+import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
+import org.hesperides.domain.modules.commands.TemplateCommandsRepository;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.domain.modules.queries.TemplateRepository;
+import org.hesperides.domain.modules.queries.TemplateQueriesRepository;
 import org.hesperides.domain.modules.queries.TemplateView;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
@@ -23,14 +25,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @Profile("local")
-public class LocalModuleRepository implements ModuleQueriesRepository, TemplateRepository {
+public class LocalModuleRepository implements ModuleCommandsRepository, ModuleQueriesRepository, TemplateCommandsRepository, TemplateQueriesRepository {
 
     private final Map<Module.Key, ModuleView> MODULE_MAP = Maps.newHashMap();
     private final Map<Pair<Module.Key, String>, TemplateView> TEMPLATE_VIEW_MAP = Maps.newHashMap();
     private final Map<Pair<Module.Key, String>, TemplateContent> TEMPLATE_CONTENT_MAP = Maps.newHashMap();
 
+
+    @Override
     @EventSourcingHandler
-    @SuppressWarnings("unused")
     public void on(ModuleCreatedEvent event) {
         log.debug("handling event {}", event);
         MODULE_MAP.put(event.getModule().getKey(),
@@ -43,8 +46,8 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
         );
     }
 
+    @Override
     @EventSourcingHandler
-    @SuppressWarnings("unused")
     public void on(ModuleUpdatedEvent event) {
         log.debug("handling event {}", event);
         MODULE_MAP.put(event.getModule().getKey(),
@@ -57,15 +60,15 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
         );
     }
 
+    @Override
     @EventSourcingHandler
-    @SuppressWarnings("unused")
     public void on(ModuleDeletedEvent event) {
         log.debug("handling event {}", event);
         MODULE_MAP.remove(event.getModule().getKey());
     }
 
+    @Override
     @EventSourcingHandler
-    @SuppressWarnings("unused")
     public void on(TemplateCreatedEvent event) {
         log.debug("handling event {}", event);
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
@@ -80,8 +83,8 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
 
+    @Override
     @EventSourcingHandler
-    @SuppressWarnings("unused")
     public void on(TemplateUpdatedEvent event) {
         log.debug("handling event {}", event);
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
@@ -96,8 +99,8 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
     }
 
+    @Override
     @EventSourcingHandler
-    @SuppressWarnings("unused")
     public void on(TemplateDeletedEvent event) {
         log.debug("handling event {}", event);
         Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplateName());
@@ -105,21 +108,25 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
         TEMPLATE_CONTENT_MAP.remove(key);
     }
 
+    @Override
     @QueryHandler
     public Boolean query(ModuleAlreadyExistsQuery query) {
         return query(new ModuleByIdQuery(query.getModuleKey())).isPresent();
     }
 
+    @Override
     @QueryHandler
     public Optional<ModuleView> query(ModuleByIdQuery query) {
         return Optional.ofNullable(MODULE_MAP.get(query.getModuleKey()));
     }
 
+    @Override
     @QueryHandler
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
         return ImmutableList.copyOf(MODULE_MAP.keySet()).stream().map(Module.Key::getName).collect(Collectors.toList());
     }
 
+    @Override
     @QueryHandler
     public List<String> queryModuleTypes(ModuleTypesQuery query) {
         return ImmutableList.copyOf(MODULE_MAP.values()).stream()
@@ -129,6 +136,7 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
                 .collect(Collectors.toList());
     }
 
+    @Override
     @QueryHandler
     public List<String> queryModuleVersions(ModuleVersionsQuery query) {
         return ImmutableList.copyOf(MODULE_MAP.values()).stream()

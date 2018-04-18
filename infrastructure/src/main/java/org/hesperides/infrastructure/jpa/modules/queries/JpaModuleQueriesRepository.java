@@ -1,12 +1,12 @@
-package org.hesperides.infrastructure.postgresql.modules.queries;
+package org.hesperides.infrastructure.jpa.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.infrastructure.postgresql.modules.ModuleEntity;
-import org.hesperides.infrastructure.postgresql.modules.PostgresqlModuleRepository;
+import org.hesperides.infrastructure.jpa.modules.ModuleEntity;
+import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Profile("postgresql")
+@Profile("jpa")
 @Component
-public class PostgresqlModuleQueriesRepository implements ModuleQueriesRepository {
+public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
-    private final PostgresqlModuleRepository postgresqlModuleRepository;
+    private final JpaModuleRepository jpaModuleRepository;
 
     @Autowired
-    public PostgresqlModuleQueriesRepository(PostgresqlModuleRepository postgresqlModuleRepository) {
-        this.postgresqlModuleRepository = postgresqlModuleRepository;
+    public JpaModuleQueriesRepository(JpaModuleRepository jpaModuleRepository) {
+        this.jpaModuleRepository = jpaModuleRepository;
     }
 
     @QueryHandler
@@ -37,7 +37,7 @@ public class PostgresqlModuleQueriesRepository implements ModuleQueriesRepositor
         );
         ModuleEntity moduleEntity = new ModuleEntity();
         moduleEntity.setModuleEntityId(id);
-        moduleEntity = postgresqlModuleRepository.findOne(id);
+        moduleEntity = jpaModuleRepository.findOne(id);
         if (moduleEntity == null) {
             return Optional.empty();
         }
@@ -54,7 +54,7 @@ public class PostgresqlModuleQueriesRepository implements ModuleQueriesRepositor
     @QueryHandler
     @Override
     public List<String> queryAllModuleNames(ModulesNamesQuery query) {
-        return postgresqlModuleRepository.findAll()
+        return jpaModuleRepository.findAll()
                 .stream()
                 .map(ModuleEntity::getModuleEntityId)
                 .map(ModuleEntity.ModuleEntityId::getName)
@@ -71,7 +71,7 @@ public class PostgresqlModuleQueriesRepository implements ModuleQueriesRepositor
         );
         ModuleEntity moduleEntity = new ModuleEntity();
         moduleEntity.setModuleEntityId(id);
-        return postgresqlModuleRepository.findAll(Example.of(moduleEntity))
+        return jpaModuleRepository.findAll(Example.of(moduleEntity))
                 .stream()
                 .map(ModuleEntity::getModuleEntityId)
                 .map(ModuleEntity.ModuleEntityId::getVersionType)
@@ -89,7 +89,7 @@ public class PostgresqlModuleQueriesRepository implements ModuleQueriesRepositor
         );
         ModuleEntity moduleEntity = new ModuleEntity();
         moduleEntity.setModuleEntityId(id);
-        return postgresqlModuleRepository.findAll(Example.of(moduleEntity))
+        return jpaModuleRepository.findAll(Example.of(moduleEntity))
                 .stream()
                 .map(ModuleEntity::getModuleEntityId)
                 .map(ModuleEntity.ModuleEntityId::getVersion)
@@ -106,7 +106,7 @@ public class PostgresqlModuleQueriesRepository implements ModuleQueriesRepositor
         );
         ModuleEntity moduleEntity = new ModuleEntity();
         moduleEntity.setModuleEntityId(id);
-        return postgresqlModuleRepository.exists(Example.of(moduleEntity));
+        return jpaModuleRepository.exists(Example.of(moduleEntity));
     }
 
 }

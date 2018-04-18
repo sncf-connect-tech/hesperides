@@ -1,18 +1,14 @@
 package org.hesperides.infrastructure.elasticsearch.modules;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.hesperides.domain.modules.entities.Module;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(indexName = "hesperides", type = "modules")
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
+@Profile("elasticsearch")
+@Document(indexName = "#{@indexName}", type = "module")
+@Data
 public class ModuleDocument {
     @Id
     String id;
