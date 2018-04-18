@@ -2,9 +2,13 @@ package org.hesperides.application;
 
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
-import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoQueries;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Techno
@@ -21,19 +25,21 @@ public class TechnoUseCases {
     }
 
     /**
-     * creer une working copy, vérifie que le techno n'existe pas déjà.
-     * <p>
-     * On test si le techno existe déjà ou pas dans cette couche car un aggregat (un techno)
-     * n'as pas accès aux autres aggregats.
+     * Crée la techno si elle n'existe pas
+     * Ajoute un template à cette techno
      *
-     * @param techno
+     * @param technoKey
+     * @param template
      * @param user
-     * @return
      */
-    public Techno.Key createWorkingCopy(Techno techno, User user) {
-        /*if (queries.technoExist(techno.getKey())) {
-            throw new DuplicateTechnoException(techno.getKey());
-        }*/
-        return commands.createTechno(techno, user);
+    public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
+        if (!queries.technoExists(technoKey)) {
+            commands.createTechno(technoKey, user);
+        }
+        commands.addTemplate(technoKey, template, user);
+    }
+
+    public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
+        return queries.getTemplate(technoKey, templateName);
     }
 }

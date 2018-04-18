@@ -1,9 +1,10 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.technos.queries.TechnoView;
-import org.hesperides.presentation.controllers.RightsInput;
-import org.hesperides.presentation.controllers.TechnoInput;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.inputs.RightsInput;
+import org.hesperides.presentation.inputs.TechnoInput;
+import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.http.ResponseEntity;
 
@@ -19,26 +20,30 @@ public class CreateATechno extends CucumberSpringBean implements En {
     public CreateATechno() {
         Given("^a techno to create$", () -> {
             technoInput = new TechnoInput(
+                    "technoName",
+                    "technoVersion",
+                    true,
+                    new TemplateInput(
                     "fichierTest",
                     "test.json",
                     "/home/test",
                     "{test:test}",
-                    -1L,
-                    "packages#testtechno#1.2.3#WORKINGCOPY",
                     new RightsInput(
                             new RightsInput.FileRights(null, null, null),
                             new RightsInput.FileRights(null, null, null),
                             null
-                    ));
+                    ), -1L));
         });
 
         When("^creating a new techno$", () -> {
-            technoLocation = rest.postForLocationReturnAbsoluteURI("/templates/packages/testtechno/1.2.3/workingcopy/templates", technoInput);
+            technoLocation = rest.postForLocationReturnAbsoluteURI(
+                    String.format("/templates/packages/%s/%s/workingcopy/templates", technoInput.getName(), technoInput.getVersion()),
+                    technoInput.getTemplate());
         });
 
 
         Then("^the techno is successfully created$", () -> {
-            ResponseEntity<TechnoView> responseEntity = rest.getForEntity(technoLocation, TechnoView.class);
+            ResponseEntity<TemplateView> responseEntity = rest.getForEntity(technoLocation, TemplateView.class);
             assertEquals(1L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });

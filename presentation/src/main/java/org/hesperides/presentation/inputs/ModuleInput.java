@@ -1,4 +1,4 @@
-package org.hesperides.presentation.controllers;
+package org.hesperides.presentation.inputs;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
@@ -7,6 +7,8 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,18 +30,22 @@ public final class ModuleInput {
     @SerializedName("version_id")
     Long versionId;
 
-    Module.Key getKey() {
+    public Module.Key getDomaineModuleKey() {
         return new Module.Key(name, version, isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
     }
 
     public Module toDomainInstance() {
         return new Module(
-                new Module.Key(
+                new TemplateContainer.Key(
                         name,
                         version,
                         isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release
                 ),
-                technos.stream().map(techno -> techno.toDomainInstance()).collect(Collectors.toList()),
+                /**
+                 * TODO Vérifier qu'un input module ne contient jamais de technos ni de templates
+                 */
+                Collections.emptyList(),
+                Collections.emptyList(),
                 versionId
         );
     }

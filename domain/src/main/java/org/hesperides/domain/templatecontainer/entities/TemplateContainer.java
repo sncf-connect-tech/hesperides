@@ -4,6 +4,8 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 
 import java.net.URI;
+import java.util.List;
+
 @Value
 @NonFinal
 public abstract class TemplateContainer {
@@ -47,5 +49,5 @@ public abstract class TemplateContainer {
     }
 
     Key key;
-    Long versionId;
+    List<Template> templates;
 }

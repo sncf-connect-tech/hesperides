@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.modules.contexts;
 import com.google.common.collect.ImmutableSet;
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.presentation.controllers.ModuleInput;
+import org.hesperides.presentation.inputs.ModuleInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 
 import java.net.URI;

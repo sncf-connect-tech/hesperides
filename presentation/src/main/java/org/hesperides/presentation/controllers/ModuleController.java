@@ -28,6 +28,8 @@ import org.hesperides.application.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.presentation.inputs.ModuleInput;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
@@ -48,6 +51,7 @@ public class ModuleController extends BaseController {
 
     private final ModuleUseCases moduleUseCases;
 
+    @Autowired
     public ModuleController(ModuleUseCases moduleUseCases) {
         this.moduleUseCases = moduleUseCases;
     }
@@ -116,7 +120,7 @@ public class ModuleController extends BaseController {
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
             Module.Key from = new Module.Key(fromModuleName, fromModuleVersion, isFromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
-            createdModuleKey = moduleUseCases.createWorkingCopyFrom(from, module.getKey());
+            createdModuleKey = moduleUseCases.createWorkingCopyFrom(from, module.getDomaineModuleKey());
         }
 
         return ResponseEntity.status(SEE_OTHER).location(createdModuleKey.getURI()).build();
@@ -140,7 +144,7 @@ public class ModuleController extends BaseController {
         log.info("deleteWorkingCopy {} {}", moduleName, moduleVersion);
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
-        Module module = new Module(moduleKey, new ArrayList<>(), Long.MIN_VALUE);
+        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
 
         moduleUseCases.deleteWorkingCopy(module, fromPrincipal(currentUser));
 
@@ -159,10 +163,12 @@ public class ModuleController extends BaseController {
         log.info("deleteRelease {} {}", moduleName, moduleVersion);
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
-        Module module = new Module(moduleKey, new ArrayList<>(), Long.MIN_VALUE);
+        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
 
+        // TODO N'envoyer que la clé
         moduleUseCases.deleteRelease(module, fromPrincipal(currentUser));
 
+        // TODO Pourquoi vérifier après la suppression ?
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 

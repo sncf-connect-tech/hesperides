@@ -24,7 +24,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.TechnoUseCases;
-import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.presentation.inputs.TemplateInput;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,21 +45,63 @@ public class TechnoController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
 
+    @Autowired
     public TechnoController(TechnoUseCases technoUseCases) {
         this.technoUseCases = technoUseCases;
     }
 
-    @ApiOperation("Create a working copy")
+    //https://hesperides-dev:56789/rest/templates/packages/techno-tlh/1.0/workingcopy/templates
+
+    /**
+     * {
+     *   "name": "techno-template",
+     *   "filename": "techno-template.json",
+     *   "location": "/location",
+     *   "content": "foo",
+     *   "version_id": -1,
+     *   "rights": {
+     *     "user": {},
+     *     "group": {}
+     *   }
+     * }
+     */
+
+    /**
+     *  {
+     *     "name": "techno-template",
+     *     "namespace": "packages#techno-tlh#1.0#WORKINGCOPY",
+     *     "filename": "techno-template.json",
+     *     "location": "/location",
+     *     "content": "foo",
+     *     "rights": {
+     *       "user": {
+     *         "read": null,
+     *         "write": null,
+     *         "execute": null
+     *       },
+     *       "group": {
+     *         "read": null,
+     *         "write": null,
+     *         "execute": null
+     *       },
+     *       "other": null
+     *     },
+     *     "version_id": 1
+     *   }
+     */
+
+    @ApiOperation("Add a template to a techno working copy")
     @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
-    public ResponseEntity createWorkingCopy(Principal currentUser,
-                                            @PathVariable(value = "techno_name") final String technoName,
-                                            @PathVariable(value = "techno_version") final String technoVersion,
-                                            @Valid @RequestBody final TechnoInput techno) {
-        log.info("createWorkingCopy {}", techno.toString());
+    public ResponseEntity<TemplateView> createWorkingCopy(Principal currentUser,
+                                                          @PathVariable(value = "techno_name") final String technoName,
+                                                          @PathVariable(value = "techno_version") final String technoVersion,
+                                                          @Valid @RequestBody final TemplateInput templateInput) {
+        log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
 
-        Techno.Key createdTechnoKey = technoUseCases.createWorkingCopy(techno.toDomainInstance(technoVersion, true), fromPrincipal(currentUser));
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.Type.workingcopy);
+        technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromPrincipal(currentUser));
+        TemplateView templateView = technoUseCases.getTemplate(technoKey, templateInput.getName()).get();
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(createdTechnoKey);
+        return ResponseEntity.status(HttpStatus.CREATED).body(templateView);
     }
 }

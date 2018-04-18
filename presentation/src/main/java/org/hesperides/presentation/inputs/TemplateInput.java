@@ -1,4 +1,4 @@
-package org.hesperides.presentation.controllers;
+package org.hesperides.presentation.inputs;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
@@ -18,12 +18,12 @@ public class TemplateInput {
     @NotNull
     String content;
     @NotNull
-    Template.Rights rights;
+    RightsInput rights;
     @NotNull
     @SerializedName("version_id")
     Long versionId;
 
     public Template toDomainInstance(final Module.Key moduleKey) {
-        return new Template(name, filename, location, content, rights, versionId, moduleKey);
+        return new Template(name, filename, location, content, rights.toDomainInstance(), versionId, moduleKey);
     }
 }

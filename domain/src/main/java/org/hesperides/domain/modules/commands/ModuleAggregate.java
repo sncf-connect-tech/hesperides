@@ -11,7 +11,7 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.modules.exceptions.OutOfDateVersionException;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 
 import java.io.Serializable;
@@ -45,6 +45,7 @@ class ModuleAggregate implements Serializable {
         // Initialise le version_id
         Module module = new Module(
                 command.getModule().getKey(),
+                command.getModule().getTemplates(),
                 command.getModule().getTechnos(),
                 1L);
         apply(new ModuleCreatedEvent(module, command.getUser()));
@@ -56,6 +57,7 @@ class ModuleAggregate implements Serializable {
         // Met à jour le version_id
         Module moduleWithUpdatedVersionId = new Module(
                 command.getModule().getKey(),
+                command.getModule().getTemplates(),
                 command.getModule().getTechnos(),
                 command.getModule().getVersionId() + 1);
         apply(new ModuleUpdatedEvent(moduleWithUpdatedVersionId, command.getUser()));

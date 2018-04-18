@@ -1,11 +1,15 @@
 package org.hesperides.domain.technos.entities;
 
 import lombok.Value;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+
+import java.util.List;
 
 @Value
 public class Techno extends TemplateContainer {
-    public Techno(Key key, Long versionId) {
-        super(key, versionId);
+
+    public Techno(Key key, List<Template> templates) {
+        super(key, templates);
     }
 }

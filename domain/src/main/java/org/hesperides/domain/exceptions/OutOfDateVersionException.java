@@ -1,4 +1,4 @@
-package org.hesperides.domain.modules.exceptions;
+package org.hesperides.domain.exceptions;
 
 public class OutOfDateVersionException extends RuntimeException {
     public OutOfDateVersionException(final long expected, final long actual) {

@@ -4,9 +4,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hesperides.application.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
-import org.hesperides.domain.modules.queries.TemplateView;
+import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.inputs.TemplateInput;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,7 @@ public class TemplateController extends BaseController {
 
     private final ModuleUseCases moduleUseCases;
 
+    @Autowired
     public TemplateController(ModuleUseCases moduleUseCases) {
         this.moduleUseCases = moduleUseCases;
     }
