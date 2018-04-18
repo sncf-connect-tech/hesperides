@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * stock et query les templates
  */
-public interface TemplateRepository {
+public interface TemplateQueriesRepository {
     @QueryHandler
     Optional<TemplateView> queryTemplateByName(TemplateByNameQuery query);
 }

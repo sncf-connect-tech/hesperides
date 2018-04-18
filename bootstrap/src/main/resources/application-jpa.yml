@@ -1,0 +1,10 @@
+---
+spring:
+  datasource:
+    driver-class-name: ${JPA_DRIVER_CLASS:org.postgresql.Driver}
+    url: jdbc:${JPA_DATABASE_TYPE:postgresql}://${JPA_HOST:localhost}:${JPA_PORT:5432}/${JPA_DATABASE:hesperides}
+    username: ${JPA_DATABASE_USERNAME}
+    password: ${JPA_DATABASE_PASSWORD}
+  jpa:
+    hibernate.ddl-auto: create-drop
+    properties.hibernate.dialect: ${JPA_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}

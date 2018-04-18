@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.postgresql.eventstores;
+package org.hesperides.infrastructure.jpa.eventstores;
 
 import org.axonframework.common.jdbc.ConnectionProvider;
 import org.axonframework.common.transaction.NoTransactionManager;
@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Profile;
 import javax.sql.DataSource;
 
 @Configuration
-@Profile("postgresql")
-public class AxonPostgresqlEventStoreConfiguration {
+@Profile("jpa")
+public class AxonJpaEventStoreConfiguration {
 
     @Bean
     public SpringDataSourceConnectionProvider springDataSourceConnectionProvider(DataSource dataSource) {

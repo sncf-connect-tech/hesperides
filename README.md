@@ -33,7 +33,7 @@ and one of these:
 
  * elasticSearch
  * mongo
- * postgresql
+ * jpa
 
 ## Build
 
@@ -64,11 +64,11 @@ Some variables are set as environment variables:
 * MONGO_HOST
 * MONGO_PORT
 
-* POSTGRESQL_HOST
-* POSTGRESQL_PORT
-* POSTGRESQL_DATABASE
-* POSTGRESQL_DATABASE_USERNAME
-* POSTGRESQL_DATABASE_PASSWORD
+* JPA_HOST
+* JPA_PORT
+* JPA_DATABASE
+* JPA_DATABASE_USERNAME
+* JPA_DATABASE_PASSWORD
 
 See `boostrap/src/main/resources/application.yml`
 

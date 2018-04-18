@@ -1,4 +1,4 @@
-package org.hesperides.infrastructure.postgresql.modules.commands;
+package org.hesperides.infrastructure.jpa.modules.commands;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.hesperides.domain.modules.ModuleCreatedEvent;
@@ -6,21 +6,21 @@ import org.hesperides.domain.modules.ModuleDeletedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
-import org.hesperides.infrastructure.postgresql.modules.ModuleEntity;
-import org.hesperides.infrastructure.postgresql.modules.PostgresqlModuleRepository;
+import org.hesperides.infrastructure.jpa.modules.ModuleEntity;
+import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile("postgresql")
+@Profile("jpa")
 @Component
-public class PostgresqlModuleCommandsRepository implements ModuleCommandsRepository {
+public class JpaModuleCommandsRepository implements ModuleCommandsRepository {
 
-    private final PostgresqlModuleRepository postgresqlModuleRepository;
+    private final JpaModuleRepository jpaModuleRepository;
 
     @Autowired
-    public PostgresqlModuleCommandsRepository(PostgresqlModuleRepository postgresqlModuleRepository) {
-        this.postgresqlModuleRepository = postgresqlModuleRepository;
+    public JpaModuleCommandsRepository(JpaModuleRepository jpaModuleRepository) {
+        this.jpaModuleRepository = jpaModuleRepository;
     }
 
     @EventSourcingHandler
@@ -32,7 +32,7 @@ public class PostgresqlModuleCommandsRepository implements ModuleCommandsReposit
                 module.getKey().getVersion(),
                 module.getKey().getVersionType()
         );
-        postgresqlModuleRepository.save(
+        jpaModuleRepository.save(
                 new ModuleEntity(
                         id,
                         module.getVersionId()
@@ -49,7 +49,7 @@ public class PostgresqlModuleCommandsRepository implements ModuleCommandsReposit
                 module.getKey().getVersion(),
                 module.getKey().getVersionType()
         );
-        postgresqlModuleRepository.save(
+        jpaModuleRepository.save(
                 new ModuleEntity(
                         id,
                         module.getVersionId()
@@ -66,7 +66,7 @@ public class PostgresqlModuleCommandsRepository implements ModuleCommandsReposit
                 module.getKey().getVersion(),
                 module.getKey().getVersionType()
         );
-        postgresqlModuleRepository.delete(id);
+        jpaModuleRepository.delete(id);
     }
 
 }
