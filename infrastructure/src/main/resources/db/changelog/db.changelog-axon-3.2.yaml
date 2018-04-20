@@ -166,7 +166,7 @@ databaseChangeLog:
                     primaryKey: true
               - column:
                   name: association_key
-                  type: bigint
+                  type: varchar(255)
                   constraints:
                     nullable: false
               - column:

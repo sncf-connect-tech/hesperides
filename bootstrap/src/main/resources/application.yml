@@ -14,3 +14,5 @@ ldap:
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:1000}
   readTimeout: ${LDAP_READ_TIMEOUT:1000}
+
+liquibase.enabled: false
