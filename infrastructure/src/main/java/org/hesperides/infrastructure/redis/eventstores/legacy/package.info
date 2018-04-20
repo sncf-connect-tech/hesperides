@@ -1,3 +1,0 @@
-Ce package contient le codec permettant de faire le mapping entre les évènements stockés dans le Redis et les évènements de la nouvelle application.
-
-La base de la structure existante correspond à la classe LegacyEvent. Toutes les autres classes *Event correspondent au champ data de cette classe.

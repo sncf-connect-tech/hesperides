@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: victorsalaun
+      changes:
+        - createTable:
+            tableName: module
+            columns:
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version_type
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version_id
+                  type: bigint
+        - addPrimaryKey:
+            columnNames: name, version, version_type
+            constraintName: pk_module
+            schemaName: public
+            tableName: module
