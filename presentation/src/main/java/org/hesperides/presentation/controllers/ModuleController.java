@@ -47,6 +47,7 @@ import static org.springframework.http.HttpStatus.SEE_OTHER;
 @Api("/modules")
 @RestController
 @RequestMapping("/modules")
+@CrossOrigin
 public class ModuleController extends BaseController {
 
     private final ModuleUseCases moduleUseCases;

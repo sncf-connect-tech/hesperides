@@ -1,18 +1,12 @@
 package org.hesperides.infrastructure.mongo.modules;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.hesperides.domain.modules.entities.Module;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
+@Document(collection = "module")
+@Data
 public class ModuleDocument {
 
     @Id

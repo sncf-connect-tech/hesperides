@@ -68,15 +68,6 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>redis:3.0.3</name>
-                                    <alias>redis</alias>
-                                    <run>
-                                        <ports>
-                                            <port>6379:6379</port>
-                                        </ports>
-                                    </run>
-                                </image>
-                                <image>
                                     <name>elasticsearch:1.7.5</name>
                                     <alias>search</alias>
                                     <run>
