@@ -1,0 +1,13 @@
+databaseChangeLog:
+
+#
+# Axon Framework changes
+#
+  - include:
+      file: classpath:db/changelog/db.changelog-axon-3.2.yaml
+
+#
+# Hesperides changes
+#
+  - include:
+      file: classpath:db/changelog/db.changelog-hesperides-1.0.yaml

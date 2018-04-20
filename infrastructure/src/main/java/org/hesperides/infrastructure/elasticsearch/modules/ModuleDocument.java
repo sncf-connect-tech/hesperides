@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 @Profile("elasticsearch")
-@Document(indexName = "#{@indexName:elasticsearch}", type = "module")
+@Document(indexName = "#{@indexName}", type = "module")
 @Data
 public class ModuleDocument {
     @Id

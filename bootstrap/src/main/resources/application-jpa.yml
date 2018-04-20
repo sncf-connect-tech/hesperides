@@ -6,5 +6,8 @@ spring:
     username: ${JPA_DATABASE_USERNAME}
     password: ${JPA_DATABASE_PASSWORD}
   jpa:
+<<<<<<< HEAD
     hibernate.ddl-auto: create-drop
+=======
+>>>>>>> feature/versioning
     properties.hibernate.dialect: ${JPA_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
