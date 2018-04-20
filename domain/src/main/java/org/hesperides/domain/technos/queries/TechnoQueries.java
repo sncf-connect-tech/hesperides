@@ -16,7 +16,7 @@ public class TechnoQueries extends Queries {
         super(queryGateway);
     }
 
-    public boolean technoExists(TemplateContainer.Key newTechnoKey) {
+    public Boolean technoExists(TemplateContainer.Key newTechnoKey) {
         return querySync(new TechnoAlreadyExistsQuery(newTechnoKey), Boolean.class);
     }
 

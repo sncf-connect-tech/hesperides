@@ -50,46 +50,6 @@ public class TechnoController extends BaseController {
         this.technoUseCases = technoUseCases;
     }
 
-    //https://hesperides-dev:56789/rest/templates/packages/techno-tlh/1.0/workingcopy/templates
-
-    /**
-     * {
-     *   "name": "techno-template",
-     *   "filename": "techno-template.json",
-     *   "location": "/location",
-     *   "content": "foo",
-     *   "version_id": -1,
-     *   "rights": {
-     *     "user": {},
-     *     "group": {}
-     *   }
-     * }
-     */
-
-    /**
-     * {
-     * "name": "techno-template",
-     * "namespace": "packages#techno-tlh#1.0#WORKINGCOPY",
-     * "filename": "techno-template.json",
-     * "location": "/location",
-     * "content": "foo",
-     * "rights": {
-     * "user": {
-     * "read": null,
-     * "write": null,
-     * "execute": null
-     * },
-     * "group": {
-     * "read": null,
-     * "write": null,
-     * "execute": null
-     * },
-     * "other": null
-     * },
-     * "version_id": 1
-     * }
-     */
-
     @ApiOperation("Add a template to a techno working copy")
     @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
     public ResponseEntity<TemplateView> createWorkingCopy(Principal currentUser,

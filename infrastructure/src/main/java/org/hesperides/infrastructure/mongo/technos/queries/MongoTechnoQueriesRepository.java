@@ -51,6 +51,11 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     public Optional<TemplateView> query(GetTemplateQuery query) {
         Optional<TemplateView> result = Optional.empty();
 
+        /**
+         * C'est moche mais je ne sais pas comment récupérer un template dans la collection de technos
+         * à partir de la clé de la techno et du nom unique du template
+         * TODO Améliorer
+         */
         TechnoDocument technoDocumentSample = TechnoDocument.fromDomainKey(query.getTechnoKey());
         TechnoDocument technoDocument = repository.findOne(Example.of(technoDocumentSample));
         for (TemplateDocument templateDocument : technoDocument.getTemplates()) {
@@ -60,9 +65,6 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
             }
         }
         return result;
-//        String templateName = query.getTemplateName();
-//        TemplateDocument templateDocument = repository.findTemplate(templateName);
-//        return Optional.of(templateDocument.toTemplateView());
     }
 
     @QueryHandler

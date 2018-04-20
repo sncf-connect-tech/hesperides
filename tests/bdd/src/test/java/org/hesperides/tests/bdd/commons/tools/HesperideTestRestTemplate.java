@@ -41,6 +41,10 @@ public class HesperideTestRestTemplate {
         rest.getRestTemplate().setMessageConverters(converters);
     }
 
+    public TestRestTemplate getTestRestTemplate() {
+        return rest;
+    }
+
     /**
      * permet d'executer un appel sans avoir des exceptions qui sortent de partout...
      *
