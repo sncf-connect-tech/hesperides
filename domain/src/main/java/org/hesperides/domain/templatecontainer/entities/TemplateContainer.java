@@ -19,8 +19,8 @@ public abstract class TemplateContainer {
             return URI.create("/rest/modules/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
 
-        public String getNamespace() {
-            return "modules#" + name + "#" + version + "#" + versionType.name().toUpperCase();
+        public String getNamespace(String prefix) {
+            return prefix + "#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
         @Override

@@ -22,20 +22,18 @@ package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 @Data
 public class TemplateDocument {
-    @Id
-    String id;
     String name;
     String filename;
     String location;
     String content;
-    //Rights rights;
+    RightsDocument rights;
     Long versionId;
 
     public static TemplateDocument fromDomain(Template template) {
@@ -44,20 +42,67 @@ public class TemplateDocument {
         templateDocument.setFilename(template.getFilename());
         templateDocument.setLocation(template.getLocation());
         templateDocument.setContent(template.getContent());
-//        templateDocument.setRights(template.getRights()); //TODO
+        templateDocument.setRights(RightsDocument.fromDomain(template.getRights()));
         templateDocument.setVersionId(template.getVersionId());
         return templateDocument;
     }
 
-    public TemplateView toTemplateView() {
+    public TemplateView toTemplateView(TemplateContainer.Key key, String namespacePrefix) {
         return new TemplateView(
                 name,
-                "", //TODO
+                key.getNamespace(namespacePrefix),
                 filename,
                 location,
                 content,
-                null, //todo rights
+                rights.toRightsView(),
                 versionId
         );
+    }
+
+    @Data
+    public static class RightsDocument {
+        FileRightsView user;
+        FileRightsView group;
+        FileRightsView other;
+
+        public static RightsDocument fromDomain(Template.Rights rights) {
+            RightsDocument result = null;
+            if (rights != null) {
+                result = new RightsDocument();
+                result.setUser(FileRightsView.fromDomain(rights.getUser()));
+                result.setGroup(FileRightsView.fromDomain(rights.getGroup()));
+                result.setOther(FileRightsView.fromDomain(rights.getOther()));
+            }
+            return result;
+        }
+
+        public TemplateView.RightsView toRightsView() {
+            TemplateView.FileRightsView userRights = user != null ? user.toFileRightsView() : null;
+            TemplateView.FileRightsView groupRights = group != null ? group.toFileRightsView() : null;
+            TemplateView.FileRightsView otherRights = other != null ? other.toFileRightsView() : null;
+            return new TemplateView.RightsView(userRights, groupRights, otherRights);
+        }
+    }
+
+    @Data
+    public static class FileRightsView {
+        Boolean read;
+        Boolean write;
+        Boolean execute;
+
+        public static FileRightsView fromDomain(Template.FileRights fileRights) {
+            FileRightsView result = null;
+            if (fileRights != null) {
+                result = new FileRightsView();
+                result.setRead(fileRights.getRead());
+                result.setWrite(fileRights.getWrite());
+                result.setExecute(fileRights.getExecute());
+            }
+            return result;
+        }
+
+        public TemplateView.FileRightsView toFileRightsView() {
+            return new TemplateView.FileRightsView(read, write, execute);
+        }
     }
 }

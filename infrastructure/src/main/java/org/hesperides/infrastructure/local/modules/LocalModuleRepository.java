@@ -78,7 +78,7 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
                 template.getFilename(),
                 template.getLocation(),
                 template.getContent(),
-                TemplateView.Rights.fromDomain(template.getRights()),
+                TemplateView.RightsView.fromDomain(template.getRights()),
                 template.getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(template.getContent()));
@@ -97,7 +97,7 @@ public class LocalModuleRepository implements ModuleQueriesRepository, TemplateR
                 template.getFilename(),
                 template.getLocation(),
                 template.getContent(),
-                TemplateView.Rights.fromDomain(template.getRights()),
+                TemplateView.RightsView.fromDomain(template.getRights()),
                 template.getVersionId()
         ));
         TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(template.getContent()));

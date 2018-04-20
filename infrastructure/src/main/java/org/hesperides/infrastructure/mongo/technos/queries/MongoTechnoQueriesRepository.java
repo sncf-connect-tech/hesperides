@@ -23,6 +23,7 @@ package org.hesperides.infrastructure.mongo.technos.queries;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoQueriesRepository;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
@@ -55,12 +55,14 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
         TechnoDocument technoDocument = repository.findOne(Example.of(technoDocumentSample));
         for (TemplateDocument templateDocument : technoDocument.getTemplates()) {
             if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
-                result = Optional.of(templateDocument.toTemplateView());
+                result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
                 break;
             }
         }
-
         return result;
+//        String templateName = query.getTemplateName();
+//        TemplateDocument templateDocument = repository.findTemplate(templateName);
+//        return Optional.of(templateDocument.toTemplateView());
     }
 
     @QueryHandler
