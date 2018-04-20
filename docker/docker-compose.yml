@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+
+  hesperides:
+    build:
+      context: ..
+      dockerfile: ../Dockerfile
+    image: hesperides:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=local,noldap
+    restart: always
+    networks:
+      - hesperides-network
+
+networks:
+
+  hesperides-network:
+    driver: bridge

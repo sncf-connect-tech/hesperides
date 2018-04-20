@@ -1,0 +1,203 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: victorsalaun
+      changes:
+        - createSequence:
+            sequenceName: hibernate_sequence
+        - createTable:
+            tableName: domain_event_entry
+            columns:
+              - column:
+                  name: global_index
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: event_identifier
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: meta_data
+                  type: oid
+              - column:
+                  name: payload
+                  type: oid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload_revision
+                  type: varchar(255)
+              - column:
+                  name: payload_type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_stamp
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: aggregate_identifier
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sequence_number
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+        - addUniqueConstraint:
+            columnNames: aggregate_identifier, sequence_number
+            constraintName: domain_event_entry_unique_constraint
+            tableName: domain_event_entry
+        - createTable:
+            tableName: token_entry
+            columns:
+              - column:
+                  name: processor_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: segment
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner
+                  type: varchar(255)
+              - column:
+                  name: timestamp
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: token
+                  type: oid
+              - column:
+                  name: token_type
+                  type: varchar(255)
+        - addPrimaryKey:
+            columnNames: processor_name, segment
+            constraintName: token_entry_pkey
+            tableName: token_entry
+        - createTable:
+            tableName: saga_entry
+            columns:
+              - column:
+                  name: saga_id
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: revision
+                  type: varchar(255)
+              - column:
+                  name: saga_type
+                  type: varchar(255)
+              - column:
+                  name: serialized_saga
+                  type: oid
+        - createTable:
+            tableName: snapshot_event_entry
+            columns:
+              - column:
+                  name: aggregate_identifier
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sequence_number
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_identifier
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: meta_data
+                  type: oid
+              - column:
+                  name: payload
+                  type: oid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload_revision
+                  type: varchar(255)
+              - column:
+                  name: payload_type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_stamp
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            columnNames: aggregate_identifier, sequence_number, type
+            constraintName: snapshot_event_entry_pkey
+            tableName: snapshot_event_entry
+        - createTable:
+            tableName: association_value_entry
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: association_key
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: association_value
+                  type: varchar(255)
+              - column:
+                  name: saga_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: saga_type
+                  type: varchar(255)
+        - createIndex:
+            tableName: association_value_entry
+            columns:
+            - column:
+                name: saga_type
+                type: varchar(255)
+            - column:
+                name: association_key
+                type: varchar(255)
+            - column:
+                name: association_value
+                type: varchar(255)
+        - createIndex:
+            tableName: association_value_entry
+            columns:
+            - column:
+                name: saga_id
+                type: varchar(255)
+            - column:
+                name: saga_type
+                type: varchar(255)

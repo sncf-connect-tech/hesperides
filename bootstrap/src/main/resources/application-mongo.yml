@@ -1,0 +1,4 @@
+---
+spring.data.mongodb:
+  host: ${MONGO_HOST:localhost}
+  port: ${MONGO_HOST:27017}

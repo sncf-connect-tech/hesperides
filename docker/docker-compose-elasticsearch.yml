@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+
+  elasticsearch:
+    image: "elasticsearch:1.7.5"
+    command: "elasticsearch -Dcluster.name=hesperides"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always
+    networks:
+      - hesperides-network
+
+networks:
+
+  hesperides-network:
+    driver: bridge

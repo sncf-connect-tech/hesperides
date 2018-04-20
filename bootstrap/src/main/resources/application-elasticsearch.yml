@@ -1,0 +1,6 @@
+---
+spring:
+    data:
+      elasticsearch:
+        cluster-name: ${ELASTICSEARCH_INDEX:elasticsearch}
+        cluster-nodes: ${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9300}

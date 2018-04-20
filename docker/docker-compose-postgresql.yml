@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+
+  elasticsearch:
+    image: "postgresql:10.3"
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - hesperides-network
+
+networks:
+
+  hesperides-network:
+    driver: bridge
