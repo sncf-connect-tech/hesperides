@@ -1,6 +1,6 @@
 package org.hesperides.presentation.controllers;
 
-import org.hesperides.application.ModuleUseCases;
+import org.hesperides.application.modules.ModuleUseCases;
 import org.hesperides.presentation.config.TestAppConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;

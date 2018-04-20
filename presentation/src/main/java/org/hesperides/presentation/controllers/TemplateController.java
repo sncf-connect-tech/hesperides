@@ -2,7 +2,7 @@ package org.hesperides.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hesperides.application.ModuleUseCases;
+import org.hesperides.application.modules.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.templatecontainer.entities.Template;

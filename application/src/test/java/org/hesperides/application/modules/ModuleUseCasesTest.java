@@ -1,4 +1,4 @@
-package org.hesperides.application;
+package org.hesperides.application.modules;
 
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
@@ -8,7 +8,9 @@ import org.hesperides.domain.security.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -18,17 +20,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestAppConfig.class)
+@ContextConfiguration(classes = ModuleUseCasesTest.Config.class)
 public class ModuleUseCasesTest {
+    @TestConfiguration
+    static class Config {
+    }
 
     @Autowired
     ModuleUseCases useCases;
-
     @MockBean
-    ModuleQueries queryGateway;
-
+    ModuleQueries moduleQueries;
     @MockBean
-    ModuleCommands commandGateway;
+    ModuleCommands moduleCommands;
 
     @Test(expected = DuplicateModuleException.class)
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {
@@ -36,8 +39,8 @@ public class ModuleUseCasesTest {
         Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
-        given(queryGateway.moduleExist(any())).willReturn(true);
-        given(commandGateway.createModule(any(), any())).willReturn(key);
+        given(moduleQueries.moduleExist(any())).willReturn(true);
+        given(moduleCommands.createModule(any(), any())).willReturn(key);
 
         useCases.createWorkingCopy(module, new User("robert"));
     }
@@ -48,8 +51,8 @@ public class ModuleUseCasesTest {
         Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
-        given(queryGateway.moduleExist(any())).willReturn(false);
-        given(commandGateway.createModule(any(), any())).willReturn(key);
+        given(moduleQueries.moduleExist(any())).willReturn(false);
+        given(moduleCommands.createModule(any(), any())).willReturn(key);
 
         useCases.createWorkingCopy(module, new User("robert"));
     }

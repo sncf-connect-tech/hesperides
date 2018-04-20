@@ -5,6 +5,7 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,7 +16,7 @@ public class ModuleCommands {
 
     private final CommandGateway commandGateway;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
     public ModuleCommands(CommandGateway commandGateway) {
         this.commandGateway = commandGateway;
     }

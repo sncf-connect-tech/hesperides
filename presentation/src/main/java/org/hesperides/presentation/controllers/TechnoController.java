@@ -23,7 +23,7 @@ package org.hesperides.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.hesperides.application.TechnoUseCases;
+import org.hesperides.application.technos.TechnoUseCases;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.inputs.TemplateInput;

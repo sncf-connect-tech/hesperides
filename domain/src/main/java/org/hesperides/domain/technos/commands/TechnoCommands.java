@@ -7,6 +7,7 @@ import org.hesperides.domain.technos.CreateTechnoCommand;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -19,7 +20,7 @@ public class TechnoCommands {
 
     private final CommandGateway commandGateway;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
     public TechnoCommands(CommandGateway commandGateway) {
         this.commandGateway = commandGateway;
     }

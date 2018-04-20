@@ -1,4 +1,4 @@
-package org.hesperides.application;
+package org.hesperides.application.technos;
 
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
@@ -6,6 +6,7 @@ import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class TechnoUseCases {
     private final TechnoCommands commands;
     private final TechnoQueries queries;
 
+    @Autowired
     public TechnoUseCases(TechnoCommands commands, TechnoQueries queries) {
         this.commands = commands;
         this.queries = queries;
