@@ -33,7 +33,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 @Profile("mongo")
 @Repository

@@ -1,8 +1,8 @@
 package org.hesperides.application;
 
-import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.security.User;
 import org.junit.Test;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.mockito.BDDMockito.given;

@@ -1,9 +1,9 @@
 package org.hesperides.infrastructure.elasticsearch;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
@@ -29,7 +29,7 @@ public class ElasticsearchConfiguration {
     private String indexName;
 
     @Bean
-    public String indexName(){
+    public String indexName() {
         return indexName;
     }
 

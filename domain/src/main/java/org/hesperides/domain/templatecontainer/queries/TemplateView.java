@@ -16,6 +16,17 @@ public class TemplateView {
     @SerializedName("version_id")
     Long versionId;
 
+    public static TemplateView fromDomain(Template template, String namespacePrefix) {
+        return new TemplateView(
+                template.getName(),
+                template.getTemplateContainerKey().getNamespace(namespacePrefix),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                RightsView.fromDomain(template.getRights()),
+                template.getVersionId());
+    }
+
     @Value
     public static class RightsView {
         FileRightsView user;
@@ -39,16 +50,5 @@ public class TemplateView {
         public static FileRightsView fromDomain(Template.FileRights fileRights) {
             return new FileRightsView(fileRights.getRead(), fileRights.getWrite(), fileRights.getExecute());
         }
-    }
-
-    public static TemplateView fromDomain(Template template, String namespacePrefix) {
-        return new TemplateView(
-                template.getName(),
-                template.getTemplateContainerKey().getNamespace(namespacePrefix),
-                template.getFilename(),
-                template.getLocation(),
-                template.getContent(),
-                RightsView.fromDomain(template.getRights()),
-                template.getVersionId());
     }
 }

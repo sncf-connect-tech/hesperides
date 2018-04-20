@@ -7,10 +7,8 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Value
 public final class ModuleInput {

@@ -9,6 +9,24 @@ import java.util.List;
 @Value
 @NonFinal
 public abstract class TemplateContainer {
+    Key key;
+    List<Template> templates;
+
+    public enum Type {
+        workingcopy("wc"),
+        release("release");
+
+        private final String minimizedForm;
+
+        Type(String minimizedForm) {
+            this.minimizedForm = minimizedForm;
+        }
+
+        public String getMinimizedForm() {
+            return minimizedForm;
+        }
+    }
+
     @Value
     public static class Key {
         String name;
@@ -32,22 +50,4 @@ public abstract class TemplateContainer {
             return versionType == Type.workingcopy;
         }
     }
-
-    public enum Type {
-        workingcopy("wc"),
-        release("release");
-
-        private final String minimizedForm;
-
-        Type(String minimizedForm) {
-            this.minimizedForm = minimizedForm;
-        }
-
-        public String getMinimizedForm() {
-            return minimizedForm;
-        }
-    }
-
-    Key key;
-    List<Template> templates;
 }

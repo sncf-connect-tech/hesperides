@@ -24,8 +24,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.TechnoUseCases;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.inputs.TemplateInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -67,27 +67,27 @@ public class TechnoController extends BaseController {
      */
 
     /**
-     *  {
-     *     "name": "techno-template",
-     *     "namespace": "packages#techno-tlh#1.0#WORKINGCOPY",
-     *     "filename": "techno-template.json",
-     *     "location": "/location",
-     *     "content": "foo",
-     *     "rights": {
-     *       "user": {
-     *         "read": null,
-     *         "write": null,
-     *         "execute": null
-     *       },
-     *       "group": {
-     *         "read": null,
-     *         "write": null,
-     *         "execute": null
-     *       },
-     *       "other": null
-     *     },
-     *     "version_id": 1
-     *   }
+     * {
+     * "name": "techno-template",
+     * "namespace": "packages#techno-tlh#1.0#WORKINGCOPY",
+     * "filename": "techno-template.json",
+     * "location": "/location",
+     * "content": "foo",
+     * "rights": {
+     * "user": {
+     * "read": null,
+     * "write": null,
+     * "execute": null
+     * },
+     * "group": {
+     * "read": null,
+     * "write": null,
+     * "execute": null
+     * },
+     * "other": null
+     * },
+     * "version_id": 1
+     * }
      */
 
     @ApiOperation("Add a template to a techno working copy")

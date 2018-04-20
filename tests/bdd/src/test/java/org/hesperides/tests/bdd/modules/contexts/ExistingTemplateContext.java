@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.presentation.inputs.RightsInput;
 import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;

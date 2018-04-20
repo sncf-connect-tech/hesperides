@@ -24,15 +24,15 @@ public class CreateATechno extends CucumberSpringBean implements En {
                     "technoVersion",
                     true,
                     new TemplateInput(
-                    "fichierTest",
-                    "test.json",
-                    "/home/test",
-                    "{test:test}",
-                    new RightsInput(
-                            new RightsInput.FileRights(null, null, null),
-                            new RightsInput.FileRights(null, null, null),
-                            null
-                    ), -1L));
+                            "fichierTest",
+                            "test.json",
+                            "/home/test",
+                            "{test:test}",
+                            new RightsInput(
+                                    new RightsInput.FileRights(null, null, null),
+                                    new RightsInput.FileRights(null, null, null),
+                                    null
+                            ), -1L));
         });
 
         When("^creating a new techno$", () -> {

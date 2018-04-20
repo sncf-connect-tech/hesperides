@@ -3,9 +3,9 @@ package org.hesperides.application;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
 import org.hesperides.domain.technos.queries.TechnoQueries;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

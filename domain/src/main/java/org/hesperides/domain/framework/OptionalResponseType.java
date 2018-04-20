@@ -17,6 +17,19 @@ public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
         super(expectedResponseType);
     }
 
+    /**
+     * Specify the desire to retrieve an optional of instance of type {@code R} when performing a query.
+     *
+     * @param type the {@code R} which is expected to be the response type
+     * @param <R>  the generic type of the instantiated
+     *             {@link org.axonframework.queryhandling.responsetypes.ResponseType}
+     * @return a {@link org.axonframework.queryhandling.responsetypes.ResponseType} specifying the desire to retrieve an
+     * optional of instances of type {@code R}
+     */
+    public static <R> ResponseType<Optional<R>> optionalInstancesOf(Class<R> type) {
+        return new OptionalResponseType<>(type);
+    }
+
     @Override
     public boolean matches(Type responseType) {
         return isParameterizedType(responseType) &&
@@ -37,18 +50,5 @@ public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
         } else {
             return Optional.ofNullable((R) response);
         }
-    }
-
-    /**
-     * Specify the desire to retrieve an optional of instance of type {@code R} when performing a query.
-     *
-     * @param type the {@code R} which is expected to be the response type
-     * @param <R>  the generic type of the instantiated
-     *             {@link org.axonframework.queryhandling.responsetypes.ResponseType}
-     * @return a {@link org.axonframework.queryhandling.responsetypes.ResponseType} specifying the desire to retrieve an
-     * optional of instances of type {@code R}
-     */
-    public static <R> ResponseType<Optional<R>> optionalInstancesOf(Class<R> type) {
-        return new OptionalResponseType<>(type);
     }
 }

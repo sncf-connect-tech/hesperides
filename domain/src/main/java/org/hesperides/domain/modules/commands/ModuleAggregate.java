@@ -7,12 +7,12 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
 import java.util.HashMap;
