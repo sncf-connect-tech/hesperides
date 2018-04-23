@@ -27,13 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(org.hesperides.presentation.controllers.BaseController.class)
 @ContextConfiguration(classes = TestAppConfig.class)
-public class ModuleControllerTest {
-
-    @Autowired
-    private MockMvc mvc;
-
-    @MockBean
-    private ModuleUseCases moduleUseCases;
+public class ModuleControllerTest extends AbstractControllerTest {
 
     @Test
     @WithMockUser
