@@ -11,16 +11,16 @@ import java.util.Optional;
  */
 public interface ModuleQueriesRepository {
     @QueryHandler
-    Optional<ModuleView> query(ModuleByIdQuery query);
+    Optional<ModuleView> query(GetModuleByKeyQuery query);
 
     @QueryHandler
-    List<String> queryAllModuleNames(ModulesNamesQuery query);
+    List<String> query(GetModulesNamesQuery query);
 
     @QueryHandler
-    List<String> queryModuleTypes(ModuleTypesQuery query);
+    List<String> query(GetModuleTypesQuery query);
 
     @QueryHandler
-    List<String> queryModuleVersions(ModuleVersionsQuery query);
+    List<String> query(GetModuleVersionsQuery query);
 
     @QueryHandler
     Boolean query(ModuleAlreadyExistsQuery query);

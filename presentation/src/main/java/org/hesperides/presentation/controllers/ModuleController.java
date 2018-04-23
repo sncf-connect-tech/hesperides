@@ -129,10 +129,11 @@ public class ModuleController extends BaseController {
     @ApiOperation("Update a module working copy")
     @PutMapping
     public ResponseEntity updateWorkingCopy(Principal principal,
-                                            @Valid @RequestBody final ModuleInput module) {
-        log.info("Updating module workingcopy {}", module.toString());
-        Module.Key updated = moduleUseCases.updateWorkingCopy(module.toDomainInstance(), fromPrincipal(principal));
-        return ResponseEntity.status(SEE_OTHER).location(updated.getURI()).build();
+                                            @Valid @RequestBody final ModuleInput moduleInput) {
+        log.info("Updating module workingcopy {}", moduleInput.toString());
+        Module module = moduleInput.toDomainInstance();
+        moduleUseCases.updateWorkingCopy(module, fromPrincipal(principal));
+        return ResponseEntity.status(SEE_OTHER).location(module.getKey().getURI()).build();
     }
 
     @ApiOperation("Deletes the working copy")

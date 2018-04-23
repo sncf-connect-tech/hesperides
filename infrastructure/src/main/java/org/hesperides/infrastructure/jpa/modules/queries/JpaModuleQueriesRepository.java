@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Profile("jpa")
+import static org.hesperides.domain.Profiles.JPA;
+
+@Profile(JPA)
 @Component
 public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
@@ -29,7 +31,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public Optional<ModuleView> query(ModuleByIdQuery query) {
+    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -53,7 +55,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> queryAllModuleNames(ModulesNamesQuery query) {
+    public List<String> query(GetModulesNamesQuery query) {
         return jpaModuleRepository.findAll()
                 .stream()
                 .map(ModuleEntity::getModuleEntityId)
@@ -63,7 +65,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> queryModuleTypes(ModuleTypesQuery query) {
+    public List<String> query(GetModuleTypesQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleName(),
                 query.getModuleVersion(),
@@ -81,7 +83,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> queryModuleVersions(ModuleVersionsQuery query) {
+    public List<String> query(GetModuleVersionsQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleName(),
                 null,

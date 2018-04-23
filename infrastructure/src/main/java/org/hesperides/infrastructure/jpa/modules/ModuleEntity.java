@@ -14,7 +14,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 public class ModuleEntity {
-
     @EmbeddedId
     private ModuleEntityId moduleEntityId;
     Long versionId;
@@ -27,5 +26,4 @@ public class ModuleEntity {
         String version;
         Module.Type versionType;
     }
-
 }

@@ -34,7 +34,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 
-@Profile("mongo")
+import static org.hesperides.domain.Profiles.*;
+
+@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository
 public class MongoTechnoCommandsRepository implements TechnoCommandsRepository {
     private final MongoTechnoRepository repository;

@@ -86,7 +86,7 @@ Run backend using Docker
     
 Run without ldap or elasticsearch
 
-    java -jar bootstrap/target/hesperides-spring.jar -Dspring.profiles.active=noldap,local
+    java -jar bootstrap/target/hesperides-spring.jar -Dspring.profiles.active=noldap,fake_mongo
 
 ## Documentation
 

@@ -31,6 +31,7 @@ public final class MustacheTemplateGenerator {
 
     private Mustache mustacheTemplate;
     private Object scope;
+
     public MustacheTemplateGenerator(final Mustache mustacheTemplate, final Object scope) {
         this.mustacheTemplate = mustacheTemplate;
         this.scope = scope;

@@ -6,8 +6,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import static org.hesperides.domain.Profiles.NOLDAP;
+
 @Configuration
-@Profile("noldap")
+@Profile(NOLDAP)
 public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override

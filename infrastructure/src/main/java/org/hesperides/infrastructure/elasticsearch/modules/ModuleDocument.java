@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-@Profile("elasticsearch")
+import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+
+@Profile(ELASTICSEARCH)
 @Document(indexName = "#{@indexName}", type = "module")
 @Data
 public class ModuleDocument {

@@ -14,11 +14,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+
 @Slf4j
 @Configuration
 @EnableTransactionManagement
 @EnableElasticsearchRepositories(basePackages = "org.hesperides.infrastructure.elasticsearch")
-@Profile("elasticsearch")
+@Profile(ELASTICSEARCH)
 @Import({
         ElasticsearchAutoConfiguration.class,
         ElasticsearchDataAutoConfiguration.class

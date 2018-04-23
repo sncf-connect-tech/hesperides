@@ -10,7 +10,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=local,noldap
+      - SPRING_PROFILES_ACTIVE=noldap,fake_mongo
     restart: always
     networks:
       - hesperides-network
