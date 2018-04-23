@@ -23,6 +23,7 @@ import static org.mockito.Matchers.any;
 @ContextConfiguration(classes = ModuleUseCasesTest.Config.class)
 public class ModuleUseCasesTest {
     @TestConfiguration
+    @ComponentScan
     static class Config {
     }
 
