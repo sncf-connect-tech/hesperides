@@ -31,18 +31,6 @@ abstract class BaseController {
 //        return optional.map(t -> Response.ok(converter.convert(t)).build()).orElseThrow(() -> new MissingResourceException("Requested entity is missing"));
 //    }
 
-    final protected void checkQueryParameterNotEmpty(final String paramName, final String param) {
-        if (param == null || isNonDisplayedChar(param)) {
-            throw new IllegalArgumentException("Query parameter " + paramName + " is missing");
-        }
-    }
-
-    final protected void checkQueryParameterNotEmpty(final String paramName, final Object param) {
-        if (param == null) {
-            throw new IllegalArgumentException("Query parameter " + paramName + " is missing");
-        }
-    }
-
     /**
      * Check if char is lower space.
      *
@@ -58,5 +46,17 @@ abstract class BaseController {
         }
 
         return false;
+    }
+
+    final protected void checkQueryParameterNotEmpty(final String paramName, final String param) {
+        if (param == null || isNonDisplayedChar(param)) {
+            throw new IllegalArgumentException("Query parameter " + paramName + " is missing");
+        }
+    }
+
+    final protected void checkQueryParameterNotEmpty(final String paramName, final Object param) {
+        if (param == null) {
+            throw new IllegalArgumentException("Query parameter " + paramName + " is missing");
+        }
     }
 }

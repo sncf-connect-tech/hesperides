@@ -29,7 +29,7 @@ public class ElasticsearchConfiguration {
     private String indexName;
 
     @Bean
-    public String indexName(){
+    public String indexName() {
         return indexName;
     }
 
@@ -38,5 +38,4 @@ public class ElasticsearchConfiguration {
     public EventStorageEngine inmemoryEventStorageEngine() {
         return new InMemoryEventStorageEngine();
     }
-
 }

@@ -1,6 +1,6 @@
 package org.hesperides.presentation.controllers;
 
-import org.hesperides.application.ModuleUseCases;
+import org.hesperides.application.modules.ModuleUseCases;
 import org.hesperides.presentation.config.TestAppConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,13 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(org.hesperides.presentation.controllers.BaseController.class)
 @ContextConfiguration(classes = TestAppConfig.class)
-public class ModuleControllerTest {
-
-    @Autowired
-    private MockMvc mvc;
-
-    @MockBean
-    private ModuleUseCases moduleUseCases;
+public class ModuleControllerTest extends AbstractControllerTest {
 
     @Test
     @WithMockUser

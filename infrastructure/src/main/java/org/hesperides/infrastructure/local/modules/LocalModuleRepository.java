@@ -12,7 +12,8 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.modules.queries.TemplateQueriesRepository;
-import org.hesperides.domain.modules.queries.TemplateView;
+import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
@@ -71,32 +72,38 @@ public class LocalModuleRepository implements ModuleCommandsRepository, ModuleQu
     @EventSourcingHandler
     public void on(TemplateCreatedEvent event) {
         log.debug("handling event {}", event);
-        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
+        Template template = event.getTemplate();
+        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), template.getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
-                event.getTemplate().getName(),
+                template.getName(),
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
-                        + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
-                event.getTemplate().getFilename(),
-                event.getTemplate().getLocation(),
-                event.getTemplate().getVersionId()
+                        + "#" + template.getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                TemplateView.RightsView.fromDomain(template.getRights()),
+                template.getVersionId()
         ));
-        TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
+        TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(template.getContent()));
     }
 
     @Override
     @EventSourcingHandler
     public void on(TemplateUpdatedEvent event) {
         log.debug("handling event {}", event);
-        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), event.getTemplate().getName());
+        Template template = event.getTemplate();
+        Pair<Module.Key, String> key = Pair.of(event.getModuleKey(), template.getName());
         TEMPLATE_VIEW_MAP.put(key, new TemplateView(
-                event.getTemplate().getName(),
+                template.getName(),
                 "modules#" + event.getModuleKey().getName() + "#" + event.getModuleKey().getVersion()
-                        + "#" + event.getTemplate().getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
-                event.getTemplate().getFilename(),
-                event.getTemplate().getLocation(),
-                event.getTemplate().getVersionId()
+                        + "#" + template.getName() + "#" + event.getModuleKey().getVersionType().name().toUpperCase(),
+                template.getFilename(),
+                template.getLocation(),
+                template.getContent(),
+                TemplateView.RightsView.fromDomain(template.getRights()),
+                template.getVersionId()
         ));
-        TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(event.getTemplate().getContent()));
+        TEMPLATE_CONTENT_MAP.put(key, new TemplateContent(template.getContent()));
     }
 
     @Override

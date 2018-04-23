@@ -4,14 +4,15 @@ import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Exemple de test unitaire sur les commandes
@@ -21,8 +22,8 @@ class ModuleAggregateTest {
     private FixtureConfiguration<ModuleAggregate> fixture;
 
     private Module.Key moduleKey = new Module.Key("module_test", "123", Module.Type.workingcopy);
-    private Module module = new Module(moduleKey, new ArrayList<>(), 1L);
-    private Template.Rights rights = new Template.Rights();
+    private Module module = new Module(moduleKey, new ArrayList<>(), Collections.emptyList(), 1L);
+    private Template.Rights rights = new Template.Rights(null, null, null);
     private Template template = new Template("template1", "file1.txt", "/", "content", rights, 1L, moduleKey);
     private User user = new User("default_name");
 

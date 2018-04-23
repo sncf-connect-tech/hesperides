@@ -29,16 +29,15 @@ import java.util.Map;
 
 public final class MustacheTemplateGenerator {
 
-    public static TemplateMaker from(final Mustache mustacheTemplate) {
-        return new TemplateMaker(mustacheTemplate);
-    }
-
     private Mustache mustacheTemplate;
     private Object scope;
-
     public MustacheTemplateGenerator(final Mustache mustacheTemplate, final Object scope) {
         this.mustacheTemplate = mustacheTemplate;
         this.scope = scope;
+    }
+
+    public static TemplateMaker from(final Mustache mustacheTemplate) {
+        return new TemplateMaker(mustacheTemplate);
     }
 
     public String generate() {

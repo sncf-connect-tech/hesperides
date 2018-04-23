@@ -17,6 +17,7 @@ public class ModuleEntity {
 
     @EmbeddedId
     private ModuleEntityId moduleEntityId;
+    Long versionId;
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -26,7 +27,5 @@ public class ModuleEntity {
         String version;
         Module.Type versionType;
     }
-
-    Long versionId;
 
 }
