@@ -32,13 +32,6 @@ public class LocalPersistedEventStore extends EmbeddedEventStore {
         super(loadFromDisk());
     }
 
-    @PreDestroy
-    public void saveToDisk() throws IOException {
-        log.debug("Save event store to file {}", localEventStoreFile);
-        String xml = xStream.toXML(this.storageEngine());
-        FileUtils.writeStringToFile(localEventStoreFile, xml, Charset.defaultCharset());
-    }
-
     private static EventStorageEngine loadFromDisk() throws IOException {
         // charge les events depuis le disque, pour voir.
         if (localEventStoreFile.exists()) {
@@ -48,5 +41,12 @@ public class LocalPersistedEventStore extends EmbeddedEventStore {
         }
         // si pas de fichier, on créer en mémoire.
         return new InMemoryEventStorageEngine();
+    }
+
+    @PreDestroy
+    public void saveToDisk() throws IOException {
+        log.debug("Save event store to file {}", localEventStoreFile);
+        String xml = xStream.toXML(this.storageEngine());
+        FileUtils.writeStringToFile(localEventStoreFile, xml, Charset.defaultCharset());
     }
 }

@@ -41,9 +41,8 @@ public class HesperideTestRestTemplate {
         rest.getRestTemplate().setMessageConverters(converters);
     }
 
-    @FunctionalInterface
-    public interface WorkWithDisabledErrorHandlerTemplate<R> {
-        R doDisabled(TestRestTemplate template);
+    public TestRestTemplate getTestRestTemplate() {
+        return rest;
     }
 
     /**
@@ -86,5 +85,10 @@ public class HesperideTestRestTemplate {
 
     public void delete(URI templateLocation) {
         rest.delete(templateLocation);
+    }
+
+    @FunctionalInterface
+    public interface WorkWithDisabledErrorHandlerTemplate<R> {
+        R doDisabled(TestRestTemplate template);
     }
 }

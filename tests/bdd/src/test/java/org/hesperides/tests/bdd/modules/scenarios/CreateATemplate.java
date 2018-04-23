@@ -1,9 +1,9 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.queries.TemplateView;
-import org.hesperides.presentation.controllers.TemplateInput;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.inputs.RightsInput;
+import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +24,9 @@ public class CreateATemplate extends CucumberSpringBean implements En {
 
     public CreateATemplate() {
         Given("^a template to create$", () -> {
-            Template.FileRights rights = new Template.FileRights(true, true, true);
+            RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
             templateInput = new TemplateInput("templateName", "template.name", "template.location", "content",
-                    new Template.Rights(rights, rights, rights), 0L);
+                    new RightsInput(rights, rights, rights), 0L);
         });
 
         When("^adding a new template$", () -> {

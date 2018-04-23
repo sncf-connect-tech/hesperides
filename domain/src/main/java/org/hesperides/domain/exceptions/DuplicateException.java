@@ -1,4 +1,4 @@
-package org.hesperides.domain.modules.exceptions;
+package org.hesperides.domain.exceptions;
 
 public class DuplicateException extends RuntimeException {
     public DuplicateException(String message) {

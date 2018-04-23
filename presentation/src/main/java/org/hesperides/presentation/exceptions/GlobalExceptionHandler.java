@@ -1,8 +1,8 @@
 package org.hesperides.presentation.exceptions;
 
 import org.axonframework.commandhandling.model.AggregateNotFoundException;
-import org.hesperides.domain.modules.exceptions.DuplicateException;
-import org.hesperides.domain.modules.exceptions.NotFoundException;
+import org.hesperides.domain.exceptions.DuplicateException;
+import org.hesperides.domain.exceptions.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

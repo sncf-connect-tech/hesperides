@@ -1,15 +1,16 @@
-package org.hesperides.application;
+package org.hesperides.application.modules;
 
-import org.hesperides.application.exceptions.DuplicateModuleException;
-import org.hesperides.application.exceptions.ModuleNotFoundException;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.exceptions.OutOfDateVersionException;
+import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
+import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.domain.modules.queries.TemplateView;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ModuleUseCases {
     private final ModuleCommands commands;
     private final ModuleQueries queries;
 
+    @Autowired
     public ModuleUseCases(ModuleCommands commands, ModuleQueries queries) {
         this.commands = commands;
         this.queries = queries;

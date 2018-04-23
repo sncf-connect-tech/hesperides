@@ -2,9 +2,9 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.entities.Template;
-import org.hesperides.domain.modules.queries.TemplateView;
-import org.hesperides.presentation.controllers.TemplateInput;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.inputs.RightsInput;
+import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +49,9 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     }
 
     private void updateTemplate() {
-        Template.FileRights rights = new Template.FileRights(true, true, true);
+        RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
         TemplateInput templateInput = new TemplateInput("templateName", "template.name", "template.location", "content-bis",
-                new Template.Rights(rights, rights, rights), 1L);
+                new RightsInput(rights, rights, rights), 1L);
         Module.Key moduleKey = existingTemplateContext.getExistingModuleContext().getModuleKey();
         templateLocation = rest.putForLocationReturnAbsoluteURI(
                 "/modules/{id}/{version}/workingcopy/templates/",
