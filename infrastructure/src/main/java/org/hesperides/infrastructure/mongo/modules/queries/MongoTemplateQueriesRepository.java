@@ -18,16 +18,16 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.technos.queries;
+package org.hesperides.infrastructure.mongo.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.technos.GetTemplateQuery;
-import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
-import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.technos.queries.TechnoQueriesRepository;
+import org.hesperides.domain.modules.GetTemplateByNameQuery;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.queries.TemplateQueriesRepository;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
-import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
+import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -40,37 +40,32 @@ import static org.hesperides.domain.Profiles.*;
 
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository
-public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
+public class MongoTemplateQueriesRepository implements TemplateQueriesRepository {
 
-    private final MongoTechnoRepository repository;
+    private final MongoModuleRepository repository;
 
     @Autowired
-    public MongoTechnoQueriesRepository(MongoTechnoRepository repository) {
+    public MongoTemplateQueriesRepository(MongoModuleRepository repository) {
         this.repository = repository;
     }
 
+    @Override
     @QueryHandler
-    public Optional<TemplateView> query(GetTemplateQuery query) {
+    public Optional<TemplateView> query(GetTemplateByNameQuery query) {
         Optional<TemplateView> result = Optional.empty();
 
-        /**
-         * C'est moche mais je ne sais pas comment récupérer un template dans la collection de technos
-         * à partir de la clé de la techno et du nom unique du template
-         * TODO Améliorer
-         */
-        TechnoDocument technoDocumentSample = TechnoDocument.fromDomainKey(query.getTechnoKey());
-        TechnoDocument technoDocument = repository.findOne(Example.of(technoDocumentSample));
-        for (TemplateDocument templateDocument : technoDocument.getTemplates()) {
+        TemplateContainer.Key key = query.getModuleKey();
+        ModuleDocument searchDocument = new ModuleDocument();
+        searchDocument.setName(key.getName());
+        searchDocument.setVersion(key.getVersion());
+        searchDocument.setVersionType(key.getVersionType());
+
+        ModuleDocument module = repository.findOne(Example.of(searchDocument));
+        for (TemplateDocument templateDocument : module.getTemplates()) {
             if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
-                result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
-                break;
+                result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.NAMESPACE_PREFIX));
             }
         }
         return result;
-    }
-
-    @QueryHandler
-    public Boolean query(TechnoAlreadyExistsQuery query) {
-        return repository.exists(Example.of(TechnoDocument.fromDomainKey(query.getTechnoKey())));
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 
 @SpringBootApplication
@@ -22,7 +23,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
                 ElasticsearchRepositoriesAutoConfiguration.class,
                 HibernateJpaAutoConfiguration.class,
                 MongoAutoConfiguration.class,
-                MongoDataAutoConfiguration.class
+                MongoDataAutoConfiguration.class,
+                EmbeddedMongoAutoConfiguration.class
         }
 )
 public class HesperidesSpringApplication {

@@ -33,6 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.hesperides.domain.Profiles.FAKE_MONGO;
+import static org.hesperides.domain.Profiles.LDAP;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles = {"local"})
+@ActiveProfiles({FAKE_MONGO, LDAP})
 public class SecuritySampleTest {
     @Autowired
     private WebApplicationContext context;

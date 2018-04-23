@@ -48,7 +48,7 @@ public class ModuleUseCases {
         return commands.createModule(module, user);
     }
 
-    public Module.Key updateWorkingCopy(Module module, User user) {
+    public void updateWorkingCopy(Module module, User user) {
         Optional<ModuleView> moduleView = queries.getModule(module.getKey());
         if (!moduleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
@@ -56,7 +56,7 @@ public class ModuleUseCases {
         if (!moduleView.get().getVersionId().equals(module.getVersionId())) {
             throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
         }
-        return commands.updateModule(module, user);
+        commands.updateModule(module, user);
     }
 
     public void deleteWorkingCopy(Module module, User user) {

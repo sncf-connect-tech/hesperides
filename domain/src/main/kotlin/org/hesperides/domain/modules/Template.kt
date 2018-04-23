@@ -17,4 +17,4 @@ data class TemplateDeletedEvent(val moduleKey: TemplateContainer.Key, val templa
 data class TemplateUpdatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
 
 // Query
-data class TemplateByNameQuery(val moduleKey: TemplateContainer.Key, val templateName: String)
+data class GetTemplateByNameQuery(val moduleKey: TemplateContainer.Key, val templateName: String)

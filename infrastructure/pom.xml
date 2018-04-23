@@ -41,19 +41,31 @@
         <dependency>
             <groupId>org.axonframework</groupId>
             <artifactId>axon-mongo</artifactId>
-            <version>${axon-spring-boot-starter.version}</version>
+        </dependency>
+
+        <!-- Embedded Mongo -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cz.jirutka.spring</groupId>
+            <artifactId>embedmongo-spring</artifactId>
+        </dependency>
+        <!-- Fake Mongo -->
+        <dependency>
+            <groupId>com.github.fakemongo</groupId>
+            <artifactId>fongo</artifactId>
         </dependency>
 
         <!-- Various -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4-1206-jdbc42</version>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>3.6.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

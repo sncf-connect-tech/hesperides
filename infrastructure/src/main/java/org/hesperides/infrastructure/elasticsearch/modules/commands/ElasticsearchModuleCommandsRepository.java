@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+
 @Slf4j
-@Profile("elasticsearch")
+@Profile(ELASTICSEARCH)
 @Component
 public class ElasticsearchModuleCommandsRepository implements ModuleCommandsRepository {
     private ElasticsearchModuleRepository elasticsearchModuleRepository;

@@ -10,14 +10,16 @@ import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Profile("mongo")
-@Component
+import static org.hesperides.domain.Profiles.*;
+
+@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
+@Repository
 public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
     private final MongoModuleRepository mongoModuleRepository;
@@ -29,7 +31,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public Optional<ModuleView> query(ModuleByIdQuery query) {
+    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleKey().getName());
         moduleDocument.setVersion(query.getModuleKey().getVersion());
@@ -50,7 +52,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> queryAllModuleNames(ModulesNamesQuery query) {
+    public List<String> query(GetModulesNamesQuery query) {
         return mongoModuleRepository.findAll()
                 .stream()
                 .map(ModuleDocument::getName)
@@ -59,7 +61,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> queryModuleTypes(ModuleTypesQuery query) {
+    public List<String> query(GetModuleTypesQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         moduleDocument.setVersion(query.getModuleVersion());
@@ -72,7 +74,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> queryModuleVersions(ModuleVersionsQuery query) {
+    public List<String> query(GetModuleVersionsQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         return mongoModuleRepository.findAll(Example.of(moduleDocument))
