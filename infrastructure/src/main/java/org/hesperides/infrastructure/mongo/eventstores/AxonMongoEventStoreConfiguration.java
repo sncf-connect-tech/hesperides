@@ -14,11 +14,9 @@ import static org.hesperides.domain.Profiles.*;
 @Configuration
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 public class AxonMongoEventStoreConfiguration {
-
     @Bean
     @Primary
     public EventStorageEngine eventStore(MongoClient client) {
         return new MongoEventStorageEngine(new DefaultMongoTemplate(client));
     }
-
 }

@@ -52,56 +52,44 @@ public class MongoTemplateCommandsRepository implements TemplateCommandsReposito
     @Override
     @EventSourcingHandler
     public void on(TemplateCreatedEvent event) {
-        //TODO Utiliser findByKey et trouver un moyen d'améliorer tout ça
+        //TODO Améliorer ce code si possible
         TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
-        if (module.getTemplates() == null) {
-            module.setTemplates(new ArrayList<>());
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        if (moduleDocument.getTemplates() == null) {
+            moduleDocument.setTemplates(new ArrayList<>());
         }
         TemplateDocument template = TemplateDocument.fromDomain(event.getTemplate());
-        module.getTemplates().add(template);
-        repository.save(module);
+        moduleDocument.getTemplates().add(template);
+        repository.save(moduleDocument);
     }
 
     @Override
     @EventSourcingHandler
     public void on(TemplateUpdatedEvent event) {
-        //TODO Utiliser findByKey et trouver un moyen d'améliorer tout ça
+        //TODO Améliorer ce code si possible
         TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
-        for (int i = 0; i < module.getTemplates().size(); i++) {
-            if (module.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplate().getName())) {
-                module.getTemplates().set(i, TemplateDocument.fromDomain(event.getTemplate()));
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        for (int i = 0; i < moduleDocument.getTemplates().size(); i++) {
+            if (moduleDocument.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplate().getName())) {
+                moduleDocument.getTemplates().set(i, TemplateDocument.fromDomain(event.getTemplate()));
+                break;
             }
         }
-        repository.save(module);
+        repository.save(moduleDocument);
     }
 
     @Override
     @EventSourcingHandler
     public void on(TemplateDeletedEvent event) {
+        //TODO Améliorer ce code si possible
         TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
-        for (int i = 0; i < module.getTemplates().size(); i++) {
-            if (module.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplateName())) {
-                module.getTemplates().remove(i);
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        for (int i = 0; i < moduleDocument.getTemplates().size(); i++) {
+            if (moduleDocument.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplateName())) {
+                moduleDocument.getTemplates().remove(i);
+                break;
             }
         }
-        repository.save(module);
+        repository.save(moduleDocument);
     }
 }

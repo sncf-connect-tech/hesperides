@@ -37,20 +37,17 @@ public class TechnoDocument {
     String id;
     String name;
     String version;
-    Module.Type versionType;
+    Module.Type versionType; //TODO Pourquoi pas un booléen ?
     List<TemplateDocument> templates;
 
     public static TechnoDocument fromDomain(Techno techno) {
-        TechnoDocument technoDocument = fromDomainKey(techno.getKey());
-        // Il n'y a pas d'autres propriétés que la clé
-        return technoDocument;
-    }
-
-    public static TechnoDocument fromDomainKey(TemplateContainer.Key key) {
         TechnoDocument technoDocument = new TechnoDocument();
+        TemplateContainer.Key key = techno.getKey();
         technoDocument.setName(key.getName());
         technoDocument.setVersion(key.getVersion());
         technoDocument.setVersionType(key.getVersionType());
+        //TODO Templates
+//        technoDocument.setTemplates(TemplateDocument.fromDomain(techno.getTemplates()));
         return technoDocument;
     }
 }

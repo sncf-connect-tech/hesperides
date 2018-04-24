@@ -5,11 +5,11 @@ import org.hesperides.domain.modules.ModuleCreatedEvent;
 import org.hesperides.domain.modules.ModuleDeletedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import static org.hesperides.domain.Profiles.*;
@@ -18,48 +18,40 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
 
-    private final MongoModuleRepository mongoModuleRepository;
+    private final MongoModuleRepository repository;
 
     @Autowired
-    public MongoModuleCommandsRepository(MongoModuleRepository mongoModuleRepository) {
-        this.mongoModuleRepository = mongoModuleRepository;
+    public MongoModuleCommandsRepository(MongoModuleRepository repository) {
+        this.repository = repository;
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleCreatedEvent event) {
         ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(event.getModule().getKey().getName());
-        moduleDocument.setVersion(event.getModule().getKey().getVersion());
-        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
+        TemplateContainer.Key key = event.getModule().getKey();
+        moduleDocument.setName(key.getName());
+        moduleDocument.setVersion(key.getVersion());
+        moduleDocument.setVersionType(key.getVersionType());
         moduleDocument.setVersionId(event.getModule().getVersionId());
-        mongoModuleRepository.save(moduleDocument);
+        //TODO Templates et technos ?
+        repository.save(moduleDocument);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleUpdatedEvent event) {
-        //TODO Utiliser la méthode findByKey et sortir le mapping dans ModuleDocument
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(event.getModule().getKey().getName());
-        moduleDocument.setVersion(event.getModule().getKey().getVersion());
-        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
-        moduleDocument = mongoModuleRepository.findOne(Example.of(moduleDocument));
+        TemplateContainer.Key key = event.getModule().getKey();
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
         moduleDocument.setVersionId(event.getModule().getVersionId());
-        //TODO update properties (technos) then save to db
-        mongoModuleRepository.save(moduleDocument);
+        //TODO Templates et technos ?
+        repository.save(moduleDocument);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        //TODO Utiliser la méthode findByKey et sortir le mapping dans ModuleDocument
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(event.getModule().getKey().getName());
-        moduleDocument.setVersion(event.getModule().getKey().getVersion());
-        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
-        moduleDocument = mongoModuleRepository.findOne(Example.of(moduleDocument));
-        mongoModuleRepository.delete(moduleDocument);
+        TemplateContainer.Key key = event.getModule().getKey();
+        repository.deleteByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
     }
-
 }

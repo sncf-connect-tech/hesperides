@@ -52,18 +52,14 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
     @Override
     @QueryHandler
     public Optional<TemplateView> query(GetTemplateByNameQuery query) {
+        //TODO Améliorer ce code si possible
         Optional<TemplateView> result = Optional.empty();
-
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
-        for (TemplateDocument templateDocument : module.getTemplates()) {
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        for (TemplateDocument templateDocument : moduleDocument.getTemplates()) {
             if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
                 result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.NAMESPACE_PREFIX));
+                break;
             }
         }
         return result;

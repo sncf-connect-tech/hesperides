@@ -25,6 +25,7 @@ import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoQueriesRepository;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
@@ -52,14 +53,8 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     @QueryHandler
     public Optional<TemplateView> query(GetTemplateQuery query) {
         Optional<TemplateView> result = Optional.empty();
-
-        /**
-         * C'est moche mais je ne sais pas comment récupérer un template dans la collection de technos
-         * à partir de la clé de la techno et du nom unique du template
-         * TODO Améliorer
-         */
-        TechnoDocument technoDocumentSample = TechnoDocument.fromDomainKey(query.getTechnoKey());
-        TechnoDocument technoDocument = repository.findOne(Example.of(technoDocumentSample));
+        TemplateContainer.Key key = query.getTechnoKey();
+        TechnoDocument technoDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
         for (TemplateDocument templateDocument : technoDocument.getTemplates()) {
             if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
                 result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
@@ -71,6 +66,8 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
 
     @QueryHandler
     public Boolean query(TechnoAlreadyExistsQuery query) {
-        return repository.exists(Example.of(TechnoDocument.fromDomainKey(query.getTechnoKey())));
+        TemplateContainer.Key key = query.getTechnoKey();
+        TechnoDocument technoDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        return technoDocument != null;
     }
 }
