@@ -14,10 +14,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
+import static org.hesperides.domain.Profiles.JPA;
+
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.hesperides.infrastructure.jpa")
-@Profile("jpa")
+@Profile(JPA)
 @Import({DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class JpaConfiguration {
 

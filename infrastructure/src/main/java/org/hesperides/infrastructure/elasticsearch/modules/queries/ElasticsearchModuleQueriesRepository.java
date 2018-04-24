@@ -16,8 +16,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+
 @Slf4j
-@Profile("elasticsearch")
+@Profile(ELASTICSEARCH)
 @Component
 public class ElasticsearchModuleQueriesRepository implements ModuleQueriesRepository {
 
@@ -30,7 +32,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
 
     @QueryHandler
     @Override
-    public Optional<ModuleView> query(ModuleByIdQuery query) {
+    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
         ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -50,7 +52,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
 
     @QueryHandler
     @Override
-    public List<String> queryAllModuleNames(ModulesNamesQuery query) {
+    public List<String> query(GetModulesNamesQuery query) {
         return elasticsearchModuleRepository.findAll()
                 .getContent()
                 .stream()
@@ -60,7 +62,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
 
     @QueryHandler
     @Override
-    public List<String> queryModuleTypes(ModuleTypesQuery query) {
+    public List<String> query(GetModuleTypesQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         moduleDocument.setVersion(query.getModuleVersion());
@@ -73,7 +75,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
 
     @QueryHandler
     @Override
-    public List<String> queryModuleVersions(ModuleVersionsQuery query) {
+    public List<String> query(GetModuleVersionsQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         return elasticsearchModuleRepository.findAllByName(query.getModuleName())

@@ -29,12 +29,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import static org.hesperides.domain.Profiles.LDAP;
+
 /**
  * L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure
  * L'authentification est testée pour chaque use case dans le module tests/tech
  */
 @Configuration
-@Profile("!noldap")
+@Profile(LDAP)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {

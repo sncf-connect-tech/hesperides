@@ -19,8 +19,10 @@ import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 
+import static org.hesperides.domain.Profiles.JPA;
+
 @Configuration
-@Profile("jpa")
+@Profile(JPA)
 public class AxonJpaEventStoreConfiguration {
 
     @Bean

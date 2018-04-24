@@ -30,16 +30,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document
+@Document(collection = "techno")
 @Data
 public class TechnoDocument {
     @Id
     String id;
-
     String name;
     String version;
     Module.Type versionType;
-
     List<TemplateDocument> templates;
 
     public static TechnoDocument fromDomain(Techno techno) {

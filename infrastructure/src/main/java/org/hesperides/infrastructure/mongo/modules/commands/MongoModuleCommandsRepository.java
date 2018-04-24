@@ -10,10 +10,12 @@ import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Profile("mongo")
-@Component
+import static org.hesperides.domain.Profiles.*;
+
+@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
+@Repository
 public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
 
     private final MongoModuleRepository mongoModuleRepository;
@@ -37,12 +39,13 @@ public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(ModuleUpdatedEvent event) {
+        //TODO Utiliser la méthode findByKey et sortir le mapping dans ModuleDocument
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(event.getModule().getKey().getName());
         moduleDocument.setVersion(event.getModule().getKey().getVersion());
         moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
-        moduleDocument.setVersionId(event.getModule().getVersionId());
         moduleDocument = mongoModuleRepository.findOne(Example.of(moduleDocument));
+        moduleDocument.setVersionId(event.getModule().getVersionId());
         //TODO update properties (technos) then save to db
         mongoModuleRepository.save(moduleDocument);
     }
@@ -50,11 +53,11 @@ public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
+        //TODO Utiliser la méthode findByKey et sortir le mapping dans ModuleDocument
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(event.getModule().getKey().getName());
         moduleDocument.setVersion(event.getModule().getKey().getVersion());
         moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
-        moduleDocument.setVersionId(event.getModule().getVersionId());
         moduleDocument = mongoModuleRepository.findOne(Example.of(moduleDocument));
         mongoModuleRepository.delete(moduleDocument);
     }

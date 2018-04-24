@@ -25,12 +25,12 @@ public class ModuleCommands {
         return commandGateway.sendAndWait(new CreateModuleCommand(module, user));
     }
 
-    public Module.Key updateModule(Module module, User user) {
-        return commandGateway.sendAndWait(new UpdateModuleCommand(module, user));
+    public void updateModule(Module module, User user) {
+        commandGateway.sendAndWait(new UpdateModuleCommand(module.getKey(), module, user));
     }
 
     public void deleteModule(Module module, User user) {
-        commandGateway.sendAndWait(new DeleteModuleCommand(module, user));
+        commandGateway.sendAndWait(new DeleteModuleCommand(module.getKey(), module, user));
     }
 
     public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {

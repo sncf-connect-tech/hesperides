@@ -9,8 +9,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
+import static org.hesperides.domain.Profiles.*;
+
 @Configuration
-@Profile("mongo")
+@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 public class AxonMongoEventStoreConfiguration {
 
     @Bean

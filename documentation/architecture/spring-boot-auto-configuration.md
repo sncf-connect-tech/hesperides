@@ -35,7 +35,7 @@ Dans certains packages de l'infrastucture nous réactivons juste les beans que n
 Exemple :
 
 ```
-@Profile("elasticsearch")
+@Profile(Profiles.ELASTICSEARCH)
 @Import({
         ElasticsearchAutoConfiguration.class,
         ElasticsearchDataAutoConfiguration.class

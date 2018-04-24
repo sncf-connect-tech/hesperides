@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile("jpa")
+import static org.hesperides.domain.Profiles.JPA;
+
+@Profile(JPA)
 @Component
 public class JpaModuleCommandsRepository implements ModuleCommandsRepository {
 

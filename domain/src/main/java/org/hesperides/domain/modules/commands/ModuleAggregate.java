@@ -52,7 +52,7 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
-    public ModuleAggregate(UpdateModuleCommand command) {
+    public void updateModule(UpdateModuleCommand command) {
         log.debug("Applying update module command...");
         // Met à jour le version_id
         Module moduleWithUpdatedVersionId = new Module(
@@ -64,7 +64,7 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
-    public ModuleAggregate(DeleteModuleCommand command) {
+    public void delteModule(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
         apply(new ModuleDeletedEvent(command.getModule(), command.getUser()));
     }

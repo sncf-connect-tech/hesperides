@@ -25,22 +25,22 @@ public class ModuleQueries extends Queries {
     }
 
     public Optional<ModuleView> getModule(Module.Key moduleKey) {
-        return querySyncOptional(new ModuleByIdQuery(moduleKey), ModuleView.class);
+        return querySyncOptional(new GetModuleByKeyQuery(moduleKey), ModuleView.class);
     }
 
     public List<String> getModulesNames() {
-        return querySyncList(new ModulesNamesQuery(), String.class);
+        return querySyncList(new GetModulesNamesQuery(), String.class);
     }
 
     public List<String> getModuleVersions(String moduleName) {
-        return querySyncList(new ModuleVersionsQuery(moduleName), String.class);
+        return querySyncList(new GetModuleVersionsQuery(moduleName), String.class);
     }
 
     public List<String> getModuleTypes(String moduleName, String moduleVersion) {
-        return querySyncList(new ModuleTypesQuery(moduleName, moduleVersion), String.class);
+        return querySyncList(new GetModuleTypesQuery(moduleName, moduleVersion), String.class);
     }
 
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
-        return querySyncOptional(new TemplateByNameQuery(moduleKey, templateName), TemplateView.class);
+        return querySyncOptional(new GetTemplateByNameQuery(moduleKey, templateName), TemplateView.class);
     }
 }

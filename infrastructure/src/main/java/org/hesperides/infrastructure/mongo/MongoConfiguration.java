@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import static org.hesperides.domain.Profiles.MONGO;
+
 @Configuration
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.infrastructure.mongo")
 @Import({MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
-@Profile("mongo")
+@Profile(MONGO)
 public class MongoConfiguration {
 }
