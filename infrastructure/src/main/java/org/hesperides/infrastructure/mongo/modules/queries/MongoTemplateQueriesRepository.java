@@ -31,7 +31,6 @@ import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -52,15 +51,17 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
     @Override
     @QueryHandler
     public Optional<TemplateView> query(GetTemplateByNameQuery query) {
-        //TODO Améliorer ce code si possible
         Optional<TemplateView> result = Optional.empty();
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
-        for (TemplateDocument templateDocument : moduleDocument.getTemplates()) {
-            if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
-                result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.NAMESPACE_PREFIX));
-                break;
-            }
+
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopyAndTemplatesName(
+                key.getName(), key.getVersion(), key.isWorkingCopy(), query.getTemplateName());
+
+        if (moduleDocument != null) {
+            TemplateDocument templateDocument = moduleDocument.getTemplates().stream()
+                    .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
+                    .findAny().get();
+            result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.NAMESPACE_PREFIX));
         }
         return result;
     }

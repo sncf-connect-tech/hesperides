@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Document(collection = "module")
 @Data
@@ -17,11 +18,24 @@ public class ModuleDocument {
     String id;
     String name;
     String version;
-    Module.Type versionType; //TODO Pourquoi pas un booléen
+    boolean workingCopy;
     Long versionId;
     List<TemplateDocument> templates;
+    //TODO Technos
+
+    public static ModuleDocument fromDomain(Module module) {
+        ModuleDocument moduleDocument = new ModuleDocument();
+        TemplateContainer.Key key = module.getKey();
+        moduleDocument.setName(key.getName());
+        moduleDocument.setVersion(key.getVersion());
+        moduleDocument.setWorkingCopy(key.getVersionType().equals(TemplateContainer.Type.workingcopy));
+        moduleDocument.setVersionId(module.getVersionId());
+        moduleDocument.setTemplates(module.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()));
+        //TODO Technos
+        return moduleDocument;
+    }
 
     public ModuleView toModuleView() {
-        return new ModuleView(name, version, versionType == TemplateContainer.Type.workingcopy, versionId);
+        return new ModuleView(name, version, workingCopy, versionId);
     }
 }

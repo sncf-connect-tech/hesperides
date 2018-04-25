@@ -28,30 +28,24 @@ public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(ModuleCreatedEvent event) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        TemplateContainer.Key key = event.getModule().getKey();
-        moduleDocument.setName(key.getName());
-        moduleDocument.setVersion(key.getVersion());
-        moduleDocument.setVersionType(key.getVersionType());
-        moduleDocument.setVersionId(event.getModule().getVersionId());
-        //TODO Templates et technos ?
-        repository.save(moduleDocument);
+        ModuleDocument module = ModuleDocument.fromDomain(event.getModule());
+        repository.save(module);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleUpdatedEvent event) {
         TemplateContainer.Key key = event.getModule().getKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
-        moduleDocument.setVersionId(event.getModule().getVersionId());
-        //TODO Templates et technos ?
-        repository.save(moduleDocument);
+        ModuleDocument existingModule = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        ModuleDocument updatedModule = ModuleDocument.fromDomain(event.getModule());
+        updatedModule.setId(existingModule.getId());
+        repository.save(updatedModule);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
         TemplateContainer.Key key = event.getModule().getKey();
-        repository.deleteByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        repository.deleteByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
     }
 }

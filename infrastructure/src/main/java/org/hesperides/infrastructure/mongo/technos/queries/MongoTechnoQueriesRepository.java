@@ -32,7 +32,6 @@ import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -54,12 +53,15 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     public Optional<TemplateView> query(GetTemplateQuery query) {
         Optional<TemplateView> result = Optional.empty();
         TemplateContainer.Key key = query.getTechnoKey();
-        TechnoDocument technoDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
-        for (TemplateDocument templateDocument : technoDocument.getTemplates()) {
-            if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
-                result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
-                break;
-            }
+
+        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopyAndTemplatesName(
+                key.getName(), key.getVersion(), key.isWorkingCopy(), query.getTemplateName());
+
+        if (technoDocument != null) {
+            TemplateDocument templateDocument = technoDocument.getTemplates().stream()
+                    .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
+                    .findAny().get();
+            result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
         }
         return result;
     }
@@ -67,7 +69,8 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     @QueryHandler
     public Boolean query(TechnoAlreadyExistsQuery query) {
         TemplateContainer.Key key = query.getTechnoKey();
-        TechnoDocument technoDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
-        return technoDocument != null;
+        Optional<TechnoDocument> technoDocument = repository.findOptionalByNameAndVersionAndWorkingCopy(
+                key.getName(), key.getVersion(), key.isWorkingCopy());
+        return technoDocument.isPresent();
     }
 }

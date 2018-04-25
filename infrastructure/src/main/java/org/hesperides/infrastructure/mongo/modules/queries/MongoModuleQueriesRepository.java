@@ -10,7 +10,6 @@ import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
         Optional<ModuleView> moduleView = Optional.empty();
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
         if (moduleDocument != null) {
             moduleView = Optional.of(moduleDocument.toModuleView());
         }
@@ -56,8 +55,8 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     public List<String> query(GetModuleTypesQuery query) {
         return repository.findByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
-                .map(ModuleDocument::getVersionType)
-                .map(Module.Type::toString)
+                .map(ModuleDocument::isWorkingCopy)
+                .map(isWorkingCopy -> Module.Type.toString(isWorkingCopy))
                 .collect(Collectors.toList());
     }
 
@@ -74,7 +73,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @Override
     public Boolean query(ModuleAlreadyExistsQuery query) {
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndVersionType(key.getName(), key.getVersion(), key.getVersionType());
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
         return moduleDocument != null;
     }
 
