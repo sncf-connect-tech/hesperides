@@ -13,10 +13,10 @@ public class User {
     String name;
 
     /**
-     * @param principal le principal tel que la plateforme (i.e. tomcat) nous la renvoi
+     * @param currentUser le currentUser tel que la plateforme (i.e. tomcat) nous la renvoie
      * @return un objet User.
      */
-    public static User fromPrincipal(Principal principal) {
-        return new User(principal.getName());
+    public static User fromPrincipal(Principal currentUser) {
+        return new User(currentUser.getName());
     }
 }
