@@ -144,13 +144,11 @@ public class ModuleController extends BaseController {
 
         log.info("deleteWorkingCopy {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
-        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
-
-        moduleUseCases.deleteWorkingCopy(module, fromPrincipal(currentUser));
-
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
+
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        moduleUseCases.deleteWorkingCopy(moduleKey, fromPrincipal(currentUser));
 
         return ResponseEntity.ok().build();
     }
@@ -163,16 +161,13 @@ public class ModuleController extends BaseController {
 
         log.info("deleteRelease {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
-        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
-
-        // TODO N'envoyer que la clé
-        moduleUseCases.deleteRelease(module, fromPrincipal(currentUser));
-
-        // TODO Pourquoi vérifier après la suppression ?
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
+        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
+
+        moduleUseCases.deleteRelease(module.getKey(), fromPrincipal(currentUser));
         return ResponseEntity.ok().build();
     }
 }

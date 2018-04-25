@@ -9,6 +9,7 @@ import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -59,20 +60,20 @@ public class ModuleUseCases {
         commands.updateModule(module, user);
     }
 
-    public void deleteWorkingCopy(Module module, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
+    public void deleteWorkingCopy(TemplateContainer.Key moduleKey, User user) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
         if (!optionalModuleView.isPresent()) {
-            throw new ModuleNotFoundException(module.getKey());
+            throw new ModuleNotFoundException(moduleKey);
         }
-        commands.deleteModule(module, user);
+        commands.deleteModule(moduleKey, user);
     }
 
-    public void deleteRelease(Module module, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
+    public void deleteRelease(TemplateContainer.Key moduleKey, User user) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
         if (!optionalModuleView.isPresent()) {
-            throw new ModuleNotFoundException(module.getKey());
+            throw new ModuleNotFoundException(moduleKey);
         }
-        commands.deleteModule(module, user);
+        commands.deleteModule(moduleKey, user);
     }
 
     /**

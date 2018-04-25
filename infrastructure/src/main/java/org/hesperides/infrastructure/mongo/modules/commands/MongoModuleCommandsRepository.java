@@ -45,7 +45,7 @@ public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        TemplateContainer.Key key = event.getModule().getKey();
+        TemplateContainer.Key key = event.getModuleKey();
         repository.deleteByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
     }
 }
