@@ -29,4 +29,4 @@ Feature: modules related features
   Scenario: create a copy of an existing module
     Given an existing module
     When creating a copy of this module
-    Then the module is successfully created
+    Then the module is successfully duplicated

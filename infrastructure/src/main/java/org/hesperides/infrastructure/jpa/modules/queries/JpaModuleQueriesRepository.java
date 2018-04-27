@@ -32,6 +32,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
+        Optional<ModuleView> result = Optional.empty();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -40,17 +41,10 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
         ModuleEntity moduleEntity = new ModuleEntity();
         moduleEntity.setModuleEntityId(id);
         moduleEntity = jpaModuleRepository.findOne(id);
-        if (moduleEntity == null) {
-            return Optional.empty();
+        if (moduleEntity != null) {
+            result = Optional.of(moduleEntity.toModuleView());
         }
-        return Optional.of(
-                new ModuleView(
-                        moduleEntity.getModuleEntityId().getName(),
-                        moduleEntity.getModuleEntityId().getVersion(),
-                        moduleEntity.getModuleEntityId().getVersionType() == Module.Type.workingcopy,
-                        moduleEntity.getVersionId()
-                )
-        );
+        return result;
     }
 
     @QueryHandler

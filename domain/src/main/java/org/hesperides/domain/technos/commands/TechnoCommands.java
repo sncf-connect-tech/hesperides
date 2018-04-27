@@ -10,8 +10,6 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-
 /**
  * permet de regrouper les envois de commandes.
  */
@@ -26,7 +24,7 @@ public class TechnoCommands {
     }
 
     public Techno.Key createTechno(TemplateContainer.Key technoKey, User user) {
-        Techno techno = new Techno(technoKey, Collections.emptyList());
+        Techno techno = new Techno(technoKey, null);
         return commandGateway.sendAndWait(new CreateTechnoCommand(techno, user));
     }
 

@@ -4,6 +4,7 @@ package org.hesperides.domain.templatecontainer.queries;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 @Value
 public class TemplateView {
@@ -12,19 +13,12 @@ public class TemplateView {
     String filename;
     String location;
     String content;
-    RightsView rightsView;
+    RightsView rights;
     @SerializedName("version_id")
     Long versionId;
 
-    public static TemplateView fromDomain(Template template, String namespacePrefix) {
-        return new TemplateView(
-                template.getName(),
-                template.getTemplateContainerKey().getNamespace(namespacePrefix),
-                template.getFilename(),
-                template.getLocation(),
-                template.getContent(),
-                RightsView.fromDomain(template.getRights()),
-                template.getVersionId());
+    public Template toDomain(TemplateContainer.Key templateContainerKey) {
+        return new Template(name, filename, location, content, rights.toDomain(), versionId, templateContainerKey);
     }
 
     @Value
@@ -33,11 +27,8 @@ public class TemplateView {
         FileRightsView group;
         FileRightsView other;
 
-        public static RightsView fromDomain(Template.Rights rights) {
-            FileRightsView userRights = rights.getUser() != null ? FileRightsView.fromDomain(rights.getUser()) : null;
-            FileRightsView groupRights = rights.getGroup() != null ? FileRightsView.fromDomain(rights.getGroup()) : null;
-            FileRightsView otherRights = rights.getOther() != null ? FileRightsView.fromDomain(rights.getOther()) : null;
-            return new RightsView(userRights, groupRights, otherRights);
+        public Template.Rights toDomain() {
+            return new Template.Rights(user.toDomain(), group.toDomain(), other.toDomain());
         }
     }
 
@@ -47,8 +38,8 @@ public class TemplateView {
         Boolean write;
         Boolean execute;
 
-        public static FileRightsView fromDomain(Template.FileRights fileRights) {
-            return new FileRightsView(fileRights.getRead(), fileRights.getWrite(), fileRights.getExecute());
+        public Template.FileRights toDomain() {
+            return new Template.FileRights(read, write, execute);
         }
     }
 }

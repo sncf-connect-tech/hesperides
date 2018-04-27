@@ -18,35 +18,32 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.technos;
+package org.hesperides.domain.technos.queries;
 
-import lombok.Data;
+import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Document(collection = "techno")
-@Data
-public class TechnoDocument {
-    @Id
-    String id;
+@Value
+public class TechnoView {
     String name;
     String version;
+    @SerializedName("working_copy")
     boolean workingCopy;
-    List<TemplateDocument> templates;
+    @SerializedName("version_id")
+    Long versionId;
+    List<TemplateView> templates;
 
-    public static TechnoDocument fromDomain(Techno techno) {
-        TechnoDocument technoDocument = new TechnoDocument();
-        TemplateContainer.Key key = techno.getKey();
-        technoDocument.setName(key.getName());
-        technoDocument.setVersion(key.getVersion());
-        technoDocument.setWorkingCopy(key.isWorkingCopy());
-        technoDocument.setTemplates(techno.getTemplates() != null ? techno.getTemplates().stream().map(template -> TemplateDocument.fromDomain(template)).collect(Collectors.toList()) : null);
-        return technoDocument;
+    public Techno toDomain() {
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return new Techno(
+                technoKey,
+                templates != null ? templates.stream().map(templateView -> templateView.toDomain(technoKey)).collect(Collectors.toList()) : null
+        );
     }
 }

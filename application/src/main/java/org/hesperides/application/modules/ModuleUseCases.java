@@ -119,7 +119,21 @@ public class ModuleUseCases {
         return queries.getTemplate(moduleKey, templateName);
     }
 
-    public Module.Key createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey) {
-        throw new IllegalArgumentException("TODO"); //TODO
+    public ModuleView createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey, User user) {
+
+        if (queries.moduleExist(newModuleKey)) {
+            throw new DuplicateModuleException(newModuleKey);
+        }
+
+        Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
+        if (!moduleView.isPresent()) {
+            throw new ModuleNotFoundException(existingModuleKey);
+        }
+
+        Module existingModule = moduleView.get().toDomain();
+        Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
+
+        commands.createModule(newModule, user);
+        return queries.getModule(newModuleKey).get();
     }
 }
