@@ -5,11 +5,11 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,38 +22,29 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
-    private final MongoModuleRepository mongoModuleRepository;
+    private final MongoModuleRepository repository;
 
     @Autowired
-    public MongoModuleQueriesRepository(MongoModuleRepository mongoModuleRepository) {
-        this.mongoModuleRepository = mongoModuleRepository;
+    public MongoModuleQueriesRepository(MongoModuleRepository repository) {
+        this.repository = repository;
     }
 
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(query.getModuleKey().getName());
-        moduleDocument.setVersion(query.getModuleKey().getVersion());
-        moduleDocument.setVersionType(query.getModuleKey().getVersionType());
-        moduleDocument = mongoModuleRepository.findOne(Example.of(moduleDocument));
-        if (moduleDocument == null) {
-            return Optional.empty();
+        Optional<ModuleView> moduleView = Optional.empty();
+        TemplateContainer.Key key = query.getModuleKey();
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        if (moduleDocument != null) {
+            moduleView = Optional.of(moduleDocument.toModuleView());
         }
-        return Optional.of(
-                new ModuleView(
-                        moduleDocument.getName(),
-                        moduleDocument.getVersion(),
-                        moduleDocument.getVersionType() == Module.Type.workingcopy,
-                        moduleDocument.getVersionId()
-                )
-        );
+        return moduleView;
     }
 
     @QueryHandler
     @Override
     public List<String> query(GetModulesNamesQuery query) {
-        return mongoModuleRepository.findAll()
+        return repository.findAll()
                 .stream()
                 .map(ModuleDocument::getName)
                 .collect(Collectors.toList());
@@ -62,22 +53,17 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public List<String> query(GetModuleTypesQuery query) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(query.getModuleName());
-        moduleDocument.setVersion(query.getModuleVersion());
-        return mongoModuleRepository.findAll(Example.of(moduleDocument))
+        return repository.findByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
-                .map(ModuleDocument::getVersionType)
-                .map(Module.Type::toString)
+                .map(ModuleDocument::isWorkingCopy)
+                .map(isWorkingCopy -> Module.Type.toString(isWorkingCopy))
                 .collect(Collectors.toList());
     }
 
     @QueryHandler
     @Override
     public List<String> query(GetModuleVersionsQuery query) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(query.getModuleName());
-        return mongoModuleRepository.findAll(Example.of(moduleDocument))
+        return repository.findByName(query.getModuleName())
                 .stream()
                 .map(ModuleDocument::getVersion)
                 .collect(Collectors.toList());
@@ -86,11 +72,9 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public Boolean query(ModuleAlreadyExistsQuery query) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(query.getModuleKey().getName());
-        moduleDocument.setVersion(query.getModuleKey().getVersion());
-        moduleDocument.setVersionType(query.getModuleKey().getVersionType());
-        return mongoModuleRepository.exists(Example.of(moduleDocument));
+        TemplateContainer.Key key = query.getModuleKey();
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        return moduleDocument != null;
     }
 
 }

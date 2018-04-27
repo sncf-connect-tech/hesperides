@@ -36,7 +36,7 @@ public class TemplateController extends BaseController {
     @PostMapping("/workingcopy/templates")
     @ApiOperation("Create template in the workingcopy of a module")
     public ResponseEntity createTemplateInWorkingCopy(
-            Principal principal,
+            Principal currentUser,
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @Valid @RequestBody final TemplateInput templateInput) {
@@ -48,7 +48,7 @@ public class TemplateController extends BaseController {
         moduleUseCases.createTemplateInWorkingCopy(
                 new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy),
                 template,
-                fromPrincipal(principal));
+                fromPrincipal(currentUser));
         URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                 .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
         return ResponseEntity.status(SEE_OTHER).location(location).build();
@@ -68,7 +68,7 @@ public class TemplateController extends BaseController {
     @DeleteMapping("/workingcopy/templates/{template_name}")
     @ApiOperation("Delete template in the working copy of a version")
     public ResponseEntity deleteTemplateInWorkingCopy(
-            Principal principal,
+            Principal currentUser,
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("template_name") final String templateName) {
@@ -76,14 +76,14 @@ public class TemplateController extends BaseController {
         this.moduleUseCases.deleteTemplate(
                 new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy),
                 templateName,
-                fromPrincipal(principal));
+                fromPrincipal(currentUser));
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/workingcopy/templates")
     @ApiOperation("Update template in the workingcopy of a module")
     public ResponseEntity updateTemplateInWorkingCopy(
-            Principal principal,
+            Principal currentUser,
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @Valid @RequestBody final TemplateInput templateInput) {
@@ -93,7 +93,7 @@ public class TemplateController extends BaseController {
         moduleUseCases.updateTemplateInWorkingCopy(
                 new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy),
                 template,
-                fromPrincipal(principal));
+                fromPrincipal(currentUser));
         URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                 .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
         return ResponseEntity.status(SEE_OTHER).location(location).build();

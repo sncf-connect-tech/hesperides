@@ -25,6 +25,10 @@ public abstract class TemplateContainer {
         public String getMinimizedForm() {
             return minimizedForm;
         }
+
+        public static String toString(boolean isWorkingCopy) {
+            return isWorkingCopy ? workingcopy.toString() : release.toString();
+        }
     }
 
     @Value

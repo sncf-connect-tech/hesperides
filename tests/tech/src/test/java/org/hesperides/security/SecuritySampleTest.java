@@ -58,7 +58,7 @@ public class SecuritySampleTest {
 
     @Test
     public void anonymousUserIsUnauthorized() throws Exception {
-        mvc.perform(get("/security/principal")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/security/currentUser")).andExpect(status().isUnauthorized());
         mvc.perform(get("/security/authentication")).andExpect(status().isUnauthorized());
         mvc.perform(get("/security/prod")).andExpect(status().isUnauthorized());
         mvc.perform(get("/security/tech")).andExpect(status().isUnauthorized());
@@ -69,7 +69,7 @@ public class SecuritySampleTest {
     @Test
     @WithMockUser
     public void authenticatedUserIsAuthorized() throws Exception {
-        mvc.perform(get("/security/principal")).andExpect(status().isOk());
+        mvc.perform(get("/security/currentUser")).andExpect(status().isOk());
         mvc.perform(get("/security/authentication")).andExpect(status().isOk());
     }
 

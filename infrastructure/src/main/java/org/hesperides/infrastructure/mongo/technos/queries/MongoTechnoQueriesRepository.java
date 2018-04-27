@@ -25,13 +25,13 @@ import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoQueriesRepository;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -52,25 +52,25 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     @QueryHandler
     public Optional<TemplateView> query(GetTemplateQuery query) {
         Optional<TemplateView> result = Optional.empty();
+        TemplateContainer.Key key = query.getTechnoKey();
 
-        /**
-         * C'est moche mais je ne sais pas comment récupérer un template dans la collection de technos
-         * à partir de la clé de la techno et du nom unique du template
-         * TODO Améliorer
-         */
-        TechnoDocument technoDocumentSample = TechnoDocument.fromDomainKey(query.getTechnoKey());
-        TechnoDocument technoDocument = repository.findOne(Example.of(technoDocumentSample));
-        for (TemplateDocument templateDocument : technoDocument.getTemplates()) {
-            if (templateDocument.getName().equalsIgnoreCase(query.getTemplateName())) {
-                result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
-                break;
-            }
+        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopyAndTemplatesName(
+                key.getName(), key.getVersion(), key.isWorkingCopy(), query.getTemplateName());
+
+        if (technoDocument != null) {
+            TemplateDocument templateDocument = technoDocument.getTemplates().stream()
+                    .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
+                    .findAny().get();
+            result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
         }
         return result;
     }
 
     @QueryHandler
     public Boolean query(TechnoAlreadyExistsQuery query) {
-        return repository.exists(Example.of(TechnoDocument.fromDomainKey(query.getTechnoKey())));
+        TemplateContainer.Key key = query.getTechnoKey();
+        Optional<TechnoDocument> technoDocument = repository.findOptionalByNameAndVersionAndWorkingCopy(
+                key.getName(), key.getVersion(), key.isWorkingCopy());
+        return technoDocument.isPresent();
     }
 }

@@ -4,14 +4,17 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 import static org.hesperides.domain.Profiles.*;
 
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository
 public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, String> {
 
-//    @Query("{'templates.name': ?0}")
-//    TemplateDocument findTemplate(String templateName);
+    Optional<TechnoDocument> findOptionalByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
 
-    //TODO Créer une méthode findByKey
+    TechnoDocument findByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+
+    TechnoDocument findByNameAndVersionAndWorkingCopyAndTemplatesName(String name, String version, boolean isWorkingCopy, String templateName);
 }

@@ -31,7 +31,6 @@ import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -52,14 +51,8 @@ public class MongoTemplateCommandsRepository implements TemplateCommandsReposito
     @Override
     @EventSourcingHandler
     public void on(TemplateCreatedEvent event) {
-        //TODO Utiliser findByKey et trouver un moyen d'améliorer tout ça
         TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
+        ModuleDocument module = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
         if (module.getTemplates() == null) {
             module.setTemplates(new ArrayList<>());
         }
@@ -71,17 +64,12 @@ public class MongoTemplateCommandsRepository implements TemplateCommandsReposito
     @Override
     @EventSourcingHandler
     public void on(TemplateUpdatedEvent event) {
-        //TODO Utiliser findByKey et trouver un moyen d'améliorer tout ça
         TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
+        ModuleDocument module = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
         for (int i = 0; i < module.getTemplates().size(); i++) {
             if (module.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplate().getName())) {
                 module.getTemplates().set(i, TemplateDocument.fromDomain(event.getTemplate()));
+                break;
             }
         }
         repository.save(module);
@@ -91,17 +79,8 @@ public class MongoTemplateCommandsRepository implements TemplateCommandsReposito
     @EventSourcingHandler
     public void on(TemplateDeletedEvent event) {
         TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument searchDocument = new ModuleDocument();
-        searchDocument.setName(key.getName());
-        searchDocument.setVersion(key.getVersion());
-        searchDocument.setVersionType(key.getVersionType());
-
-        ModuleDocument module = repository.findOne(Example.of(searchDocument));
-        for (int i = 0; i < module.getTemplates().size(); i++) {
-            if (module.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplateName())) {
-                module.getTemplates().remove(i);
-            }
-        }
+        ModuleDocument module = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        module.getTemplates().removeIf(template -> template.getName().equalsIgnoreCase(event.getTemplateName()));
         repository.save(module);
     }
 }

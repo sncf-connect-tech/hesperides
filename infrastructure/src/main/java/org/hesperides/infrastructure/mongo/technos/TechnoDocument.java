@@ -21,7 +21,6 @@
 package org.hesperides.infrastructure.mongo.technos;
 
 import lombok.Data;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
@@ -29,6 +28,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Document(collection = "techno")
 @Data
@@ -37,20 +37,18 @@ public class TechnoDocument {
     String id;
     String name;
     String version;
-    Module.Type versionType;
+    boolean workingCopy;
     List<TemplateDocument> templates;
 
     public static TechnoDocument fromDomain(Techno techno) {
-        TechnoDocument technoDocument = fromDomainKey(techno.getKey());
-        // Il n'y a pas d'autres propriétés que la clé
-        return technoDocument;
-    }
-
-    public static TechnoDocument fromDomainKey(TemplateContainer.Key key) {
         TechnoDocument technoDocument = new TechnoDocument();
+        TemplateContainer.Key key = techno.getKey();
         technoDocument.setName(key.getName());
         technoDocument.setVersion(key.getVersion());
-        technoDocument.setVersionType(key.getVersionType());
+        technoDocument.setWorkingCopy(key.isWorkingCopy());
+        technoDocument.setTemplates(techno.getTemplates().stream()
+                .map(template -> TemplateDocument.fromDomain(template))
+                .collect(Collectors.toList()));
         return technoDocument;
     }
 }
