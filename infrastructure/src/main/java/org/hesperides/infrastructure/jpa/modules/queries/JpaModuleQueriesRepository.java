@@ -105,4 +105,10 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
         return jpaModuleRepository.exists(Example.of(moduleEntity));
     }
 
+    @Override
+    @QueryHandler
+    public List<ModuleView> query(SearchModulesQuery query) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
 }

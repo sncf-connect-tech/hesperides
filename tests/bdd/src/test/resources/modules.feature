@@ -30,3 +30,18 @@ Feature: modules related features
     Given an existing module
     When creating a copy of this module
     Then the module is successfully duplicated
+
+  Scenario: search for an existing module
+    Given a list of existing modules
+    When searching for one of them
+    Then it is found
+
+  Scenario: search for existing modules
+    Given a list of existing modules
+    When searching for some of them
+    Then the number of results is limited
+
+  Scenario: search for a module that doesn't exist
+    Given a list of existing modules
+    When searching for one that does not exist
+    Then the result is empty

@@ -41,7 +41,7 @@ public class HesperideTestRestTemplate {
         rest.getRestTemplate().setMessageConverters(converters);
     }
 
-    public TestRestTemplate getTestRestTemplate() {
+    public TestRestTemplate getTestRest() {
         return rest;
     }
 
@@ -77,14 +77,6 @@ public class HesperideTestRestTemplate {
 
     public void addCreds(String user, String password) {
         rest.getRestTemplate().getInterceptors().add(new BasicAuthorizationInterceptor(user, password));
-    }
-
-    public <T> ResponseEntity<T> getForEntity(URI url, Class<T> responseType) {
-        return rest.getForEntity(url, responseType);
-    }
-
-    public void delete(URI templateLocation) {
-        rest.delete(templateLocation);
     }
 
     @FunctionalInterface

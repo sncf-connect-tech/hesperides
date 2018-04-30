@@ -34,7 +34,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         });
 
         Then("^the template is successfully created and the module contains the new template$", () -> {
-            ResponseEntity<TemplateView> responseEntity = rest.getForEntity(templateLocation, TemplateView.class);
+            ResponseEntity<TemplateView> responseEntity = rest.getTestRest().getForEntity(templateLocation, TemplateView.class);
             assertEquals(1L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });

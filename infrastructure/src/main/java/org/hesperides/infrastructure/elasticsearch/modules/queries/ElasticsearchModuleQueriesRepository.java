@@ -88,4 +88,10 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
                 query.getModuleKey().getVersionType());
         return moduleDocument != null;
     }
+
+    @QueryHandler
+    @Override
+    public List<ModuleView> query(SearchModulesQuery query) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

@@ -10,6 +10,12 @@ import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.StringOperators;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,10 +29,12 @@ import static org.hesperides.domain.Profiles.*;
 public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
     private final MongoModuleRepository repository;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MongoModuleQueriesRepository(MongoModuleRepository repository) {
+    public MongoModuleQueriesRepository(MongoModuleRepository repository, MongoTemplate mongoTemplate) {
         this.repository = repository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @QueryHandler
@@ -77,4 +85,24 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
         return moduleDocument != null;
     }
 
+    @QueryHandler
+    @Override
+    public List<ModuleView> query(SearchModulesQuery query) {
+        /**
+         * On crée une projection pour effectuer une recherche sur la concaténation de deux champs : name et version.
+         * 1 : Une projection nécessite de définir les champs qu'on veut récupérer
+         * 2 : La concaténation entraine la création d'un champs temporaire qu'on nomme "nameAndVersion"
+         * 3 : La recherche est une expression régulière (équivalent de LIKE) appliquée à ce nouveau champs
+         * 4 : On limite le nom de résultats
+         */
+        AggregationOperation project = Aggregation.project("name", "version", "workingCopy") // 1
+                .and(StringOperators.Concat.valueOf("name").concat(" ").concatValueOf("version")).as("nameAndVersion"); // 2
+        AggregationOperation match = Aggregation.match(Criteria.where("nameAndVersion").regex(query.getInput())); // 3
+        AggregationOperation limit = Aggregation.limit(10); // 4
+
+        TypedAggregation<ModuleDocument> aggregation = TypedAggregation.newAggregation(ModuleDocument.class, project, match, limit);
+        List<ModuleDocument> modules = mongoTemplate.aggregate(aggregation, ModuleDocument.class).getMappedResults();
+
+        return modules.stream().map(moduleDocument -> moduleDocument.toModuleView()).collect(Collectors.toList());
+    }
 }
