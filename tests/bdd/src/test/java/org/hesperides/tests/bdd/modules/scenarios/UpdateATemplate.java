@@ -38,7 +38,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
 
         Then("^the template is successfully updated", () -> {
             assertNull(exception);
-            ResponseEntity<TemplateView> responseEntity = rest.getForEntity(templateLocation, TemplateView.class);
+            ResponseEntity<TemplateView> responseEntity = rest.getTestRest().getForEntity(templateLocation, TemplateView.class);
             assertEquals(2L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });

@@ -27,7 +27,7 @@ public class CreateAModule extends CucumberSpringBean implements En {
         });
 
         Then("^the module is successfully created$", () -> {
-            ResponseEntity<ModuleView> responseEntity = rest.getForEntity(moduleLocation, ModuleView.class);
+            ResponseEntity<ModuleView> responseEntity = rest.getTestRest().getForEntity(moduleLocation, ModuleView.class);
             assertEquals(1L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });

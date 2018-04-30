@@ -34,7 +34,7 @@ public class CreateATechno extends CucumberSpringBean implements En {
         });
 
         When("^creating a new techno$", () -> {
-            response = rest.getTestRestTemplate().postForEntity(
+            response = rest.getTestRest().postForEntity(
                     String.format("/templates/packages/%s/%s/workingcopy/templates", technoInput.getName(), technoInput.getVersion()),
                     technoInput.getTemplate(),
                     TemplateView.class);

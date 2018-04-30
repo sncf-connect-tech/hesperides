@@ -24,4 +24,7 @@ public interface ModuleQueriesRepository {
 
     @QueryHandler
     Boolean query(ModuleAlreadyExistsQuery query);
+
+    @QueryHandler
+    List<ModuleView> query(SearchModulesQuery query);
 }
