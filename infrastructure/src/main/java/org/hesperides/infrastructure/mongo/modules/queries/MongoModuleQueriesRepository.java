@@ -52,10 +52,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public List<String> query(GetModulesNamesQuery query) {
-        return repository.findAll()
-                .stream()
-                .map(ModuleDocument::getName)
-                .collect(Collectors.toList());
+        return mongoTemplate.getCollection("module").distinct("name");
     }
 
     @QueryHandler

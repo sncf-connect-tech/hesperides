@@ -136,7 +136,7 @@ public class ModuleController extends BaseController {
         return ResponseEntity.status(SEE_OTHER).location(module.getKey().getURI()).build();
     }
 
-    @ApiOperation("Deletes the working copy")
+    @ApiOperation("Delete a module working copy")
     @DeleteMapping(path = "/{module_name}/{module_version}/workingcopy")
     public ResponseEntity deleteWorkingCopy(Principal currentUser,
                                             @PathVariable(value = "module_name") final String moduleName,
@@ -153,7 +153,7 @@ public class ModuleController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation("Deletes the release")
+    @ApiOperation("Delete a module release")
     @DeleteMapping(path = "/{module_name}/{module_version}/release")
     public ResponseEntity deleteRelease(Principal currentUser,
                                         @PathVariable(value = "module_name") final String moduleName,
