@@ -42,17 +42,26 @@ import static org.hesperides.domain.Profiles.LDAP;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationProvider authenticationProvider;
 
+    private static final String[] AUTH_WHITELIST = {
+            // -- swagger ui
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**"
+    };
+
     public WebSecurityConfig(final AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        /**
+        /*
          * Pour désactiver CSRF ?
          */
         http.csrf().disable()
                 .authorizeRequests()
+                .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest()
                 .fullyAuthenticated()
                 .and()
