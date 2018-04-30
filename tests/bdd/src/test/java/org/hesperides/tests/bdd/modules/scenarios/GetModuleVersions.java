@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -21,6 +21,10 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
             createModule("test", "1.0.0", Module.Type.workingcopy);
         });
 
+        Given("^an existing released module$", () -> {
+            createModule("test", "1.0.0", Module.Type.release);
+        });
+
         Given("^an existing module with multiple versions$", () -> {
             for (int i = 0; i < 6; i++) {
                 createModule("test", "1.0." + i, Module.Type.workingcopy);

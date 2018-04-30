@@ -1,9 +1,7 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
-import com.google.common.collect.ImmutableSet;
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.presentation.inputs.ModuleInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

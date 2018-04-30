@@ -20,6 +20,11 @@ Feature: modules related features
     When deleting this module
     Then the module is successfully deleted
 
+  Scenario: delete a module release
+    Given an existing released module
+    When deleting this module
+    Then the module is successfully deleted
+
   Scenario: conflict while updating an existing module
     Given an existing module
     And this module is being modified alongside
@@ -52,8 +57,13 @@ Feature: modules related features
     When listing all modules names
     Then I get a distinct list of all modules names
 
-  Scenario: get info for a given module release/working-copy
+  Scenario: get info for a given module
     Given an existing module
+    When retrieving the module's info
+    Then the module's info is retrieved
+
+  Scenario: get info for a given released module
+    Given an existing released module
     When retrieving the module's info
     Then the module's info is retrieved
 
