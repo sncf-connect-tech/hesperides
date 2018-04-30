@@ -144,4 +144,23 @@ public class ModuleUseCases {
     public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {
         return queries.getTemplates(moduleKey);
     }
+
+    public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
+
+        //TODO Vérifier si le module a déjà été releasé ?
+
+        TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.Type.workingcopy);
+        Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
+        if (!moduleView.isPresent()) {
+            throw new ModuleNotFoundException(existingModuleKey);
+        }
+
+        Module existingModule = moduleView.get().toDomain();
+        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, releaseVersion, TemplateContainer.Type.release);
+        Module newReleasedModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
+
+        commands.createModule(newReleasedModule, user);
+
+        return queries.getModule(newModuleKey).get();
+    }
 }
