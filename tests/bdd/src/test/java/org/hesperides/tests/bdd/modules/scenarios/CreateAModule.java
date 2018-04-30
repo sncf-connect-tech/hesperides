@@ -30,6 +30,7 @@ public class CreateAModule extends CucumberSpringBean implements En {
             ResponseEntity<ModuleView> responseEntity = rest.getTestRest().getForEntity(moduleLocation, ModuleView.class);
             assertEquals(1L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
+            //TODO Tester les propriétés par rapport à l'existant
         });
     }
 }

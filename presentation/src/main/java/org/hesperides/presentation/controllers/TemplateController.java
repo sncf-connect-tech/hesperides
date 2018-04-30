@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.security.Principal;
+import java.util.List;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
@@ -54,14 +55,15 @@ public class TemplateController extends BaseController {
         return ResponseEntity.status(SEE_OTHER).location(location).build();
     }
 
-    @GetMapping("/workingcopy/templates/{template_name}")
+    @GetMapping("/{module_type}/templates/{template_name}")
     @ApiOperation("Get template bundled in a module for a version workingcopy")
     public TemplateView getTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
+            @PathVariable("module_type") final Module.Type moduleType,
             @PathVariable("template_name") final String templateName) {
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
         return moduleUseCases.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
     }
 
@@ -97,5 +99,16 @@ public class TemplateController extends BaseController {
         URI location = fromPath("/rest/modules/{module_name}/{module_version}/workingcopy/templates/{template_name}")
                 .buildAndExpand(moduleName, moduleVersion, template.getName()).toUri();
         return ResponseEntity.status(SEE_OTHER).location(location).build();
+    }
+
+    @GetMapping("/{module_type}/templates")
+    @ApiOperation("Get all templates bundled in a module")
+    public List<TemplateView> getModuleTemplates(
+            @PathVariable("module_name") final String moduleName,
+            @PathVariable("module_version") final String moduleVersion,
+            @PathVariable("module_type") final Module.Type moduleType) {
+
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        return moduleUseCases.getTemplates(moduleKey);
     }
 }

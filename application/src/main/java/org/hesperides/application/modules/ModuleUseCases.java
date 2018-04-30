@@ -140,4 +140,8 @@ public class ModuleUseCases {
     public List<ModuleView> search(String input) {
         return queries.search(input);
     }
+
+    public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {
+        return queries.getTemplates(moduleKey);
+    }
 }

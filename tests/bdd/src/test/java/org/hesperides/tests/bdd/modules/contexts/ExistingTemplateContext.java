@@ -17,12 +17,19 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
     private ExistingModuleContext existingModuleContext;
 
     public ExistingTemplateContext() {
+
         Given("^an existing template in this module$", () -> {
-            RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
-            templateInput = new TemplateInput("templateName", "template.name", "template.location", "content",
-                    new RightsInput(rights, rights, rights), 0L);
-            templateLocation = rest.postForLocationReturnAbsoluteURI("/modules/{id}/{version}/workingcopy/templates/", templateInput,
-                    existingModuleContext.getModuleKey().getName(), existingModuleContext.getModuleKey().getVersion());
+            addTemplateToModule("templateName");
+        });
+
+        Given("^multiple templates in this module$", () -> {
+            for (int i = 0; i < 6; i++) {
+                addTemplateToModule("templateName" + i);
+            }
+        });
+
+        Given("^an existing template in a released module$", () -> {
+            //TODO Gérer d'abord la création d'une release de module
         });
     }
 
@@ -32,5 +39,17 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
 
     public ExistingModuleContext getExistingModuleContext() {
         return existingModuleContext;
+    }
+
+    public TemplateInput getTemplateInput() {
+        return templateInput;
+    }
+
+    private void addTemplateToModule(String templateName) {
+        RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
+        templateInput = new TemplateInput(templateName, "template.name", "template.location", "content",
+                new RightsInput(rights, rights, rights), 0L);
+        templateLocation = rest.postForLocationReturnAbsoluteURI("/modules/{id}/{version}/workingcopy/templates/", templateInput,
+                existingModuleContext.getModuleKey().getName(), existingModuleContext.getModuleKey().getVersion());
     }
 }
