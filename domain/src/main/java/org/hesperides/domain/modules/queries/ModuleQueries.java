@@ -43,4 +43,8 @@ public class ModuleQueries extends Queries {
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
         return querySyncOptional(new GetTemplateByNameQuery(moduleKey, templateName), TemplateView.class);
     }
+
+    public List<ModuleView> search(String query) {
+        return querySyncList(new SearchModulesQuery(query), ModuleView.class);
+    }
 }

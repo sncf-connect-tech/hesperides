@@ -22,7 +22,7 @@ public class CopyAModule extends CucumberSpringBean implements En {
     public CopyAModule() {
         When("^creating a copy of this module$", () -> {
             ModuleInput newModule = new ModuleInput("test2", "123", true, ImmutableSet.of(), 0L);
-            responseEntity = rest.getTestRestTemplate().postForEntity(String.format("/modules?from_module_name=%s&from_module_version=%s&from_is_working_copy=%s",
+            responseEntity = rest.getTestRest().postForEntity(String.format("/modules?from_module_name=%s&from_module_version=%s&from_is_working_copy=%s",
                     existingModuleContext.getModuleKey().getName(),
                     existingModuleContext.getModuleKey().getVersion(),
                     existingModuleContext.getModuleKey().isWorkingCopy()),

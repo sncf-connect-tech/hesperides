@@ -168,4 +168,11 @@ public class ModuleController extends BaseController {
         moduleUseCases.deleteRelease(moduleKey, fromPrincipal(currentUser));
         return ResponseEntity.ok().build();
     }
+
+    @ApiOperation("Search for modules")
+    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<ModuleView>> search(@RequestParam("terms") final String input) {
+        log.info("search module {}", input);
+        return ResponseEntity.ok(moduleUseCases.search(input));
+    }
 }

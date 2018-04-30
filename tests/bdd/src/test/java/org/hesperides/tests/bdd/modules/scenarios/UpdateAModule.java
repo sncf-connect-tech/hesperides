@@ -38,7 +38,7 @@ public class UpdateAModule extends CucumberSpringBean implements En {
 
         Then("^the module is successfully updated", () -> {
             assertNull(exception);
-            ResponseEntity<ModuleView> responseEntity = rest.getForEntity(moduleLocation, ModuleView.class);
+            ResponseEntity<ModuleView> responseEntity = rest.getTestRest().getForEntity(moduleLocation, ModuleView.class);
             assertEquals(2L, responseEntity.getBody().getVersionId().longValue());
             assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
         });

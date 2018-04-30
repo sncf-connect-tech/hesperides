@@ -16,7 +16,7 @@ public class DeleteAModule extends CucumberSpringBean implements En {
 
     public DeleteAModule() {
         When("^deleting this module$", () -> {
-            rest.delete(existingModuleContext.getModuleLocation());
+            rest.getTestRest().delete(existingModuleContext.getModuleLocation());
         });
 
         Then("^the module is successfully deleted$", () -> {
