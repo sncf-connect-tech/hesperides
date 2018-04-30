@@ -30,12 +30,15 @@ public class ModuleDocument {
         moduleDocument.setVersion(key.getVersion());
         moduleDocument.setWorkingCopy(key.getVersionType().equals(TemplateContainer.Type.workingcopy));
         moduleDocument.setVersionId(module.getVersionId());
-        moduleDocument.setTemplates(module.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()));
+        moduleDocument.setTemplates(module.getTemplates() != null ? module.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()) : null);
         //TODO Technos
         return moduleDocument;
     }
 
     public ModuleView toModuleView() {
-        return new ModuleView(name, version, workingCopy, versionId);
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return new ModuleView(name, version, workingCopy, versionId,
+                templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.NAMESPACE_PREFIX)).collect(Collectors.toList()) : null,
+                null); //TODO Technos
     }
 }

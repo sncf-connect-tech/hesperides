@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.Collections;
 import java.util.List;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
@@ -102,28 +101,29 @@ public class ModuleController extends BaseController {
     public ResponseEntity createWorkingCopy(Principal currentUser,
                                             @RequestParam(value = "from_module_name", required = false) final String fromModuleName,
                                             @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
-                                            @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
-                                            @Valid @RequestBody final ModuleInput module) {
+                                            @RequestParam(value = "from_is_working_copy", required = false) final Boolean fromWorkingCopy,
+                                            @Valid @RequestBody final ModuleInput moduleInput) {
 
-        log.info("createWorkingCopy {}", module.toString());
+        log.info("createWorkingCopy {}", moduleInput.toString());
 
-        Module.Key createdModuleKey;
+        ResponseEntity responseEntity;
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
-                && isFromWorkingCopy == null) {
+                && fromWorkingCopy == null) {
 
-            createdModuleKey = moduleUseCases.createWorkingCopy(module.toDomainInstance(), fromPrincipal(currentUser));
+            Module.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), fromPrincipal(currentUser));
+            responseEntity = ResponseEntity.status(SEE_OTHER).location(createdModuleKey.getURI()).build();
 
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
             checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
-            checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
+            checkQueryParameterNotEmpty("from_is_working_copy", fromWorkingCopy);
 
-            Module.Key from = new Module.Key(fromModuleName, fromModuleVersion, isFromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
-            createdModuleKey = moduleUseCases.createWorkingCopyFrom(from, module.getDomaineModuleKey());
+            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, fromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
+            ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
+            responseEntity = ResponseEntity.created(moduleView.toDomain().getKey().getURI()).body(moduleView);
         }
-
-        return ResponseEntity.status(SEE_OTHER).location(createdModuleKey.getURI()).build();
+        return responseEntity;
     }
 
     @ApiOperation("Update a module working copy")
@@ -144,13 +144,11 @@ public class ModuleController extends BaseController {
 
         log.info("deleteWorkingCopy {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
-        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
-
-        moduleUseCases.deleteWorkingCopy(module, fromPrincipal(currentUser));
-
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
+
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        moduleUseCases.deleteWorkingCopy(moduleKey, fromPrincipal(currentUser));
 
         return ResponseEntity.ok().build();
     }
@@ -163,16 +161,11 @@ public class ModuleController extends BaseController {
 
         log.info("deleteRelease {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
-        Module module = new Module(moduleKey, Collections.emptyList(), Collections.emptyList(), Long.MIN_VALUE);
-
-        // TODO N'envoyer que la clé
-        moduleUseCases.deleteRelease(module, fromPrincipal(currentUser));
-
-        // TODO Pourquoi vérifier après la suppression ?
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
+        moduleUseCases.deleteRelease(moduleKey, fromPrincipal(currentUser));
         return ResponseEntity.ok().build();
     }
 }

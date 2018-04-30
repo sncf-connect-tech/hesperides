@@ -6,6 +6,7 @@ import org.hesperides.domain.modules.ModuleCreatedEvent;
 import org.hesperides.domain.modules.ModuleDeletedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.elasticsearch.modules.ElasticsearchModuleRepository;
 import org.hesperides.infrastructure.elasticsearch.modules.ModuleDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +57,11 @@ public class ElasticsearchModuleCommandsRepository implements ModuleCommandsRepo
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionTypeAndVersionId(
-                event.getModule().getKey().getName(),
-                event.getModule().getKey().getVersion(),
-                event.getModule().getKey().getVersionType(),
-                event.getModule().getVersionId());
+        TemplateContainer.Key moduleKey = event.getModuleKey();
+        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
+                moduleKey.getName(),
+                moduleKey.getVersion(),
+                moduleKey.getVersionType());
         elasticsearchModuleRepository.delete(moduleDocument);
     }
 }

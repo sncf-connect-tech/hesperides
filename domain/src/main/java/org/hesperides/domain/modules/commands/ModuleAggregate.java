@@ -66,7 +66,7 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     public void delteModule(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
-        apply(new ModuleDeletedEvent(command.getModule(), command.getUser()));
+        apply(new ModuleDeletedEvent(command.getModuleKey(), command.getUser()));
     }
 
     @CommandHandler
@@ -157,7 +157,7 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     private void on(ModuleDeletedEvent event) {
-        this.key = event.getModule().getKey();
+        this.key = event.getModuleKey();
 
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }

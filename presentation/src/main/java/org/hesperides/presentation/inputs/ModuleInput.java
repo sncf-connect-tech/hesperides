@@ -7,7 +7,6 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.Set;
 
 @Value
@@ -28,10 +27,6 @@ public final class ModuleInput {
     @SerializedName("version_id")
     Long versionId;
 
-    public Module.Key getDomaineModuleKey() {
-        return new Module.Key(name, version, isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
-    }
-
     public Module toDomainInstance() {
         return new Module(
                 new TemplateContainer.Key(
@@ -40,10 +35,10 @@ public final class ModuleInput {
                         isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release
                 ),
                 /**
-                 * TODO Vérifier qu'un input module ne contient jamais de technos ni de templates
+                 * TODO Templates et technos
                  */
-                Collections.emptyList(),
-                Collections.emptyList(),
+                null,
+                null,
                 versionId
         );
     }

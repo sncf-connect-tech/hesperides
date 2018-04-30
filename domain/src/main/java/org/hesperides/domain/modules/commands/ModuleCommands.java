@@ -5,6 +5,7 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +30,8 @@ public class ModuleCommands {
         commandGateway.sendAndWait(new UpdateModuleCommand(module.getKey(), module, user));
     }
 
-    public void deleteModule(Module module, User user) {
-        commandGateway.sendAndWait(new DeleteModuleCommand(module.getKey(), module, user));
+    public void deleteModule(TemplateContainer.Key moduleKey, User user) {
+        commandGateway.sendAndWait(new DeleteModuleCommand(moduleKey, user));
     }
 
     public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {

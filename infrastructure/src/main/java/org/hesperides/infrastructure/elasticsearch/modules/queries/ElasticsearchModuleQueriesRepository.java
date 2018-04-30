@@ -33,21 +33,16 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
+        Optional<ModuleView> result = Optional.empty();
         ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
                 query.getModuleKey().getVersionType());
-        if (moduleDocument == null) {
-            return Optional.empty();
+
+        if (moduleDocument != null) {
+            result = Optional.of(moduleDocument.toModuleView());
         }
-        return Optional.of(
-                new ModuleView(
-                        moduleDocument.getName(),
-                        moduleDocument.getVersion(),
-                        moduleDocument.getVersionType() == Module.Type.workingcopy,
-                        moduleDocument.getVersionId()
-                )
-        );
+        return result;
     }
 
     @QueryHandler

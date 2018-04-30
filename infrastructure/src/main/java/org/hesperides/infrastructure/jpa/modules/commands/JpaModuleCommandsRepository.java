@@ -6,6 +6,7 @@ import org.hesperides.domain.modules.ModuleDeletedEvent;
 import org.hesperides.domain.modules.ModuleUpdatedEvent;
 import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
 import org.hesperides.infrastructure.jpa.modules.ModuleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +63,11 @@ public class JpaModuleCommandsRepository implements ModuleCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        Module module = event.getModule();
+        TemplateContainer.Key key = event.getModuleKey();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
-                module.getKey().getName(),
-                module.getKey().getVersion(),
-                module.getKey().getVersionType()
+                key.getName(),
+                key.getVersion(),
+                key.getVersionType()
         );
         jpaModuleRepository.delete(id);
     }
