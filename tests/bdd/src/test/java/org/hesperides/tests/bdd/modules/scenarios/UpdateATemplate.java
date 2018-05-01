@@ -21,7 +21,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     private Exception exception;
 
     @Autowired
-    private ExistingTemplateContext existingTemplateContext;
+    private ExistingTemplateContext existing;
 
     public UpdateATemplate() {
         Given("^this template is being modified alongside$", () -> {
@@ -52,7 +52,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
         TemplateInput templateInput = new TemplateInput("templateName", "template.name", "template.location", "content-bis",
                 new RightsInput(rights, rights, rights), 1L);
-        Module.Key moduleKey = existingTemplateContext.getExistingModuleContext().getModuleKey();
+        Module.Key moduleKey = existing.getExistingModuleContext().getModuleKey();
         templateLocation = rest.putForLocationReturnAbsoluteURI(
                 "/modules/{id}/{version}/workingcopy/templates/",
                 templateInput,

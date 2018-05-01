@@ -60,15 +60,7 @@ public class ModuleUseCases {
         commands.updateModule(module, user);
     }
 
-    public void deleteWorkingCopy(TemplateContainer.Key moduleKey, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
-        if (!optionalModuleView.isPresent()) {
-            throw new ModuleNotFoundException(moduleKey);
-        }
-        commands.deleteModule(moduleKey, user);
-    }
-
-    public void deleteRelease(TemplateContainer.Key moduleKey, User user) {
+    public void deleteModule(TemplateContainer.Key moduleKey, User user) {
         Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);

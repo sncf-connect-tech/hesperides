@@ -19,14 +19,14 @@ public class GetTemplates extends CucumberSpringBean implements En {
     private ResponseEntity<TemplateView[]> response;
 
     @Autowired
-    private ExistingTemplateContext existingTemplateContext;
+    private ExistingTemplateContext existingTemplate;
 
     public GetTemplates() {
 
         When("^retrieving those templates$", () -> {
-            TemplateContainer.Key moduleKey = existingTemplateContext.getExistingModuleContext().getModuleKey();
-            response = rest.getTestRest().getForEntity(String.format("/modules/%s/%s/%s/templates",
-                    moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType()), TemplateView[].class);
+            TemplateContainer.Key moduleKey = existingTemplate.getExistingModuleContext().getModuleKey();
+            response = rest.getTestRest().getForEntity("/modules/{moduleName}/{moduleVersion}/{moduleType}/templates", TemplateView[].class,
+                    moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType());
         });
 
         Then("^the templates are retrieved$", () -> {

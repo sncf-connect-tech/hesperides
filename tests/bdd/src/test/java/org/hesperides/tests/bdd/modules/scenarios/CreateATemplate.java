@@ -7,11 +7,11 @@ import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class CreateATemplate extends CucumberSpringBean implements En {
@@ -20,7 +20,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
     private URI templateLocation;
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ExistingModuleContext existingModule;
 
     public CreateATemplate() {
         Given("^a template to create$", () -> {
@@ -30,13 +30,14 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         });
 
         When("^adding a new template$", () -> {
-            templateLocation = rest.postForLocationReturnAbsoluteURI(existingModuleContext.getModuleLocation().toString() + "/templates", templateInput);
+            templateLocation = rest.postForLocationReturnAbsoluteURI(existingModule.getModuleLocation() + "/templates", templateInput);
         });
 
         Then("^the template is successfully created and the module contains the new template$", () -> {
-            ResponseEntity<TemplateView> responseEntity = rest.getTestRest().getForEntity(templateLocation, TemplateView.class);
-            assertEquals(1L, responseEntity.getBody().getVersionId().longValue());
-            assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
+            ResponseEntity<TemplateView> response = rest.getTestRest().getForEntity(templateLocation, TemplateView.class);
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            //TODO Vérifier le reste
+            assertEquals(1L, response.getBody().getVersionId().longValue());
         });
     }
 }
