@@ -13,6 +13,7 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -147,11 +148,12 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
+        String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
+        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.Type.release);
         Module existingModule = moduleView.get().toDomain();
-        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, releaseVersion, TemplateContainer.Type.release);
-        Module newReleasedModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
+        Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
-        commands.createModule(newReleasedModule, user);
+        commands.createModule(moduleRelease, user);
 
         return queries.getModule(newModuleKey).get();
     }

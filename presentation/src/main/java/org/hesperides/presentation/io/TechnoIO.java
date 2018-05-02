@@ -18,23 +18,36 @@
  *
  *
  */
-package org.hesperides.presentation.inputs;
+package org.hesperides.presentation.io;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hibernate.validator.constraints.NotEmpty;
 
-import java.util.Collections;
+import javax.validation.constraints.NotNull;
 
 @Value
-public class TechnoInput {
+public class TechnoIO {
+    @NotNull
+    @NotEmpty
     String name;
-    String version;
-    boolean isWorkingCopy;
-    TemplateInput template;
 
+    @NotNull
+    @NotEmpty
+    String version;
+
+    @SerializedName("working_copy")
+    boolean workingCopy;
+
+    // TODO Peut-être passer les templates en paramètre ou dans une deuxième méthode ?
     public Techno toDomainInstance() {
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, isWorkingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
-        return new Techno(technoKey, Collections.singletonList(template.toDomainInstance(technoKey)));
+        return new Techno(new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release), null);
+    }
+
+    public static TechnoIO fromTechnoView(TechnoView technoView) {
+        return new TechnoIO(technoView.getName(), technoView.getVersion(), technoView.isWorkingCopy());
     }
 }

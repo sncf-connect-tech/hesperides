@@ -46,7 +46,7 @@ public class TechnoDocument {
         technoDocument.setName(key.getName());
         technoDocument.setVersion(key.getVersion());
         technoDocument.setWorkingCopy(key.isWorkingCopy());
-        technoDocument.setTemplates(techno.getTemplates() != null ? techno.getTemplates().stream().map(template -> TemplateDocument.fromDomain(template)).collect(Collectors.toList()) : null);
+        technoDocument.setTemplates(techno.getTemplates() != null ? techno.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()) : null);
         return technoDocument;
     }
 }

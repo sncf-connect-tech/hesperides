@@ -1,18 +1,17 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.presentation.inputs.RightsInput;
-import org.hesperides.presentation.inputs.TemplateInput;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.net.URI;
+import static org.junit.Assert.assertEquals;
 
 public class ExistingTemplateContext extends CucumberSpringBean implements En {
 
-    private TemplateInput templateInput;
-    private URI templateLocation;
+    private TemplateIO templateInput;
 
     @Autowired
     private ExistingModuleContext existingModule;
@@ -30,25 +29,28 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
         });
     }
 
-    public URI getTemplateLocation() {
-        return templateLocation;
-    }
-
     public ExistingModuleContext getExistingModuleContext() {
         return existingModule;
     }
 
-    public TemplateInput getTemplateInput() {
+    public TemplateIO getTemplateInput() {
         return templateInput;
     }
 
     private void addTemplateToModule(String templateName) {
-        RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
-        templateInput = new TemplateInput(templateName, "template.json", "/location", "content",
-                new RightsInput(rights, rights, rights), 0L);
+        TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
+        templateInput = new TemplateIO(null, templateName, "template.json", "/location", "content",
+                new TemplateIO.RightsIO(rights, rights, rights), 0L);
 
-        TemplateContainer.Key moduleKey = existingModule.getModuleKey();
-        templateLocation = rest.postForLocationReturnAbsoluteURI("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/", templateInput,
-                moduleKey.getName(), moduleKey.getVersion());
+        ResponseEntity<TemplateIO> response = rest.getTestRest().postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, TemplateIO.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    }
+
+    public String getTemplateLocation() {
+        return String.format("/modules/%s/%s/%s/templates/%s",
+                existingModule.getModuleKey().getName(),
+                existingModule.getModuleKey().getVersion(),
+                existingModule.getModuleKey().getVersionType(),
+                templateInput.getName());
     }
 }

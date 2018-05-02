@@ -1,23 +1,20 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.presentation.inputs.ModuleInput;
+import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.net.URI;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 public class UpdateAModule extends CucumberSpringBean implements En {
 
-    private URI moduleLocation;
+    private ResponseEntity<ModuleIO> response;
     private Exception exception;
 
     @Autowired
@@ -38,9 +35,9 @@ public class UpdateAModule extends CucumberSpringBean implements En {
 
         Then("^the module is successfully updated", () -> {
             assertNull(exception);
-            ResponseEntity<ModuleView> responseEntity = rest.getTestRest().getForEntity(moduleLocation, ModuleView.class);
-            assertEquals(2L, responseEntity.getBody().getVersionId().longValue());
-            assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(2L, response.getBody().getVersionId().longValue());
+            // TODO Tester le reste ? Est-ce que ça a un intérêt ?
         });
 
         Then("^the module update is rejected$", () -> {
@@ -51,7 +48,11 @@ public class UpdateAModule extends CucumberSpringBean implements En {
 
     private void updateModule() {
         Module.Key moduleKey = existingModule.getModuleKey();
-        ModuleInput moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
-        moduleLocation = rest.putForLocationReturnAbsoluteURI("/modules", moduleInput);
+        ModuleIO moduleInput = new ModuleIO(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableList.of(), 1L);
+        response = rest.putForEntity("/modules", moduleInput, ModuleIO.class);
     }
+
+    /**
+     * TODO Tester la mise à jour de technos
+     */
 }

@@ -26,7 +26,7 @@ public class ModuleView {
         return new Module(
                 moduleKey,
                 templates != null ? templates.stream().map(templateView -> templateView.toDomain(moduleKey)).collect(Collectors.toList()) : null,
-                technos != null ? technos.stream().map(technoView -> technoView.toDomain()).collect(Collectors.toList()) : null,
+                technos != null ? technos.stream().map(TechnoView::toDomain).collect(Collectors.toList()) : null,
                 versionId
         );
     }

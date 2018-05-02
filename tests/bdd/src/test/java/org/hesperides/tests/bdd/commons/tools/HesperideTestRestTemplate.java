@@ -71,6 +71,10 @@ public class HesperideTestRestTemplate {
         return absoluteURI(responseEntity.getHeaders().getLocation());
     }
 
+    public <T> ResponseEntity<T> putForEntity(String url, Object request, Class<T> responseType, Object... urlVariables) {
+        return rest.exchange(url, HttpMethod.PUT, new HttpEntity<>(request), responseType, urlVariables);
+    }
+
     public URI postForLocationReturnAbsoluteURI(String url, Object input, Object... params) {
         return absoluteURI(rest.postForLocation(url, input, params));
     }

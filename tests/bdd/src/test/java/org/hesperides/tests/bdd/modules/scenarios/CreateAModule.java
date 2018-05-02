@@ -1,37 +1,42 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.presentation.inputs.ModuleInput;
+import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.net.URI;
+import org.springframework.util.CollectionUtils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CreateAModule extends CucumberSpringBean implements En {
 
-    private ModuleInput moduleInput;
-    private URI moduleLocation;
+    private ModuleIO moduleInput;
+    private ResponseEntity<ModuleIO> response;
 
     public CreateAModule() {
         Given("^a module working copy to create$", () -> {
-            moduleInput = new ModuleInput("test", "1.0.0", true, ImmutableSet.of(), 0L);
+            moduleInput = new ModuleIO("test", "1.0.0", true, ImmutableList.of(), 0L);
         });
 
         When("^creating a new module working copy$", () -> {
-            moduleLocation = rest.postForLocationReturnAbsoluteURI("/modules", moduleInput);
+            response = rest.getTestRest().postForEntity("/modules", moduleInput, ModuleIO.class);
         });
 
         Then("^the module is successfully created$", () -> {
-            ResponseEntity<ModuleView> response = rest.getTestRest().getForEntity(moduleLocation, ModuleView.class);
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            ModuleView module = response.getBody();
-            assertEquals(1L, module.getVersionId().longValue());
-            //TODO Tester les propriétés par rapport à l'existant
+            assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            ModuleIO moduleOutput = response.getBody();
+            assertEquals(moduleInput.getName(), moduleOutput.getName());
+            assertEquals(moduleInput.getVersion(), moduleOutput.getVersion());
+            assertEquals(moduleInput.isWorkingCopy(), moduleOutput.isWorkingCopy());
+            assertTrue(CollectionUtils.isEmpty(moduleOutput.getTechnos()));
+            assertEquals(1L, moduleOutput.getVersionId().longValue());
         });
     }
+
+    /**
+     * TODO Tester la création d'un module avec technos
+     */
 }

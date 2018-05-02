@@ -1,16 +1,13 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.presentation.inputs.ModuleInput;
+import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 
@@ -61,22 +58,21 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
     }
 
     private void createWorkingCopy(String name, String version) {
-        ModuleInput moduleInput = new ModuleInput(name, version, true, ImmutableSet.of(), -1L);
-        URI uri = rest.postForLocationReturnAbsoluteURI("/modules", moduleInput);
-        ResponseEntity<ModuleView> response = rest.getTestRest().getForEntity(uri, ModuleView.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        setModuleKeyFromModuleView(response.getBody());
+        ModuleIO moduleInput = new ModuleIO(name, version, true, ImmutableList.of(), -1L);
+        ResponseEntity<ModuleIO> response = rest.getTestRest().postForEntity("/modules", moduleInput, ModuleIO.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        setModuleKeyFromModuleOutput(response.getBody());
     }
 
     private void createRelease(String moduleName, String moduleVersion) {
-        ResponseEntity<ModuleView> response = rest.getTestRest().postForEntity("/modules/create_release?module_name={moduleName}&module_version={moduleVersion}&release_version={releaseVersion}",
-                null, ModuleView.class, moduleName, moduleVersion, moduleVersion);
+        ResponseEntity<ModuleIO> response = rest.getTestRest().postForEntity("/modules/create_release?module_name={moduleName}&module_version={moduleVersion}&release_version={releaseVersion}",
+                null, ModuleIO.class, moduleName, moduleVersion, moduleVersion);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        setModuleKeyFromModuleView(response.getBody());
+        setModuleKeyFromModuleOutput(response.getBody());
     }
 
-    private void setModuleKeyFromModuleView(ModuleView module) {
-        moduleKey = new TemplateContainer.Key(module.getName(), module.getVersion(), module.isWorkingCopy() ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+    private void setModuleKeyFromModuleOutput(ModuleIO moduleOutput) {
+        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), moduleOutput.isWorkingCopy() ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
     }
 
     public Module.Key getModuleKey() {

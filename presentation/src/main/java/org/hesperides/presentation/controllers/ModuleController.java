@@ -29,7 +29,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.presentation.inputs.ModuleInput;
+import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +37,11 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
-import static org.springframework.http.HttpStatus.SEE_OTHER;
 
 @Slf4j
 @Api("/modules")
@@ -56,64 +57,26 @@ public class ModuleController extends BaseController {
         this.moduleUseCases = moduleUseCases;
     }
 
-    @ApiOperation("Get all module names")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<String> getModulesNames() {
-        log.debug("getModulesNames");
-        List<String> modulesNames = moduleUseCases.getModulesNames();
-        log.debug("return getModulesNames: {}", modulesNames.toString());
-        return modulesNames;
-    }
-
-    @ApiOperation("Get info for a given module release/working-copy")
-    @GetMapping(path = "/{module_name}/{module_version}/{module_type}")
-    public ResponseEntity<ModuleView> getModuleInfo(
-            @PathVariable("module_name") final String moduleName,
-            @PathVariable("module_version") final String moduleVersion,
-            @PathVariable("module_type") final Module.Type moduleType) {
-        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleType: {}", moduleName, moduleVersion, moduleType);
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        ResponseEntity<ModuleView> module = moduleUseCases.getModule(moduleKey).map(ResponseEntity::ok).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
-        log.debug("return getModuleInfo: {}", module.getBody().toString());
-        return module;
-    }
-
-    @ApiOperation("Get all versions for a given module")
-    @GetMapping(path = "/{module_name}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<String> getModuleVersions(@PathVariable("module_name") final String moduleName) {
-        log.debug("getModuleVersions moduleName: {}", moduleName);
-        List<String> moduleVersions = moduleUseCases.getModuleVersions(moduleName);
-        log.debug("return getModuleVersions: {}", moduleVersions.toString());
-        return moduleVersions;
-    }
-
-    @ApiOperation("Get all types for a given module version")
-    @GetMapping(path = "/{module_name}/{module_version:.+}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<String> getModuleTypes(@PathVariable("module_name") final String moduleName,
-                                       @PathVariable("module_version") final String moduleVersion) {
-        log.debug("getModuleTypes moduleName: {}, moduleVersion: {}", moduleName, moduleVersion);
-        List<String> moduleTypes = moduleUseCases.getModuleTypes(moduleName, moduleVersion);
-        log.debug("return getModuleTypes: {}", moduleTypes.toString());
-        return moduleTypes;
-    }
-
     @ApiOperation("Create a working copy (possibly from a release)")
     @PostMapping
-    public ResponseEntity createWorkingCopy(Principal currentUser,
-                                            @RequestParam(value = "from_module_name", required = false) final String fromModuleName,
-                                            @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
-                                            @RequestParam(value = "from_is_working_copy", required = false) final Boolean fromWorkingCopy,
-                                            @Valid @RequestBody final ModuleInput moduleInput) {
+    public ResponseEntity<ModuleIO> createWorkingCopy(Principal currentUser,
+                                                      @RequestParam(value = "from_module_name", required = false) final String fromModuleName,
+                                                      @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
+                                                      @RequestParam(value = "from_is_working_copy", required = false) final Boolean fromWorkingCopy,
+                                                      @Valid @RequestBody final ModuleIO moduleInput) {
 
         log.info("createWorkingCopy {}", moduleInput.toString());
 
-        ResponseEntity responseEntity;
+        ResponseEntity response;
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
                 && fromWorkingCopy == null) {
 
             Module.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), fromPrincipal(currentUser));
-            responseEntity = ResponseEntity.status(SEE_OTHER).location(createdModuleKey.getURI()).build();
+            ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
+                    .map(ModuleIO::fromModuleView)
+                    .orElseThrow(() -> new ModuleNotFoundException(createdModuleKey));
+            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
 
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
@@ -122,33 +85,88 @@ public class ModuleController extends BaseController {
 
             Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, fromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
-            responseEntity = ResponseEntity.created(moduleView.toDomain().getKey().getURI()).body(moduleView);
+            TemplateContainer.Key createdModuleKey = moduleView.toDomain().getKey();
+            ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
+            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
         }
-        return responseEntity;
+        return response;
     }
 
     @ApiOperation("Update a module working copy")
     @PutMapping
-    public ResponseEntity updateWorkingCopy(Principal currentUser,
-                                            @Valid @RequestBody final ModuleInput moduleInput) {
+    public ResponseEntity<ModuleIO> updateWorkingCopy(Principal currentUser, @Valid @RequestBody final ModuleIO moduleInput) {
+
         log.info("Updating module workingcopy {}", moduleInput.toString());
+
         Module module = moduleInput.toDomainInstance();
         moduleUseCases.updateWorkingCopy(module, fromPrincipal(currentUser));
-        return ResponseEntity.status(SEE_OTHER).location(module.getKey().getURI()).build();
+        ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
+                .map(ModuleIO::fromModuleView)
+                .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
+
+        return ResponseEntity.ok(moduleOutput);
+    }
+
+    @ApiOperation("Get all module names")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<String>> getModulesNames() {
+
+        log.debug("getModulesNames");
+
+        List<String> modulesNames = moduleUseCases.getModulesNames();
+        log.debug("return getModulesNames: {}", modulesNames.toString());
+
+        return ResponseEntity.ok(modulesNames);
+    }
+
+    @ApiOperation("Get all versions for a given module")
+    @GetMapping(path = "/{module_name}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<String>> getModuleVersions(@PathVariable("module_name") final String moduleName) {
+
+        log.debug("getModuleVersions moduleName: {}", moduleName);
+
+        List<String> moduleVersions = moduleUseCases.getModuleVersions(moduleName);
+        log.debug("return getModuleVersions: {}", moduleVersions.toString());
+
+        return ResponseEntity.ok(moduleVersions);
+    }
+
+    @ApiOperation("Get all types for a given module version")
+    @GetMapping(path = "/{module_name}/{module_version:.+}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<String>> getModuleTypes(@PathVariable("module_name") final String moduleName,
+                                                       @PathVariable("module_version") final String moduleVersion) {
+
+        log.debug("getModuleTypes moduleName: {}, moduleVersion: {}", moduleName, moduleVersion);
+
+        List<String> moduleTypes = moduleUseCases.getModuleTypes(moduleName, moduleVersion);
+        log.debug("return getModuleTypes: {}", moduleTypes.toString());
+
+        return ResponseEntity.ok(moduleTypes);
+    }
+
+    @ApiOperation("Get info for a given module release/working-copy")
+    @GetMapping(path = "/{module_name}/{module_version}/{module_type}")
+    public ResponseEntity<ModuleIO> getModuleInfo(@PathVariable("module_name") final String moduleName,
+                                                  @PathVariable("module_version") final String moduleVersion,
+                                                  @PathVariable("module_type") final Module.Type moduleType) {
+
+        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleType: {}", moduleName, moduleVersion, moduleType);
+
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        return moduleUseCases.getModule(moduleKey)
+                .map(ModuleIO::fromModuleView)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ModuleNotFoundException(moduleKey));
     }
 
     @ApiOperation("Delete a module")
     @DeleteMapping(path = "/{module_name}/{module_version}/{module_type}")
     public ResponseEntity deleteModule(Principal currentUser,
-                                       @PathVariable(value = "module_name") final String moduleName,
-                                       @PathVariable(value = "module_version") final String moduleVersion,
-                                       @PathVariable(value = "module_type") final TemplateContainer.Type moduleType) {
+                                       @PathVariable("module_name") final String moduleName,
+                                       @PathVariable("module_version") final String moduleVersion,
+                                       @PathVariable("module_type") final TemplateContainer.Type moduleType) {
 
         log.info("deleteModule {} {}", moduleName, moduleVersion);
-
-        checkQueryParameterNotEmpty("module_name", moduleName);
-        checkQueryParameterNotEmpty("module_version", moduleVersion);
-        checkQueryParameterNotEmpty("module_type", moduleType);
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
         moduleUseCases.deleteModule(moduleKey, fromPrincipal(currentUser));
@@ -156,27 +174,32 @@ public class ModuleController extends BaseController {
         return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
     }
 
-    @ApiOperation("Search for modules")
-    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<ModuleView>> search(@RequestParam("terms") final String input) {
-        log.info("search module {}", input);
-        return ResponseEntity.ok(moduleUseCases.search(input));
-    }
-
     @ApiOperation(("Create a release from an existing workingcopy"))
     @PostMapping(path = "/create_release")
-    public ResponseEntity<ModuleView> createRelease(Principal currentUser,
-                                                    @RequestParam("module_name") final String moduleName,
-                                                    @RequestParam("module_version") final String moduleVersion,
-                                                    @RequestParam("release_version") final String releaseVersion) {
+    public ResponseEntity<ModuleIO> createRelease(Principal currentUser,
+                                                  @RequestParam("module_name") final String moduleName,
+                                                  @RequestParam("module_version") final String moduleVersion,
+                                                  @RequestParam(value = "release_version", required = false) final String releaseVersion) {
+
         log.info("createRelease {} {} => {}", moduleName, moduleVersion, releaseVersion);
 
-        checkQueryParameterNotEmpty("module_name", moduleName);
-        checkQueryParameterNotEmpty("module_version", moduleVersion);
-        checkQueryParameterNotEmpty("release_version", releaseVersion);
-
         ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromPrincipal(currentUser));
+        ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
 
-        return ResponseEntity.ok(moduleView);
+        return ResponseEntity.ok(moduleOutput);
+    }
+
+    @ApiOperation("Search for modules")
+    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
+
+        log.info("search module {}", input);
+
+        List<ModuleView> moduleViews = moduleUseCases.search(input);
+        List<ModuleIO> moduleOutputs = moduleViews != null
+                ? moduleViews.stream().map(ModuleIO::fromModuleView).collect(Collectors.toList())
+                : new ArrayList<>();
+
+        return ResponseEntity.ok(moduleOutputs);
     }
 }

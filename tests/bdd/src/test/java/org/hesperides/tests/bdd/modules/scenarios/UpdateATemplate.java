@@ -2,26 +2,22 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.presentation.inputs.RightsInput;
-import org.hesperides.presentation.inputs.TemplateInput;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.net.URI;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 public class UpdateATemplate extends CucumberSpringBean implements En {
 
-    private URI templateLocation;
+    private ResponseEntity<TemplateIO> response;
     private Exception exception;
 
     @Autowired
-    private ExistingTemplateContext existing;
+    private ExistingTemplateContext existingTemplate;
 
     public UpdateATemplate() {
         Given("^this template is being modified alongside$", () -> {
@@ -38,9 +34,9 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
 
         Then("^the template is successfully updated", () -> {
             assertNull(exception);
-            ResponseEntity<TemplateView> responseEntity = rest.getTestRest().getForEntity(templateLocation, TemplateView.class);
-            assertEquals(2L, responseEntity.getBody().getVersionId().longValue());
-            assertThat(responseEntity.getStatusCode().is2xxSuccessful()).isTrue();
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(2L, response.getBody().getVersionId().longValue());
+            //TODO Tester le reste par rapport à l'input ?
         });
 
         Then("^the template update is rejected$", () -> {
@@ -49,14 +45,17 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     }
 
     private void updateTemplate() {
-        RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
-        TemplateInput templateInput = new TemplateInput("templateName", "template.name", "template.location", "content-bis",
-                new RightsInput(rights, rights, rights), 1L);
-        Module.Key moduleKey = existing.getExistingModuleContext().getModuleKey();
-        templateLocation = rest.putForLocationReturnAbsoluteURI(
-                "/modules/{id}/{version}/workingcopy/templates/",
-                templateInput,
-                moduleKey.getName(),
-                moduleKey.getVersion());
+        TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
+        TemplateIO templateIO = new TemplateIO(null, "templateName", "template.name", "template.location", "content-bis",
+                new TemplateIO.RightsIO(rights, rights, rights), 1L);
+        Module.Key moduleKey = existingTemplate.getExistingModuleContext().getModuleKey();
+        response = rest.putForEntity("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/",
+                templateIO, TemplateIO.class,
+                moduleKey.getName(), moduleKey.getVersion());
     }
+
+    /**
+     * TODO Tester la tentative de modification d'un template qui n'existe pas => 404
+     * TODO Tester la tentative de modification d'un template qui a été modifié entre temps => 409
+     */
 }

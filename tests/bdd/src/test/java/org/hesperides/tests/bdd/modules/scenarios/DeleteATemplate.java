@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class DeleteATemplate extends CucumberSpringBean implements En {
 
@@ -20,8 +20,12 @@ public class DeleteATemplate extends CucumberSpringBean implements En {
         });
 
         Then("^the template is successfully deleted$", () -> {
-            ResponseEntity<String> entity = rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existing.getTemplateLocation(), String.class));
-            assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            ResponseEntity<String> response = rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existing.getTemplateLocation(), String.class));
+            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         });
     }
+
+    /**
+     * TODO Tester la tentative de suppression d'un template qui n'existe pas => 404
+     */
 }
