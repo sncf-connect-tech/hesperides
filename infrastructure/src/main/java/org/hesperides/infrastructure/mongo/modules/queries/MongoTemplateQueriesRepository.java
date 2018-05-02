@@ -65,7 +65,7 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
             TemplateDocument templateDocument = moduleDocument.getTemplates().stream()
                     .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
                     .findAny().get();
-            result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.NAMESPACE_PREFIX));
+            result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.KEY_PREFIX));
         }
         return result;
     }
@@ -79,7 +79,7 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
         ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
 
         if (moduleDocument != null) {
-            result = moduleDocument.getTemplates().stream().map(templateDocument -> templateDocument.toTemplateView(key, Module.NAMESPACE_PREFIX)).collect(Collectors.toList());
+            result = moduleDocument.getTemplates().stream().map(templateDocument -> templateDocument.toTemplateView(key, Module.KEY_PREFIX)).collect(Collectors.toList());
         }
 
         return result;

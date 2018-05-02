@@ -38,7 +38,7 @@ public class ModuleDocument {
     public ModuleView toModuleView() {
         TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
         return new ModuleView(name, version, workingCopy, versionId,
-                templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.NAMESPACE_PREFIX)).collect(Collectors.toList()) : null,
+                templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX)).collect(Collectors.toList()) : null,
                 null); //TODO Technos
     }
 }

@@ -46,7 +46,7 @@ public class CreateATechno extends CucumberSpringBean implements En {
         Then("^the techno is successfully created$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             TemplateIO templateOutput = response.getBody();
-            assertEquals("packages#" + technoName + "#" + technoVersion + "#WORKINGCOPY", templateOutput.getNamespace());
+            assertEquals("technos#" + technoName + "#" + technoVersion + "#WORKINGCOPY", templateOutput.getNamespace());
             assertEquals(templateInput.getName(), templateOutput.getName());
             assertEquals(templateInput.getFilename(), templateOutput.getFilename());
             assertEquals(templateInput.getLocation(), templateOutput.getLocation());

@@ -61,7 +61,7 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
             TemplateDocument templateDocument = technoDocument.getTemplates().stream()
                     .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
                     .findAny().get();
-            result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.NAMESPACE_PREFIX));
+            result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.KEY_PREFIX));
         }
         return result;
     }

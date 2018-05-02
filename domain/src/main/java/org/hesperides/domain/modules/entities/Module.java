@@ -10,7 +10,7 @@ import java.util.List;
 @Value
 public class Module extends TemplateContainer {
 
-    public static final String NAMESPACE_PREFIX = "modules";
+    public static final String KEY_PREFIX = "module";
 
     List<Techno> technos;
     Long versionId;

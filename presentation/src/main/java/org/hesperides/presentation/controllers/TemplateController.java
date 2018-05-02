@@ -80,7 +80,7 @@ public class TemplateController extends BaseController {
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, template.getName()));
 
-        return ResponseEntity.created(template.getTemplateContainerKey().getURI()).body(templateOutput);
+        return ResponseEntity.created(template.getTemplateContainerKey().getURI(Module.KEY_PREFIX)).body(templateOutput);
     }
 
     @PutMapping("/workingcopy/templates")

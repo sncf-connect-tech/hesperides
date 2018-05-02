@@ -76,7 +76,7 @@ public class ModuleController extends BaseController {
             ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
                     .map(ModuleIO::fromModuleView)
                     .orElseThrow(() -> new ModuleNotFoundException(createdModuleKey));
-            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
+            response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
 
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
@@ -87,7 +87,7 @@ public class ModuleController extends BaseController {
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
             TemplateContainer.Key createdModuleKey = moduleView.toDomain().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
-            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
+            response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
         }
         return response;
     }
