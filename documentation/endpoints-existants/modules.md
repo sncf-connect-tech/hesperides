@@ -18,7 +18,15 @@ Crée/Duplique un module.
 
 #### Input
 
-TODO paramètres pour la duplication + expliquer la copie profonde // output
+Paramètres de requêtes facultatifs :
+
+* from_module_name
+* from_module_version
+* from_is_working_copy
+
+Si ces pramètres sont fournis, cela crée une copie profonde incluant les technos et les templates du module dupliqué.
+
+Dans le cas d'une duplication, on ne tient pas compte de la liste de technos de l'input.
 
     {
         "name": "",
@@ -36,8 +44,12 @@ TODO paramètres pour la duplication + expliquer la copie profonde // output
     
 #### Output
 
-Code HTTP 200 + Même structure et contenu que l'input mais avec le version_id mis à jour.
-    
+Code HTTP 201
+
+En cas de création : même structure et contenu que l'input mais avec le version_id initialisé.
+
+En cas de duplication : même structure que l'input mais contenu relatif aux données récupérées et un version_id à 1.
+
 ### PUT /modules
 
 Met à jour de module => permet d'ajouter/supprimer une ou plusieurs technos.
