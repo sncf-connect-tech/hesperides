@@ -37,16 +37,19 @@ public abstract class TemplateContainer {
         String version;
         Type versionType;
 
-        public URI getURI(String prefix) {
-            return URI.create("/rest/" + prefix + "/" + name + "/" + version + "/" + versionType.name().toLowerCase());
+        public URI getURI() {
+            //TODO pas pertinent par rapport aux technos
+            return URI.create("/rest/modules/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
 
         public String getNamespace(String prefix) {
             return prefix + "#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
-        public String toString(String prefix) {
-            return prefix + "-" + name + "-" + version + "-" + versionType.getMinimizedForm();
+        @Override
+        public String toString() {
+            //TODO pas pertinent par rapport aux technos
+            return "module-" + name + "-" + version + "-" + versionType.getMinimizedForm();
         }
 
         public boolean isWorkingCopy() {
