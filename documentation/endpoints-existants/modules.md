@@ -209,7 +209,7 @@ Retourne une liste de modules
 
 ### GET /modules/{module_name}/{module_version}/{module_type}/model
 
-Récupère les propriétés valorisables d'un module. 
+Récupère les propriétés valorisables d'un module.
 
 #### Input
 
@@ -245,7 +245,7 @@ Rien
 
 #### Output
 
-Code HTTP 200
+Code HTTP 200 + Un tableau json :
 
     [
         {
@@ -259,10 +259,6 @@ Code HTTP 200
 Namespace est de la forme :
 
     modules#{module name}#{module version}#{WORKINGCOPY|RELEASE}
-    
-Ou :
-
-    templates#{techno name}#{techno version}#{WORKINGCOPY|RELEASE}
     
 ### GET /modules/{module_name}/{module_version}/{module_type}/templates/{template_name}
 
@@ -336,7 +332,7 @@ Ajoute un template à un module working copy existant. Si le module n'existe pas
         }
     }
     
-Le namespace n'est pas obligatoire. Le nom ne doit pas être utilisé par un autre template du module/de la techno.
+Le namespace n'est pas obligatoire. Le nom ne doit pas être utilisé par un autre template du module.
     
 #### Output
 
@@ -350,7 +346,7 @@ Met à jour le template d'un module working copy.
 
 Même chose que pour la création. Le namespace n'est pas utilisé. Le nom du template et le version_id sont contrôlés.
 
-Si le nom n'existe pas : 404. Si le version_id est différent de celu du module existant : 409 (conflit).
+Si le nom n'existe pas : 404. Si le version_id est différent de celui du module existant : 409 (conflit).
 
 #### Output
 

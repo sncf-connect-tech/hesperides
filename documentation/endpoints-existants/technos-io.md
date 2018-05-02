@@ -1,19 +1,11 @@
 # Inputs
 
-## Module
+## Clé de techno
 
     {
         "name": "",
-        "version: "",
-        "working_copy: false,
-        "version_id: 0,
-        "technos": [
-            {
-                "version": "",
-                "name": "",
-                "working_copy: false
-            }
-        ]
+        "version": "",
+        "working_copy": false
     }
 
 ## Template
@@ -46,25 +38,8 @@
 
 # Outputs
 
-## Module
-
-    {
-        "name": "",
-        "version: "",
-        "working_copy: false,
-        "version_id: 0,
-        "technos": [
-            {
-                "version": "",
-                "name": "",
-                "working_copy: false
-            }
-        ]
-    }
-    
 ## Modèle
 
-    {
         "key_value_properties": [
             {
                 "name": "",
@@ -80,7 +55,7 @@
         ]
     }
 
-## Liste de template d'un module
+## Liste des templates d'une techno
 
     [
         {
@@ -91,7 +66,7 @@
         }
     ]
 
-## Template détaillé
+## Détails d'un template
 
     {
         "namespace": "",
