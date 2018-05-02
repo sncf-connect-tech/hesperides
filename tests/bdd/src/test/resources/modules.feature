@@ -1,6 +1,6 @@
 Feature: modules related features
 
-  Regroup all uses cases releated to module manipulations.
+  Regroup all uses cases related to module manipulations.
 
   Background:
     Given an authenticated user
@@ -17,6 +17,11 @@ Feature: modules related features
 
   Scenario: delete a module working copy
     Given an existing module
+    When deleting this module
+    Then the module is successfully deleted
+
+  Scenario: delete a module release
+    Given an existing released module
     When deleting this module
     Then the module is successfully deleted
 
@@ -45,3 +50,32 @@ Feature: modules related features
     Given a list of existing modules
     When searching for one that does not exist
     Then the result is empty
+
+  Scenario: get all module names
+    Given a list of existing modules
+    And a list of existing modules released
+    When listing all modules names
+    Then I get a distinct list of all modules names
+
+  Scenario: get info for a given module
+    Given an existing module
+    When retrieving the module's info
+    Then the module's info is retrieved
+
+  Scenario: get info for a given released module
+    Given an existing released module
+    When retrieving the module's info
+    Then the module's info is retrieved
+
+  Scenario: get all versions for a given module
+    Given an existing module with multiple versions
+    When retrieving the module's versions
+    Then the module's versions are retrieved
+
+  Scenario: get all types for a given module version
+    Given an existing module working copy and its release
+    When retrieving the module's types
+    Then the module's types are retrieved
+
+# Gérer les cas de modules releasés
+# Améliorer les vérifications en incluant des technos ?

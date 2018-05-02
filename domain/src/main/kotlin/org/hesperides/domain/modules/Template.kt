@@ -18,3 +18,4 @@ data class TemplateUpdatedEvent(val moduleKey: TemplateContainer.Key, val templa
 
 // Query
 data class GetTemplateByNameQuery(val moduleKey: TemplateContainer.Key, val templateName: String)
+data class GetModuleTemplatesQuery(val moduleKey: TemplateContainer.Key)

@@ -26,3 +26,18 @@ Feature: modules templates
     And this template is being modified alongside
     When updating this template
     Then the template update is rejected
+
+  Scenario: get template bundled in a module for a version workingcopy
+    Given an existing template in this module
+    When retrieving this template
+    Then the template is retrieved
+
+  Scenario: get all templates bundled in a module of a version workingcopy
+    Given multiple templates in this module
+    When retrieving those templates
+    Then the templates are retrieved
+
+#  Scenario: get template bundled in a module for a version release
+#    Given an existing template in a released module
+#    When retrieving this template
+#    Then the template is retrieved

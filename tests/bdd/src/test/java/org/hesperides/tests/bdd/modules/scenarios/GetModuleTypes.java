@@ -1,0 +1,31 @@
+package org.hesperides.tests.bdd.modules.scenarios;
+
+import cucumber.api.java8.En;
+import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
+public class GetModuleTypes extends CucumberSpringBean implements En {
+
+    private ResponseEntity<String[]> response;
+
+    public GetModuleTypes() {
+
+        When("^retrieving the module's types$", () -> {
+            response = rest.getTestRest().getForEntity("/modules/test/1.0.0", String[].class);
+        });
+
+        Then("^the module's types are retrieved$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            List<String> types = Arrays.asList(response.getBody());
+            assertEquals(2, types.size());
+            assertEquals("workingcopy", types.get(0));
+            assertEquals("release", types.get(1));
+        });
+    }
+}

@@ -38,6 +38,7 @@ public abstract class TemplateContainer {
         Type versionType;
 
         public URI getURI() {
+            //TODO pas pertinent par rapport aux technos
             return URI.create("/rest/modules/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
 
@@ -47,6 +48,7 @@ public abstract class TemplateContainer {
 
         @Override
         public String toString() {
+            //TODO pas pertinent par rapport aux technos
             return "module-" + name + "-" + version + "-" + versionType.getMinimizedForm();
         }
 

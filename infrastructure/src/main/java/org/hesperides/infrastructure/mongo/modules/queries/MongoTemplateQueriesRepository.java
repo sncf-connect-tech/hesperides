@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.modules.GetModuleTemplatesQuery;
 import org.hesperides.domain.modules.GetTemplateByNameQuery;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.TemplateQueriesRepository;
@@ -33,7 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.Profiles.*;
 
@@ -63,6 +67,21 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
                     .findAny().get();
             result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.NAMESPACE_PREFIX));
         }
+        return result;
+    }
+
+    @Override
+    @QueryHandler
+    public List<TemplateView> query(GetModuleTemplatesQuery query) {
+        List<TemplateView> result = new ArrayList<>();
+
+        TemplateContainer.Key key = query.getModuleKey();
+        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+
+        if (moduleDocument != null) {
+            result = moduleDocument.getTemplates().stream().map(templateDocument -> templateDocument.toTemplateView(key, Module.NAMESPACE_PREFIX)).collect(Collectors.toList());
+        }
+
         return result;
     }
 }
