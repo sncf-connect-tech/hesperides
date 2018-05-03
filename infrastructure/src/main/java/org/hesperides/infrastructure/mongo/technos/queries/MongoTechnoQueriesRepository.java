@@ -34,7 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.Profiles.*;
 
@@ -72,5 +74,15 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
         Optional<TechnoDocument> technoDocument = repository.findOptionalByNameAndVersionAndWorkingCopy(
                 key.getName(), key.getVersion(), key.isWorkingCopy());
         return technoDocument.isPresent();
+    }
+
+    public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
+        List<TechnoDocument> result = null;
+        if (technos != null) {
+            result = technos.stream().map(techno -> repository.findByNameAndVersionAndWorkingCopy(
+                    techno.getKey().getName(), techno.getKey().getVersion(), techno.getKey().isWorkingCopy()))
+                    .collect(Collectors.toList());
+        }
+        return result;
     }
 }

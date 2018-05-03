@@ -5,6 +5,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ public class ModuleUseCasesTest {
     ModuleQueries moduleQueries;
     @MockBean
     ModuleCommands moduleCommands;
+    @MockBean
+    TechnoQueries technoQueries;
 
     @Test(expected = DuplicateModuleException.class)
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {

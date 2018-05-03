@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @Value
 public final class ModuleIO {
     @NotNull
-    @NotEmpty //TODO tester sans
-            String name;
+    @NotEmpty
+    String name;
 
     @NotNull
     @NotEmpty

@@ -5,6 +5,7 @@ import lombok.Value;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 public class TemplateIO {
     String namespace;
     @NotNull
+    @NotEmpty
     String name;
     @NotNull
     String filename;

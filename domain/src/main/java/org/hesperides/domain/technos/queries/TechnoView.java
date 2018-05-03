@@ -20,7 +20,6 @@
  */
 package org.hesperides.domain.technos.queries;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
@@ -33,17 +32,11 @@ import java.util.stream.Collectors;
 public class TechnoView {
     String name;
     String version;
-    @SerializedName("working_copy")
     boolean workingCopy;
-    @SerializedName("version_id")
-    Long versionId;
     List<TemplateView> templates;
 
     public Techno toDomain() {
         TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
-        return new Techno(
-                technoKey,
-                templates != null ? templates.stream().map(templateView -> templateView.toDomain(technoKey)).collect(Collectors.toList()) : null
-        );
+        return new Techno(technoKey, templates != null ? templates.stream().map(templateView -> templateView.toDomain(technoKey)).collect(Collectors.toList()) : null);
     }
 }

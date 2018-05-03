@@ -1,6 +1,5 @@
 package org.hesperides.domain.modules.queries;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.technos.queries.TechnoView;
@@ -14,12 +13,10 @@ import java.util.stream.Collectors;
 public class ModuleView {
     String name;
     String version;
-    @SerializedName("working_copy")
     boolean workingCopy;
-    @SerializedName("version_id")
-    Long versionId;
     List<TemplateView> templates;
     List<TechnoView> technos;
+    Long versionId;
 
     public Module toDomain() {
         TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);

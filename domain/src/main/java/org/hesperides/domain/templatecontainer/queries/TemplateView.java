@@ -1,7 +1,6 @@
 package org.hesperides.domain.templatecontainer.queries;
 
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
@@ -14,7 +13,6 @@ public class TemplateView {
     String location;
     String content;
     RightsView rights;
-    @SerializedName("version_id")
     Long versionId;
 
     public Template toDomain(TemplateContainer.Key templateContainerKey) {

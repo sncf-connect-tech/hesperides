@@ -8,6 +8,9 @@ import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.exception.TechnoNotFoundException;
+import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
@@ -26,11 +29,13 @@ public class ModuleUseCases {
 
     private final ModuleCommands commands;
     private final ModuleQueries queries;
+    private final TechnoQueries technoQueries;
 
     @Autowired
-    public ModuleUseCases(ModuleCommands commands, ModuleQueries queries) {
+    public ModuleUseCases(ModuleCommands commands, ModuleQueries queries, TechnoQueries technoQueries) {
         this.commands = commands;
         this.queries = queries;
+        this.technoQueries = technoQueries;
     }
 
     /**
@@ -47,6 +52,7 @@ public class ModuleUseCases {
         if (queries.moduleExists(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
+        verifyTechnos(module.getTechnos());
         return commands.createModule(module, user);
     }
 
@@ -58,7 +64,18 @@ public class ModuleUseCases {
         if (!moduleView.get().getVersionId().equals(module.getVersionId())) {
             throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
         }
+        verifyTechnos(module.getTechnos());
         commands.updateModule(module, user);
+    }
+
+    private void verifyTechnos(List<Techno> technos) {
+        if (technos != null) {
+            for (Techno techno : technos) {
+                if (!technoQueries.technoExists(techno.getKey())) {
+                    throw new TechnoNotFoundException(techno.getKey());
+                }
+            }
+        }
     }
 
     public void deleteModule(TemplateContainer.Key moduleKey, User user) {
