@@ -2,15 +2,8 @@ package org.hesperides.tests.bdd.technos.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import static org.junit.Assert.assertEquals;
 
 public class ExistingTechnoContext extends CucumberSpringBean implements En {
 

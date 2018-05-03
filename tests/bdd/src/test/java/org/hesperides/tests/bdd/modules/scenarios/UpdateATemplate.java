@@ -6,52 +6,54 @@ import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class UpdateATemplate extends CucumberSpringBean implements En {
 
-    private ResponseEntity<TemplateIO> response;
-    private Exception exception;
+    private ResponseEntity response;
 
     @Autowired
     private ExistingTemplateContext existingTemplate;
 
     public UpdateATemplate() {
-        Given("^this template is being modified alongside$", () -> {
-            updateTemplate();
-        });
 
         When("^updating this template$", () -> {
-            try {
-                updateTemplate();
-            } catch (Exception e) {
-                exception = e;
-            }
+            updateTemplate(false);
+        });
+
+        When("^updating the same version of the template alongside$", () -> {
+            updateTemplate(true);
         });
 
         Then("^the template is successfully updated", () -> {
-            assertNull(exception);
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertEquals(2L, response.getBody().getVersionId().longValue());
+            TemplateIO template = (TemplateIO) response.getBody();
+            assertEquals(2L, template.getVersionId().longValue());
             //TODO Tester le reste par rapport à l'input ?
         });
 
         Then("^the template update is rejected$", () -> {
-            assertNotNull(exception);
+            assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         });
     }
 
-    private void updateTemplate() {
-        TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
-        TemplateIO templateIO = new TemplateIO(null, "templateName", "template.name", "template.location", "content-bis",
-                new TemplateIO.RightsIO(rights, rights, rights), 1L);
+    private void updateTemplate(boolean isGoingToThrowAnError) {
+        TemplateIO.FileRightsIO rightsInput = new TemplateIO.FileRightsIO(true, true, true);
+        TemplateIO templateInput = new TemplateIO(null, "templateName", "template.name", "template.location", "content-bis",
+                new TemplateIO.RightsIO(rightsInput, rightsInput, rightsInput), 1L);
         Module.Key moduleKey = existingTemplate.getExistingModuleContext().getModuleKey();
-        response = rest.putForEntity("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/",
-                templateIO, TemplateIO.class,
-                moduleKey.getName(), moduleKey.getVersion());
+
+        if (isGoingToThrowAnError) {
+            response = rest.doWithErrorHandlerDisabled(rest -> rest.exchange("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/",
+                    HttpMethod.PUT, new HttpEntity<>(templateInput), String.class, moduleKey.getName(), moduleKey.getVersion()));
+        } else {
+            response = rest.putForEntity("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/", templateInput, TemplateIO.class, moduleKey.getName(), moduleKey.getVersion());
+        }
     }
 
     /**

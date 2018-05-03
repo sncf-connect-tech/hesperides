@@ -3,7 +3,6 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.PartialTemplateIO;
-import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.commons.tools.HesperideTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
