@@ -42,7 +42,6 @@ public class TechnoIO {
     @SerializedName("working_copy")
     boolean workingCopy;
 
-    // TODO Peut-être passer les templates en paramètre ou dans une deuxième méthode ?
     public Techno toDomainInstance() {
         return new Techno(new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release), null);
     }

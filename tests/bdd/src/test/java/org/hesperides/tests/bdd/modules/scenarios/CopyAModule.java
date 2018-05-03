@@ -4,15 +4,18 @@ import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
+import org.hesperides.presentation.io.PartialTemplateIO;
+import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class CopyAModule extends CucumberSpringBean implements En {
 
@@ -21,6 +24,8 @@ public class CopyAModule extends CucumberSpringBean implements En {
 
     @Autowired
     private ExistingModuleContext existingModule;
+    @Autowired
+    private ExistingTemplateContext existingTemplate;
 
     public CopyAModule() {
         When("^creating a copy of this module$", () -> {
@@ -31,13 +36,14 @@ public class CopyAModule extends CucumberSpringBean implements En {
                     moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
         });
 
-        Then("^the module is successfully duplicated$", () -> {
+        Then("^the module is successfully and completely duplicated$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             ModuleIO moduleOutput = response.getBody();
             assertEquals(moduleInput.getName(), moduleOutput.getName());
             assertEquals(moduleInput.getVersion(), moduleOutput.getVersion());
             assertEquals(moduleInput.isWorkingCopy(), moduleOutput.isWorkingCopy());
-            assertTrue(CollectionUtils.isEmpty(moduleOutput.getTechnos()));
+            assertTemplate();
+            assertTechno(moduleOutput.getTechnos());
             assertEquals(1L, moduleOutput.getVersionId().longValue());
         });
 
@@ -45,5 +51,19 @@ public class CopyAModule extends CucumberSpringBean implements En {
          * TODO Tester la copie d'un module qui a des technos et templates
          * Si lors d'une copie, on envoie des clés de technos dans le body, elles sont ignorés
          */
+    }
+
+    private void assertTechno(List<TechnoIO> technos) {
+        TemplateContainer.Key existingTechnoKey = existingModule.getExistingTechno().getTechnoKey();
+        TechnoIO moduleTechno = technos.get(0);
+        //TODO Récupérer la techno via un appel rest ?
+        assertEquals(existingTechnoKey.getName(), moduleTechno.getName());
+        assertEquals(existingTechnoKey.getVersion(), moduleTechno.getVersion());
+        assertEquals(existingTechnoKey.getVersionType(), moduleTechno.isWorkingCopy() ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+    }
+
+    private void assertTemplate() {
+        PartialTemplateIO template = GetTemplates.getTemplates(rest, existingModule.getModuleKey()).getBody()[0];
+        assertEquals(existingTemplate.getTemplateInput().getName(), template.getName());
     }
 }
