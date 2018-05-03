@@ -44,7 +44,7 @@ public class ModuleUseCases {
      * @return
      */
     public Module.Key createWorkingCopy(Module module, User user) {
-        if (queries.moduleExist(module.getKey())) {
+        if (queries.moduleExists(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
         return commands.createModule(module, user);
@@ -114,7 +114,7 @@ public class ModuleUseCases {
 
     public ModuleView createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey, User user) {
 
-        if (queries.moduleExist(newModuleKey)) {
+        if (queries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
 
@@ -140,7 +140,11 @@ public class ModuleUseCases {
 
     public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
 
-        //TODO Vérifier si le module a déjà été releasé ?
+        String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
+        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.Type.release);
+        if (queries.moduleExists(newModuleKey)) {
+            throw new DuplicateModuleException(newModuleKey);
+        }
 
         TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.Type.workingcopy);
         Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
@@ -148,8 +152,6 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
-        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.Type.release);
         Module existingModule = moduleView.get().toDomain();
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 

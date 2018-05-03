@@ -40,7 +40,7 @@ public class ModuleUseCasesTest {
         Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
-        given(moduleQueries.moduleExist(any())).willReturn(true);
+        given(moduleQueries.moduleExists(any())).willReturn(true);
         given(moduleCommands.createModule(any(), any())).willReturn(key);
 
         useCases.createWorkingCopy(module, new User("robert"));
@@ -52,7 +52,7 @@ public class ModuleUseCasesTest {
         Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
-        given(moduleQueries.moduleExist(any())).willReturn(false);
+        given(moduleQueries.moduleExists(any())).willReturn(false);
         given(moduleCommands.createModule(any(), any())).willReturn(key);
 
         useCases.createWorkingCopy(module, new User("robert"));

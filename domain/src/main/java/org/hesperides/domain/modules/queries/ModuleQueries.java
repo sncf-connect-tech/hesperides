@@ -21,7 +21,7 @@ public class ModuleQueries extends Queries {
         super(queryGateway);
     }
 
-    public boolean moduleExist(Module.Key moduleKey) {
+    public boolean moduleExists(Module.Key moduleKey) {
         return querySync(new ModuleAlreadyExistsQuery(moduleKey), Boolean.class);
     }
 
