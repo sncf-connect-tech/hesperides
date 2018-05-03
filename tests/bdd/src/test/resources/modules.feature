@@ -77,5 +77,11 @@ Feature: modules related features
     When retrieving the module's types
     Then the module's types are retrieved
 
-# Gérer les cas de modules releasés
-# Améliorer les vérifications en incluant des technos ?
+  Scenario: create a release from an existing workingcopy
+    Given an existing module
+    When releasing the module
+    Then the module is released
+
+  #TODO Tester les cas qui ne passent pas
+  #TODO Gérer les cas de modules releasés
+  #TODO Améliorer les vérifications en incluant les technos et les templates

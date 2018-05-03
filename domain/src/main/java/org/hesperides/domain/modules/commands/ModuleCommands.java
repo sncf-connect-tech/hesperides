@@ -45,5 +45,4 @@ public class ModuleCommands {
     public void deleteTemplate(Module.Key key, String templateName, User user) {
         commandGateway.sendAndWait(new DeleteTemplateCommand(key, templateName, user));
     }
-
 }
