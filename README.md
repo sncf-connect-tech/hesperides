@@ -70,6 +70,8 @@ Some variables are set as environment variables:
 * JPA_DATABASE_USERNAME
 * JPA_DATABASE_PASSWORD
 
+* SPRING_BOOT_ADMIN_URL
+
 See `boostrap/src/main/resources/application.yml`
 
 Run backend via Docker
