@@ -173,7 +173,6 @@ public class ModuleUseCases {
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(moduleRelease, user);
-
         return queries.getModule(newModuleKey).get();
     }
 }
