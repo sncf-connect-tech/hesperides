@@ -16,19 +16,18 @@ public class GetModuleInfo extends CucumberSpringBean implements En {
     private ResponseEntity<ModuleView> response;
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ExistingModuleContext existingModule;
 
     public GetModuleInfo() {
 
         When("^retrieving the module's info$", () -> {
-            TemplateContainer.Key moduleKey = existingModuleContext.getModuleKey();
-            response = rest.getTestRest().getForEntity(String.format("/modules/%s/%s/%s", moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType()), ModuleView.class);
+            response = rest.getTestRest().getForEntity(existingModule.getModuleLocation(), ModuleView.class);
         });
 
         Then("^the module's info is retrieved$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModuleView module = response.getBody();
-            TemplateContainer.Key moduleKey = existingModuleContext.getModuleKey();
+            TemplateContainer.Key moduleKey = existingModule.getModuleKey();
             assertEquals(moduleKey.getName(), module.getName());
             assertEquals(moduleKey.getVersion(), module.getVersion());
             assertEquals(moduleKey.isWorkingCopy(), module.isWorkingCopy());

@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.inputs.RightsInput;
 import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
@@ -14,7 +15,7 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
     private URI templateLocation;
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ExistingModuleContext existingModule;
 
     public ExistingTemplateContext() {
 
@@ -27,10 +28,6 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
                 addTemplateToModule("templateName" + i);
             }
         });
-
-        Given("^an existing template in a released module$", () -> {
-            //TODO Gérer d'abord la création d'une release de module
-        });
     }
 
     public URI getTemplateLocation() {
@@ -38,7 +35,7 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
     }
 
     public ExistingModuleContext getExistingModuleContext() {
-        return existingModuleContext;
+        return existingModule;
     }
 
     public TemplateInput getTemplateInput() {
@@ -47,9 +44,11 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
 
     private void addTemplateToModule(String templateName) {
         RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
-        templateInput = new TemplateInput(templateName, "template.name", "template.location", "content",
+        templateInput = new TemplateInput(templateName, "template.json", "/location", "content",
                 new RightsInput(rights, rights, rights), 0L);
-        templateLocation = rest.postForLocationReturnAbsoluteURI("/modules/{id}/{version}/workingcopy/templates/", templateInput,
-                existingModuleContext.getModuleKey().getName(), existingModuleContext.getModuleKey().getVersion());
+
+        TemplateContainer.Key moduleKey = existingModule.getModuleKey();
+        templateLocation = rest.postForLocationReturnAbsoluteURI("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/", templateInput,
+                moduleKey.getName(), moduleKey.getVersion());
     }
 }

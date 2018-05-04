@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
 import static org.springframework.http.HttpStatus.SEE_OTHER;
@@ -57,14 +58,18 @@ public class TemplateController extends BaseController {
 
     @GetMapping("/{module_type}/templates/{template_name}")
     @ApiOperation("Get template bundled in a module for a version workingcopy")
-    public TemplateView getTemplateInWorkingCopy(
+    public ResponseEntity<TemplateView> getTemplateInWorkingCopy(
             @PathVariable("module_name") final String moduleName,
             @PathVariable("module_version") final String moduleVersion,
             @PathVariable("module_type") final Module.Type moduleType,
             @PathVariable("template_name") final String templateName) {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
-        return moduleUseCases.getTemplate(moduleKey, templateName).orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
+        Optional<TemplateView> template = moduleUseCases.getTemplate(moduleKey, templateName);
+        if (!template.isPresent()) {
+            throw new TemplateNotFoundException(moduleKey, templateName);
+        }
+        return ResponseEntity.ok(template.get());
     }
 
     @DeleteMapping("/workingcopy/templates/{template_name}")

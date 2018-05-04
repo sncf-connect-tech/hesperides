@@ -16,24 +16,22 @@ public class ReleaseAModule extends CucumberSpringBean implements En {
     private ResponseEntity<ModuleView> response;
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ExistingModuleContext existingModule;
 
     public ReleaseAModule() {
         When("^releasing the module$", () -> {
-            TemplateContainer.Key existingModuleKey = existingModuleContext.getModuleKey();
-            response = rest.getTestRest().postForEntity(String.format("/modules/create_release?module_name=%s&module_version=%s&release_version=%s",
-                    existingModuleKey.getName(),
-                    existingModuleKey.getVersion(),
-                    "1.0.0"),
+            TemplateContainer.Key moduleKey = existingModule.getModuleKey();
+            response = rest.getTestRest().postForEntity("/modules/create_release?module_name={moduleName}&module_version={moduleVersion}&release_version={releaseVersion}",
                     null,
-                    ModuleView.class);
+                    ModuleView.class,
+                    moduleKey.getName(), moduleKey.getVersion(), "1.0.0");
         });
 
         Then("^the module is released$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModuleView module = response.getBody();
-            TemplateContainer.Key existingModuleKey = existingModuleContext.getModuleKey();
-            assertEquals(existingModuleKey.getName(), module.getName());
+            TemplateContainer.Key moduleKey = existingModule.getModuleKey();
+            assertEquals(moduleKey.getName(), module.getName());
             assertEquals("1.0.0", module.getVersion());
             assertEquals(false, module.isWorkingCopy());
             //TODO technos et templates ?

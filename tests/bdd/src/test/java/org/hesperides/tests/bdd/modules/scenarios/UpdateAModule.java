@@ -21,7 +21,7 @@ public class UpdateAModule extends CucumberSpringBean implements En {
     private Exception exception;
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ExistingModuleContext existingModule;
 
     public UpdateAModule() {
         Given("^this module is being modified alongside$", () -> {
@@ -49,8 +49,8 @@ public class UpdateAModule extends CucumberSpringBean implements En {
     }
 
     private void updateModule() {
-        Module.Key existingModuleKey = existingModuleContext.getModuleKey();
-        ModuleInput moduleInput = new ModuleInput(existingModuleKey.getName(), existingModuleKey.getVersion(), existingModuleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
+        Module.Key moduleKey = existingModule.getModuleKey();
+        ModuleInput moduleInput = new ModuleInput(moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy(), ImmutableSet.of(), 1L);
         moduleLocation = rest.putForLocationReturnAbsoluteURI("/modules", moduleInput);
     }
 }

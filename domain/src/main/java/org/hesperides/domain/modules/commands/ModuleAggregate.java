@@ -64,7 +64,7 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
-    public void delteModule(DeleteModuleCommand command) {
+    public void deleteModule(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
         apply(new ModuleDeletedEvent(command.getModuleKey(), command.getUser()));
     }

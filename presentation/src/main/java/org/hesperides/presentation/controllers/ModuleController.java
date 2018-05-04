@@ -28,6 +28,7 @@ import org.hesperides.application.modules.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.inputs.ModuleInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -136,37 +137,23 @@ public class ModuleController extends BaseController {
         return ResponseEntity.status(SEE_OTHER).location(module.getKey().getURI()).build();
     }
 
-    @ApiOperation("Delete a module working copy")
-    @DeleteMapping(path = "/{module_name}/{module_version}/workingcopy")
-    public ResponseEntity deleteWorkingCopy(Principal currentUser,
-                                            @PathVariable(value = "module_name") final String moduleName,
-                                            @PathVariable(value = "module_version") final String moduleVersion) {
+    @ApiOperation("Delete a module")
+    @DeleteMapping(path = "/{module_name}/{module_version}/{module_type}")
+    public ResponseEntity deleteModule(Principal currentUser,
+                                       @PathVariable(value = "module_name") final String moduleName,
+                                       @PathVariable(value = "module_version") final String moduleVersion,
+                                       @PathVariable(value = "module_type") final TemplateContainer.Type moduleType) {
 
-        log.info("deleteWorkingCopy {} {}", moduleName, moduleVersion);
-
-        checkQueryParameterNotEmpty("module_name", moduleName);
-        checkQueryParameterNotEmpty("module_version", moduleVersion);
-
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
-        moduleUseCases.deleteWorkingCopy(moduleKey, fromPrincipal(currentUser));
-
-        return ResponseEntity.ok().build();
-    }
-
-    @ApiOperation("Delete a module release")
-    @DeleteMapping(path = "/{module_name}/{module_version}/release")
-    public ResponseEntity deleteRelease(Principal currentUser,
-                                        @PathVariable(value = "module_name") final String moduleName,
-                                        @PathVariable(value = "module_version") final String moduleVersion) {
-
-        log.info("deleteRelease {} {}", moduleName, moduleVersion);
+        log.info("deleteModule {} {}", moduleName, moduleVersion);
 
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
+        checkQueryParameterNotEmpty("module_type", moduleType);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.release);
-        moduleUseCases.deleteRelease(moduleKey, fromPrincipal(currentUser));
-        return ResponseEntity.ok().build();
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        moduleUseCases.deleteModule(moduleKey, fromPrincipal(currentUser));
+
+        return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
     }
 
     @ApiOperation("Search for modules")

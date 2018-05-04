@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.inputs.TemplateInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
@@ -17,21 +16,18 @@ public class GetATemplate extends CucumberSpringBean implements En {
     private ResponseEntity<TemplateView> response;
 
     @Autowired
-    private ExistingTemplateContext existingTemplateContext;
+    private ExistingTemplateContext existingTemplate;
 
     public GetATemplate() {
 
         When("^retrieving this template$", () -> {
-            TemplateContainer.Key moduleKey = existingTemplateContext.getExistingModuleContext().getModuleKey();
-            String templateName = existingTemplateContext.getTemplateInput().getName();
-            response = rest.getTestRest().getForEntity(String.format("/modules/%s/%s/%s/templates/%s",
-                    moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType(), templateName), TemplateView.class);
+            response = rest.getTestRest().getForEntity(existingTemplate.getTemplateLocation(), TemplateView.class);
         });
 
         Then("^the template is retrieved$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateView template = response.getBody();
-            TemplateInput templateInput = existingTemplateContext.getTemplateInput();
+            TemplateInput templateInput = existingTemplate.getTemplateInput();
             assertEquals(templateInput.getName(), template.getName());
             assertEquals(templateInput.getFilename(), template.getFilename());
             assertEquals(templateInput.getLocation(), template.getLocation());
