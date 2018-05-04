@@ -179,21 +179,4 @@ public class ModuleController extends BaseController {
 
         return ResponseEntity.ok(moduleView);
     }
-
-    @ApiOperation(("Create a release from an existing workingcopy"))
-    @PostMapping(path = "/create_release")
-    public ResponseEntity<ModuleView> createRelease(Principal currentUser,
-                                                    @RequestParam("module_name") final String moduleName,
-                                                    @RequestParam("module_version") final String moduleVersion,
-                                                    @RequestParam("release_version") final String releaseVersion) {
-        log.info("createRelease {} {} => {}", moduleName, moduleVersion, releaseVersion);
-
-        checkQueryParameterNotEmpty("module_name", moduleName);
-        checkQueryParameterNotEmpty("module_version", moduleVersion);
-        checkQueryParameterNotEmpty("release_version", releaseVersion);
-
-        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromPrincipal(currentUser));
-
-        return ResponseEntity.ok(moduleView);
-    }
 }
