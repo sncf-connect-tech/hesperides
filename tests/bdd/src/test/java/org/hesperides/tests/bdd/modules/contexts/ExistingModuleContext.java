@@ -2,6 +2,7 @@ package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.presentation.io.TechnoIO;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 import static org.junit.Assert.assertEquals;
 
