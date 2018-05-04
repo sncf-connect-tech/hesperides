@@ -30,6 +30,6 @@ public class ModuleEntity {
     }
 
     public ModuleView toModuleView() {
-        return new ModuleView(moduleEntityId.name, moduleEntityId.version, moduleEntityId.versionType.equals(TemplateContainer.Type.workingcopy), versionId, null, null);
+        return new ModuleView(moduleEntityId.name, moduleEntityId.version, moduleEntityId.versionType.equals(TemplateContainer.Type.workingcopy), null, null, versionId);
     }
 }

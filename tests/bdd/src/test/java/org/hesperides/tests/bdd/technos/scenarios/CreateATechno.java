@@ -1,54 +1,58 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.presentation.inputs.RightsInput;
-import org.hesperides.presentation.inputs.TechnoInput;
-import org.hesperides.presentation.inputs.TemplateInput;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.templatecontainer.TemplateUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
 public class CreateATechno extends CucumberSpringBean implements En {
-    private TechnoInput technoInput;
-    private ResponseEntity<TemplateView> response;
+
+    private String technoName;
+    private String technoVersion;
+    private TemplateIO templateInput;
+    private ResponseEntity<TemplateIO> response;
 
     public CreateATechno() {
         Given("^a techno to create$", () -> {
-            technoInput = new TechnoInput(
-                    "technoName",
-                    "technoVersion",
-                    true,
-                    new TemplateInput(
-                            "fichierTest",
-                            "test.json",
-                            "/home/test",
-                            "{test:test}",
-                            new RightsInput(
-                                    new RightsInput.FileRights(null, null, null),
-                                    new RightsInput.FileRights(null, null, null),
-                                    null
-                            ), -1L));
+            technoName = "technoName";
+            technoVersion = "technoVersion";
+            templateInput = new TemplateIO(
+                    null,
+                    "fichierTest",
+                    "test.json",
+                    "/home/test",
+                    "{test:test}",
+                    new TemplateIO.RightsIO(
+                            new TemplateIO.FileRightsIO(null, null, null),
+                            new TemplateIO.FileRightsIO(null, null, null),
+                            new TemplateIO.FileRightsIO(null, null, null)
+                    ), -1L);
         });
 
         When("^creating a new techno$", () -> {
             response = rest.getTestRest().postForEntity(
                     "/templates/packages/{technoName}/{technoVersion}/workingcopy/templates",
-                    technoInput.getTemplate(),
-                    TemplateView.class,
-                    technoInput.getName(),
-                    technoInput.getVersion());
+                    templateInput,
+                    TemplateIO.class,
+                    technoName,
+                    technoVersion);
         });
 
 
         Then("^the techno is successfully created$", () -> {
-            TemplateView template = response.getBody();
-            assertEquals(1L, template.getVersionId().longValue());
-            assertEquals("packages#technoName#technoVersion#WORKINGCOPY", template.getNamespace());
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            TemplateIO templateOutput = response.getBody();
+            assertEquals("technos#" + technoName + "#" + technoVersion + "#WORKINGCOPY", templateOutput.getNamespace());
+            assertEquals(templateInput.getName(), templateOutput.getName());
+            assertEquals(templateInput.getFilename(), templateOutput.getFilename());
+            assertEquals(templateInput.getLocation(), templateOutput.getLocation());
+            assertEquals(templateInput.getContent(), templateOutput.getContent());
+            TemplateUtils.assertRights(templateInput.getRights(), templateOutput.getRights());
+            assertEquals(1L, templateOutput.getVersionId().longValue());
         });
     }
-
 }

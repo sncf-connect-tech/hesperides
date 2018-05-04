@@ -4,7 +4,7 @@ import org.hesperides.domain.exceptions.NotFoundException;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 public class TemplateNotFoundException extends NotFoundException {
-    public TemplateNotFoundException(TemplateContainer.Key moduleKey, String templateName) {
-        super("Could not find template in " + moduleKey + "/" + templateName);
+    public TemplateNotFoundException(TemplateContainer.Key templateContainerKey, String templateName) {
+        super("Could not find template in " + templateContainerKey + "/" + templateName);
     }
 }

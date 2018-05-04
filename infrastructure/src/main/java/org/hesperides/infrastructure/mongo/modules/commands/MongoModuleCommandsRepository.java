@@ -8,9 +8,13 @@ import org.hesperides.domain.modules.commands.ModuleCommandsRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
+import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.technos.queries.MongoTechnoQueriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 import static org.hesperides.domain.Profiles.*;
 
@@ -18,34 +22,38 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public class MongoModuleCommandsRepository implements ModuleCommandsRepository {
 
-    private final MongoModuleRepository repository;
+    private final MongoModuleRepository moduleRepository;
+    private final MongoTechnoQueriesRepository technoQueriesRepository;
 
     @Autowired
-    public MongoModuleCommandsRepository(MongoModuleRepository repository) {
-        this.repository = repository;
+    public MongoModuleCommandsRepository(MongoModuleRepository moduleRepository, MongoTechnoQueriesRepository technoQueriesRepository) {
+        this.moduleRepository = moduleRepository;
+        this.technoQueriesRepository = technoQueriesRepository;
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleCreatedEvent event) {
-        ModuleDocument module = ModuleDocument.fromDomain(event.getModule());
-        repository.save(module);
+        List<TechnoDocument> technos = technoQueriesRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
+        ModuleDocument module = ModuleDocument.fromDomain(event.getModule(), technos);
+        moduleRepository.save(module);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleUpdatedEvent event) {
         TemplateContainer.Key key = event.getModule().getKey();
-        ModuleDocument existingModule = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
-        ModuleDocument updatedModule = ModuleDocument.fromDomain(event.getModule());
+        ModuleDocument existingModule = moduleRepository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        List<TechnoDocument> technos = technoQueriesRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
+        ModuleDocument updatedModule = ModuleDocument.fromDomain(event.getModule(), technos);
         updatedModule.setId(existingModule.getId());
-        repository.save(updatedModule);
+        moduleRepository.save(updatedModule);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
         TemplateContainer.Key key = event.getModuleKey();
-        repository.deleteByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        moduleRepository.deleteByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 @Value
 public class Techno extends TemplateContainer {
 
-    public static final String NAMESPACE_PREFIX = "packages";
+    public static final String KEY_PREFIX = "techno";
 
     public Techno(Key key, List<Template> templates) {
         super(key, templates);

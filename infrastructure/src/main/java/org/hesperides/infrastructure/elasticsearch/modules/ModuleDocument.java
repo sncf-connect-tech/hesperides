@@ -22,6 +22,6 @@ public class ModuleDocument {
     Long versionId;
 
     public ModuleView toModuleView() {
-        return new ModuleView(name, version, versionType.equals(TemplateContainer.Type.workingcopy), versionId, null, null);
+        return new ModuleView(name, version, versionType.equals(TemplateContainer.Type.workingcopy), null, null, versionId);
     }
 }

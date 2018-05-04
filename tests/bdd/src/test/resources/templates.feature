@@ -30,7 +30,7 @@ Feature: modules templates
     When updating this template
     Then the template update is rejected
 
-  Scenario: get template bundled in a module for a version workingcopy
+  Scenario: get a template bundled in a module for a version workingcopy
     Given an existing module working copy
     And an existing template in this module
     When retrieving this template

@@ -1,43 +1,49 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.presentation.inputs.RightsInput;
-import org.hesperides.presentation.inputs.TemplateInput;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
+import org.hesperides.tests.bdd.templatecontainer.TemplateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 
 public class CreateATemplate extends CucumberSpringBean implements En {
 
-    private TemplateInput templateInput;
-    private URI templateLocation;
+    private TemplateIO templateInput;
+    private ResponseEntity<TemplateIO> response;
 
     @Autowired
     private ExistingModuleContext existingModule;
 
     public CreateATemplate() {
         Given("^a template to create$", () -> {
-            RightsInput.FileRights rights = new RightsInput.FileRights(true, true, true);
-            templateInput = new TemplateInput("templateName", "template.name", "template.location", "content",
-                    new RightsInput(rights, rights, rights), 0L);
+            TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
+            templateInput = new TemplateIO(null, "templateName", "template.name", "template.location", "content",
+                    new TemplateIO.RightsIO(rights, rights, rights), 0L);
         });
 
         When("^adding a new template$", () -> {
-            templateLocation = rest.postForLocationReturnAbsoluteURI(existingModule.getModuleLocation() + "/templates", templateInput);
+            response = rest.getTestRest().postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, TemplateIO.class);
         });
 
         Then("^the template is successfully created and the module contains the new template$", () -> {
-            ResponseEntity<TemplateView> response = rest.getTestRest().getForEntity(templateLocation, TemplateView.class);
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            //TODO Vérifier le reste
-            assertEquals(1L, response.getBody().getVersionId().longValue());
+            assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            TemplateIO templateOutput = response.getBody();
+            assertEquals("modules#" + existingModule.getModuleKey().getName() + "#" + existingModule.getModuleKey().getVersion() + "#WORKINGCOPY", templateOutput.getNamespace());
+            assertEquals(templateInput.getName(), templateOutput.getName());
+            assertEquals(templateInput.getFilename(), templateOutput.getFilename());
+            assertEquals(templateInput.getLocation(), templateOutput.getLocation());
+            assertEquals(templateInput.getContent(), templateOutput.getContent());
+            TemplateUtils.assertRights(templateInput.getRights(), templateOutput.getRights());
+            assertEquals(1L, templateOutput.getVersionId().longValue());
         });
     }
+
+    /**
+     * TODO Tester la tentative de création d'un template qui existe déjà
+     */
 }

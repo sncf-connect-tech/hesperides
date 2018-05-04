@@ -22,6 +22,7 @@ package org.hesperides.infrastructure.mongo.technos;
 
 import lombok.Data;
 import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.data.annotation.Id;
@@ -46,7 +47,13 @@ public class TechnoDocument {
         technoDocument.setName(key.getName());
         technoDocument.setVersion(key.getVersion());
         technoDocument.setWorkingCopy(key.isWorkingCopy());
-        technoDocument.setTemplates(techno.getTemplates() != null ? techno.getTemplates().stream().map(template -> TemplateDocument.fromDomain(template)).collect(Collectors.toList()) : null);
+        technoDocument.setTemplates(techno.getTemplates() != null ? techno.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()) : null);
         return technoDocument;
+    }
+
+    public TechnoView toTechnoView() {
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        return new TechnoView(name, version, workingCopy,
+                templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(technoKey, Techno.KEY_PREFIX)).collect(Collectors.toList()) : null);
     }
 }

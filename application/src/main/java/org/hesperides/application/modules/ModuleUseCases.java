@@ -8,11 +8,15 @@ import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.exception.TechnoNotFoundException;
+import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +29,13 @@ public class ModuleUseCases {
 
     private final ModuleCommands commands;
     private final ModuleQueries queries;
+    private final TechnoQueries technoQueries;
 
     @Autowired
-    public ModuleUseCases(ModuleCommands commands, ModuleQueries queries) {
+    public ModuleUseCases(ModuleCommands commands, ModuleQueries queries, TechnoQueries technoQueries) {
         this.commands = commands;
         this.queries = queries;
+        this.technoQueries = technoQueries;
     }
 
     /**
@@ -43,9 +49,10 @@ public class ModuleUseCases {
      * @return
      */
     public Module.Key createWorkingCopy(Module module, User user) {
-        if (queries.moduleExist(module.getKey())) {
+        if (queries.moduleExists(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
+        verifyTechnos(module.getTechnos());
         return commands.createModule(module, user);
     }
 
@@ -57,7 +64,18 @@ public class ModuleUseCases {
         if (!moduleView.get().getVersionId().equals(module.getVersionId())) {
             throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
         }
+        verifyTechnos(module.getTechnos());
         commands.updateModule(module, user);
+    }
+
+    private void verifyTechnos(List<Techno> technos) {
+        if (technos != null) {
+            for (Techno techno : technos) {
+                if (!technoQueries.technoExists(techno.getKey())) {
+                    throw new TechnoNotFoundException(techno.getKey());
+                }
+            }
+        }
     }
 
     public void deleteModule(TemplateContainer.Key moduleKey, User user) {
@@ -113,7 +131,7 @@ public class ModuleUseCases {
 
     public ModuleView createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey, User user) {
 
-        if (queries.moduleExist(newModuleKey)) {
+        if (queries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
 
@@ -139,7 +157,11 @@ public class ModuleUseCases {
 
     public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
 
-        //TODO Vérifier si le module a déjà été releasé ?
+        String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
+        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.Type.release);
+        if (queries.moduleExists(newModuleKey)) {
+            throw new DuplicateModuleException(newModuleKey);
+        }
 
         TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.Type.workingcopy);
         Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
@@ -148,11 +170,9 @@ public class ModuleUseCases {
         }
 
         Module existingModule = moduleView.get().toDomain();
-        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, releaseVersion, TemplateContainer.Type.release);
-        Module newReleasedModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
+        Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
-        commands.createModule(newReleasedModule, user);
-
+        commands.createModule(moduleRelease, user);
         return queries.getModule(newModuleKey).get();
     }
 }

@@ -61,7 +61,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
         return repository.findByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
                 .map(ModuleDocument::isWorkingCopy)
-                .map(isWorkingCopy -> Module.Type.toString(isWorkingCopy))
+                .map(Module.Type::toString)
                 .collect(Collectors.toList());
     }
 
@@ -100,6 +100,6 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
         TypedAggregation<ModuleDocument> aggregation = TypedAggregation.newAggregation(ModuleDocument.class, project, match, limit);
         List<ModuleDocument> modules = mongoTemplate.aggregate(aggregation, ModuleDocument.class).getMappedResults();
 
-        return modules.stream().map(moduleDocument -> moduleDocument.toModuleView()).collect(Collectors.toList());
+        return modules.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
     }
 }

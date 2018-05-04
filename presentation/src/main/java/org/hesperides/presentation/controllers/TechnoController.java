@@ -24,11 +24,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.technos.TechnoUseCases;
+import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.presentation.inputs.TemplateInput;
+import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,16 +52,19 @@ public class TechnoController extends BaseController {
 
     @ApiOperation("Add a template to a techno working copy")
     @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
-    public ResponseEntity<TemplateView> createWorkingCopy(Principal currentUser,
-                                                          @PathVariable(value = "techno_name") final String technoName,
-                                                          @PathVariable(value = "techno_version") final String technoVersion,
-                                                          @Valid @RequestBody final TemplateInput templateInput) {
+    public ResponseEntity<TemplateIO> createWorkingCopy(Principal currentUser,
+                                                        @PathVariable(value = "techno_name") final String technoName,
+                                                        @PathVariable(value = "techno_version") final String technoVersion,
+                                                        @Valid @RequestBody final TemplateIO templateInput) {
+
         log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
 
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.Type.workingcopy);
         technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromPrincipal(currentUser));
-        TemplateView templateView = technoUseCases.getTemplate(technoKey, templateInput.getName()).get();
+        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateInput.getName())
+                .map(TemplateIO::fromTemplateView)
+                .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateInput.getName()));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(templateView);
+        return ResponseEntity.created(technoKey.getURI(Techno.KEY_PREFIX)).body(templateOutput);
     }
 }
