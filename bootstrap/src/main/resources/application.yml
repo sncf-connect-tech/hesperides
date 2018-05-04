@@ -1,7 +1,9 @@
 spring:
   application.name: HESPERIDES
-
+  boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
+
+management.security.enabled: false
 
 server:
   port: ${SERVER_PORT:8080}
