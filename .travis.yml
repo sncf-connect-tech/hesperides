@@ -31,6 +31,9 @@ jobs:
     - stage: build
       script: ./mvnw clean package -Dmaven.test.skip=true
     - stage: test
+      before_script:
+        - sudo touch /var/log/hesperides.log
+        - sudo chown travis /var/log/hesperides.log
       script: ./mvnw test
     - stage: test
       env:
