@@ -18,3 +18,9 @@ ldap:
   readTimeout: ${LDAP_READ_TIMEOUT:1000}
 
 liquibase.enabled: false
+
+logging:
+  file: /var/log/hesperides.log
+  level:
+    root: INFO
+#    org.hesperides: INFO
