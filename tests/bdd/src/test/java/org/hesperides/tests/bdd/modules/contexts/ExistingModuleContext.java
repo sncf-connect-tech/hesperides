@@ -28,7 +28,7 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
 
     public ExistingModuleContext() {
 
-        Given("^an existing module working copy$", () -> {
+        Given("^an existing module$", () -> {
             createWorkingCopy("test", "1.0.0");
         });
 
@@ -44,11 +44,11 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
             createRelease("test", "1.0.0");
         });
 
-        Given("^an existing module working copy and its release$", () -> {
+        Given("^an existing module and its release$", () -> {
             createWorkingCopyAndRelease("test", "1.0.0");
         });
 
-        Given("^an existing module working copy with multiple versions$", () -> {
+        Given("^an existing module with multiple versions$", () -> {
             for (int i = 0; i < 6; i++) {
                 createWorkingCopy("test", "1.0." + i);
             }

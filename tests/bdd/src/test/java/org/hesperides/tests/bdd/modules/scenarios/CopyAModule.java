@@ -46,11 +46,6 @@ public class CopyAModule extends CucumberSpringBean implements En {
             assertTechno(moduleOutput.getTechnos());
             assertEquals(1L, moduleOutput.getVersionId().longValue());
         });
-
-        /**
-         * TODO Tester la copie d'un module qui a des technos et templates
-         * Si lors d'une copie, on envoie des clés de technos dans le body, elles sont ignorés
-         */
     }
 
     private void assertTechno(List<TechnoIO> technos) {

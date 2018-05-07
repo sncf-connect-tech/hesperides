@@ -17,11 +17,11 @@ public class CreateAModule extends CucumberSpringBean implements En {
     private ResponseEntity<ModuleIO> response;
 
     public CreateAModule() {
-        Given("^a module working copy to create$", () -> {
+        Given("^a module to create$", () -> {
             moduleInput = new ModuleIO("test", "1.0.0", true, ImmutableList.of(), 0L);
         });
 
-        When("^creating a new module working copy$", () -> {
+        When("^creating a new module$", () -> {
             response = rest.getTestRest().postForEntity("/modules", moduleInput, ModuleIO.class);
         });
 
@@ -35,8 +35,4 @@ public class CreateAModule extends CucumberSpringBean implements En {
             assertEquals(1L, moduleOutput.getVersionId().longValue());
         });
     }
-
-    /**
-     * TODO Tester la création d'un module avec technos
-     */
 }
