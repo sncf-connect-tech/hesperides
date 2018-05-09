@@ -1,10 +1,34 @@
-# Contributing
+# Contribuer
 
-Looking to contribute something to this project? That is great, we always appreciate pull requests! Here's how you can help:
+## Environnement de dev
 
-1. Fork the project to your account.
-2. Clone the fork (`git clone https://github.com/[username]/hesperides.git`).
-3. Create a new feature branch (`git checkout -b my-feature-branch`).
-4. Add and then commit your changes (`git commit -am "Add a new backup endpoint."`).
-5. Push your feature branch to GitHub.com (`git push -u origin my-feature-branch`).
-6. Open a [Pull Request](https://github.com/voyages-sncf-technologies/hesperides/compare/) and wait for our feedback.
+Nous utilisons IntelliJ avec le JDK 8 et les plugins :
+
+* Maven
+* Kotlin
+* Lombok
+* Spring (Boot, Data, MVC, Security)
+* Cucumber
+
+## Démarche
+
+Toute contribution est la bienvenue. Nous fonctionnons en pull request. Voici la démarche :
+
+1. Forker et cloner le projet
+1. Créer une nouvelle feature-branche (`git checkout -b feature/my-new-feature`)
+1. Implémenter la fonctionnalité sans oublier les *tests fonctionnels*
+1. Commit + Push
+1. Créer une pull request
+
+Pour qu'une pull request soit acceptée, il faut :
+
+* Que le build (+ tests) Travis soit un succès
+* Qu'au moins une personne de la core-team approuve la pull request après un code-review
+
+## Documentation
+
+La documentation de l'application (choix techniques, architecture, etc.) se trouve dans le dossier [documentation](documentation). Le modèle de domaine (documentation/model.mdj) peut-être ouvert avec l'application StarUML.
+
+## Postman
+
+L'application étant une API REST, nous utilisons Postman pour effectuer des tests manuels. Veuillez consulter la documentation sur cette [page](documentation/postman/postman.md). 
