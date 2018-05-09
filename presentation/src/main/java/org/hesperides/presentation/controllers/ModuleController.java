@@ -29,6 +29,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -97,6 +98,12 @@ public class ModuleController extends BaseController {
     public ResponseEntity<ModuleIO> updateWorkingCopy(Principal currentUser, @Valid @RequestBody final ModuleIO moduleInput) {
 
         log.info("Updating module workingcopy {}", moduleInput.toString());
+
+        /**
+         TemplateContainer.Key moduleKey = new TemplateContainer.Key(moduleInput.getName(), moduleInput.getVersion(), moduleInput.isWorkingCopy() ? TemplateContainer.Type.workingcopy: TemplateContainer.Type.release);
+         List<TemplateView> templates = moduleUseCases.getTemplates(moduleKey);
+         Module module = moduleInput.toDomainInstance(templates != null ? templates.stream().map(template -> template.toDomain(moduleKey)).collect(Collectors.toList()) : null);
+         */
 
         Module module = moduleInput.toDomainInstance();
         moduleUseCases.updateWorkingCopy(module, fromPrincipal(currentUser));

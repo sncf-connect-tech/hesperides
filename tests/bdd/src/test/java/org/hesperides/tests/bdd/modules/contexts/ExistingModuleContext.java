@@ -32,6 +32,10 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
             createWorkingCopy("test", "1.0.0");
         });
 
+        Given("^an existing module containing a template", () -> {
+            createWorkingCopy("test", "1.0.0");
+        });
+
         Given("^an existing module containing this techno$", () -> {
             createWorkingCopy("test", "1.0.0", existingTechno.getTechnoKey());
         });

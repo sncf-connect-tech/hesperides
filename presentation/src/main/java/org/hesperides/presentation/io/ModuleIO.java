@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -29,12 +30,16 @@ public final class ModuleIO {
     @SerializedName("version_id")
     Long versionId;
 
-    public Module toDomainInstance() {
+    public Module toDomainInstance(List<Template> templates) {
         return new Module(
                 new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release),
-                null,
+                templates,
                 technos != null ? technos.stream().map(TechnoIO::toDomainInstance).collect(Collectors.toList()) : null,
                 versionId);
+    }
+
+    public Module toDomainInstance() {
+        return toDomainInstance(null);
     }
 
     public static ModuleIO fromModuleView(ModuleView moduleView) {
