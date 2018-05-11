@@ -8,7 +8,8 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>hesperides-spring</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Hesperides, templated files generator</description>
+    <url>https://github.com/voyages-sncf-technologies/hesperides</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -348,6 +349,31 @@
         </pluginManagement>
     </build>
 
+    <profiles>
+        <profile>
+            <id>build</id>
+            <activation>
+                <property>
+                    <name>!deploy</name>
+                </property>
+            </activation>
+            <properties>
+                <gpg.skip>true</gpg.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>deploy</id>
+            <activation>
+                <property>
+                    <name>deploy</name>
+                </property>
+            </activation>
+            <properties>
+                <gpg.skip>false</gpg.skip>
+            </properties>
+        </profile>
+    </profiles>
+
     <inceptionYear>2016</inceptionYear>
 
     <organization>
@@ -358,7 +384,7 @@
         <developer>
             <id>victorsalaun</id>
             <name>Victor SALAUN</name>
-            <email>vsalaun.prestataire@oui.sncf</email>
+            <email>victor.salaun@gmail.com</email>
             <organization>voyages-sncf-technologies</organization>
             <organizationUrl>https://www.oui.sncf/</organizationUrl>
         </developer>
@@ -375,8 +401,7 @@
     <scm>
         <connection>scm:git:git@github.com:voyages-sncf-technologies/hesperides.git</connection>
         <developerConnection>scm:git:git@github.com:voyages-sncf-technologies/hesperides.git</developerConnection>
-        <url>git@github.com:voyages-sncf-technologies/hesperides.git</url>
-        <tag>hesperides-0.0.1-SNAPSHOT</tag>
+        <url>https://github.com/voyages-sncf-technologies/hesperides</url>
     </scm>
 
     <distributionManagement>
