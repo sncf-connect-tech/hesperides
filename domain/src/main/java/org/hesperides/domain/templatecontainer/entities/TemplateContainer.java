@@ -53,4 +53,8 @@ public abstract class TemplateContainer {
             return versionType == VersionType.workingcopy;
         }
     }
+
+    public static VersionType getVersionType(boolean isWorkingCopy) {
+        return isWorkingCopy ? VersionType.workingcopy : VersionType.release;
+    }
 }

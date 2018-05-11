@@ -36,7 +36,7 @@ public class TechnoView {
     List<TemplateView> templates;
 
     public Techno toDomain() {
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
         return new Techno(technoKey, templates != null ? templates.stream().map(templateView -> templateView.toDomain(technoKey)).collect(Collectors.toList()) : null);
     }
 }

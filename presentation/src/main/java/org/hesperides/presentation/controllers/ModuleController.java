@@ -83,7 +83,7 @@ public class ModuleController extends BaseController {
             checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
             checkQueryParameterNotEmpty("from_is_working_copy", fromWorkingCopy);
 
-            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, fromWorkingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
+            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(fromWorkingCopy));
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
             TemplateContainer.Key createdModuleKey = moduleView.toDomain().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);

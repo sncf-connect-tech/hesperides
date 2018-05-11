@@ -95,7 +95,7 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
     }
 
     private void setModuleKeyFromModuleOutput(ModuleIO moduleOutput) {
-        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), moduleOutput.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
+        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), TemplateContainer.getVersionType(moduleOutput.isWorkingCopy()));
     }
 
     public Module.Key getModuleKey() {

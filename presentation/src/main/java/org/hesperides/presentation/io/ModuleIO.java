@@ -32,7 +32,7 @@ public final class ModuleIO {
 
     public Module toDomainInstance(List<Template> templates) {
         return new Module(
-                new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release),
+                new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)),
                 templates,
                 technos != null ? technos.stream().map(TechnoIO::toDomainInstance).collect(Collectors.toList()) : null,
                 versionId);

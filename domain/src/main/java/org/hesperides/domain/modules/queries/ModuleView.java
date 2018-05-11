@@ -19,7 +19,7 @@ public class ModuleView {
     Long versionId;
 
     public Module toDomain() {
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
         return new Module(
                 moduleKey,
                 templates != null ? templates.stream().map(templateView -> templateView.toDomain(moduleKey)).collect(Collectors.toList()) : null,
