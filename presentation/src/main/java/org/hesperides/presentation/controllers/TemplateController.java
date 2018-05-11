@@ -39,9 +39,9 @@ public class TemplateController extends BaseController {
     @ApiOperation("Get all templates bundled in a module")
     public ResponseEntity<List<PartialTemplateIO>> getModuleTemplates(@PathVariable("module_name") final String moduleName,
                                                                       @PathVariable("module_version") final String moduleVersion,
-                                                                      @PathVariable("module_type") final Module.Type moduleType) {
+                                                                      @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
         List<PartialTemplateIO> output = templateViews != null
                 ? templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList())
@@ -54,10 +54,10 @@ public class TemplateController extends BaseController {
     @ApiOperation("Get template bundled in a module for a version workingcopy")
     public ResponseEntity<TemplateIO> getTemplateInWorkingCopy(@PathVariable("module_name") final String moduleName,
                                                                @PathVariable("module_version") final String moduleVersion,
-                                                               @PathVariable("module_type") final Module.Type moduleType,
+                                                               @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
                                                                @PathVariable("template_name") final String templateName) {
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         TemplateIO output = moduleUseCases.getTemplate(moduleKey, templateName)
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
@@ -72,7 +72,7 @@ public class TemplateController extends BaseController {
                                                                   @PathVariable("module_version") final String moduleVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
         moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, fromPrincipal(currentUser));
 
@@ -90,7 +90,7 @@ public class TemplateController extends BaseController {
                                                                   @PathVariable("module_version") final String moduleVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
         moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, fromPrincipal(currentUser));
 
@@ -108,7 +108,7 @@ public class TemplateController extends BaseController {
                                                       @PathVariable("module_version") final String moduleVersion,
                                                       @PathVariable("template_name") final String templateName) {
 
-        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, Module.Type.workingcopy);
+        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         this.moduleUseCases.deleteTemplate(moduleKey, templateName, fromPrincipal(currentUser));
 
         return ResponseEntity.noContent().build();

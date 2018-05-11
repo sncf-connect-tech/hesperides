@@ -2,9 +2,9 @@ package org.hesperides.infrastructure.jpa.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
 import org.hesperides.infrastructure.jpa.modules.ModuleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
                 .stream()
                 .map(ModuleEntity::getModuleEntityId)
                 .map(ModuleEntity.ModuleEntityId::getVersionType)
-                .map(Module.Type::toString)
+                .map(TemplateContainer.VersionType::toString)
                 .collect(Collectors.toList());
     }
 

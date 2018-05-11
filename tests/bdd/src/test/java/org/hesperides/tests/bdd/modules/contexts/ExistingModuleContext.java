@@ -2,7 +2,6 @@ package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.presentation.io.TechnoIO;
@@ -96,7 +95,7 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
     }
 
     private void setModuleKeyFromModuleOutput(ModuleIO moduleOutput) {
-        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), moduleOutput.isWorkingCopy() ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), moduleOutput.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
     }
 
     public Module.Key getModuleKey() {

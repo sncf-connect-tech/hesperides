@@ -31,7 +31,7 @@ public class ModuleDocument {
         TemplateContainer.Key key = module.getKey();
         moduleDocument.setName(key.getName());
         moduleDocument.setVersion(key.getVersion());
-        moduleDocument.setWorkingCopy(key.getVersionType().equals(TemplateContainer.Type.workingcopy));
+        moduleDocument.setWorkingCopy(key.getVersionType().equals(TemplateContainer.VersionType.workingcopy));
         moduleDocument.setTemplates(module.getTemplates() != null ? module.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()) : null);
         moduleDocument.setTechnos(technos);
         moduleDocument.setVersionId(module.getVersionId());
@@ -39,7 +39,7 @@ public class ModuleDocument {
     }
 
     public ModuleView toModuleView() {
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
         return new ModuleView(name, version, workingCopy,
                 templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX)).collect(Collectors.toList()) : null,
                 technos != null ? technos.stream().map(TechnoDocument::toTechnoView).collect(Collectors.toList()) : null,

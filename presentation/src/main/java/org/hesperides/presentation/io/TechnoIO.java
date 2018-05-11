@@ -43,7 +43,7 @@ public class TechnoIO {
     boolean workingCopy;
 
     public Techno toDomainInstance() {
-        return new Techno(new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release), null);
+        return new Techno(new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release), null);
     }
 
     public static TechnoIO fromTechnoView(TechnoView technoView) {

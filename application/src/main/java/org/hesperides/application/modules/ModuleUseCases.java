@@ -185,12 +185,12 @@ public class ModuleUseCases {
     public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
 
         String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
-        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.Type.release);
+        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.VersionType.release);
         if (queries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
 
-        TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.Type.workingcopy);
+        TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
         if (!moduleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);

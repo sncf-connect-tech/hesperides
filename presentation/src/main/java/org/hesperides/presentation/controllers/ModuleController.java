@@ -29,7 +29,6 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -84,7 +83,7 @@ public class ModuleController extends BaseController {
             checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
             checkQueryParameterNotEmpty("from_is_working_copy", fromWorkingCopy);
 
-            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, fromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
+            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, fromWorkingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
             TemplateContainer.Key createdModuleKey = moduleView.toDomain().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
@@ -100,7 +99,7 @@ public class ModuleController extends BaseController {
         log.info("Updating module workingcopy {}", moduleInput.toString());
 
         /**
-         TemplateContainer.Key moduleKey = new TemplateContainer.Key(moduleInput.getName(), moduleInput.getVersion(), moduleInput.isWorkingCopy() ? TemplateContainer.Type.workingcopy: TemplateContainer.Type.release);
+         TemplateContainer.Key moduleKey = new TemplateContainer.Key(moduleInput.getName(), moduleInput.getVersion(), moduleInput.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy: TemplateContainer.VersionType.release);
          List<TemplateView> templates = moduleUseCases.getTemplates(moduleKey);
          Module module = moduleInput.toDomainInstance(templates != null ? templates.stream().map(template -> template.toDomain(moduleKey)).collect(Collectors.toList()) : null);
          */
@@ -155,11 +154,11 @@ public class ModuleController extends BaseController {
     @GetMapping(path = "/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<ModuleIO> getModuleInfo(@PathVariable("module_name") final String moduleName,
                                                   @PathVariable("module_version") final String moduleVersion,
-                                                  @PathVariable("module_type") final Module.Type moduleType) {
+                                                  @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
-        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleType: {}", moduleName, moduleVersion, moduleType);
+        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleVersionType: {}", moduleName, moduleVersion, moduleVersionType);
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         return moduleUseCases.getModule(moduleKey)
                 .map(ModuleIO::fromModuleView)
                 .map(ResponseEntity::ok)
@@ -171,11 +170,11 @@ public class ModuleController extends BaseController {
     public ResponseEntity deleteModule(Principal currentUser,
                                        @PathVariable("module_name") final String moduleName,
                                        @PathVariable("module_version") final String moduleVersion,
-                                       @PathVariable("module_type") final TemplateContainer.Type moduleType) {
+                                       @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         moduleUseCases.deleteModule(moduleKey, fromPrincipal(currentUser));
 
         return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()

@@ -3,7 +3,6 @@ package org.hesperides.infrastructure.jpa.modules;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
@@ -26,10 +25,10 @@ public class ModuleEntity {
     public static class ModuleEntityId implements Serializable {
         String name;
         String version;
-        Module.Type versionType;
+        TemplateContainer.VersionType versionType;
     }
 
     public ModuleView toModuleView() {
-        return new ModuleView(moduleEntityId.name, moduleEntityId.version, moduleEntityId.versionType.equals(TemplateContainer.Type.workingcopy), null, null, versionId);
+        return new ModuleView(moduleEntityId.name, moduleEntityId.version, moduleEntityId.versionType.equals(TemplateContainer.VersionType.workingcopy), null, null, versionId);
     }
 }

@@ -54,7 +54,7 @@ public class CopyAModule extends CucumberSpringBean implements En {
         //TODO Récupérer la techno via un appel rest ?
         assertEquals(existingTechnoKey.getName(), moduleTechno.getName());
         assertEquals(existingTechnoKey.getVersion(), moduleTechno.getVersion());
-        assertEquals(existingTechnoKey.getVersionType(), moduleTechno.isWorkingCopy() ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        assertEquals(existingTechnoKey.getVersionType(), moduleTechno.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
     }
 
     private void assertTemplate() {

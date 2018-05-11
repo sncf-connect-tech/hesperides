@@ -52,7 +52,7 @@ public class TechnoDocument {
     }
 
     public TechnoView toTechnoView() {
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
         return new TechnoView(name, version, workingCopy,
                 templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(technoKey, Techno.KEY_PREFIX)).collect(Collectors.toList()) : null);
     }

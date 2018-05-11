@@ -2,7 +2,6 @@ package org.hesperides.infrastructure.mongo.modules.queries;
 
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
@@ -61,7 +60,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
         return repository.findByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
                 .map(ModuleDocument::isWorkingCopy)
-                .map(Module.Type::toString)
+                .map(TemplateContainer.VersionType::toString)
                 .collect(Collectors.toList());
     }
 
