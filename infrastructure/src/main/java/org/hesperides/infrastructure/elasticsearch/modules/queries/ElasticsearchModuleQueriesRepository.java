@@ -57,7 +57,7 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleTypesQuery query) {
+    public List<String> query(GetModuleVersionTypesQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         moduleDocument.setVersion(query.getModuleVersion());

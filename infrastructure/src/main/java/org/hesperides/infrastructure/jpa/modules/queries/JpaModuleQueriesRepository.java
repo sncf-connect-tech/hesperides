@@ -59,7 +59,7 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleTypesQuery query) {
+    public List<String> query(GetModuleVersionTypesQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleName(),
                 query.getModuleVersion(),

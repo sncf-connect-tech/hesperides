@@ -17,7 +17,7 @@ public interface ModuleQueriesRepository {
     List<String> query(GetModulesNamesQuery query);
 
     @QueryHandler
-    List<String> query(GetModuleTypesQuery query);
+    List<String> query(GetModuleVersionTypesQuery query);
 
     @QueryHandler
     List<String> query(GetModuleVersionsQuery query);
