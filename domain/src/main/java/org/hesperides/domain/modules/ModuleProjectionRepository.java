@@ -1,15 +1,27 @@
-package org.hesperides.domain.modules.queries;
+package org.hesperides.domain.modules;
 
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.*;
+import org.hesperides.domain.modules.queries.ModuleView;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * stock et query les modules
- */
-public interface ModuleQueriesRepository {
+public interface ModuleProjectionRepository {
+
+    /*** EVENT HANDLERS ***/
+
+    @EventSourcingHandler
+    void on(ModuleCreatedEvent event);
+
+    @EventSourcingHandler
+    void on(ModuleUpdatedEvent event);
+
+    @EventSourcingHandler
+    void on(ModuleDeletedEvent event);
+
+    /*** QUERY HANDLERS ***/
+
     @QueryHandler
     Optional<ModuleView> query(GetModuleByKeyQuery query);
 

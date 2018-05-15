@@ -18,17 +18,18 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.technos.queries;
+package org.hesperides.infrastructure.mongo.technos;
 
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
+import org.hesperides.domain.technos.TechnoCreatedEvent;
+import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
+import org.hesperides.domain.technos.commands.TechnoProjectionRepository;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.technos.queries.TechnoQueriesRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
-import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,21 +44,40 @@ import static org.hesperides.domain.Profiles.*;
 
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository
-public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
+public class MongoTechnoProjectionRepository implements TechnoProjectionRepository {
 
-    private final MongoTechnoRepository repository;
+    private final MongoTechnoRepository technoRepository;
 
     @Autowired
-    public MongoTechnoQueriesRepository(MongoTechnoRepository repository) {
-        this.repository = repository;
+    public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository) {
+        this.technoRepository = technoRepository;
     }
 
+    @EventSourcingHandler
+    @Override
+    public void on(TechnoCreatedEvent event) {
+        technoRepository.save(TechnoDocument.fromDomainInstance(event.getTechno()));
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(TemplateAddedToTechnoEvent event) {
+        TemplateContainer.Key key = event.getTechnoKey();
+        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(key));
+        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+        technoDocument.addTemplate(templateDocument);
+        technoRepository.save(technoDocument);
+    }
+
+    /*** QUERY HANDLERS ***/
+
     @QueryHandler
+    @Override
     public Optional<TemplateView> query(GetTemplateQuery query) {
         Optional<TemplateView> result = Optional.empty();
         TemplateContainer.Key key = query.getTechnoKey();
 
-        TechnoDocument technoDocument = repository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
+        TechnoDocument technoDocument = technoRepository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
 
         if (technoDocument != null) {
             TemplateDocument templateDocument = technoDocument.getTemplates().stream()
@@ -69,9 +89,10 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     }
 
     @QueryHandler
+    @Override
     public Boolean query(TechnoAlreadyExistsQuery query) {
         TemplateContainer.Key key = query.getTechnoKey();
-        Optional<TechnoDocument> technoDocument = repository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
+        Optional<TechnoDocument> technoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
         return technoDocument.isPresent();
     }
 
@@ -79,7 +100,7 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
         List<TechnoDocument> technoDocuments = null;
         if (technos != null) {
             //TODO findByKeys ?
-            technoDocuments = technos.stream().map(techno -> repository.findByKey(KeyDocument.fromDomainInstance(techno.getKey()))).collect(Collectors.toList());
+            technoDocuments = technos.stream().map(techno -> technoRepository.findByKey(KeyDocument.fromDomainInstance(techno.getKey()))).collect(Collectors.toList());
         }
         return technoDocuments;
     }

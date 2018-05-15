@@ -21,13 +21,30 @@
 package org.hesperides.domain.technos.commands;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.technos.GetTemplateQuery;
+import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
 import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
 
-public interface TechnoCommandsRepository {
+import java.util.Optional;
+
+public interface TechnoProjectionRepository {
+
+    /*** EVENT HANDLERS ***/
+
     @EventSourcingHandler
     void on(TechnoCreatedEvent event);
 
     @EventSourcingHandler
     void on(TemplateAddedToTechnoEvent event);
+
+    /*** QUERY HANDLERS ***/
+
+    @QueryHandler
+    Optional<TemplateView> query(GetTemplateQuery query);
+
+    @QueryHandler
+    Boolean query(TechnoAlreadyExistsQuery query);
 }

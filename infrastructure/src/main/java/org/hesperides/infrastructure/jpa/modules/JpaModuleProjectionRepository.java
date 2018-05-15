@@ -1,8 +1,9 @@
-package org.hesperides.infrastructure.jpa.modules.queries;
+package org.hesperides.infrastructure.jpa.modules;
 
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
+import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
@@ -20,13 +21,59 @@ import static org.hesperides.domain.Profiles.JPA;
 
 @Profile(JPA)
 @Component
-public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
+public class JpaModuleProjectionRepository implements ModuleProjectionRepository {
 
     private final JpaModuleRepository jpaModuleRepository;
 
     @Autowired
-    public JpaModuleQueriesRepository(JpaModuleRepository jpaModuleRepository) {
+    public JpaModuleProjectionRepository(JpaModuleRepository jpaModuleRepository) {
         this.jpaModuleRepository = jpaModuleRepository;
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(ModuleCreatedEvent event) {
+        Module module = event.getModule();
+        ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
+                module.getKey().getName(),
+                module.getKey().getVersion(),
+                module.getKey().getVersionType()
+        );
+        jpaModuleRepository.save(
+                new ModuleEntity(
+                        id,
+                        module.getVersionId()
+                )
+        );
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(ModuleUpdatedEvent event) {
+        Module module = event.getModule();
+        ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
+                module.getKey().getName(),
+                module.getKey().getVersion(),
+                module.getKey().getVersionType()
+        );
+        jpaModuleRepository.save(
+                new ModuleEntity(
+                        id,
+                        module.getVersionId()
+                )
+        );
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(ModuleDeletedEvent event) {
+        TemplateContainer.Key key = event.getModuleKey();
+        ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
+                key.getName(),
+                key.getVersion(),
+                key.getVersionType()
+        );
+        jpaModuleRepository.delete(id);
     }
 
     @QueryHandler
@@ -110,5 +157,4 @@ public class JpaModuleQueriesRepository implements ModuleQueriesRepository {
     public List<ModuleView> query(SearchModulesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
-
 }

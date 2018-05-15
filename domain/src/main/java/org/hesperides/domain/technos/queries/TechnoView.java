@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class TechnoView {
     String name;
     String version;
-    boolean workingCopy;
+    boolean isWorkingCopy;
     List<TemplateView> templates;
 
     public static List<Techno> toDomainInstances(List<TechnoView> technoViews) {
@@ -44,7 +44,7 @@ public class TechnoView {
     }
 
     public Techno toDomainInstance() {
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return new Techno(technoKey, TemplateView.toDomainInstances(templates, technoKey));
     }
 }
