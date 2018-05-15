@@ -23,37 +23,46 @@ package org.hesperides.infrastructure.mongo.technos;
 import lombok.Data;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Document(collection = "techno")
 @Data
+@Document(collection = "techno")
 public class TechnoDocument {
     @Id
-    String id;
-    String name;
-    String version;
-    boolean workingCopy;
-    List<TemplateDocument> templates;
+    private KeyDocument key;
+    private List<TemplateDocument> templates;
 
-    public static TechnoDocument fromDomain(Techno techno) {
+    public static TechnoDocument fromDomainInstance(Techno techno) {
         TechnoDocument technoDocument = new TechnoDocument();
-        TemplateContainer.Key key = techno.getKey();
-        technoDocument.setName(key.getName());
-        technoDocument.setVersion(key.getVersion());
-        technoDocument.setWorkingCopy(key.isWorkingCopy());
-        technoDocument.setTemplates(techno.getTemplates() != null ? techno.getTemplates().stream().map(TemplateDocument::fromDomain).collect(Collectors.toList()) : null);
+        technoDocument.setKey(KeyDocument.fromDomainInstance(techno.getKey()));
+        technoDocument.setTemplates(TemplateDocument.fromDomainInstances(techno.getTemplates()));
         return technoDocument;
     }
 
+    public static List<TechnoView> toTechnoViews(List<TechnoDocument> technos) {
+        List<TechnoView> technoViews = null;
+        if (technos != null) {
+            technoViews = technos.stream().map(TechnoDocument::toTechnoView).collect(Collectors.toList());
+        }
+        return technoViews;
+    }
+
     public TechnoView toTechnoView() {
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
-        return new TechnoView(name, version, workingCopy,
-                templates != null ? templates.stream().map(templateDocument -> templateDocument.toTemplateView(technoKey, Techno.KEY_PREFIX)).collect(Collectors.toList()) : null);
+        return new TechnoView(key.getName(), key.getVersion(), key.isWorkingCopy(),
+                TemplateDocument.toTemplateViews(templates, key.toDomainInstance(), Techno.KEY_PREFIX));
+    }
+
+    public void addTemplate(TemplateDocument templateDocument) {
+        if (templates == null) {
+            templates = new ArrayList<>();
+        }
+        templates.add(templateDocument);
     }
 }

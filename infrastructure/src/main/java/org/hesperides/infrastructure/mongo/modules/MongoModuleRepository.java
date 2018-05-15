@@ -1,5 +1,6 @@
 package org.hesperides.infrastructure.mongo.modules;
 
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -12,13 +13,13 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public interface MongoModuleRepository extends MongoRepository<ModuleDocument, String> {
 
-    ModuleDocument findByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    ModuleDocument findByKey(KeyDocument key);
 
-    List<ModuleDocument> findByNameAndVersion(String name, String version);
+    List<ModuleDocument> findByKeyNameAndKeyVersion(String name, String version);
 
-    List<ModuleDocument> findByName(String name);
+    List<ModuleDocument> findByKeyName(String name);
 
-    void deleteByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    void deleteByKey(KeyDocument key);
 
-    ModuleDocument findByNameAndVersionAndWorkingCopyAndTemplatesName(String name, String version, boolean isWorkingCopy, String templateName);
+    ModuleDocument findByKeyAndTemplatesName(KeyDocument key, String templateName);
 }

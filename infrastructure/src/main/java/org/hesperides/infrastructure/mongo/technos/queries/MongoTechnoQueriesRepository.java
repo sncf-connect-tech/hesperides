@@ -29,6 +29,7 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -56,8 +57,7 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
         Optional<TemplateView> result = Optional.empty();
         TemplateContainer.Key key = query.getTechnoKey();
 
-        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopyAndTemplatesName(
-                key.getName(), key.getVersion(), key.isWorkingCopy(), query.getTemplateName());
+        TechnoDocument technoDocument = repository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
 
         if (technoDocument != null) {
             TemplateDocument templateDocument = technoDocument.getTemplates().stream()
@@ -71,18 +71,16 @@ public class MongoTechnoQueriesRepository implements TechnoQueriesRepository {
     @QueryHandler
     public Boolean query(TechnoAlreadyExistsQuery query) {
         TemplateContainer.Key key = query.getTechnoKey();
-        Optional<TechnoDocument> technoDocument = repository.findOptionalByNameAndVersionAndWorkingCopy(
-                key.getName(), key.getVersion(), key.isWorkingCopy());
+        Optional<TechnoDocument> technoDocument = repository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
         return technoDocument.isPresent();
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
-        List<TechnoDocument> result = null;
+        List<TechnoDocument> technoDocuments = null;
         if (technos != null) {
-            result = technos.stream().map(techno -> repository.findByNameAndVersionAndWorkingCopy(
-                    techno.getKey().getName(), techno.getKey().getVersion(), techno.getKey().isWorkingCopy()))
-                    .collect(Collectors.toList());
+            //TODO findByKeys ?
+            technoDocuments = technos.stream().map(techno -> repository.findByKey(KeyDocument.fromDomainInstance(techno.getKey()))).collect(Collectors.toList());
         }
-        return result;
+        return technoDocuments;
     }
 }

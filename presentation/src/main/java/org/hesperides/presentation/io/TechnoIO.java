@@ -28,6 +28,8 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 public class TechnoIO {
@@ -42,11 +44,28 @@ public class TechnoIO {
     @SerializedName("working_copy")
     boolean workingCopy;
 
-    public Techno toDomainInstance() {
-        return new Techno(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)), null);
+    public static List<Techno> toDomainInstances(List<TechnoIO> technoIOS) {
+        List<Techno> technos = null;
+        if (technoIOS != null) {
+            technos = technoIOS.stream().map(TechnoIO::toDomainInstance).collect(Collectors.toList());
+        }
+        return technos;
+    }
+
+    public static List<TechnoIO> fromTechnoViews(List<TechnoView> technoViews) {
+        List<TechnoIO> technoIOS = null;
+        if (technoViews != null) {
+            technoIOS = technoViews.stream().map(TechnoIO::fromTechnoView).collect(Collectors.toList());
+        }
+        return technoIOS;
+
     }
 
     public static TechnoIO fromTechnoView(TechnoView technoView) {
         return new TechnoIO(technoView.getName(), technoView.getVersion(), technoView.isWorkingCopy());
+    }
+
+    public Techno toDomainInstance() {
+        return new Techno(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)), null);
     }
 }

@@ -35,8 +35,16 @@ public class TechnoView {
     boolean workingCopy;
     List<TemplateView> templates;
 
-    public Techno toDomain() {
+    public static List<Techno> toDomainInstances(List<TechnoView> technoViews) {
+        List<Techno> technos = null;
+        if (technoViews != null) {
+            technos = technoViews.stream().map(TechnoView::toDomainInstance).collect(Collectors.toList());
+        }
+        return technos;
+    }
+
+    public Techno toDomainInstance() {
         TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
-        return new Techno(technoKey, templates != null ? templates.stream().map(templateView -> templateView.toDomain(technoKey)).collect(Collectors.toList()) : null);
+        return new Techno(technoKey, TemplateView.toDomainInstances(templates, technoKey));
     }
 }

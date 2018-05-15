@@ -16,8 +16,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.assertEquals;
-
 public class ExistingModuleContext extends CucumberSpringBean implements En {
 
     private Module.Key moduleKey;

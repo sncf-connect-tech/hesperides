@@ -7,7 +7,6 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Value
 public class ModuleView {
@@ -18,13 +17,8 @@ public class ModuleView {
     List<TechnoView> technos;
     Long versionId;
 
-    public Module toDomain() {
+    public Module toDomainInstance() {
         TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
-        return new Module(
-                moduleKey,
-                templates != null ? templates.stream().map(templateView -> templateView.toDomain(moduleKey)).collect(Collectors.toList()) : null,
-                technos != null ? technos.stream().map(TechnoView::toDomain).collect(Collectors.toList()) : null,
-                versionId
-        );
+        return new Module(moduleKey, TemplateView.toDomainInstances(templates, moduleKey), TechnoView.toDomainInstances(technos), versionId);
     }
 }

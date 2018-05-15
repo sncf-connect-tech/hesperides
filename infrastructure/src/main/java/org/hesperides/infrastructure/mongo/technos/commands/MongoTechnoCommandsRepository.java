@@ -27,6 +27,7 @@ import org.hesperides.domain.technos.commands.TechnoCommandsRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoRepository;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -50,19 +51,16 @@ public class MongoTechnoCommandsRepository implements TechnoCommandsRepository {
     @EventSourcingHandler
     @Override
     public void on(TechnoCreatedEvent event) {
-        repository.save(TechnoDocument.fromDomain(event.getTechno()));
+        repository.save(TechnoDocument.fromDomainInstance(event.getTechno()));
     }
 
     @EventSourcingHandler
     @Override
     public void on(TemplateAddedToTechnoEvent event) {
         TemplateContainer.Key key = event.getTechnoKey();
-        TechnoDocument technoDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
-        TemplateDocument newTemplate = TemplateDocument.fromDomain(event.getTemplate());
-        if (technoDocument.getTemplates() == null) {
-            technoDocument.setTemplates(new ArrayList<>());
-        }
-        technoDocument.getTemplates().add(newTemplate);
+        TechnoDocument technoDocument = repository.findByKey(KeyDocument.fromDomainInstance(key));
+        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+        technoDocument.addTemplate(templateDocument);
         repository.save(technoDocument);
     }
 }

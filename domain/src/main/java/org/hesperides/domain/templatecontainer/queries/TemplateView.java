@@ -5,6 +5,9 @@ import lombok.Value;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Value
 public class TemplateView {
     String name;
@@ -15,8 +18,16 @@ public class TemplateView {
     RightsView rights;
     Long versionId;
 
-    public Template toDomain(TemplateContainer.Key templateContainerKey) {
-        return new Template(name, filename, location, content, rights.toDomain(), versionId, templateContainerKey);
+    public static List<Template> toDomainInstances(List<TemplateView> templateViews, TemplateContainer.Key key) {
+        List<Template> templates = null;
+        if (templateViews != null) {
+            templates = templateViews.stream().map(templateView -> templateView.toDomainInstance(key)).collect(Collectors.toList());
+        }
+        return templates;
+    }
+
+    public Template toDomainInstance(TemplateContainer.Key key) {
+        return new Template(name, filename, location, content, rights.toDomainInstance(), versionId, key);
     }
 
     @Value
@@ -25,8 +36,8 @@ public class TemplateView {
         FileRightsView group;
         FileRightsView other;
 
-        public Template.Rights toDomain() {
-            return new Template.Rights(user.toDomain(), group.toDomain(), other.toDomain());
+        public Template.Rights toDomainInstance() {
+            return new Template.Rights(user.toDomainInstance(), group.toDomainInstance(), other.toDomainInstance());
         }
     }
 
@@ -36,7 +47,7 @@ public class TemplateView {
         Boolean write;
         Boolean execute;
 
-        public Template.FileRights toDomain() {
+        public Template.FileRights toDomainInstance() {
             return new Template.FileRights(read, write, execute);
         }
     }

@@ -7,6 +7,7 @@ import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,12 +28,12 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
 
-    private final MongoModuleRepository repository;
+    private final MongoModuleRepository moduleRepository;
     private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MongoModuleQueriesRepository(MongoModuleRepository repository, MongoTemplate mongoTemplate) {
-        this.repository = repository;
+    public MongoModuleQueriesRepository(MongoModuleRepository moduleRepository, MongoTemplate mongoTemplate) {
+        this.moduleRepository = moduleRepository;
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -40,8 +41,7 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
         Optional<ModuleView> moduleView = Optional.empty();
-        TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(query.getModuleKey()));
         if (moduleDocument != null) {
             moduleView = Optional.of(moduleDocument.toModuleView());
         }
@@ -51,15 +51,16 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public List<String> query(GetModulesNamesQuery query) {
-        return mongoTemplate.getCollection("module").distinct("name");
+        return mongoTemplate.getCollection("module").distinct("_id.name");
     }
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleTypesQuery query) {
-        return repository.findByNameAndVersion(query.getModuleName(), query.getModuleVersion())
+    public List<String> query(GetModuleVersionTypesQuery query) {
+        return moduleRepository.findByKeyNameAndKeyVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
-                .map(ModuleDocument::isWorkingCopy)
+                .map(ModuleDocument::getKey)
+                .map(KeyDocument::isWorkingCopy)
                 .map(TemplateContainer.VersionType::toString)
                 .collect(Collectors.toList());
     }
@@ -67,9 +68,10 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public List<String> query(GetModuleVersionsQuery query) {
-        return repository.findByName(query.getModuleName())
+        return moduleRepository.findByKeyName(query.getModuleName())
                 .stream()
-                .map(ModuleDocument::getVersion)
+                .map(ModuleDocument::getKey)
+                .map(KeyDocument::getVersion)
                 .collect(Collectors.toList());
     }
 
@@ -77,24 +79,29 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @Override
     public Boolean query(ModuleAlreadyExistsQuery query) {
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
         return moduleDocument != null;
     }
 
     @QueryHandler
     @Override
     public List<ModuleView> query(SearchModulesQuery query) {
-        /**
-         * On crée une projection pour effectuer une recherche sur la concaténation de deux champs : name et version.
-         * 1 : Une projection nécessite de définir les champs qu'on veut récupérer
-         * 2 : La concaténation entraine la création d'un champs temporaire qu'on nomme "nameAndVersion"
-         * 3 : La recherche est une expression régulière (équivalent de LIKE) appliquée à ce nouveau champs
-         * 4 : On limite le nom de résultats
+//        Query query1 = new Query();
+//        query1.addCriteria(Criteria.where("key.name").regex(query.getInput()));
+//        List<ModuleDocument> moduleDocuments = mongoTemplate.find(query, ModuleDocument.class);
+
+        /*
+          On crée une projection pour effectuer une recherche sur la concaténation de deux champs : name et version.
+          1 : Une projection nécessite de définir les champs qu'on veut récupérer
+          2 : La concaténation entraine la création d'un champs temporaire qu'on nomme "nameAndVersion"
+          3 : La recherche est une expression régulière (équivalent de LIKE) appliquée à ce nouveau champs
+          4 : On limite le nombre de résultats
          */
-        AggregationOperation project = Aggregation.project("name", "version", "workingCopy") // 1
-                .and(StringOperators.Concat.valueOf("name").concat(" ").concatValueOf("version")).as("nameAndVersion"); // 2
+        AggregationOperation project = Aggregation.project("key") // 1
+                .and(StringOperators.Concat.valueOf("key.name").concat(" ").concatValueOf("key.version")).as("nameAndVersion"); // 2
         AggregationOperation match = Aggregation.match(Criteria.where("nameAndVersion").regex(query.getInput())); // 3
         AggregationOperation limit = Aggregation.limit(10); // 4
+
 
         TypedAggregation<ModuleDocument> aggregation = TypedAggregation.newAggregation(ModuleDocument.class, project, match, limit);
         List<ModuleDocument> modules = mongoTemplate.aggregate(aggregation, ModuleDocument.class).getMappedResults();

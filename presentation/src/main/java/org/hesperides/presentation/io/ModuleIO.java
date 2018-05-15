@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Value
 public final class ModuleIO {
@@ -31,11 +30,8 @@ public final class ModuleIO {
     Long versionId;
 
     public Module toDomainInstance(List<Template> templates) {
-        return new Module(
-                new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)),
-                templates,
-                technos != null ? technos.stream().map(TechnoIO::toDomainInstance).collect(Collectors.toList()) : null,
-                versionId);
+        return new Module(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)),
+                templates, TechnoIO.toDomainInstances(technos), versionId);
     }
 
     public Module toDomainInstance() {
@@ -43,7 +39,6 @@ public final class ModuleIO {
     }
 
     public static ModuleIO fromModuleView(ModuleView moduleView) {
-        List<TechnoIO> technos = moduleView.getTechnos() != null ? moduleView.getTechnos().stream().map(TechnoIO::fromTechnoView).collect(Collectors.toList()) : null;
-        return new ModuleIO(moduleView.getName(), moduleView.getVersion(), moduleView.isWorkingCopy(), technos, moduleView.getVersionId());
+        return new ModuleIO(moduleView.getName(), moduleView.getVersion(), moduleView.isWorkingCopy(), TechnoIO.fromTechnoViews(moduleView.getTechnos()), moduleView.getVersionId());
     }
 }

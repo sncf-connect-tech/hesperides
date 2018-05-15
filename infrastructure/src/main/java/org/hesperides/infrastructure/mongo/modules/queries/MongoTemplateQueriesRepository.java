@@ -29,6 +29,7 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -58,8 +59,7 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
         Optional<TemplateView> result = Optional.empty();
         TemplateContainer.Key key = query.getModuleKey();
 
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopyAndTemplatesName(
-                key.getName(), key.getVersion(), key.isWorkingCopy(), query.getTemplateName());
+        ModuleDocument moduleDocument = repository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
 
         if (moduleDocument != null) {
             TemplateDocument templateDocument = moduleDocument.getTemplates().stream()
@@ -76,9 +76,9 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
         List<TemplateView> result = new ArrayList<>();
 
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        ModuleDocument moduleDocument = repository.findByKey(KeyDocument.fromDomainInstance(key));
 
-        if (moduleDocument != null) {
+        if (moduleDocument != null && moduleDocument.getTemplates() != null) {
             result = moduleDocument.getTemplates().stream().map(templateDocument -> templateDocument.toTemplateView(key, Module.KEY_PREFIX)).collect(Collectors.toList());
         }
 

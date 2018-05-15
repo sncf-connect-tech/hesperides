@@ -20,7 +20,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -79,7 +78,7 @@ public class ModuleUseCases {
          * Comme ceci :
          */
         List<TemplateView> templateViews = queries.getTemplates(module.getKey());
-        List<Template> templates = templateViews != null ? templateViews.stream().map(templateView -> templateView.toDomain(module.getKey())).collect(Collectors.toList()) : null;
+        List<Template> templates = TemplateView.toDomainInstances(templateViews, module.getKey());
         Module moduleWithTemplates = new Module(module.getKey(), templates, module.getTechnos(), module.getVersionId());
         commands.updateModule(moduleWithTemplates, user);
 
@@ -167,7 +166,7 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        Module existingModule = moduleView.get().toDomain();
+        Module existingModule = moduleView.get().toDomainInstance();
         Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(newModule, user);
@@ -196,7 +195,7 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        Module existingModule = moduleView.get().toDomain();
+        Module existingModule = moduleView.get().toDomainInstance();
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(moduleRelease, user);

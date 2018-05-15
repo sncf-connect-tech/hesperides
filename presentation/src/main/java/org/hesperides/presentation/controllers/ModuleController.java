@@ -85,7 +85,7 @@ public class ModuleController extends BaseController {
 
             Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(fromWorkingCopy));
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
-            TemplateContainer.Key createdModuleKey = moduleView.toDomain().getKey();
+            TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
             response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
         }
@@ -97,12 +97,6 @@ public class ModuleController extends BaseController {
     public ResponseEntity<ModuleIO> updateWorkingCopy(Principal currentUser, @Valid @RequestBody final ModuleIO moduleInput) {
 
         log.info("Updating module workingcopy {}", moduleInput.toString());
-
-        /**
-         TemplateContainer.Key moduleKey = new TemplateContainer.Key(moduleInput.getName(), moduleInput.getVersion(), moduleInput.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy: TemplateContainer.VersionType.release);
-         List<TemplateView> templates = moduleUseCases.getTemplates(moduleKey);
-         Module module = moduleInput.toDomainInstance(templates != null ? templates.stream().map(template -> template.toDomain(moduleKey)).collect(Collectors.toList()) : null);
-         */
 
         Module module = moduleInput.toDomainInstance();
         moduleUseCases.updateWorkingCopy(module, fromPrincipal(currentUser));

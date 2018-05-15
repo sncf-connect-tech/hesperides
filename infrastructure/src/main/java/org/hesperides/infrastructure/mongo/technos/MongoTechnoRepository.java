@@ -1,5 +1,6 @@
 package org.hesperides.infrastructure.mongo.technos;
 
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -12,9 +13,9 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, String> {
 
-    Optional<TechnoDocument> findOptionalByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    Optional<TechnoDocument> findOptionalByKey(KeyDocument key);
 
-    TechnoDocument findByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    TechnoDocument findByKey(KeyDocument key);
 
-    TechnoDocument findByNameAndVersionAndWorkingCopyAndTemplatesName(String name, String version, boolean isWorkingCopy, String templateName);
+    TechnoDocument findByKeyAndTemplatesName(KeyDocument key, String templateName);
 }
