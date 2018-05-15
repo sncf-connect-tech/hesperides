@@ -2,6 +2,7 @@ package org.hesperides.infrastructure.mongo.modules;
 
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +23,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     void deleteByKey(KeyDocument key);
 
     ModuleDocument findByKeyAndTemplatesName(KeyDocument key, String templateName);
+
+    List<ModuleDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
 }

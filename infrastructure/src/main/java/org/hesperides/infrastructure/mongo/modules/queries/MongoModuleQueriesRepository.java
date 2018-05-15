@@ -10,12 +10,9 @@ import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.StringOperators;
-import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -86,26 +83,18 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public List<ModuleView> query(SearchModulesQuery query) {
-//        Query query1 = new Query();
-//        query1.addCriteria(Criteria.where("key.name").regex(query.getInput()));
-//        List<ModuleDocument> moduleDocuments = mongoTemplate.find(query, ModuleDocument.class);
 
-        /*
-          On crée une projection pour effectuer une recherche sur la concaténation de deux champs : name et version.
-          1 : Une projection nécessite de définir les champs qu'on veut récupérer
-          2 : La concaténation entraine la création d'un champs temporaire qu'on nomme "nameAndVersion"
-          3 : La recherche est une expression régulière (équivalent de LIKE) appliquée à ce nouveau champs
-          4 : On limite le nombre de résultats
+        String[] values = query.getInput().split(" ");
+        String name = values.length >= 1 ? values[0] : "";
+        String version = values.length >= 2 ? values[1] : "";
+
+        Pageable pageableRequest = new PageRequest(0, 10);
+
+        /**
+         * TODO Faire des tests de performances sur cette requête et si besoin créer un nouveau champs indexé 'nameAndVersion'
+         * pour faire la recherche directement dessus
          */
-        AggregationOperation project = Aggregation.project("key") // 1
-                .and(StringOperators.Concat.valueOf("key.name").concat(" ").concatValueOf("key.version")).as("nameAndVersion"); // 2
-        AggregationOperation match = Aggregation.match(Criteria.where("nameAndVersion").regex(query.getInput())); // 3
-        AggregationOperation limit = Aggregation.limit(10); // 4
-
-
-        TypedAggregation<ModuleDocument> aggregation = TypedAggregation.newAggregation(ModuleDocument.class, project, match, limit);
-        List<ModuleDocument> modules = mongoTemplate.aggregate(aggregation, ModuleDocument.class).getMappedResults();
-
-        return modules.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
+        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageableRequest);
+        return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
     }
 }
