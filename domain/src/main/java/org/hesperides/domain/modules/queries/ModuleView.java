@@ -12,13 +12,13 @@ import java.util.List;
 public class ModuleView {
     String name;
     String version;
-    boolean workingCopy;
+    boolean isWorkingCopy;
     List<TemplateView> templates;
     List<TechnoView> technos;
     Long versionId;
 
     public Module toDomainInstance() {
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return new Module(moduleKey, TemplateView.toDomainInstances(templates, moduleKey), TechnoView.toDomainInstances(technos), versionId);
     }
 }

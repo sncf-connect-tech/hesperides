@@ -42,7 +42,7 @@ public class TechnoIO {
     String version;
 
     @SerializedName("working_copy")
-    boolean workingCopy;
+    boolean isWorkingCopy;
 
     public static List<Techno> toDomainInstances(List<TechnoIO> technoIOS) {
         List<Techno> technos = null;
@@ -66,6 +66,6 @@ public class TechnoIO {
     }
 
     public Techno toDomainInstance() {
-        return new Techno(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)), null);
+        return new Techno(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)), null);
     }
 }

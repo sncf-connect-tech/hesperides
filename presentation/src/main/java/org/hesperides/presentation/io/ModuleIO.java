@@ -22,7 +22,7 @@ public final class ModuleIO {
     String version;
 
     @SerializedName("working_copy")
-    boolean workingCopy;
+    boolean isWorkingCopy;
 
     List<TechnoIO> technos;
 
@@ -30,7 +30,7 @@ public final class ModuleIO {
     Long versionId;
 
     public Module toDomainInstance(List<Template> templates) {
-        return new Module(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy)),
+        return new Module(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)),
                 templates, TechnoIO.toDomainInstances(technos), versionId);
     }
 

@@ -31,7 +31,7 @@ import java.io.Serializable;
 public class KeyDocument implements Serializable {
     private String name;
     private String version;
-    private boolean workingCopy;
+    private boolean isWorkingCopy;
 
     public static KeyDocument fromDomainInstance(TemplateContainer.Key key) {
         KeyDocument documentKey = new KeyDocument();
@@ -42,6 +42,6 @@ public class KeyDocument implements Serializable {
     }
 
     public TemplateContainer.Key toDomainInstance() {
-        return new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(workingCopy));
+        return new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
     }
 }

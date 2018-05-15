@@ -193,7 +193,7 @@ public class ModuleController extends BaseController {
     @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
 
-        log.info("search module {}", input);
+        log.debug("search module {}", input);
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
         List<ModuleIO> moduleOutputs = moduleViews != null

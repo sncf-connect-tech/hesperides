@@ -83,17 +83,11 @@ public class MongoModuleQueriesRepository implements ModuleQueriesRepository {
     @QueryHandler
     @Override
     public List<ModuleView> query(SearchModulesQuery query) {
-
         String[] values = query.getInput().split(" ");
         String name = values.length >= 1 ? values[0] : "";
         String version = values.length >= 2 ? values[1] : "";
 
-        Pageable pageableRequest = new PageRequest(0, 10);
-
-        /**
-         * TODO Faire des tests de performances sur cette requête et si besoin créer un nouveau champs indexé 'nameAndVersion'
-         * pour faire la recherche directement dessus
-         */
+        Pageable pageableRequest = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageableRequest);
         return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
     }
