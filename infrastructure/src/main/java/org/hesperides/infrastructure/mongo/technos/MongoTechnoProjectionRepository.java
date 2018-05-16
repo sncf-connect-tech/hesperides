@@ -26,7 +26,7 @@ import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
 import org.hesperides.domain.technos.TechnoCreatedEvent;
 import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
-import org.hesperides.domain.technos.commands.TechnoProjectionRepository;
+import org.hesperides.domain.technos.TechnoProjectionRepository;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;

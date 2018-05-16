@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.domain.technos.commands;
+package org.hesperides.domain.technos;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
