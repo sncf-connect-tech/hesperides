@@ -40,19 +40,8 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleUpdatedEvent event) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setName(event.getModule().getKey().getName());
-        moduleDocument.setVersion(event.getModule().getKey().getVersion());
-        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
-        moduleDocument.setVersionId(event.getModule().getVersionId());
-        moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionTypeAndVersionId(
-                event.getModule().getKey().getName(),
-                event.getModule().getKey().getVersion(),
-                event.getModule().getKey().getVersionType(),
-                event.getModule().getVersionId());
-        //TODO update properties (technos) then save to db
-        elasticsearchModuleRepository.save(moduleDocument);
+    public void on(ModuleTechnosUpdatedEvent event) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @EventSourcingHandler

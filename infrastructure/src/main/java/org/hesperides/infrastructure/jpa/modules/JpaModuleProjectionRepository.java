@@ -47,19 +47,8 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleUpdatedEvent event) {
-        Module module = event.getModule();
-        ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
-                module.getKey().getName(),
-                module.getKey().getVersion(),
-                module.getKey().getVersionType()
-        );
-        jpaModuleRepository.save(
-                new ModuleEntity(
-                        id,
-                        module.getVersionId()
-                )
-        );
+    public void on(ModuleTechnosUpdatedEvent event) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @EventSourcingHandler
