@@ -85,6 +85,7 @@ public class TemplateDocument {
         private FileRightsDocument other;
 
         public static RightsDocument fromDomainInstance(Template.Rights rights) {
+            //TODO Renommer tous les result
             RightsDocument result = null;
             if (rights != null) {
                 result = new RightsDocument();

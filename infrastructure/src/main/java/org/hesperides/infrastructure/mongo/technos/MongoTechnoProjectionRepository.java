@@ -99,8 +99,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
         List<TechnoDocument> technoDocuments = null;
         if (technos != null) {
-            //TODO findByKeys ?
-            technoDocuments = technos.stream().map(techno -> technoRepository.findByKey(KeyDocument.fromDomainInstance(techno.getKey()))).collect(Collectors.toList());
+            List<KeyDocument> keyDocuments = technos.stream().map(techno -> KeyDocument.fromDomainInstance(techno.getKey())).collect(Collectors.toList());
+            technoDocuments = technoRepository.findAllByKeyIn(keyDocuments);
         }
         return technoDocuments;
     }

@@ -38,6 +38,7 @@ class ModuleAggregate implements Serializable {
     private Module.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
+    //TODO Technos ?
 
     @CommandHandler
     public ModuleAggregate(CreateModuleCommand command) {
