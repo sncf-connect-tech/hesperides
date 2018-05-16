@@ -85,15 +85,14 @@ public class TemplateDocument {
         private FileRightsDocument other;
 
         public static RightsDocument fromDomainInstance(Template.Rights rights) {
-            //TODO Renommer tous les result
-            RightsDocument result = null;
+            RightsDocument rightsDocument = null;
             if (rights != null) {
-                result = new RightsDocument();
-                result.setUser(FileRightsDocument.fromDomainInstance(rights.getUser()));
-                result.setGroup(FileRightsDocument.fromDomainInstance(rights.getGroup()));
-                result.setOther(FileRightsDocument.fromDomainInstance(rights.getOther()));
+                rightsDocument = new RightsDocument();
+                rightsDocument.setUser(FileRightsDocument.fromDomainInstance(rights.getUser()));
+                rightsDocument.setGroup(FileRightsDocument.fromDomainInstance(rights.getGroup()));
+                rightsDocument.setOther(FileRightsDocument.fromDomainInstance(rights.getOther()));
             }
-            return result;
+            return rightsDocument;
         }
 
         public static TemplateView.RightsView toRightsView(RightsDocument rightsDocument) {
@@ -115,14 +114,14 @@ public class TemplateDocument {
         private Boolean execute;
 
         public static FileRightsDocument fromDomainInstance(Template.FileRights fileRights) {
-            FileRightsDocument result = null;
+            FileRightsDocument fileRightsDocument = null;
             if (fileRights != null) {
-                result = new FileRightsDocument();
-                result.setRead(fileRights.getRead());
-                result.setWrite(fileRights.getWrite());
-                result.setExecute(fileRights.getExecute());
+                fileRightsDocument = new FileRightsDocument();
+                fileRightsDocument.setRead(fileRights.getRead());
+                fileRightsDocument.setWrite(fileRights.getWrite());
+                fileRightsDocument.setExecute(fileRights.getExecute());
             }
-            return result;
+            return fileRightsDocument;
         }
 
         public static TemplateView.FileRightsView toFileRightsView(FileRightsDocument fileRightsDocument) {

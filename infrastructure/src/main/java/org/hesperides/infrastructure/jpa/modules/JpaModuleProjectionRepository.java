@@ -6,8 +6,6 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
-import org.hesperides.infrastructure.jpa.modules.ModuleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
@@ -79,7 +77,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
-        Optional<ModuleView> result = Optional.empty();
+        Optional<ModuleView> optionalModuleView = Optional.empty();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -89,9 +87,9 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
         moduleEntity.setModuleEntityId(id);
         moduleEntity = jpaModuleRepository.findOne(id);
         if (moduleEntity != null) {
-            result = Optional.of(moduleEntity.toModuleView());
+            optionalModuleView = Optional.of(moduleEntity.toModuleView());
         }
-        return result;
+        return optionalModuleView;
     }
 
     @QueryHandler
