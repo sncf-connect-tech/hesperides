@@ -34,7 +34,7 @@ public class ExistingTechnoContext extends CucumberSpringBean implements En {
                     technoName,
                     technoVersion);
 
-            technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.Type.workingcopy);
+            technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         });
     }
 

@@ -59,7 +59,7 @@ public class TechnoController extends BaseController {
 
         log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
 
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.Type.workingcopy);
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromPrincipal(currentUser));
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateInput.getName())
                 .map(TemplateIO::fromTemplateView)

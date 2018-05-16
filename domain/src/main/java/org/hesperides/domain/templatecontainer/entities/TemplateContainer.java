@@ -12,13 +12,13 @@ public abstract class TemplateContainer {
     Key key;
     List<Template> templates;
 
-    public enum Type {
+    public enum VersionType {
         workingcopy("wc"),
         release("release");
 
         private final String minimizedForm;
 
-        Type(String minimizedForm) {
+        VersionType(String minimizedForm) {
             this.minimizedForm = minimizedForm;
         }
 
@@ -35,7 +35,7 @@ public abstract class TemplateContainer {
     public static class Key {
         String name;
         String version;
-        Type versionType;
+        VersionType versionType;
 
         public URI getURI(String prefix) {
             return URI.create("/rest/" + prefix + "s/" + name + "/" + version + "/" + versionType.name().toLowerCase());
@@ -50,7 +50,11 @@ public abstract class TemplateContainer {
         }
 
         public boolean isWorkingCopy() {
-            return versionType == Type.workingcopy;
+            return versionType == VersionType.workingcopy;
         }
+    }
+
+    public static VersionType getVersionType(boolean isWorkingCopy) {
+        return isWorkingCopy ? VersionType.workingcopy : VersionType.release;
     }
 }

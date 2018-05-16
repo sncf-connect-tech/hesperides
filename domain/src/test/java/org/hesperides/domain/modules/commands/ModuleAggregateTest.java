@@ -8,6 +8,7 @@ import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationExcepti
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class ModuleAggregateTest {
 
     private FixtureConfiguration<ModuleAggregate> fixture;
 
-    private Module.Key moduleKey = new Module.Key("module_test", "123", Module.Type.workingcopy);
+    private Module.Key moduleKey = new Module.Key("module_test", "123", TemplateContainer.VersionType.workingcopy);
     private Module module = new Module(moduleKey, new ArrayList<>(), Collections.emptyList(), 1L);
     private Template.Rights rights = new Template.Rights(null, null, null);
     private Template template = new Template("template1", "file1.txt", "/", "content", rights, 1L, moduleKey);
@@ -88,8 +89,8 @@ class ModuleAggregateTest {
 //    @Test
 //    void when_copy_module_command_then_expect_module_created_from_another_module() {
 //
-//        Module.Key moduleKey = new Module.Key("module_test", "123", Module.Type.workingcopy);
-//        Module.Key source = new Module.Key("module_test", "1234", Module.Type.workingcopy);
+//        Module.Key moduleKey = new Module.Key("module_test", "123", Module.VersionType.workingcopy);
+//        Module.Key source = new Module.Key("module_test", "1234", Module.VersionType.workingcopy);
 //        fixture.given()
 //                .when(new CopyModuleCommand(moduleKey, source))
 //                .expectEvents(new ModuleCopiedEvent(moduleKey, source));

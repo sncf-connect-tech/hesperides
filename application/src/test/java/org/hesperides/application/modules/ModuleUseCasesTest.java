@@ -6,6 +6,7 @@ import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.queries.TechnoQueries;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class ModuleUseCasesTest {
     @Test(expected = DuplicateModuleException.class)
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {
 
-        Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
+        Module.Key key = new Module.Key("x", "1", TemplateContainer.VersionType.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
         given(moduleQueries.moduleExists(any())).willReturn(true);
@@ -52,7 +53,7 @@ public class ModuleUseCasesTest {
     @Test
     public void createWorkingCopy_should_pass_when_working_copy_do_not_exists() {
 
-        Module.Key key = new Module.Key("x", "1", Module.Type.workingcopy);
+        Module.Key key = new Module.Key("x", "1", TemplateContainer.VersionType.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
         given(moduleQueries.moduleExists(any())).willReturn(false);

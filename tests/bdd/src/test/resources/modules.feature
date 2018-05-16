@@ -15,6 +15,13 @@ Feature: modules related features
     When updating this module
     Then the module is successfully updated
 
+  Scenario: update a module containing a template
+    Given an existing module
+    And an existing template in this module
+    When updating this module
+    Then the module is successfully updated
+    And the module contains the template
+
   Scenario: delete a module
     Given an existing module
     When deleting this module

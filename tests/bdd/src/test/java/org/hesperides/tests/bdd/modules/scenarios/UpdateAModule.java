@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.presentation.io.ModuleIO;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,9 @@ public class UpdateAModule extends CucumberSpringBean implements En {
     @Autowired
     private ExistingModuleContext existingModule;
 
+    @Autowired
+    private ExistingTemplateContext existingTemplate;
+
     public UpdateAModule() {
 
         When("^updating this module$", () -> {
@@ -35,11 +40,15 @@ public class UpdateAModule extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModuleIO module = (ModuleIO) response.getBody();
             assertEquals(2L, module.getVersionId().longValue());
-            // TODO Tester le reste ? Est-ce que ça a un intérêt ?
         });
 
         Then("^the module update is rejected$", () -> {
             assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        });
+
+        Then("^the module contains the template$", () -> {
+            ResponseEntity<TemplateIO> response = rest.getTestRest().getForEntity(existingTemplate.getTemplateLocation(), TemplateIO.class);
+            assertEquals(HttpStatus.OK, response.getStatusCode());
         });
     }
 
