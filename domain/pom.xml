@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.hesperides</groupId>
-        <artifactId>hesperides-spring</artifactId>
+        <artifactId>hesperides</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
