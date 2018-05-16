@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 @Document(collection = "module")
@@ -47,18 +48,26 @@ public class ModuleDocument {
         templates.add(templateDocument);
     }
 
-    public void updateTemplate(TemplateDocument templateDocument) {
-        //TODO C'est moche
-        for (int i = 0; i < templates.size(); i++) {
-            if (templates.get(i).getName().equalsIgnoreCase(templateDocument.getName())) {
-                templates.set(i, templateDocument);
+    public void updateTemplate(TemplateDocument updatedTemplateDocument) {
+        // Solution A
+        removeTemplate(updatedTemplateDocument.getName());
+        addTemplate(updatedTemplateDocument);
+
+        // Solution B
+        /*setTemplates(templates.stream()
+                .map(existingTemplateDocument -> existingTemplateDocument.getName().equalsIgnoreCase(updatedTemplateDocument.getName()) ? updatedTemplateDocument : existingTemplateDocument)
+                .collect(Collectors.toList()));*/
+
+        // Solution C
+        /*for (int i = 0; i < templates.size(); i++) {
+            if (templates.get(i).getName().equalsIgnoreCase(updatedTemplateDocument.getName())) {
+                templates.set(i, updatedTemplateDocument);
                 break;
             }
-        }
+        }*/
     }
 
     public void removeTemplate(String templateName) {
-        //TODO Faut-il faire autrement ?
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
     }
 

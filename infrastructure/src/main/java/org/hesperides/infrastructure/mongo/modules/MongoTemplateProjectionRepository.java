@@ -104,7 +104,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         TemplateContainer.Key moduleKey = query.getModuleKey();
         Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKey(KeyDocument.fromDomainInstance(moduleKey));
 
-        if (optionalModuleDocument.isPresent()) {
+        if (optionalModuleDocument.isPresent() && optionalModuleDocument.get().getTemplates() != null) {
             templateViews = optionalModuleDocument.get().getTemplates().stream()
                     .map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX))
                     .collect(Collectors.toList());
