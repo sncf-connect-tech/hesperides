@@ -41,6 +41,7 @@ class ModuleAggregate implements Serializable {
     //TODO Technos ?
 
     @CommandHandler
+    @SuppressWarnings("unused")
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
         // Initialise le version_id
@@ -53,7 +54,8 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
-    public void updateModuleTechnos(UpdateModuleTechnosCommand command) {
+    @SuppressWarnings("unused")
+    public void on(UpdateModuleTechnosCommand command) {
         log.debug("Applying update module command...");
         // Met à jour le version_id
         Long updatedVersionId = command.getVersionId() + 1;
@@ -61,14 +63,15 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
-    public void deleteModule(DeleteModuleCommand command) {
+    @SuppressWarnings("unused")
+    public void on(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
         apply(new ModuleDeletedEvent(command.getModuleKey(), command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void createTemplate(CreateTemplateCommand command) {
+    public void on(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 
         // check qu'on a pas déjà un template avec ce nom, sinon erreur:
@@ -91,7 +94,7 @@ class ModuleAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void updateTemplate(UpdateTemplateCommand command) {
+    public void on(UpdateTemplateCommand command) {
         log.debug("Applying update template command...");
 
         // check qu'on a déjà un template avec ce nom, sinon erreur:
@@ -120,7 +123,7 @@ class ModuleAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void deleteTemplate(DeleteTemplateCommand command) {
+    public void on(DeleteTemplateCommand command) {
         // si le template n'existe pas, cette command n'a pas d'effet de bord.
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
