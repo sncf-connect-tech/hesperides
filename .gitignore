@@ -7,4 +7,4 @@ rebel.xml
 .rebel.xml.bak
 data/
 
-/hesperides-spring/bootstrap/src/main/resources/application-corp.yml
+/hesperides/bootstrap/src/main/resources/application-corp.yml
