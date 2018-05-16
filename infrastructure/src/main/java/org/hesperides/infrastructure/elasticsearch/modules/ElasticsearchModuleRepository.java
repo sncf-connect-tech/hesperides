@@ -1,6 +1,6 @@
 package org.hesperides.infrastructure.elasticsearch.modules;
 
-import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
@@ -12,9 +12,9 @@ public interface ElasticsearchModuleRepository extends ElasticsearchRepository<M
 
     Page<ModuleDocument> findAll();
 
-    ModuleDocument findOneByNameAndVersionAndVersionType(String name, String version, Module.Type versionType);
+    ModuleDocument findOneByNameAndVersionAndVersionType(String name, String version, TemplateContainer.VersionType versionType);
 
-    ModuleDocument findOneByNameAndVersionAndVersionTypeAndVersionId(String name, String version, Module.Type versionType, Long versionId);
+    ModuleDocument findOneByNameAndVersionAndVersionTypeAndVersionId(String name, String version, TemplateContainer.VersionType versionType, Long versionId);
 
     List<ModuleDocument> findAllByNameAndVersion(String name, String version);
 

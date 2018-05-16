@@ -27,6 +27,7 @@ public class SearchAModule extends CucumberSpringBean implements En {
             assertEquals(1, modules.size());
             assertEquals("test-12", modules.get(0).getName());
             assertEquals("1.0.12", modules.get(0).getVersion());
+            assertEquals(true, modules.get(0).isWorkingCopy());
         });
 
         When("^searching for some of them$", () -> {

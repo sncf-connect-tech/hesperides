@@ -65,7 +65,33 @@ public class ModuleUseCases {
             throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
         }
         verifyTechnos(module.getTechnos());
-        commands.updateModule(module, user);
+
+        /**
+         * Adrien a soulevé un problème intéressant en détectant le bug suivant :
+         *
+         * Lors de la mise à jour d'un module, on reçoit en input la clé du module et une liste de technos mais pas les templates éventuels du modules.
+         * Donc, lorsqu'on met à jour le module dans la couche infrastructure, si le module en question ne contient pas ses templates,
+         * ils sont tout simplement supprimés (puisqu'ils sont censés être embarqués).
+         *
+         * Ce qui veut dire qu'on doit récupérer la liste des templates du module avant de le mettre à jour.
+         *
+         * Comme ceci :
+         */
+        List<TemplateView> templateViews = queries.getTemplates(module.getKey());
+        List<Template> templates = TemplateView.toDomainInstances(templateViews, module.getKey());
+        Module moduleWithTemplates = new Module(module.getKey(), templates, module.getTechnos(), module.getVersionId());
+        commands.updateModule(moduleWithTemplates, user);
+
+        /**
+         * J'ai choisi de récupérer les templates d'un module dans la couche Application plutôt que dans la couche Infrastructure,
+         * parce que la couche Infrastructure n'a pas à connaitre cette logique, qui pour moi est une logique applicative.
+         *
+         * Le problème est en fait l'évènement qu'il y a derrière : ModuleUpdatedEvent. Cet évènement ne sert
+         * qu'à ajouter ou un supprimer une ou plusieurs technos dans un module. On a conçu cet évènement par rapport
+         * à l'API existante.
+         *
+         * Peut-être qu'on devrait le remplacer par les deux évènements suivants : TechnoAddedEvent et TechnoRemovedEvent.
+         */
     }
 
     private void verifyTechnos(List<Techno> technos) {
@@ -140,7 +166,7 @@ public class ModuleUseCases {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        Module existingModule = moduleView.get().toDomain();
+        Module existingModule = moduleView.get().toDomainInstance();
         Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(newModule, user);
@@ -158,18 +184,18 @@ public class ModuleUseCases {
     public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
 
         String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
-        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.Type.release);
+        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.VersionType.release);
         if (queries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
 
-        TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.Type.workingcopy);
+        TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
         if (!moduleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        Module existingModule = moduleView.get().toDomain();
+        Module existingModule = moduleView.get().toDomainInstance();
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(moduleRelease, user);

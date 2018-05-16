@@ -1,11 +1,11 @@
-package org.hesperides.infrastructure.elasticsearch.modules.queries;
+package org.hesperides.infrastructure.elasticsearch.modules;
 
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleQueriesRepository;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.elasticsearch.modules.ElasticsearchModuleRepository;
 import org.hesperides.infrastructure.elasticsearch.modules.ModuleDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,51 @@ import static org.hesperides.domain.Profiles.ELASTICSEARCH;
 @Slf4j
 @Profile(ELASTICSEARCH)
 @Component
-public class ElasticsearchModuleQueriesRepository implements ModuleQueriesRepository {
-
-    private final ElasticsearchModuleRepository elasticsearchModuleRepository;
+public class ElasticsearchModuleProjectionRepository implements ModuleProjectionRepository {
+    private ElasticsearchModuleRepository elasticsearchModuleRepository;
 
     @Autowired
-    public ElasticsearchModuleQueriesRepository(ElasticsearchModuleRepository elasticsearchModuleRepository) {
+    public ElasticsearchModuleProjectionRepository(ElasticsearchModuleRepository elasticsearchModuleRepository) {
         this.elasticsearchModuleRepository = elasticsearchModuleRepository;
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(ModuleCreatedEvent event) {
+        ModuleDocument moduleDocument = new ModuleDocument();
+        moduleDocument.setName(event.getModule().getKey().getName());
+        moduleDocument.setVersion(event.getModule().getKey().getVersion());
+        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
+        moduleDocument.setVersionId(event.getModule().getVersionId());
+        elasticsearchModuleRepository.save(moduleDocument);
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(ModuleUpdatedEvent event) {
+        ModuleDocument moduleDocument = new ModuleDocument();
+        moduleDocument.setName(event.getModule().getKey().getName());
+        moduleDocument.setVersion(event.getModule().getKey().getVersion());
+        moduleDocument.setVersionType(event.getModule().getKey().getVersionType());
+        moduleDocument.setVersionId(event.getModule().getVersionId());
+        moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionTypeAndVersionId(
+                event.getModule().getKey().getName(),
+                event.getModule().getKey().getVersion(),
+                event.getModule().getKey().getVersionType(),
+                event.getModule().getVersionId());
+        //TODO update properties (technos) then save to db
+        elasticsearchModuleRepository.save(moduleDocument);
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(ModuleDeletedEvent event) {
+        TemplateContainer.Key moduleKey = event.getModuleKey();
+        ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
+                moduleKey.getName(),
+                moduleKey.getVersion(),
+                moduleKey.getVersionType());
+        elasticsearchModuleRepository.delete(moduleDocument);
     }
 
     @QueryHandler
@@ -57,14 +95,14 @@ public class ElasticsearchModuleQueriesRepository implements ModuleQueriesReposi
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleTypesQuery query) {
+    public List<String> query(GetModuleVersionTypesQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         moduleDocument.setVersion(query.getModuleVersion());
         return elasticsearchModuleRepository.findAllByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
                 .map(ModuleDocument::getVersionType)
-                .map(Module.Type::toString)
+                .map(TemplateContainer.VersionType::toString)
                 .collect(Collectors.toList());
     }
 

@@ -18,17 +18,15 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.modules.queries;
+package org.hesperides.infrastructure.mongo.modules;
 
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.modules.GetModuleTemplatesQuery;
-import org.hesperides.domain.modules.GetTemplateByNameQuery;
+import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.TemplateQueriesRepository;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.infrastructure.mongo.modules.ModuleDocument;
-import org.hesperides.infrastructure.mongo.modules.MongoModuleRepository;
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -43,14 +41,54 @@ import static org.hesperides.domain.Profiles.*;
 
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository
-public class MongoTemplateQueriesRepository implements TemplateQueriesRepository {
+public class MongoTemplateProjectionRepository implements TemplateProjectionRepository {
 
-    private final MongoModuleRepository repository;
+    private final MongoModuleRepository moduleRepository;
 
     @Autowired
-    public MongoTemplateQueriesRepository(MongoModuleRepository repository) {
-        this.repository = repository;
+    public MongoTemplateProjectionRepository(MongoModuleRepository moduleRepository) {
+        this.moduleRepository = moduleRepository;
     }
+
+    /*** EVENT HANDLERS ***/
+
+    @Override
+    @EventSourcingHandler
+    public void on(TemplateCreatedEvent event) {
+        TemplateContainer.Key key = event.getModuleKey();
+        ModuleDocument module = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
+        if (module.getTemplates() == null) {
+            module.setTemplates(new ArrayList<>());
+        }
+        TemplateDocument template = TemplateDocument.fromDomainInstance(event.getTemplate());
+        module.getTemplates().add(template);
+        moduleRepository.save(module);
+    }
+
+    @Override
+    @EventSourcingHandler
+    public void on(TemplateUpdatedEvent event) {
+        TemplateContainer.Key key = event.getModuleKey();
+        ModuleDocument module = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
+        for (int i = 0; i < module.getTemplates().size(); i++) {
+            if (module.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplate().getName())) {
+                module.getTemplates().set(i, TemplateDocument.fromDomainInstance(event.getTemplate()));
+                break;
+            }
+        }
+        moduleRepository.save(module);
+    }
+
+    @Override
+    @EventSourcingHandler
+    public void on(TemplateDeletedEvent event) {
+        TemplateContainer.Key key = event.getModuleKey();
+        ModuleDocument module = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
+        module.getTemplates().removeIf(template -> template.getName().equalsIgnoreCase(event.getTemplateName()));
+        moduleRepository.save(module);
+    }
+
+    /*** QUERY HANDLERS ***/
 
     @Override
     @QueryHandler
@@ -58,8 +96,7 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
         Optional<TemplateView> result = Optional.empty();
         TemplateContainer.Key key = query.getModuleKey();
 
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopyAndTemplatesName(
-                key.getName(), key.getVersion(), key.isWorkingCopy(), query.getTemplateName());
+        ModuleDocument moduleDocument = moduleRepository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
 
         if (moduleDocument != null) {
             TemplateDocument templateDocument = moduleDocument.getTemplates().stream()
@@ -76,9 +113,9 @@ public class MongoTemplateQueriesRepository implements TemplateQueriesRepository
         List<TemplateView> result = new ArrayList<>();
 
         TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = repository.findByNameAndVersionAndWorkingCopy(key.getName(), key.getVersion(), key.isWorkingCopy());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
 
-        if (moduleDocument != null) {
+        if (moduleDocument != null && moduleDocument.getTemplates() != null) {
             result = moduleDocument.getTemplates().stream().map(templateDocument -> templateDocument.toTemplateView(key, Module.KEY_PREFIX)).collect(Collectors.toList());
         }
 

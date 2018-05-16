@@ -2,7 +2,6 @@ package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.presentation.io.TechnoIO;
@@ -17,8 +16,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.assertEquals;
-
 public class ExistingModuleContext extends CucumberSpringBean implements En {
 
     private Module.Key moduleKey;
@@ -29,6 +26,10 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
     public ExistingModuleContext() {
 
         Given("^an existing module$", () -> {
+            createWorkingCopy("test", "1.0.0");
+        });
+
+        Given("^an existing module containing a template", () -> {
             createWorkingCopy("test", "1.0.0");
         });
 
@@ -92,7 +93,7 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
     }
 
     private void setModuleKeyFromModuleOutput(ModuleIO moduleOutput) {
-        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), moduleOutput.isWorkingCopy() ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
+        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), TemplateContainer.getVersionType(moduleOutput.isWorkingCopy()));
     }
 
     public Module.Key getModuleKey() {
