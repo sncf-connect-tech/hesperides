@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.hesperides</groupId>
-    <artifactId>hesperides-spring</artifactId>
+    <artifactId>hesperides</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>hesperides-spring</name>
+    <name>hesperides</name>
     <description>Hesperides, templated files generator</description>
     <url>https://github.com/voyages-sncf-technologies/hesperides</url>
 
