@@ -38,8 +38,10 @@ class ModuleAggregate implements Serializable {
     private Module.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
+    //TODO Technos ?
 
     @CommandHandler
+    @SuppressWarnings("unused")
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
         // Initialise le version_id
@@ -52,26 +54,24 @@ class ModuleAggregate implements Serializable {
     }
 
     @CommandHandler
-    public void updateModule(UpdateModuleCommand command) {
+    @SuppressWarnings("unused")
+    public void on(UpdateModuleTechnosCommand command) {
         log.debug("Applying update module command...");
         // Met à jour le version_id
-        Module moduleWithUpdatedVersionId = new Module(
-                command.getModule().getKey(),
-                command.getModule().getTemplates(),
-                command.getModule().getTechnos(),
-                command.getModule().getVersionId() + 1);
-        apply(new ModuleUpdatedEvent(moduleWithUpdatedVersionId, command.getUser()));
+        Long updatedVersionId = command.getVersionId() + 1;
+        apply(new ModuleTechnosUpdatedEvent(command.getModuleKey(), command.getTechnos(), updatedVersionId, command.getUser()));
     }
 
     @CommandHandler
-    public void deleteModule(DeleteModuleCommand command) {
+    @SuppressWarnings("unused")
+    public void on(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
         apply(new ModuleDeletedEvent(command.getModuleKey(), command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void createTemplate(CreateTemplateCommand command) {
+    public void on(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 
         // check qu'on a pas déjà un template avec ce nom, sinon erreur:
@@ -94,7 +94,7 @@ class ModuleAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void updateTemplate(UpdateTemplateCommand command) {
+    public void on(UpdateTemplateCommand command) {
         log.debug("Applying update template command...");
 
         // check qu'on a déjà un template avec ce nom, sinon erreur:
@@ -123,7 +123,7 @@ class ModuleAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void deleteTemplate(DeleteTemplateCommand command) {
+    public void on(DeleteTemplateCommand command) {
         // si le template n'existe pas, cette command n'a pas d'effet de bord.
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
@@ -148,8 +148,8 @@ class ModuleAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(ModuleUpdatedEvent event) {
-        this.key = event.getModule().getKey();
+    private void on(ModuleTechnosUpdatedEvent event) {
+        this.key = event.getModuleKey();
 
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
