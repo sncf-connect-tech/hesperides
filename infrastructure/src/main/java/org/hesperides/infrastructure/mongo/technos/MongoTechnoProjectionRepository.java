@@ -22,11 +22,7 @@ package org.hesperides.infrastructure.mongo.technos;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.technos.GetTemplateQuery;
-import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
-import org.hesperides.domain.technos.TechnoCreatedEvent;
-import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
-import org.hesperides.domain.technos.TechnoProjectionRepository;
+import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
@@ -74,18 +70,18 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @QueryHandler
     @Override
     public Optional<TemplateView> query(GetTemplateQuery query) {
-        Optional<TemplateView> result = Optional.empty();
+        Optional<TemplateView> optionalTemplateView = Optional.empty();
         TemplateContainer.Key key = query.getTechnoKey();
 
-        TechnoDocument technoDocument = technoRepository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
+        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
 
-        if (technoDocument != null) {
-            TemplateDocument templateDocument = technoDocument.getTemplates().stream()
+        if (optionalTechnoDocument.isPresent()) {
+            TemplateDocument templateDocument = optionalTechnoDocument.get().getTemplates().stream()
                     .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
                     .findAny().get();
-            result = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.KEY_PREFIX));
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.KEY_PREFIX));
         }
-        return result;
+        return optionalTemplateView;
     }
 
     @QueryHandler
@@ -99,8 +95,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
         List<TechnoDocument> technoDocuments = null;
         if (technos != null) {
-            //TODO findByKeys ?
-            technoDocuments = technos.stream().map(techno -> technoRepository.findByKey(KeyDocument.fromDomainInstance(techno.getKey()))).collect(Collectors.toList());
+            List<KeyDocument> keyDocuments = technos.stream().map(techno -> KeyDocument.fromDomainInstance(techno.getKey())).collect(Collectors.toList());
+            technoDocuments = technoRepository.findAllByKeyIn(keyDocuments);
         }
         return technoDocuments;
     }

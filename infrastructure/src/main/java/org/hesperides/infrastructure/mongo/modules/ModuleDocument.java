@@ -10,7 +10,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Document(collection = "module")
@@ -36,5 +38,39 @@ public class ModuleDocument {
                 TemplateDocument.toTemplateViews(templates, key.toDomainInstance(), Module.KEY_PREFIX),
                 TechnoDocument.toTechnoViews(technos),
                 versionId);
+    }
+
+    public void addTemplate(TemplateDocument templateDocument) {
+        if (templates == null) {
+            templates = new ArrayList<>();
+        }
+        templates.add(templateDocument);
+    }
+
+    public void updateTemplate(TemplateDocument updatedTemplateDocument) {
+        // Solution A
+        removeTemplate(updatedTemplateDocument.getName());
+        addTemplate(updatedTemplateDocument);
+
+        // Solution B
+        /*setTemplates(templates.stream()
+                .map(existingTemplateDocument -> existingTemplateDocument.getName().equalsIgnoreCase(updatedTemplateDocument.getName()) ? updatedTemplateDocument : existingTemplateDocument)
+                .collect(Collectors.toList()));*/
+
+        // Solution C
+        /*for (int i = 0; i < templates.size(); i++) {
+            if (templates.get(i).getName().equalsIgnoreCase(updatedTemplateDocument.getName())) {
+                templates.set(i, updatedTemplateDocument);
+                break;
+            }
+        }*/
+    }
+
+    public void removeTemplate(String templateName) {
+        templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
+    }
+
+    public Optional<TemplateDocument> findOptionalTemplateByName(String templateName) {
+        return templates.stream().filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName)).findFirst();
     }
 }

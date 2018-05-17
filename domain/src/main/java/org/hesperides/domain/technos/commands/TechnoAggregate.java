@@ -32,13 +32,15 @@ class TechnoAggregate implements Serializable {
     private Map<String, Template> templates = new HashMap<>();
 
     @CommandHandler
+    @SuppressWarnings("unused")
     public TechnoAggregate(CreateTechnoCommand command) {
         log.debug("Applying CreateTechnoCommand...");
         apply(new TechnoCreatedEvent(command.getTechno(), command.getUser()));
     }
 
     @CommandHandler
-    public void addTemplate(AddTemplateToTechnoCommand command) {
+    @SuppressWarnings("unused")
+    public void on(AddTemplateToTechnoCommand command) {
         log.debug("Applying AddTemplateToTechnoCommand...");
 
         // Vérifie qu'on a pas déjà un template avec ce nom

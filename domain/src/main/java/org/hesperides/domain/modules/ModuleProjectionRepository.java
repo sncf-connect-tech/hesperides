@@ -15,7 +15,7 @@ public interface ModuleProjectionRepository {
     void on(ModuleCreatedEvent event);
 
     @EventSourcingHandler
-    void on(ModuleUpdatedEvent event);
+    void on(ModuleTechnosUpdatedEvent event);
 
     @EventSourcingHandler
     void on(ModuleDeletedEvent event);

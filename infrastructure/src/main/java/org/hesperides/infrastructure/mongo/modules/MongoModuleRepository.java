@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hesperides.domain.Profiles.*;
 
@@ -16,13 +17,15 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     ModuleDocument findByKey(KeyDocument key);
 
+    Optional<ModuleDocument> findOptionalByKey(KeyDocument key);
+
     List<ModuleDocument> findByKeyNameAndKeyVersion(String name, String version);
 
     List<ModuleDocument> findByKeyName(String name);
 
     void deleteByKey(KeyDocument key);
 
-    ModuleDocument findByKeyAndTemplatesName(KeyDocument key, String templateName);
+    Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
     List<ModuleDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
 }

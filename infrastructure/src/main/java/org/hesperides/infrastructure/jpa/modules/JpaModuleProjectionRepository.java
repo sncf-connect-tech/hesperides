@@ -49,19 +49,8 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleUpdatedEvent event) {
-        Module module = event.getModule();
-        ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
-                module.getKey().getName(),
-                module.getKey().getVersion(),
-                module.getKey().getVersionType()
-        );
-        jpaModuleRepository.save(
-                new ModuleEntity(
-                        id,
-                        module.getVersionId()
-                )
-        );
+    public void on(ModuleTechnosUpdatedEvent event) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @EventSourcingHandler
@@ -79,7 +68,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
-        Optional<ModuleView> result = Optional.empty();
+        Optional<ModuleView> optionalModuleView = Optional.empty();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -89,9 +78,9 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
         moduleEntity.setModuleEntityId(id);
         moduleEntity = jpaModuleRepository.findOne(id);
         if (moduleEntity != null) {
-            result = Optional.of(moduleEntity.toModuleView());
+            optionalModuleView = Optional.of(moduleEntity.toModuleView());
         }
-        return result;
+        return optionalModuleView;
     }
 
     @QueryHandler

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.hesperides.domain.Profiles.*;
@@ -17,5 +18,7 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     TechnoDocument findByKey(KeyDocument key);
 
-    TechnoDocument findByKeyAndTemplatesName(KeyDocument key, String templateName);
+    Optional<TechnoDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
+
+    List<TechnoDocument> findAllByKeyIn(List<KeyDocument> keys);
 }
