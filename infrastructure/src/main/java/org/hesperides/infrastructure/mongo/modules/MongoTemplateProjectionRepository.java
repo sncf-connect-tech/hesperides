@@ -55,37 +55,27 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @Override
     @EventSourcingHandler
     public void on(TemplateCreatedEvent event) {
-        TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument module = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
-        if (module.getTemplates() == null) {
-            module.setTemplates(new ArrayList<>());
-        }
-        TemplateDocument template = TemplateDocument.fromDomainInstance(event.getTemplate());
-        module.getTemplates().add(template);
-        moduleRepository.save(module);
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+        moduleDocument.addTemplate(templateDocument);
+        moduleRepository.save(moduleDocument);
     }
 
     @Override
     @EventSourcingHandler
     public void on(TemplateUpdatedEvent event) {
-        TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument module = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
-        for (int i = 0; i < module.getTemplates().size(); i++) {
-            if (module.getTemplates().get(i).getName().equalsIgnoreCase(event.getTemplate().getName())) {
-                module.getTemplates().set(i, TemplateDocument.fromDomainInstance(event.getTemplate()));
-                break;
-            }
-        }
-        moduleRepository.save(module);
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+        moduleDocument.updateTemplate(templateDocument);
+        moduleRepository.save(moduleDocument);
     }
 
     @Override
     @EventSourcingHandler
     public void on(TemplateDeletedEvent event) {
-        TemplateContainer.Key key = event.getModuleKey();
-        ModuleDocument module = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
-        module.getTemplates().removeIf(template -> template.getName().equalsIgnoreCase(event.getTemplateName()));
-        moduleRepository.save(module);
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+        moduleDocument.removeTemplate(event.getTemplateName());
+        moduleRepository.save(moduleDocument);
     }
 
     /*** QUERY HANDLERS ***/
@@ -93,32 +83,32 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @Override
     @QueryHandler
     public Optional<TemplateView> query(GetTemplateByNameQuery query) {
-        Optional<TemplateView> result = Optional.empty();
-        TemplateContainer.Key key = query.getModuleKey();
+        Optional<TemplateView> optionalTemplateView = Optional.empty();
 
-        ModuleDocument moduleDocument = moduleRepository.findByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
+        TemplateContainer.Key moduleKey = query.getModuleKey();
+        String templateName = query.getTemplateName();
 
-        if (moduleDocument != null) {
-            TemplateDocument templateDocument = moduleDocument.getTemplates().stream()
-                    .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
-                    .findAny().get();
-            result = Optional.of(templateDocument.toTemplateView(query.getModuleKey(), Module.KEY_PREFIX));
+        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKeyAndTemplatesName(KeyDocument.fromDomainInstance(moduleKey), templateName);
+        if (optionalModuleDocument.isPresent()) {
+            TemplateDocument templateDocument = optionalModuleDocument.get().findOptionalTemplateByName(templateName).get();
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX));
         }
-        return result;
+        return optionalTemplateView;
     }
 
     @Override
     @QueryHandler
     public List<TemplateView> query(GetModuleTemplatesQuery query) {
-        List<TemplateView> result = new ArrayList<>();
+        List<TemplateView> templateViews = new ArrayList<>();
 
-        TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
+        TemplateContainer.Key moduleKey = query.getModuleKey();
+        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKey(KeyDocument.fromDomainInstance(moduleKey));
 
-        if (moduleDocument != null && moduleDocument.getTemplates() != null) {
-            result = moduleDocument.getTemplates().stream().map(templateDocument -> templateDocument.toTemplateView(key, Module.KEY_PREFIX)).collect(Collectors.toList());
+        if (optionalModuleDocument.isPresent() && optionalModuleDocument.get().getTemplates() != null) {
+            templateViews = optionalModuleDocument.get().getTemplates().stream()
+                    .map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX))
+                    .collect(Collectors.toList());
         }
-
-        return result;
+        return templateViews;
     }
 }

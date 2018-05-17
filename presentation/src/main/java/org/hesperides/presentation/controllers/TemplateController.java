@@ -43,11 +43,11 @@ public class TemplateController extends BaseController {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
-        List<PartialTemplateIO> output = templateViews != null
+        List<PartialTemplateIO> partialTemplateOutput = templateViews != null
                 ? templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList())
                 : new ArrayList<>();
 
-        return ResponseEntity.ok(output);
+        return ResponseEntity.ok(partialTemplateOutput);
     }
 
     @GetMapping("/{module_type}/templates/{template_name}")
@@ -58,11 +58,11 @@ public class TemplateController extends BaseController {
                                                                @PathVariable("template_name") final String templateName) {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
-        TemplateIO output = moduleUseCases.getTemplate(moduleKey, templateName)
+        TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, templateName)
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
 
-        return ResponseEntity.ok(output);
+        return ResponseEntity.ok(templateOutput);
     }
 
     @PostMapping("/workingcopy/templates")

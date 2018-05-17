@@ -99,7 +99,7 @@ public class ModuleController extends BaseController {
         log.info("Updating module workingcopy {}", moduleInput.toString());
 
         Module module = moduleInput.toDomainInstance();
-        moduleUseCases.updateWorkingCopy(module, fromPrincipal(currentUser));
+        moduleUseCases.updateModuleTechnos(module, fromPrincipal(currentUser));
         ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
                 .map(ModuleIO::fromModuleView)
                 .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
