@@ -9,9 +9,9 @@ import javax.validation.constraints.NotNull;
 
 @Value
 public class PartialTemplateIO {
-    String namespace;
     @NotNull
     String name;
+    String namespace;
     @NotNull
     String filename;
     @NotNull
@@ -23,8 +23,8 @@ public class PartialTemplateIO {
 
     public static PartialTemplateIO fromTemplateView(TemplateView templateView) {
         return new PartialTemplateIO(
-                templateView.getNamespace(),
                 templateView.getName(),
+                templateView.getNamespace(),
                 templateView.getFilename(),
                 templateView.getLocation()
         );

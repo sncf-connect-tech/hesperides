@@ -11,10 +11,10 @@ import javax.validation.constraints.NotNull;
 
 @Value
 public class TemplateIO {
-    String namespace;
     @NotNull
     @NotEmpty
     String name;
+    String namespace;
     @NotNull
     String filename;
     @NotNull
@@ -33,8 +33,8 @@ public class TemplateIO {
 
     public static TemplateIO fromTemplateView(TemplateView templateView) {
         return new TemplateIO(
-                templateView.getNamespace(),
                 templateView.getName(),
+                templateView.getNamespace(),
                 templateView.getFilename(),
                 templateView.getLocation(),
                 templateView.getContent(),
