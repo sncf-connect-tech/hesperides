@@ -41,4 +41,9 @@ public class ExistingTechnoContext extends CucumberSpringBean implements En {
     public TemplateContainer.Key getTechnoKey() {
         return technoKey;
     }
+
+    public String getTechnoLocation() {
+        return String.format("/templates/packages/%s/%s/%s", technoKey.getName(), technoKey.getVersion(), technoKey.getVersionType());
+    }
+
 }

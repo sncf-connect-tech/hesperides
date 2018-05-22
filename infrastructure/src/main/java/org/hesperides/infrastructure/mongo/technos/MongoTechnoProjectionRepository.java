@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,6 +66,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         technoRepository.save(technoDocument);
     }
 
+    @Override
+    public void on(TechnoDeletedEvent event) {
+        technoRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+    }
+
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
@@ -79,7 +85,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             TemplateDocument templateDocument = optionalTechnoDocument.get().getTemplates().stream()
                     .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
                     .findAny().get();
-            optionalTemplateView = Optional.of(templateDocument.toTemplateView(query.getTechnoKey(), Techno.KEY_PREFIX));
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(key, Techno.KEY_PREFIX));
         }
         return optionalTemplateView;
     }
@@ -90,6 +96,21 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TemplateContainer.Key key = query.getTechnoKey();
         Optional<TechnoDocument> technoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
         return technoDocument.isPresent();
+    }
+
+    @Override
+    public List<TemplateView> query(GetTemplatesQuery query) {
+        List<TemplateView> templateViews = new ArrayList<>();
+        TemplateContainer.Key key = query.getTechnoKey();
+
+        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
+
+        if (optionalTechnoDocument.isPresent()) {
+            templateViews = optionalTechnoDocument.get().getTemplates().stream()
+                    .map(templateDocument -> templateDocument.toTemplateView(key, Techno.KEY_PREFIX))
+                    .collect(Collectors.toList());
+        }
+        return templateViews;
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

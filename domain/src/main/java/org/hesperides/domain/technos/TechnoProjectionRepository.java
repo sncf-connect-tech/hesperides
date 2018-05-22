@@ -22,12 +22,9 @@ package org.hesperides.domain.technos;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.technos.GetTemplateQuery;
-import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
-import org.hesperides.domain.technos.TechnoCreatedEvent;
-import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TechnoProjectionRepository {
@@ -40,6 +37,9 @@ public interface TechnoProjectionRepository {
     @EventSourcingHandler
     void on(TemplateAddedToTechnoEvent event);
 
+    @EventSourcingHandler
+    void on(TechnoDeletedEvent event);
+
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
@@ -47,4 +47,7 @@ public interface TechnoProjectionRepository {
 
     @QueryHandler
     Boolean query(TechnoAlreadyExistsQuery query);
+
+    @QueryHandler
+    List<TemplateView> query(GetTemplatesQuery query);
 }

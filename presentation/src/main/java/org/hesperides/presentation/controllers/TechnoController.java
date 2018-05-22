@@ -27,6 +27,8 @@ import org.hesperides.application.technos.TechnoUseCases;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromPrincipal;
 
@@ -66,5 +70,33 @@ public class TechnoController extends BaseController {
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateInput.getName()));
 
         return ResponseEntity.created(technoKey.getURI(Techno.KEY_PREFIX)).body(templateOutput);
+    }
+
+    @ApiOperation("Delete a techno")
+    @DeleteMapping(path = "/{techno_name}/{techno_version}/{version_type}")
+    public ResponseEntity deleteTechno(Principal currentUser,
+                                       @PathVariable("techno_name") final String technoName,
+                                       @PathVariable("techno_version") final String technoVersion,
+                                       @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+
+        log.info("deleteTechno {} {} {}", technoName, technoVersion, versionType);
+
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
+        technoUseCases.deleteTechno(technoKey, fromPrincipal(currentUser));
+
+        return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Get techno templates")
+    @GetMapping(path = "/{techno_name}/{techno_version}/{version_type}/templates")
+    public ResponseEntity<List<PartialTemplateIO>> getTemplates(@PathVariable("techno_name") final String technoName,
+                                                                @PathVariable("techno_version") final String technoVersion,
+                                                                @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+
+        log.info("getTemplates {} {} {}", technoName, technoVersion, versionType);
+
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
+        List<TemplateView> templateViews = technoUseCases.getTemplates(technoKey);
+        return ResponseEntity.ok(templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList()));
     }
 }

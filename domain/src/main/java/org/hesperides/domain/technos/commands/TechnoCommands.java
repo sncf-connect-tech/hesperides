@@ -4,6 +4,7 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.AddTemplateToTechnoCommand;
 import org.hesperides.domain.technos.CreateTechnoCommand;
+import org.hesperides.domain.technos.DeleteTechnoCommand;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
@@ -30,5 +31,9 @@ public class TechnoCommands {
 
     public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
         commandGateway.sendAndWait(new AddTemplateToTechnoCommand(technoKey, template, user));
+    }
+
+    public void deleteTechno(TemplateContainer.Key technoKey, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoCommand(technoKey, user));
     }
 }

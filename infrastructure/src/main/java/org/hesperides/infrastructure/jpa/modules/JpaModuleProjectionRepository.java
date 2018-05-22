@@ -6,8 +6,6 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.infrastructure.jpa.modules.JpaModuleRepository;
-import org.hesperides.infrastructure.jpa.modules.ModuleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;

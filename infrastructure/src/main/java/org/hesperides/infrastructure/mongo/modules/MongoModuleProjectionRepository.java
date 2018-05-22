@@ -3,7 +3,6 @@ package org.hesperides.infrastructure.mongo.modules;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoProjectionRepository;

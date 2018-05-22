@@ -44,7 +44,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
 
     private void updateTemplate(boolean isGoingToThrowAnError) {
         TemplateIO.FileRightsIO rightsInput = new TemplateIO.FileRightsIO(true, true, true);
-        TemplateIO templateInput = new TemplateIO("templateName",null,  "template.name", "template.location", "content-bis",
+        TemplateIO templateInput = new TemplateIO("templateName", null, "template.name", "template.location", "content-bis",
                 new TemplateIO.RightsIO(rightsInput, rightsInput, rightsInput), 1L);
         Module.Key moduleKey = existingTemplate.getExistingModuleContext().getModuleKey();
 
