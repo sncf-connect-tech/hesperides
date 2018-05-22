@@ -24,8 +24,7 @@ public class TechnoCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Techno.Key createTechno(TemplateContainer.Key technoKey, User user) {
-        Techno techno = new Techno(technoKey, null);
+    public Techno.Key createTechno(Techno techno, User user) {
         return commandGateway.sendAndWait(new CreateTechnoCommand(techno, user));
     }
 

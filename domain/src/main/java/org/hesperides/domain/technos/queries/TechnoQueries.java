@@ -2,6 +2,7 @@ package org.hesperides.domain.technos.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
+import org.hesperides.domain.technos.GetTechnoQuery;
 import org.hesperides.domain.technos.GetTemplateQuery;
 import org.hesperides.domain.technos.GetTemplatesQuery;
 import org.hesperides.domain.technos.TechnoAlreadyExistsQuery;
@@ -18,8 +19,8 @@ public class TechnoQueries extends Queries {
         super(queryGateway);
     }
 
-    public Boolean technoExists(TemplateContainer.Key newTechnoKey) {
-        return querySync(new TechnoAlreadyExistsQuery(newTechnoKey), Boolean.class);
+    public Boolean technoExists(TemplateContainer.Key technoKey) {
+        return querySync(new TechnoAlreadyExistsQuery(technoKey), Boolean.class);
     }
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
@@ -28,5 +29,9 @@ public class TechnoQueries extends Queries {
 
     public List<TemplateView> getTemplates(TemplateContainer.Key technoKey) {
         return querySyncList(new GetTemplatesQuery(technoKey), TemplateView.class);
+    }
+
+    public Optional<TechnoView> getTechno(TemplateContainer.Key technoKey) {
+        return querySyncOptional(new GetTechnoQuery(technoKey), TechnoView.class);
     }
 }

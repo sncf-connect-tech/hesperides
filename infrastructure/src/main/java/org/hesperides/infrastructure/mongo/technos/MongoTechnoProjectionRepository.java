@@ -24,6 +24,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
@@ -111,6 +112,16 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
                     .collect(Collectors.toList());
         }
         return templateViews;
+    }
+
+    @Override
+    public Optional<TechnoView> query(GetTechnoQuery query) {
+        Optional<TechnoView> optionalTechnoView = Optional.empty();
+        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(query.getTechnoKey()));
+        if (optionalTechnoDocument.isPresent()) {
+            optionalTechnoView = Optional.of(optionalTechnoDocument.get().toTechnoView());
+        }
+        return optionalTechnoView;
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

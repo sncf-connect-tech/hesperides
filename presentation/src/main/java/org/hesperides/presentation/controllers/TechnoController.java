@@ -25,16 +25,21 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.technos.TechnoUseCases;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.presentation.io.PartialTemplateIO;
+import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,5 +103,21 @@ public class TechnoController extends BaseController {
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
         List<TemplateView> templateViews = technoUseCases.getTemplates(technoKey);
         return ResponseEntity.ok(templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList()));
+    }
+
+    @ApiOperation("Create a release from an existing workingcopy")
+    @PostMapping(path = "/create_release")
+    public ResponseEntity<TechnoIO> releaseTechno(Principal currentUser,
+                                                  @RequestParam("techno_name") final String technoName,
+                                                  @RequestParam("techno_version") final String technoVersion) {
+
+        log.info("releaseTechno {} {}", technoName, technoVersion);
+
+        TemplateContainer.Key existingTechnoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
+        TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, fromPrincipal(currentUser));
+        TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
+
+        URI releasedTechnoLocation = technoView.toDomainInstance().getKey().getURI(Techno.KEY_PREFIX);
+        return ResponseEntity.created(releasedTechnoLocation).body(technoOutput);
     }
 }
