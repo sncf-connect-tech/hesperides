@@ -22,7 +22,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
     public CreateATemplate() {
         Given("^a template to create$", () -> {
             TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
-            templateInput = new TemplateIO(null, "templateName", "template.name", "template.location", "content",
+            templateInput = new TemplateIO("templateName",null,  "template.name", "template.location", "content",
                     new TemplateIO.RightsIO(rights, rights, rights), 0L);
         });
 

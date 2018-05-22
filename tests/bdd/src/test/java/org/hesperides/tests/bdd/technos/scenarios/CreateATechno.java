@@ -21,8 +21,8 @@ public class CreateATechno extends CucumberSpringBean implements En {
             technoName = "technoName";
             technoVersion = "technoVersion";
             templateInput = new TemplateIO(
-                    null,
                     "fichierTest",
+                    null,
                     "test.json",
                     "/home/test",
                     "{test:test}",
