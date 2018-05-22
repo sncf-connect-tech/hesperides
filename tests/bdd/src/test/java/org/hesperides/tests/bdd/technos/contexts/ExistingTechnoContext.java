@@ -16,8 +16,8 @@ public class ExistingTechnoContext extends CucumberSpringBean implements En {
             String technoVersion = "technoVersion";
 
             TemplateIO templateInput = new TemplateIO(
-                    null,
                     "fichierTest",
+                    null,
                     "test.json",
                     "/home/test",
                     "{test:test}",
