@@ -2,6 +2,7 @@ package org.hesperides.application.technos;
 
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
+import org.hesperides.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
@@ -9,6 +10,7 @@ import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,5 +45,19 @@ public class TechnoUseCases {
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
         return queries.getTemplate(technoKey, templateName);
+    }
+
+    public void deleteTechno(TemplateContainer.Key technoKey, User user) {
+        if (!queries.technoExists(technoKey)) {
+            throw new TechnoNotFoundException(technoKey);
+        }
+        commands.deleteTechno(technoKey, user);
+    }
+
+    public List<TemplateView> getTemplates(TemplateContainer.Key technoKey) {
+        if (!queries.technoExists(technoKey)) {
+            throw new TechnoNotFoundException(technoKey);
+        }
+        return queries.getTemplates(technoKey);
     }
 }

@@ -21,4 +21,6 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
     Optional<TechnoDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
     List<TechnoDocument> findAllByKeyIn(List<KeyDocument> keys);
+
+    void deleteByKey(KeyDocument key);
 }

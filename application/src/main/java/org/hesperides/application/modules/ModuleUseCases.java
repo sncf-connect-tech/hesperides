@@ -79,8 +79,7 @@ public class ModuleUseCases {
     }
 
     public void deleteModule(TemplateContainer.Key moduleKey, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(moduleKey);
-        if (!optionalModuleView.isPresent()) {
+        if (!queries.moduleExists(moduleKey)) {
             throw new ModuleNotFoundException(moduleKey);
         }
         commands.deleteModule(moduleKey, user);
