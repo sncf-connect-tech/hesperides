@@ -15,8 +15,13 @@ Feature: technos related features
     When deleting this techno
     Then the techno is successfully deleted
 
-#  Scenario: delete a released techno
-#    Given an existing techno
-#    And this techno is released
-#    When deleting this techno
-#    Then the techno is successfully deleted
+  Scenario: release a techno
+    Given an existing techno
+    When releasing this techno
+    Then the techno is successfully released
+
+  Scenario: delete a released techno
+    Given an existing techno
+    When releasing this techno
+    And deleting this techno
+    Then the techno is successfully deleted

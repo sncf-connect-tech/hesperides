@@ -2,8 +2,11 @@ package org.hesperides.application.technos;
 
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
+import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.technos.exception.DuplicateTechnoException;
 import org.hesperides.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.domain.technos.queries.TechnoQueries;
+import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
@@ -38,7 +41,8 @@ public class TechnoUseCases {
      */
     public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
         if (!queries.technoExists(technoKey)) {
-            commands.createTechno(technoKey, user);
+            Techno techno = new Techno(technoKey, null);
+            commands.createTechno(techno, user);
         }
         commands.addTemplate(technoKey, template, user);
     }
@@ -59,5 +63,23 @@ public class TechnoUseCases {
             throw new TechnoNotFoundException(technoKey);
         }
         return queries.getTemplates(technoKey);
+    }
+
+    public TechnoView releaseTechno(TemplateContainer.Key existingTechnoKey, User user) {
+        TemplateContainer.Key newTechnoKey = new TemplateContainer.Key(existingTechnoKey.getName(), existingTechnoKey.getVersion(), TemplateContainer.VersionType.release);
+        if (queries.technoExists(newTechnoKey)) {
+            throw new DuplicateTechnoException(newTechnoKey);
+        }
+
+        Optional<TechnoView> technoView = queries.getTechno(existingTechnoKey);
+        if (!technoView.isPresent()) {
+            throw new TechnoNotFoundException(existingTechnoKey);
+        }
+
+        Techno existingTechno = technoView.get().toDomainInstance();
+        Techno technoRelease = new Techno(newTechnoKey, existingTechno.getTemplates());
+
+        commands.createTechno(technoRelease, user);
+        return queries.getTechno(newTechnoKey).get();
     }
 }

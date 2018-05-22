@@ -21,3 +21,4 @@ data class TechnoDeletedEvent(val technoKey: TemplateContainer.Key, override val
 data class TechnoAlreadyExistsQuery(val technoKey: TemplateContainer.Key)
 data class GetTemplateQuery(val technoKey: TemplateContainer.Key, val templateName: String)
 data class GetTemplatesQuery(val technoKey: TemplateContainer.Key)
+data class GetTechnoQuery(val technoKey: TemplateContainer.Key)
