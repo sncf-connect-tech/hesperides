@@ -7,24 +7,18 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Value
 public class ModuleView {
     String name;
     String version;
-    boolean workingCopy;
+    boolean isWorkingCopy;
     List<TemplateView> templates;
     List<TechnoView> technos;
     Long versionId;
 
-    public Module toDomain() {
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, workingCopy ? TemplateContainer.Type.workingcopy : TemplateContainer.Type.release);
-        return new Module(
-                moduleKey,
-                templates != null ? templates.stream().map(templateView -> templateView.toDomain(moduleKey)).collect(Collectors.toList()) : null,
-                technos != null ? technos.stream().map(TechnoView::toDomain).collect(Collectors.toList()) : null,
-                versionId
-        );
+    public Module toDomainInstance() {
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        return new Module(moduleKey, TemplateView.toDomainInstances(templates, moduleKey), TechnoView.toDomainInstances(technos), versionId);
     }
 }

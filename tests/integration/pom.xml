@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>org.hesperides</groupId>
-        <artifactId>hesperides-spring</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <artifactId>hesperides</artifactId>
+        <version>0.0.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 

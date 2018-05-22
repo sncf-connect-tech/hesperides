@@ -43,7 +43,7 @@ Build the whole project:
 
 Build Docker image
 
-    docker build . -t hesperides/hesperides-spring
+    docker build . -t hesperides/hesperides
 
 ## Run
 
@@ -80,15 +80,15 @@ Run backend via Docker
 
 Run backend manually
 
-    java -jar bootstrap/target/hesperides-spring.jar
+    java -jar bootstrap/target/hesperides.jar
     
 Run backend using Docker
 
-    docker run -d [-e ENV_VAR=ENV_VALUE] -p 8080:8080 --network hesperides_hesperides-network hesperides/hesperides-spring
+    docker run -d [-e ENV_VAR=ENV_VALUE] -p 8080:8080 --network hesperides_hesperides-network hesperides/hesperides
     
 Run without ldap or elasticsearch
 
-    java -jar bootstrap/target/hesperides-spring.jar -Dspring.profiles.active=noldap,fake_mongo
+    java -jar bootstrap/target/hesperides.jar -Dspring.profiles.active=noldap,fake_mongo
 
 ## Documentation
 

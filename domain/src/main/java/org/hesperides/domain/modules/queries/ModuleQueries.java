@@ -38,7 +38,7 @@ public class ModuleQueries extends Queries {
     }
 
     public List<String> getModuleTypes(String moduleName, String moduleVersion) {
-        return querySyncList(new GetModuleTypesQuery(moduleName, moduleVersion), String.class);
+        return querySyncList(new GetModuleVersionTypesQuery(moduleName, moduleVersion), String.class);
     }
 
     public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {

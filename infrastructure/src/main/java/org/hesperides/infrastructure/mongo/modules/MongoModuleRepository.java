@@ -1,10 +1,13 @@
 package org.hesperides.infrastructure.mongo.modules;
 
+import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hesperides.domain.Profiles.*;
 
@@ -12,13 +15,17 @@ import static org.hesperides.domain.Profiles.*;
 @Repository
 public interface MongoModuleRepository extends MongoRepository<ModuleDocument, String> {
 
-    ModuleDocument findByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    ModuleDocument findByKey(KeyDocument key);
 
-    List<ModuleDocument> findByNameAndVersion(String name, String version);
+    Optional<ModuleDocument> findOptionalByKey(KeyDocument key);
 
-    List<ModuleDocument> findByName(String name);
+    List<ModuleDocument> findByKeyNameAndKeyVersion(String name, String version);
 
-    void deleteByNameAndVersionAndWorkingCopy(String name, String version, boolean isWorkingCopy);
+    List<ModuleDocument> findByKeyName(String name);
 
-    ModuleDocument findByNameAndVersionAndWorkingCopyAndTemplatesName(String name, String version, boolean isWorkingCopy, String templateName);
+    void deleteByKey(KeyDocument key);
+
+    Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
+
+    List<ModuleDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
 }

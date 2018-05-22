@@ -83,9 +83,9 @@ public class ModuleController extends BaseController {
             checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
             checkQueryParameterNotEmpty("from_is_working_copy", fromWorkingCopy);
 
-            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, fromWorkingCopy ? Module.Type.workingcopy : Module.Type.release);
+            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(fromWorkingCopy));
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
-            TemplateContainer.Key createdModuleKey = moduleView.toDomain().getKey();
+            TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
             response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
         }
@@ -99,7 +99,7 @@ public class ModuleController extends BaseController {
         log.info("Updating module workingcopy {}", moduleInput.toString());
 
         Module module = moduleInput.toDomainInstance();
-        moduleUseCases.updateWorkingCopy(module, fromPrincipal(currentUser));
+        moduleUseCases.updateModuleTechnos(module, fromPrincipal(currentUser));
         ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
                 .map(ModuleIO::fromModuleView)
                 .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
@@ -148,11 +148,11 @@ public class ModuleController extends BaseController {
     @GetMapping(path = "/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<ModuleIO> getModuleInfo(@PathVariable("module_name") final String moduleName,
                                                   @PathVariable("module_version") final String moduleVersion,
-                                                  @PathVariable("module_type") final Module.Type moduleType) {
+                                                  @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
-        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleType: {}", moduleName, moduleVersion, moduleType);
+        log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleVersionType: {}", moduleName, moduleVersion, moduleVersionType);
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         return moduleUseCases.getModule(moduleKey)
                 .map(ModuleIO::fromModuleView)
                 .map(ResponseEntity::ok)
@@ -164,11 +164,11 @@ public class ModuleController extends BaseController {
     public ResponseEntity deleteModule(Principal currentUser,
                                        @PathVariable("module_name") final String moduleName,
                                        @PathVariable("module_version") final String moduleVersion,
-                                       @PathVariable("module_type") final TemplateContainer.Type moduleType) {
+                                       @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleType);
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         moduleUseCases.deleteModule(moduleKey, fromPrincipal(currentUser));
 
         return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
@@ -193,7 +193,7 @@ public class ModuleController extends BaseController {
     @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
 
-        log.info("search module {}", input);
+        log.debug("search module {}", input);
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
         List<ModuleIO> moduleOutputs = moduleViews != null

@@ -11,10 +11,10 @@ import javax.validation.constraints.NotNull;
 
 @Value
 public class TemplateIO {
-    String namespace;
     @NotNull
     @NotEmpty
     String name;
+    String namespace;
     @NotNull
     String filename;
     @NotNull
@@ -28,13 +28,13 @@ public class TemplateIO {
     Long versionId;
 
     public Template toDomainInstance(TemplateContainer.Key templateContainerKey) {
-        return new Template(name, filename, location, content, rights != null ? rights.toDomainInstance() : null, versionId, templateContainerKey);
+        return new Template(name, filename, location, content, RightsIO.toDomainInstance(rights), versionId, templateContainerKey);
     }
 
     public static TemplateIO fromTemplateView(TemplateView templateView) {
         return new TemplateIO(
-                templateView.getNamespace(),
                 templateView.getName(),
+                templateView.getNamespace(),
                 templateView.getFilename(),
                 templateView.getLocation(),
                 templateView.getContent(),
@@ -49,12 +49,15 @@ public class TemplateIO {
         FileRightsIO group;
         FileRightsIO other;
 
-        public Template.Rights toDomainInstance() {
-            return new Template.Rights(
-                    user != null ? user.toDomainInstance() : null,
-                    group != null ? group.toDomainInstance() : null,
-                    other != null ? other.toDomainInstance() : null
-            );
+        public static Template.Rights toDomainInstance(RightsIO rightsIO) {
+            Template.Rights rights = null;
+            if (rightsIO != null) {
+                rights = new Template.Rights(
+                        FileRightsIO.toDomainInstance(rightsIO.getUser()),
+                        FileRightsIO.toDomainInstance(rightsIO.getGroup()),
+                        FileRightsIO.toDomainInstance(rightsIO.getOther()));
+            }
+            return rights;
         }
 
         public static RightsIO fromRightsView(TemplateView.RightsView rightsView) {
@@ -72,8 +75,12 @@ public class TemplateIO {
         Boolean write;
         Boolean execute;
 
-        public Template.FileRights toDomainInstance() {
-            return new Template.FileRights(read, write, execute);
+        public static Template.FileRights toDomainInstance(FileRightsIO fileRightsIO) {
+            Template.FileRights fileRights = null;
+            if (fileRightsIO != null) {
+                fileRights = new Template.FileRights(fileRightsIO.getRead(), fileRightsIO.getWrite(), fileRightsIO.getExecute());
+            }
+            return fileRights;
         }
 
         public static FileRightsIO fromFileRightsView(TemplateView.FileRightsView fileRightsView) {

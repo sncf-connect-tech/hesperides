@@ -26,25 +26,44 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
-@Data
-public class TemplateDocument {
-    String name;
-    String filename;
-    String location;
-    String content;
-    RightsDocument rights;
-    Long versionId;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public static TemplateDocument fromDomain(Template template) {
+@Data
+@Document
+public class TemplateDocument {
+    private String name;
+    private String filename;
+    private String location;
+    private String content;
+    private RightsDocument rights;
+    private Long versionId;
+
+    public static TemplateDocument fromDomainInstance(Template template) {
         TemplateDocument templateDocument = new TemplateDocument();
         templateDocument.setName(template.getName());
         templateDocument.setFilename(template.getFilename());
         templateDocument.setLocation(template.getLocation());
         templateDocument.setContent(template.getContent());
-        templateDocument.setRights(RightsDocument.fromDomain(template.getRights()));
+        templateDocument.setRights(RightsDocument.fromDomainInstance(template.getRights()));
         templateDocument.setVersionId(template.getVersionId());
         return templateDocument;
+    }
+
+    public static List<TemplateDocument> fromDomainInstances(List<Template> templates) {
+        List<TemplateDocument> templateDocuments = null;
+        if (templates != null) {
+            templateDocuments = templates.stream().map(TemplateDocument::fromDomainInstance).collect(Collectors.toList());
+        }
+        return templateDocuments;
+    }
+
+    public static List<TemplateView> toTemplateViews(List<TemplateDocument> templates, TemplateContainer.Key key, String keyPrefix) {
+        List<TemplateView> templateViews = null;
+        if (templates != null) {
+            templateViews = templates.stream().map(templateDocument -> templateDocument.toTemplateView(key, keyPrefix)).collect(Collectors.toList());
+        }
+        return templateViews;
     }
 
     public TemplateView toTemplateView(TemplateContainer.Key key, String namespacePrefix) {
@@ -54,55 +73,63 @@ public class TemplateDocument {
                 filename,
                 location,
                 content,
-                rights.toRightsView(),
+                RightsDocument.toRightsView(rights),
                 versionId
         );
     }
 
     @Data
     public static class RightsDocument {
-        FileRightsView user;
-        FileRightsView group;
-        FileRightsView other;
+        private FileRightsDocument user;
+        private FileRightsDocument group;
+        private FileRightsDocument other;
 
-        public static RightsDocument fromDomain(Template.Rights rights) {
-            RightsDocument result = null;
+        public static RightsDocument fromDomainInstance(Template.Rights rights) {
+            RightsDocument rightsDocument = null;
             if (rights != null) {
-                result = new RightsDocument();
-                result.setUser(FileRightsView.fromDomain(rights.getUser()));
-                result.setGroup(FileRightsView.fromDomain(rights.getGroup()));
-                result.setOther(FileRightsView.fromDomain(rights.getOther()));
+                rightsDocument = new RightsDocument();
+                rightsDocument.setUser(FileRightsDocument.fromDomainInstance(rights.getUser()));
+                rightsDocument.setGroup(FileRightsDocument.fromDomainInstance(rights.getGroup()));
+                rightsDocument.setOther(FileRightsDocument.fromDomainInstance(rights.getOther()));
             }
-            return result;
+            return rightsDocument;
         }
 
-        public TemplateView.RightsView toRightsView() {
-            TemplateView.FileRightsView userRights = user != null ? user.toFileRightsView() : null;
-            TemplateView.FileRightsView groupRights = group != null ? group.toFileRightsView() : null;
-            TemplateView.FileRightsView otherRights = other != null ? other.toFileRightsView() : null;
-            return new TemplateView.RightsView(userRights, groupRights, otherRights);
+        public static TemplateView.RightsView toRightsView(RightsDocument rightsDocument) {
+            TemplateView.RightsView rightsView = null;
+            if (rightsDocument != null) {
+                rightsView = new TemplateView.RightsView(
+                        FileRightsDocument.toFileRightsView(rightsDocument.getUser()),
+                        FileRightsDocument.toFileRightsView(rightsDocument.getGroup()),
+                        FileRightsDocument.toFileRightsView(rightsDocument.getOther()));
+            }
+            return rightsView;
         }
     }
 
     @Data
-    public static class FileRightsView {
-        Boolean read;
-        Boolean write;
-        Boolean execute;
+    public static class FileRightsDocument {
+        private Boolean read;
+        private Boolean write;
+        private Boolean execute;
 
-        public static FileRightsView fromDomain(Template.FileRights fileRights) {
-            FileRightsView result = null;
+        public static FileRightsDocument fromDomainInstance(Template.FileRights fileRights) {
+            FileRightsDocument fileRightsDocument = null;
             if (fileRights != null) {
-                result = new FileRightsView();
-                result.setRead(fileRights.getRead());
-                result.setWrite(fileRights.getWrite());
-                result.setExecute(fileRights.getExecute());
+                fileRightsDocument = new FileRightsDocument();
+                fileRightsDocument.setRead(fileRights.getRead());
+                fileRightsDocument.setWrite(fileRights.getWrite());
+                fileRightsDocument.setExecute(fileRights.getExecute());
             }
-            return result;
+            return fileRightsDocument;
         }
 
-        public TemplateView.FileRightsView toFileRightsView() {
-            return new TemplateView.FileRightsView(read, write, execute);
+        public static TemplateView.FileRightsView toFileRightsView(FileRightsDocument fileRightsDocument) {
+            TemplateView.FileRightsView fileRightsView = null;
+            if (fileRightsDocument != null) {
+                fileRightsView = new TemplateView.FileRightsView(fileRightsDocument.getRead(), fileRightsDocument.getWrite(), fileRightsDocument.getExecute());
+            }
+            return fileRightsView;
         }
     }
 }
