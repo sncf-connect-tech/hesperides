@@ -25,22 +25,22 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.technos.TechnoUseCases;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
-import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,5 +119,19 @@ public class TechnoController extends BaseController {
 
         URI releasedTechnoLocation = technoView.toDomainInstance().getKey().getURI(Techno.KEY_PREFIX);
         return ResponseEntity.created(releasedTechnoLocation).body(technoOutput);
+    }
+
+    @ApiOperation("Search for technos")
+    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<TechnoIO>> search(@RequestParam("terms") final String input) {
+
+        log.debug("search technos {}", input);
+
+        List<TechnoView> technoViews = technoUseCases.search(input);
+        List<TechnoIO> technoOutputs = technoViews != null
+                ? technoViews.stream().map(TechnoIO::fromTechnoView).collect(Collectors.toList())
+                : new ArrayList<>();
+
+        return ResponseEntity.ok(technoOutputs);
     }
 }

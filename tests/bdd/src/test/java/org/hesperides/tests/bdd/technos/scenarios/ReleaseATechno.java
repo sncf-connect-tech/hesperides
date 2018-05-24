@@ -36,7 +36,5 @@ public class ReleaseATechno extends CucumberSpringBean implements En {
         });
     }
 
-    /**
-     * TODO Tester avec version de release, technos et templates
-     */
+    //TODO Tester avec templates
 }
