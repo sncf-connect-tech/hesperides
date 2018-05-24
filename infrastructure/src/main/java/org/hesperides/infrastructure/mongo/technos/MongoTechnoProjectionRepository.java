@@ -31,6 +31,8 @@ import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -122,6 +124,17 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             optionalTechnoView = Optional.of(optionalTechnoDocument.get().toTechnoView());
         }
         return optionalTechnoView;
+    }
+
+    @Override
+    public List<TechnoView> query(SearchTechnosQuery query) {
+        String[] values = query.getInput().split(" ");
+        String name = values.length >= 1 ? values[0] : "";
+        String version = values.length >= 2 ? values[1] : "";
+
+        Pageable pageableRequest = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
+        List<TechnoDocument> technoDocuments = technoRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageableRequest);
+        return technoDocuments.stream().map(TechnoDocument::toTechnoView).collect(Collectors.toList());
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

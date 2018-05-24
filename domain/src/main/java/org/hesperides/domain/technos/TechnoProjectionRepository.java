@@ -54,4 +54,7 @@ public interface TechnoProjectionRepository {
 
     @QueryHandler
     Optional<TechnoView> query(GetTechnoQuery query);
+
+    @QueryHandler
+    List<TechnoView> query(SearchTechnosQuery query);
 }

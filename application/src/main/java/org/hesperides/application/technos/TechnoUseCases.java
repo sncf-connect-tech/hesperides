@@ -82,4 +82,8 @@ public class TechnoUseCases {
         commands.createTechno(technoRelease, user);
         return queries.getTechno(newTechnoKey).get();
     }
+
+    public List<TechnoView> search(String input) {
+        return queries.search(input);
+    }
 }
