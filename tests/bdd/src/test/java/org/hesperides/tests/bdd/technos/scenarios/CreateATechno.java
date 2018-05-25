@@ -17,6 +17,7 @@ public class CreateATechno extends CucumberSpringBean implements En {
     private ResponseEntity<TemplateIO> response;
 
     public CreateATechno() {
+        // TODO Factoriser ce code et celui défini dans ExistingTechnoContext
         Given("^a techno to create$", () -> {
             technoName = "technoName";
             technoVersion = "technoVersion";
