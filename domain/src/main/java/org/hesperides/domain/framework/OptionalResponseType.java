@@ -51,4 +51,10 @@ public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
             return Optional.ofNullable((R) response);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<Optional<R>> responseMessagePayloadType() {
+        return (Class<Optional<R>>) expectedResponseType;
+    }
 }
