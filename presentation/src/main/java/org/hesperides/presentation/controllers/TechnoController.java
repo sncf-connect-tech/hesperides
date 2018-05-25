@@ -50,7 +50,7 @@ import static org.hesperides.domain.security.User.fromPrincipal;
 @Slf4j
 @Api("/templates/packages")
 @RestController
-@RequestMapping("/templates/packages")
+@RequestMapping("/templates/packages/{techno_name}/{techno_version}/")
 public class TechnoController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
@@ -61,7 +61,7 @@ public class TechnoController extends BaseController {
     }
 
     @ApiOperation("Add a template to a techno working copy")
-    @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    @PostMapping("workingcopy/templates")
     public ResponseEntity<TemplateIO> createWorkingCopy(Principal currentUser,
                                                         @PathVariable(value = "techno_name") final String technoName,
                                                         @PathVariable(value = "techno_version") final String technoVersion,
@@ -79,7 +79,7 @@ public class TechnoController extends BaseController {
     }
 
     @ApiOperation("Update a template")
-    @PutMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    @PutMapping("workingcopy/templates")
     public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Principal currentUser,
                                                                   @PathVariable("techno_name") final String technoName,
                                                                   @PathVariable("techno_version") final String technoVersion,
@@ -98,7 +98,7 @@ public class TechnoController extends BaseController {
     }
 
     @ApiOperation("Delete a techno")
-    @DeleteMapping(path = "/{techno_name}/{techno_version}/{version_type}")
+    @DeleteMapping("{version_type}")
     public ResponseEntity deleteTechno(Principal currentUser,
                                        @PathVariable("techno_name") final String technoName,
                                        @PathVariable("techno_version") final String technoVersion,
@@ -112,7 +112,7 @@ public class TechnoController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name}")
+    @DeleteMapping("workingcopy/templates/{template_name}")
     @ApiOperation("Delete template in the working copy of a version")
     public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
                                                       @PathVariable("techno_name") final String technoName,
@@ -126,7 +126,7 @@ public class TechnoController extends BaseController {
     }
 
     @ApiOperation("Get techno templates")
-    @GetMapping(path = "/{techno_name}/{techno_version}/{version_type}/templates")
+    @GetMapping("{version_type}/templates")
     public ResponseEntity<List<PartialTemplateIO>> getTemplates(@PathVariable("techno_name") final String technoName,
                                                                 @PathVariable("techno_version") final String technoVersion,
                                                                 @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
@@ -139,7 +139,7 @@ public class TechnoController extends BaseController {
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
-    @PostMapping(path = "/create_release")
+    @PostMapping("/create_release")
     public ResponseEntity<TechnoIO> releaseTechno(Principal currentUser,
                                                   @RequestParam("techno_name") final String technoName,
                                                   @RequestParam("techno_version") final String technoVersion) {
