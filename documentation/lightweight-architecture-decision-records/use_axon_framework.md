@@ -1,6 +1,6 @@
 # Why ?
 
-le framework [axon](http://www.axonframework.org/) permet de gérer toute la plomberie eventsourcing / cqrs:
+Le framework [Axon](http://www.axonframework.org/) permet de gérer toute la plomberie eventsourcing / cqrs:
 
 * event store
 * transactions (détection de conflits)
@@ -33,7 +33,7 @@ On va voir si on peut tuner chaque élément pour coller à l'existant hespérid
 
 ## Query processing
 
-on peut utiliser le framework pour faire les queries (la partie read de CQRS) faut voir comment ça marche.
+On peut utiliser le framework pour faire les queries (la partie read de CQRS) faut voir comment ça marche.
 
 # Migration des events actuels
 
