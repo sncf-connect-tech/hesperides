@@ -13,6 +13,7 @@ import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +42,7 @@ public class TechnoUseCases {
      */
     public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
         if (!queries.technoExists(technoKey)) {
-            Techno techno = new Techno(technoKey, null);
+            Techno techno = new Techno(technoKey, Collections.emptyList());
             commands.createTechno(techno, user);
         }
         commands.addTemplate(technoKey, template, user);
