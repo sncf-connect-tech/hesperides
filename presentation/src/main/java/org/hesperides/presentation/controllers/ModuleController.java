@@ -174,7 +174,7 @@ public class ModuleController extends BaseController {
         return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
     }
 
-    @ApiOperation(("Create a release from an existing workingcopy"))
+    @ApiOperation("Create a release from an existing workingcopy")
     @PostMapping(path = "/create_release")
     public ResponseEntity<ModuleIO> createRelease(Principal currentUser,
                                                   @RequestParam("module_name") final String moduleName,

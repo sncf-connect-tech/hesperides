@@ -6,8 +6,6 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.infrastructure.elasticsearch.modules.ElasticsearchModuleRepository;
-import org.hesperides.infrastructure.elasticsearch.modules.ModuleDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;

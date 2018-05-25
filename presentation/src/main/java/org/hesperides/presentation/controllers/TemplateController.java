@@ -43,11 +43,11 @@ public class TemplateController extends BaseController {
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
-        List<PartialTemplateIO> partialTemplateOutput = templateViews != null
+        List<PartialTemplateIO> partialTemplateOutputs = templateViews != null
                 ? templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList())
                 : new ArrayList<>();
 
-        return ResponseEntity.ok(partialTemplateOutput);
+        return ResponseEntity.ok(partialTemplateOutputs);
     }
 
     @GetMapping("/{module_type}/templates/{template_name}")
