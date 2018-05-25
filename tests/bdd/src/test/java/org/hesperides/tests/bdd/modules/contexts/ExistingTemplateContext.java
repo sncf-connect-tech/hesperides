@@ -39,7 +39,7 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
 
     private void addTemplateToModule(String templateName) {
         TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
-        templateInput = new TemplateIO( templateName,null, "template.json", "/location", "content",
+        templateInput = new TemplateIO(templateName, null, "template.json", "/location", "content",
                 new TemplateIO.RightsIO(rights, rights, rights), 0L);
 
         ResponseEntity<TemplateIO> response = rest.getTestRest().postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, TemplateIO.class);

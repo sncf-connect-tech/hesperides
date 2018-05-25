@@ -8,10 +8,7 @@ import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.technos.AddTemplateToTechnoCommand;
-import org.hesperides.domain.technos.CreateTechnoCommand;
-import org.hesperides.domain.technos.TechnoCreatedEvent;
-import org.hesperides.domain.technos.TemplateAddedToTechnoEvent;
+import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
@@ -62,6 +59,13 @@ class TechnoAggregate implements Serializable {
         apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, command.getUser()));
     }
 
+    @CommandHandler
+    @SuppressWarnings("unused")
+    public void on(DeleteTechnoCommand command) {
+        log.debug("Applying delete techno command...");
+        apply(new TechnoDeletedEvent(command.getTechnoKey(), command.getUser()));
+    }
+
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(TechnoCreatedEvent event) {
@@ -74,5 +78,12 @@ class TechnoAggregate implements Serializable {
     public void on(TemplateAddedToTechnoEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template added to techno (aggregate is live ? {})", isLive());
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    private void on(TechnoDeletedEvent event) {
+        this.key = event.getTechnoKey();
+        log.debug("Techno deleted (aggregate is live ? {})", isLive());
     }
 }
