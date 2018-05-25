@@ -107,4 +107,9 @@ public class ExistingModuleContext extends CucumberSpringBean implements En {
     public ExistingTechnoContext getExistingTechno() {
         return existingTechno;
     }
+
+    public String getNamespace() {
+        TemplateContainer.Key moduleKey = getModuleKey();
+        return "modules#" + moduleKey.getName() + "#" + moduleKey.getVersion() + "#" + moduleKey.getVersionType().name().toUpperCase();
+    }
 }

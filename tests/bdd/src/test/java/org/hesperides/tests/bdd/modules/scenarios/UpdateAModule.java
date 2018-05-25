@@ -8,6 +8,7 @@ import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
+import org.hesperides.tests.bdd.templatecontainer.contexts.TemplateSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -18,13 +19,14 @@ import static org.junit.Assert.assertEquals;
 
 public class UpdateAModule extends CucumberSpringBean implements En {
 
-    private ResponseEntity response;
-
     @Autowired
     private ExistingModuleContext existingModule;
-
     @Autowired
-    private ExistingTemplateContext existingTemplate;
+    private ExistingTemplateContext existingTemplateContext;
+    @Autowired
+    private TemplateSample templateSample;
+
+    private ResponseEntity response;
 
     public UpdateAModule() {
 
@@ -47,7 +49,8 @@ public class UpdateAModule extends CucumberSpringBean implements En {
         });
 
         Then("^the module contains the template$", () -> {
-            ResponseEntity<TemplateIO> response = rest.getTestRest().getForEntity(existingTemplate.getTemplateLocation(), TemplateIO.class);
+            ResponseEntity<TemplateIO> response = existingTemplateContext.getExistingTemplate();
+            ;
             assertEquals(HttpStatus.OK, response.getStatusCode());
         });
     }

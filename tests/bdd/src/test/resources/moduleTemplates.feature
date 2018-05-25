@@ -7,15 +7,14 @@ Feature: modules templates
 
   Scenario: add a new template to an existing module
     Given an existing module
-    And a template to create
-    When adding a new template
+    When adding a new template to this module
     Then the template is successfully created and the module contains the new template
 
   Scenario: trying to add the same template twice to an existing module
     Given an existing module
-    And a template to create
-    When adding this template twice
-    Then the second one is rejected
+    When adding a new template to this module
+    And trying to add the same template to this module
+    Then the second attempt to add the template to the module is rejected
 
   Scenario: update an existing template from a module
     Given an existing module
@@ -33,14 +32,14 @@ Feature: modules templates
     Given an existing module
     And an existing template in this module
     When updating this template
-    And updating the same version of the template alongside
+    And updating the same template at the same time
     Then the template update is rejected
 
   Scenario: get a template bundled in a module for a version workingcopy
     Given an existing module
     And an existing template in this module
-    When retrieving this template
-    Then the template is retrieved
+    When retrieving this module template
+    Then the module template is retrieved
 
   Scenario: get all templates bundled in a module of a version workingcopy
     Given an existing module
@@ -52,8 +51,8 @@ Feature: modules templates
     Given an existing module
     And an existing template in this module
     And this module is being released
-    When retrieving this template
-    Then the template is retrieved
+    When retrieving this module template
+    Then the module template is retrieved
 
   Scenario: get all templates bundled in a module of a version release
     Given an existing module

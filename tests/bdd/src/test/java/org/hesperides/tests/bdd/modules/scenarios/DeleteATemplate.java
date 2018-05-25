@@ -12,15 +12,15 @@ import static org.junit.Assert.assertEquals;
 public class DeleteATemplate extends CucumberSpringBean implements En {
 
     @Autowired
-    private ExistingTemplateContext existing;
+    private ExistingTemplateContext existingTemplateContext;
 
     public DeleteATemplate() {
         When("^deleting this template$", () -> {
-            rest.getTestRest().delete(existing.getTemplateLocation());
+            existingTemplateContext.deleteExistingTemplate();
         });
 
         Then("^the template is successfully deleted$", () -> {
-            ResponseEntity<String> response = rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existing.getTemplateLocation(), String.class));
+            ResponseEntity<String> response = existingTemplateContext.failTryingToGetTemplate();
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         });
     }

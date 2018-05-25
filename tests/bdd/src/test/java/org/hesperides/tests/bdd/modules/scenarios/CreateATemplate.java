@@ -4,7 +4,8 @@ import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
-import org.hesperides.tests.bdd.templatecontainer.TemplateUtils;
+import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
+import org.hesperides.tests.bdd.templatecontainer.contexts.TemplateSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,51 +13,44 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.Assert.assertEquals;
 
 public class CreateATemplate extends CucumberSpringBean implements En {
+    @Autowired
+    private ExistingTemplateContext existingTemplateContext;
+    @Autowired
+    private ExistingModuleContext existingModuleContext;
+    @Autowired
+    private TemplateSample templateSample;
 
-    private TemplateIO templateInput;
     private ResponseEntity response;
 
-    @Autowired
-    private ExistingModuleContext existingModule;
-
     public CreateATemplate() {
-        Given("^a template to create$", () -> {
-            TemplateIO.FileRightsIO rights = new TemplateIO.FileRightsIO(true, true, true);
-            templateInput = new TemplateIO("templateName", null, "template.name", "template.location", "content",
-                    new TemplateIO.RightsIO(rights, rights, rights), 0L);
+
+        When("^adding a new template to this module$", () -> {
+            response = addTemplateToExistingModule(false);
         });
 
-        When("^adding a new template$", () -> {
-            addTemplateToExistingModule(false);
-        });
-
-        When("^adding this template twice$", () -> {
-            addTemplateToExistingModule(false);
-            addTemplateToExistingModule(true);
+        When("^trying to add the same template to this module$", () -> {
+            response = addTemplateToExistingModule(true);
         });
 
         Then("^the template is successfully created and the module contains the new template$", () -> {
-            assertEquals(HttpStatus.CREATED, response.getStatusCode());
+            assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
-            assertEquals("modules#" + existingModule.getModuleKey().getName() + "#" + existingModule.getModuleKey().getVersion() + "#WORKINGCOPY", templateOutput.getNamespace());
-            assertEquals(templateInput.getName(), templateOutput.getName());
-            assertEquals(templateInput.getFilename(), templateOutput.getFilename());
-            assertEquals(templateInput.getLocation(), templateOutput.getLocation());
-            assertEquals(templateInput.getContent(), templateOutput.getContent());
-            TemplateUtils.assertRights(templateInput.getRights(), templateOutput.getRights());
-            assertEquals(1L, templateOutput.getVersionId().longValue());
+            templateSample.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 1);
         });
 
-        Then("^the second one is rejected$", () -> {
+        Then("^the second attempt to add the template to the module is rejected$", () -> {
             assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         });
     }
 
-    private void addTemplateToExistingModule(boolean isGoingToThrowAnError) {
+    private ResponseEntity addTemplateToExistingModule(boolean isGoingToThrowAnError) {
+        ResponseEntity response;
         if (isGoingToThrowAnError) {
-            response = rest.doWithErrorHandlerDisabled(rest -> rest.postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, String.class));
+            response = existingTemplateContext.failTryingToAddTemplateToExistingModule();
         } else {
-            response = rest.getTestRest().postForEntity(existingModule.getModuleLocation() + "/templates", templateInput, TemplateIO.class);
+            existingTemplateContext.addTemplateToExistingModule();
+            response = existingTemplateContext.getExistingTemplate();
         }
+        return response;
     }
 }
