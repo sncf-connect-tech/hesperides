@@ -65,4 +65,12 @@ public class TechnoDocument {
         }
         templates.add(templateDocument);
     }
+    public void updateTemplate(TemplateDocument updatedTemplateDocument) {
+        removeTemplate(updatedTemplateDocument.getName());
+        addTemplate(updatedTemplateDocument);
+    }
+
+    public void removeTemplate(String templateName) {
+        templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
+    }
 }
