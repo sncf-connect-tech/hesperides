@@ -48,6 +48,14 @@ public class TechnoUseCases {
         commands.addTemplate(technoKey, template, user);
     }
 
+    public void updateTemplateInWorkingCopy(Techno.Key technoKey, Template template, User user) {
+        commands.updateTemplate(technoKey, template, user);
+    }
+
+    public void deleteTemplate(Techno.Key technoKey, String templateName, User user) {
+        commands.deleteTemplate(technoKey, templateName, user);
+    }
+
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
         return queries.getTemplate(technoKey, templateName);
     }

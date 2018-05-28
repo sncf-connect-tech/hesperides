@@ -70,8 +70,23 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
+    public void on(TechnoTemplateUpdatedEvent event) {
+        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+        technoDocument.updateTemplate(templateDocument);
+        technoRepository.save(technoDocument);
+    }
+
+    @Override
     public void on(TechnoDeletedEvent event) {
         technoRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+    }
+
+    @Override
+    public void on(TechnoTemplateDeletedEvent event) {
+        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+        technoDocument.removeTemplate(event.getTemplateName());
+        technoRepository.save(technoDocument);
     }
 
     /*** QUERY HANDLERS ***/
