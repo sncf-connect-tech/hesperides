@@ -5,7 +5,8 @@ import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
-import org.hesperides.tests.bdd.templatecontainer.contexts.TemplateSample;
+import org.hesperides.tests.bdd.templatecontainer.tools.TemplateAssertion;
+import org.hesperides.tests.bdd.templatecontainer.tools.TemplateSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,6 @@ public class CreateATemplate extends CucumberSpringBean implements En {
     private ExistingTemplateContext existingTemplateContext;
     @Autowired
     private ExistingModuleContext existingModuleContext;
-    @Autowired
-    private TemplateSample templateSample;
 
     private ResponseEntity response;
 
@@ -35,7 +34,7 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         Then("^the template is successfully created and the module contains the new template$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
-            templateSample.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 1);
+            TemplateAssertion.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 1);
         });
 
         Then("^the second attempt to add the template to the module is rejected$", () -> {

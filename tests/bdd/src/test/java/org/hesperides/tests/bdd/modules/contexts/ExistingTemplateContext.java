@@ -4,7 +4,7 @@ import cucumber.api.java8.En;
 import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.templatecontainer.contexts.TemplateSample;
+import org.hesperides.tests.bdd.templatecontainer.tools.TemplateSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -20,8 +20,6 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
 
     @Autowired
     private ExistingModuleContext existingModuleContext;
-    @Autowired
-    private TemplateSample templateSample;
 
     private List<TemplateIO> templateInputs = new ArrayList<>();
 
@@ -66,13 +64,13 @@ public class ExistingTemplateContext extends CucumberSpringBean implements En {
     }
 
     private void addTemplateToExistingModule(String templateName) {
-        TemplateIO templateInput = templateSample.getTemplateInput(templateName);
+        TemplateIO templateInput = TemplateSample.getTemplateInput(templateName);
         ResponseEntity<TemplateIO> response = restPostTemplate(templateInput);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     public ResponseEntity failTryingToAddTemplateToExistingModule() {
-        TemplateIO templateInput = templateSample.getTemplateInput();
+        TemplateIO templateInput = TemplateSample.getTemplateInput();
         return rest.doWithErrorHandlerDisabled(rest -> rest.postForEntity(getTemplatesURI(), templateInput, String.class));
     }
 

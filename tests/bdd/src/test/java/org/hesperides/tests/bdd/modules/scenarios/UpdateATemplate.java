@@ -5,7 +5,8 @@ import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
-import org.hesperides.tests.bdd.templatecontainer.contexts.TemplateSample;
+import org.hesperides.tests.bdd.templatecontainer.tools.TemplateAssertion;
+import org.hesperides.tests.bdd.templatecontainer.tools.TemplateSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,6 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     private ExistingTemplateContext existingTemplateContext;
     @Autowired
     private ExistingModuleContext existingModuleContext;
-    @Autowired
-    private TemplateSample templateSample;
 
     private ResponseEntity response;
 
@@ -36,7 +35,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         Then("^the template is successfully updated", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
-            templateSample.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 2L);
+            TemplateAssertion.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 2L);
             assertEquals(2L, templateOutput.getVersionId().longValue());
             //TODO Tester le reste par rapport à l'input
         });
@@ -48,7 +47,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
 
     private ResponseEntity updateTemplate(boolean isGoingToThrowAnError) {
         ResponseEntity response;
-        TemplateIO templateInput = templateSample.getTemplateInput(1);
+        TemplateIO templateInput = TemplateSample.getTemplateInput(1);
         if (isGoingToThrowAnError) {
             response = existingTemplateContext.failTryingToUpdateModuleTemplate(templateInput);
         } else {
