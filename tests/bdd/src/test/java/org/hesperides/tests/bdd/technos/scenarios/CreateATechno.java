@@ -3,9 +3,8 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.templatecontainer.tools.TemplateAssertion;
-import org.hesperides.tests.bdd.templatecontainer.tools.TemplateSample;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
+import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -23,7 +22,7 @@ public class CreateATechno extends CucumberSpringBean implements En {
         Given("^a techno to create$", () -> {
             technoName = "technoName";
             technoVersion = "technoVersion";
-            templateInput = TemplateSample.getTemplateInput();
+            templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
         });
 
         When("^creating a new techno$", () -> {
@@ -39,7 +38,7 @@ public class CreateATechno extends CucumberSpringBean implements En {
         Then("^the techno is successfully created$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             TemplateIO templateOutput = response.getBody();
-            TemplateAssertion.assertTemplateProperties(templateOutput, "technos#" + technoName + "#" + technoVersion + "#WORKINGCOPY", 1);
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, "technos#" + technoName + "#" + technoVersion + "#WORKINGCOPY", 1);
         });
     }
 }

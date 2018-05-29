@@ -4,10 +4,12 @@ import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
-import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
-import org.hesperides.tests.bdd.templatecontainer.tools.TemplateAssertion;
-import org.hesperides.tests.bdd.templatecontainer.tools.TemplateSample;
+import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
+import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
+import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -16,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class UpdateATemplate extends CucumberSpringBean implements En {
 
     @Autowired
-    private ExistingTemplateContext existingTemplateContext;
+    private TemplateContext templateContext;
     @Autowired
     private ExistingModuleContext existingModuleContext;
 
@@ -25,19 +27,20 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     public UpdateATemplate() {
 
         When("^updating this template$", () -> {
-            response = updateTemplate(false);
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            response = updateTemplate(templateInput);
         });
 
         When("^updating the same template at the same time$", () -> {
-            response = updateTemplate(true);
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            response = failTryingToUpdateTemplate(templateInput);
         });
 
         Then("^the template is successfully updated", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
-            TemplateAssertion.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 2L);
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, existingModuleContext.getNamespace(), 2L);
             assertEquals(2L, templateOutput.getVersionId().longValue());
-            //TODO Tester le reste par rapport à l'input
         });
 
         Then("^the template update is rejected$", () -> {
@@ -45,16 +48,13 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         });
     }
 
-    private ResponseEntity updateTemplate(boolean isGoingToThrowAnError) {
-        ResponseEntity response;
-        TemplateIO templateInput = TemplateSample.getTemplateInput(1);
-        if (isGoingToThrowAnError) {
-            response = existingTemplateContext.failTryingToUpdateModuleTemplate(templateInput);
-        } else {
-            existingTemplateContext.updateModuleTemplate(templateInput);
-            response = existingTemplateContext.getExistingTemplate();
-        }
-        return response;
+    private ResponseEntity failTryingToUpdateTemplate(TemplateIO templateInput) {
+        return rest.doWithErrorHandlerDisabled(rest ->
+                rest.exchange(templateContext.getTemplatesURI(), HttpMethod.PUT, new HttpEntity<>(templateInput), String.class));
+    }
+
+    private ResponseEntity updateTemplate(TemplateIO templateInput) {
+        return rest.putForEntity(templateContext.getTemplatesURI(), templateInput, TemplateIO.class);
     }
 
     /**

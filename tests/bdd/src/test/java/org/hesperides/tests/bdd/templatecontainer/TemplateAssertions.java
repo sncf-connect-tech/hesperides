@@ -18,30 +18,30 @@
  *
  *
  */
-package org.hesperides.tests.bdd.templatecontainer.tools;
+package org.hesperides.tests.bdd.templatecontainer;
 
 import org.hesperides.presentation.io.TemplateIO;
 
 import static org.junit.Assert.assertEquals;
 
-public class TemplateAssertion {
+public class TemplateAssertions {
 
-    public static void assertTemplateProperties(TemplateIO templateInput, TemplateIO templateOutput, String expectedNamespace, long expectedVersionId) {
-        assertEquals(expectedNamespace, templateOutput.getNamespace());
-        assertEquals(templateInput.getName(), templateOutput.getName());
-        assertEquals(templateInput.getFilename(), templateOutput.getFilename());
-        assertEquals(templateInput.getLocation(), templateOutput.getLocation());
-        assertEquals(templateInput.getContent(), templateOutput.getContent());
-        assertTemplateRights(templateInput.getRights(), templateOutput.getRights());
-        assertEquals(expectedVersionId, templateOutput.getVersionId().longValue());
+    public static void assertTemplateAgainstDefaultValues(TemplateIO actualTemplate, String expectedNamespace, long expectedVersionId) {
+        TemplateIO expectedTemplate = TemplateSamples.getTemplateInputWithDefaultValues();
+        assertTemplate(expectedTemplate, actualTemplate, expectedNamespace, expectedVersionId);
     }
 
-    public static void assertTemplateProperties(TemplateIO actualTemplate, String expectedNamespace, long expectedVersionId) {
-        TemplateIO expectedTemplate = TemplateSample.getTemplateInput();
-        assertTemplateProperties(expectedTemplate, actualTemplate, expectedNamespace, expectedVersionId);
+    public static void assertTemplate(TemplateIO expectedTemplate, TemplateIO actualTemplate, String expectedNamespace, long expectedVersionId) {
+        assertEquals(expectedNamespace, actualTemplate.getNamespace());
+        assertEquals(expectedTemplate.getName(), actualTemplate.getName());
+        assertEquals(expectedTemplate.getFilename(), actualTemplate.getFilename());
+        assertEquals(expectedTemplate.getLocation(), actualTemplate.getLocation());
+        assertEquals(expectedTemplate.getContent(), actualTemplate.getContent());
+        assertRights(expectedTemplate.getRights(), actualTemplate.getRights());
+        assertEquals(expectedVersionId, actualTemplate.getVersionId().longValue());
     }
 
-    public static void assertTemplateRights(TemplateIO.RightsIO expectedRights, TemplateIO.RightsIO actualRights) {
+    public static void assertRights(TemplateIO.RightsIO expectedRights, TemplateIO.RightsIO actualRights) {
         assertEquals(expectedRights.getUser().getRead(), actualRights.getUser().getRead());
         assertEquals(expectedRights.getUser().getWrite(), actualRights.getUser().getWrite());
         assertEquals(expectedRights.getUser().getExecute(), actualRights.getUser().getExecute());

@@ -4,9 +4,9 @@ import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
-import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
-import org.hesperides.tests.bdd.templatecontainer.tools.TemplateAssertion;
-import org.hesperides.tests.bdd.templatecontainer.tools.TemplateSample;
+import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
+import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
+import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +14,9 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.Assert.assertEquals;
 
 public class CreateATemplate extends CucumberSpringBean implements En {
+
     @Autowired
-    private ExistingTemplateContext existingTemplateContext;
+    private TemplateContext templateContext;
     @Autowired
     private ExistingModuleContext existingModuleContext;
 
@@ -24,17 +25,17 @@ public class CreateATemplate extends CucumberSpringBean implements En {
     public CreateATemplate() {
 
         When("^adding a new template to this module$", () -> {
-            response = addTemplateToExistingModule(false);
+            response = templateContext.addTemplateToExistingModule();
         });
 
         When("^trying to add the same template to this module$", () -> {
-            response = addTemplateToExistingModule(true);
+            response = failTryingToAddTemplateToExistingModule();
         });
 
         Then("^the template is successfully created and the module contains the new template$", () -> {
-            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(HttpStatus.CREATED, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
-            TemplateAssertion.assertTemplateProperties(templateOutput, existingModuleContext.getNamespace(), 1);
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, existingModuleContext.getNamespace(), 1);
         });
 
         Then("^the second attempt to add the template to the module is rejected$", () -> {
@@ -42,14 +43,8 @@ public class CreateATemplate extends CucumberSpringBean implements En {
         });
     }
 
-    private ResponseEntity addTemplateToExistingModule(boolean isGoingToThrowAnError) {
-        ResponseEntity response;
-        if (isGoingToThrowAnError) {
-            response = existingTemplateContext.failTryingToAddTemplateToExistingModule();
-        } else {
-            existingTemplateContext.addTemplateToExistingModule();
-            response = existingTemplateContext.getExistingTemplate();
-        }
-        return response;
+    public ResponseEntity failTryingToAddTemplateToExistingModule() {
+        TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
+        return rest.doWithErrorHandlerDisabled(rest -> rest.postForEntity(templateContext.getTemplatesURI(), templateInput, String.class));
     }
 }
