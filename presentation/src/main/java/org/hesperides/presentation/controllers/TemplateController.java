@@ -101,7 +101,7 @@ public class TemplateController extends BaseController {
         return ResponseEntity.ok(templateOutput);
     }
 
-    @DeleteMapping("/workingcopy/templates/{template_name}/")
+    @DeleteMapping("/workingcopy/templates/{template_name:.+}")
     @ApiOperation("Delete template in the working copy of a version")
     public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
                                                       @PathVariable("module_name") final String moduleName,

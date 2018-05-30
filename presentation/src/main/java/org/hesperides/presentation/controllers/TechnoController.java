@@ -112,7 +112,7 @@ public class TechnoController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name}")
+    @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
     @ApiOperation("Delete template in the working copy of a version")
     public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
                                                       @PathVariable("techno_name") final String technoName,
