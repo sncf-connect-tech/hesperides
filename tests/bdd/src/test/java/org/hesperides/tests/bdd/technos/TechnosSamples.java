@@ -24,7 +24,19 @@ import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.TechnoIO;
 
 public class TechnosSamples {
+
+    private static final String DEFAULT_NAME = "test";
+    private static final String DEFAULT_VERSION = "1.0.0";
+
     public static TechnoIO getTechnoFromTechnoKey(TemplateContainer.Key technoKey) {
         return new TechnoIO(technoKey.getName(), technoKey.getVersion(), technoKey.isWorkingCopy());
+    }
+
+    public static TechnoIO getTechnoWithDefaultValues() {
+        return getTechnoWithNameAndVersion(DEFAULT_NAME, DEFAULT_VERSION);
+    }
+
+    public static TechnoIO getTechnoWithNameAndVersion(String name, String version) {
+        return new TechnoIO(name, version, true);
     }
 }

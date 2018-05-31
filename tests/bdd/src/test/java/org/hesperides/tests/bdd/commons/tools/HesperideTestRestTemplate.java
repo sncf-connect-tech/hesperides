@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.commons.tools;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;

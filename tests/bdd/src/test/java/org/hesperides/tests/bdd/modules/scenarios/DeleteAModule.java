@@ -20,9 +20,13 @@ public class DeleteAModule extends CucumberSpringBean implements En {
         });
 
         Then("^the module is successfully deleted$", () -> {
-            ResponseEntity<String> response = rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existingModule.getModuleURI(), String.class));
+            ResponseEntity<String> response = failTryingToRetrieveModule();
             assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         });
+    }
+
+    private ResponseEntity<String> failTryingToRetrieveModule() {
+        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existingModule.getModuleURI(), String.class));
     }
 
     /**

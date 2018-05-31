@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.ModuleSamples;
@@ -31,7 +32,7 @@ public class GetModuleVersions extends CucumberSpringBean implements En {
         });
 
         When("^retrieving the module's versions$", () -> {
-            response = moduleContext.getModuleVersions();
+            response = getModuleVersions();
         });
 
         Then("^the module's versions are retrieved$", () -> {
@@ -39,5 +40,10 @@ public class GetModuleVersions extends CucumberSpringBean implements En {
             List<String> versions = Arrays.asList(response.getBody());
             assertEquals(6, versions.size());
         });
+    }
+
+    private ResponseEntity<String[]> getModuleVersions() {
+        TemplateContainer.Key moduleKey = moduleContext.getModuleKey();
+        return rest.getTestRest().getForEntity("/modules/{moduleName}", String[].class, moduleKey.getName());
     }
 }

@@ -55,20 +55,14 @@ public class SearchAModule extends CucumberSpringBean implements En {
             response = rest.getTestRest().postForEntity("/modules/perform_search?terms=test", null, ModuleIO[].class);
         });
 
-        Then("^the number of results is limited$", () -> {
+        Then("^the number of module results is (\\d+)$", (Integer numberOfResults) -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             List<ModuleIO> modules = Arrays.asList(response.getBody());
-            assertEquals(10, modules.size());
+            assertEquals(numberOfResults.intValue(), modules.size());
         });
 
         When("^searching for one that does not exist$", () -> {
             response = rest.getTestRest().postForEntity("/modules/perform_search?terms=test-1 version-2", null, ModuleIO[].class);
-        });
-
-        Then("^the result is empty$", () -> {
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            List<ModuleIO> modules = Arrays.asList(response.getBody());
-            assertEquals(0, modules.size());
         });
     }
 }

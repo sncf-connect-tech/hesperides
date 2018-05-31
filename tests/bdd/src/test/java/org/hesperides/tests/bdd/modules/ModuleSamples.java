@@ -27,7 +27,6 @@ import org.hesperides.tests.bdd.technos.TechnosSamples;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class ModuleSamples {
 

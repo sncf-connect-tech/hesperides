@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class GetModuleTypes extends CucumberSpringBean implements En {
     public GetModuleTypes() {
 
         When("^retrieving the module's types$", () -> {
-            response = moduleContext.getModuleTypes();
+            response = getModuleTypes();
         });
 
         Then("^the module's types are workingcopy and release$", () -> {
@@ -32,5 +33,10 @@ public class GetModuleTypes extends CucumberSpringBean implements En {
             assertEquals("workingcopy", types.get(0));
             assertEquals("release", types.get(1));
         });
+    }
+
+    private ResponseEntity<String[]> getModuleTypes() {
+        TemplateContainer.Key moduleKey = moduleContext.getModuleKey();
+        return rest.getTestRest().getForEntity("/modules/{moduleName}/{moduleVersion}", String[].class, moduleKey.getName(), moduleKey.getVersion());
     }
 }

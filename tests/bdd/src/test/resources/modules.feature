@@ -54,12 +54,12 @@ Feature: modules related features
   Scenario: search for existing modules
     Given a list of 20 modules
     When searching for some of them
-    Then the number of results is limited
+    Then the number of module results is 10
 
   Scenario: search for a module that doesn't exist
     Given a list of 20 modules
     When searching for one that does not exist
-    Then the result is empty
+    Then the number of module results is 0
 
   Scenario: get all module names
     Given a list of 20 released modules

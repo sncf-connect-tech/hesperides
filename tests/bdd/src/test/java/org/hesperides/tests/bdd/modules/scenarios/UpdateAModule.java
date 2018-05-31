@@ -1,8 +1,6 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
-import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;

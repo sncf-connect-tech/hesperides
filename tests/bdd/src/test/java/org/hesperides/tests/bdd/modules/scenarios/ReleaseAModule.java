@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.ModuleAssertions;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,8 +26,11 @@ public class ReleaseAModule extends CucumberSpringBean implements En {
         Then("^the module is released$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModuleIO moduleOutput = response.getBody();
-            assertEquals(1, moduleOutput.getVersionId().longValue());
+            TemplateContainer.Key moduleKey = moduleContext.getModuleKey();
+            assertEquals(moduleKey.getName(), moduleOutput.getName());
+            assertEquals(moduleKey.getVersion(), moduleOutput.getVersion());
             assertEquals(false, moduleOutput.isWorkingCopy());
+            assertEquals(1, moduleOutput.getVersionId().longValue());
         });
     }
 

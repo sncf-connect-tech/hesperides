@@ -24,7 +24,7 @@ public class GetModulesNames extends CucumberSpringBean implements En {
     public GetModulesNames() {
 
         When("^listing all modules names$", () -> {
-            response = moduleContext.getModulesNames();
+            response = getModulesNames();
         });
 
         Then("^I get a distinct list of all modules names$", () -> {
@@ -33,6 +33,10 @@ public class GetModulesNames extends CucumberSpringBean implements En {
             assertEquals(20, modules.size());
             assertEquals(false, containsDuplicates(modules));
         });
+    }
+
+    private ResponseEntity<String[]> getModulesNames() {
+        return rest.getTestRest().getForEntity("/modules", String[].class);
     }
 
     private boolean containsDuplicates(List<String> modules) {

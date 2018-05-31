@@ -1,30 +1,21 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
-import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
-import org.hesperides.presentation.io.TechnoIO;
-import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.ModuleSamples;
-import org.hesperides.tests.bdd.technos.contexts.ExistingTechnoContext;
+import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class ModuleContext extends CucumberSpringBean implements En {
 
     private Module.Key moduleKey;
 
     @Autowired
-    private ExistingTechnoContext existingTechnoContext;
+    private TechnoContext technoContext;
 
     public ModuleContext() {
 
@@ -42,7 +33,7 @@ public class ModuleContext extends CucumberSpringBean implements En {
 //        });
 //
 //        Given("^an existing module containing this techno$", () -> {
-//            createWorkingCopy("test", "1.0.0", existingTechnoContext.getTechnoKey());
+//            createWorkingCopy("test", "1.0.0", technoContext.getTechnoKey());
 //        });
 //
 //        Given("^an existing released module$", () -> {
@@ -103,6 +94,11 @@ public class ModuleContext extends CucumberSpringBean implements En {
 //    private void setModuleKeyFromModuleOutput(ModuleIO moduleOutput) {
 //    }
 
+
+    public Module.Key getModuleKey() {
+        return moduleKey;
+    }
+
     private void createModule() {
         ModuleIO moduleInput = ModuleSamples.getModuleInputWithDefaultValues();
         createModule(moduleInput);
@@ -123,22 +119,6 @@ public class ModuleContext extends CucumberSpringBean implements En {
         return String.format("/modules/%s/%s/%s", moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType());
     }
 
-    public ResponseEntity<ModuleIO> retrieveExistingTemplate() {
-        return rest.getTestRest().getForEntity(getModuleURI(), ModuleIO.class);
-    }
-
-    public ResponseEntity<String[]> getModulesNames() {
-        return rest.getTestRest().getForEntity("/modules", String[].class);
-    }
-
-    public ResponseEntity<String[]> getModuleTypes() {
-        return rest.getTestRest().getForEntity("/modules/{moduleName}/{moduleVersion}", String[].class, moduleKey.getName(), moduleKey.getVersion());
-    }
-
-    public ResponseEntity<String[]> getModuleVersions() {
-        return rest.getTestRest().getForEntity("/modules/{moduleName}", String[].class, moduleKey.getName());
-    }
-
     public ResponseEntity<ModuleIO> releaseModule() {
         return releaseModule(moduleKey.getName(), moduleKey.getVersion());
     }
@@ -146,12 +126,6 @@ public class ModuleContext extends CucumberSpringBean implements En {
     public ResponseEntity<ModuleIO> releaseModule(String moduleName, String moduleVersion) {
         return rest.getTestRest().postForEntity("/modules/create_release?module_name={moduleName}&module_version={moduleVersion}",
                 null, ModuleIO.class, moduleName, moduleVersion);
-    }
-
-    public ResponseEntity<ModuleIO> copyModule(ModuleIO moduleInput) {
-        return rest.getTestRest().postForEntity("/modules?from_module_name={moduleName}&from_module_version={moduleVersion}&from_is_working_copy={isWorkingCopy}",
-                moduleInput, ModuleIO.class,
-                moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
     }
 
     public ResponseEntity<ModuleIO> updateModule(ModuleIO moduleInput) {
