@@ -21,7 +21,7 @@ public class ExistingTechnoContext extends CucumberSpringBean implements En {
     }
 
     private void createTechno(String name, String version) {
-        //TODO Sortir dans TemplateSample
+        //TODO Sortir dans TemplateSamples
         TemplateIO templateInput = new TemplateIO(
                 "fichierTest",
                 null,

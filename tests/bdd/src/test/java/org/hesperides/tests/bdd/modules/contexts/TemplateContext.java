@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class TemplateContext extends CucumberSpringBean implements En {
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ModuleContext moduleContext;
 
     public TemplateContext() {
         Given("^an existing template in this module$", () -> {
@@ -26,7 +26,7 @@ public class TemplateContext extends CucumberSpringBean implements En {
     }
 
     private ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
-        return restGetTemplate(name);
+        return rest.getTestRest().getForEntity(getTemplateURI(name), TemplateIO.class);
     }
 
     public ResponseEntity<TemplateIO> addTemplateToExistingModule() {
@@ -40,7 +40,7 @@ public class TemplateContext extends CucumberSpringBean implements En {
     }
 
     private ResponseEntity<TemplateIO> addTemplateToExistingModule(TemplateIO templateInput) {
-        ResponseEntity<TemplateIO> response = restPostTemplate(templateInput);
+        ResponseEntity<TemplateIO> response = rest.getTestRest().postForEntity(getTemplatesURI(), templateInput, TemplateIO.class);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         return response;
     }
@@ -48,20 +48,10 @@ public class TemplateContext extends CucumberSpringBean implements En {
     // URIs
 
     public String getTemplatesURI() {
-        return existingModuleContext.getModuleLocation() + "/templates";
+        return moduleContext.getModuleURI() + "/templates";
     }
 
     public String getTemplateURI(String templateName) {
         return String.format(getTemplatesURI() + "/" + templateName);
-    }
-
-    // REST calls
-
-    private ResponseEntity<TemplateIO> restGetTemplate(String name) {
-        return rest.getTestRest().getForEntity(getTemplateURI(name), TemplateIO.class);
-    }
-
-    private ResponseEntity<TemplateIO> restPostTemplate(TemplateIO templateInput) {
-        return rest.getTestRest().postForEntity(getTemplatesURI(), templateInput, TemplateIO.class);
     }
 }

@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
 import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
@@ -20,7 +20,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     @Autowired
     private TemplateContext templateContext;
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ModuleContext moduleContext;
 
     private ResponseEntity response;
 
@@ -39,7 +39,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         Then("^the template is successfully updated", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
-            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, existingModuleContext.getNamespace(), 2L);
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, moduleContext.getNamespace(), 2L);
             assertEquals(2L, templateOutput.getVersionId().longValue());
         });
 

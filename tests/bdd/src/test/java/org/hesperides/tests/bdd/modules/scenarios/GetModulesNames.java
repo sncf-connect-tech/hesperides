@@ -2,6 +2,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -14,12 +16,15 @@ import static org.junit.Assert.assertEquals;
 
 public class GetModulesNames extends CucumberSpringBean implements En {
 
+    @Autowired
+    private ModuleContext moduleContext;
+
     private ResponseEntity<String[]> response;
 
     public GetModulesNames() {
 
         When("^listing all modules names$", () -> {
-            response = rest.getTestRest().getForEntity("/modules", String[].class);
+            response = moduleContext.getModulesNames();
         });
 
         Then("^I get a distinct list of all modules names$", () -> {

@@ -2,7 +2,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,19 +14,18 @@ import static org.junit.Assert.assertEquals;
 
 public class GetModuleTypes extends CucumberSpringBean implements En {
 
-    private ResponseEntity<String[]> response;
-
     @Autowired
-    private ExistingModuleContext existingModule;
+    private ModuleContext moduleContext;
+
+    private ResponseEntity<String[]> response;
 
     public GetModuleTypes() {
 
         When("^retrieving the module's types$", () -> {
-            response = rest.getTestRest().getForEntity("/modules/{moduleName}/{moduleVersion}", String[].class,
-                    existingModule.getModuleKey().getName(), existingModule.getModuleKey().getVersion());
+            response = moduleContext.getModuleTypes();
         });
 
-        Then("^the module's types are retrieved$", () -> {
+        Then("^the module's types are workingcopy and release$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             List<String> types = Arrays.asList(response.getBody());
             assertEquals(2, types.size());

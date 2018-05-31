@@ -27,8 +27,8 @@ Feature: modules related features
     When deleting this module
     Then the module is successfully deleted
 
-  Scenario: delete a module release
-    Given an existing released module
+  Scenario: delete a released module
+    Given a module that is released
     When deleting this module
     Then the module is successfully deleted
 
@@ -40,28 +40,29 @@ Feature: modules related features
 
   Scenario: create a copy of an existing module
     Given an existing techno
-    And an existing module containing this techno
+    And an existing module
+    And the techno is attached to the module
     And an existing template in this module
     When creating a copy of this module
     Then the module is successfully and completely duplicated
 
   Scenario: search for an existing module
-    Given a list of existing modules working copy
+    Given a list of 20 modules
     When searching for one of them
     Then it is found
 
   Scenario: search for existing modules
-    Given a list of existing modules working copy
+    Given a list of 20 modules
     When searching for some of them
     Then the number of results is limited
 
   Scenario: search for a module that doesn't exist
-    Given a list of existing modules working copy
+    Given a list of 20 modules
     When searching for one that does not exist
     Then the result is empty
 
   Scenario: get all module names
-    Given a list of existing modules released
+    Given a list of 20 released modules
     When listing all modules names
     Then I get a distinct list of all modules names
 
@@ -71,7 +72,7 @@ Feature: modules related features
     Then the module's info is retrieved
 
   Scenario: get info for a given released module
-    Given an existing released module
+    Given a module that is released
     When retrieving the module's info
     Then the module's info is retrieved
 
@@ -81,9 +82,9 @@ Feature: modules related features
     Then the module's versions are retrieved
 
   Scenario: get all types for a given module version
-    Given an existing module and its release
+    Given a module that is released
     When retrieving the module's types
-    Then the module's types are retrieved
+    Then the module's types are workingcopy and release
 
   Scenario: create a release from an existing workingcopy
     Given an existing module

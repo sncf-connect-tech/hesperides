@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class GetATemplate extends CucumberSpringBean implements En {
 
     @Autowired
-    private ExistingModuleContext existingModuleContext;
+    private ModuleContext moduleContext;
     @Autowired
     private TemplateContext templateContext;
 
@@ -30,7 +30,7 @@ public class GetATemplate extends CucumberSpringBean implements En {
         Then("^the module template is retrieved$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = response.getBody();
-            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, existingModuleContext.getNamespace(), 1);
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, moduleContext.getNamespace(), 1);
         });
     }
 
