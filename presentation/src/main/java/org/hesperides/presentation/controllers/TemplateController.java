@@ -50,7 +50,7 @@ public class TemplateController extends BaseController {
         return ResponseEntity.ok(partialTemplateOutputs);
     }
 
-    @GetMapping("/{module_type}/templates/{template_name}")
+    @GetMapping("/{module_type}/templates/{template_name:.+}")
     @ApiOperation("Get template bundled in a module for a version workingcopy")
     public ResponseEntity<TemplateIO> getTemplateInWorkingCopy(@PathVariable("module_name") final String moduleName,
                                                                @PathVariable("module_version") final String moduleVersion,
@@ -101,7 +101,7 @@ public class TemplateController extends BaseController {
         return ResponseEntity.ok(templateOutput);
     }
 
-    @DeleteMapping("/workingcopy/templates/{template_name}")
+    @DeleteMapping("/workingcopy/templates/{template_name:.+}")
     @ApiOperation("Delete template in the working copy of a version")
     public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
                                                       @PathVariable("module_name") final String moduleName,

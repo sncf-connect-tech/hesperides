@@ -45,10 +45,6 @@ public abstract class TemplateContainer {
             return prefix + "s#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
-        public String toString(String prefix) {
-            return prefix + "-" + name + "-" + version + "-" + versionType.getMinimizedForm();
-        }
-
         public boolean isWorkingCopy() {
             return versionType == VersionType.workingcopy;
         }
