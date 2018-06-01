@@ -27,6 +27,7 @@ import org.hesperides.application.technos.TechnoUseCases;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
+import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.io.PartialTemplateIO;
@@ -77,6 +78,25 @@ public class TechnoController extends BaseController {
         return ResponseEntity.created(technoKey.getURI(Techno.KEY_PREFIX)).body(templateOutput);
     }
 
+    @ApiOperation("Update a template")
+    @PutMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Principal currentUser,
+                                                                  @PathVariable("techno_name") final String technoName,
+                                                                  @PathVariable("techno_version") final String technoVersion,
+                                                                  @Valid @RequestBody final TemplateIO templateInput){
+
+        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
+        Template template = templateInput.toDomainInstance(technoKey);
+        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromPrincipal(currentUser));
+
+        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, template.getName())
+                .map(TemplateIO::fromTemplateView)
+                .orElseThrow(() -> new TemplateNotFoundException(technoKey, template.getName()));
+
+        return ResponseEntity.ok(templateOutput);
+
+    }
+
     @ApiOperation("Delete a techno")
     @DeleteMapping(path = "/{techno_name}/{techno_version}/{version_type}")
     public ResponseEntity deleteTechno(Principal currentUser,
@@ -90,6 +110,19 @@ public class TechnoController extends BaseController {
         technoUseCases.deleteTechno(technoKey, fromPrincipal(currentUser));
 
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
+    @ApiOperation("Delete template in the working copy of a version")
+    public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
+                                                      @PathVariable("techno_name") final String technoName,
+                                                      @PathVariable("techno_version") final String technoVersion,
+                                                      @PathVariable("template_name") final String templateName) {
+
+        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
+        this.technoUseCases.deleteTemplate(technoKey, templateName, fromPrincipal(currentUser));
+
+        return ResponseEntity.noContent().build();
     }
 
     @ApiOperation("Get techno templates")
