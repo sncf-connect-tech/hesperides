@@ -25,7 +25,7 @@ import org.hesperides.presentation.io.TechnoIO;
 
 public class TechnosSamples {
 
-    private static final String DEFAULT_NAME = "test";
+    private static final String DEFAULT_NAME = "test-techno";
     private static final String DEFAULT_VERSION = "1.0.0";
 
     public static TechnoIO getTechnoFromTechnoKey(TemplateContainer.Key technoKey) {

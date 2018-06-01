@@ -28,7 +28,7 @@ public class SearchATechno extends CucumberSpringBean implements En {
         Given("^a list of 12 technos$", () -> {
             TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
             for (int i = 0; i < 12; i++) {
-                TechnoIO technoInput = TechnosSamples.getTechnoWithNameAndVersion("test-" + 1, "1.0." + i);
+                TechnoIO technoInput = TechnosSamples.getTechnoWithNameAndVersion("test-" + i, "1.0." + i);
                 technoContext.createTechno(technoInput, templateInput);
             }
         });
@@ -40,8 +40,8 @@ public class SearchATechno extends CucumberSpringBean implements En {
         Then("^the techno is found$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             List<TechnoIO> technos = Arrays.asList(response.getBody());
-            TechnoIO techno = technos.get(0);
             assertEquals(1, technos.size());
+            TechnoIO techno = technos.get(0);
             assertEquals("test-6", techno.getName());
             assertEquals("1.0.6", techno.getVersion());
             assertEquals(true, techno.isWorkingCopy());

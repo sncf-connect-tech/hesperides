@@ -48,15 +48,13 @@ Feature: modules templates
     Then the templates are retrieved
 
   Scenario: get template bundled in a module for a version release
-    Given an existing module
+    Given a module that is released
     And an existing template in this module
-    And this module is being released
     When retrieving this module template
     Then the module template is retrieved
 
   Scenario: get all templates bundled in a module of a version release
-    Given an existing module
+    Given a module that is released
     And multiple templates in this module
-    And this module is being released
     When retrieving those templates
     Then the templates are retrieved
