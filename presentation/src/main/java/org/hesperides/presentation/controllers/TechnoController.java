@@ -83,7 +83,7 @@ public class TechnoController extends BaseController {
     public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Principal currentUser,
                                                                   @PathVariable("techno_name") final String technoName,
                                                                   @PathVariable("techno_version") final String technoVersion,
-                                                                  @Valid @RequestBody final TemplateIO templateInput){
+                                                                  @Valid @RequestBody final TemplateIO templateInput) {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(technoKey);

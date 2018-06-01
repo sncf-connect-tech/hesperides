@@ -26,6 +26,6 @@ public class DeleteATechno extends CucumberSpringBean implements En {
     }
 
     private ResponseEntity<String> failTryingToRetrieveTechno() {
-        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existingTechno.getTechnoURI() + "/templates", String.class));
+        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existingTechno.getTemplatesURI(), String.class));
     }
 }

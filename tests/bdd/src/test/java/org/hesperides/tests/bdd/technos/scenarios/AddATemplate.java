@@ -3,7 +3,6 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.technos.TechnosSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
 import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
