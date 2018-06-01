@@ -40,8 +40,17 @@ public class TechnoContext extends CucumberSpringBean implements En {
                 technoInput.getVersion());
     }
 
+    public ResponseEntity<TemplateIO> addTemplateToExistingTechno(TemplateIO templateInput) {
+        TechnoIO technoInput = TechnosSamples.getTechnoFromTechnoKey(technoKey);
+        return createTechno(technoInput, templateInput);
+    }
+
     public ResponseEntity<TechnoIO> releaseTechno() {
         return rest.getTestRest().postForEntity("/templates/packages/create_release?techno_name={technoName}&techno_version={technoVersion}",
                 null, TechnoIO.class, technoKey.getName(), technoKey.getVersion());
+    }
+
+    public String getNamespace() {
+        return "packages#" + technoKey.getName() + "#" + technoKey.getVersion() + "#" + technoKey.getVersionType().name().toUpperCase();
     }
 }

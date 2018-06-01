@@ -33,6 +33,9 @@ Feature: technos related features
   Scenario: retrieve a template
 
   Scenario: add a template to an existing techno
+    Given an existing techno
+    When adding a template to this techno
+    Then the template is successfully added to the techno
 
   Scenario: update an existing template in a techno
 
