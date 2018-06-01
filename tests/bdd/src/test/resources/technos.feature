@@ -27,6 +27,9 @@ Feature: technos related features
     Then the techno is successfully deleted
 
   Scenario: copy a techno
+    Given an existing techno
+    When creating a copy of this techno
+    Then the techno is successfully and completely duplicated
 
   Scenario: retrieve all templates
     Given an existing techno

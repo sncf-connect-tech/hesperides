@@ -62,7 +62,7 @@ public class ModuleController extends BaseController {
     public ResponseEntity<ModuleIO> createWorkingCopy(Principal currentUser,
                                                       @RequestParam(value = "from_module_name", required = false) final String fromModuleName,
                                                       @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
-                                                      @RequestParam(value = "from_is_working_copy", required = false) final Boolean fromWorkingCopy,
+                                                      @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
                                                       @Valid @RequestBody final ModuleIO moduleInput) {
 
         log.info("createWorkingCopy {}", moduleInput.toString());
@@ -70,7 +70,7 @@ public class ModuleController extends BaseController {
         ResponseEntity response;
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
-                && fromWorkingCopy == null) {
+                && isFromWorkingCopy == null) {
 
             Module.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), fromPrincipal(currentUser));
             ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
@@ -81,9 +81,9 @@ public class ModuleController extends BaseController {
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
             checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
-            checkQueryParameterNotEmpty("from_is_working_copy", fromWorkingCopy);
+            checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
-            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(fromWorkingCopy));
+            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
             TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);

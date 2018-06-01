@@ -24,6 +24,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.application.technos.TechnoUseCases;
+import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
@@ -166,5 +167,22 @@ public class TechnoController extends BaseController {
                 : new ArrayList<>();
 
         return ResponseEntity.ok(technoOutputs);
+    }
+
+    @ApiOperation("Create a copy of a techno")
+    @PostMapping
+    public ResponseEntity<TechnoIO> copyTechno(Principal currentUser,
+                                               @RequestParam(value = "from_package_name") final String fromTechnoName,
+                                               @RequestParam(value = "from_package_version") final String fromTechnoVersion,
+                                               @RequestParam(value = "from_is_working_copy") final Boolean isFromWorkingCopy,
+                                               @Valid @RequestBody final TechnoIO technoInput) {
+
+        log.info("copyTechno {}", technoInput.toString());
+
+        TemplateContainer.Key existingTechnoKey = new TemplateContainer.Key(fromTechnoName, fromTechnoVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
+        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, technoInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
+        TemplateContainer.Key createdTechnoKey = technoView.toDomainInstance().getKey();
+        TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
+        return ResponseEntity.created(createdTechnoKey.getURI(Module.KEY_PREFIX)).body(technoOutput);
     }
 }
