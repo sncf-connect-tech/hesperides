@@ -27,72 +27,7 @@ public class ModuleContext extends CucumberSpringBean implements En {
             createModule();
             releaseModule();
         });
-
-//        Given("^an existing module containing a template", () -> {
-//            createWorkingCopy("test", "1.0.0");
-//        });
-//
-//        Given("^an existing module containing this techno$", () -> {
-//            createWorkingCopy("test", "1.0.0", technoContext.getTechnoKey());
-//        });
-//
-//        Given("^an existing released module$", () -> {
-//            createWorkingCopyAndRelease("test", "1.0.0");
-//        });
-//
-//        Given("^this module is being released$", () -> {
-//            createRelease("test", "1.0.0");
-//        });
-//
-//        Given("^an existing module and its release$", () -> {
-//            createWorkingCopyAndRelease("test", "1.0.0");
-//        });
-//
-//        Given("^an existing module with multiple versions$", () -> {
-//            for (int i = 0; i < 6; i++) {
-//                createWorkingCopy("test", "1.0." + i);
-//            }
-//        });
-//
-//        Given("^a list of existing modules working copy$", () -> {
-//            for (int i = 0; i < 20; i++) {
-//                createWorkingCopy("test-" + i, "1.0." + i);
-//            }
-//        });
-//
-//        Given("^a list of existing modules released$", () -> {
-//            for (int i = 0; i < 20; i++) {
-//                createWorkingCopyAndRelease("test-" + i, "1.0." + i);
-//            }
-//        });
     }
-
-//    private void createWorkingCopy(String name, String version) {
-//        createWorkingCopy(name, version, null);
-//    }
-//
-//    private void createWorkingCopy(String name, String version, TemplateContainer.Key technoKey) {
-//        List<TechnoIO> technos = technoKey != null ? Arrays.asList(new TechnoIO(technoKey.getName(), technoKey.getVersion(), technoKey.isWorkingCopy())) : null;
-//        ModuleIO moduleInput = new ModuleIO(name, version, true, technos, -1L);
-//        ResponseEntity<ModuleIO> response = rest.getTestRest().postForEntity("/modules", moduleInput, ModuleIO.class);
-//        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-//        setModuleKeyFromModuleOutput(response.getBody());
-//    }
-//
-//    private void createWorkingCopyAndRelease(String name, String version) {
-//        createWorkingCopy(name, version);
-//        createRelease(name, version);
-//    }
-//
-//    private void createRelease(String moduleName, String moduleVersion) {
-//        ResponseEntity<ModuleIO> response = rest.getTestRest().postForEntity("/modules/create_release?module_name={moduleName}&module_version={moduleVersion}&release_version={releaseVersion}",
-//                null, ModuleIO.class, moduleName, moduleVersion, moduleVersion);
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        setModuleKeyFromModuleOutput(response.getBody());
-//    }
-//
-//    private void setModuleKeyFromModuleOutput(ModuleIO moduleOutput) {
-//    }
 
 
     public Module.Key getModuleKey() {
