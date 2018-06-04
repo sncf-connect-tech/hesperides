@@ -40,7 +40,6 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = (TemplateIO) response.getBody();
             TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, moduleContext.getNamespace(), 2L);
-            assertEquals(2L, templateOutput.getVersionId().longValue());
         });
 
         Then("^the template update is rejected$", () -> {
@@ -57,7 +56,5 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         return rest.putForEntity(templateContext.getTemplatesURI(), templateInput, TemplateIO.class);
     }
 
-    /**
-     * TODO Tester la tentative de modification d'un template qui n'existe pas => 404
-     */
+    // TODO Tester la tentative de modification d'un template qui n'existe pas => 404
 }
