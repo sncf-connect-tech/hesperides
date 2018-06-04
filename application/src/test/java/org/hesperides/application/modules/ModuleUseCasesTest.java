@@ -47,7 +47,7 @@ public class ModuleUseCasesTest {
         given(moduleQueries.moduleExists(any())).willReturn(true);
         given(moduleCommands.createModule(any(), any())).willReturn(key);
 
-        useCases.createWorkingCopy(module, new User("robert"));
+        useCases.createWorkingCopy(module, new User("robert", true, true));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ModuleUseCasesTest {
         given(moduleQueries.moduleExists(any())).willReturn(false);
         given(moduleCommands.createModule(any(), any())).willReturn(key);
 
-        useCases.createWorkingCopy(module, new User("robert"));
+        useCases.createWorkingCopy(module, new User("robert", true, true));
     }
 
 }

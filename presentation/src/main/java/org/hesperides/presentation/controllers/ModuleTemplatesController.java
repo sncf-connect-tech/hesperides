@@ -12,15 +12,15 @@ import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.security.User.fromPrincipal;
+import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Api("/modules")
 @RestController
@@ -67,14 +67,14 @@ public class ModuleTemplatesController extends BaseController {
 
     @PostMapping("/workingcopy/templates")
     @ApiOperation("Create template in the workingcopy of a module")
-    public ResponseEntity<TemplateIO> createTemplateInWorkingCopy(Principal currentUser,
+    public ResponseEntity<TemplateIO> createTemplateInWorkingCopy(Authentication authentication,
                                                                   @PathVariable("module_name") final String moduleName,
                                                                   @PathVariable("module_version") final String moduleVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
-        moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, fromPrincipal(currentUser));
+        moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
 
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, template.getName())
                 .map(TemplateIO::fromTemplateView)
@@ -85,14 +85,14 @@ public class ModuleTemplatesController extends BaseController {
 
     @PutMapping("/workingcopy/templates")
     @ApiOperation("Update template in the workingcopy of a module")
-    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Principal currentUser,
+    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Authentication authentication,
                                                                   @PathVariable("module_name") final String moduleName,
                                                                   @PathVariable("module_version") final String moduleVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
         final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
-        moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, fromPrincipal(currentUser));
+        moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
 
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, template.getName())
                 .map(TemplateIO::fromTemplateView)
@@ -103,13 +103,13 @@ public class ModuleTemplatesController extends BaseController {
 
     @DeleteMapping("/workingcopy/templates/{template_name:.+}")
     @ApiOperation("Delete template in the working copy of a version")
-    public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
+    public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
                                                       @PathVariable("module_name") final String moduleName,
                                                       @PathVariable("module_version") final String moduleVersion,
                                                       @PathVariable("template_name") final String templateName) {
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
-        this.moduleUseCases.deleteTemplate(moduleKey, templateName, fromPrincipal(currentUser));
+        this.moduleUseCases.deleteTemplate(moduleKey, templateName, fromAuthentication(authentication));
 
         return ResponseEntity.noContent().build();
     }

@@ -37,16 +37,16 @@ import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.security.User.fromPrincipal;
+import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api("/templates/packages")
@@ -63,7 +63,7 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Add a template to a techno working copy")
     @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
-    public ResponseEntity<TemplateIO> createWorkingCopy(Principal currentUser,
+    public ResponseEntity<TemplateIO> createWorkingCopy(Authentication authentication,
                                                         @PathVariable(value = "techno_name") final String technoName,
                                                         @PathVariable(value = "techno_version") final String technoVersion,
                                                         @Valid @RequestBody final TemplateIO templateInput) {
@@ -71,7 +71,7 @@ public class TechnosController extends BaseController {
         log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
 
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromPrincipal(currentUser));
+        technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromAuthentication(authentication));
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateInput.getName())
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateInput.getName()));
@@ -81,14 +81,14 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Update a template")
     @PutMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
-    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Principal currentUser,
+    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Authentication authentication,
                                                                   @PathVariable("techno_name") final String technoName,
                                                                   @PathVariable("techno_version") final String technoVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(technoKey);
-        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromPrincipal(currentUser));
+        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromAuthentication(authentication));
 
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, template.getName())
                 .map(TemplateIO::fromTemplateView)
@@ -100,7 +100,7 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Delete a techno")
     @DeleteMapping(path = "/{techno_name}/{techno_version}/{version_type}")
-    public ResponseEntity deleteTechno(Principal currentUser,
+    public ResponseEntity deleteTechno(Authentication authentication,
                                        @PathVariable("techno_name") final String technoName,
                                        @PathVariable("techno_version") final String technoVersion,
                                        @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
@@ -108,20 +108,20 @@ public class TechnosController extends BaseController {
         log.info("deleteTechno {} {} {}", technoName, technoVersion, versionType);
 
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
-        technoUseCases.deleteTechno(technoKey, fromPrincipal(currentUser));
+        technoUseCases.deleteTechno(technoKey, fromAuthentication(authentication));
 
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
     @ApiOperation("Delete template in the working copy of a version")
-    public ResponseEntity deleteTemplateInWorkingCopy(Principal currentUser,
+    public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
                                                       @PathVariable("techno_name") final String technoName,
                                                       @PathVariable("techno_version") final String technoVersion,
                                                       @PathVariable("template_name") final String templateName) {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        this.technoUseCases.deleteTemplate(technoKey, templateName, fromPrincipal(currentUser));
+        this.technoUseCases.deleteTemplate(technoKey, templateName, fromAuthentication(authentication));
 
         return ResponseEntity.noContent().build();
     }
@@ -141,14 +141,14 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Create a release from an existing workingcopy")
     @PostMapping(path = "/create_release")
-    public ResponseEntity<TechnoIO> releaseTechno(Principal currentUser,
+    public ResponseEntity<TechnoIO> releaseTechno(Authentication authentication,
                                                   @RequestParam("techno_name") final String technoName,
                                                   @RequestParam("techno_version") final String technoVersion) {
 
         log.info("releaseTechno {} {}", technoName, technoVersion);
 
         TemplateContainer.Key existingTechnoKey = new TemplateContainer.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, fromPrincipal(currentUser));
+        TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, fromAuthentication(authentication));
         TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
 
         URI releasedTechnoLocation = technoView.toDomainInstance().getKey().getURI(Techno.KEY_PREFIX);
@@ -171,7 +171,7 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Create a copy of a techno")
     @PostMapping
-    public ResponseEntity<TechnoIO> copyTechno(Principal currentUser,
+    public ResponseEntity<TechnoIO> copyTechno(Authentication authentication,
                                                @RequestParam(value = "from_package_name") final String fromTechnoName,
                                                @RequestParam(value = "from_package_version") final String fromTechnoVersion,
                                                @RequestParam(value = "from_is_working_copy") final Boolean isFromWorkingCopy,
@@ -180,7 +180,7 @@ public class TechnosController extends BaseController {
         log.info("copyTechno {}", technoInput.toString());
 
         TemplateContainer.Key existingTechnoKey = new TemplateContainer.Key(fromTechnoName, fromTechnoVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
-        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, technoInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
+        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, technoInput.toDomainInstance().getKey(), fromAuthentication(authentication));
         TemplateContainer.Key createdTechnoKey = technoView.toDomainInstance().getKey();
         TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
         return ResponseEntity.created(createdTechnoKey.getURI(Module.KEY_PREFIX)).body(technoOutput);

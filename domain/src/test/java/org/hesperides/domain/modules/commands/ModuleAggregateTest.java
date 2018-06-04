@@ -26,7 +26,7 @@ class ModuleAggregateTest {
     private Module module = new Module(moduleKey, new ArrayList<>(), Collections.emptyList(), 1L);
     private Template.Rights rights = new Template.Rights(null, null, null);
     private Template template = new Template("template1", "file1.txt", "/", "content", rights, 1L, moduleKey);
-    private User user = new User("default_name");
+    private User user = new User("default_name", true, true);
 
     @BeforeEach
     void setUp() {

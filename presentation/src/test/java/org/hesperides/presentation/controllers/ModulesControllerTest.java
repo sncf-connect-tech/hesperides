@@ -36,5 +36,4 @@ public class ModulesControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(modulesList.toString()));
     }
-
 }
