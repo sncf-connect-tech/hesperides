@@ -41,16 +41,16 @@ Feature: technos related features
   Scenario: search for existing technos
 
   Scenario: search for an existing techno
-    Given a list of existing technos
+    Given a list of 12 technos
     When searching for a specific techno
     Then the techno is found
 
   Scenario: search for existing technos
-    Given a list of existing technos
+    Given a list of 12 technos
     When searching for some of those technos
-    Then the number of techno results is limited
+    Then the number of techno results is 10
 
   Scenario: search for a techno that does not exist
-    Given a list of existing technos
+    Given a list of 12 technos
     When searching for a techno that does not exist
-    Then the techno results is empty
+    Then the number of techno results is 0
