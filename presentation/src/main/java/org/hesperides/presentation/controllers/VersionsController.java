@@ -34,7 +34,7 @@ import java.util.Map;
 @Api("/versions")
 @RestController
 @CrossOrigin
-public class VersionController {
+public class VersionsController {
 
     @Value("${application.name}")
     private String applicationName;

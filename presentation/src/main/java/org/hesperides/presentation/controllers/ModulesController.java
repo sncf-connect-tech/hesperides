@@ -48,12 +48,12 @@ import static org.hesperides.domain.security.User.fromPrincipal;
 @RestController
 @RequestMapping("/modules")
 @CrossOrigin
-public class ModuleController extends BaseController {
+public class ModulesController extends BaseController {
 
     private final ModuleUseCases moduleUseCases;
 
     @Autowired
-    public ModuleController(ModuleUseCases moduleUseCases) {
+    public ModulesController(ModuleUseCases moduleUseCases) {
         this.moduleUseCases = moduleUseCases;
     }
 
