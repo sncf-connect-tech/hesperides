@@ -21,10 +21,14 @@
 
 package org.hesperides.presentation.controllers;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 /**
  * On utilise cette classe de manière temporaire pour coller au legacy
  * Mais il faut la supprimer et faire quelque chose de plus propre
  */
+@RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 abstract class BaseController {
 
 //    final protected <E, T> Response entityWithConverterOrNotFound(final Optional<T> optional, ResponseConverter<T, E> converter) {

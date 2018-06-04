@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -34,7 +35,8 @@ import java.util.Map;
 @Api("/versions")
 @RestController
 @CrossOrigin
-public class VersionsController {
+@RequestMapping("/versions")
+public class VersionsController extends BaseController {
 
     @Value("${application.name}")
     private String applicationName;
@@ -52,7 +54,7 @@ public class VersionsController {
     private String appJavaVersion;
 
     @ApiOperation("Get backend and API versions")
-    @GetMapping("/versions")
+    @GetMapping
     public ResponseEntity<Map<String, String>> getVersions() {
 
         Map<String, String> propertiesMap = new HashMap<>();

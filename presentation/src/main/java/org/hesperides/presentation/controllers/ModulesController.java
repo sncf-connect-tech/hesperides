@@ -31,7 +31,6 @@ import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -108,7 +107,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Get all module names")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping
     public ResponseEntity<List<String>> getModulesNames() {
 
         log.debug("getModulesNames");
@@ -120,7 +119,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Get all versions for a given module")
-    @GetMapping(path = "/{module_name}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping("/{module_name}")
     public ResponseEntity<List<String>> getModuleVersions(@PathVariable("module_name") final String moduleName) {
 
         log.debug("getModuleVersions moduleName: {}", moduleName);
@@ -132,7 +131,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Get all types for a given module version")
-    @GetMapping(path = "/{module_name}/{module_version:.+}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping("/{module_name}/{module_version:.+}")
     public ResponseEntity<List<String>> getModuleTypes(@PathVariable("module_name") final String moduleName,
                                                        @PathVariable("module_version") final String moduleVersion) {
 
@@ -145,7 +144,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Get info for a given module release/working-copy")
-    @GetMapping(path = "/{module_name}/{module_version}/{module_type}")
+    @GetMapping("/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<ModuleIO> getModuleInfo(@PathVariable("module_name") final String moduleName,
                                                   @PathVariable("module_version") final String moduleVersion,
                                                   @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
@@ -160,7 +159,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Delete a module")
-    @DeleteMapping(path = "/{module_name}/{module_version}/{module_type}")
+    @DeleteMapping("/{module_name}/{module_version}/{module_type}")
     public ResponseEntity deleteModule(Principal currentUser,
                                        @PathVariable("module_name") final String moduleName,
                                        @PathVariable("module_version") final String moduleVersion,
@@ -175,7 +174,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
-    @PostMapping(path = "/create_release")
+    @PostMapping("/create_release")
     public ResponseEntity<ModuleIO> createRelease(Principal currentUser,
                                                   @RequestParam("module_name") final String moduleName,
                                                   @RequestParam("module_version") final String moduleVersion,
@@ -190,7 +189,7 @@ public class ModulesController extends BaseController {
     }
 
     @ApiOperation("Search for modules")
-    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping("/perform_search")
     public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
 
         log.debug("search module {}", input);
