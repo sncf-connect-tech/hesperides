@@ -52,12 +52,12 @@ import static org.hesperides.domain.security.User.fromPrincipal;
 @Api("/templates/packages")
 @RestController
 @RequestMapping("/templates/packages")
-public class TechnoController extends BaseController {
+public class TechnosController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
 
     @Autowired
-    public TechnoController(TechnoUseCases technoUseCases) {
+    public TechnosController(TechnoUseCases technoUseCases) {
         this.technoUseCases = technoUseCases;
     }
 

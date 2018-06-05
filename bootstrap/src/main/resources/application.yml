@@ -1,3 +1,9 @@
+application.name: @project.parent.artifactId@
+build.version: @project.version@
+build.timestamp: @maven.build.timestamp@
+app.encoding: @project.build.sourceEncoding@
+app.java.version: @java.version@
+
 spring:
   application.name: HESPERIDES
   boot.admin.client.enabled: false

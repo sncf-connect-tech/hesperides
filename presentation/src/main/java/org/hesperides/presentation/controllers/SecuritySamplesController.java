@@ -35,7 +35,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/security")
-public class SecuritySampleController {
+public class SecuritySamplesController {
     @GetMapping("/currentUser")
     public String getPrincipal(Principal currentUser) {
         return currentUser.getName();

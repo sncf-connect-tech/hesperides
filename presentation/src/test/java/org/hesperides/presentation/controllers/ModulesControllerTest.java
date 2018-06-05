@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(org.hesperides.presentation.controllers.BaseController.class)
 @ContextConfiguration(classes = TestAppConfig.class)
-public class ModuleControllerTest extends AbstractControllerTest {
+public class ModulesControllerTest extends AbstractControllerTest {
 
     @Test
     @WithMockUser
