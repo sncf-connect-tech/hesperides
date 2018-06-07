@@ -28,19 +28,20 @@ import org.hesperides.application.modules.ModuleUseCases;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.security.User.fromPrincipal;
+import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api("/modules")
@@ -58,7 +59,7 @@ public class ModulesController extends BaseController {
 
     @ApiOperation("Create a working copy (possibly from a release)")
     @PostMapping
-    public ResponseEntity<ModuleIO> createWorkingCopy(Principal currentUser,
+    public ResponseEntity<ModuleIO> createWorkingCopy(Authentication authentication,
                                                       @RequestParam(value = "from_module_name", required = false) final String fromModuleName,
                                                       @RequestParam(value = "from_module_version", required = false) final String fromModuleVersion,
                                                       @RequestParam(value = "from_is_working_copy", required = false) final Boolean isFromWorkingCopy,
@@ -67,11 +68,12 @@ public class ModulesController extends BaseController {
         log.info("createWorkingCopy {}", moduleInput.toString());
 
         ResponseEntity response;
+        User currentUser = fromAuthentication(authentication);
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
                 && isFromWorkingCopy == null) {
 
-            Module.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), fromPrincipal(currentUser));
+            Module.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), currentUser);
             ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
                     .map(ModuleIO::fromModuleView)
                     .orElseThrow(() -> new ModuleNotFoundException(createdModuleKey));
@@ -83,7 +85,7 @@ public class ModulesController extends BaseController {
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
             Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
-            ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), fromPrincipal(currentUser));
+            ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), currentUser);
             TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
             response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
@@ -93,12 +95,12 @@ public class ModulesController extends BaseController {
 
     @ApiOperation("Update a module working copy")
     @PutMapping
-    public ResponseEntity<ModuleIO> updateWorkingCopy(Principal currentUser, @Valid @RequestBody final ModuleIO moduleInput) {
+    public ResponseEntity<ModuleIO> updateWorkingCopy(Authentication authentication, @Valid @RequestBody final ModuleIO moduleInput) {
 
         log.info("Updating module workingcopy {}", moduleInput.toString());
 
         Module module = moduleInput.toDomainInstance();
-        moduleUseCases.updateModuleTechnos(module, fromPrincipal(currentUser));
+        moduleUseCases.updateModuleTechnos(module, fromAuthentication(authentication));
         ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
                 .map(ModuleIO::fromModuleView)
                 .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
@@ -160,7 +162,7 @@ public class ModulesController extends BaseController {
 
     @ApiOperation("Delete a module")
     @DeleteMapping("/{module_name}/{module_version}/{module_type}")
-    public ResponseEntity deleteModule(Principal currentUser,
+    public ResponseEntity deleteModule(Authentication authentication,
                                        @PathVariable("module_name") final String moduleName,
                                        @PathVariable("module_version") final String moduleVersion,
                                        @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
@@ -168,21 +170,21 @@ public class ModulesController extends BaseController {
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
-        moduleUseCases.deleteModule(moduleKey, fromPrincipal(currentUser));
+        moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
 
         return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
     @PostMapping("/create_release")
-    public ResponseEntity<ModuleIO> createRelease(Principal currentUser,
+    public ResponseEntity<ModuleIO> createRelease(Authentication authentication,
                                                   @RequestParam("module_name") final String moduleName,
                                                   @RequestParam("module_version") final String moduleVersion,
                                                   @RequestParam(value = "release_version", required = false) final String releaseVersion) {
 
         log.info("createRelease {} {} => {}", moduleName, moduleVersion, releaseVersion);
 
-        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromPrincipal(currentUser));
+        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromAuthentication(authentication));
         ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
 
         return ResponseEntity.ok(moduleOutput);

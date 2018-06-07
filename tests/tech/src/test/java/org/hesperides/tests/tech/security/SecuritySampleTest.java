@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.security;
+package org.hesperides.tests.tech.security;
 
 import org.junit.Before;
 import org.junit.Test;
