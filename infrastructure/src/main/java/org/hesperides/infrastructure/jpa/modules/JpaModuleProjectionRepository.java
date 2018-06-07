@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.Profiles.JPA;
+import static org.hesperides.domain.framework.Profiles.JPA;
 
 @Profile(JPA)
 @Component

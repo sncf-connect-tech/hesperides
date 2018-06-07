@@ -17,7 +17,7 @@ public class DeleteATemplate extends CucumberSpringBean implements En {
 
     public DeleteATemplate() {
         When("^deleting this template$", () -> {
-            rest.getTestRest().delete(templateContext.getTemplateURI(TemplateSamples.DEFAULT_TEMPLATE_NAME));
+            rest.getTestRest().delete(templateContext.getTemplateURI(TemplateSamples.DEFAULT_NAME));
         });
 
         Then("^the template is successfully deleted$", () -> {
@@ -28,7 +28,7 @@ public class DeleteATemplate extends CucumberSpringBean implements En {
 
     public ResponseEntity<String> failTryingToRetrieveTemplate() {
         return rest.doWithErrorHandlerDisabled(rest ->
-                rest.getForEntity(templateContext.getTemplateURI(TemplateSamples.DEFAULT_TEMPLATE_NAME), String.class));
+                rest.getForEntity(templateContext.getTemplateURI(TemplateSamples.DEFAULT_NAME), String.class));
     }
 
     /**

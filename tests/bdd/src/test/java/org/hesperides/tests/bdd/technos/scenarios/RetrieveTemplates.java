@@ -48,7 +48,7 @@ public class RetrieveTemplates extends CucumberSpringBean implements En {
 
         Given("^multiple templates in this techno$", () -> {
             for (int i = 0; i < 6; i++) {
-                String templateName = TemplateSamples.DEFAULT_TEMPLATE_NAME + i;
+                String templateName = TemplateSamples.DEFAULT_NAME + i;
                 ResponseEntity<TemplateIO> response = technoContext.addTemplateToExistingTechno(templateName);
                 templateInputs.add(response.getBody());
             }

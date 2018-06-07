@@ -29,7 +29,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.util.UUID;
 
-import static org.hesperides.domain.Profiles.FAKE_MONGO;
+import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
 
 @Configuration
 @Profile(FAKE_MONGO)

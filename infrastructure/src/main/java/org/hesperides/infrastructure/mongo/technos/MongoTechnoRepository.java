@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hesperides.domain.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.*;
 
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository

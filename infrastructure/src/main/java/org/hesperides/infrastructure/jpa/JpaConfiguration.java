@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-import static org.hesperides.domain.Profiles.JPA;
+import static org.hesperides.domain.framework.Profiles.JPA;
 
 @Configuration
 @EnableTransactionManagement

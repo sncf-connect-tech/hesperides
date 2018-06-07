@@ -66,3 +66,9 @@ Feature: technos related features
     Given a list of 12 technos
     When searching for a techno that does not exist
     Then the number of techno results is 0
+
+  Scenario: get model properties
+    Given an existing techno
+    And templates with properties in this techno
+    When retrieving the model of this tehno
+    Then I get the properties model of this techno

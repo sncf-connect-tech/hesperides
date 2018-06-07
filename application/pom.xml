@@ -19,6 +19,12 @@
             <artifactId>domain</artifactId>
         </dependency>
 
+        <!-- Mustache -->
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

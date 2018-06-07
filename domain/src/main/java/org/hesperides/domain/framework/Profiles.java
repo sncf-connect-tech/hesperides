@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.domain;
+package org.hesperides.domain.framework;
 
 public class Profiles {
     public static final String MONGO = "mongo";

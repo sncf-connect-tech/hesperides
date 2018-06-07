@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import static org.hesperides.domain.Profiles.MONGO;
+import static org.hesperides.domain.framework.Profiles.MONGO;
 
 @Configuration
 @EnableTransactionManagement

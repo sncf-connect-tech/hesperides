@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 
-import static org.hesperides.domain.Profiles.JPA;
+import static org.hesperides.domain.framework.Profiles.JPA;
 
 @Configuration
 @Profile(JPA)

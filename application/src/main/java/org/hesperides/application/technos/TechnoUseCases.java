@@ -1,5 +1,8 @@
 package org.hesperides.application.technos;
 
+import com.github.mustachejava.Code;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.security.User;
@@ -11,10 +14,13 @@ import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.PropertiesModelView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,11 +33,13 @@ public class TechnoUseCases {
 
     private final TechnoCommands commands;
     private final TechnoQueries queries;
+    private final MustacheFactory mustacheFactory;
 
     @Autowired
-    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries) {
+    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries, MustacheFactory mustacheFactory) {
         this.commands = commands;
         this.queries = queries;
+        this.mustacheFactory = mustacheFactory;
     }
 
     /**
@@ -113,5 +121,28 @@ public class TechnoUseCases {
 
         commands.createTechno(newTechno, user);
         return queries.getTechno(newTechnoKey).get();
+    }
+
+    public PropertiesModelView getPropertiesModel(TemplateContainer.Key technoKey) {
+        List<PropertiesModelView.KeyValuePropertyView> keyValueProperties = new ArrayList<>();
+        List<PropertiesModelView.IterablePropertyView> iterableProperties = new ArrayList<>();
+
+        /**
+         * Récupérer les templates de la techno
+         * Pour chaque template, extraire les propriétés
+         * Et les fusionner
+         */
+
+        List<TemplateView> templateViews = getTemplates(technoKey);
+        if (templateViews != null) {
+            for (TemplateView templateView : templateViews) {
+                Mustache mustache = mustacheFactory.compile(new StringReader(templateView.getContent()), "something");
+                for (Code code : mustache.getCodes()) {
+//                    code.
+                }
+            }
+        }
+
+        return new PropertiesModelView(keyValueProperties, iterableProperties);
     }
 }
