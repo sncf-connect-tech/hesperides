@@ -9,11 +9,12 @@ spring:
   boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
 
-management.security.enabled: false
-
 server:
   port: ${SERVER_PORT:8080}
   contextPath: /rest
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
 
 ldap:
   url: ${LDAP_URL}
@@ -30,3 +31,7 @@ logging:
   level:
     root: INFO
 #    org.hesperides: INFO
+management:
+  add-application-context-header: false
+  security:
+    enabled: false
