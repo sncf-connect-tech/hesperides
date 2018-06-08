@@ -53,8 +53,7 @@ import static org.hesperides.domain.security.User.fromAuthentication;
 @Slf4j
 @Api("/templates/packages")
 @RestController
-@RequestMapping(value = "/templates/packages",
-        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/templates/packages")
 public class TechnosController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
@@ -111,10 +110,7 @@ public class TechnosController extends BaseController {
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateName)
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateName));
-        //TODO: trouver une solution vis à vis du renvoi de 406 "Not Acceptable" lorsque le nom d'un template est composé d'un ".sh"
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<>(templateOutput, headers, HttpStatus.OK);
+        return ResponseEntity.ok(templateOutput);
     }
 
     @ApiOperation("Delete a techno")

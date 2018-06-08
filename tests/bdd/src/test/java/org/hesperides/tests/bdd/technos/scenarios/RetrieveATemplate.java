@@ -21,18 +21,35 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
+import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.Assert.assertEquals;
 
 public class RetrieveATemplate extends CucumberSpringBean implements En {
+
+    @Autowired
+    private TechnoContext technoContext;
+
+    private ResponseEntity<TemplateIO> response;
+
 
     public RetrieveATemplate() {
 
         When("^retrieving the template of this techno$", () -> {
-            //TODO
+            response = technoContext.retrieveExistingTemplate();
         });
 
         Then("^I get the detail of the template of this techno$", () -> {
-            //TODO Utiliser la doc pour implémenter les assertions : https://github.com/voyages-sncf-technologies/hesperides/blob/develop/documentation/endpoints-existants/technos.md#get-templatespackagespackage_namepackage_versionpackage_typetemplatestemplate_name
-        });
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            TemplateIO chaussette = response.getBody();
+            TemplateAssertions.assertTemplateAgainstDefaultValues(chaussette,technoContext.getNamespace(),1);
+           });
     }
 }
