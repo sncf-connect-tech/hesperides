@@ -22,7 +22,6 @@ import static org.hesperides.domain.Profiles.MONGO;
 @Configuration
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.infrastructure.mongo")
-@Import({MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 @Profile(MONGO)
 public class MongoConfiguration {
     @Value("${hesperides.viewstore.database}")
