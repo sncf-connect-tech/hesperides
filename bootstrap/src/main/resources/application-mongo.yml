@@ -14,10 +14,10 @@ hesperides:
     username: ${EVENT_STORE_MONGO_USERNAME}
     password: ${EVENT_STORE_MONGO_PASSWORD}
   viewstore:
-    host: ${VIEW_STORE_MONGO_HOST:localhost}
-    port: ${VIEW_STORE_MONGO_PORT:27017}
-    database: ${VIEW_STORE_MONGO_DATABASE:test}
-    username: ${VIEW_STORE_MONGO_USERNAME}
-    password: ${VIEW_STORE_MONGO_PASSWORD}
+    host: ${PROJECTION_REPOSITORY_MONGO_HOST:localhost}
+    port: ${PROJECTION_REPOSITORY_PORT:27017}
+    database: ${PROJECTION_REPOSITORY_MONGO_DATABASE:test}
+    username: ${PROJECTION_REPOSITORY_MONGO_USERNAME}
+    password: ${PROJECTION_REPOSITORY_MONGO_PASSWORD}
 
 
