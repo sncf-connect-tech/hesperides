@@ -1,13 +1,13 @@
 {
 	"info": {
-		"_postman_id": "3aff1868-b4b0-5334-eee8-eef4626e1bf4",
+		"_postman_id": "0794bf16-e0c8-47c0-b3b6-ac022f35073c",
 		"name": "Hesperides",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "modules",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "getModulesNames",
@@ -29,7 +29,10 @@
 						},
 						"method": "GET",
 						"header": [],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "{{hesperides_url}}/modules",
 							"host": [
@@ -73,8 +76,16 @@
 							]
 						},
 						"method": "GET",
-						"header": [],
-						"body": {},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/{{module_type}}",
 							"host": [
@@ -110,7 +121,10 @@
 						},
 						"method": "GET",
 						"header": [],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "{{hesperides_url}}/modules/{{module_name}}",
 							"host": [
@@ -144,7 +158,10 @@
 						},
 						"method": "GET",
 						"header": [],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}",
 							"host": [
@@ -160,7 +177,92 @@
 					"response": []
 				},
 				{
-					"name": "createWorkingCopy",
+					"name": "getModuleTemplatesList",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/{{module_type}}/templates",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getModuleTemplate",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/{{module_type}}/templates/{{module_template_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}",
+								"templates",
+								"{{module_template_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createEmptyWorkingCopy",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -213,7 +315,204 @@
 					"response": []
 				},
 				{
-					"name": "updateWorkingCopy",
+					"name": "createRelease",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/create_release?module_name={{module_name}}&module_version={{module_version}}&release_version={{module_release_version}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"create_release"
+							],
+							"query": [
+								{
+									"key": "module_name",
+									"value": "{{module_name}}"
+								},
+								{
+									"key": "module_version",
+									"value": "{{module_version}}"
+								},
+								{
+									"key": "release_version",
+									"value": "{{module_release_version}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addTemplateInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"{{module_template_name}}\",\r\n\t\"filename\": \"{{module_template_filename}}\",\r\n\t\"location\": \"{{module_template_location}}\",\r\n\t\"content\": \"{{module_template_content}}\",\r\n\t\"rights\": {\r\n\t\t\"user\": {{module_template_rights_user}},\r\n\t\t\"group\": {{module_template_rights_group}},\r\n\t\t\"other\": {{module_template_rights_other}}\r\n\t},\r\n\t\"version_id\": {{module_template_version_id}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/workingcopy/templates",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"workingcopy",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "perform_search",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/perform_search?terms={{module_search_term}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"perform_search"
+							],
+							"query": [
+								{
+									"key": "terms",
+									"value": "{{module_search_term}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addTechnoInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "a4cae61b-c499-4f4e-acf0-68d8659e131c",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"module_version_id\", 1 + Number(pm.environment.get(\"module_version_id\")));"
+								]
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "basic",
@@ -239,15 +538,541 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"{{module_name}}\",\n\t\"version\": \"{{module_version}}\",\n\t\"working_copy\": {{module_type_boolean}},\n\t\"technos\": [],\n\t\"version_id\": 1\n}"
+							"raw": "{\r\n\t\"name\": \"{{module_name}}\",\r\n\t\"version\": \"{{module_version}}\",\r\n\t\"technos\": [\r\n\t\t{\r\n\t\t\t\"name\": \"{{techno_name}}\",\r\n\t\t\t\"version\": \"{{techno_version}}\",\r\n\t\t\t\"working_copy\": true\r\n\t\t}\r\n\t],\r\n\t\"working_copy\": true,\r\n\t\"version_id\": {{module_version_id}}\r\n}"
 						},
 						"url": {
-							"raw": "{{hesperides_url}}/modules",
+							"raw": "{{hesperides_url}}/modules/",
 							"host": [
 								"{{hesperides_url}}"
 							],
 							"path": [
-								"modules"
+								"modules",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTemplateInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "80812e50-bb41-4b83-9191-c2c30f374377",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"module_template_version_id\", 1 + Number(pm.environment.get(\"module_template_version_id\")));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"{{module_template_name}}\",\r\n\t\"filename\": \"{{module_template_filename}}\",\r\n\t\"location\": \"{{module_template_location}}\",\r\n\t\"content\": \"{{module_template_content}}\",\r\n\t\"rights\": {\r\n\t\t\"user\": {{module_template_rights_user}},\r\n\t\t\"group\": {{module_template_rights_group}},\r\n\t\t\"other\": {{module_template_rights_other}}\r\n\t},\r\n\t\"version_id\": {{module_template_version_id}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/workingcopy/templates",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"workingcopy",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteModule",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "3df26bcf-5cb6-4c88-b471-6fc807bc7fd9",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"module_template_version_id\",0)",
+									"pm.environment.set(\"module_version_id\",0)"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/{{module_type}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTemplateInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "bbaa40a4-41b6-41d5-bab8-dcc1b24f45e3",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"module_template_version_id\",0)"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/workingcopy/templates/{{module_template_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"workingcopy",
+								"templates",
+								"{{module_template_name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "technos",
+			"description": "",
+			"item": [
+				{
+					"name": "getTechnoTemplatesList",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/{{techno_type}}/templates",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"{{techno_type}}",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTechnoTemplate",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/{{techno_type}}/templates/{{techno_template_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"{{techno_type}}",
+								"templates",
+								"{{techno_template_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addTemplateInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"{{techno_template_name}}\",\r\n\t\"filename\": \"{{techno_template_filename}}\",\r\n\t\"location\": \"{{techno_template_location}}\",\r\n\t\"content\": \"{{techno_template_content}}\",\r\n\t\"rights\": {\r\n\t\t\"user\": {{techno_template_rights_user}},\r\n\t\t\"group\": {{techno_template_rights_group}},\r\n\t\t\"other\": {{techno_template_rights_other}}\r\n\t},\r\n\t\"version_id\": {{techno_template_version_id}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/workingcopy/templates",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"workingcopy",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "perform_search",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"terms\":\"{{techno_search_term}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/perform_search",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"perform_search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createRelease",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/create_release?techno_name={{techno_name}}&techno_version={{techno_version}}&release_version={{techno_release_version}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"create_release"
+							],
+							"query": [
+								{
+									"key": "techno_name",
+									"value": "{{techno_name}}"
+								},
+								{
+									"key": "techno_version",
+									"value": "{{techno_version}}"
+								},
+								{
+									"key": "release_version",
+									"value": "{{techno_release_version}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateTemplateInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "36ce9928-fe30-40c4-9c94-39728991c77f",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"techno_template_version_id\", 1 + Number(pm.environment.get(\"techno_template_version_id\")));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"{{techno_template_name}}\",\r\n\t\"filename\": \"{{techno_template_filename}}\",\r\n\t\"location\": \"{{techno_template_location}}\",\r\n\t\"content\": \"{{techno_template_content}}\",\r\n\t\"rights\": {\r\n\t\t\"user\": {{techno_template_rights_user}},\r\n\t\t\"group\": {{techno_template_rights_group}},\r\n\t\t\"other\": {{techno_template_rights_other}}\r\n\t},\r\n\t\"version_id\": {{techno_template_version_id}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/workingcopy/templates",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"workingcopy",
+								"templates"
 							]
 						}
 					},
@@ -255,6 +1080,18 @@
 				},
 				{
 					"name": "deleteWorkingCopy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1ec1227d-1a8e-4763-9d7d-1482cee6d74a",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"techno_template_version_id\",0)"
+								]
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "basic",
@@ -273,24 +1110,40 @@
 						},
 						"method": "DELETE",
 						"header": [],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
-							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/workingcopy",
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/{{module_type}}",
 							"host": [
 								"{{hesperides_url}}"
 							],
 							"path": [
-								"modules",
-								"{{module_name}}",
-								"{{module_version}}",
-								"workingcopy"
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"{{module_type}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "deleteRelease",
+					"name": "deleteTemplateInWorkingCopy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fa5679bf-32d8-4e0e-9594-1fb564fdd991",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"techno_template_version_id\",0)"
+								]
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "basic",
@@ -309,17 +1162,23 @@
 						},
 						"method": "DELETE",
 						"header": [],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
-							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/release",
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/workingcopy/templates/{{techno_template_name}}",
 							"host": [
 								"{{hesperides_url}}"
 							],
 							"path": [
-								"modules",
-								"{{module_name}}",
-								"{{module_version}}",
-								"release"
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"workingcopy",
+								"templates",
+								"{{techno_template_name}}"
 							]
 						}
 					},
