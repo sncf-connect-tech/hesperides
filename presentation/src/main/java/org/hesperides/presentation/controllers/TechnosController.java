@@ -35,6 +35,8 @@ import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -51,7 +53,8 @@ import static org.hesperides.domain.security.User.fromAuthentication;
 @Slf4j
 @Api("/templates/packages")
 @RestController
-@RequestMapping("/templates/packages")
+@RequestMapping(value = "/templates/packages",
+        produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class TechnosController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
@@ -96,6 +99,22 @@ public class TechnosController extends BaseController {
 
         return ResponseEntity.ok(templateOutput);
 
+    }
+    @GetMapping(value = "/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
+    @ApiOperation("Get template's details")
+    public ResponseEntity<TemplateIO> getTemplate(@PathVariable("techno_name") final String technoName,
+                                                  @PathVariable("techno_version") final String technoVersion,
+                                                  @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType,
+                                                  @PathVariable("template_name") final String templateName) {
+
+        Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
+        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateName)
+                .map(TemplateIO::fromTemplateView)
+                .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateName));
+        //TODO: trouver une solution vis à vis du renvoi de 406 "Not Acceptable" lorsque le nom d'un template est composé d'un ".sh"
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(templateOutput, headers, HttpStatus.OK);
     }
 
     @ApiOperation("Delete a techno")
@@ -168,7 +187,6 @@ public class TechnosController extends BaseController {
 
         return ResponseEntity.ok(technoOutputs);
     }
-
     @ApiOperation("Create a copy of a techno")
     @PostMapping
     public ResponseEntity<TechnoIO> copyTechno(Authentication authentication,
@@ -186,3 +204,4 @@ public class TechnosController extends BaseController {
         return ResponseEntity.created(createdTechnoKey.getURI(Module.KEY_PREFIX)).body(technoOutput);
     }
 }
+
