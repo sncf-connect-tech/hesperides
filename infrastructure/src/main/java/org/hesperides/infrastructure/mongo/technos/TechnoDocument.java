@@ -65,6 +65,7 @@ public class TechnoDocument {
         }
         templates.add(templateDocument);
     }
+
     public void updateTemplate(TemplateDocument updatedTemplateDocument) {
         removeTemplate(updatedTemplateDocument.getName());
         addTemplate(updatedTemplateDocument);

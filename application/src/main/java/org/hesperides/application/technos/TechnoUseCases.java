@@ -1,5 +1,7 @@
 package org.hesperides.application.technos;
 
+import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
+import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.commands.TechnoCommands;
 import org.hesperides.domain.technos.entities.Techno;
@@ -94,5 +96,22 @@ public class TechnoUseCases {
 
     public List<TechnoView> search(String input) {
         return queries.search(input);
+    }
+
+    public TechnoView createWorkingCopyFrom(TemplateContainer.Key existingTechnoKey, TemplateContainer.Key newTechnoKey, User user) {
+        if (queries.technoExists(newTechnoKey)) {
+            throw new DuplicateModuleException(newTechnoKey);
+        }
+
+        Optional<TechnoView> technoView = queries.getTechno(existingTechnoKey);
+        if (!technoView.isPresent()) {
+            throw new ModuleNotFoundException(existingTechnoKey);
+        }
+
+        Techno existingTechno = technoView.get().toDomainInstance();
+        Techno newTechno = new Techno(newTechnoKey, existingTechno.getTemplates());
+
+        commands.createTechno(newTechno, user);
+        return queries.getTechno(newTechnoKey).get();
     }
 }

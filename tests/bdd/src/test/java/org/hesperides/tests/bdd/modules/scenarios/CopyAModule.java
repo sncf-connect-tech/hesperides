@@ -1,64 +1,54 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
-import com.google.common.collect.ImmutableList;
 import cucumber.api.java8.En;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
-import org.hesperides.presentation.io.PartialTemplateIO;
-import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.contexts.ExistingModuleContext;
-import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
+import org.hesperides.tests.bdd.modules.ModuleAssertions;
+import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
+import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class CopyAModule extends CucumberSpringBean implements En {
 
-    private ModuleIO moduleInput;
+    @Autowired
+    private ModuleContext moduleContext;
+    @Autowired
+    private TechnoContext technoContext;
+
     private ResponseEntity<ModuleIO> response;
 
-    @Autowired
-    private ExistingModuleContext existingModule;
-    @Autowired
-    private ExistingTemplateContext existingTemplate;
-
     public CopyAModule() {
+
+        Given("^the techno is attached to the module$", () -> {
+            ModuleIO moduleInput = ModuleSamples.getModuleInputWithTechnoAndVersionId(technoContext.getTechnoKey(), 1);
+            moduleContext.updateModule(moduleInput);
+        });
+
         When("^creating a copy of this module$", () -> {
-            moduleInput = new ModuleIO("test", "1.0.1", true, ImmutableList.of(), 0L);
-            TemplateContainer.Key moduleKey = existingModule.getModuleKey();
-            response = rest.getTestRest().postForEntity("/modules?from_module_name={moduleName}&from_module_version={moduleVersion}&from_is_working_copy={isWorkingCopy}",
-                    moduleInput, ModuleIO.class,
-                    moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
+            ModuleIO moduleInput = ModuleSamples.getModuleInputWithNameAndVersion("module-copy", "1.0.1");
+            response = copyModule(moduleInput);
         });
 
         Then("^the module is successfully and completely duplicated$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
-            ModuleIO moduleOutput = response.getBody();
-            assertEquals(moduleInput.getName(), moduleOutput.getName());
-            assertEquals(moduleInput.getVersion(), moduleOutput.getVersion());
-            assertEquals(moduleInput.isWorkingCopy(), moduleOutput.isWorkingCopy());
-            assertTemplate();
-            assertTechno(moduleOutput.getTechnos());
-            assertEquals(1L, moduleOutput.getVersionId().longValue());
+            ModuleIO actualModuleOutput = response.getBody();
+            ModuleIO expectedModuleOutput = ModuleSamples.getModuleInputWithNameAndVersionAndTechno("module-copy", "1.0.1", technoContext.getTechnoKey());
+            ModuleAssertions.assertModule(expectedModuleOutput, actualModuleOutput, 1L);
         });
     }
 
-    private void assertTechno(List<TechnoIO> technos) {
-        TemplateContainer.Key existingTechnoKey = existingModule.getExistingTechno().getTechnoKey();
-        TechnoIO moduleTechno = technos.get(0);
-        //TODO Récupérer la techno via un appel rest ?
-        assertEquals(existingTechnoKey.getName(), moduleTechno.getName());
-        assertEquals(existingTechnoKey.getVersion(), moduleTechno.getVersion());
-        assertEquals(existingTechnoKey.getVersionType(), TemplateContainer.getVersionType(moduleTechno.isWorkingCopy()));
+    public ResponseEntity<ModuleIO> copyModule(ModuleIO moduleInput) {
+        TemplateContainer.Key moduleKey = moduleContext.getModuleKey();
+        return rest.getTestRest().postForEntity("/modules?from_module_name={moduleName}&from_module_version={moduleVersion}&from_is_working_copy={isWorkingCopy}",
+                moduleInput, ModuleIO.class,
+                moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
     }
 
-    private void assertTemplate() {
-        PartialTemplateIO template = GetTemplates.getTemplates(rest, existingModule.getModuleKey()).getBody()[0];
-        assertEquals(existingTemplate.getTemplateInput().getName(), template.getName());
-    }
+    //TODO Assert templates
 }

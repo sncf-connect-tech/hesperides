@@ -1,10 +1,12 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.contexts.ExistingTemplateContext;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
+import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
+import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -15,26 +17,29 @@ import static org.junit.Assert.assertEquals;
 
 public class UpdateATemplate extends CucumberSpringBean implements En {
 
-    private ResponseEntity response;
-
     @Autowired
-    private ExistingTemplateContext existingTemplate;
+    private TemplateContext templateContext;
+    @Autowired
+    private ModuleContext moduleContext;
+
+    private ResponseEntity response;
 
     public UpdateATemplate() {
 
         When("^updating this template$", () -> {
-            updateTemplate(false);
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            response = updateTemplate(templateInput);
         });
 
-        When("^updating the same version of the template alongside$", () -> {
-            updateTemplate(true);
+        When("^updating the same template at the same time$", () -> {
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            response = failTryingToUpdateTemplate(templateInput);
         });
 
         Then("^the template is successfully updated", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            TemplateIO template = (TemplateIO) response.getBody();
-            assertEquals(2L, template.getVersionId().longValue());
-            //TODO Tester le reste par rapport à l'input ?
+            TemplateIO templateOutput = (TemplateIO) response.getBody();
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, moduleContext.getNamespace(), 2L);
         });
 
         Then("^the template update is rejected$", () -> {
@@ -42,22 +47,14 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
         });
     }
 
-    private void updateTemplate(boolean isGoingToThrowAnError) {
-        TemplateIO.FileRightsIO rightsInput = new TemplateIO.FileRightsIO(true, true, true);
-        TemplateIO templateInput = new TemplateIO("templateName", null, "template.name", "template.location", "content-bis",
-                new TemplateIO.RightsIO(rightsInput, rightsInput, rightsInput), 1L);
-        Module.Key moduleKey = existingTemplate.getExistingModuleContext().getModuleKey();
-
-        if (isGoingToThrowAnError) {
-            response = rest.doWithErrorHandlerDisabled(rest -> rest.exchange("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/",
-                    HttpMethod.PUT, new HttpEntity<>(templateInput), String.class, moduleKey.getName(), moduleKey.getVersion()));
-        } else {
-            response = rest.putForEntity("/modules/{moduleName}/{moduleVersion}/workingcopy/templates/", templateInput, TemplateIO.class, moduleKey.getName(), moduleKey.getVersion());
-        }
+    private ResponseEntity failTryingToUpdateTemplate(TemplateIO templateInput) {
+        return rest.doWithErrorHandlerDisabled(rest ->
+                rest.exchange(templateContext.getTemplatesURI(), HttpMethod.PUT, new HttpEntity<>(templateInput), String.class));
     }
 
-    /**
-     * TODO Tester la tentative de modification d'un template qui n'existe pas => 404
-     * TODO Tester la tentative de modification d'un template qui a été modifié entre temps => 409
-     */
+    private ResponseEntity updateTemplate(TemplateIO templateInput) {
+        return rest.putForEntity(templateContext.getTemplatesURI(), templateInput, TemplateIO.class);
+    }
+
+    // TODO Tester la tentative de modification d'un template qui n'existe pas => 404
 }

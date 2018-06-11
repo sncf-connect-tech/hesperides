@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.commons.tools;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -13,20 +12,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
 
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class HesperideTestRestTemplate {
 
-    private final Environment environment;
     private final TestRestTemplate rest;
     private final ResponseErrorHandler noopResponseHandler;
 
-    public HesperideTestRestTemplate(Environment environment, TestRestTemplate rest) {
+    public HesperideTestRestTemplate(TestRestTemplate rest) {
         super();
-        this.environment = environment;
         this.rest = rest;
         this.noopResponseHandler = rest.getRestTemplate().getErrorHandler();
         rest.getRestTemplate().setErrorHandler(new DefaultResponseErrorHandler());
@@ -61,22 +57,8 @@ public class HesperideTestRestTemplate {
         return response;
     }
 
-    private URI absoluteURI(URI relativeUri) {
-        String port = this.environment.getProperty("local.server.port", "8080");
-        return URI.create("http://localhost:" + port + relativeUri.toString());
-    }
-
-    public URI putForLocationReturnAbsoluteURI(String url, Object input, Object... params) {
-        ResponseEntity responseEntity = rest.exchange(url, HttpMethod.PUT, new HttpEntity<>(input), String.class, params);
-        return absoluteURI(responseEntity.getHeaders().getLocation());
-    }
-
     public <T> ResponseEntity<T> putForEntity(String url, Object request, Class<T> responseType, Object... urlVariables) {
         return rest.exchange(url, HttpMethod.PUT, new HttpEntity<>(request), responseType, urlVariables);
-    }
-
-    public URI postForLocationReturnAbsoluteURI(String url, Object input, Object... params) {
-        return absoluteURI(rest.postForLocation(url, input, params));
     }
 
     public void addCreds(String user, String password) {
