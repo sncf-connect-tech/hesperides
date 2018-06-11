@@ -25,13 +25,13 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class PropertiesModelView {
+public class PropertiesModel {
 
-    List<KeyValuePropertyView> keyValueProperties;
-    List<IterablePropertyView> iterableProperties;
+    List<KeyValueProperty> keyValueProperties;
+    List<IterableProperty> iterableProperties;
 
     @Value
-    public static class KeyValuePropertyView {
+    public static class KeyValueProperty {
         String name;
         boolean isRequired;
         String comment;
@@ -41,7 +41,7 @@ public class PropertiesModelView {
     }
 
     @Value
-    public static class IterablePropertyView {
+    public static class IterableProperty {
         //TODO
     }
 }

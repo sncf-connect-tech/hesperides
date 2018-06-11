@@ -14,7 +14,7 @@ import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.PropertiesModelView;
+import org.hesperides.domain.templatecontainer.queries.PropertiesModel;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -123,9 +123,9 @@ public class TechnoUseCases {
         return queries.getTechno(newTechnoKey).get();
     }
 
-    public PropertiesModelView getPropertiesModel(TemplateContainer.Key technoKey) {
-        List<PropertiesModelView.KeyValuePropertyView> keyValueProperties = new ArrayList<>();
-        List<PropertiesModelView.IterablePropertyView> iterableProperties = new ArrayList<>();
+    public PropertiesModel getPropertiesModel(TemplateContainer.Key technoKey) {
+        List<PropertiesModel.KeyValueProperty> keyValueProperties = new ArrayList<>();
+        List<PropertiesModel.IterableProperty> iterableProperties = new ArrayList<>();
 
         /**
          * Récupérer les templates de la techno
@@ -143,6 +143,6 @@ public class TechnoUseCases {
             }
         }
 
-        return new PropertiesModelView(keyValueProperties, iterableProperties);
+        return new PropertiesModel(keyValueProperties, iterableProperties);
     }
 }

@@ -25,10 +25,12 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.github.mustachejava.codes.ValueCode;
-import org.hesperides.domain.templatecontainer.queries.PropertiesModelView;
+import org.hesperides.domain.templatecontainer.queries.PropertiesModel;
 import org.junit.Test;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,53 +70,90 @@ public class MustacheTest {
     }
 
     @Test
-    public void test() {
+    public void testExtractKeyValueProperties() {
+        List<PropertiesModel.KeyValueProperty> keyValueProperties = extractKeyValueProperties("{{ foo}} {{bar }} {{ fub }}");
+        assertEquals(3, keyValueProperties.size());
+        assertEquals("foo", keyValueProperties.get(0).getName());
+        assertEquals("bar", keyValueProperties.get(1).getName());
+        assertEquals("fub", keyValueProperties.get(2).getName());
+    }
+
+    public List<PropertiesModel.KeyValueProperty> extractKeyValueProperties(String content) {
+        List<PropertiesModel.KeyValueProperty> keyValueProperties = new ArrayList<>();
+
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
-        Mustache mustache = mustacheFactory.compile(new StringReader("{{foo|@comment \"comment\"|@required|@default 5|@pattern \"pattern\"|@password}}"), "something");
+        Mustache mustache = mustacheFactory.compile(new StringReader(content), "something");
         for (Code code : mustache.getCodes()) {
             if (code instanceof ValueCode) {
 
-                String variableDefinition = code.getName();
-                if (variableDefinition != null) {
-                    String[] variableProperties = variableDefinition.split("[|]");
-
-                    String variableName = variableProperties[0].trim();
-                    boolean isRequired = false;
-                    String comment = "";
-                    String defaultValue = "";
-                    String pattern = "";
-                    boolean isPassword = false;
-
-                    if (variableProperties.length > 1) {
-                        for (int i = 1; i < variableProperties.length; i++) {
-                            String variableProperty = variableProperties[i];
-                            VariableOption variableOption = extractVariableOptionFrom(variableProperty);
-                            if (variableOption != null) {
-                                switch (variableOption) {
-                                    case IS_REQUIRED:
-                                        isRequired = true;
-                                        break;
-                                    case COMMENT:
-                                        comment = extractVariableOptionValue(variableProperty);
-                                        break;
-                                    case DEFAULT_VALUE:
-                                        defaultValue = extractVariableOptionValue(variableProperty);
-                                        break;
-                                    case PATTERN:
-                                        pattern = extractVariableOptionValue(variableProperty);
-                                        break;
-                                    case IS_PASSWORD:
-                                        isPassword = true;
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                    PropertiesModelView.KeyValuePropertyView keyValuePropertyView = new PropertiesModelView.KeyValuePropertyView(variableName, isRequired, comment, defaultValue, pattern, isPassword);
+                PropertiesModel.KeyValueProperty keyValueProperty = extractKeyValueProperty(code.getName());
+                if (keyValueProperty != null) {
+                    keyValueProperties.add(keyValueProperty);
                 }
             }
         }
+        return keyValueProperties;
+    }
 
+    @Test
+    public void testExtractKeyValueProperty() {
+        PropertiesModel.KeyValueProperty completeKeyValueProperty = extractKeyValueProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
+        assertEquals("foo", completeKeyValueProperty.getName());
+        assertEquals(true, completeKeyValueProperty.isRequired());
+        assertEquals("comment", completeKeyValueProperty.getComment());
+        assertEquals("5", completeKeyValueProperty.getDefaultValue());
+        assertEquals("pattern", completeKeyValueProperty.getPattern());
+        assertEquals(true, completeKeyValueProperty.isPassword());
+        
+        PropertiesModel.KeyValueProperty minimalistKeyValueProperty = extractKeyValueProperty("bar");
+        assertEquals("bar", minimalistKeyValueProperty.getName());
+        assertEquals(false, minimalistKeyValueProperty.isRequired());
+        assertEquals("", minimalistKeyValueProperty.getComment());
+        assertEquals("", minimalistKeyValueProperty.getDefaultValue());
+        assertEquals("", minimalistKeyValueProperty.getPattern());
+        assertEquals(false, minimalistKeyValueProperty.isPassword());
+    }
+
+    private PropertiesModel.KeyValueProperty extractKeyValueProperty(String variableDefinition) {
+        PropertiesModel.KeyValueProperty keyValueProperty = null;
+        if (variableDefinition != null) {
+            String[] variableProperties = variableDefinition.split("[|]");
+
+            String variableName = variableProperties[0].trim();
+            boolean isRequired = false;
+            String comment = "";
+            String defaultValue = "";
+            String pattern = "";
+            boolean isPassword = false;
+
+            if (variableProperties.length > 1) {
+                for (int i = 1; i < variableProperties.length; i++) {
+                    String variableProperty = variableProperties[i];
+                    VariableOption variableOption = extractVariableOptionFrom(variableProperty);
+                    if (variableOption != null) {
+                        switch (variableOption) {
+                            case IS_REQUIRED:
+                                isRequired = true;
+                                break;
+                            case COMMENT:
+                                comment = extractVariableOptionValue(variableProperty);
+                                break;
+                            case DEFAULT_VALUE:
+                                defaultValue = extractVariableOptionValue(variableProperty);
+                                break;
+                            case PATTERN:
+                                pattern = extractVariableOptionValue(variableProperty);
+                                break;
+                            case IS_PASSWORD:
+                                isPassword = true;
+                                break;
+                        }
+                    }
+                }
+            }
+            keyValueProperty = new PropertiesModel.KeyValueProperty(variableName, isRequired, comment, defaultValue, pattern, isPassword);
+        }
+        return keyValueProperty;
     }
 
     /**
@@ -147,13 +186,12 @@ public class MustacheTest {
     }
 
     private String removeSurroundingQuotesIfPresent(String value) {
-        String result = value;
         boolean startsWithQuotes = "\"".equals(value.substring(0, 1));
         boolean endsWithQuotes = "\"".equals(value.substring(value.length() - 1));
-        if (startsWithQuotes) {
-            result = value.substring(1, value.length() - 1);
+        if (startsWithQuotes && endsWithQuotes) {
+            value = value.substring(1, value.length() - 1);
         }
-        return result.trim();
+        return value.trim();
     }
 
     @Test
@@ -169,7 +207,7 @@ public class MustacheTest {
         assertEquals("Surrounded by quotes", removeSurroundingQuotesIfPresent("\"Surrounded by quotes\""));
         assertEquals("Not surrounded by quotes", removeSurroundingQuotesIfPresent("Not surrounded by quotes"));
         assertEquals("Contains \"quotes\"", removeSurroundingQuotesIfPresent("Contains \"quotes\""));
-        assertEquals("Only starts with quotes", removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
-        assertEquals("Only end with quotes", removeSurroundingQuotesIfPresent("Only starts with quotes\""));
+        assertEquals("\"Only starts with quotes", removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
+        assertEquals("Only ends with quotes\"", removeSurroundingQuotesIfPresent("Only ends with quotes\""));
     }
 }

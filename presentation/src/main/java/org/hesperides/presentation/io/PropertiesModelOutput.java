@@ -22,7 +22,7 @@ package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.domain.templatecontainer.queries.PropertiesModelView;
+import org.hesperides.domain.templatecontainer.queries.PropertiesModel;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class PropertiesModelOutput {
         String pattern;
         boolean password;
 
-        public static KeyValuePropertyOutput fromViews(List<PropertiesModelView.KeyValuePropertyView> keyValuePropertyViews) {
+        public static KeyValuePropertyOutput fromViews(List<PropertiesModel.KeyValueProperty> keyValueProperties) {
 
         }
     }
@@ -54,7 +54,7 @@ public class PropertiesModelOutput {
         //TODO
     }
 
-    public static PropertiesModelOutput fromView(PropertiesModelView propertiesModelView) {
+    public static PropertiesModelOutput fromView(PropertiesModel propertiesModel) {
         return new PropertiesModelOutput()
     }
 }
