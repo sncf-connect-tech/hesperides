@@ -48,8 +48,8 @@ public class RetrieveATemplate extends CucumberSpringBean implements En {
 
         Then("^I get the detail of the template of this techno$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            TemplateIO chaussette = response.getBody();
-            TemplateAssertions.assertTemplateAgainstDefaultValues(chaussette,technoContext.getNamespace(),1);
+            TemplateIO templateOutput = response.getBody();
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput,technoContext.getNamespace(),1);
            });
     }
 }

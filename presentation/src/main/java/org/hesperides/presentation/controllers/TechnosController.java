@@ -53,7 +53,7 @@ import static org.hesperides.domain.security.User.fromAuthentication;
 @Slf4j
 @Api("/templates/packages")
 @RestController
-@RequestMapping(value = "/templates/packages")
+@RequestMapping("/templates/packages")
 public class TechnosController extends BaseController {
 
     private final TechnoUseCases technoUseCases;
@@ -99,7 +99,7 @@ public class TechnosController extends BaseController {
         return ResponseEntity.ok(templateOutput);
 
     }
-    @GetMapping(value = "/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
+    @GetMapping("/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
     @ApiOperation("Get template's details")
     public ResponseEntity<TemplateIO> getTemplate(@PathVariable("techno_name") final String technoName,
                                                   @PathVariable("techno_version") final String technoVersion,

@@ -9,12 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-import static org.hesperides.domain.Profiles.EMBEDDED_MONGO;
 import static org.hesperides.domain.Profiles.FAKE_MONGO;
 
 @Configuration
-@Profile({EMBEDDED_MONGO, FAKE_MONGO})
-public class AxonMongoEmbeddedEventStoreConfiguration {
+@Profile({FAKE_MONGO})
+public class FakeAxonMongoEventStoreConfiguration {
     @Bean
     @Primary
     public EventStorageEngine eventStore(MongoClient client) {

@@ -13,7 +13,7 @@ hesperides:
     database: ${EVENT_STORE_MONGO_DATABASE:axonframework}
     username: ${EVENT_STORE_MONGO_USERNAME}
     password: ${EVENT_STORE_MONGO_PASSWORD}
-  viewstore:
+  projection_repository:
     host: ${PROJECTION_REPOSITORY_MONGO_HOST:localhost}
     port: ${PROJECTION_REPOSITORY_PORT:27017}
     database: ${PROJECTION_REPOSITORY_MONGO_DATABASE:test}

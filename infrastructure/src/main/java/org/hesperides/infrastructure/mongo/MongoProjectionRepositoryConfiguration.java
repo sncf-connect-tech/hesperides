@@ -23,20 +23,20 @@ import static org.hesperides.domain.Profiles.MONGO;
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.infrastructure.mongo")
 @Profile(MONGO)
-public class MongoConfiguration {
-    @Value("${hesperides.viewstore.database}")
+public class MongoProjectionRepositoryConfiguration {
+    @Value("${hesperides.projection_repository.database}")
     private String database;
 
-    @Value("${hesperides.viewstore.host}")
+    @Value("${hesperides.projection_repository.host}")
     private String host;
 
-    @Value("${hesperides.viewstore.port}")
+    @Value("${hesperides.projection_repository.port}")
     private int port;
 
-    @Value("${hesperides.viewstore.username}")
+    @Value("${hesperides.projection_repository.username}")
     private String username;
 
-    @Value("${hesperides.viewstore.password}")
+    @Value("${hesperides.projection_repository.password}")
     private String password;
 
     @Bean
