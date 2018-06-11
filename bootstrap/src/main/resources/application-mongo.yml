@@ -7,16 +7,16 @@
 #  password: ${MONGO_PASSWORD}
 
 hesperides:
-  eventstore:
+  event_store:
     host: ${EVENT_STORE_MONGO_HOST:localhost}
     port: ${EVENT_STORE_MONGO_PORT:27017}
-    database: ${EVENT_STORE_MONGO_DATABASE:axonframework}
+    database: ${EVENT_STORE_MONGO_DATABASE:event_store}
     username: ${EVENT_STORE_MONGO_USERNAME}
     password: ${EVENT_STORE_MONGO_PASSWORD}
   projection_repository:
     host: ${PROJECTION_REPOSITORY_MONGO_HOST:localhost}
     port: ${PROJECTION_REPOSITORY_PORT:27017}
-    database: ${PROJECTION_REPOSITORY_MONGO_DATABASE:test}
+    database: ${PROJECTION_REPOSITORY_MONGO_DATABASE:projection_repository}
     username: ${PROJECTION_REPOSITORY_MONGO_USERNAME}
     password: ${PROJECTION_REPOSITORY_MONGO_PASSWORD}
 

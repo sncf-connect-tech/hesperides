@@ -20,19 +20,19 @@ import static org.hesperides.domain.Profiles.*;
 @Configuration
 @Profile({MONGO})
 public class AxonMongoEventStoreConfiguration {
-    @Value("${hesperides.eventstore.database}")
+    @Value("${hesperides.event_store.database}")
     private String database;
 
-    @Value("${hesperides.eventstore.host}")
+    @Value("${hesperides.event_store.host}")
     private String host;
 
-    @Value("${hesperides.eventstore.port}")
+    @Value("${hesperides.event_store.port}")
     private int port;
 
-    @Value("${hesperides.eventstore.username}")
+    @Value("${hesperides.event_store.username}")
     private String username;
 
-    @Value("${hesperides.eventstore.password}")
+    @Value("${hesperides.event_store.password}")
     private String password;
 
     @Bean
