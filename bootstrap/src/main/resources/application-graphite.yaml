@@ -1,0 +1,7 @@
+---
+metrics:
+  graphite:
+    host: ${GRAPHITE_HOST:127.0.0.1}
+    period: ${GRAPHITE_PERIOD:60} # in seconds
+    port: ${GRAPHITE_PORT:2003}
+    prefix: ${GRAPHITE_PREFIX:hesperides}
