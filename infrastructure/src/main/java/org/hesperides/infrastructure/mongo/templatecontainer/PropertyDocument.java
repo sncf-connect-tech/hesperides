@@ -21,7 +21,11 @@
 package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
+import org.hesperides.domain.templatecontainer.entities.Property;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Document
@@ -32,4 +36,28 @@ public class PropertyDocument {
     private String defaultValue;
     private String pattern;
     private boolean isPassword;
+
+    public static List<PropertyDocument> fromDomainInstances(List<Property> properties) {
+        List<PropertyDocument> propertyDocuments = null;
+        if (properties != null) {
+            propertyDocuments = properties.stream().map(PropertyDocument::fromDomainInstance).collect(Collectors.toList());
+        }
+        return propertyDocuments;
+    }
+
+    public static PropertyDocument fromDomainInstance(Property property) {
+        PropertyDocument propertyDocument = null;
+        if (property != null) {
+            propertyDocument = new PropertyDocument();
+            propertyDocument.setName(property.getName());
+            propertyDocument.setRequired(property.isPassword());
+            propertyDocument.setComment(property.getComment());
+            propertyDocument.setDefaultValue(property.getDefaultValue());
+            propertyDocument.setPattern(property.getPattern());
+            propertyDocument.setPassword(property.isPassword());
+        }
+        return propertyDocument;
+    }
+
+
 }

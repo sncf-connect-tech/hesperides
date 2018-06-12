@@ -30,7 +30,14 @@ import java.util.List;
 @Document
 public class ModelDocument {
     private List<PropertyDocument> properties;
+    private List<IterablePropertyDocument> iterableProperties;
 
-    public static KeyDocument fromDomainInstance(Model model) {
+    public static ModelDocument fromDomainInstance(Model model) {
+        ModelDocument modelDocument = new ModelDocument();
+        if (model != null) {
+            modelDocument.setProperties(PropertyDocument.fromDomainInstances(model.getProperties()));
+            modelDocument.setIterableProperties(IterablePropertyDocument.fromDomainInstances(model.getIterableProperties()));
+        }
+        return modelDocument;
     }
 }
