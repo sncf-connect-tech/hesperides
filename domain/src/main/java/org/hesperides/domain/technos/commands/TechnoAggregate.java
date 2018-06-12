@@ -13,9 +13,7 @@ import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.templatecontainer.entities.IterableProperty;
 import org.hesperides.domain.templatecontainer.entities.Model;
-import org.hesperides.domain.templatecontainer.entities.Property;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
@@ -168,8 +166,8 @@ class TechnoAggregate implements Serializable {
     }
 
     private Model generateModel() {
-        List<Property> properties = new ArrayList<>();
-        List<IterableProperty> iterableProperties = new ArrayList<>();
+        List<Model.Property> properties = new ArrayList<>();
+        List<Model.IterableProperty> iterableProperties = new ArrayList<>();
 
         templates.forEach((templateName, template) -> {
             properties.addAll(Model.extractProperties(template.getFilename()));

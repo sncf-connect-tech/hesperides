@@ -29,3 +29,4 @@ data class GetTemplateQuery(val technoKey: TemplateContainer.Key, val templateNa
 data class GetTemplatesQuery(val technoKey: TemplateContainer.Key)
 data class GetTechnoQuery(val technoKey: TemplateContainer.Key)
 data class SearchTechnosQuery(val input: String)
+data class GetTechnoModelQuery(val technoKey: TemplateContainer.Key)

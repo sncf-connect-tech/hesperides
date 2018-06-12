@@ -189,15 +189,17 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Get properties model")
     @GetMapping("/{techno_name}/{techno_version}/{version_type}/model")
-    public ResponseEntity<ModelOutput> getPropertiesModel(@PathVariable("techno_name") final String technoName,
-                                                          @PathVariable("techno_version") final String technoVersion,
-                                                          @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+    public ResponseEntity<ModelOutput> getModel(@PathVariable("techno_name") final String technoName,
+                                                @PathVariable("techno_version") final String technoVersion,
+                                                @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
 
-        log.debug("getPropertiesModel {} {} {}", technoName, technoVersion, versionType);
+        log.debug("getModel {} {} {}", technoName, technoVersion, versionType);
 
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
-        ModelView modelView = technoUseCases.getPropertiesModel(technoKey);
+        ModelView modelView = technoUseCases.getModel(technoKey);
         ModelOutput modelOutput = ModelOutput.fromView(modelView);
+
+        //TODO Gérer l'ordre des propriétés
 
         return ResponseEntity.ok(modelOutput);
     }

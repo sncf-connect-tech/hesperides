@@ -11,6 +11,7 @@ import java.util.List;
 public abstract class TemplateContainer {
     Key key;
     List<Template> templates;
+    Model model;
 
     @Value
     public static class Key {

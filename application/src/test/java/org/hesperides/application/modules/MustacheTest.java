@@ -20,21 +20,10 @@
  */
 package org.hesperides.application.modules;
 
-import com.github.mustachejava.Code;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.github.mustachejava.codes.ValueCode;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.entities.Model;
 import org.junit.Test;
 
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,7 +31,7 @@ public class MustacheTest {
 
     @Test
     public void testExtractKeyValueProperties() {
-        List<ModelView.PropertyView> keyValueProperties = extractKeyValueProperties("{{ foo}} {{bar }} {{ fub }}");
+        List<Model.Property> keyValueProperties = Model.extractProperties("{{ foo}} {{bar }} {{ fub }}");
         assertEquals(3, keyValueProperties.size());
         assertEquals("foo", keyValueProperties.get(0).getName());
         assertEquals("bar", keyValueProperties.get(1).getName());
@@ -51,37 +40,37 @@ public class MustacheTest {
 
     @Test
     public void testExtractKeyValueProperty() {
-        ModelView.PropertyView completePropertyView = extractKeyValueProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
-        assertEquals("foo", completePropertyView.getName());
-        assertEquals(true, completePropertyView.isRequired());
-        assertEquals("comment", completePropertyView.getComment());
-        assertEquals("5", completePropertyView.getDefaultValue());
-        assertEquals("pattern", completePropertyView.getPattern());
-        assertEquals(true, completePropertyView.isPassword());
+        Model.Property completeProperty = Model.Property.extractProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
+        assertEquals("foo", completeProperty.getName());
+        assertEquals(true, completeProperty.isRequired());
+        assertEquals("comment", completeProperty.getComment());
+        assertEquals("5", completeProperty.getDefaultValue());
+        assertEquals("pattern", completeProperty.getPattern());
+        assertEquals(true, completeProperty.isPassword());
 
-        ModelView.PropertyView minimalistPropertyView = extractKeyValueProperty("bar");
-        assertEquals("bar", minimalistPropertyView.getName());
-        assertEquals(false, minimalistPropertyView.isRequired());
-        assertEquals("", minimalistPropertyView.getComment());
-        assertEquals("", minimalistPropertyView.getDefaultValue());
-        assertEquals("", minimalistPropertyView.getPattern());
-        assertEquals(false, minimalistPropertyView.isPassword());
+        Model.Property minimalistProperty = Model.Property.extractProperty("bar");
+        assertEquals("bar", minimalistProperty.getName());
+        assertEquals(false, minimalistProperty.isRequired());
+        assertEquals("", minimalistProperty.getComment());
+        assertEquals("", minimalistProperty.getDefaultValue());
+        assertEquals("", minimalistProperty.getPattern());
+        assertEquals(false, minimalistProperty.isPassword());
     }
 
     @Test
     public void testExtractVariableOptionValue() {
-        assertEquals("something without any quotes", extractVariableOptionValue("@anyOption something without any quotes"));
-        assertEquals("something with quotes", extractVariableOptionValue(" @anyOption \"something with quotes\" "));
-        assertEquals("12", extractVariableOptionValue("@anyOption 12"));
-        assertEquals("something else", extractVariableOptionValue("   something that should not be there   @anyOption   something else      "));
+        assertEquals("something without any quotes", Model.Property.extractPropertyOptionValue("@anyOption something without any quotes"));
+        assertEquals("something with quotes", Model.Property.extractPropertyOptionValue(" @anyOption \"something with quotes\" "));
+        assertEquals("12", Model.Property.extractPropertyOptionValue("@anyOption 12"));
+        assertEquals("something else", Model.Property.extractPropertyOptionValue("   something that should not be there   @anyOption   something else      "));
     }
 
     @Test
     public void testRemoveSurroundingQuotesIfPresent() {
-        assertEquals("Surrounded by quotes", removeSurroundingQuotesIfPresent("\"Surrounded by quotes\""));
-        assertEquals("Not surrounded by quotes", removeSurroundingQuotesIfPresent("Not surrounded by quotes"));
-        assertEquals("Contains \"quotes\"", removeSurroundingQuotesIfPresent("Contains \"quotes\""));
-        assertEquals("\"Only starts with quotes", removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
-        assertEquals("Only ends with quotes\"", removeSurroundingQuotesIfPresent("Only ends with quotes\""));
+        assertEquals("Surrounded by quotes", Model.Property.removeSurroundingQuotesIfPresent("\"Surrounded by quotes\""));
+        assertEquals("Not surrounded by quotes", Model.Property.removeSurroundingQuotesIfPresent("Not surrounded by quotes"));
+        assertEquals("Contains \"quotes\"", Model.Property.removeSurroundingQuotesIfPresent("Contains \"quotes\""));
+        assertEquals("\"Only starts with quotes", Model.Property.removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
+        assertEquals("Only ends with quotes\"", Model.Property.removeSurroundingQuotesIfPresent("Only ends with quotes\""));
     }
 }

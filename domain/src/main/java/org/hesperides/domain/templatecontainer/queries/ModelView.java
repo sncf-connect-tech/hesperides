@@ -42,6 +42,7 @@ public class ModelView {
 
     @Value
     public static class IterablePropertyView {
-        //TODO
+        String name;
+        PropertyView property;
     }
 }

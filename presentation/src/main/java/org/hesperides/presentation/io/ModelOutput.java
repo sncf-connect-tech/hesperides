@@ -25,36 +25,83 @@ import lombok.Value;
 import org.hesperides.domain.templatecontainer.queries.ModelView;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 public class ModelOutput {
 
     @SerializedName("key_value_properties")
     List<PropertyOutput> properties;
-
     @SerializedName("iterable_properties")
     List<IterablePropertyOutput> iterableProperties;
 
     @Value
     public static class PropertyOutput {
+
         String name;
-        boolean comment;
-        boolean required;
+        @SerializedName("required")
+        boolean isRequired;
+        String comment;
         String defaultValue;
         String pattern;
-        boolean password;
+        @SerializedName("password")
+        boolean isPassword;
 
-        public static PropertyOutput fromViews(List<ModelView.PropertyView> propertyViews) {
-            return null;
+        public static List<PropertyOutput> fromViews(List<ModelView.PropertyView> propertyViews) {
+            List<PropertyOutput> propertyOutputs = null;
+            if (propertyViews != null) {
+                propertyOutputs = propertyViews.stream().map(PropertyOutput::fromView).collect(Collectors.toList());
+            }
+            return propertyOutputs;
+        }
+
+        public static PropertyOutput fromView(ModelView.PropertyView propertyView) {
+            PropertyOutput propertyOutput = null;
+            if (propertyView != null) {
+                propertyOutput = new PropertyOutput(
+                        propertyView.getName(),
+                        propertyView.isRequired(),
+                        propertyView.getComment(),
+                        propertyView.getDefaultValue(),
+                        propertyView.getPattern(),
+                        propertyView.isPassword()
+                );
+            }
+            return propertyOutput;
         }
     }
 
     @Value
     public static class IterablePropertyOutput {
-        //TODO
+
+        String name;
+        PropertyOutput propertyOutput;
+
+        public static List<IterablePropertyOutput> fromViews(List<ModelView.IterablePropertyView> iterablePropertyViews) {
+            List<IterablePropertyOutput> iterablePropertyOutputs = null;
+            if (iterablePropertyViews != null) {
+                iterablePropertyOutputs = iterablePropertyViews.stream().map(IterablePropertyOutput::fromView).collect(Collectors.toList());
+            }
+            return iterablePropertyOutputs;
+        }
+
+        public static IterablePropertyOutput fromView(ModelView.IterablePropertyView iterablePropertyView) {
+            IterablePropertyOutput iterablePropertyOutput = null;
+            if (iterablePropertyView != null) {
+                iterablePropertyOutput = new IterablePropertyOutput(iterablePropertyView.getName(), PropertyOutput.fromView(iterablePropertyView.getProperty()));
+            }
+            return iterablePropertyOutput;
+        }
     }
 
     public static ModelOutput fromView(ModelView modelView) {
-        return null;
+        ModelOutput modelOutput = null;
+        if (modelView != null) {
+            modelOutput = new ModelOutput(
+                    PropertyOutput.fromViews(modelView.getProperties()),
+                    IterablePropertyOutput.fromViews(modelView.getIterableProperties())
+            );
+        }
+        return modelOutput;
     }
 }

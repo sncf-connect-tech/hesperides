@@ -26,6 +26,7 @@ import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.ModelView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.ModelDocument;
@@ -159,6 +160,12 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         Pageable pageableRequest = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
         List<TechnoDocument> technoDocuments = technoRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageableRequest);
         return technoDocuments.stream().map(TechnoDocument::toTechnoView).collect(Collectors.toList());
+    }
+
+    @Override
+    public ModelView query(GetTechnoModelQuery query) {
+        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(query.getTechnoKey()));
+        return technoDocument.getModel().toModelView();
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

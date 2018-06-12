@@ -25,7 +25,7 @@ public class GetModel extends CucumberSpringBean implements En {
         });
 
         When("^retrieving the model of this tehno$", () -> {
-            response = rest.getTestRest().getForEntity(technoContext.getTemplatesURI() + "/model", ModelOutput.class);
+            response = rest.getTestRest().getForEntity(technoContext.getTechnoURI() + "/model", ModelOutput.class);
         });
 
         Then("^I get the properties model of this techno$", () -> {
@@ -36,4 +36,12 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals("bar", modelOutput.getProperties().get(1).getName());
         });
     }
+
+    /**
+     * TODO Tester :
+     * - Les iterables
+     * - Les propriétés qui ont le même nom dans des templates différents avec des options différentes
+     * - Les propriétés dans filename et location
+     * - Les propriétés qui ont le même nom avec des options différentes dans filename, location et content
+     */
 }

@@ -1,8 +1,5 @@
 package org.hesperides.application.technos;
 
-import com.github.mustachejava.Code;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.security.User;
@@ -19,8 +16,6 @@ import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +28,11 @@ public class TechnoUseCases {
 
     private final TechnoCommands commands;
     private final TechnoQueries queries;
-    private final MustacheFactory mustacheFactory;
 
     @Autowired
-    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries, MustacheFactory mustacheFactory) {
+    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries) {
         this.commands = commands;
         this.queries = queries;
-        this.mustacheFactory = mustacheFactory;
     }
 
     /**
@@ -123,26 +116,10 @@ public class TechnoUseCases {
         return queries.getTechno(newTechnoKey).get();
     }
 
-    public ModelView getPropertiesModel(TemplateContainer.Key technoKey) {
-        List<ModelView.PropertyView> keyValueProperties = new ArrayList<>();
-        List<ModelView.IterablePropertyView> iterableProperties = new ArrayList<>();
-
-        /**
-         * Récupérer les templates de la techno
-         * Pour chaque template, extraire les propriétés
-         * Et les fusionner
-         */
-
-        List<TemplateView> templateViews = getTemplates(technoKey);
-        if (templateViews != null) {
-            for (TemplateView templateView : templateViews) {
-                Mustache mustache = mustacheFactory.compile(new StringReader(templateView.getContent()), "something");
-                for (Code code : mustache.getCodes()) {
-//                    code.
-                }
-            }
+    public ModelView getModel(TemplateContainer.Key technoKey) {
+        if (!queries.technoExists(technoKey)) {
+            throw new TechnoNotFoundException(technoKey);
         }
-
-        return new ModelView(keyValueProperties, iterableProperties);
+        return queries.getModel(technoKey);
     }
 }

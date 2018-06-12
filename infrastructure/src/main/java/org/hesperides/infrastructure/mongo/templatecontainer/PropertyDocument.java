@@ -21,7 +21,8 @@
 package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
-import org.hesperides.domain.templatecontainer.entities.Property;
+import org.hesperides.domain.templatecontainer.entities.Model;
+import org.hesperides.domain.templatecontainer.queries.ModelView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class PropertyDocument {
     private String pattern;
     private boolean isPassword;
 
-    public static List<PropertyDocument> fromDomainInstances(List<Property> properties) {
+    public static List<PropertyDocument> fromDomainInstances(List<Model.Property> properties) {
         List<PropertyDocument> propertyDocuments = null;
         if (properties != null) {
             propertyDocuments = properties.stream().map(PropertyDocument::fromDomainInstance).collect(Collectors.toList());
@@ -45,7 +46,7 @@ public class PropertyDocument {
         return propertyDocuments;
     }
 
-    public static PropertyDocument fromDomainInstance(Property property) {
+    public static PropertyDocument fromDomainInstance(Model.Property property) {
         PropertyDocument propertyDocument = null;
         if (property != null) {
             propertyDocument = new PropertyDocument();
@@ -60,4 +61,22 @@ public class PropertyDocument {
     }
 
 
+    public static List<ModelView.PropertyView> toPropertyViews(List<PropertyDocument> propertyDocuments) {
+        List<ModelView.PropertyView> propertyViews=null;
+        if (propertyDocuments != null) {
+            propertyViews = propertyDocuments.stream().map(PropertyDocument::toPropertyView).collect(Collectors.toList());
+        }
+        return propertyViews;
+    }
+
+    public ModelView.PropertyView toPropertyView() {
+        return new ModelView.PropertyView(
+                name,
+                isRequired,
+                comment,
+                defaultValue,
+                pattern,
+                isPassword
+        );
+    }
 }

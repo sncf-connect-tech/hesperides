@@ -22,6 +22,7 @@ package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
 import org.hesperides.domain.templatecontainer.entities.Model;
+import org.hesperides.domain.templatecontainer.queries.ModelView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.List;
 @Data
 @Document
 public class ModelDocument {
+
     private List<PropertyDocument> properties;
     private List<IterablePropertyDocument> iterableProperties;
 
@@ -39,5 +41,12 @@ public class ModelDocument {
             modelDocument.setIterableProperties(IterablePropertyDocument.fromDomainInstances(model.getIterableProperties()));
         }
         return modelDocument;
+    }
+
+    public ModelView toModelView() {
+        return new ModelView(
+                PropertyDocument.toPropertyViews(properties),
+                IterablePropertyDocument.toIterableProperyViews(iterableProperties)
+        );
     }
 }
