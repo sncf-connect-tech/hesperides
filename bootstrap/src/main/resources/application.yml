@@ -9,12 +9,13 @@ spring:
   boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
 
+
 server:
   port: ${SERVER_PORT:8080}
   contextPath: /rest
   compression:
     enabled: true
-    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    mime-types: application/json
 
 ldap:
   url: ${LDAP_URL}
