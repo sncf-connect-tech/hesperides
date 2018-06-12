@@ -36,16 +36,19 @@ public interface TechnoProjectionRepository {
     void on(TechnoCreatedEvent event);
 
     @EventSourcingHandler
+    void on(TechnoDeletedEvent event);
+
+    @EventSourcingHandler
     void on(TemplateAddedToTechnoEvent event);
 
     @EventSourcingHandler
     void on(TechnoTemplateUpdatedEvent event);
 
     @EventSourcingHandler
-    void on(TechnoDeletedEvent event);
+    void on(TechnoTemplateDeletedEvent event);
 
     @EventSourcingHandler
-    void on(TechnoTemplateDeletedEvent event);
+    void on(TechnoModelUpdatedEvent event);
 
     /*** QUERY HANDLERS ***/
 

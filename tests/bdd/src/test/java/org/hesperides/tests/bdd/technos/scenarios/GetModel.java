@@ -1,7 +1,7 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.PropertiesModelOutput;
+import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
@@ -16,7 +16,7 @@ public class GetModel extends CucumberSpringBean implements En {
     @Autowired
     private TechnoContext technoContext;
 
-    private ResponseEntity<PropertiesModelOutput> response;
+    private ResponseEntity<ModelOutput> response;
 
     public GetModel() {
         Given("^templates with properties in this techno$", () -> {
@@ -25,15 +25,15 @@ public class GetModel extends CucumberSpringBean implements En {
         });
 
         When("^retrieving the model of this tehno$", () -> {
-            response = rest.getTestRest().getForEntity(technoContext.getTemplatesURI() + "/model", PropertiesModelOutput.class);
+            response = rest.getTestRest().getForEntity(technoContext.getTemplatesURI() + "/model", ModelOutput.class);
         });
 
         Then("^I get the properties model of this techno$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            PropertiesModelOutput propertiesModelOutput = response.getBody();
-            assertEquals(2, propertiesModelOutput.getKeyValueProperties().size());
-            assertEquals("foo", propertiesModelOutput.getKeyValueProperties().get(0).getName());
-            assertEquals("bar", propertiesModelOutput.getKeyValueProperties().get(1).getName());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(2, modelOutput.getProperties().size());
+            assertEquals("foo", modelOutput.getProperties().get(0).getName());
+            assertEquals("bar", modelOutput.getProperties().get(1).getName());
         });
     }
 }

@@ -18,43 +18,30 @@
  *
  *
  */
-package org.hesperides.presentation.io;
+package org.hesperides.domain.templatecontainer.queries;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.domain.templatecontainer.queries.PropertiesModel;
 
 import java.util.List;
 
 @Value
-public class PropertiesModelOutput {
+public class ModelView {
 
-    @SerializedName("key_value_properties")
-    List<KeyValuePropertyOutput> keyValueProperties;
-
-    @SerializedName("iterable_properties")
-    List<IterablePropertyOutput> iterableProperties;
+    List<PropertyView> properties;
+    List<IterablePropertyView> iterableProperties;
 
     @Value
-    public static class KeyValuePropertyOutput {
+    public static class PropertyView {
         String name;
-        boolean comment;
-        boolean required;
+        boolean isRequired;
+        String comment;
         String defaultValue;
         String pattern;
-        boolean password;
-
-        public static KeyValuePropertyOutput fromViews(List<PropertiesModel.KeyValueProperty> keyValueProperties) {
-
-        }
+        boolean isPassword;
     }
 
     @Value
-    public static class IterablePropertyOutput {
+    public static class IterablePropertyView {
         //TODO
-    }
-
-    public static PropertiesModelOutput fromView(PropertiesModel propertiesModel) {
-        return new PropertiesModelOutput()
     }
 }

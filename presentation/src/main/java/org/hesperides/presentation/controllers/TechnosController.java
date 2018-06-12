@@ -30,9 +30,9 @@ import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.PropertiesModel;
+import org.hesperides.domain.templatecontainer.queries.ModelView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
-import org.hesperides.presentation.io.PropertiesModelOutput;
+import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
@@ -189,17 +189,17 @@ public class TechnosController extends BaseController {
 
     @ApiOperation("Get properties model")
     @GetMapping("/{techno_name}/{techno_version}/{version_type}/model")
-    public ResponseEntity<PropertiesModelOutput> getPropertiesModel(@PathVariable("techno_name") final String technoName,
-                                                                    @PathVariable("techno_version") final String technoVersion,
-                                                                    @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+    public ResponseEntity<ModelOutput> getPropertiesModel(@PathVariable("techno_name") final String technoName,
+                                                          @PathVariable("techno_version") final String technoVersion,
+                                                          @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
 
         log.debug("getPropertiesModel {} {} {}", technoName, technoVersion, versionType);
 
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
-        PropertiesModel propertiesModel = technoUseCases.getPropertiesModel(technoKey);
-        PropertiesModelOutput propertiesModelOutput = PropertiesModelOutput.fromView(propertiesModel);
+        ModelView modelView = technoUseCases.getPropertiesModel(technoKey);
+        ModelOutput modelOutput = ModelOutput.fromView(modelView);
 
-        return ResponseEntity.ok(propertiesModelOutput);
+        return ResponseEntity.ok(modelOutput);
     }
 
 }

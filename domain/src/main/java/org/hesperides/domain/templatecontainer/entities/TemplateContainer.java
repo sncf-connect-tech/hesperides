@@ -12,25 +12,6 @@ public abstract class TemplateContainer {
     Key key;
     List<Template> templates;
 
-    public enum VersionType {
-        workingcopy("wc"),
-        release("release");
-
-        private final String minimizedForm;
-
-        VersionType(String minimizedForm) {
-            this.minimizedForm = minimizedForm;
-        }
-
-        public String getMinimizedForm() {
-            return minimizedForm;
-        }
-
-        public static String toString(boolean isWorkingCopy) {
-            return isWorkingCopy ? workingcopy.toString() : release.toString();
-        }
-    }
-
     @Value
     public static class Key {
         String name;
@@ -47,6 +28,25 @@ public abstract class TemplateContainer {
 
         public boolean isWorkingCopy() {
             return versionType == VersionType.workingcopy;
+        }
+    }
+
+    public enum VersionType {
+        workingcopy("wc"),
+        release("release");
+
+        private final String minimizedForm;
+
+        VersionType(String minimizedForm) {
+            this.minimizedForm = minimizedForm;
+        }
+
+        public String getMinimizedForm() {
+            return minimizedForm;
+        }
+
+        public static String toString(boolean isWorkingCopy) {
+            return isWorkingCopy ? workingcopy.toString() : release.toString();
         }
     }
 
