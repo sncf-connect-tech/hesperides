@@ -58,3 +58,9 @@ Feature: modules templates
     And multiple templates in this module
     When retrieving those templates
     Then the templates are retrieved
+
+  Scenario: get a template with its name ending in .sh bundled in a module
+    Given an existing module
+    And an existing template with a name ending in dot sh in this module
+    When retrieving this module template with a name ending in dot sh
+    Then the module template with a name ending in dot sh is retrieved
