@@ -21,7 +21,6 @@
 package org.hesperides.domain.modules.commands;
 
 import org.hesperides.domain.templatecontainer.entities.Model;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;

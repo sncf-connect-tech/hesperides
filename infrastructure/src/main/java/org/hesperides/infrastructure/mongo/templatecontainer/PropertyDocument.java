@@ -62,7 +62,7 @@ public class PropertyDocument {
 
 
     public static List<ModelView.PropertyView> toPropertyViews(List<PropertyDocument> propertyDocuments) {
-        List<ModelView.PropertyView> propertyViews=null;
+        List<ModelView.PropertyView> propertyViews = null;
         if (propertyDocuments != null) {
             propertyViews = propertyDocuments.stream().map(PropertyDocument::toPropertyView).collect(Collectors.toList());
         }

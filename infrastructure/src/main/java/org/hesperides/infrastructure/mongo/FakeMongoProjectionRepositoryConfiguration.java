@@ -33,7 +33,7 @@ import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
 
 @Configuration
 @Profile(FAKE_MONGO)
-public class FakeMongoConfiguration {
+public class FakeMongoProjectionRepositoryConfiguration {
 
     private static final String MONGO_DB_NAME = "fake_database";
 

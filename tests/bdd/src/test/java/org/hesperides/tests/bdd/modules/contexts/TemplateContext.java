@@ -25,7 +25,7 @@ public class TemplateContext extends CucumberSpringBean implements En {
         return retrieveExistingTemplate(TemplateSamples.DEFAULT_NAME);
     }
 
-    private ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
+    public ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
         return rest.getTestRest().getForEntity(getTemplateURI(name), TemplateIO.class);
     }
 

@@ -99,6 +99,20 @@ public class TechnosController extends BaseController {
 
     }
 
+    @GetMapping("/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
+    @ApiOperation("Get template's details")
+    public ResponseEntity<TemplateIO> getTemplate(@PathVariable("techno_name") final String technoName,
+                                                  @PathVariable("techno_version") final String technoVersion,
+                                                  @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType,
+                                                  @PathVariable("template_name") final String templateName) {
+
+        Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
+        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateName)
+                .map(TemplateIO::fromTemplateView)
+                .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateName));
+        return ResponseEntity.ok(templateOutput);
+    }
+
     @ApiOperation("Delete a techno")
     @DeleteMapping("/{techno_name}/{techno_version}/{version_type}")
     public ResponseEntity deleteTechno(Authentication authentication,
@@ -203,5 +217,4 @@ public class TechnosController extends BaseController {
 
         return ResponseEntity.ok(modelOutput);
     }
-
 }

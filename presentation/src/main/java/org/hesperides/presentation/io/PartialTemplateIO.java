@@ -6,7 +6,7 @@ import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import javax.validation.constraints.NotNull;
 
 @Value
-public class PartialTemplateIO {
+public class PartialTemplateIO implements Comparable<PartialTemplateIO> {
     @NotNull
     String name;
     String namespace;
@@ -22,5 +22,12 @@ public class PartialTemplateIO {
                 templateView.getFilename(),
                 templateView.getLocation()
         );
+    }
+
+    //L'implémentation de l'interface comparable nous permet de comparer (trier) les partials templates par leur nom
+    //Ce triage facilite les test et permet un retour plus propre à l'utilisateur.
+    @Override
+    public int compareTo(@NotNull PartialTemplateIO o) {
+        return this.name.compareTo(o.name);
     }
 }
