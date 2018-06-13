@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.templatecontainer.entities.Model;
 import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
@@ -84,6 +85,20 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(0, modelOutput.getProperties().size());
+        });
+
+        Given("^a template in this techno that has iterable properties$", () -> {
+            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a", "{{#it}}{{foo}}{{/it}}"));
+        });
+
+        Then("^the model of this techno contains all the iterable properties$", () -> {
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(1, modelOutput.getIterableProperties().size());
+            assertEquals("it", modelOutput.getIterableProperties().get(0).getName());
+            assertEquals(1, modelOutput.getIterableProperties().get(0).getProperties().size());
+            assertEquals("foo", modelOutput.getIterableProperties().get(0).getProperties().get(0).getName());
         });
     }
 

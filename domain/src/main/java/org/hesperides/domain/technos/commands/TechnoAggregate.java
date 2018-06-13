@@ -17,9 +17,7 @@ import org.hesperides.domain.templatecontainer.entities.Model;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -155,7 +153,7 @@ class TechnoAggregate implements Serializable {
     }
 
     private void updateModel(UserEvent userEvent) {
-        Model model = generateModel();
+        Model model = Model.generateModelFromTemplates(templates.values());
         apply(new TechnoModelUpdatedEvent(key, model, userEvent.getUser()));
     }
 
@@ -163,20 +161,5 @@ class TechnoAggregate implements Serializable {
     @SuppressWarnings("unused")
     private void on(TechnoModelUpdatedEvent event) {
         log.debug("Techno model updated");
-    }
-
-    private Model generateModel() {
-        List<Model.Property> properties = new ArrayList<>();
-        List<Model.IterableProperty> iterableProperties = new ArrayList<>();
-
-        templates.forEach((templateName, template) -> {
-            properties.addAll(Model.extractProperties(template.getFilename()));
-            properties.addAll(Model.extractProperties(template.getLocation()));
-            properties.addAll(Model.extractProperties(template.getContent()));
-        });
-
-        //TODO Extract iterable properties
-
-        return new Model(properties, iterableProperties);
     }
 }

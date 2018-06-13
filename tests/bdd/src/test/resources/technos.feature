@@ -95,3 +95,9 @@ Feature: technos related features
     And a template containing properties but is being deleted
     When retrieving the model of this techno
     Then the model of this techno does not contain the properties of the deleted template
+
+  Scenario: get a model from a techno that has iterable properties
+    Given an existing techno
+    And a template in this techno that has iterable properties
+    When retrieving the model of this techno
+    Then the model of this techno contains all the iterable properties

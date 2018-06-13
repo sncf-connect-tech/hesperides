@@ -31,7 +31,7 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractProperties() {
-        List<Model.Property> properties = Model.extractProperties("{{ foo}} {{bar }} {{ fub }}");
+        List<Model.Property> properties = Model.extractPropertiesFromStringContent("{{ foo}} {{bar }} {{ fub }}");
         assertEquals(3, properties.size());
         assertEquals("foo", properties.get(0).getName());
         assertEquals("bar", properties.get(1).getName());
@@ -59,10 +59,10 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractPropertyOptionValue() {
-        assertEquals("something without any quotes", Model.Property.extractPropertyOptionValue("@anyOption something without any quotes"));
-        assertEquals("something with quotes", Model.Property.extractPropertyOptionValue(" @anyOption \"something with quotes\" "));
-        assertEquals("12", Model.Property.extractPropertyOptionValue("@anyOption 12"));
-        assertEquals("something else", Model.Property.extractPropertyOptionValue("   something that should not be there   @anyOption   something else      "));
+        assertEquals("something without any quotes", Model.Property.extractPropertyAttributeValue("@anyOption something without any quotes"));
+        assertEquals("something with quotes", Model.Property.extractPropertyAttributeValue(" @anyOption \"something with quotes\" "));
+        assertEquals("12", Model.Property.extractPropertyAttributeValue("@anyOption 12"));
+        assertEquals("something else", Model.Property.extractPropertyAttributeValue("   something that should not be there   @anyOption   something else      "));
     }
 
     @Test

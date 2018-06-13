@@ -30,25 +30,29 @@ import java.util.stream.Collectors;
 
 @Data
 @Document
-public class IterablePropertyDocument {
+public class IterablePropertyDocument extends PropertyDocument {
 
-    private String name;
-    private PropertyDocument property;
+    private List<PropertyDocument> properties;
 
-    public static List<IterablePropertyDocument> fromDomainInstances(List<Model.IterableProperty> iterableProperties) {
+    public static List<IterablePropertyDocument> fromIterablePropertyDomainInstances(List<Model.IterableProperty> iterableProperties) {
         List<IterablePropertyDocument> iterablePropertyDocuments = null;
         if (iterableProperties != null) {
-            iterablePropertyDocuments = iterableProperties.stream().map(IterablePropertyDocument::fromDomainInstance).collect(Collectors.toList());
+            iterablePropertyDocuments = iterableProperties.stream().map(IterablePropertyDocument::fromIterablePropertyDomainInstance).collect(Collectors.toList());
         }
         return iterablePropertyDocuments;
     }
 
-    public static IterablePropertyDocument fromDomainInstance(Model.IterableProperty iterableProperty) {
+    public static IterablePropertyDocument fromIterablePropertyDomainInstance(Model.IterableProperty iterableProperty) {
         IterablePropertyDocument iterablePropertyDocument = null;
         if (iterableProperty != null) {
             iterablePropertyDocument = new IterablePropertyDocument();
             iterablePropertyDocument.setName(iterableProperty.getName());
-            iterablePropertyDocument.setProperty(PropertyDocument.fromDomainInstance(iterableProperty.getProperty()));
+            iterablePropertyDocument.setRequired(iterableProperty.isRequired());
+            iterablePropertyDocument.setComment(iterableProperty.getComment());
+            iterablePropertyDocument.setDefaultValue(iterableProperty.getDefaultValue());
+            iterablePropertyDocument.setPattern(iterableProperty.getPattern());
+            iterablePropertyDocument.setPassword(iterableProperty.isPassword());
+            iterablePropertyDocument.setProperties(PropertyDocument.fromDomainInstances(iterableProperty.getProperties()));
         }
         return iterablePropertyDocument;
     }
@@ -63,8 +67,13 @@ public class IterablePropertyDocument {
 
     public ModelView.IterablePropertyView toIterableProperyView() {
         return new ModelView.IterablePropertyView(
-                name,
-                property.toPropertyView()
+                getName(),
+                isRequired(),
+                getComment(),
+                getDefaultValue(),
+                getPattern(),
+                isPassword(),
+                PropertyDocument.toPropertyViews(properties)
         );
     }
 }

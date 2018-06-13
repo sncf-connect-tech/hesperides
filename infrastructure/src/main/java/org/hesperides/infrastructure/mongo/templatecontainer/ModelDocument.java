@@ -38,7 +38,7 @@ public class ModelDocument {
         ModelDocument modelDocument = new ModelDocument();
         if (model != null) {
             modelDocument.setProperties(PropertyDocument.fromDomainInstances(model.getProperties()));
-            modelDocument.setIterableProperties(IterablePropertyDocument.fromDomainInstances(model.getIterableProperties()));
+            modelDocument.setIterableProperties(IterablePropertyDocument.fromIterablePropertyDomainInstances(model.getIterableProperties()));
         }
         return modelDocument;
     }

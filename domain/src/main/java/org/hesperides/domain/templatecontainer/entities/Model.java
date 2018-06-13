@@ -27,9 +27,11 @@ import com.github.mustachejava.MustacheFactory;
 import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,25 +44,69 @@ public class Model {
     List<Property> properties;
     List<IterableProperty> iterableProperties;
 
-    public static List<Property> extractProperties(String content) {
-        List<Property> properties = new ArrayList<>();
+    public static Model generateModelFromTemplates(Collection<Template> templates) {
+        List<Model.Property> properties = new ArrayList<>();
+        List<Model.IterableProperty> iterableProperties = new ArrayList<>();
 
+        templates.forEach((template) -> {
+            properties.addAll(extractPropertiesFromStringContent(template.getFilename()));
+            properties.addAll(extractPropertiesFromStringContent(template.getLocation()));
+            properties.addAll(extractPropertiesFromStringContent(template.getContent()));
+            iterableProperties.addAll(extractIterablePropertiesFromStringContent(template.getFilename()));
+            iterableProperties.addAll(extractIterablePropertiesFromStringContent(template.getLocation()));
+            iterableProperties.addAll(extractIterablePropertiesFromStringContent(template.getContent()));
+        });
+
+        return new Model(properties, iterableProperties);
+    }
+
+    public static List<Property> extractPropertiesFromStringContent(String content) {
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         Mustache mustache = mustacheFactory.compile(new StringReader(content), "something");
-        for (Code code : mustache.getCodes()) {
+        return extractPropertiesFromMustacheCodes(mustache.getCodes());
+    }
+
+    private static List<Property> extractPropertiesFromMustacheCodes(Code[] codes) {
+        List<Property> properties = new ArrayList<>();
+        for (Code code : codes) {
             if (code instanceof ValueCode) {
                 Property property = Property.extractProperty(code.getName());
                 if (property != null) {
                     properties.add(property);
                 }
-            } else if (code instanceof IterableCode) {
-                //TODO
             }
         }
         return properties;
     }
 
+    public static List<IterableProperty> extractIterablePropertiesFromStringContent(String content) {
+        List<IterableProperty> iterableProperties = new ArrayList<>();
+
+        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+        Mustache mustache = mustacheFactory.compile(new StringReader(content), "something");
+        for (Code code : mustache.getCodes()) {
+            if (code instanceof IterableCode) {
+                Property parentProperty = Property.extractProperty(code.getName());
+                if (parentProperty != null) {
+                    List<Property> childProperties = extractPropertiesFromMustacheCodes(code.getCodes());
+                    IterableProperty iterableProperty = new IterableProperty(
+                            parentProperty.getName(),
+                            parentProperty.isRequired(),
+                            parentProperty.getComment(),
+                            parentProperty.getDefaultValue(),
+                            parentProperty.getPattern(),
+                            parentProperty.isPassword(),
+                            childProperties
+                    );
+                    iterableProperties.add(iterableProperty);
+                }
+            }
+        }
+        return iterableProperties;
+    }
+
     @Value
+    @NonFinal
     public static class Property {
 
         String name;
@@ -70,7 +116,7 @@ public class Model {
         String pattern;
         boolean isPassword;
 
-        public enum Option {
+        public enum Attribute {
             IS_REQUIRED("required"),
             COMMENT("comment"),
             DEFAULT_VALUE("default"),
@@ -79,7 +125,7 @@ public class Model {
 
             private final String name;
 
-            Option(String name) {
+            Attribute(String name) {
                 this.name = name;
             }
 
@@ -87,11 +133,11 @@ public class Model {
                 return name;
             }
 
-            public static Option fromName(String name) {
-                Option result = null;
-                for (Option option : Option.values()) {
-                    if (option.getName().equalsIgnoreCase(name)) {
-                        result = option;
+            public static Attribute fromName(String name) {
+                Attribute result = null;
+                for (Attribute attribute : Attribute.values()) {
+                    if (attribute.getName().equalsIgnoreCase(name)) {
+                        result = attribute;
                         break;
                     }
                 }
@@ -116,21 +162,21 @@ public class Model {
 
                 if (propertyAttributes.length > 1) {
                     for (int i = VARIABLE_NAME_INDEX + 1; i < propertyAttributes.length; i++) {
-                        String propertyAttribute = propertyAttributes[i];
-                        Property.Option propertyOption = extractPropertyOption(propertyAttribute);
-                        if (propertyOption != null) {
-                            switch (propertyOption) {
+                        String propertyAttributeDefinition = propertyAttributes[i];
+                        Attribute propertyAttribute = extractPropertyAttribute(propertyAttributeDefinition);
+                        if (propertyAttribute != null) {
+                            switch (propertyAttribute) {
                                 case IS_REQUIRED:
                                     isRequired = true;
                                     break;
                                 case COMMENT:
-                                    comment = extractPropertyOptionValue(propertyAttribute);
+                                    comment = extractPropertyAttributeValue(propertyAttributeDefinition);
                                     break;
                                 case DEFAULT_VALUE:
-                                    defaultValue = extractPropertyOptionValue(propertyAttribute);
+                                    defaultValue = extractPropertyAttributeValue(propertyAttributeDefinition);
                                     break;
                                 case PATTERN:
-                                    pattern = extractPropertyOptionValue(propertyAttribute);
+                                    pattern = extractPropertyAttributeValue(propertyAttributeDefinition);
                                     break;
                                 case IS_PASSWORD:
                                     isPassword = true;
@@ -148,27 +194,27 @@ public class Model {
          * Extrait l'option détectée à l'aide d'une expression régulière qui ressemble à ceci : @(required|comment|default|pattern|password)
          * TODO tester unitairement
          */
-        private static Property.Option extractPropertyOption(String value) {
-            Property.Option option = null;
+        private static Attribute extractPropertyAttribute(String value) {
+            Attribute attribute = null;
             if (value != null) {
                 // Concatène les options avec "|" comme séparateur
-                String options = Stream.of(Property.Option.values()).map(Property.Option::getName).collect(Collectors.joining("|"));
+                String options = Stream.of(Attribute.values()).map(Attribute::getName).collect(Collectors.joining("|"));
                 Pattern pattern = Pattern.compile("@(" + options + ")", Pattern.CASE_INSENSITIVE);
                 Matcher matcher = pattern.matcher(value);
                 if (matcher.find()) {
                     String optionName = matcher.group(1);
-                    option = Property.Option.fromName(optionName);
+                    attribute = Attribute.fromName(optionName);
                 }
             }
-            return option;
+            return attribute;
         }
 
         /**
          * Détecte le premier espace (' ') après le premier @
          */
-        public static String extractPropertyOptionValue(String variableOption) {
-            int indexOfFirstArobase = variableOption.indexOf("@");
-            String valueStartingAtFirstArobase = variableOption.substring(indexOfFirstArobase);
+        public static String extractPropertyAttributeValue(String attribute) {
+            int indexOfFirstArobase = attribute.indexOf("@");
+            String valueStartingAtFirstArobase = attribute.substring(indexOfFirstArobase);
             int indexOfFirstSpaceAfterOption = valueStartingAtFirstArobase.indexOf(" ");
             String valueThatMayBeSurroundedByQuotes = valueStartingAtFirstArobase.substring(indexOfFirstSpaceAfterOption);
             return removeSurroundingQuotesIfPresent(valueThatMayBeSurroundedByQuotes.trim());
@@ -185,8 +231,13 @@ public class Model {
     }
 
     @Value
-    public static class IterableProperty {
-        String name;
-        Model.Property property;
+    public static class IterableProperty extends Property {
+
+        List<Property> properties;
+
+        public IterableProperty(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword, List<Property> properties) {
+            super(name, isRequired, comment, defaultValue, pattern, isPassword);
+            this.properties = properties;
+        }
     }
 }
