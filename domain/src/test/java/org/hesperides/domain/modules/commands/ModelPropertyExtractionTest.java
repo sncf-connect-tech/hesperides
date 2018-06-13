@@ -18,9 +18,10 @@
  *
  *
  */
-package org.hesperides.application.modules;
+package org.hesperides.domain.modules.commands;
 
 import org.hesperides.domain.templatecontainer.entities.Model;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class MustacheTest {
 
     @Test
-    public void testExtractKeyValueProperties() {
+    public void testExtractProperties() {
         List<Model.Property> keyValueProperties = Model.extractProperties("{{ foo}} {{bar }} {{ fub }}");
         assertEquals(3, keyValueProperties.size());
         assertEquals("foo", keyValueProperties.get(0).getName());
@@ -39,7 +40,7 @@ public class MustacheTest {
     }
 
     @Test
-    public void testExtractKeyValueProperty() {
+    public void testExtractProperty() {
         Model.Property completeProperty = Model.Property.extractProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
         assertEquals("foo", completeProperty.getName());
         assertEquals(true, completeProperty.isRequired());
@@ -58,7 +59,7 @@ public class MustacheTest {
     }
 
     @Test
-    public void testExtractVariableOptionValue() {
+    public void testExtractPropertyOptionValue() {
         assertEquals("something without any quotes", Model.Property.extractPropertyOptionValue("@anyOption something without any quotes"));
         assertEquals("something with quotes", Model.Property.extractPropertyOptionValue(" @anyOption \"something with quotes\" "));
         assertEquals("12", Model.Property.extractPropertyOptionValue("@anyOption 12"));
