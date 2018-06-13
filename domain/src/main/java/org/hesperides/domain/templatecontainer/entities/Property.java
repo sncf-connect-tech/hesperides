@@ -51,7 +51,7 @@ public class Property {
     private static final String VARIABLE_ATTRIBUTES_SEPARATOR_REGEX = "[|]";
     private static final int VARIABLE_NAME_INDEX = 0;
 
-    public static Property extractProperty(String propertyDefinition) {
+    public static Property extractPropertyFromStringDefinition(String propertyDefinition) {
         Property property = null;
         if (propertyDefinition != null) {
             String[] propertyAttributes = propertyDefinition.split(VARIABLE_ATTRIBUTES_SEPARATOR_REGEX);

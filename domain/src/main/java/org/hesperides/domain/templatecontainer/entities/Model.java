@@ -63,29 +63,21 @@ public class Model {
         return extractPropertiesFromMustacheCodes(mustache.getCodes());
     }
 
-    private static List<Property> extractPropertiesFromMustacheCodes(Code[] codes) {
-        List<Property> properties = new ArrayList<>();
-        for (Code code : codes) {
-            if (code instanceof ValueCode) {
-                Property property = Property.extractProperty(code.getName());
-                if (property != null) {
-                    properties.add(property);
-                }
-            }
-        }
-        return properties;
-    }
-
     public static List<IterableProperty> extractIterablePropertiesFromStringContent(String content) {
+        //TODO Doit-on prévoir 
         List<IterableProperty> iterableProperties = new ArrayList<>();
 
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         Mustache mustache = mustacheFactory.compile(new StringReader(content), "something");
         for (Code code : mustache.getCodes()) {
             if (code instanceof IterableCode) {
-                Property parentProperty = Property.extractProperty(code.getName());
+                String parentPropertyDefinition = code.getName();
+                Property parentProperty = Property.extractPropertyFromStringDefinition(parentPropertyDefinition);
+
                 if (parentProperty != null) {
-                    List<Property> childProperties = extractPropertiesFromMustacheCodes(code.getCodes());
+                    Code[] childCodes = code.getCodes();
+                    List<Property> childProperties = extractPropertiesFromMustacheCodes(childCodes);
+
                     IterableProperty iterableProperty = new IterableProperty(
                             parentProperty.getName(),
                             parentProperty.isRequired(),
@@ -102,4 +94,17 @@ public class Model {
         return iterableProperties;
     }
 
+    private static List<Property> extractPropertiesFromMustacheCodes(Code[] codes) {
+        List<Property> properties = new ArrayList<>();
+        for (Code code : codes) {
+            if (code instanceof ValueCode) {
+                String propertyDefinition = code.getName();
+                Property property = Property.extractPropertyFromStringDefinition(propertyDefinition);
+                if (property != null) {
+                    properties.add(property);
+                }
+            }
+        }
+        return properties;
+    }
 }

@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class ModelPropertyExtractionTest {
 
     @Test
-    public void testExtractProperties() {
+    public void testExtractPropertiesFromStringContent() {
         List<Property> properties = Model.extractPropertiesFromStringContent("{{ foo}} {{bar }} {{ fub }}");
         assertEquals(3, properties.size());
         assertEquals("foo", properties.get(0).getName());
@@ -40,8 +40,8 @@ public class ModelPropertyExtractionTest {
     }
 
     @Test
-    public void testExtractProperty() {
-        Property completeProperty = Property.extractProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
+    public void testExtractPropertyFromStringDefinition() {
+        Property completeProperty = Property.extractPropertyFromStringDefinition("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
         assertEquals("foo", completeProperty.getName());
         assertEquals(true, completeProperty.isRequired());
         assertEquals("comment", completeProperty.getComment());
@@ -49,7 +49,7 @@ public class ModelPropertyExtractionTest {
         assertEquals("pattern", completeProperty.getPattern());
         assertEquals(true, completeProperty.isPassword());
 
-        Property minimalistProperty = Property.extractProperty("bar");
+        Property minimalistProperty = Property.extractPropertyFromStringDefinition("bar");
         assertEquals("bar", minimalistProperty.getName());
         assertEquals(false, minimalistProperty.isRequired());
         assertEquals("", minimalistProperty.getComment());
@@ -59,7 +59,7 @@ public class ModelPropertyExtractionTest {
     }
 
     @Test
-    public void testExtractPropertyOptionValue() {
+    public void testExtractPropertyAttributeValue() {
         assertEquals("something without any quotes", Property.extractPropertyAttributeValue("@anyOption something without any quotes"));
         assertEquals("something with quotes", Property.extractPropertyAttributeValue(" @anyOption \"something with quotes\" "));
         assertEquals("12", Property.extractPropertyAttributeValue("@anyOption 12"));
@@ -73,5 +73,10 @@ public class ModelPropertyExtractionTest {
         assertEquals("Contains \"quotes\"", Property.removeSurroundingQuotesIfPresent("Contains \"quotes\""));
         assertEquals("\"Only starts with quotes", Property.removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
         assertEquals("Only ends with quotes\"", Property.removeSurroundingQuotesIfPresent("Only ends with quotes\""));
+    }
+
+    @Test
+    public void testExtractIterablePropertiesFromStringContent() {
+
     }
 }
