@@ -43,7 +43,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
 
         When("^updating the template in this techno", () -> {
             TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
-            response = updateTemplate(templateInput);
+            response = technoContext.updateTemplate(templateInput);
         });
 
         Then("^the template in this techno is updated", () -> {
@@ -51,10 +51,6 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
             TemplateIO templateOutput = (TemplateIO) response.getBody();
             TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, technoContext.getNamespace(), 2L);
         });
-    }
-
-    private ResponseEntity updateTemplate(TemplateIO templateInput) {
-        return rest.putForEntity(technoContext.getTemplatesURI(), templateInput, TemplateIO.class);
     }
 
     // TODO Tester la tentative de modification d'un template qui n'existe pas => 404

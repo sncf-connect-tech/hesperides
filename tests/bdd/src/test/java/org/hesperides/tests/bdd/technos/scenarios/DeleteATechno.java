@@ -12,11 +12,11 @@ import static org.junit.Assert.assertEquals;
 public class DeleteATechno extends CucumberSpringBean implements En {
 
     @Autowired
-    private TechnoContext existingTechno;
+    private TechnoContext technoContext;
 
     public DeleteATechno() {
         When("^deleting this techno", () -> {
-            rest.getTestRest().delete(existingTechno.getTechnoURI());
+            rest.getTestRest().delete(technoContext.getTechnoURI());
         });
 
         Then("^the techno is successfully deleted$", () -> {
@@ -26,6 +26,6 @@ public class DeleteATechno extends CucumberSpringBean implements En {
     }
 
     private ResponseEntity<String> failTryingToRetrieveTechno() {
-        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existingTechno.getTemplatesURI(), String.class));
+        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(technoContext.getTemplatesURI(), String.class));
     }
 }

@@ -52,6 +52,11 @@ Feature: technos related features
     When updating the template in this techno
     Then the template in this techno is updated
 
+  Scenario: delete an existing template in a techno
+    Given an existing techno
+    When deleting the template in this techno
+    Then the template in this techno is successfully deleted
+
   Scenario: search for an existing techno
     Given a list of 12 technos
     When searching for a specific techno
@@ -67,8 +72,26 @@ Feature: technos related features
     When searching for a techno that does not exist
     Then the number of techno results is 0
 
-  Scenario: get model properties
+  Scenario: get a model from a techno with a template that has ambiguous properties
     Given an existing techno
-    And templates with properties in this techno
-    When retrieving the model of this tehno
-    Then I get the properties model of this techno
+    And a template that has properties with the same name but different attributes
+    When retrieving the model of this techno
+    Then the model of this techno contains all the properties with the same name from this template
+
+  Scenario: get a model from a techno with templates that have ambiguous properties
+    Given an existing techno
+    And templates that have properties with the same name but different attributes
+    When retrieving the model of this techno
+    Then the model of this techno contains all the properties with the same name from these templates
+
+  Scenario: get a model from a techno after updating its template
+    Given an existing techno
+    And a template containing properties that have been updated
+    When retrieving the model of this techno
+    Then the model of this techno contains the updated properties
+
+  Scenario: get a model from a techno after delete its template
+    Given an existing techno
+    And a template containing properties but is being deleted
+    When retrieving the model of this techno
+    Then the model of this techno does not contain the properties of the deleted template

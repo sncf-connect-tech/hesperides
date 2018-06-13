@@ -28,15 +28,15 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class MustacheTest {
+public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractProperties() {
-        List<Model.Property> keyValueProperties = Model.extractProperties("{{ foo}} {{bar }} {{ fub }}");
-        assertEquals(3, keyValueProperties.size());
-        assertEquals("foo", keyValueProperties.get(0).getName());
-        assertEquals("bar", keyValueProperties.get(1).getName());
-        assertEquals("fub", keyValueProperties.get(2).getName());
+        List<Model.Property> properties = Model.extractProperties("{{ foo}} {{bar }} {{ fub }}");
+        assertEquals(3, properties.size());
+        assertEquals("foo", properties.get(0).getName());
+        assertEquals("bar", properties.get(1).getName());
+        assertEquals("fub", properties.get(2).getName());
     }
 
     @Test
