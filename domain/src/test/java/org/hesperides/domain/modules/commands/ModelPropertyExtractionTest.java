@@ -21,6 +21,7 @@
 package org.hesperides.domain.modules.commands;
 
 import org.hesperides.domain.templatecontainer.entities.Model;
+import org.hesperides.domain.templatecontainer.entities.Property;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractProperties() {
-        List<Model.Property> properties = Model.extractPropertiesFromStringContent("{{ foo}} {{bar }} {{ fub }}");
+        List<Property> properties = Model.extractPropertiesFromStringContent("{{ foo}} {{bar }} {{ fub }}");
         assertEquals(3, properties.size());
         assertEquals("foo", properties.get(0).getName());
         assertEquals("bar", properties.get(1).getName());
@@ -40,7 +41,7 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractProperty() {
-        Model.Property completeProperty = Model.Property.extractProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
+        Property completeProperty = Property.extractProperty("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
         assertEquals("foo", completeProperty.getName());
         assertEquals(true, completeProperty.isRequired());
         assertEquals("comment", completeProperty.getComment());
@@ -48,7 +49,7 @@ public class ModelPropertyExtractionTest {
         assertEquals("pattern", completeProperty.getPattern());
         assertEquals(true, completeProperty.isPassword());
 
-        Model.Property minimalistProperty = Model.Property.extractProperty("bar");
+        Property minimalistProperty = Property.extractProperty("bar");
         assertEquals("bar", minimalistProperty.getName());
         assertEquals(false, minimalistProperty.isRequired());
         assertEquals("", minimalistProperty.getComment());
@@ -59,18 +60,18 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractPropertyOptionValue() {
-        assertEquals("something without any quotes", Model.Property.extractPropertyAttributeValue("@anyOption something without any quotes"));
-        assertEquals("something with quotes", Model.Property.extractPropertyAttributeValue(" @anyOption \"something with quotes\" "));
-        assertEquals("12", Model.Property.extractPropertyAttributeValue("@anyOption 12"));
-        assertEquals("something else", Model.Property.extractPropertyAttributeValue("   something that should not be there   @anyOption   something else      "));
+        assertEquals("something without any quotes", Property.extractPropertyAttributeValue("@anyOption something without any quotes"));
+        assertEquals("something with quotes", Property.extractPropertyAttributeValue(" @anyOption \"something with quotes\" "));
+        assertEquals("12", Property.extractPropertyAttributeValue("@anyOption 12"));
+        assertEquals("something else", Property.extractPropertyAttributeValue("   something that should not be there   @anyOption   something else      "));
     }
 
     @Test
     public void testRemoveSurroundingQuotesIfPresent() {
-        assertEquals("Surrounded by quotes", Model.Property.removeSurroundingQuotesIfPresent("\"Surrounded by quotes\""));
-        assertEquals("Not surrounded by quotes", Model.Property.removeSurroundingQuotesIfPresent("Not surrounded by quotes"));
-        assertEquals("Contains \"quotes\"", Model.Property.removeSurroundingQuotesIfPresent("Contains \"quotes\""));
-        assertEquals("\"Only starts with quotes", Model.Property.removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
-        assertEquals("Only ends with quotes\"", Model.Property.removeSurroundingQuotesIfPresent("Only ends with quotes\""));
+        assertEquals("Surrounded by quotes", Property.removeSurroundingQuotesIfPresent("\"Surrounded by quotes\""));
+        assertEquals("Not surrounded by quotes", Property.removeSurroundingQuotesIfPresent("Not surrounded by quotes"));
+        assertEquals("Contains \"quotes\"", Property.removeSurroundingQuotesIfPresent("Contains \"quotes\""));
+        assertEquals("\"Only starts with quotes", Property.removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
+        assertEquals("Only ends with quotes\"", Property.removeSurroundingQuotesIfPresent("Only ends with quotes\""));
     }
 }

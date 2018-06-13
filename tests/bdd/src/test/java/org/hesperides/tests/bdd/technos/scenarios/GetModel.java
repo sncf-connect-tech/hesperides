@@ -1,8 +1,8 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.entities.Model;
 import org.hesperides.presentation.io.ModelOutput;
+import org.hesperides.presentation.io.PropertyOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
@@ -36,11 +36,11 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(3, modelOutput.getProperties().size());
-            assertProperty(new ModelOutput.PropertyOutput("foo", false, "filename of template-a", "", "", false),
+            assertProperty(new PropertyOutput("foo", false, "filename of template-a", "", "", false),
                     modelOutput.getProperties().get(0));
-            assertProperty(new ModelOutput.PropertyOutput("foo", false, "location of template-a", "", "", false),
+            assertProperty(new PropertyOutput("foo", false, "location of template-a", "", "", false),
                     modelOutput.getProperties().get(1));
-            assertProperty(new ModelOutput.PropertyOutput("foo", true, "content of template-a", "12", "*", true),
+            assertProperty(new PropertyOutput("foo", true, "content of template-a", "12", "*", true),
                     modelOutput.getProperties().get(2));
         });
 
@@ -56,9 +56,9 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(2, modelOutput.getProperties().size());
             assertEquals(true, modelOutput.getProperties().contains(
-                    new ModelOutput.PropertyOutput("foo", true, "content of template-a", "12", "*", true)));
+                    new PropertyOutput("foo", true, "content of template-a", "12", "*", true)));
             assertEquals(true, modelOutput.getProperties().contains(
-                    new ModelOutput.PropertyOutput("foo", false, "content of template-b", "", "", false)));
+                    new PropertyOutput("foo", false, "content of template-b", "", "", false)));
         });
 
         Given("^a template containing properties that have been updated$", () -> {
@@ -71,7 +71,7 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
-            assertProperty(new ModelOutput.PropertyOutput("foo", false, "", "", "", false),
+            assertProperty(new PropertyOutput("foo", false, "", "", "", false),
                     modelOutput.getProperties().get(0));
         });
 
@@ -102,7 +102,7 @@ public class GetModel extends CucumberSpringBean implements En {
         });
     }
 
-    private void assertProperty(ModelOutput.PropertyOutput expectedProperty, ModelOutput.PropertyOutput actualProperty) {
+    private void assertProperty(PropertyOutput expectedProperty, PropertyOutput actualProperty) {
         assertEquals(expectedProperty.getName(), actualProperty.getName());
         assertEquals(expectedProperty.isRequired(), actualProperty.isRequired());
         assertEquals(expectedProperty.getComment(), actualProperty.getComment());

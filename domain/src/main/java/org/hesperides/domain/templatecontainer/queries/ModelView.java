@@ -21,7 +21,6 @@
 package org.hesperides.domain.templatecontainer.queries;
 
 import lombok.Value;
-import lombok.experimental.NonFinal;
 
 import java.util.List;
 
@@ -31,25 +30,4 @@ public class ModelView {
     List<PropertyView> properties;
     List<IterablePropertyView> iterableProperties;
 
-    @Value
-    @NonFinal
-    public static class PropertyView {
-        String name;
-        boolean isRequired;
-        String comment;
-        String defaultValue;
-        String pattern;
-        boolean isPassword;
-    }
-
-    @Value
-    public static class IterablePropertyView extends PropertyView {
-
-        List<PropertyView> properties;
-
-        public IterablePropertyView(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword, List<PropertyView> properties) {
-            super(name, isRequired, comment, defaultValue, pattern, isPassword);
-            this.properties = properties;
-        }
-    }
 }

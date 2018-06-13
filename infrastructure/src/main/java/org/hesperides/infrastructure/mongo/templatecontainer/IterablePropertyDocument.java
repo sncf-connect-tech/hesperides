@@ -21,8 +21,8 @@
 package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
-import org.hesperides.domain.templatecontainer.entities.Model;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.entities.IterableProperty;
+import org.hesperides.domain.templatecontainer.queries.IterablePropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class IterablePropertyDocument extends PropertyDocument {
 
     private List<PropertyDocument> properties;
 
-    public static List<IterablePropertyDocument> fromIterablePropertyDomainInstances(List<Model.IterableProperty> iterableProperties) {
+    public static List<IterablePropertyDocument> fromIterablePropertyDomainInstances(List<IterableProperty> iterableProperties) {
         List<IterablePropertyDocument> iterablePropertyDocuments = null;
         if (iterableProperties != null) {
             iterablePropertyDocuments = iterableProperties.stream().map(IterablePropertyDocument::fromIterablePropertyDomainInstance).collect(Collectors.toList());
@@ -42,7 +42,7 @@ public class IterablePropertyDocument extends PropertyDocument {
         return iterablePropertyDocuments;
     }
 
-    public static IterablePropertyDocument fromIterablePropertyDomainInstance(Model.IterableProperty iterableProperty) {
+    public static IterablePropertyDocument fromIterablePropertyDomainInstance(IterableProperty iterableProperty) {
         IterablePropertyDocument iterablePropertyDocument = null;
         if (iterableProperty != null) {
             iterablePropertyDocument = new IterablePropertyDocument();
@@ -57,16 +57,16 @@ public class IterablePropertyDocument extends PropertyDocument {
         return iterablePropertyDocument;
     }
 
-    public static List<ModelView.IterablePropertyView> toIterableProperyViews(List<IterablePropertyDocument> iterablePropertyDocuments) {
-        List<ModelView.IterablePropertyView> iterablePropertyViews = null;
+    public static List<IterablePropertyView> toIterableProperyViews(List<IterablePropertyDocument> iterablePropertyDocuments) {
+        List<IterablePropertyView> iterablePropertyViews = null;
         if (iterablePropertyDocuments != null) {
             iterablePropertyViews = iterablePropertyDocuments.stream().map(IterablePropertyDocument::toIterableProperyView).collect(Collectors.toList());
         }
         return iterablePropertyViews;
     }
 
-    public ModelView.IterablePropertyView toIterableProperyView() {
-        return new ModelView.IterablePropertyView(
+    public IterablePropertyView toIterableProperyView() {
+        return new IterablePropertyView(
                 getName(),
                 isRequired(),
                 getComment(),
