@@ -20,6 +20,7 @@
  */
 package org.hesperides.domain.modules.commands;
 
+import org.hesperides.domain.templatecontainer.entities.IterableProperty;
 import org.hesperides.domain.templatecontainer.entities.Model;
 import org.hesperides.domain.templatecontainer.entities.Property;
 import org.junit.Test;
@@ -41,29 +42,51 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractPropertyFromStringDefinition() {
-        Property completeProperty = Property.extractPropertyFromStringDefinition("foo|@required|@comment \"comment\"|@default 5|@pattern \"pattern\"|@password");
-        assertEquals("foo", completeProperty.getName());
-        assertEquals(true, completeProperty.isRequired());
-        assertEquals("comment", completeProperty.getComment());
-        assertEquals("5", completeProperty.getDefaultValue());
-        assertEquals("pattern", completeProperty.getPattern());
-        assertEquals(true, completeProperty.isPassword());
+        Property requiredCommentPatternPassword = Property.extractPropertyFromStringDefinition("foo|@required @comment \"a comment\" @pattern \"a pattern\" @password");
+        assertProperty(new Property("foo", true, "a comment", "", "a pattern", true), requiredCommentPatternPassword);
 
-        Property minimalistProperty = Property.extractPropertyFromStringDefinition("bar");
-        assertEquals("bar", minimalistProperty.getName());
-        assertEquals(false, minimalistProperty.isRequired());
-        assertEquals("", minimalistProperty.getComment());
-        assertEquals("", minimalistProperty.getDefaultValue());
-        assertEquals("", minimalistProperty.getPattern());
-        assertEquals(false, minimalistProperty.isPassword());
+        Property commentDefaultPatternPassword = Property.extractPropertyFromStringDefinition("foo|@comment \"a comment\" @default 12 @pattern \"a pattern\" @password");
+        assertProperty(new Property("foo", false, "a comment", "12", "a pattern", true), commentDefaultPatternPassword);
+
+        Property noAnnotationProperty = Property.extractPropertyFromStringDefinition("foo");
+        assertProperty(new Property("foo", false, "", "", "", false), noAnnotationProperty);
+
+        Property requiredPropery = Property.extractPropertyFromStringDefinition("foo|@required");
+        assertProperty(new Property("foo", true, "", "", "", false), requiredPropery);
+
+        Property commentProperty = Property.extractPropertyFromStringDefinition("foo|@comment \"a comment\"");
+        assertProperty(new Property("foo", false, "a comment", "", "", false), commentProperty);
+
+        Property defaultProperty = Property.extractPropertyFromStringDefinition("foo|@default 5");
+        assertProperty(new Property("foo", false, "", "5", "", false), defaultProperty);
+
+        Property patternProperty = Property.extractPropertyFromStringDefinition("foo|@pattern \"z\"");
+        assertProperty(new Property("foo", false, "", "", "z", false), patternProperty);
+
+        Property passwordProperty = Property.extractPropertyFromStringDefinition("foo|@password");
+        assertProperty(new Property("foo", false, "", "", "", true), passwordProperty);
+
+        Property moreThanOneAnnotationProperty = Property.extractPropertyFromStringDefinition("foo|@required   @comment \"a comment\"");
+        assertProperty(new Property("foo", true, "a comment", "", "", false), moreThanOneAnnotationProperty);
+
+        //TODO Tester le fait qu'on ne peut pas utiliser @required @default dans la même propriété
+    }
+
+    private void assertProperty(Property expectedProperty, Property actualProperty) {
+        assertEquals(expectedProperty.getName(), actualProperty.getName());
+        assertEquals(expectedProperty.isRequired(), actualProperty.isRequired());
+        assertEquals(expectedProperty.getComment(), actualProperty.getComment());
+        assertEquals(expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
+        assertEquals(expectedProperty.getPattern(), actualProperty.getPattern());
+        assertEquals(expectedProperty.isPassword(), actualProperty.isPassword());
     }
 
     @Test
-    public void testExtractPropertyAttributeValue() {
-        assertEquals("something without any quotes", Property.extractPropertyAttributeValue("@anyOption something without any quotes"));
-        assertEquals("something with quotes", Property.extractPropertyAttributeValue(" @anyOption \"something with quotes\" "));
-        assertEquals("12", Property.extractPropertyAttributeValue("@anyOption 12"));
-        assertEquals("something else", Property.extractPropertyAttributeValue("   something that should not be there   @anyOption   something else      "));
+    public void testExtractPropertyAnnotationValue() {
+        assertEquals("something without any quotes", Property.extractPropertyAnnotationValue("anyOption something without any quotes"));
+        assertEquals("something with quotes", Property.extractPropertyAnnotationValue("anyOption \"something with quotes\" "));
+        assertEquals("12", Property.extractPropertyAnnotationValue("anyOption 12"));
+        assertEquals("something else", Property.extractPropertyAnnotationValue("anyOption   something else      "));
     }
 
     @Test
@@ -77,6 +100,11 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractIterablePropertiesFromStringContent() {
-
+        String content = "{{#a}}{{foo}}{{#b}}{{bar}}{{/b}}{{/a}}";
+        List<IterableProperty> iterableProperties = Model.extractIterablePropertiesFromStringContent(content);
+        assertEquals("a", iterableProperties.get(0).getName());
+        assertEquals("foo", iterableProperties.get(0).getProperties().get(0).getName());
+        assertEquals("b", iterableProperties.get(0).getIterableProperties().get(0).getName());
+        assertEquals("bar", iterableProperties.get(0).getIterableProperties().get(0).getProperties().get(0).getName());
     }
 }

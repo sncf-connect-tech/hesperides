@@ -58,45 +58,9 @@ public class Model {
     }
 
     public static List<Property> extractPropertiesFromStringContent(String content) {
-        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
-        Mustache mustache = mustacheFactory.compile(new StringReader(content), "something");
-        return extractPropertiesFromMustacheCodes(mustache.getCodes());
-    }
-
-    public static List<IterableProperty> extractIterablePropertiesFromStringContent(String content) {
-        //TODO Doit-on prévoir 
-        List<IterableProperty> iterableProperties = new ArrayList<>();
-
-        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
-        Mustache mustache = mustacheFactory.compile(new StringReader(content), "something");
-        for (Code code : mustache.getCodes()) {
-            if (code instanceof IterableCode) {
-                String parentPropertyDefinition = code.getName();
-                Property parentProperty = Property.extractPropertyFromStringDefinition(parentPropertyDefinition);
-
-                if (parentProperty != null) {
-                    Code[] childCodes = code.getCodes();
-                    List<Property> childProperties = extractPropertiesFromMustacheCodes(childCodes);
-
-                    IterableProperty iterableProperty = new IterableProperty(
-                            parentProperty.getName(),
-                            parentProperty.isRequired(),
-                            parentProperty.getComment(),
-                            parentProperty.getDefaultValue(),
-                            parentProperty.getPattern(),
-                            parentProperty.isPassword(),
-                            childProperties
-                    );
-                    iterableProperties.add(iterableProperty);
-                }
-            }
-        }
-        return iterableProperties;
-    }
-
-    private static List<Property> extractPropertiesFromMustacheCodes(Code[] codes) {
         List<Property> properties = new ArrayList<>();
-        for (Code code : codes) {
+        Mustache mustache = getMustacheInstanceFromStringContent(content);
+        for (Code code : mustache.getCodes()) {
             if (code instanceof ValueCode) {
                 String propertyDefinition = code.getName();
                 Property property = Property.extractPropertyFromStringDefinition(propertyDefinition);
@@ -106,5 +70,43 @@ public class Model {
             }
         }
         return properties;
+    }
+
+    public static List<IterableProperty> extractIterablePropertiesFromStringContent(String content) {
+        List<IterableProperty> iterableProperties = new ArrayList<>();
+        Mustache mustache = getMustacheInstanceFromStringContent(content);
+        for (Code code : mustache.getCodes()) {
+            if (code instanceof IterableCode) {
+                iterableProperties.add(extractIterablePropertyFromMustacheCode((IterableCode) code));
+            }
+        }
+        return iterableProperties;
+    }
+
+    /**
+     * Méthode récursive permettant d'extraire les propriétés et les propriétés itérables contenues dans une propriété itérable.
+     *
+     * @param code
+     * @return
+     */
+    private static IterableProperty extractIterablePropertyFromMustacheCode(IterableCode code) {
+        String name = code.getName();
+        List<Property> properties = new ArrayList<>();
+        List<IterableProperty> iterableProperties = new ArrayList<>();
+
+        for (Code childCode : code.getCodes()) {
+            if (childCode instanceof ValueCode) {
+                properties.add(Property.extractPropertyFromStringDefinition(childCode.getName()));
+            } else if (childCode instanceof IterableCode) {
+                iterableProperties.add(extractIterablePropertyFromMustacheCode((IterableCode) childCode));
+            }
+        }
+        // Pour coller au legacy, on utilise les valeurs par défaut car les annotations ne sont pas ou plus utilisées dans les propriétés itératives
+        return new IterableProperty(name, false, "", "", "", false, properties, iterableProperties);
+    }
+
+    private static Mustache getMustacheInstanceFromStringContent(String content) {
+        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+        return mustacheFactory.compile(new StringReader(content), "anything");
     }
 }
