@@ -10,12 +10,16 @@ import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
+import org.hesperides.domain.templatecontainer.entities.Model;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -37,6 +41,13 @@ class TechnoAggregate implements Serializable {
     public TechnoAggregate(CreateTechnoCommand command) {
         log.debug("Applying CreateTechnoCommand...");
         apply(new TechnoCreatedEvent(command.getTechno(), command.getUser()));
+    }
+
+    @CommandHandler
+    @SuppressWarnings("unused")
+    public void on(DeleteTechnoCommand command) {
+        log.debug("Applying delete techno command...");
+        apply(new TechnoDeletedEvent(command.getTechnoKey(), command.getUser()));
     }
 
     @CommandHandler
@@ -92,14 +103,6 @@ class TechnoAggregate implements Serializable {
         apply(new TechnoTemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
     }
 
-
-    @CommandHandler
-    @SuppressWarnings("unused")
-    public void on(DeleteTechnoCommand command) {
-        log.debug("Applying delete techno command...");
-        apply(new TechnoDeletedEvent(command.getTechnoKey(), command.getUser()));
-    }
-
     @CommandHandler
     @SuppressWarnings("unused")
     public void on(DeleteTechnoTemplateCommand command) {
@@ -111,6 +114,8 @@ class TechnoAggregate implements Serializable {
 
     //EVENTS
 
+    //TODO Logs en anglais et plus précis (avec données ?)
+
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void on(TechnoCreatedEvent event) {
@@ -120,9 +125,17 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
+    private void on(TechnoDeletedEvent event) { //TODO Pourquoi private ?? Est-ce que ça fonctionne ?
+        this.key = event.getTechnoKey(); //TODO Pourquoi ?
+        log.debug("Techno deleted (aggregate is live ? {})", isLive());
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
     public void on(TemplateAddedToTechnoEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template ajouté à la techno (aggregate is live ? {})", isLive());
+        updateModel(event);
     }
 
     @EventSourcingHandler
@@ -130,13 +143,7 @@ class TechnoAggregate implements Serializable {
     private void on(TechnoTemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
-    }
-
-    @EventSourcingHandler
-    @SuppressWarnings("unused")
-    private void on(TechnoDeletedEvent event) {
-        this.key = event.getTechnoKey();
-        log.debug("Techno deleted (aggregate is live ? {})", isLive());
+        updateModel(event);
     }
 
     @EventSourcingHandler
@@ -144,5 +151,32 @@ class TechnoAggregate implements Serializable {
     private void on(TechnoTemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé. ");
+        updateModel(event);
+    }
+
+    private void updateModel(UserEvent userEvent) {
+        Model model = generateModel();
+        apply(new TechnoModelUpdatedEvent(key, model, userEvent.getUser()));
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    private void on(TechnoModelUpdatedEvent event) {
+        log.debug("Techno model updated");
+    }
+
+    private Model generateModel() {
+        List<Model.Property> properties = new ArrayList<>();
+        List<Model.IterableProperty> iterableProperties = new ArrayList<>();
+
+        templates.forEach((templateName, template) -> {
+            properties.addAll(Model.extractProperties(template.getFilename()));
+            properties.addAll(Model.extractProperties(template.getLocation()));
+            properties.addAll(Model.extractProperties(template.getContent()));
+        });
+
+        //TODO Extract iterable properties
+
+        return new Model(properties, iterableProperties);
     }
 }

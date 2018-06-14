@@ -30,14 +30,13 @@ import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.ModelView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.presentation.io.PartialTemplateIO;
 import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -64,10 +63,10 @@ public class TechnosController extends BaseController {
     }
 
     @ApiOperation("Add a template to a techno working copy")
-    @PostMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    @PostMapping("/{techno_name}/{techno_version}/workingcopy/templates")
     public ResponseEntity<TemplateIO> createWorkingCopy(Authentication authentication,
-                                                        @PathVariable(value = "techno_name") final String technoName,
-                                                        @PathVariable(value = "techno_version") final String technoVersion,
+                                                        @PathVariable("techno_name") final String technoName,
+                                                        @PathVariable("techno_version") final String technoVersion,
                                                         @Valid @RequestBody final TemplateIO templateInput) {
 
         log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
@@ -82,7 +81,7 @@ public class TechnosController extends BaseController {
     }
 
     @ApiOperation("Update a template")
-    @PutMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates")
+    @PutMapping("/{techno_name}/{techno_version}/workingcopy/templates")
     public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Authentication authentication,
                                                                   @PathVariable("techno_name") final String technoName,
                                                                   @PathVariable("techno_version") final String technoVersion,
@@ -99,6 +98,7 @@ public class TechnosController extends BaseController {
         return ResponseEntity.ok(templateOutput);
 
     }
+
     @GetMapping("/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
     @ApiOperation("Get template's details")
     public ResponseEntity<TemplateIO> getTemplate(@PathVariable("techno_name") final String technoName,
@@ -114,7 +114,7 @@ public class TechnosController extends BaseController {
     }
 
     @ApiOperation("Delete a techno")
-    @DeleteMapping(path = "/{techno_name}/{techno_version}/{version_type}")
+    @DeleteMapping("/{techno_name}/{techno_version}/{version_type}")
     public ResponseEntity deleteTechno(Authentication authentication,
                                        @PathVariable("techno_name") final String technoName,
                                        @PathVariable("techno_version") final String technoVersion,
@@ -128,8 +128,8 @@ public class TechnosController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(path = "/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
     @ApiOperation("Delete template in the working copy of a version")
+    @DeleteMapping("/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
     public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
                                                       @PathVariable("techno_name") final String technoName,
                                                       @PathVariable("techno_version") final String technoVersion,
@@ -142,7 +142,7 @@ public class TechnosController extends BaseController {
     }
 
     @ApiOperation("Get techno templates")
-    @GetMapping(path = "/{techno_name}/{techno_version}/{version_type}/templates")
+    @GetMapping("/{techno_name}/{techno_version}/{version_type}/templates")
     public ResponseEntity<List<PartialTemplateIO>> getTemplates(@PathVariable("techno_name") final String technoName,
                                                                 @PathVariable("techno_version") final String technoVersion,
                                                                 @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
@@ -155,7 +155,7 @@ public class TechnosController extends BaseController {
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
-    @PostMapping(path = "/create_release")
+    @PostMapping("/create_release")
     public ResponseEntity<TechnoIO> releaseTechno(Authentication authentication,
                                                   @RequestParam("techno_name") final String technoName,
                                                   @RequestParam("techno_version") final String technoVersion) {
@@ -171,7 +171,7 @@ public class TechnosController extends BaseController {
     }
 
     @ApiOperation("Search for technos")
-    @PostMapping(path = "/perform_search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping("/perform_search")
     public ResponseEntity<List<TechnoIO>> search(@RequestParam("terms") final String input) {
 
         log.debug("search technos {}", input);
@@ -183,12 +183,13 @@ public class TechnosController extends BaseController {
 
         return ResponseEntity.ok(technoOutputs);
     }
+
     @ApiOperation("Create a copy of a techno")
     @PostMapping
     public ResponseEntity<TechnoIO> copyTechno(Authentication authentication,
-                                               @RequestParam(value = "from_package_name") final String fromTechnoName,
-                                               @RequestParam(value = "from_package_version") final String fromTechnoVersion,
-                                               @RequestParam(value = "from_is_working_copy") final Boolean isFromWorkingCopy,
+                                               @RequestParam("from_package_name") final String fromTechnoName,
+                                               @RequestParam("from_package_version") final String fromTechnoVersion,
+                                               @RequestParam("from_is_working_copy") final Boolean isFromWorkingCopy,
                                                @Valid @RequestBody final TechnoIO technoInput) {
 
         log.info("copyTechno {}", technoInput.toString());
@@ -199,5 +200,21 @@ public class TechnosController extends BaseController {
         TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
         return ResponseEntity.created(createdTechnoKey.getURI(Module.KEY_PREFIX)).body(technoOutput);
     }
-}
 
+    @ApiOperation("Get properties model")
+    @GetMapping("/{techno_name}/{techno_version}/{version_type}/model")
+    public ResponseEntity<ModelOutput> getModel(@PathVariable("techno_name") final String technoName,
+                                                @PathVariable("techno_version") final String technoVersion,
+                                                @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
+
+        log.debug("getModel {} {} {}", technoName, technoVersion, versionType);
+
+        TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
+        ModelView modelView = technoUseCases.getModel(technoKey);
+        ModelOutput modelOutput = ModelOutput.fromView(modelView);
+
+        //TODO Gérer l'ordre des propriétés
+
+        return ResponseEntity.ok(modelOutput);
+    }
+}

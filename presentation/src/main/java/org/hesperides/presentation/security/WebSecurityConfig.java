@@ -29,7 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import static org.hesperides.domain.Profiles.LDAP;
+import static org.hesperides.domain.framework.Profiles.LDAP;
 
 /**
  * L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure

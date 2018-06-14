@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+import static org.hesperides.domain.framework.Profiles.ELASTICSEARCH;
 
 @Slf4j
 @Profile(ELASTICSEARCH)

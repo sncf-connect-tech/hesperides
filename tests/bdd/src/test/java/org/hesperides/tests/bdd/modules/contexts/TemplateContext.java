@@ -22,7 +22,7 @@ public class TemplateContext extends CucumberSpringBean implements En {
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate() {
-        return retrieveExistingTemplate(TemplateSamples.DEFAULT_TEMPLATE_NAME);
+        return retrieveExistingTemplate(TemplateSamples.DEFAULT_NAME);
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {

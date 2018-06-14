@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import static org.hesperides.domain.Profiles.ELASTICSEARCH;
+import static org.hesperides.domain.framework.Profiles.ELASTICSEARCH;
 
 @Slf4j
 @Configuration

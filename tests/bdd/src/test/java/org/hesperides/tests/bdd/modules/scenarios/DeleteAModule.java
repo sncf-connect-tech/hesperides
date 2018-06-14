@@ -12,11 +12,11 @@ import static org.junit.Assert.assertEquals;
 public class DeleteAModule extends CucumberSpringBean implements En {
 
     @Autowired
-    private ModuleContext existingModule;
+    private ModuleContext moduleContext;
 
     public DeleteAModule() {
         When("^deleting this module$", () -> {
-            rest.getTestRest().delete(existingModule.getModuleURI());
+            rest.getTestRest().delete(moduleContext.getModuleURI());
         });
 
         Then("^the module is successfully deleted$", () -> {
@@ -26,7 +26,7 @@ public class DeleteAModule extends CucumberSpringBean implements En {
     }
 
     private ResponseEntity<String> failTryingToRetrieveModule() {
-        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(existingModule.getModuleURI(), String.class));
+        return rest.doWithErrorHandlerDisabled(rest -> rest.getForEntity(moduleContext.getModuleURI(), String.class));
     }
 
     /**
