@@ -88,17 +88,15 @@ public class GetModel extends CucumberSpringBean implements En {
         });
 
         Given("^a template in this techno that has iterable properties$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a", "{{#it}}{{foo}}{{/it}}"));
+            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a", "{{#it1}}{{foo}}{{#it2}}{{bar}}{{/it2}}{{/it1}}"));
         });
 
         Then("^the model of this techno contains all the iterable properties$", () -> {
-
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
-            assertEquals(1, modelOutput.getIterableProperties().size());
-            assertEquals("it", modelOutput.getIterableProperties().get(0).getName());
-            assertEquals(1, modelOutput.getIterableProperties().get(0).getProperties().size());
+            assertEquals("it1", modelOutput.getIterableProperties().get(0).getName());
             assertEquals("foo", modelOutput.getIterableProperties().get(0).getProperties().get(0).getName());
+//            assertEquals("it2", modelOutput.getIterableProperties().get(0).getItProperties().get(0).getName());
         });
     }
 
