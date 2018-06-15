@@ -21,13 +21,10 @@
 package org.hesperides.domain.templatecontainer.queries;
 
 import lombok.Value;
-
-import java.util.List;
+import lombok.experimental.NonFinal;
 
 @Value
-public class ModelView {
-
-    List<PropertyView> properties;
-    List<IterablePropertyView> iterableProperties;
-
+@NonFinal
+public abstract class AbstractPropertyView {
+    String name;
 }

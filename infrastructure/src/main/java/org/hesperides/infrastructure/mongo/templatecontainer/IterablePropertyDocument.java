@@ -26,54 +26,21 @@ import org.hesperides.domain.templatecontainer.queries.IterablePropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Document
-public class IterablePropertyDocument extends PropertyDocument {
+public class IterablePropertyDocument extends AbstractPropertyDocument {
 
-    private List<PropertyDocument> properties;
+    private List<AbstractPropertyDocument> properties;
 
-    public static List<IterablePropertyDocument> fromIterablePropertyDomainInstances(List<IterableProperty> iterableProperties) {
-        List<IterablePropertyDocument> iterablePropertyDocuments = null;
-        if (iterableProperties != null) {
-            iterablePropertyDocuments = iterableProperties.stream().map(IterablePropertyDocument::fromIterablePropertyDomainInstance).collect(Collectors.toList());
-        }
-        return iterablePropertyDocuments;
-    }
-
-    public static IterablePropertyDocument fromIterablePropertyDomainInstance(IterableProperty iterableProperty) {
-        IterablePropertyDocument iterablePropertyDocument = null;
-        if (iterableProperty != null) {
-            iterablePropertyDocument = new IterablePropertyDocument();
-            iterablePropertyDocument.setName(iterableProperty.getName());
-            iterablePropertyDocument.setRequired(iterableProperty.isRequired());
-            iterablePropertyDocument.setComment(iterableProperty.getComment());
-            iterablePropertyDocument.setDefaultValue(iterableProperty.getDefaultValue());
-            iterablePropertyDocument.setPattern(iterableProperty.getPattern());
-            iterablePropertyDocument.setPassword(iterableProperty.isPassword());
-            iterablePropertyDocument.setProperties(PropertyDocument.fromDomainInstances(iterableProperty.getProperties()));
-        }
+    public static IterablePropertyDocument fromDomainInstance(IterableProperty iterableProperty) {
+        IterablePropertyDocument iterablePropertyDocument = new IterablePropertyDocument();
+        iterablePropertyDocument.setName(iterableProperty.getName());
+        iterablePropertyDocument.setProperties(AbstractPropertyDocument.fromDomainInstances(iterableProperty.getProperties()));
         return iterablePropertyDocument;
     }
 
-    public static List<IterablePropertyView> toIterableProperyViews(List<IterablePropertyDocument> iterablePropertyDocuments) {
-        List<IterablePropertyView> iterablePropertyViews = null;
-        if (iterablePropertyDocuments != null) {
-            iterablePropertyViews = iterablePropertyDocuments.stream().map(IterablePropertyDocument::toIterableProperyView).collect(Collectors.toList());
-        }
-        return iterablePropertyViews;
-    }
-
     public IterablePropertyView toIterableProperyView() {
-        return new IterablePropertyView(
-                getName(),
-                isRequired(),
-                getComment(),
-                getDefaultValue(),
-                getPattern(),
-                isPassword(),
-                PropertyDocument.toPropertyViews(properties)
-        );
+        return new IterablePropertyView(getName(), AbstractPropertyDocument.toAbstractPropertyViews(properties));
     }
 }

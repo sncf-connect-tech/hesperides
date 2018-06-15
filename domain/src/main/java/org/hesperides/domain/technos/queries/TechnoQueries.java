@@ -4,7 +4,7 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +37,7 @@ public class TechnoQueries extends Queries {
         return querySyncList(new SearchTechnosQuery(input), TechnoView.class);
     }
 
-    public ModelView getModel(TemplateContainer.Key technoKey) {
-        return querySync(new GetTechnoModelQuery(technoKey), ModelView.class);
+    public List<AbstractPropertyView> getProperties(TemplateContainer.Key technoKey) {
+        return querySyncList(new GetTechnoPropertiesQuery(technoKey), AbstractPropertyView.class);
     }
 }

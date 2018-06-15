@@ -2,14 +2,14 @@ package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import lombok.experimental.NonFinal;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
+import org.hesperides.domain.templatecontainer.queries.IterablePropertyView;
 import org.hesperides.domain.templatecontainer.queries.PropertyView;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Value
-@NonFinal
 public class PropertyOutput {
 
     String name;
@@ -20,26 +20,56 @@ public class PropertyOutput {
     String pattern;
     @SerializedName("password")
     boolean isPassword;
+    @SerializedName("fields")
+    List<PropertyOutput> properties;
 
-    public static List<PropertyOutput> fromPropertyViews(List<PropertyView> propertyViews) {
-        List<PropertyOutput> propertyOutputs = null;
-        if (propertyViews != null) {
-            propertyOutputs = propertyViews.stream().map(PropertyOutput::fromPropertyView).collect(Collectors.toList());
+    public static PropertyOutput fromPropertyView(PropertyView propertyView) {
+        return new PropertyOutput(
+                propertyView.getName(),
+                propertyView.isRequired(),
+                propertyView.getComment(),
+                propertyView.getDefaultValue(),
+                propertyView.getPattern(),
+                propertyView.isPassword(),
+                null
+        );
+    }
+
+    public static PropertyOutput fromIterablePropertyView(IterablePropertyView iterablePropertyView) {
+        return new PropertyOutput(
+                iterablePropertyView.getName(),
+                false,
+                "",
+                "",
+                "",
+                false,
+                PropertyOutput.fromAbstractPropertyViews(iterablePropertyView.getProperties())
+        );
+    }
+
+    private static List<PropertyOutput> fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
+        List<PropertyOutput> propertyOutputs = new ArrayList<>();
+
+        if (abstractPropertyViews != null) {
+            for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {
+                PropertyOutput propertyOutput = fromAbstractPropertyView(abstractPropertyView);
+                if (propertyOutput != null) {
+                    propertyOutputs.add(propertyOutput);
+                }
+            }
         }
+
         return propertyOutputs;
     }
 
-    public static PropertyOutput fromPropertyView(PropertyView propertyView) {
+    public static PropertyOutput fromAbstractPropertyView(AbstractPropertyView abstractPropertyView) {
         PropertyOutput propertyOutput = null;
-        if (propertyView != null) {
-            propertyOutput = new PropertyOutput(
-                    propertyView.getName(),
-                    propertyView.isRequired(),
-                    propertyView.getComment(),
-                    propertyView.getDefaultValue(),
-                    propertyView.getPattern(),
-                    propertyView.isPassword()
-            );
+        if (abstractPropertyView instanceof PropertyView) {
+            PropertyView propertyView = (PropertyView) abstractPropertyView;
+            propertyOutput = PropertyOutput.fromPropertyView(propertyView);
+        } else if (abstractPropertyView instanceof IterablePropertyView) {
+            IterablePropertyView iterablePropertyView = (IterablePropertyView) abstractPropertyView;
+            propertyOutput = PropertyOutput.fromIterablePropertyView(iterablePropertyView);
         }
         return propertyOutput;
     }

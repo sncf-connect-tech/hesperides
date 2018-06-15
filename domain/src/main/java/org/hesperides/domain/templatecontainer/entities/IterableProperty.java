@@ -1,18 +1,40 @@
 package org.hesperides.domain.templatecontainer.entities;
 
+import com.github.mustachejava.Code;
+import com.github.mustachejava.codes.IterableCode;
+import com.github.mustachejava.codes.ValueCode;
 import lombok.Value;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Value
-public class IterableProperty extends Property {
+public class IterableProperty extends AbstractProperty {
 
-    List<Property> properties;
-    List<IterableProperty> iterableProperties;
+    List<AbstractProperty> properties;
 
-    public IterableProperty(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword, List<Property> properties, List<IterableProperty> iterableProperties) {
-        super(name, isRequired, comment, defaultValue, pattern, isPassword);
+    public IterableProperty(String name, List<AbstractProperty> properties) {
+        super(name);
         this.properties = properties;
-        this.iterableProperties = iterableProperties;
+    }
+
+    /**
+     * Méthode récursive permettant d'extraire les propriétés et les propriétés itérables contenues dans une propriété itérable.
+     *
+     * @param code
+     * @return
+     */
+    public static IterableProperty extractIterablePropertyFromMustacheCode(IterableCode code) {
+        String name = code.getName();
+        List<AbstractProperty> properties = new ArrayList<>();
+
+        for (Code childCode : code.getCodes()) {
+            if (childCode instanceof ValueCode) {
+                properties.add(Property.extractPropertyFromStringDefinition(childCode.getName()));
+            } else if (childCode instanceof IterableCode) {
+                properties.add(extractIterablePropertyFromMustacheCode((IterableCode) childCode));
+            }
+        }
+        return new IterableProperty(name, properties);
     }
 }

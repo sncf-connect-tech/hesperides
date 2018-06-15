@@ -13,11 +13,12 @@ import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.templatecontainer.entities.Model;
+import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -153,13 +154,13 @@ class TechnoAggregate implements Serializable {
     }
 
     private void updateModel(UserEvent userEvent) {
-        Model model = Model.generateModelFromTemplates(templates.values());
-        apply(new TechnoModelUpdatedEvent(key, model, userEvent.getUser()));
+        List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
+        apply(new TechnoPropertiesUpdatedEvent(key, properties, userEvent.getUser()));
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(TechnoModelUpdatedEvent event) {
+    private void on(TechnoPropertiesUpdatedEvent event) {
         log.debug("Techno model updated");
     }
 }

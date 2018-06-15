@@ -25,7 +25,7 @@ public class GetModel extends CucumberSpringBean implements En {
                     "template-a",
                     "{{ foo | @comment filename of template-a}}.json",
                     "/{{foo|@comment \"location of template-a\"}}",
-                    "{{foo|@required|@comment content of template-a|@default 12|@pattern *|@password }}"));
+                    "{{foo|@required @comment content of template-a @pattern * @password }}"));
         });
 
         When("^retrieving the model of this techno$", () -> {
@@ -36,17 +36,17 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(3, modelOutput.getProperties().size());
-            assertProperty(new PropertyOutput("foo", false, "filename of template-a", "", "", false),
+            assertProperty(new PropertyOutput("foo", false, "filename of template-a", "", "", false, null),
                     modelOutput.getProperties().get(0));
-            assertProperty(new PropertyOutput("foo", false, "location of template-a", "", "", false),
+            assertProperty(new PropertyOutput("foo", false, "location of template-a", "", "", false, null),
                     modelOutput.getProperties().get(1));
-            assertProperty(new PropertyOutput("foo", true, "content of template-a", "12", "*", true),
+            assertProperty(new PropertyOutput("foo", true, "content of template-a", "", "*", true, null),
                     modelOutput.getProperties().get(2));
         });
 
         Given("^templates that have properties with the same name but different attributes$", () -> {
             technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
-                    "{{foo|@required|@comment content of template-a|@default 12|@pattern *|@password }}"));
+                    "{{ foo | @comment content of template-a @default 12 @pattern * @password }}"));
             technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-b",
                     "{{foo|@comment \"content of template-b\" }}"));
         });
@@ -56,9 +56,9 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(2, modelOutput.getProperties().size());
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", true, "content of template-a", "12", "*", true)));
+                    new PropertyOutput("foo", false, "content of template-a", "12", "*", true, null)));
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", false, "content of template-b", "", "", false)));
+                    new PropertyOutput("foo", false, "content of template-b", "", "", false, null)));
         });
 
         Given("^a template containing properties that have been updated$", () -> {
@@ -71,7 +71,7 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
-            assertProperty(new PropertyOutput("foo", false, "", "", "", false),
+            assertProperty(new PropertyOutput("foo", false, "", "", "", false, null),
                     modelOutput.getProperties().get(0));
         });
 
@@ -96,9 +96,13 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals("it1", modelOutput.getIterableProperties().get(0).getName());
             assertEquals("foo", modelOutput.getIterableProperties().get(0).getProperties().get(0).getName());
-//            assertEquals("it2", modelOutput.getIterableProperties().get(0).getItProperties().get(0).getName());
+            assertEquals("it2", modelOutput.getIterableProperties().get(0).getProperties().get(1).getName());
+            assertEquals("bar", modelOutput.getIterableProperties().get(0).getProperties().get(1).getProperties().get(0).getName());
         });
     }
+
+    //TODO Tester le fait qu'on ne peut pas utiliser @required et @default dans la même propriété
+    // Que se passe-t-il si on définit une annotation dans une propriété iterable ?
 
     private void assertProperty(PropertyOutput expectedProperty, PropertyOutput actualProperty) {
         assertEquals(expectedProperty.getName(), actualProperty.getName());

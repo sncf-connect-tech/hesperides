@@ -22,8 +22,11 @@ package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
+import org.hesperides.domain.templatecontainer.queries.IterablePropertyView;
+import org.hesperides.domain.templatecontainer.queries.PropertyView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Value
@@ -32,17 +35,23 @@ public class ModelOutput {
     @SerializedName("key_value_properties")
     List<PropertyOutput> properties;
     @SerializedName("iterable_properties")
-    List<IterablePropertyOutput> iterableProperties;
+    List<PropertyOutput> iterableProperties;
 
-    public static ModelOutput fromView(ModelView modelView) {
-        ModelOutput modelOutput = null;
-        if (modelView != null) {
-            modelOutput = new ModelOutput(
-                    PropertyOutput.fromPropertyViews(modelView.getProperties()),
-                    IterablePropertyOutput.fromIterablePropertyViews(modelView.getIterableProperties())
-            );
+    public static ModelOutput fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
+        List<PropertyOutput> propertyOutputs = new ArrayList<>();
+        List<PropertyOutput> iterablePropertyOutputs = new ArrayList<>();
+
+        if (abstractPropertyViews != null) {
+            for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {
+                PropertyOutput propertyOutput = PropertyOutput.fromAbstractPropertyView(abstractPropertyView);
+                if (abstractPropertyView instanceof PropertyView) {
+                    propertyOutputs.add(propertyOutput);
+                } else if (abstractPropertyView instanceof IterablePropertyView) {
+                    iterablePropertyOutputs.add(propertyOutput);
+                }
+            }
         }
-        return modelOutput;
-    }
 
+        return new ModelOutput(propertyOutputs, iterablePropertyOutputs);
+    }
 }

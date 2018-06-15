@@ -20,8 +20,8 @@
  */
 package org.hesperides.domain.modules.commands;
 
+import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainer.entities.IterableProperty;
-import org.hesperides.domain.templatecontainer.entities.Model;
 import org.hesperides.domain.templatecontainer.entities.Property;
 import org.junit.Test;
 
@@ -29,11 +29,11 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ModelPropertyExtractionTest {
+public class PropertiesExtractionTest {
 
     @Test
     public void testExtractPropertiesFromStringContent() {
-        List<Property> properties = Model.extractPropertiesFromStringContent("{{ foo}} {{bar }} {{ fub }}");
+        List<AbstractProperty> properties = Property.extractPropertiesFromStringContent("{{ foo}} {{bar }} {{ fub }}");
         assertEquals(3, properties.size());
         assertEquals("foo", properties.get(0).getName());
         assertEquals("bar", properties.get(1).getName());
@@ -100,11 +100,15 @@ public class ModelPropertyExtractionTest {
 
     @Test
     public void testExtractIterablePropertiesFromStringContent() {
-        String content = "{{#a}}{{foo}}{{#b}}{{bar}}{{/b}}{{/a}}";
-        List<IterableProperty> iterableProperties = Model.extractIterablePropertiesFromStringContent(content);
-        assertEquals("a", iterableProperties.get(0).getName());
-        assertEquals("foo", iterableProperties.get(0).getProperties().get(0).getName());
-        assertEquals("b", iterableProperties.get(0).getIterableProperties().get(0).getName());
-        assertEquals("bar", iterableProperties.get(0).getIterableProperties().get(0).getProperties().get(0).getName());
+        String content = "{{#a}}{{foo|@required}}{{#b}}{{bar|@default zzz}}{{/b}}{{/a}}";
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromStringContent(content);
+        IterableProperty iterablePropertyA = (IterableProperty) abstractProperties.get(0);
+        assertEquals("a", iterablePropertyA.getName());
+        Property propertyFoo = (Property) iterablePropertyA.getProperties().get(0);
+        assertProperty(new Property("foo", true, "", "", "", false), propertyFoo);
+        IterableProperty iterablePropertyB = (IterableProperty) iterablePropertyA.getProperties().get(1);
+        assertEquals("b", iterablePropertyB.getName());
+        Property propertyBar = (Property) iterablePropertyB.getProperties().get(0);
+        assertProperty(new Property("bar", false, "", "zzz", "", false), propertyBar);
     }
 }

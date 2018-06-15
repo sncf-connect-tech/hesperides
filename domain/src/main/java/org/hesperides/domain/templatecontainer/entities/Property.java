@@ -1,18 +1,24 @@
 package org.hesperides.domain.templatecontainer.entities;
 
 import lombok.Value;
-import lombok.experimental.NonFinal;
 
 @Value
-@NonFinal
-public class Property {
+public class Property extends AbstractProperty {
 
-    String name;
     boolean isRequired;
     String comment;
     String defaultValue;
     String pattern;
     boolean isPassword;
+
+    public Property(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
+        super(name);
+        this.isRequired = isRequired;
+        this.comment = comment;
+        this.defaultValue = defaultValue;
+        this.pattern = pattern;
+        this.isPassword = isPassword;
+    }
 
     public enum Annotation {
         IS_REQUIRED("required"),

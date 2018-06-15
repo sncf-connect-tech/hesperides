@@ -5,12 +5,12 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class IterablePropertyView extends PropertyView {
+public class IterablePropertyView extends AbstractPropertyView {
 
-    List<PropertyView> properties;
+    List<AbstractPropertyView> properties;
 
-    public IterablePropertyView(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword, List<PropertyView> properties) {
-        super(name, isRequired, comment, defaultValue, pattern, isPassword);
+    public IterablePropertyView(String name, List<AbstractPropertyView> properties) {
+        super(name);
         this.properties = properties;
     }
 }
