@@ -1,6 +1,5 @@
 package org.hesperides.infrastructure.mongo.eventstores;
 
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -15,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.Collections;
 
-import static org.hesperides.domain.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.MONGO;
 
 @Configuration
 @Profile({MONGO})
@@ -43,7 +42,7 @@ public class AxonMongoEventStoreConfiguration {
     @Bean
     @Primary
     public EventStorageEngine eventStore() throws Exception {
-        return new MongoEventStorageEngine(new DefaultMongoTemplate(mongo(),database));
+        return new MongoEventStorageEngine(new DefaultMongoTemplate(mongo(), database));
     }
 
 

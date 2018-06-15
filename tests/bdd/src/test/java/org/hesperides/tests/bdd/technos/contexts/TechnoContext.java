@@ -39,7 +39,7 @@ public class TechnoContext extends CucumberSpringBean implements En {
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate() {
-        return retrieveExistingTemplate(TemplateSamples.DEFAULT_TEMPLATE_NAME);
+        return retrieveExistingTemplate(TemplateSamples.DEFAULT_NAME);
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
@@ -73,7 +73,15 @@ public class TechnoContext extends CucumberSpringBean implements En {
                 null, TechnoIO.class, technoKey.getName(), technoKey.getVersion());
     }
 
+    public ResponseEntity updateTemplate(TemplateIO templateInput) {
+        return rest.putForEntity(getTemplatesURI(), templateInput, TemplateIO.class);
+    }
+
     public String getNamespace() {
         return "packages#" + technoKey.getName() + "#" + technoKey.getVersion() + "#" + technoKey.getVersionType().name().toUpperCase();
+    }
+
+    public void deleteTemplate(String templateName) {
+        rest.getTestRest().delete(getTemplateURI(templateName));
     }
 }

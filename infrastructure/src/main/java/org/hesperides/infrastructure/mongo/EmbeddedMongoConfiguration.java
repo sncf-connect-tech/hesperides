@@ -29,7 +29,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
 
-import static org.hesperides.domain.Profiles.EMBEDDED_MONGO;
+import static org.hesperides.domain.framework.Profiles.EMBEDDED_MONGO;
 
 @Configuration
 @Profile(EMBEDDED_MONGO)

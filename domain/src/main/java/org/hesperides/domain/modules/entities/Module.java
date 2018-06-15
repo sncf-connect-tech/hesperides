@@ -16,7 +16,8 @@ public class Module extends TemplateContainer {
     Long versionId;
 
     public Module(Key key, List<Template> templates, List<Techno> technos, Long versionId) {
-        super(key, templates);
+        //TODO Est-ce qu'il faut générer le model ici ?
+        super(key, templates, null);
         this.technos = technos;
         this.versionId = versionId;
     }

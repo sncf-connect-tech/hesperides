@@ -12,6 +12,7 @@ public class Techno extends TemplateContainer {
     public static final String KEY_PREFIX = "package";
 
     public Techno(Key key, List<Template> templates) {
-        super(key, templates);
+        //TODO Est-ce qu'il faut générer le model ici ?
+        super(key, templates, null);
     }
 }

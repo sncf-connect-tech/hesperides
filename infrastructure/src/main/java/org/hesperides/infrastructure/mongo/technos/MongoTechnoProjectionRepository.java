@@ -26,8 +26,10 @@ import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.ModelView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
+import org.hesperides.infrastructure.mongo.templatecontainer.ModelDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -40,7 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.*;
 
 @Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
 @Repository
@@ -57,6 +59,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public void on(TechnoCreatedEvent event) {
         technoRepository.save(TechnoDocument.fromDomainInstance(event.getTechno()));
+    }
+
+    @Override
+    public void on(TechnoDeletedEvent event) {
+        technoRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
     }
 
     @EventSourcingHandler
@@ -78,14 +85,17 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
-    public void on(TechnoDeletedEvent event) {
-        technoRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
-    }
-
-    @Override
     public void on(TechnoTemplateDeletedEvent event) {
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
         technoDocument.removeTemplate(event.getTemplateName());
+        technoRepository.save(technoDocument);
+    }
+
+    @Override
+    public void on(TechnoModelUpdatedEvent event) {
+        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+        ModelDocument modelDocument = ModelDocument.fromDomainInstance(event.getModel());
+        technoDocument.setModel(modelDocument);
         technoRepository.save(technoDocument);
     }
 
@@ -150,6 +160,12 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         Pageable pageableRequest = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
         List<TechnoDocument> technoDocuments = technoRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageableRequest);
         return technoDocuments.stream().map(TechnoDocument::toTechnoView).collect(Collectors.toList());
+    }
+
+    @Override
+    public ModelView query(GetTechnoModelQuery query) {
+        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(query.getTechnoKey()));
+        return technoDocument.getModel().toModelView();
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

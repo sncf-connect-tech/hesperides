@@ -21,7 +21,6 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
@@ -49,7 +48,7 @@ public class RetrieveATemplate extends CucumberSpringBean implements En {
         Then("^I get the detail of the template of this techno$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = response.getBody();
-            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput,technoContext.getNamespace(),1);
-           });
+            TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, technoContext.getNamespace(), 1);
+        });
     }
 }

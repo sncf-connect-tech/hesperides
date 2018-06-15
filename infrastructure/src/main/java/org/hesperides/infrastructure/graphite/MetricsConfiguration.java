@@ -14,7 +14,7 @@ import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import static org.hesperides.domain.Profiles.GRAPHITE;
+import static org.hesperides.domain.framework.Profiles.GRAPHITE;
 
 @Configuration
 @Profile(GRAPHITE)

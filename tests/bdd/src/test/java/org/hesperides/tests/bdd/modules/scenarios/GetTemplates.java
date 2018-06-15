@@ -28,7 +28,7 @@ public class GetTemplates extends CucumberSpringBean implements En {
 
         Given("^multiple templates in this module$", () -> {
             for (int i = 0; i < 6; i++) {
-                String templateName = TemplateSamples.DEFAULT_TEMPLATE_NAME + i;
+                String templateName = TemplateSamples.DEFAULT_NAME + i;
                 ResponseEntity<TemplateIO> response = templateContext.addTemplateToExistingModule(templateName);
                 templateInputs.add(response.getBody());
             }

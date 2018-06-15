@@ -18,16 +18,31 @@
  *
  *
  */
-package org.hesperides.domain;
+package org.hesperides.domain.templatecontainer.queries;
 
-public final class Profiles {
-    public static final String ELASTICSEARCH = "elasticsearch";
-    public static final String EMBEDDED_MONGO = "embedded_mongo";
-    public static final String FAKE_MONGO = "fake_mongo";
-    public static final String GRAPHITE = "graphite";
-    public static final String JPA = "jpa";
-    public static final String LDAP = "ldap";
-    public static final String MONGO = "mongo";
-    public static final String NOLDAP = "noldap";
-    public static final String SPRING_BOOT_ADMIN = "sba";
+import lombok.Value;
+
+import java.util.List;
+
+@Value
+public class ModelView {
+
+    List<PropertyView> properties;
+    List<IterablePropertyView> iterableProperties;
+
+    @Value
+    public static class PropertyView {
+        String name;
+        boolean isRequired;
+        String comment;
+        String defaultValue;
+        String pattern;
+        boolean isPassword;
+    }
+
+    @Value
+    public static class IterablePropertyView {
+        String name;
+        PropertyView property;
+    }
 }
