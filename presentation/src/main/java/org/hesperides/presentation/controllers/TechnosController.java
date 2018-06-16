@@ -213,7 +213,7 @@ public class TechnosController extends BaseController {
         List<AbstractPropertyView> abstractPropertyViews = technoUseCases.getProperties(technoKey);
         ModelOutput modelOutput = ModelOutput.fromAbstractPropertyViews(abstractPropertyViews);
 
-        //TODO Gérer l'ordre des propriétés
+        //TODO Gérer l'ordre des propriétés ?
 
         return ResponseEntity.ok(modelOutput);
     }

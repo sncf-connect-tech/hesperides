@@ -24,10 +24,6 @@ public class TemplateSamples extends CucumberSpringBean implements En {
         return new TemplateIO(DEFAULT_NAME, null, DEFAULT_FILENAME, DEFAULT_LOCATION, DEFAULT_CONTENT, getRightsInput(), versionId);
     }
 
-    public static TemplateIO getTemplateInputWithNameAndVersionId(String name, long versionId) {
-        return new TemplateIO(name, null, DEFAULT_FILENAME, DEFAULT_LOCATION, DEFAULT_CONTENT, getRightsInput(), versionId);
-    }
-
     public static TemplateIO getTemplateInputWithNameAndContent(String name, String content) {
         return new TemplateIO(name, null, DEFAULT_FILENAME, DEFAULT_LOCATION, content, getRightsInput(), DEFAULT_VERSION_ID);
     }
@@ -43,5 +39,9 @@ public class TemplateSamples extends CucumberSpringBean implements En {
 
     public static TemplateIO getTemplateInputWithNameContentContentAndVersionId(String name, String content, long versionId) {
         return new TemplateIO(name, null, DEFAULT_FILENAME, DEFAULT_LOCATION, content, getRightsInput(), versionId);
+    }
+
+    public static TemplateIO getTemplateInputWithContent(String content) {
+        return new TemplateIO(DEFAULT_NAME, null, DEFAULT_FILENAME, DEFAULT_LOCATION, content, getRightsInput(), DEFAULT_VERSION_ID);
     }
 }

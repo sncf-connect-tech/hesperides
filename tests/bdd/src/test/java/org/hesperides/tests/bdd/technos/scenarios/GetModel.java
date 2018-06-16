@@ -3,6 +3,7 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.presentation.io.PropertyOutput;
+import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
@@ -18,6 +19,7 @@ public class GetModel extends CucumberSpringBean implements En {
     private TechnoContext technoContext;
 
     private ResponseEntity<ModelOutput> response;
+    private ResponseEntity failResponse;
 
     public GetModel() {
         Given("^a template that has properties with the same name but different attributes$", () -> {
@@ -99,10 +101,25 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals("it2", modelOutput.getIterableProperties().get(0).getProperties().get(1).getName());
             assertEquals("bar", modelOutput.getIterableProperties().get(0).getProperties().get(1).getProperties().get(0).getName());
         });
+
+        When("^trying to create a template in this techno that has a property that is required and with a default value$", () -> {
+            failResponse = failTryingToCreateTemplate(TemplateSamples.getTemplateInputWithNameAndContent("another-template", "{{foo|@required @default 12}}"));
+        });
+
+        Then("^the creation of the techno template that has a property that is required and with a default value is rejected$", () -> {
+            assertEquals(HttpStatus.BAD_REQUEST, failResponse.getStatusCode());
+        });
     }
 
-    //TODO Tester le fait qu'on ne peut pas utiliser @required et @default dans la même propriété
-    // Que se passe-t-il si on définit une annotation dans une propriété iterable ?
+    private ResponseEntity<String> failTryingToCreateTemplate(TemplateIO templateInput) {
+        return rest.doWithErrorHandlerDisabled(rest -> {
+            String templateURI = String.format("/templates/packages/%s/%s/workingcopy/templates",
+                    technoContext.getTechnoKey().getName(),
+                    technoContext.getTechnoKey().getVersion());
+
+            return rest.postForEntity(templateURI, templateInput, String.class);
+        });
+    }
 
     private void assertProperty(PropertyOutput expectedProperty, PropertyOutput actualProperty) {
         assertEquals(expectedProperty.getName(), actualProperty.getName());
@@ -112,4 +129,6 @@ public class GetModel extends CucumberSpringBean implements En {
         assertEquals(expectedProperty.getPattern(), actualProperty.getPattern());
         assertEquals(expectedProperty.isPassword(), actualProperty.isPassword());
     }
+
+    //TODO Mieux répartir ces tests (features et méthodes)
 }

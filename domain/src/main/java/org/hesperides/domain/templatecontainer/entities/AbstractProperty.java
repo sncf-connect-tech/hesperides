@@ -74,17 +74,6 @@ public abstract class AbstractProperty {
         return properties;
     }
 
-//    public static List<IterableProperty> extractIterablePropertiesFromStringContent(String content) {
-//        List<IterableProperty> iterableProperties = new ArrayList<>();
-//        Mustache mustache = getMustacheInstanceFromStringContent(content);
-//        for (Code code : mustache.getCodes()) {
-//            if (code instanceof IterableCode) {
-//                iterableProperties.add(extractIterablePropertyFromMustacheCode((IterableCode) code));
-//            }
-//        }
-//        return iterableProperties;
-//    }
-
     public static Mustache getMustacheInstanceFromStringContent(String content) {
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         return mustacheFactory.compile(new StringReader(content), "anything");

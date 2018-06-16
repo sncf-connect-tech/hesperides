@@ -14,6 +14,7 @@ import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
+import org.hesperides.domain.templatecontainer.entities.Property;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
@@ -154,8 +155,20 @@ class TechnoAggregate implements Serializable {
     }
 
     private void updateModel(UserEvent userEvent) {
-        List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
-        apply(new TechnoPropertiesUpdatedEvent(key, properties, userEvent.getUser()));
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
+        validateProperties(abstractProperties);
+        apply(new TechnoPropertiesUpdatedEvent(key, abstractProperties, userEvent.getUser()));
+    }
+
+    private void validateProperties(List<AbstractProperty> abstractProperties) {
+        if (abstractProperties != null) {
+            abstractProperties.forEach(abstractProperty -> {
+                if (abstractProperty instanceof Property) {
+                    Property property = (Property) abstractProperty;
+                    property.validate();
+                }
+            });
+        }
     }
 
     @EventSourcingHandler

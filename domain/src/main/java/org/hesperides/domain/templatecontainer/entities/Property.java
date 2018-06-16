@@ -1,6 +1,8 @@
 package org.hesperides.domain.templatecontainer.entities;
 
 import lombok.Value;
+import org.hesperides.domain.templatecontainer.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.springframework.util.StringUtils;
 
 @Value
 public class Property extends AbstractProperty {
@@ -18,6 +20,12 @@ public class Property extends AbstractProperty {
         this.defaultValue = defaultValue;
         this.pattern = pattern;
         this.isPassword = isPassword;
+    }
+
+    public void validate() {
+        if (isRequired && !StringUtils.isEmpty(defaultValue)) {
+            throw new RequiredPropertyCannotHaveDefaultValueException(getName());
+        }
     }
 
     public enum Annotation {
