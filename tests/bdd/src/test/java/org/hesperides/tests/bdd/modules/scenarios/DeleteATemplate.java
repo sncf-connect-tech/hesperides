@@ -17,7 +17,7 @@ public class DeleteATemplate extends CucumberSpringBean implements En {
 
     public DeleteATemplate() {
         When("^deleting this template$", () -> {
-            rest.getTestRest().delete(templateContext.getTemplateURI(TemplateSamples.DEFAULT_NAME));
+            templateContext.deleteTemplate();
         });
 
         Then("^the template is successfully deleted$", () -> {

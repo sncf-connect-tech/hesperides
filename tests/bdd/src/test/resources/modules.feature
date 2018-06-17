@@ -90,3 +90,38 @@ Feature: modules related features
     Given an existing module
     When releasing the module
     Then the module is released
+
+  Scenario: get a model from a module with a template that has ambiguous properties
+    Given an existing module
+    And a template in this module that has properties with the same name but different attributes
+    When retrieving the model of this module
+    Then the model of this module contains all the properties with the same name from this template
+
+  Scenario: get a model from a module with templates that have ambiguous properties
+    Given an existing module
+    And templates in this module that have properties with the same name but different attributes
+    When retrieving the model of this module
+    Then the model of this module contains all the properties with the same name from these templates
+
+  Scenario: get a model from a module after updating its template
+    Given an existing module
+    And a template in this module containing properties that have been updated
+    When retrieving the model of this module
+    Then the model of this module contains the updated properties
+
+  Scenario: get a model from a module after delete its template
+    Given an existing module
+    And a template in this module containing properties but that is being deleted
+    When retrieving the model of this module
+    Then the model of this module does not contain the properties of the deleted template
+
+  Scenario: get the model of a module that has iterable properties
+    Given an existing module
+    And a template in this module that has iterable properties
+    When retrieving the model of this module
+    Then the model of this module contains all the iterable properties
+
+  Scenario: a module template property cannot have both required and default value annotations
+    Given an existing module
+    When trying to create a template in this module that has a property that is required and with a default value
+    Then the creation of the module template that has a property that is required and with a default value is rejected

@@ -30,6 +30,8 @@ import org.hesperides.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
+import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.presentation.io.ModuleIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -202,5 +204,22 @@ public class ModulesController extends BaseController {
                 : new ArrayList<>();
 
         return ResponseEntity.ok(moduleOutputs);
+    }
+
+    @ApiOperation("Get properties model")
+    @GetMapping("/{module_name}/{module_version}/{module_type}/model")
+    public ResponseEntity<ModelOutput> getModuleModel(@PathVariable("module_name") final String moduleName,
+                                                      @PathVariable("module_version") final String moduleVersion,
+                                                      @PathVariable("module_type") final TemplateContainer.VersionType versionType) {
+
+        log.debug("getModuleModel {} {} {}", moduleName, moduleVersion, versionType);
+
+        TemplateContainer.Key moduleKey = new TemplateContainer.Key(moduleName, moduleVersion, versionType);
+        List<AbstractPropertyView> abstractPropertyViews = moduleUseCases.getProperties(moduleKey);
+        ModelOutput modelOutput = ModelOutput.fromAbstractPropertyViews(abstractPropertyViews);
+
+        //TODO Gérer l'ordre des propriétés ?
+
+        return ResponseEntity.ok(modelOutput);
     }
 }

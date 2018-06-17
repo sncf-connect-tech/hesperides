@@ -13,6 +13,7 @@ import org.hesperides.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -173,5 +174,12 @@ public class ModuleUseCases {
 
         commands.createModule(moduleRelease, user);
         return queries.getModule(newModuleKey).get();
+    }
+
+    public List<AbstractPropertyView> getProperties(TemplateContainer.Key moduleKey) {
+        if (!queries.moduleExists(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
+        }
+        return queries.getProperties(moduleKey);
     }
 }

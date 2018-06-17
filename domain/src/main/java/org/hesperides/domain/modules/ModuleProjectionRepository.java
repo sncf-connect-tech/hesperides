@@ -3,6 +3,7 @@ package org.hesperides.domain.modules;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,9 @@ public interface ModuleProjectionRepository {
 
     @EventSourcingHandler
     void on(ModuleDeletedEvent event);
+
+    @EventSourcingHandler
+    void on(ModulePropertiesUpdatedEvent event);
 
     /*** QUERY HANDLERS ***/
 
@@ -39,4 +43,7 @@ public interface ModuleProjectionRepository {
 
     @QueryHandler
     List<ModuleView> query(SearchModulesQuery query);
+
+    @QueryHandler
+    List<AbstractPropertyView> query(GetModulePropertiesQuery query);
 }

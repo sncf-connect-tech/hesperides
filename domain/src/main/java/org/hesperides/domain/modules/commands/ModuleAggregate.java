@@ -12,10 +12,13 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.domain.security.UserEvent;
+import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -166,17 +169,32 @@ class ModuleAggregate implements Serializable {
     private void on(TemplateCreatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template crée. ");
+        updateModel(event);
     }
 
     @EventSourcingHandler
     private void on(TemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
+        updateModel(event);
     }
 
     @EventSourcingHandler
     private void on(TemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé");
+        updateModel(event);
+    }
+
+    private void updateModel(UserEvent userEvent) {
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
+        AbstractProperty.validateProperties(abstractProperties);
+        apply(new ModulePropertiesUpdatedEvent(key, abstractProperties, userEvent.getUser()));
+    }
+
+    @EventSourcingHandler
+    @SuppressWarnings("unused")
+    private void on(ModulePropertiesUpdatedEvent event) {
+        log.debug("Module model updated");
     }
 }

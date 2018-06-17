@@ -5,6 +5,7 @@ import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
@@ -51,5 +52,9 @@ public class ModuleQueries extends Queries {
 
     public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {
         return querySyncList(new GetModuleTemplatesQuery(moduleKey), TemplateView.class);
+    }
+
+    public List<AbstractPropertyView> getProperties(TemplateContainer.Key moduleKey) {
+        return querySyncList(new GetModulePropertiesQuery(moduleKey), AbstractPropertyView.class);
     }
 }

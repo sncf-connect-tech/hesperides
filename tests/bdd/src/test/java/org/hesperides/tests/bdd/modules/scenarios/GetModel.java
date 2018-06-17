@@ -1,11 +1,12 @@
-package org.hesperides.tests.bdd.technos.scenarios;
+package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.presentation.io.PropertyOutput;
 import org.hesperides.presentation.io.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
+import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
+import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainer.PropertyAssertions;
 import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,25 +18,27 @@ import static org.junit.Assert.assertEquals;
 public class GetModel extends CucumberSpringBean implements En {
 
     @Autowired
-    private TechnoContext technoContext;
+    private ModuleContext moduleContext;
+    @Autowired
+    private TemplateContext templateContext;
 
     private ResponseEntity<ModelOutput> response;
     private ResponseEntity failResponse;
 
     public GetModel() {
-        Given("^a template in this techno that has properties with the same name but different attributes$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameFilenameLocationAndContent(
+        Given("^a template in this module that has properties with the same name but different attributes$", () -> {
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameFilenameLocationAndContent(
                     "template-a",
                     "{{ foo | @comment filename of template-a}}.json",
                     "/{{foo|@comment \"location of template-a\"}}",
                     "{{foo|@required @comment content of template-a @pattern * @password }}"));
         });
 
-        When("^retrieving the model of this techno$", () -> {
-            response = rest.getTestRest().getForEntity(technoContext.getTechnoURI() + "/model", ModelOutput.class);
+        When("^retrieving the model of this module$", () -> {
+            response = rest.getTestRest().getForEntity(moduleContext.getModuleURI() + "/model", ModelOutput.class);
         });
 
-        Then("^the model of this techno contains all the properties with the same name from this template$", () -> {
+        Then("^the model of this module contains all the properties with the same name from this template$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(3, modelOutput.getProperties().size());
@@ -47,14 +50,14 @@ public class GetModel extends CucumberSpringBean implements En {
                     modelOutput.getProperties().get(2));
         });
 
-        Given("^templates in this techno that have properties with the same name but different attributes$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
+        Given("^templates in this module that have properties with the same name but different attributes$", () -> {
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
                     "{{ foo | @comment content of template-a @default 12 @pattern * @password }}"));
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-b",
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-b",
                     "{{foo|@comment \"content of template-b\" }}"));
         });
 
-        Then("^the model of this techno contains all the properties with the same name from these templates$", () -> {
+        Then("^the model of this module contains all the properties with the same name from these templates$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(2, modelOutput.getProperties().size());
@@ -64,13 +67,13 @@ public class GetModel extends CucumberSpringBean implements En {
                     new PropertyOutput("foo", false, "content of template-b", "", "", false, null)));
         });
 
-        Given("^a template in this techno containing properties that have been updated$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
+        Given("^a template in this module containing properties that have been updated$", () -> {
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
                     "{{foo|@required|@comment content of template-a|@default 12|@pattern *|@password }}"));
-            technoContext.updateTemplate(TemplateSamples.getTemplateInputWithNameContentContentAndVersionId("template-a", "{{ foo }}", 1));
+            templateContext.updateTemplate(TemplateSamples.getTemplateInputWithNameContentContentAndVersionId("template-a", "{{ foo }}", 1));
         });
 
-        Then("^the model of this techno contains the updated properties$", () -> {
+        Then("^the model of this module contains the updated properties$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
@@ -78,23 +81,23 @@ public class GetModel extends CucumberSpringBean implements En {
                     modelOutput.getProperties().get(0));
         });
 
-        Given("^a template in this techno containing properties but that is being deleted$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
+        Given("^a template in this module containing properties but that is being deleted$", () -> {
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
                     "{{foo|@required|@comment content of template-a|@default 12|@pattern *|@password }}"));
-            technoContext.deleteTemplate("template-a");
+            templateContext.deleteTemplate("template-a");
         });
 
-        Then("^the model of this techno does not contain the properties of the deleted template$", () -> {
+        Then("^the model of this module does not contain the properties of the deleted template$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(0, modelOutput.getProperties().size());
         });
 
-        Given("^a template in this techno that has iterable properties$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a", "{{#it1}}{{foo}}{{#it2}}{{bar}}{{/it2}}{{/it1}}"));
+        Given("^a template in this module that has iterable properties$", () -> {
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-a", "{{#it1}}{{foo}}{{#it2}}{{bar}}{{/it2}}{{/it1}}"));
         });
 
-        Then("^the model of this techno contains all the iterable properties$", () -> {
+        Then("^the model of this module contains all the iterable properties$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals("it1", modelOutput.getIterableProperties().get(0).getName());
@@ -103,23 +106,18 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals("bar", modelOutput.getIterableProperties().get(0).getProperties().get(1).getProperties().get(0).getName());
         });
 
-        When("^trying to create a template in this techno that has a property that is required and with a default value$", () -> {
+        When("^trying to create a template in this module that has a property that is required and with a default value$", () -> {
             failResponse = failTryingToCreateTemplate(TemplateSamples.getTemplateInputWithNameAndContent("another-template", "{{foo|@required @default 12}}"));
         });
 
-        Then("^the creation of the techno template that has a property that is required and with a default value is rejected$", () -> {
+        Then("^the creation of the module template that has a property that is required and with a default value is rejected$", () -> {
             assertEquals(HttpStatus.BAD_REQUEST, failResponse.getStatusCode());
         });
     }
 
     private ResponseEntity<String> failTryingToCreateTemplate(TemplateIO templateInput) {
-        return rest.doWithErrorHandlerDisabled(rest -> {
-            String templateURI = String.format("/templates/packages/%s/%s/workingcopy/templates",
-                    technoContext.getTechnoKey().getName(),
-                    technoContext.getTechnoKey().getVersion());
-
-            return rest.postForEntity(templateURI, templateInput, String.class);
-        });
+        return rest.doWithErrorHandlerDisabled(rest -> rest.postForEntity(
+                templateContext.getTemplatesURI(), templateInput, String.class));
     }
 
     //TODO Mieux répartir ces tests (features et méthodes)

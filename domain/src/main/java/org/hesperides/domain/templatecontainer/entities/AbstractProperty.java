@@ -78,4 +78,15 @@ public abstract class AbstractProperty {
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         return mustacheFactory.compile(new StringReader(content), "anything");
     }
+
+    public static void validateProperties(List<AbstractProperty> abstractProperties) {
+        if (abstractProperties != null) {
+            abstractProperties.forEach(abstractProperty -> {
+                if (abstractProperty instanceof Property) {
+                    Property property = (Property) abstractProperty;
+                    property.validate();
+                }
+            });
+        }
+    }
 }

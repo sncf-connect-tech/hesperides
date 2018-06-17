@@ -6,6 +6,7 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
@@ -61,6 +62,11 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
                 key.getVersionType()
         );
         jpaModuleRepository.delete(id);
+    }
+
+    @Override
+    public void on(ModulePropertiesUpdatedEvent event) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @QueryHandler
@@ -142,6 +148,11 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
     @Override
     @QueryHandler
     public List<ModuleView> query(SearchModulesQuery query) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public List<AbstractPropertyView> query(GetModulePropertiesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }
