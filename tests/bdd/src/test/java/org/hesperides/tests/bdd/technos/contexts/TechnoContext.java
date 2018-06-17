@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.technos.contexts;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.presentation.io.TechnoIO;
 import org.hesperides.presentation.io.TemplateIO;
@@ -53,7 +54,7 @@ public class TechnoContext extends CucumberSpringBean implements En {
                 TemplateIO.class,
                 technoInput.getName(),
                 technoInput.getVersion());
-        technoKey = new TemplateContainer.Key(technoInput.getName(), technoInput.getVersion(), technoInput.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
+        technoKey = new Techno.Key(technoInput.getName(), technoInput.getVersion(), technoInput.isWorkingCopy() ? TemplateContainer.VersionType.workingcopy : TemplateContainer.VersionType.release);
         return response;
     }
 

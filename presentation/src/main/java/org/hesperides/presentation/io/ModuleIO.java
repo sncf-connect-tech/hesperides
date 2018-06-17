@@ -30,7 +30,7 @@ public final class ModuleIO {
     Long versionId;
 
     public Module toDomainInstance(List<Template> templates) {
-        return new Module(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)),
+        return new Module(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)),
                 templates, TechnoIO.toDomainInstances(technos), versionId);
     }
 

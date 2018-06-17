@@ -23,7 +23,6 @@ package org.hesperides.infrastructure.mongo.modules;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
@@ -92,7 +91,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKeyAndTemplatesName(KeyDocument.fromDomainInstance(moduleKey), templateName);
         if (optionalModuleDocument.isPresent()) {
             TemplateDocument templateDocument = optionalModuleDocument.get().findOptionalTemplateByName(templateName).get();
-            optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX));
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey));
         }
         return optionalTemplateView;
     }
@@ -107,7 +106,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
         if (optionalModuleDocument.isPresent() && optionalModuleDocument.get().getTemplates() != null) {
             templateViews = optionalModuleDocument.get().getTemplates().stream()
-                    .map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX))
+                    .map(templateDocument -> templateDocument.toTemplateView(moduleKey))
                     .collect(Collectors.toList());
         }
         return templateViews;

@@ -41,7 +41,7 @@ public class ModuleTemplatesController extends BaseController {
                                                                       @PathVariable("module_version") final String moduleVersion,
                                                                       @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType) {
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
+        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
         List<PartialTemplateIO> partialTemplateOutputs = templateViews != null
                 ? templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList())
@@ -57,7 +57,7 @@ public class ModuleTemplatesController extends BaseController {
                                                                @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
                                                                @PathVariable("template_name") final String templateName) {
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
+        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, templateName)
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
@@ -72,7 +72,7 @@ public class ModuleTemplatesController extends BaseController {
                                                                   @PathVariable("module_version") final String moduleVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
+        final TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
         moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
 
@@ -80,7 +80,7 @@ public class ModuleTemplatesController extends BaseController {
                 .map(TemplateIO::fromTemplateView)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, template.getName()));
 
-        return ResponseEntity.created(template.getTemplateContainerKey().getURI(Module.KEY_PREFIX)).body(templateOutput);
+        return ResponseEntity.created(template.getTemplateContainerKey().getURI()).body(templateOutput);
     }
 
     @PutMapping("/workingcopy/templates")
@@ -90,7 +90,7 @@ public class ModuleTemplatesController extends BaseController {
                                                                   @PathVariable("module_version") final String moduleVersion,
                                                                   @Valid @RequestBody final TemplateIO templateInput) {
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
+        final TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
         moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
 

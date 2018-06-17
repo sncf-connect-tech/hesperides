@@ -42,7 +42,7 @@
             <groupId>org.axonframework</groupId>
             <artifactId>axon-mongo</artifactId>
         </dependency>
-        
+
         <!-- Fake Mongo -->
         <dependency>
             <groupId>com.github.fakemongo</groupId>

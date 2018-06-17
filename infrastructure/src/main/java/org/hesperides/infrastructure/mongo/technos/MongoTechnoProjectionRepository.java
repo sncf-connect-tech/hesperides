@@ -114,7 +114,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             TemplateDocument templateDocument = optionalTechnoDocument.get().getTemplates().stream()
                     .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
                     .findAny().get();
-            optionalTemplateView = Optional.of(templateDocument.toTemplateView(key, Techno.KEY_PREFIX));
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(key));
         }
         return optionalTemplateView;
     }
@@ -136,7 +136,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
         if (optionalTechnoDocument.isPresent()) {
             templateViews = optionalTechnoDocument.get().getTemplates().stream()
-                    .map(templateDocument -> templateDocument.toTemplateView(key, Techno.KEY_PREFIX))
+                    .map(templateDocument -> templateDocument.toTemplateView(key))
                     .collect(Collectors.toList());
         }
         return templateViews;

@@ -22,7 +22,7 @@ public class TechnoCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Techno.Key createTechno(Techno techno, User user) {
+    public TemplateContainer.Key createTechno(Techno techno, User user) {
         return commandGateway.sendAndWait(new CreateTechnoCommand(techno, user));
     }
 
@@ -30,7 +30,7 @@ public class TechnoCommands {
         commandGateway.sendAndWait(new AddTemplateToTechnoCommand(technoKey, template, user));
     }
 
-    public void updateTemplate(Techno.Key key, Template template, User user) {
+    public void updateTemplate(TemplateContainer.Key key, Template template, User user) {
         commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(key, template, user));
     }
 
@@ -38,7 +38,7 @@ public class TechnoCommands {
         commandGateway.sendAndWait(new DeleteTechnoCommand(technoKey, user));
     }
 
-    public void deleteTemplate(Techno.Key key, String templateName, User user) {
+    public void deleteTemplate(TemplateContainer.Key key, String templateName, User user) {
         commandGateway.sendAndWait(new DeleteTechnoTemplateCommand(key, templateName, user));
     }
 }

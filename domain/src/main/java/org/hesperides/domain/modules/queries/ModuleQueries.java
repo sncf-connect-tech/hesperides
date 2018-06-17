@@ -3,7 +3,6 @@ package org.hesperides.domain.modules.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
@@ -22,11 +21,11 @@ public class ModuleQueries extends Queries {
         super(queryGateway);
     }
 
-    public boolean moduleExists(Module.Key moduleKey) {
+    public boolean moduleExists(TemplateContainer.Key moduleKey) {
         return querySync(new ModuleAlreadyExistsQuery(moduleKey), Boolean.class);
     }
 
-    public Optional<ModuleView> getModule(Module.Key moduleKey) {
+    public Optional<ModuleView> getModule(TemplateContainer.Key moduleKey) {
         return querySyncOptional(new GetModuleByKeyQuery(moduleKey), ModuleView.class);
     }
 
@@ -42,7 +41,7 @@ public class ModuleQueries extends Queries {
         return querySyncList(new GetModuleVersionTypesQuery(moduleName, moduleVersion), String.class);
     }
 
-    public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
+    public Optional<TemplateView> getTemplate(TemplateContainer.Key moduleKey, String templateName) {
         return querySyncOptional(new GetTemplateByNameQuery(moduleKey, templateName), TemplateView.class);
     }
 

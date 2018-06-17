@@ -23,6 +23,7 @@ package org.hesperides.infrastructure.mongo.technos;
 import lombok.Data;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
@@ -58,8 +59,9 @@ public class TechnoDocument {
     }
 
     public TechnoView toTechnoView() {
+        TemplateContainer.Key technoKey = new Techno.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
         return new TechnoView(key.getName(), key.getVersion(), key.isWorkingCopy(),
-                TemplateDocument.toTemplateViews(templates, key.toDomainInstance(), Techno.KEY_PREFIX));
+                TemplateDocument.toTemplateViews(templates, technoKey));
     }
 
     public void addTemplate(TemplateDocument templateDocument) {

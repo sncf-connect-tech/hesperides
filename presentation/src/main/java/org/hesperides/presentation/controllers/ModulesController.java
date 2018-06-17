@@ -75,22 +75,22 @@ public class ModulesController extends BaseController {
                 && StringUtils.isBlank(fromModuleVersion)
                 && isFromWorkingCopy == null) {
 
-            Module.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), currentUser);
+            TemplateContainer.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), currentUser);
             ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
                     .map(ModuleIO::fromModuleView)
                     .orElseThrow(() -> new ModuleNotFoundException(createdModuleKey));
-            response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
+            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
 
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
             checkQueryParameterNotEmpty("from_module_version", fromModuleVersion);
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
-            Module.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
+            TemplateContainer.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), currentUser);
             TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
             ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
-            response = ResponseEntity.created(createdModuleKey.getURI(Module.KEY_PREFIX)).body(moduleOutput);
+            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
         }
         return response;
     }
@@ -155,7 +155,7 @@ public class ModulesController extends BaseController {
 
         log.debug("getModuleInfo moduleName: {}, moduleVersion: {}, moduleVersionType: {}", moduleName, moduleVersion, moduleVersionType);
 
-        final Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
+        final TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         return moduleUseCases.getModule(moduleKey)
                 .map(ModuleIO::fromModuleView)
                 .map(ResponseEntity::ok)
@@ -171,7 +171,7 @@ public class ModulesController extends BaseController {
 
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
+        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
 
         return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
@@ -214,7 +214,7 @@ public class ModulesController extends BaseController {
 
         log.debug("getModuleModel {} {} {}", moduleName, moduleVersion, versionType);
 
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(moduleName, moduleVersion, versionType);
+        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, versionType);
         List<AbstractPropertyView> abstractPropertyViews = moduleUseCases.getProperties(moduleKey);
         ModelOutput modelOutput = ModelOutput.fromAbstractPropertyViews(abstractPropertyViews);
 

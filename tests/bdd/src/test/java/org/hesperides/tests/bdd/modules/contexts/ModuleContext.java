@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 public class ModuleContext extends CucumberSpringBean implements En {
 
-    private Module.Key moduleKey;
+    private TemplateContainer.Key moduleKey;
 
     @Autowired
     private TechnoContext technoContext;
@@ -30,7 +30,7 @@ public class ModuleContext extends CucumberSpringBean implements En {
     }
 
 
-    public Module.Key getModuleKey() {
+    public TemplateContainer.Key getModuleKey() {
         return moduleKey;
     }
 
@@ -42,7 +42,7 @@ public class ModuleContext extends CucumberSpringBean implements En {
     public ResponseEntity<ModuleIO> createModule(ModuleIO moduleInput) {
         ResponseEntity<ModuleIO> response = rest.getTestRest().postForEntity("/modules", moduleInput, ModuleIO.class);
         ModuleIO moduleOutput = response.getBody();
-        moduleKey = new TemplateContainer.Key(moduleOutput.getName(), moduleOutput.getVersion(), TemplateContainer.getVersionType(moduleOutput.isWorkingCopy()));
+        moduleKey = new Module.Key(moduleOutput.getName(), moduleOutput.getVersion(), TemplateContainer.getVersionType(moduleOutput.isWorkingCopy()));
         return response;
     }
 

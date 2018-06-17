@@ -58,18 +58,18 @@ public class TemplateDocument {
         return templateDocuments;
     }
 
-    public static List<TemplateView> toTemplateViews(List<TemplateDocument> templates, TemplateContainer.Key key, String keyPrefix) {
+    public static List<TemplateView> toTemplateViews(List<TemplateDocument> templates, TemplateContainer.Key key) {
         List<TemplateView> templateViews = null;
         if (templates != null) {
-            templateViews = templates.stream().map(templateDocument -> templateDocument.toTemplateView(key, keyPrefix)).collect(Collectors.toList());
+            templateViews = templates.stream().map(templateDocument -> templateDocument.toTemplateView(key)).collect(Collectors.toList());
         }
         return templateViews;
     }
 
-    public TemplateView toTemplateView(TemplateContainer.Key key, String namespacePrefix) {
+    public TemplateView toTemplateView(TemplateContainer.Key key) {
         return new TemplateView(
                 name,
-                key.getNamespace(namespacePrefix),
+                key.getNamespace(),
                 filename,
                 location,
                 content,

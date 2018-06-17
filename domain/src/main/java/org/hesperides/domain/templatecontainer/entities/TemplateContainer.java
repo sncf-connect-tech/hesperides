@@ -14,17 +14,20 @@ public abstract class TemplateContainer {
     List<AbstractProperty> properties;
 
     @Value
-    public static class Key {
+    @NonFinal
+    public static abstract class Key {
         String name;
         String version;
         VersionType versionType;
 
-        public URI getURI(String prefix) {
-            return URI.create("/rest/" + prefix + "s/" + name + "/" + version + "/" + versionType.name().toLowerCase());
+        protected abstract String getPrefix();
+
+        public URI getURI() {
+            return URI.create("/rest/" + getPrefix() + "s/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
 
-        public String getNamespace(String prefix) {
-            return prefix + "s#" + name + "#" + version + "#" + versionType.name().toUpperCase();
+        public String getNamespace() {
+            return getPrefix() + "s#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
         public boolean isWorkingCopy() {
