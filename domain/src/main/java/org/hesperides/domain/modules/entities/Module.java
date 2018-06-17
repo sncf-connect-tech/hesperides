@@ -22,13 +22,15 @@ public class Module extends TemplateContainer {
 
     public static class Key extends TemplateContainer.Key {
 
+        private static final String PREFIX = "module";
+
         public Key(String name, String version, VersionType versionType) {
             super(name, version, versionType);
         }
 
         @Override
         protected String getPrefix() {
-            return "module";
+            return PREFIX;
         }
     }
 }

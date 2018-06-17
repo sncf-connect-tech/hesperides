@@ -30,6 +30,10 @@ public abstract class TemplateContainer {
             return getPrefix() + "s#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
+        public String toString() {
+            return getNamespace();
+        }
+
         public boolean isWorkingCopy() {
             return versionType == VersionType.workingcopy;
         }

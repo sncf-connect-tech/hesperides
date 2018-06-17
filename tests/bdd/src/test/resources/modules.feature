@@ -10,6 +10,11 @@ Feature: modules related features
     When creating a new module
     Then the module is successfully created
 
+  Scenario: create a module and a techno that have the same key
+    Given an existing techno
+    When creating a module that has the same key as this techno
+    Then the module is successfully created
+
   Scenario: update a module
     Given an existing module
     When updating this module
