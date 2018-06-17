@@ -42,9 +42,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.framework.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
+import static org.hesperides.domain.framework.Profiles.MONGO;
 
-@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
+@Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoTechnoProjectionRepository implements TechnoProjectionRepository {
 

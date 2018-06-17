@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hesperides.domain.framework.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
+import static org.hesperides.domain.framework.Profiles.MONGO;
 
-@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
+@Profile({MONGO, FAKE_MONGO})
 @Repository
 public interface MongoModuleRepository extends MongoRepository<ModuleDocument, String> {
 
