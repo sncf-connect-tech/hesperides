@@ -39,10 +39,22 @@ public class TemplateContext extends CucumberSpringBean implements En {
         return addTemplateToExistingModule(templateInput);
     }
 
-    private ResponseEntity<TemplateIO> addTemplateToExistingModule(TemplateIO templateInput) {
+    public ResponseEntity<TemplateIO> addTemplateToExistingModule(TemplateIO templateInput) {
         ResponseEntity<TemplateIO> response = rest.getTestRest().postForEntity(getTemplatesURI(), templateInput, TemplateIO.class);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         return response;
+    }
+
+    public ResponseEntity updateTemplate(TemplateIO templateInput) {
+        return rest.putForEntity(getTemplatesURI(), templateInput, TemplateIO.class);
+    }
+
+    public void deleteTemplate() {
+        deleteTemplate(TemplateSamples.DEFAULT_NAME);
+    }
+
+    public void deleteTemplate(String templateName) {
+        rest.getTestRest().delete(getTemplateURI(templateName));
     }
 
     // URIs

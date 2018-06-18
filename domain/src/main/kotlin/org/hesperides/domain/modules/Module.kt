@@ -5,6 +5,7 @@ import org.hesperides.domain.modules.entities.Module
 import org.hesperides.domain.security.User
 import org.hesperides.domain.security.UserEvent
 import org.hesperides.domain.technos.entities.Techno
+import org.hesperides.domain.templatecontainer.entities.AbstractProperty
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer
 
 // Command
@@ -17,6 +18,7 @@ data class ModuleCopiedEvent(val moduleKey: TemplateContainer.Key, val sourceMod
 data class ModuleCreatedEvent(val module: Module, override val user: User) : UserEvent(user)
 data class ModuleTechnosUpdatedEvent(val moduleKey: TemplateContainer.Key, val technos: List<Techno>, val versionId: Long, override val user: User) : UserEvent(user)
 data class ModuleDeletedEvent(val moduleKey: TemplateContainer.Key, override val user: User) : UserEvent(user)
+data class ModulePropertiesUpdatedEvent(val moduleKey: TemplateContainer.Key, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
 
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: TemplateContainer.Key)
@@ -25,3 +27,4 @@ class GetModulesNamesQuery
 data class GetModuleVersionTypesQuery(val moduleName: String, val moduleVersion: String)
 data class GetModuleVersionsQuery(val moduleName: String)
 data class SearchModulesQuery(val input: String)
+data class GetModulePropertiesQuery(val moduleKey: TemplateContainer.Key)

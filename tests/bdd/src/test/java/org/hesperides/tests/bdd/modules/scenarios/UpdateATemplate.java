@@ -28,7 +28,7 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
 
         When("^updating this template$", () -> {
             TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
-            response = updateTemplate(templateInput);
+            response = templateContext.updateTemplate(templateInput);
         });
 
         When("^updating the same template at the same time$", () -> {
@@ -50,10 +50,6 @@ public class UpdateATemplate extends CucumberSpringBean implements En {
     private ResponseEntity failTryingToUpdateTemplate(TemplateIO templateInput) {
         return rest.doWithErrorHandlerDisabled(rest ->
                 rest.exchange(templateContext.getTemplatesURI(), HttpMethod.PUT, new HttpEntity<>(templateInput), String.class));
-    }
-
-    private ResponseEntity updateTemplate(TemplateIO templateInput) {
-        return rest.putForEntity(templateContext.getTemplatesURI(), templateInput, TemplateIO.class);
     }
 
     // TODO Tester la tentative de modification d'un template qui n'existe pas => 404

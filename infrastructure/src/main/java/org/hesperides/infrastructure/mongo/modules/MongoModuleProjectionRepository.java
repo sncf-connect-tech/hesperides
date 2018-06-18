@@ -5,8 +5,10 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -62,6 +64,14 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public void on(ModuleDeletedEvent event) {
         moduleRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+    }
+
+    @Override
+    public void on(ModulePropertiesUpdatedEvent event) {
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        moduleDocument.setProperties(abstractPropertyDocuments);
+        moduleRepository.save(moduleDocument);
     }
 
     /*** QUERY HANDLERS ***/
@@ -122,5 +132,11 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         Pageable pageableRequest = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageableRequest);
         return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AbstractPropertyView> query(GetModulePropertiesQuery query) {
+        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(query.getModuleKey()));
+        return AbstractPropertyDocument.toAbstractPropertyViews(moduleDocument.getProperties());
     }
 }

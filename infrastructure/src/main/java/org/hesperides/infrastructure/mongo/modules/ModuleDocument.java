@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
+import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.data.annotation.Id;
@@ -20,6 +21,7 @@ public class ModuleDocument {
     @Id
     private KeyDocument key;
     private List<TemplateDocument> templates;
+    private List<AbstractPropertyDocument> properties;
     @DBRef
     private List<TechnoDocument> technos;
     private Long versionId;
@@ -28,6 +30,7 @@ public class ModuleDocument {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setKey(KeyDocument.fromDomainInstance(module.getKey()));
         moduleDocument.setTemplates(TemplateDocument.fromDomainInstances(module.getTemplates()));
+        moduleDocument.setProperties(AbstractPropertyDocument.fromDomainInstances(module.getProperties()));
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(module.getVersionId());
         return moduleDocument;

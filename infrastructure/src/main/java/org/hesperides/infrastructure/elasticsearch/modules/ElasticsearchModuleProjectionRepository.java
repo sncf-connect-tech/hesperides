@@ -6,6 +6,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -53,6 +54,11 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
                 moduleKey.getVersion(),
                 moduleKey.getVersionType());
         elasticsearchModuleRepository.delete(moduleDocument);
+    }
+
+    @Override
+    public void on(ModulePropertiesUpdatedEvent event) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @QueryHandler
@@ -117,6 +123,11 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
     @QueryHandler
     @Override
     public List<ModuleView> query(SearchModulesQuery query) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public List<AbstractPropertyView> query(GetModulePropertiesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }
