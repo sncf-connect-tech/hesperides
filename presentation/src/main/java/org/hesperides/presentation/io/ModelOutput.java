@@ -22,10 +22,12 @@ package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
+import org.hesperides.domain.templatecontainer.queries.IterablePropertyView;
+import org.hesperides.domain.templatecontainer.queries.PropertyView;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Value
 public class ModelOutput {
@@ -33,75 +35,23 @@ public class ModelOutput {
     @SerializedName("key_value_properties")
     List<PropertyOutput> properties;
     @SerializedName("iterable_properties")
-    List<IterablePropertyOutput> iterableProperties;
+    List<PropertyOutput> iterableProperties;
 
-    @Value
-    public static class PropertyOutput {
+    public static ModelOutput fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
+        List<PropertyOutput> propertyOutputs = new ArrayList<>();
+        List<PropertyOutput> iterablePropertyOutputs = new ArrayList<>();
 
-        String name;
-        @SerializedName("required")
-        boolean isRequired;
-        String comment;
-        String defaultValue;
-        String pattern;
-        @SerializedName("password")
-        boolean isPassword;
-
-        public static List<PropertyOutput> fromViews(List<ModelView.PropertyView> propertyViews) {
-            List<PropertyOutput> propertyOutputs = null;
-            if (propertyViews != null) {
-                propertyOutputs = propertyViews.stream().map(PropertyOutput::fromView).collect(Collectors.toList());
+        if (abstractPropertyViews != null) {
+            for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {
+                PropertyOutput propertyOutput = PropertyOutput.fromAbstractPropertyView(abstractPropertyView);
+                if (abstractPropertyView instanceof PropertyView) {
+                    propertyOutputs.add(propertyOutput);
+                } else if (abstractPropertyView instanceof IterablePropertyView) {
+                    iterablePropertyOutputs.add(propertyOutput);
+                }
             }
-            return propertyOutputs;
         }
 
-        public static PropertyOutput fromView(ModelView.PropertyView propertyView) {
-            PropertyOutput propertyOutput = null;
-            if (propertyView != null) {
-                propertyOutput = new PropertyOutput(
-                        propertyView.getName(),
-                        propertyView.isRequired(),
-                        propertyView.getComment(),
-                        propertyView.getDefaultValue(),
-                        propertyView.getPattern(),
-                        propertyView.isPassword()
-                );
-            }
-            return propertyOutput;
-        }
-    }
-
-    @Value
-    public static class IterablePropertyOutput {
-
-        String name;
-        PropertyOutput propertyOutput;
-
-        public static List<IterablePropertyOutput> fromViews(List<ModelView.IterablePropertyView> iterablePropertyViews) {
-            List<IterablePropertyOutput> iterablePropertyOutputs = null;
-            if (iterablePropertyViews != null) {
-                iterablePropertyOutputs = iterablePropertyViews.stream().map(IterablePropertyOutput::fromView).collect(Collectors.toList());
-            }
-            return iterablePropertyOutputs;
-        }
-
-        public static IterablePropertyOutput fromView(ModelView.IterablePropertyView iterablePropertyView) {
-            IterablePropertyOutput iterablePropertyOutput = null;
-            if (iterablePropertyView != null) {
-                iterablePropertyOutput = new IterablePropertyOutput(iterablePropertyView.getName(), PropertyOutput.fromView(iterablePropertyView.getProperty()));
-            }
-            return iterablePropertyOutput;
-        }
-    }
-
-    public static ModelOutput fromView(ModelView modelView) {
-        ModelOutput modelOutput = null;
-        if (modelView != null) {
-            modelOutput = new ModelOutput(
-                    PropertyOutput.fromViews(modelView.getProperties()),
-                    IterablePropertyOutput.fromViews(modelView.getIterableProperties())
-            );
-        }
-        return modelOutput;
+        return new ModelOutput(propertyOutputs, iterablePropertyOutputs);
     }
 }

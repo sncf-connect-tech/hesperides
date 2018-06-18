@@ -4,7 +4,7 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier
 import org.hesperides.domain.security.User
 import org.hesperides.domain.security.UserEvent
 import org.hesperides.domain.technos.entities.Techno
-import org.hesperides.domain.templatecontainer.entities.Model
+import org.hesperides.domain.templatecontainer.entities.AbstractProperty
 import org.hesperides.domain.templatecontainer.entities.Template
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer
 
@@ -21,7 +21,7 @@ data class TechnoDeletedEvent(val technoKey: TemplateContainer.Key, override val
 data class TemplateAddedToTechnoEvent(val technoKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
 data class TechnoTemplateUpdatedEvent(val technoKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
 data class TechnoTemplateDeletedEvent(val technoKey: TemplateContainer.Key, val templateName: String, override val user: User) : UserEvent(user)
-data class TechnoModelUpdatedEvent(val technoKey: TemplateContainer.Key, val model: Model, override val user: User) : UserEvent(user)
+data class TechnoPropertiesUpdatedEvent(val technoKey: TemplateContainer.Key, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
 
 // Queries
 data class TechnoAlreadyExistsQuery(val technoKey: TemplateContainer.Key)
@@ -29,4 +29,4 @@ data class GetTemplateQuery(val technoKey: TemplateContainer.Key, val templateNa
 data class GetTemplatesQuery(val technoKey: TemplateContainer.Key)
 data class GetTechnoQuery(val technoKey: TemplateContainer.Key)
 data class SearchTechnosQuery(val input: String)
-data class GetTechnoModelQuery(val technoKey: TemplateContainer.Key)
+data class GetTechnoPropertiesQuery(val technoKey: TemplateContainer.Key)

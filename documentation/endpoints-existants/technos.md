@@ -58,7 +58,24 @@ Code HTTP 200
             }
         ],
         "iterable_properties": [
-            TODO
+            {
+                "name": "",
+                "comment": "",
+                "required": false,
+                "defaultValue": "",
+                "pattern": "",
+                "password: false"
+                "fields": [
+                    {
+                        "name": "",
+                        "comment": "",
+                        "required": false,
+                        "defaultValue": "",
+                        "pattern": "",
+                        "password: false"
+                    }
+                ]
+            }
         ]
     }
 

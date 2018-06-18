@@ -26,10 +26,10 @@ import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
-import org.hesperides.infrastructure.mongo.templatecontainer.ModelDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -92,10 +92,10 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
-    public void on(TechnoModelUpdatedEvent event) {
+    public void on(TechnoPropertiesUpdatedEvent event) {
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
-        ModelDocument modelDocument = ModelDocument.fromDomainInstance(event.getModel());
-        technoDocument.setModel(modelDocument);
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        technoDocument.setProperties(abstractPropertyDocuments);
         technoRepository.save(technoDocument);
     }
 
@@ -163,9 +163,9 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
-    public ModelView query(GetTechnoModelQuery query) {
+    public List<AbstractPropertyView> query(GetTechnoPropertiesQuery query) {
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(query.getTechnoKey()));
-        return technoDocument.getModel().toModelView();
+        return AbstractPropertyDocument.toAbstractPropertyViews(technoDocument.getProperties());
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

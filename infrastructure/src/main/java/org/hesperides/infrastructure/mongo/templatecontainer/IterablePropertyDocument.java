@@ -21,50 +21,26 @@
 package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
-import org.hesperides.domain.templatecontainer.entities.Model;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.entities.IterableProperty;
+import org.hesperides.domain.templatecontainer.queries.IterablePropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Document
-public class IterablePropertyDocument {
+public class IterablePropertyDocument extends AbstractPropertyDocument {
 
-    private String name;
-    private PropertyDocument property;
+    private List<AbstractPropertyDocument> properties;
 
-    public static List<IterablePropertyDocument> fromDomainInstances(List<Model.IterableProperty> iterableProperties) {
-        List<IterablePropertyDocument> iterablePropertyDocuments = null;
-        if (iterableProperties != null) {
-            iterablePropertyDocuments = iterableProperties.stream().map(IterablePropertyDocument::fromDomainInstance).collect(Collectors.toList());
-        }
-        return iterablePropertyDocuments;
-    }
-
-    public static IterablePropertyDocument fromDomainInstance(Model.IterableProperty iterableProperty) {
-        IterablePropertyDocument iterablePropertyDocument = null;
-        if (iterableProperty != null) {
-            iterablePropertyDocument = new IterablePropertyDocument();
-            iterablePropertyDocument.setName(iterableProperty.getName());
-            iterablePropertyDocument.setProperty(PropertyDocument.fromDomainInstance(iterableProperty.getProperty()));
-        }
+    public static IterablePropertyDocument fromDomainInstance(IterableProperty iterableProperty) {
+        IterablePropertyDocument iterablePropertyDocument = new IterablePropertyDocument();
+        iterablePropertyDocument.setName(iterableProperty.getName());
+        iterablePropertyDocument.setProperties(AbstractPropertyDocument.fromDomainInstances(iterableProperty.getProperties()));
         return iterablePropertyDocument;
     }
 
-    public static List<ModelView.IterablePropertyView> toIterableProperyViews(List<IterablePropertyDocument> iterablePropertyDocuments) {
-        List<ModelView.IterablePropertyView> iterablePropertyViews = null;
-        if (iterablePropertyDocuments != null) {
-            iterablePropertyViews = iterablePropertyDocuments.stream().map(IterablePropertyDocument::toIterableProperyView).collect(Collectors.toList());
-        }
-        return iterablePropertyViews;
-    }
-
-    public ModelView.IterablePropertyView toIterableProperyView() {
-        return new ModelView.IterablePropertyView(
-                name,
-                property.toPropertyView()
-        );
+    public IterablePropertyView toIterableProperyView() {
+        return new IterablePropertyView(getName(), AbstractPropertyDocument.toAbstractPropertyViews(properties));
     }
 }

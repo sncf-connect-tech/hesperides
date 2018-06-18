@@ -23,8 +23,8 @@ package org.hesperides.infrastructure.mongo.technos;
 import lombok.Data;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
+import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
-import org.hesperides.infrastructure.mongo.templatecontainer.ModelDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -39,13 +39,13 @@ public class TechnoDocument {
     @Id
     private KeyDocument key;
     private List<TemplateDocument> templates;
-    private ModelDocument model;
+    private List<AbstractPropertyDocument> properties;
 
     public static TechnoDocument fromDomainInstance(Techno techno) {
         TechnoDocument technoDocument = new TechnoDocument();
         technoDocument.setKey(KeyDocument.fromDomainInstance(techno.getKey()));
         technoDocument.setTemplates(TemplateDocument.fromDomainInstances(techno.getTemplates()));
-        technoDocument.setModel(ModelDocument.fromDomainInstance(techno.getModel()));
+        technoDocument.setProperties(AbstractPropertyDocument.fromDomainInstances(techno.getProperties()));
         return technoDocument;
     }
 

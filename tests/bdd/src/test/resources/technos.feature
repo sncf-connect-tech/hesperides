@@ -95,3 +95,14 @@ Feature: technos related features
     And a template containing properties but is being deleted
     When retrieving the model of this techno
     Then the model of this techno does not contain the properties of the deleted template
+
+  Scenario: get the model of a techno that has iterable properties
+    Given an existing techno
+    And a template in this techno that has iterable properties
+    When retrieving the model of this techno
+    Then the model of this techno contains all the iterable properties
+
+  Scenario: a techno template property cannot have both required and default value annotations
+    Given an existing techno
+    When trying to create a template in this techno that has a property that is required and with a default value
+    Then the creation of the techno template that has a property that is required and with a default value is rejected

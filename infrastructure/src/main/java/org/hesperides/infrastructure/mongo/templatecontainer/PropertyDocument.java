@@ -21,62 +21,32 @@
 package org.hesperides.infrastructure.mongo.templatecontainer;
 
 import lombok.Data;
-import org.hesperides.domain.templatecontainer.entities.Model;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.entities.Property;
+import org.hesperides.domain.templatecontainer.queries.PropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Document
-public class PropertyDocument {
-    private String name;
+public class PropertyDocument extends AbstractPropertyDocument {
+
     private boolean isRequired;
     private String comment;
     private String defaultValue;
     private String pattern;
     private boolean isPassword;
 
-    public static List<PropertyDocument> fromDomainInstances(List<Model.Property> properties) {
-        List<PropertyDocument> propertyDocuments = null;
-        if (properties != null) {
-            propertyDocuments = properties.stream().map(PropertyDocument::fromDomainInstance).collect(Collectors.toList());
-        }
-        return propertyDocuments;
-    }
-
-    public static PropertyDocument fromDomainInstance(Model.Property property) {
-        PropertyDocument propertyDocument = null;
-        if (property != null) {
-            propertyDocument = new PropertyDocument();
-            propertyDocument.setName(property.getName());
-            propertyDocument.setRequired(property.isPassword());
-            propertyDocument.setComment(property.getComment());
-            propertyDocument.setDefaultValue(property.getDefaultValue());
-            propertyDocument.setPattern(property.getPattern());
-            propertyDocument.setPassword(property.isPassword());
-        }
+    public static PropertyDocument fromDomainInstance(Property property) {
+        PropertyDocument propertyDocument = new PropertyDocument();
+        propertyDocument.setName(property.getName());
+        propertyDocument.setRequired(property.isRequired());
+        propertyDocument.setComment(property.getComment());
+        propertyDocument.setDefaultValue(property.getDefaultValue());
+        propertyDocument.setPattern(property.getPattern());
+        propertyDocument.setPassword(property.isPassword());
         return propertyDocument;
     }
 
-
-    public static List<ModelView.PropertyView> toPropertyViews(List<PropertyDocument> propertyDocuments) {
-        List<ModelView.PropertyView> propertyViews = null;
-        if (propertyDocuments != null) {
-            propertyViews = propertyDocuments.stream().map(PropertyDocument::toPropertyView).collect(Collectors.toList());
-        }
-        return propertyViews;
-    }
-
-    public ModelView.PropertyView toPropertyView() {
-        return new ModelView.PropertyView(
-                name,
-                isRequired,
-                comment,
-                defaultValue,
-                pattern,
-                isPassword
-        );
+    public PropertyView toPropertyView() {
+        return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
     }
 }

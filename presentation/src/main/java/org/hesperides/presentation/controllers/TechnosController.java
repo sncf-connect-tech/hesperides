@@ -30,7 +30,7 @@ import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainer.entities.Template;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.ModelView;
+import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.presentation.io.ModelOutput;
 import org.hesperides.presentation.io.PartialTemplateIO;
@@ -210,10 +210,10 @@ public class TechnosController extends BaseController {
         log.debug("getModel {} {} {}", technoName, technoVersion, versionType);
 
         TemplateContainer.Key technoKey = new TemplateContainer.Key(technoName, technoVersion, versionType);
-        ModelView modelView = technoUseCases.getModel(technoKey);
-        ModelOutput modelOutput = ModelOutput.fromView(modelView);
+        List<AbstractPropertyView> abstractPropertyViews = technoUseCases.getProperties(technoKey);
+        ModelOutput modelOutput = ModelOutput.fromAbstractPropertyViews(abstractPropertyViews);
 
-        //TODO Gérer l'ordre des propriétés
+        //TODO Gérer l'ordre des propriétés ?
 
         return ResponseEntity.ok(modelOutput);
     }

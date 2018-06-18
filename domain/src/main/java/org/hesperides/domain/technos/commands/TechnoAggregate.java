@@ -13,11 +13,11 @@ import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.templatecontainer.entities.Model;
+import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
+import org.hesperides.domain.templatecontainer.entities.Property;
 import org.hesperides.domain.templatecontainer.entities.Template;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,28 +155,25 @@ class TechnoAggregate implements Serializable {
     }
 
     private void updateModel(UserEvent userEvent) {
-        Model model = generateModel();
-        apply(new TechnoModelUpdatedEvent(key, model, userEvent.getUser()));
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
+        validateProperties(abstractProperties);
+        apply(new TechnoPropertiesUpdatedEvent(key, abstractProperties, userEvent.getUser()));
+    }
+
+    private void validateProperties(List<AbstractProperty> abstractProperties) {
+        if (abstractProperties != null) {
+            abstractProperties.forEach(abstractProperty -> {
+                if (abstractProperty instanceof Property) {
+                    Property property = (Property) abstractProperty;
+                    property.validate();
+                }
+            });
+        }
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(TechnoModelUpdatedEvent event) {
+    private void on(TechnoPropertiesUpdatedEvent event) {
         log.debug("Techno model updated");
-    }
-
-    private Model generateModel() {
-        List<Model.Property> properties = new ArrayList<>();
-        List<Model.IterableProperty> iterableProperties = new ArrayList<>();
-
-        templates.forEach((templateName, template) -> {
-            properties.addAll(Model.extractProperties(template.getFilename()));
-            properties.addAll(Model.extractProperties(template.getLocation()));
-            properties.addAll(Model.extractProperties(template.getContent()));
-        });
-
-        //TODO Extract iterable properties
-
-        return new Model(properties, iterableProperties);
     }
 }
