@@ -5,7 +5,7 @@
 
     <groupId>org.hesperides</groupId>
     <artifactId>hesperides</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <name>hesperides</name>
     <description>Hesperides, templated files generator</description>
