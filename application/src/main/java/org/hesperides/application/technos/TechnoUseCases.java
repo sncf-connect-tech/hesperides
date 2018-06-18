@@ -51,11 +51,11 @@ public class TechnoUseCases {
         commands.addTemplate(technoKey, template, user);
     }
 
-    public void updateTemplateInWorkingCopy(Techno.Key technoKey, Template template, User user) {
+    public void updateTemplateInWorkingCopy(TemplateContainer.Key technoKey, Template template, User user) {
         commands.updateTemplate(technoKey, template, user);
     }
 
-    public void deleteTemplate(Techno.Key technoKey, String templateName, User user) {
+    public void deleteTemplate(TemplateContainer.Key technoKey, String templateName, User user) {
         commands.deleteTemplate(technoKey, templateName, user);
     }
 
@@ -78,7 +78,7 @@ public class TechnoUseCases {
     }
 
     public TechnoView releaseTechno(TemplateContainer.Key existingTechnoKey, User user) {
-        TemplateContainer.Key newTechnoKey = new TemplateContainer.Key(existingTechnoKey.getName(), existingTechnoKey.getVersion(), TemplateContainer.VersionType.release);
+        TemplateContainer.Key newTechnoKey = new Techno.Key(existingTechnoKey.getName(), existingTechnoKey.getVersion(), TemplateContainer.VersionType.release);
         if (queries.technoExists(newTechnoKey)) {
             throw new DuplicateTechnoException(newTechnoKey);
         }

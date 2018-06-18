@@ -9,10 +9,22 @@ import java.util.List;
 @Value
 public class Techno extends TemplateContainer {
 
-    public static final String KEY_PREFIX = "package";
-
-    public Techno(Key key, List<Template> templates) {
+    public Techno(TemplateContainer.Key key, List<Template> templates) {
         //TODO Est-ce qu'il faut générer le model ici ?
         super(key, templates, null);
+    }
+
+    public static class Key extends TemplateContainer.Key {
+
+        private static final String PREFIX = "package";
+
+        public Key(String name, String version, VersionType versionType) {
+            super(name, version, versionType);
+        }
+
+        @Override
+        protected String getPrefix() {
+            return PREFIX;
+        }
     }
 }

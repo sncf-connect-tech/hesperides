@@ -22,7 +22,7 @@ public class ModuleCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Module.Key createModule(Module module, User user) {
+    public TemplateContainer.Key createModule(Module module, User user) {
         return commandGateway.sendAndWait(new CreateModuleCommand(module, user));
     }
 
@@ -34,15 +34,15 @@ public class ModuleCommands {
         commandGateway.sendAndWait(new DeleteModuleCommand(moduleKey, user));
     }
 
-    public void createTemplateInWorkingCopy(Module.Key key, Template template, User user) {
+    public void createTemplateInWorkingCopy(TemplateContainer.Key key, Template template, User user) {
         commandGateway.sendAndWait(new CreateTemplateCommand(key, template, user));
     }
 
-    public void updateTemplateInWorkingCopy(Module.Key key, Template template, User user) {
+    public void updateTemplateInWorkingCopy(TemplateContainer.Key key, Template template, User user) {
         commandGateway.sendAndWait(new UpdateTemplateCommand(key, template, user));
     }
 
-    public void deleteTemplate(Module.Key key, String templateName, User user) {
+    public void deleteTemplate(TemplateContainer.Key key, String templateName, User user) {
         commandGateway.sendAndWait(new DeleteTemplateCommand(key, templateName, user));
     }
 }

@@ -66,6 +66,6 @@ public class TechnoIO {
     }
 
     public Techno toDomainInstance() {
-        return new Techno(new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)), null);
+        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)), null);
     }
 }

@@ -23,7 +23,6 @@ package org.hesperides.infrastructure.mongo.modules;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
-import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainer.queries.TemplateView;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
@@ -37,9 +36,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.framework.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
+import static org.hesperides.domain.framework.Profiles.MONGO;
 
-@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
+@Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoTemplateProjectionRepository implements TemplateProjectionRepository {
 
@@ -91,7 +91,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKeyAndTemplatesName(KeyDocument.fromDomainInstance(moduleKey), templateName);
         if (optionalModuleDocument.isPresent()) {
             TemplateDocument templateDocument = optionalModuleDocument.get().findOptionalTemplateByName(templateName).get();
-            optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX));
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey));
         }
         return optionalTemplateView;
     }
@@ -106,7 +106,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
         if (optionalModuleDocument.isPresent() && optionalModuleDocument.get().getTemplates() != null) {
             templateViews = optionalModuleDocument.get().getTemplates().stream()
-                    .map(templateDocument -> templateDocument.toTemplateView(moduleKey, Module.KEY_PREFIX))
+                    .map(templateDocument -> templateDocument.toTemplateView(moduleKey))
                     .collect(Collectors.toList());
         }
         return templateViews;

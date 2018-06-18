@@ -42,9 +42,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.domain.framework.Profiles.*;
+import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
+import static org.hesperides.domain.framework.Profiles.MONGO;
 
-@Profile({MONGO, EMBEDDED_MONGO, FAKE_MONGO})
+@Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoTechnoProjectionRepository implements TechnoProjectionRepository {
 
@@ -113,7 +114,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             TemplateDocument templateDocument = optionalTechnoDocument.get().getTemplates().stream()
                     .filter(template -> template.getName().equalsIgnoreCase(query.getTemplateName()))
                     .findAny().get();
-            optionalTemplateView = Optional.of(templateDocument.toTemplateView(key, Techno.KEY_PREFIX));
+            optionalTemplateView = Optional.of(templateDocument.toTemplateView(key));
         }
         return optionalTemplateView;
     }
@@ -135,7 +136,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
         if (optionalTechnoDocument.isPresent()) {
             templateViews = optionalTechnoDocument.get().getTemplates().stream()
-                    .map(templateDocument -> templateDocument.toTemplateView(key, Techno.KEY_PREFIX))
+                    .map(templateDocument -> templateDocument.toTemplateView(key))
                     .collect(Collectors.toList());
         }
         return templateViews;

@@ -18,7 +18,7 @@ public class ModuleView {
     Long versionId;
 
     public Module toDomainInstance() {
-        TemplateContainer.Key moduleKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        TemplateContainer.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return new Module(moduleKey, TemplateView.toDomainInstances(templates, moduleKey), TechnoView.toDomainInstances(technos), versionId);
     }
 }

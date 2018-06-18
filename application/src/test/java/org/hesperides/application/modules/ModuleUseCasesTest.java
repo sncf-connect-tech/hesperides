@@ -41,7 +41,7 @@ public class ModuleUseCasesTest {
     @Test(expected = DuplicateModuleException.class)
     public void createWorkingCopy_should_fail_when_working_copy_already_exists() {
 
-        Module.Key key = new Module.Key("x", "1", TemplateContainer.VersionType.workingcopy);
+        TemplateContainer.Key key = new Module.Key("x", "1", TemplateContainer.VersionType.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
         given(moduleQueries.moduleExists(any())).willReturn(true);
@@ -53,7 +53,7 @@ public class ModuleUseCasesTest {
     @Test
     public void createWorkingCopy_should_pass_when_working_copy_do_not_exists() {
 
-        Module.Key key = new Module.Key("x", "1", TemplateContainer.VersionType.workingcopy);
+        TemplateContainer.Key key = new Module.Key("x", "1", TemplateContainer.VersionType.workingcopy);
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
         given(moduleQueries.moduleExists(any())).willReturn(false);

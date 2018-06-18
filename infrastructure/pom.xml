@@ -43,15 +43,6 @@
             <artifactId>axon-mongo</artifactId>
         </dependency>
 
-        <!-- Embedded Mongo -->
-        <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>cz.jirutka.spring</groupId>
-            <artifactId>embedmongo-spring</artifactId>
-        </dependency>
         <!-- Fake Mongo -->
         <dependency>
             <groupId>com.github.fakemongo</groupId>

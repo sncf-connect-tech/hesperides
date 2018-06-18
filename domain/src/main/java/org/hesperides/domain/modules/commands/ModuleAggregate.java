@@ -15,6 +15,7 @@ import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainer.entities.Template;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 @NoArgsConstructor
 class ModuleAggregate implements Serializable {
     @AggregateIdentifier
-    private Module.Key key;
+    private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
     //TODO Technos ?

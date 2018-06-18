@@ -44,7 +44,7 @@ public class TechnoView {
     }
 
     public Techno toDomainInstance() {
-        TemplateContainer.Key technoKey = new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        TemplateContainer.Key technoKey = new Techno.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return new Techno(technoKey, TemplateView.toDomainInstances(templates, technoKey));
     }
 }

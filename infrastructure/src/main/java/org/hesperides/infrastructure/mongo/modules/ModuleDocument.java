@@ -3,6 +3,7 @@ package org.hesperides.infrastructure.mongo.modules;
 import lombok.Data;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
+import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
@@ -37,8 +38,9 @@ public class ModuleDocument {
     }
 
     public ModuleView toModuleView() {
+        TemplateContainer.Key moduleKey = new Module.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
         return new ModuleView(key.getName(), key.getVersion(), key.isWorkingCopy(),
-                TemplateDocument.toTemplateViews(templates, key.toDomainInstance(), Module.KEY_PREFIX),
+                TemplateDocument.toTemplateViews(templates, moduleKey),
                 TechnoDocument.toTechnoViews(technos),
                 versionId);
     }

@@ -49,7 +49,7 @@ public class ModuleUseCases {
      * @param user
      * @return
      */
-    public Module.Key createWorkingCopy(Module module, User user) {
+    public TemplateContainer.Key createWorkingCopy(Module module, User user) {
         if (queries.moduleExists(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
@@ -97,19 +97,19 @@ public class ModuleUseCases {
      * @param template
      * @param user
      */
-    public void createTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
+    public void createTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
         commands.createTemplateInWorkingCopy(moduleKey, template, user);
     }
 
-    public void updateTemplateInWorkingCopy(Module.Key moduleKey, Template template, User user) {
+    public void updateTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
         commands.updateTemplateInWorkingCopy(moduleKey, template, user);
     }
 
-    public void deleteTemplate(Module.Key moduleKey, String templateName, User user) {
+    public void deleteTemplate(TemplateContainer.Key moduleKey, String templateName, User user) {
         commands.deleteTemplate(moduleKey, templateName, user);
     }
 
-    public Optional<ModuleView> getModule(Module.Key moduleKey) {
+    public Optional<ModuleView> getModule(TemplateContainer.Key moduleKey) {
         return queries.getModule(moduleKey);
     }
 
@@ -125,11 +125,11 @@ public class ModuleUseCases {
         return queries.getModuleTypes(moduleName, moduleVersion);
     }
 
-    public Optional<TemplateView> getTemplate(Module.Key moduleKey, String templateName) {
+    public Optional<TemplateView> getTemplate(TemplateContainer.Key moduleKey, String templateName) {
         return queries.getTemplate(moduleKey, templateName);
     }
 
-    public ModuleView createWorkingCopyFrom(Module.Key existingModuleKey, Module.Key newModuleKey, User user) {
+    public ModuleView createWorkingCopyFrom(TemplateContainer.Key existingModuleKey, TemplateContainer.Key newModuleKey, User user) {
 
         if (queries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
@@ -158,12 +158,12 @@ public class ModuleUseCases {
     public ModuleView createRelease(String moduleName, String moduleVersion, String releaseVersion, User user) {
 
         String version = StringUtils.isEmpty(releaseVersion) ? moduleVersion : releaseVersion;
-        TemplateContainer.Key newModuleKey = new TemplateContainer.Key(moduleName, version, TemplateContainer.VersionType.release);
+        TemplateContainer.Key newModuleKey = new Module.Key(moduleName, version, TemplateContainer.VersionType.release);
         if (queries.moduleExists(newModuleKey)) {
             throw new DuplicateModuleException(newModuleKey);
         }
 
-        TemplateContainer.Key existingModuleKey = new TemplateContainer.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
+        TemplateContainer.Key existingModuleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
         if (!moduleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);
