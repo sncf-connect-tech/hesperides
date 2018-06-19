@@ -16,15 +16,26 @@ public class Techno extends TemplateContainer {
 
     public static class Key extends TemplateContainer.Key {
 
-        private static final String PREFIX = "package";
+        private static final String URI_PREFIX = "/templates/packages";
+        private static final String NAMESPACE_PREFIX = "packages";
+        private static final String TOSTRING_PREFIX = "techno";
 
         public Key(String name, String version, VersionType versionType) {
             super(name, version, versionType);
         }
 
         @Override
-        protected String getPrefix() {
-            return PREFIX;
+        protected String getUriPrefix() {
+            return URI_PREFIX;
+        }
+
+        @Override
+        protected String getNamespacePrefix() {
+            return NAMESPACE_PREFIX;
+        }
+
+        public String toString() {
+            return TOSTRING_PREFIX + super.toString();
         }
     }
 }

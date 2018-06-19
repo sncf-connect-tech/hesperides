@@ -20,18 +20,16 @@ public abstract class TemplateContainer {
         String version;
         VersionType versionType;
 
-        protected abstract String getPrefix();
+        protected abstract String getUriPrefix();
 
         public URI getURI() {
-            return URI.create("/rest/" + getPrefix() + "s/" + name + "/" + version + "/" + versionType.name().toLowerCase());
+            return URI.create("/rest" + getUriPrefix() + "/" + name + "/" + version + "/" + versionType.name().toLowerCase());
         }
+
+        protected abstract String getNamespacePrefix();
 
         public String getNamespace() {
-            return getPrefix() + "s#" + name + "#" + version + "#" + versionType.name().toUpperCase();
-        }
-
-        public String toString() {
-            return getNamespace();
+            return getNamespacePrefix() + "#" + name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
         public boolean isWorkingCopy() {
