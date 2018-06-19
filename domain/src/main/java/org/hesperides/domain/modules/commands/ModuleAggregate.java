@@ -18,9 +18,7 @@ import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
@@ -42,7 +40,7 @@ class ModuleAggregate implements Serializable {
     private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
-    //TODO Technos ?
+    //TODO Technos
 
     @CommandHandler
     @SuppressWarnings("unused")
@@ -54,6 +52,7 @@ class ModuleAggregate implements Serializable {
                 command.getModule().getTemplates(),
                 command.getModule().getTechnos(),
                 1L);
+
         apply(new ModuleCreatedEvent(module, command.getUser()));
     }
 
@@ -63,6 +62,7 @@ class ModuleAggregate implements Serializable {
         log.debug("Applying update module command...");
         // Met à jour le version_id
         Long updatedVersionId = command.getVersionId() + 1;
+        //TODO Mettre à jour la liste des propriétés
         apply(new ModuleTechnosUpdatedEvent(command.getModuleKey(), command.getTechnos(), updatedVersionId, command.getUser()));
     }
 
@@ -93,7 +93,13 @@ class ModuleAggregate implements Serializable {
                 1L,
                 command.getModuleKey());
 
-        apply(new TemplateCreatedEvent(key, newTemplate, command.getUser()));
+        // Extrait la liste des propriétés des templates du module
+        List<Template> updatedTemplateList = new ArrayList<>(templates.values());
+        updatedTemplateList.add(newTemplate);
+        List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateList);
+        AbstractProperty.validateProperties(properties);
+
+        apply(new TemplateCreatedEvent(key, newTemplate, properties, command.getUser()));
     }
 
     @CommandHandler
@@ -122,15 +128,28 @@ class ModuleAggregate implements Serializable {
                 command.getTemplate().getVersionId() + 1,
                 command.getModuleKey());
 
-        apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
+        // Extrait la liste des propriétés des templates du module
+        Map<String , Template> updatedTemplateMap = new HashMap<>(templates);
+        updatedTemplateMap.put(templateWithUpdatedVersionId.getName(), templateWithUpdatedVersionId);
+        List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateMap.values());
+        AbstractProperty.validateProperties(properties);
+
+        apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, properties, command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void on(DeleteTemplateCommand command) {
-        // si le template n'existe pas, cette command n'a pas d'effet de bord.
+        // Si le template n'existe pas, cette commande n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
-            apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
+
+            // Extrait la liste des propriétés des templates du module
+            Map<String , Template> updatedTemplateMap = new HashMap<>(templates);
+            updatedTemplateMap.remove(command.getTemplateName());
+            List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateMap.values());
+            AbstractProperty.validateProperties(properties);
+
+            apply(new TemplateDeletedEvent(key, command.getTemplateName(), properties, command.getUser()));
         }
     }
 
@@ -162,7 +181,6 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     private void on(ModuleDeletedEvent event) {
         this.key = event.getModuleKey();
-
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 
@@ -170,32 +188,17 @@ class ModuleAggregate implements Serializable {
     private void on(TemplateCreatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template crée. ");
-        updateModel(event);
     }
 
     @EventSourcingHandler
     private void on(TemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
-        updateModel(event);
     }
 
     @EventSourcingHandler
     private void on(TemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé");
-        updateModel(event);
-    }
-
-    private void updateModel(UserEvent userEvent) {
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
-        AbstractProperty.validateProperties(abstractProperties);
-        apply(new ModulePropertiesUpdatedEvent(key, abstractProperties, userEvent.getUser()));
-    }
-
-    @EventSourcingHandler
-    @SuppressWarnings("unused")
-    private void on(ModulePropertiesUpdatedEvent event) {
-        log.debug("Module model updated");
     }
 }

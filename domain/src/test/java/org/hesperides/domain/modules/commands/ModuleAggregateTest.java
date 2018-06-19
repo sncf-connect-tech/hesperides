@@ -7,13 +7,16 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Exemple de test unitaire sur les commandes
@@ -26,6 +29,7 @@ class ModuleAggregateTest {
     private Module module = new Module(moduleKey, new ArrayList<>(), Collections.emptyList(), 1L);
     private Template.Rights rights = new Template.Rights(null, null, null);
     private Template template = new Template("template1", "file1.txt", "/", "content", rights, 1L, moduleKey);
+    private List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(Arrays.asList(template));
     private User user = new User("default_name", true, true);
 
     @BeforeEach
@@ -44,23 +48,24 @@ class ModuleAggregateTest {
     void when_create_template_then_expect_template_created() {
         fixture.given(new ModuleCreatedEvent(module, user))
                 .when(new CreateTemplateCommand(moduleKey, template, user))
-                .expectEvents(new TemplateCreatedEvent(moduleKey, template, user));
+                .expectEvents(new TemplateCreatedEvent(moduleKey, template, properties, user));
     }
 
     @Test
     void when_create_template_already_existing_then_expect_error() {
         fixture.given(new ModuleCreatedEvent(module, user))
-                .andGiven(new TemplateCreatedEvent(moduleKey, template, user))
+                .andGiven(new TemplateCreatedEvent(moduleKey, template, properties, user))
                 .when(new CreateTemplateCommand(moduleKey, template, user))
                 .expectException(DuplicateTemplateCreationException.class);
     }
 
     @Test
     void when_update_template_expect_template_updated_event() {
+        Template updatedTemplate = new Template(template.getName(), template.getFilename(), template.getLocation(), template.getContent(), template.getRights(), template.getVersionId() + 1, template.getTemplateContainerKey());
         fixture.given(new ModuleCreatedEvent(module, user))
-                .andGiven(new TemplateCreatedEvent(moduleKey, template, user))
+                .andGiven(new TemplateCreatedEvent(moduleKey, template, properties, user))
                 .when(new UpdateTemplateCommand(moduleKey, template, user))
-                .expectEvents(new TemplateUpdatedEvent(moduleKey, template, user));
+                .expectEvents(new TemplateUpdatedEvent(moduleKey, updatedTemplate, properties, user));
     }
 
     @Test
@@ -80,9 +85,9 @@ class ModuleAggregateTest {
     @Test
     void when_delete_template_expect_template_deleted_event() {
         fixture.given(new ModuleCreatedEvent(module, user))
-                .andGiven(new TemplateCreatedEvent(moduleKey, template, user))
+                .andGiven(new TemplateCreatedEvent(moduleKey, template, properties, user))
                 .when(new DeleteTemplateCommand(moduleKey, template.getName(), user))
-                .expectEvents(new TemplateDeletedEvent(moduleKey, template.getName(), user));
+                .expectEvents(new TemplateDeletedEvent(moduleKey, template.getName(), properties, user));
     }
 
 

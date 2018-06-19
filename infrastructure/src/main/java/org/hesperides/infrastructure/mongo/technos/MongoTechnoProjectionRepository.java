@@ -74,6 +74,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(key));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        technoDocument.setProperties(abstractPropertyDocuments);
         technoRepository.save(technoDocument);
     }
 
@@ -82,6 +84,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        technoDocument.setProperties(abstractPropertyDocuments);
         technoRepository.save(technoDocument);
     }
 
@@ -89,12 +93,6 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public void on(TechnoTemplateDeletedEvent event) {
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
         technoDocument.removeTemplate(event.getTemplateName());
-        technoRepository.save(technoDocument);
-    }
-
-    @Override
-    public void on(TechnoPropertiesUpdatedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
         List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
         technoDocument.setProperties(abstractPropertyDocuments);
         technoRepository.save(technoDocument);

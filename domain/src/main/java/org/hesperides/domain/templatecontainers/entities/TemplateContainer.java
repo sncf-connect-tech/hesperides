@@ -13,6 +13,12 @@ public abstract class TemplateContainer {
     List<Template> templates;
     List<AbstractProperty> properties;
 
+    public TemplateContainer(Key key, List<Template> templates) {
+        this.key = key;
+        this.templates = templates;
+        this.properties = AbstractProperty.extractPropertiesFromTemplates(templates);
+    }
+
     @Value
     @NonFinal
     public static abstract class Key {

@@ -67,14 +67,6 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         moduleRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
     }
 
-    @Override
-    public void on(ModulePropertiesUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
-        moduleDocument.setProperties(abstractPropertyDocuments);
-        moduleRepository.save(moduleDocument);
-    }
-
     /*** QUERY HANDLERS ***/
 
     @QueryHandler

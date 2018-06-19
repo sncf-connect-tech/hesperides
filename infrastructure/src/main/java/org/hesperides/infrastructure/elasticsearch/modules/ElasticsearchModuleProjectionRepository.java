@@ -56,11 +56,6 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
         elasticsearchModuleRepository.delete(moduleDocument);
     }
 
-    @Override
-    public void on(ModulePropertiesUpdatedEvent event) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {

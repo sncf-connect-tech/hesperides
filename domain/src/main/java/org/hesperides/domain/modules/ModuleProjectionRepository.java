@@ -21,9 +21,6 @@ public interface ModuleProjectionRepository {
     @EventSourcingHandler
     void on(ModuleDeletedEvent event);
 
-    @EventSourcingHandler
-    void on(ModulePropertiesUpdatedEvent event);
-
     /*** QUERY HANDLERS ***/
 
     @QueryHandler

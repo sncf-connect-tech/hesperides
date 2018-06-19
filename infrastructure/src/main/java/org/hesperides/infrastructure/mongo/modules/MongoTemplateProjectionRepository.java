@@ -25,6 +25,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
+import org.hesperides.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         moduleDocument.addTemplate(templateDocument);
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        moduleDocument.setProperties(abstractPropertyDocuments);
         moduleRepository.save(moduleDocument);
     }
 
@@ -67,6 +70,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        moduleDocument.setProperties(abstractPropertyDocuments);
         moduleRepository.save(moduleDocument);
     }
 
@@ -75,6 +80,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     public void on(TemplateDeletedEvent event) {
         ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
         moduleDocument.removeTemplate(event.getTemplateName());
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
+        moduleDocument.setProperties(abstractPropertyDocuments);
         moduleRepository.save(moduleDocument);
     }
 
