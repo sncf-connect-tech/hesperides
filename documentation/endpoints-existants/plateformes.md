@@ -78,6 +78,8 @@ Cors de la requête :
       ]
     }
     
+TODO : Quelle est la différence entre path et property_path ? Comment les générer ?
+    
 #### Output
 
 Code 200 + structure identique à l'input.
@@ -133,13 +135,13 @@ Rien.
 #### Output
 
     {
-      "globprop2": [],
-      "globalprop1": [
+      "{name_a}": [
         {
           "inModel": true,
           "path": "#groupe#tlh#1.0.7c#WORKINGCOPY"
         }
-      ]
+      ],
+      "{name_b}": [...]
     }
     
 Attention, l'output n'est pas un tableau...
@@ -237,7 +239,7 @@ Recherche une application à partir de son nom.
 
 #### Input
 
-Paramètre de requête obligatoire : name;
+Paramètre de requête obligatoire : name
 
 #### Output
 
@@ -248,6 +250,8 @@ Code 200
         "name": ""
       }
     ]
+
+Attention, ce n'est pas un tableau de Strings mais un tableau d'objets qui ne contiennent qu'une propriété "name".
 
 ### GET /application/platforms/perform_search
 
@@ -266,6 +270,8 @@ Paramètres de requête :
         "name": ""
       }
     ]
+
+Attention, là non plus ce n'est pas un tableau de Strings mais un tableau d'objets qui ne contiennent qu'une propriété "name".
 
 ### POST /applications/using_module/{module}/{version}/{type}
 
