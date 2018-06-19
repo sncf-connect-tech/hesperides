@@ -2,7 +2,6 @@ package org.hesperides.domain.modules.entities;
 
 import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 

@@ -10,7 +10,6 @@ import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
-import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
@@ -107,7 +106,7 @@ class TechnoAggregate implements Serializable {
                 command.getTechnoKey());
 
         // Extrait la liste des propriétés des templates de la techno
-        Map<String , Template> updatedTemplateMap = new HashMap<>(templates);
+        Map<String, Template> updatedTemplateMap = new HashMap<>(templates);
         updatedTemplateMap.put(templateWithUpdatedVersionId.getName(), templateWithUpdatedVersionId);
         List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateMap.values());
         AbstractProperty.validateProperties(properties);
@@ -122,7 +121,7 @@ class TechnoAggregate implements Serializable {
         if (this.templates.containsKey(command.getTemplateName())) {
 
             // Extrait la liste des propriétés des templates du module
-            Map<String , Template> updatedTemplateMap = new HashMap<>(templates);
+            Map<String, Template> updatedTemplateMap = new HashMap<>(templates);
             updatedTemplateMap.remove(command.getTemplateName());
             List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateMap.values());
             AbstractProperty.validateProperties(properties);
