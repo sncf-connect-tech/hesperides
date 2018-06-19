@@ -126,7 +126,6 @@
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <releaseProfiles>deploy</releaseProfiles>
-                    <tagNameFormat>hesperides-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
             <plugin>
