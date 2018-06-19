@@ -22,8 +22,8 @@ package org.hesperides.domain.technos.queries;
 
 import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.queries.TemplateView;
 
 import java.util.List;
 import java.util.stream.Collectors;

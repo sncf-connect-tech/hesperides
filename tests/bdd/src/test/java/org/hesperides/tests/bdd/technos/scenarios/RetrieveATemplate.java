@@ -21,10 +21,10 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.TemplateIO;
+import org.hesperides.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
-import org.hesperides.tests.bdd.templatecontainer.TemplateAssertions;
+import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

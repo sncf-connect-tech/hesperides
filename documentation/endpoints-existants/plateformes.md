@@ -27,7 +27,17 @@ Code HTTP 200
               "working_copy": false,
               "properties_path": "",
               "path": "",
-              "instances": [],
+              "instances": [
+                {
+                  "name": "",
+                  "key_values": [
+                    {
+                      "name": "",
+                      "value": ""
+                    }
+                  ]
+                }
+              ],
               "id": 0
             }
           ],
@@ -170,14 +180,26 @@ Code 200
       "iterable_properties": [
         {
           "name": "",
-          "iterableValorisationItems": [
+          "iterable_valorisation_items": [
             "title": "",
             "values": [
+              {
+                "name": "",
+                "value": ""
+              },
+              {
+                "name": "",
+                "iterable_valorisation_items": []
+              }
             ]
           ]
         }
       ]
     }
+    
+Diagramme des classes d'output :
+
+![Diagramme de classe des propriétés valorisées](schémas/valorised-properties.png)
 
 ### POST /application/{application_name}/platforms/{platform_name}/properties
 

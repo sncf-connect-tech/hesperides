@@ -12,9 +12,9 @@ import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationExcepti
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
-import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
-import org.hesperides.domain.templatecontainer.entities.Template;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
+import org.hesperides.domain.templatecontainers.entities.Template;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.io.Serializable;
 import java.util.HashMap;

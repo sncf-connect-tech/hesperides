@@ -1,9 +1,9 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.TemplateIO;
+import org.hesperides.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.templatecontainer.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

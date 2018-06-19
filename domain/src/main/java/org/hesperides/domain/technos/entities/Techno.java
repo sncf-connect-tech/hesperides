@@ -1,8 +1,8 @@
 package org.hesperides.domain.technos.entities;
 
 import lombok.Value;
-import org.hesperides.domain.templatecontainer.entities.Template;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.Template;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.List;
 

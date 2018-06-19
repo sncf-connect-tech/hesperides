@@ -23,10 +23,10 @@ package org.hesperides.infrastructure.mongo.technos;
 import lombok.Data;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.infrastructure.mongo.templatecontainer.AbstractPropertyDocument;
-import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
-import org.hesperides.infrastructure.mongo.templatecontainer.TemplateDocument;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
+import org.hesperides.infrastructure.mongo.templatecontainers.KeyDocument;
+import org.hesperides.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

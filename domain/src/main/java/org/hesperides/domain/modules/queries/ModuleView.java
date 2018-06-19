@@ -3,8 +3,8 @@ package org.hesperides.domain.modules.queries;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.technos.queries.TechnoView;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.queries.TemplateView;
 
 import java.util.List;
 

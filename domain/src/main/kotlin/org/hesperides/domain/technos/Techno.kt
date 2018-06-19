@@ -4,9 +4,9 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier
 import org.hesperides.domain.security.User
 import org.hesperides.domain.security.UserEvent
 import org.hesperides.domain.technos.entities.Techno
-import org.hesperides.domain.templatecontainer.entities.AbstractProperty
-import org.hesperides.domain.templatecontainer.entities.Template
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty
+import org.hesperides.domain.templatecontainers.entities.Template
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer
 
 // Commands
 data class CreateTechnoCommand(val techno: Techno, val user: User)
