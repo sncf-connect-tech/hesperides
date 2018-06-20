@@ -10,7 +10,6 @@ import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
-import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
@@ -70,6 +69,10 @@ class TechnoAggregate implements Serializable {
                 1L,
                 template.getTemplateContainerKey());
 
+        // Vérifie les propriétés
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(newTemplate);
+        AbstractProperty.validateProperties(abstractProperties);
+
         apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, command.getUser()));
     }
 
@@ -99,13 +102,17 @@ class TechnoAggregate implements Serializable {
                 command.getTemplate().getVersionId() + 1,
                 command.getTechnoKey());
 
+        // Vérifie les propriétés
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(templateWithUpdatedVersionId);
+        AbstractProperty.validateProperties(abstractProperties);
+
         apply(new TechnoTemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void on(DeleteTechnoTemplateCommand command) {
-        // si le template n'existe pas, cette command n'a pas d'effet de bord.
+        // si le template n'existe pas, cette commandE n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }
@@ -134,7 +141,6 @@ class TechnoAggregate implements Serializable {
     public void on(TemplateAddedToTechnoEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template ajouté à la techno (aggregate is live ? {})", isLive());
-        updateModel(event);
     }
 
     @EventSourcingHandler
@@ -142,7 +148,6 @@ class TechnoAggregate implements Serializable {
     private void on(TechnoTemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
-        updateModel(event);
     }
 
     @EventSourcingHandler
@@ -150,18 +155,5 @@ class TechnoAggregate implements Serializable {
     private void on(TechnoTemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé. ");
-        updateModel(event);
-    }
-
-    private void updateModel(UserEvent userEvent) {
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
-        AbstractProperty.validateProperties(abstractProperties);
-        apply(new TechnoPropertiesUpdatedEvent(key, abstractProperties, userEvent.getUser()));
-    }
-
-    @EventSourcingHandler
-    @SuppressWarnings("unused")
-    private void on(TechnoPropertiesUpdatedEvent event) {
-        log.debug("Techno model updated");
     }
 }

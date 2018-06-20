@@ -45,11 +45,14 @@ Feature: modules related features
 
   Scenario: create a copy of an existing module
     Given an existing techno
+    And a template in this techno that has properties
     And an existing module
+    And a template in this module that has properties
     And the techno is attached to the module
     And an existing template in this module
     When creating a copy of this module
     Then the module is successfully and completely duplicated
+    And the model of the module is also duplicated
 
   Scenario: search for an existing module
     Given a list of 20 modules
@@ -95,6 +98,29 @@ Feature: modules related features
     Given an existing module
     When releasing the module
     Then the module is released
+
+  Scenario: get the model of a module
+    Given an existing module
+    And a template in this module that has properties
+    When retrieving the model of this module
+    Then the model of this module contains all the properties
+
+  Scenario: get the model of a module thas has a techno with a template containing properties
+    Given an existing techno
+    And a template in this techno that has properties
+    And an existing module
+    And the techno is attached to the module
+    When retrieving the model of this module
+    Then the model of this module contains all the properties of the techno
+
+#    https://github.com/voyages-sncf-technologies/hesperides/issues/244
+#  Scenario: get the model of a module with a techno after the techno is updated
+#    Given an existing techno
+#    And an existing module
+#    And the techno is attached to the module
+#    And a template in this techno that has properties
+#    When retrieving the model of this module
+#    Then the model of this module contains all the properties of the techno
 
   Scenario: get a model from a module with a template that has ambiguous properties
     Given an existing module

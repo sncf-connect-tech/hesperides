@@ -23,6 +23,8 @@ package org.hesperides.infrastructure.mongo.technos;
 import lombok.Data;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
+import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.infrastructure.mongo.templatecontainers.KeyDocument;
@@ -46,7 +48,6 @@ public class TechnoDocument {
         TechnoDocument technoDocument = new TechnoDocument();
         technoDocument.setKey(KeyDocument.fromDomainInstance(techno.getKey()));
         technoDocument.setTemplates(TemplateDocument.fromDomainInstances(techno.getTemplates()));
-        technoDocument.setProperties(AbstractPropertyDocument.fromDomainInstances(techno.getProperties()));
         return technoDocument;
     }
 
@@ -58,8 +59,24 @@ public class TechnoDocument {
         return technoViews;
     }
 
+    public static List<Techno> toDomainInstances(List<TechnoDocument> technoDocuments) {
+        List<Techno> technos = null;
+        if (technoDocuments != null) {
+            technos = technoDocuments.stream().map(TechnoDocument::toDomainInstance).collect(Collectors.toList());
+        }
+        return technos;
+    }
+
+    public Techno toDomainInstance() {
+        TemplateContainer.Key technoKey = getDomainKey();
+        return new Techno(
+                technoKey,
+                TemplateDocument.toDomainInstances(templates, technoKey)
+        );
+    }
+
     public TechnoView toTechnoView() {
-        TemplateContainer.Key technoKey = new Techno.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
+        TemplateContainer.Key technoKey = getDomainKey();
         return new TechnoView(key.getName(), key.getVersion(), key.isWorkingCopy(),
                 TemplateDocument.toTemplateViews(templates, technoKey));
     }
@@ -78,5 +95,22 @@ public class TechnoDocument {
 
     public void removeTemplate(String templateName) {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
+    }
+
+    public void extractPropertiesAndSave(MongoTechnoRepository technoRepository) {
+        this.setProperties(extractPropertiesFromTemplates());
+        technoRepository.save(this);
+    }
+
+    private List<AbstractPropertyDocument> extractPropertiesFromTemplates() {
+        TemplateContainer.Key technoKey = getDomainKey();
+        List<Template> templates = TemplateDocument.toDomainInstances(this.templates, technoKey);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates);
+        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
+        return abstractPropertyDocuments;
+    }
+
+    private TemplateContainer.Key getDomainKey() {
+        return new Techno.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
     }
 }

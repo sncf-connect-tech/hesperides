@@ -23,16 +23,30 @@ public class GetModel extends CucumberSpringBean implements En {
     private ResponseEntity failResponse;
 
     public GetModel() {
+        Given("^a template in this techno that has properties$", () -> {
+            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent(
+                    "template-a",
+                    "{{foo|@required @comment content of template-a @pattern * @password }}"));
+        });
+
+        When("^retrieving the model of this techno$", () -> {
+            response = rest.getTestRest().getForEntity(technoContext.getTechnoURI() + "/model", ModelOutput.class);
+        });
+
+        Then("^the model of this techno contains all the properties$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(1, modelOutput.getProperties().size());
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content of template-a", "", "*", true, null),
+                    modelOutput.getProperties().get(0));
+        });
+
         Given("^a template in this techno that has properties with the same name but different attributes$", () -> {
             technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameFilenameLocationAndContent(
                     "template-a",
                     "{{ foo | @comment filename of template-a}}.json",
                     "/{{foo|@comment \"location of template-a\"}}",
                     "{{foo|@required @comment content of template-a @pattern * @password }}"));
-        });
-
-        When("^retrieving the model of this techno$", () -> {
-            response = rest.getTestRest().getForEntity(technoContext.getTechnoURI() + "/model", ModelOutput.class);
         });
 
         Then("^the model of this techno contains all the properties with the same name from this template$", () -> {

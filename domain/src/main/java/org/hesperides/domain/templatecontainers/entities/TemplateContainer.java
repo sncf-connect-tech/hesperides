@@ -11,7 +11,11 @@ import java.util.List;
 public abstract class TemplateContainer {
     Key key;
     List<Template> templates;
-    List<AbstractProperty> properties;
+
+    public TemplateContainer(Key key, List<Template> templates) {
+        this.key = key;
+        this.templates = templates;
+    }
 
     @Value
     @NonFinal

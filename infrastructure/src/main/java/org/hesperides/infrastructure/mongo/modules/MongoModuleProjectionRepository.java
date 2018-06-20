@@ -48,7 +48,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     public void on(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
         ModuleDocument moduleDocument = ModuleDocument.fromDomainInstance(event.getModule(), technoDocuments);
-        moduleRepository.save(moduleDocument);
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventSourcingHandler
@@ -58,21 +58,13 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
-        moduleRepository.save(moduleDocument);
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
         moduleRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
-    }
-
-    @Override
-    public void on(ModulePropertiesUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
-        moduleDocument.setProperties(abstractPropertyDocuments);
-        moduleRepository.save(moduleDocument);
     }
 
     /*** QUERY HANDLERS ***/
