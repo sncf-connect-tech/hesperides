@@ -2,7 +2,7 @@ package org.hesperides.domain.modules;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainers.queries.TemplateView;
 
 import java.util.List;
 import java.util.Optional;

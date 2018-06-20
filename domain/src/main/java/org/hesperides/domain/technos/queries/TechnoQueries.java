@@ -3,9 +3,9 @@ package org.hesperides.domain.technos.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.technos.*;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.domain.templatecontainers.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

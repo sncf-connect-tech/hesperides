@@ -5,8 +5,8 @@ import org.hesperides.domain.modules.entities.Module
 import org.hesperides.domain.security.User
 import org.hesperides.domain.security.UserEvent
 import org.hesperides.domain.technos.entities.Techno
-import org.hesperides.domain.templatecontainer.entities.AbstractProperty
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer
 
 // Command
 data class CreateModuleCommand(val module: Module, val user: User)

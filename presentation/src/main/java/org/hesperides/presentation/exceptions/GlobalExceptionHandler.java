@@ -4,7 +4,7 @@ import org.axonframework.commandhandling.model.AggregateNotFoundException;
 import org.hesperides.domain.exceptions.DuplicateException;
 import org.hesperides.domain.exceptions.NotFoundException;
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
-import org.hesperides.domain.templatecontainer.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.hesperides.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

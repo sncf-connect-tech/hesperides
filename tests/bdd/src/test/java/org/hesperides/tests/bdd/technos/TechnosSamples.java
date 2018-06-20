@@ -20,7 +20,7 @@
  */
 package org.hesperides.tests.bdd.technos;
 
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.presentation.io.TechnoIO;
 
 public class TechnosSamples {

@@ -20,9 +20,9 @@
  */
 package org.hesperides.domain.modules.commands;
 
-import org.hesperides.domain.templatecontainer.entities.AbstractProperty;
-import org.hesperides.domain.templatecontainer.entities.IterableProperty;
-import org.hesperides.domain.templatecontainer.entities.Property;
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
+import org.hesperides.domain.templatecontainers.entities.IterableProperty;
+import org.hesperides.domain.templatecontainers.entities.Property;
 import org.junit.Test;
 
 import java.util.List;

@@ -9,10 +9,10 @@ import org.hesperides.domain.technos.exception.DuplicateTechnoException;
 import org.hesperides.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.domain.technos.queries.TechnoQueries;
 import org.hesperides.domain.technos.queries.TechnoView;
-import org.hesperides.domain.templatecontainer.entities.Template;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainer.queries.AbstractPropertyView;
-import org.hesperides.domain.templatecontainer.queries.TemplateView;
+import org.hesperides.domain.templatecontainers.entities.Template;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -2,7 +2,7 @@ package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.ModuleSamples;

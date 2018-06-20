@@ -2,7 +2,7 @@ package org.hesperides.infrastructure.elasticsearch.modules;
 
 import lombok.Data;
 import org.hesperides.domain.modules.queries.ModuleView;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;

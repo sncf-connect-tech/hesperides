@@ -7,8 +7,8 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.security.User;
-import org.hesperides.domain.templatecontainer.entities.Template;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.Template;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

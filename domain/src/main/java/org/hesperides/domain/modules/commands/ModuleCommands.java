@@ -4,8 +4,8 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.security.User;
-import org.hesperides.domain.templatecontainer.entities.Template;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.Template;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

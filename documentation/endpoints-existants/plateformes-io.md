@@ -15,7 +15,17 @@
               "working_copy": false,
               "properties_path": "",
               "path": "",
-              "instances": [],
+              "instances": [
+                {
+                  "name": "",
+                  "key_values": [
+                    {
+                      "name": "",
+                      "value": ""
+                    }
+                  ]
+                }
+              ],
               "id": 0
             }
           ],
@@ -89,6 +99,10 @@ Attention, l'output n'est pas un tableau...
         }
       ]
     }
+
+Diagramme des classes d'output :
+
+![Diagramme de classe des propriétés valorisées](schémas/valorised-properties.png)
 
 ## Propriétés d'instances
 

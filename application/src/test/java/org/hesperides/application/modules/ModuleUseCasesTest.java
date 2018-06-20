@@ -6,7 +6,7 @@ import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.domain.modules.queries.ModuleQueries;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.technos.queries.TechnoQueries;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

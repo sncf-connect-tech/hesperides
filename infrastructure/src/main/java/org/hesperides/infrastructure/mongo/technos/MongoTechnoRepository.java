@@ -1,6 +1,6 @@
 package org.hesperides.infrastructure.mongo.technos;
 
-import org.hesperides.infrastructure.mongo.templatecontainer.KeyDocument;
+import org.hesperides.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;

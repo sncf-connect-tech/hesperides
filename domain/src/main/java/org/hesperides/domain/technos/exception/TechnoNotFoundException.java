@@ -21,7 +21,7 @@
 package org.hesperides.domain.technos.exception;
 
 import org.hesperides.domain.exceptions.NotFoundException;
-import org.hesperides.domain.templatecontainer.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 public class TechnoNotFoundException extends NotFoundException {
     public TechnoNotFoundException(TemplateContainer.Key key) {
