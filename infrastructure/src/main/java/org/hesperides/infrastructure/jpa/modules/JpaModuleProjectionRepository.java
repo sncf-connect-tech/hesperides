@@ -64,11 +64,6 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
         jpaModuleRepository.delete(id);
     }
 
-    @Override
-    public void on(ModulePropertiesUpdatedEvent event) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
     @QueryHandler
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {

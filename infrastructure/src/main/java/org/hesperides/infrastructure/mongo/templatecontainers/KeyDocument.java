@@ -40,8 +40,4 @@ public class KeyDocument implements Serializable {
         documentKey.setWorkingCopy(key.isWorkingCopy());
         return documentKey;
     }
-
-//    public TemplateContainer.Key toDomainInstance() {
-//        return new TemplateContainer.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
-//    }
 }

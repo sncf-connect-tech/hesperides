@@ -57,10 +57,11 @@ class ModuleAggregateTest {
 
     @Test
     void when_update_template_expect_template_updated_event() {
+        Template updatedTemplate = new Template(template.getName(), template.getFilename(), template.getLocation(), template.getContent(), template.getRights(), template.getVersionId() + 1, template.getTemplateContainerKey());
         fixture.given(new ModuleCreatedEvent(module, user))
                 .andGiven(new TemplateCreatedEvent(moduleKey, template, user))
                 .when(new UpdateTemplateCommand(moduleKey, template, user))
-                .expectEvents(new TemplateUpdatedEvent(moduleKey, template, user));
+                .expectEvents(new TemplateUpdatedEvent(moduleKey, updatedTemplate, user));
     }
 
     @Test

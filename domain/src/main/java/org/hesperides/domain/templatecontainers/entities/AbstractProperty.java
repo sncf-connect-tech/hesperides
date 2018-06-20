@@ -33,6 +33,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 @NonFinal
@@ -42,15 +43,19 @@ public abstract class AbstractProperty {
 
     public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates) {
         List<AbstractProperty> properties = new ArrayList<>();
-
         if (templates != null) {
-            templates.forEach((template) -> {
-                properties.addAll(extractPropertiesFromStringContent(template.getFilename()));
-                properties.addAll(extractPropertiesFromStringContent(template.getLocation()));
-                properties.addAll(extractPropertiesFromStringContent(template.getContent()));
-            });
+            templates.forEach((template) -> properties.addAll(extractPropertiesFromTemplate(template)));
         }
+        return properties;
+    }
 
+    public static List<AbstractProperty> extractPropertiesFromTemplate(Template template) {
+        List<AbstractProperty> properties = new ArrayList<>();
+        if (template != null) {
+            properties.addAll(extractPropertiesFromStringContent(template.getFilename()));
+            properties.addAll(extractPropertiesFromStringContent(template.getLocation()));
+            properties.addAll(extractPropertiesFromStringContent(template.getContent()));
+        }
         return properties;
     }
 

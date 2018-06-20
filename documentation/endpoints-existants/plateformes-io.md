@@ -91,9 +91,17 @@ Attention, l'output n'est pas un tableau...
       "iterable_properties": [
         {
           "name": "",
-          "iterableValorisationItems": [
+          "iterable_valorisation_items": [
             "title": "",
             "values": [
+              {
+                "name": "",
+                "value": ""
+              },
+              {
+                "name": "",
+                "iterable_valorisation_items": []
+              }
             ]
           ]
         }

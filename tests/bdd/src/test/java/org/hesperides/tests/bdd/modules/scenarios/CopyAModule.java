@@ -1,8 +1,10 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.presentation.io.ModuleIO;
+import org.hesperides.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.ModuleAssertions;
 import org.hesperides.tests.bdd.modules.ModuleSamples;
@@ -40,6 +42,14 @@ public class CopyAModule extends CucumberSpringBean implements En {
             ModuleIO actualModuleOutput = response.getBody();
             ModuleIO expectedModuleOutput = ModuleSamples.getModuleInputWithNameAndVersionAndTechno("module-copy", "1.0.1", technoContext.getTechnoKey());
             ModuleAssertions.assertModule(expectedModuleOutput, actualModuleOutput, 1L);
+        });
+
+        Then("^the model of the module is also duplicated$", () -> {
+            ResponseEntity<ModelOutput> modelResponse = rest.getTestRest().getForEntity(moduleContext.getModuleURI(
+                    new Module.Key("module-copy", "1.0.1", TemplateContainer.VersionType.workingcopy)) + "/model", ModelOutput.class);
+            assertEquals(HttpStatus.OK, modelResponse.getStatusCode());
+            ModelOutput modelOutput = modelResponse.getBody();
+            assertEquals(2, modelOutput.getProperties().size());
         });
     }
 

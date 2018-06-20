@@ -4,6 +4,7 @@ import org.axonframework.commandhandling.TargetAggregateIdentifier
 import org.hesperides.domain.templatecontainers.entities.Template
 import org.hesperides.domain.security.User
 import org.hesperides.domain.security.UserEvent
+import org.hesperides.domain.templatecontainers.entities.AbstractProperty
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer
 
 // Command
@@ -13,8 +14,8 @@ data class DeleteTemplateCommand(@TargetAggregateIdentifier val moduleKey: Templ
 
 // Event
 data class TemplateCreatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
-data class TemplateDeletedEvent(val moduleKey: TemplateContainer.Key, val templateName: String, override val user: User) : UserEvent(user)
 data class TemplateUpdatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
+data class TemplateDeletedEvent(val moduleKey: TemplateContainer.Key, val templateName: String, override val user: User) : UserEvent(user)
 
 // Query
 data class GetTemplateByNameQuery(val moduleKey: TemplateContainer.Key, val templateName: String)

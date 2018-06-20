@@ -12,7 +12,6 @@ import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
-import org.hesperides.domain.security.UserEvent;
 import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
@@ -42,7 +41,6 @@ class ModuleAggregate implements Serializable {
     private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
-    //TODO Technos ?
 
     @CommandHandler
     @SuppressWarnings("unused")
@@ -54,6 +52,7 @@ class ModuleAggregate implements Serializable {
                 command.getModule().getTemplates(),
                 command.getModule().getTechnos(),
                 1L);
+
         apply(new ModuleCreatedEvent(module, command.getUser()));
     }
 
@@ -93,6 +92,10 @@ class ModuleAggregate implements Serializable {
                 1L,
                 command.getModuleKey());
 
+        // Vérifie les propriétés
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(newTemplate);
+        AbstractProperty.validateProperties(abstractProperties);
+
         apply(new TemplateCreatedEvent(key, newTemplate, command.getUser()));
     }
 
@@ -122,13 +125,17 @@ class ModuleAggregate implements Serializable {
                 command.getTemplate().getVersionId() + 1,
                 command.getModuleKey());
 
+        // Vérifie les propriétés
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(templateWithUpdatedVersionId);
+        AbstractProperty.validateProperties(abstractProperties);
+
         apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void on(DeleteTemplateCommand command) {
-        // si le template n'existe pas, cette command n'a pas d'effet de bord.
+        // Si le template n'existe pas, cette commande n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }
@@ -146,7 +153,7 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     private void on(ModuleCopiedEvent event) {
         this.key = event.getModuleKey();
-        // set les trucs du module en copiant depuis l'event.
+        //TODO set les trucs du module en copiant depuis l'event.
         log.debug("module copié.");
     }
 
@@ -154,7 +161,6 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     private void on(ModuleTechnosUpdatedEvent event) {
         this.key = event.getModuleKey();
-
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
 
@@ -162,7 +168,6 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     private void on(ModuleDeletedEvent event) {
         this.key = event.getModuleKey();
-
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 
@@ -170,32 +175,17 @@ class ModuleAggregate implements Serializable {
     private void on(TemplateCreatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template crée. ");
-        updateModel(event);
     }
 
     @EventSourcingHandler
     private void on(TemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
-        updateModel(event);
     }
 
     @EventSourcingHandler
     private void on(TemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé");
-        updateModel(event);
-    }
-
-    private void updateModel(UserEvent userEvent) {
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates.values());
-        AbstractProperty.validateProperties(abstractProperties);
-        apply(new ModulePropertiesUpdatedEvent(key, abstractProperties, userEvent.getUser()));
-    }
-
-    @EventSourcingHandler
-    @SuppressWarnings("unused")
-    private void on(ModulePropertiesUpdatedEvent event) {
-        log.debug("Module model updated");
     }
 }

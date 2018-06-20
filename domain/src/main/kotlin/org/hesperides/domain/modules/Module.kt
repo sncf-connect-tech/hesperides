@@ -18,7 +18,6 @@ data class ModuleCopiedEvent(val moduleKey: TemplateContainer.Key, val sourceMod
 data class ModuleCreatedEvent(val module: Module, override val user: User) : UserEvent(user)
 data class ModuleTechnosUpdatedEvent(val moduleKey: TemplateContainer.Key, val technos: List<Techno>, val versionId: Long, override val user: User) : UserEvent(user)
 data class ModuleDeletedEvent(val moduleKey: TemplateContainer.Key, override val user: User) : UserEvent(user)
-data class ModulePropertiesUpdatedEvent(val moduleKey: TemplateContainer.Key, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
 
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: TemplateContainer.Key)

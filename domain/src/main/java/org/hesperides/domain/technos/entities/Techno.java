@@ -10,8 +10,7 @@ import java.util.List;
 public class Techno extends TemplateContainer {
 
     public Techno(TemplateContainer.Key key, List<Template> templates) {
-        //TODO Est-ce qu'il faut générer le model ici ?
-        super(key, templates, null);
+        super(key, templates);
     }
 
     public static class Key extends TemplateContainer.Key {

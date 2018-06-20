@@ -58,7 +58,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         moduleDocument.addTemplate(templateDocument);
-        moduleRepository.save(moduleDocument);
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
-        moduleRepository.save(moduleDocument);
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     public void on(TemplateDeletedEvent event) {
         ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
         moduleDocument.removeTemplate(event.getTemplateName());
-        moduleRepository.save(moduleDocument);
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     /*** QUERY HANDLERS ***/

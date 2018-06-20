@@ -28,8 +28,10 @@ Feature: technos related features
 
   Scenario: copy a techno
     Given an existing techno
+    And a template in this techno that has properties
     When creating a copy of this techno
     Then the techno is successfully and completely duplicated
+    And the model of the techno is also duplicated
 
   Scenario: retrieve all templates
     Given an existing techno
@@ -71,6 +73,12 @@ Feature: technos related features
     Given a list of 12 technos
     When searching for a techno that does not exist
     Then the number of techno results is 0
+
+  Scenario: get the model of a techno
+    Given an existing techno
+    And a template in this techno that has properties
+    When retrieving the model of this techno
+    Then the model of this techno contains all the properties
 
   Scenario: get a model from a techno with a template that has ambiguous properties
     Given an existing techno

@@ -21,7 +21,6 @@ data class TechnoDeletedEvent(val technoKey: TemplateContainer.Key, override val
 data class TemplateAddedToTechnoEvent(val technoKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
 data class TechnoTemplateUpdatedEvent(val technoKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
 data class TechnoTemplateDeletedEvent(val technoKey: TemplateContainer.Key, val templateName: String, override val user: User) : UserEvent(user)
-data class TechnoPropertiesUpdatedEvent(val technoKey: TemplateContainer.Key, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
 
 // Queries
 data class TechnoAlreadyExistsQuery(val technoKey: TemplateContainer.Key)

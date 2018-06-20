@@ -66,6 +66,26 @@ public class TemplateDocument {
         return templateViews;
     }
 
+    public static List<Template> toDomainInstances(List<TemplateDocument> templateDocuments, TemplateContainer.Key key) {
+        List<Template> templates = null;
+        if (templateDocuments != null) {
+            templates = templateDocuments.stream().map(templateDocument -> templateDocument.toDomainInstance(key)).collect(Collectors.toList());
+        }
+        return templates;
+    }
+
+    private Template toDomainInstance(TemplateContainer.Key key) {
+        return new Template(
+                name,
+                filename,
+                location,
+                content,
+                RightsDocument.toDomainInstance(rights),
+                versionId,
+                key
+        );
+    }
+
     public TemplateView toTemplateView(TemplateContainer.Key key) {
         return new TemplateView(
                 name,
@@ -99,11 +119,23 @@ public class TemplateDocument {
             TemplateView.RightsView rightsView = null;
             if (rightsDocument != null) {
                 rightsView = new TemplateView.RightsView(
-                        FileRightsDocument.toFileRightsView(rightsDocument.getUser()),
-                        FileRightsDocument.toFileRightsView(rightsDocument.getGroup()),
-                        FileRightsDocument.toFileRightsView(rightsDocument.getOther()));
+                        FileRightsDocument.toFileRightsView(rightsDocument.user),
+                        FileRightsDocument.toFileRightsView(rightsDocument.group),
+                        FileRightsDocument.toFileRightsView(rightsDocument.other));
             }
             return rightsView;
+        }
+
+        public static Template.Rights toDomainInstance(RightsDocument rightsDocument) {
+            Template.Rights rights = null;
+            if (rightsDocument != null) {
+                rights = new Template.Rights(
+                        FileRightsDocument.toDomainInstance(rightsDocument.user),
+                        FileRightsDocument.toDomainInstance(rightsDocument.group),
+                        FileRightsDocument.toDomainInstance(rightsDocument.other)
+                );
+            }
+            return rights;
         }
     }
 
@@ -127,9 +159,25 @@ public class TemplateDocument {
         public static TemplateView.FileRightsView toFileRightsView(FileRightsDocument fileRightsDocument) {
             TemplateView.FileRightsView fileRightsView = null;
             if (fileRightsDocument != null) {
-                fileRightsView = new TemplateView.FileRightsView(fileRightsDocument.getRead(), fileRightsDocument.getWrite(), fileRightsDocument.getExecute());
+                fileRightsView = new TemplateView.FileRightsView(
+                        fileRightsDocument.read,
+                        fileRightsDocument.write,
+                        fileRightsDocument.execute
+                );
             }
             return fileRightsView;
+        }
+
+        public static Template.FileRights toDomainInstance(FileRightsDocument fileRightsDocument) {
+            Template.FileRights fileRights = null;
+            if (fileRightsDocument != null) {
+                fileRights = new Template.FileRights(
+                        fileRightsDocument.read,
+                        fileRightsDocument.write,
+                        fileRightsDocument.execute
+                );
+            }
+            return fileRights;
         }
     }
 }
