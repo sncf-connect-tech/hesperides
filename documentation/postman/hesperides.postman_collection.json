@@ -177,6 +177,46 @@
 					"response": []
 				},
 				{
+					"name": "getModuleModel",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/modules/{{module_name}}/{{module_version}}/{{module_type}}/model",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}",
+								"model"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "getModuleTemplatesList",
 					"request": {
 						"auth": {
@@ -833,6 +873,64 @@
 								"{{techno_type}}",
 								"templates",
 								"{{techno_template_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTechnoModel",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "24a14883-f6e4-4f2e-95c1-842ae21bf51a",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/templates/packages/{{techno_name}}/{{techno_version}}/{{techno_type}}/model",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"templates",
+								"packages",
+								"{{techno_name}}",
+								"{{techno_version}}",
+								"{{techno_type}}",
+								"model"
 							]
 						}
 					},
