@@ -50,8 +50,12 @@ public class ModuleContext extends CucumberSpringBean implements En {
         return "modules#" + moduleKey.getName() + "#" + moduleKey.getVersion() + "#" + moduleKey.getVersionType().name().toUpperCase();
     }
 
-    public String getModuleURI() {
+    public String getModuleURI(TemplateContainer.Key moduleKey) {
         return String.format("/modules/%s/%s/%s", moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType());
+    }
+
+    public String getModuleURI() {
+        return getModuleURI(moduleKey);
     }
 
     public ResponseEntity<ModuleIO> releaseModule() {

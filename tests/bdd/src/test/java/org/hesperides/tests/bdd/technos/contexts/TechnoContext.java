@@ -28,6 +28,10 @@ public class TechnoContext extends CucumberSpringBean implements En {
     }
 
     public String getTechnoURI() {
+        return getTechnoURI(technoKey);
+    }
+
+    public String getTechnoURI(TemplateContainer.Key technoKey) {
         return String.format("/templates/packages/%s/%s/%s", technoKey.getName(), technoKey.getVersion(), technoKey.getVersionType());
     }
 

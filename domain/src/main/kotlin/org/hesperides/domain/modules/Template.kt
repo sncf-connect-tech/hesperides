@@ -13,9 +13,9 @@ data class UpdateTemplateCommand(@TargetAggregateIdentifier val moduleKey: Templ
 data class DeleteTemplateCommand(@TargetAggregateIdentifier val moduleKey: TemplateContainer.Key, val templateName: String, val user: User)
 
 // Event
-data class TemplateCreatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
-data class TemplateUpdatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
-data class TemplateDeletedEvent(val moduleKey: TemplateContainer.Key, val templateName: String, val properties: List<AbstractProperty>, override val user: User) : UserEvent(user)
+data class TemplateCreatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
+data class TemplateUpdatedEvent(val moduleKey: TemplateContainer.Key, val template: Template, override val user: User) : UserEvent(user)
+data class TemplateDeletedEvent(val moduleKey: TemplateContainer.Key, val templateName: String, override val user: User) : UserEvent(user)
 
 // Query
 data class GetTemplateByNameQuery(val moduleKey: TemplateContainer.Key, val templateName: String)

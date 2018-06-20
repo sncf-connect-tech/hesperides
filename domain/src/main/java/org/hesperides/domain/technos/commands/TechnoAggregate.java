@@ -16,7 +16,6 @@ import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,13 +69,11 @@ class TechnoAggregate implements Serializable {
                 1L,
                 template.getTemplateContainerKey());
 
-        // Extrait la liste des propriétés des templates de la techno
-        List<Template> updatedTemplateList = new ArrayList<>(templates.values());
-        updatedTemplateList.add(newTemplate);
-        List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateList);
-        AbstractProperty.validateProperties(properties);
+        // Vérifie les propriétés
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(newTemplate);
+        AbstractProperty.validateProperties(abstractProperties);
 
-        apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, properties, command.getUser()));
+        apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, command.getUser()));
     }
 
     @CommandHandler
@@ -105,13 +102,11 @@ class TechnoAggregate implements Serializable {
                 command.getTemplate().getVersionId() + 1,
                 command.getTechnoKey());
 
-        // Extrait la liste des propriétés des templates de la techno
-        Map<String, Template> updatedTemplateMap = new HashMap<>(templates);
-        updatedTemplateMap.put(templateWithUpdatedVersionId.getName(), templateWithUpdatedVersionId);
-        List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateMap.values());
-        AbstractProperty.validateProperties(properties);
+        // Vérifie les propriétés
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(templateWithUpdatedVersionId);
+        AbstractProperty.validateProperties(abstractProperties);
 
-        apply(new TechnoTemplateUpdatedEvent(key, templateWithUpdatedVersionId, properties, command.getUser()));
+        apply(new TechnoTemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
     }
 
     @CommandHandler
@@ -119,14 +114,7 @@ class TechnoAggregate implements Serializable {
     public void on(DeleteTechnoTemplateCommand command) {
         // si le template n'existe pas, cette commandE n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
-
-            // Extrait la liste des propriétés des templates du module
-            Map<String, Template> updatedTemplateMap = new HashMap<>(templates);
-            updatedTemplateMap.remove(command.getTemplateName());
-            List<AbstractProperty> properties = AbstractProperty.extractPropertiesFromTemplates(updatedTemplateMap.values());
-            AbstractProperty.validateProperties(properties);
-
-            apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), properties, command.getUser()));
+            apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }
     }
 

@@ -1,7 +1,6 @@
 package org.hesperides.domain.technos.entities;
 
 import lombok.Value;
-import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
@@ -10,11 +9,8 @@ import java.util.List;
 @Value
 public class Techno extends TemplateContainer {
 
-    List<AbstractProperty> properties;
-
     public Techno(TemplateContainer.Key key, List<Template> templates) {
         super(key, templates);
-        this.properties = AbstractProperty.extractPropertiesFromTemplates(templates);
     }
 
     public static class Key extends TemplateContainer.Key {

@@ -26,16 +26,38 @@ public class GetModel extends CucumberSpringBean implements En {
     private ResponseEntity failResponse;
 
     public GetModel() {
+        Given("^a template in this module that has properties$", () -> {
+            templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent(
+                    "template-a",
+                    "{{foo|@required @comment content of template-a @pattern * @password }}"));
+        });
+
+        When("^retrieving the model of this module$", () -> {
+            response = rest.getTestRest().getForEntity(moduleContext.getModuleURI() + "/model", ModelOutput.class);
+        });
+
+        Then("^the model of this module contains all the properties$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(1, modelOutput.getProperties().size());
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content of template-a", "", "*", true, null),
+                    modelOutput.getProperties().get(0));
+        });
+
+        Then("^the model of this module contains all the properties of the techno$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(1, modelOutput.getProperties().size());
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content of template-a", "", "*", true, null),
+                    modelOutput.getProperties().get(0));
+        });
+
         Given("^a template in this module that has properties with the same name but different attributes$", () -> {
             templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameFilenameLocationAndContent(
                     "template-a",
                     "{{ foo | @comment filename of template-a}}.json",
                     "/{{foo|@comment \"location of template-a\"}}",
                     "{{foo|@required @comment content of template-a @pattern * @password }}"));
-        });
-
-        When("^retrieving the model of this module$", () -> {
-            response = rest.getTestRest().getForEntity(moduleContext.getModuleURI() + "/model", ModelOutput.class);
         });
 
         Then("^the model of this module contains all the properties with the same name from this template$", () -> {

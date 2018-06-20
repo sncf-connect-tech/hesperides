@@ -1,8 +1,10 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.presentation.io.TechnoIO;
+import org.hesperides.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.TechnoAssertions;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
@@ -36,6 +38,14 @@ public class CopyATechno extends CucumberSpringBean implements En {
             TechnoIO expectedTechnoOutput = TechnosSamples.getTechnoWithNameAndVersion("techno-copy", "1.0.0");
             TechnoAssertions.assertTechno(expectedTechnoOutput, actualTechoOutput);
             //TODO Assert templates
+        });
+
+        Then("^the model of the techno is also duplicated$", () -> {
+            ResponseEntity<ModelOutput> modelResponse = rest.getTestRest().getForEntity(technoContext.getTechnoURI(
+                    new Techno.Key("techno-copy", "1.0.0", TemplateContainer.VersionType.workingcopy)) + "/model", ModelOutput.class);
+            assertEquals(HttpStatus.OK, modelResponse.getStatusCode());
+            ModelOutput modelOutput = modelResponse.getBody();
+            assertEquals(1, modelOutput.getProperties().size());
         });
     }
 }

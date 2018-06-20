@@ -59,7 +59,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventSourcingHandler
     @Override
     public void on(TechnoCreatedEvent event) {
-        technoRepository.save(TechnoDocument.fromDomainInstance(event.getTechno()));
+        TechnoDocument technoDocument = TechnoDocument.fromDomainInstance(event.getTechno());
+        technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
@@ -74,9 +75,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(key));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
-        technoDocument.setProperties(abstractPropertyDocuments);
-        technoRepository.save(technoDocument);
+        technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
@@ -84,18 +83,14 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
         TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
-        technoDocument.setProperties(abstractPropertyDocuments);
-        technoRepository.save(technoDocument);
+        technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
     public void on(TechnoTemplateDeletedEvent event) {
         TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
         technoDocument.removeTemplate(event.getTemplateName());
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(event.getProperties());
-        technoDocument.setProperties(abstractPropertyDocuments);
-        technoRepository.save(technoDocument);
+        technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     /*** QUERY HANDLERS ***/
