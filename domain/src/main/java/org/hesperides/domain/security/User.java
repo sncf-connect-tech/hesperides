@@ -12,6 +12,7 @@ import java.util.Collection;
  */
 @Value
 public class User {
+
     String name;
     boolean isProd;
     boolean isTech;

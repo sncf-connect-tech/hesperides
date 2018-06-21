@@ -18,17 +18,15 @@
  *
  *
  */
-package org.hesperides.domain.platforms.entities;
+package org.hesperides.domain.platforms.queries.views;
 
 import lombok.Value;
+import org.hesperides.domain.platforms.queries.views.properties.ValorisedPropertyView;
+
+import java.util.List;
 
 @Value
-public class ValorisedProperty extends AbstractValorisedProperty {
-
-    String value;
-
-    public ValorisedProperty(String name, String value) {
-        super(name);
-        this.value = value;
-    }
+public class InstanceView {
+    String name;
+    List<ValorisedPropertyView> valorisedProperties;
 }

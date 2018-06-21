@@ -18,16 +18,17 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries;
+package org.hesperides.presentation.io.platforms.properties;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
-public class ApplicationView {
+public class IterablePropertyItemIO {
 
-    String name;
-    List<PlatformView> platforms;
-
+    String title;
+    @SerializedName("values")
+    List<AbstractValorisedPropertyIO> abstractValorisedPropertyIOS;
 }

@@ -89,7 +89,7 @@ public class TemplateDocument {
     public TemplateView toTemplateView(TemplateContainer.Key key) {
         return new TemplateView(
                 name,
-                key.getNamespace(),
+                key.getNamespaceWithPrefix(),
                 filename,
                 location,
                 content,

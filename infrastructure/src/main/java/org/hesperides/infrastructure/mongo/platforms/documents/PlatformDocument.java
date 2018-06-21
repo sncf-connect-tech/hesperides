@@ -21,6 +21,8 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -34,4 +36,23 @@ public class PlatformDocument {
     private Long versionId;
     private List<DeployedModuleDocument> deployedModules;
 
+    public static PlatformDocument fromDomainInstance(Platform platform) {
+        PlatformDocument platformDocument = new PlatformDocument();
+        platformDocument.setKey(PlatformKeyDocument.fromDomainInstance(platform.getKey()));
+        platformDocument.setProductionPlatform(platform.isProductionPlatform());
+        platformDocument.setVersionId(platform.getVersionId());
+        platformDocument.setDeployedModules(DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules()));
+        return platformDocument;
+    }
+
+    public PlatformView toPlateformView() {
+        return new PlatformView(
+                key.getPlatformName(),
+                key.getApplicationName(),
+                key.getVersion(),
+                isProductionPlatform,
+                DeployedModuleDocument.toDeployedModuleViews(deployedModules),
+                versionId
+        );
+    }
 }

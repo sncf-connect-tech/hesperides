@@ -18,17 +18,17 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.platforms.documents;
+package org.hesperides.domain.platforms.queries.views.properties;
 
-import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Value;
 
-import java.util.List;
+@Value
+public class ValorisedPropertyView extends AbstractValorisedPropertyView {
 
-@Data
-@Document
-public class ValorisedIterablePropertyDocument extends AbstractValorisedPropertyDocument {
+    String value;
 
-    private List<AbstractValorisedPropertyDocument> abstractValorisedProperties;
-
+    public ValorisedPropertyView(String name, String value) {
+        super(name);
+        this.value = value;
+    }
 }

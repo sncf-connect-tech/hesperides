@@ -21,15 +21,47 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import org.hesperides.domain.platforms.entities.Instance;
+import org.hesperides.domain.platforms.queries.views.InstanceView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Document
 public class InstanceDocument {
 
     private String name;
-    List<AbstractValorisedPropertyDocument> properties;
+    List<ValorisedPropertyDocument> valorisedProperties;
 
+    public static List<InstanceDocument> fromDomainInstances(List<Instance> instances) {
+        List<InstanceDocument> instanceDocuments = null;
+        if (instances != null) {
+            instanceDocuments = instances.stream().map(InstanceDocument::fromDomainInstance).collect(Collectors.toList());
+        }
+        return instanceDocuments;
+    }
+
+    public static InstanceDocument fromDomainInstance(Instance instance) {
+        InstanceDocument instanceDocument = new InstanceDocument();
+        instanceDocument.setName(instance.getName());
+        instanceDocument.setValorisedProperties(ValorisedPropertyDocument.fromDomainInstances(instance.getValorisedProperties()));
+        return instanceDocument;
+    }
+
+    public static List<InstanceView> toInstanceViews(List<InstanceDocument> instances) {
+        List<InstanceView> instanceViews = null;
+        if (instances != null) {
+            instanceViews = instances.stream().map(InstanceDocument::toInstanceView).collect(Collectors.toList());
+        }
+        return instanceViews;
+    }
+
+    public InstanceView toInstanceView() {
+        return new InstanceView(
+                name,
+                ValorisedPropertyDocument.toValorisedPropertyViews(valorisedProperties)
+        );
+    }
 }

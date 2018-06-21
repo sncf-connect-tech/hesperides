@@ -18,16 +18,14 @@
  *
  *
  */
-package org.hesperides.domain.platforms.entities;
+package org.hesperides.domain.platforms.queries.views.properties;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
 @Value
 @NonFinal
-public abstract class AbstractValorisedProperty {
-
+public abstract class AbstractValorisedPropertyView {
     String name;
-    //boolean isNotActiveForThisVersion;
 
 }

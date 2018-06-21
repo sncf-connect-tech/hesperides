@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import org.hesperides.domain.platforms.entities.Platform;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -32,4 +33,12 @@ public class PlatformKeyDocument implements Serializable {
     private String applicationName;
     private String platformName;
     private String version;
+
+    public static PlatformKeyDocument fromDomainInstance(Platform.Key platformKey) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument();
+        platformKeyDocument.setApplicationName(platformKey.getApplicationName());
+        platformKeyDocument.setPlatformName(platformKey.getPlatformName());
+        platformKeyDocument.setVersion(platformKey.getVersion());
+        return platformKeyDocument;
+    }
 }

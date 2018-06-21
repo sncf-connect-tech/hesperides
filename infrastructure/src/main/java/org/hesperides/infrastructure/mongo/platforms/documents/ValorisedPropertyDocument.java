@@ -21,7 +21,12 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import org.hesperides.domain.platforms.entities.properties.ValorisedProperty;
+import org.hesperides.domain.platforms.queries.views.properties.ValorisedPropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Document
@@ -29,4 +34,30 @@ public class ValorisedPropertyDocument extends AbstractValorisedPropertyDocument
 
     private String value;
 
+    public static List<ValorisedPropertyDocument> fromDomainInstances(List<ValorisedProperty> valorisedProperties) {
+        List<ValorisedPropertyDocument> valorisedPropertyDocuments = null;
+        if (valorisedProperties != null) {
+            valorisedPropertyDocuments = valorisedProperties.stream().map(ValorisedPropertyDocument::fromDomainInstance).collect(Collectors.toList());
+        }
+        return valorisedPropertyDocuments;
+    }
+
+    public static ValorisedPropertyDocument fromDomainInstance(ValorisedProperty valorisedProperty) {
+        ValorisedPropertyDocument valorisedPropertyDocument = new ValorisedPropertyDocument();
+        valorisedPropertyDocument.setName(valorisedProperty.getName());
+        valorisedPropertyDocument.setValue(valorisedProperty.getValue());
+        return valorisedPropertyDocument;
+    }
+
+    public static List<ValorisedPropertyView> toValorisedPropertyViews(List<ValorisedPropertyDocument> valorisedPropertyDocuments) {
+        List<ValorisedPropertyView> valorisedPropertyViews = null;
+        if (valorisedPropertyDocuments != null) {
+            valorisedPropertyViews = valorisedPropertyDocuments.stream().map(ValorisedPropertyDocument::toValorisedPropertyView).collect(Collectors.toList());
+        }
+        return valorisedPropertyViews;
+    }
+
+    public ValorisedPropertyView toValorisedPropertyView() {
+        return new ValorisedPropertyView(getName(), value);
+    }
 }

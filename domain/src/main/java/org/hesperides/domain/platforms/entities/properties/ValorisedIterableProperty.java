@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.domain.platforms.entities;
+package org.hesperides.domain.platforms.entities.properties;
 
 import lombok.Value;
 

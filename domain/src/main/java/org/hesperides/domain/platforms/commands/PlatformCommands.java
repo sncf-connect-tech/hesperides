@@ -21,6 +21,9 @@
 package org.hesperides.domain.platforms.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.hesperides.domain.platforms.CreatePlatformCommand;
+import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,5 +35,9 @@ public class PlatformCommands {
     @Autowired
     public PlatformCommands(CommandGateway commandGateway) {
         this.commandGateway = commandGateway;
+    }
+
+    public Platform.Key createPlatform(Platform platform, User user) {
+        return commandGateway.sendAndWait(new CreatePlatformCommand(platform, user));
     }
 }

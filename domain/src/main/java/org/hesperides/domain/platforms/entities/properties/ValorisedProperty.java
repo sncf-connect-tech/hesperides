@@ -18,44 +18,17 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries;
+package org.hesperides.domain.platforms.entities.properties;
 
 import lombok.Value;
 
-import java.util.List;
-
 @Value
-public class PlatformView {
+public class ValorisedProperty extends AbstractValorisedProperty {
 
-    String platformName;
-    String applicationName;
-    String version;
-    boolean isProductionPlatform;
-    List<ModuleView> modules;
-    Long versionId;
+    String value;
 
-    @Value
-    public static class ModuleView {
-
-        Long id;
-        String name;
-        String version;
-        boolean isWorkingCopy;
-        String propertiesPath;
-        String path;
-        List<InstanceView> instances;
-
-        @Value
-        public static class InstanceView {
-
-            String name;
-            List<KeyValueView> keyValues; //Pas sur
-
-            @Value
-            public static class KeyValueView {
-                String name;
-                String value;
-            }
-        }
+    public ValorisedProperty(String name, String value) {
+        super(name);
+        this.value = value;
     }
 }

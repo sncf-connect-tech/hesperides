@@ -21,9 +21,12 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import org.hesperides.domain.platforms.entities.DeployedModule;
+import org.hesperides.domain.platforms.queries.views.DeployedModuleView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Document
@@ -36,4 +39,44 @@ public class DeployedModuleDocument {
     private String path;
     private String propertiesPath;
     private List<InstanceDocument> instances;
+
+    public static List<DeployedModuleDocument> fromDomainInstances(List<DeployedModule> deployedModules) {
+        List<DeployedModuleDocument> deployedModuleDocuments = null;
+        if (deployedModules != null) {
+            deployedModuleDocuments = deployedModules.stream().map(DeployedModuleDocument::fromDomainInstance).collect(Collectors.toList());
+        }
+        return deployedModuleDocuments;
+    }
+
+    public static DeployedModuleDocument fromDomainInstance(DeployedModule deployedModule) {
+        DeployedModuleDocument deployedModuleDocument = new DeployedModuleDocument();
+        deployedModuleDocument.setId(deployedModule.getId());
+        deployedModuleDocument.setName(deployedModule.getName());
+        deployedModuleDocument.setVersion(deployedModule.getVersion());
+        deployedModuleDocument.setWorkingCopy(deployedModule.isWorkingCopy());
+        deployedModuleDocument.setPath(deployedModule.getPath());
+        deployedModuleDocument.setPropertiesPath(deployedModule.getPropertiesPath());
+        deployedModuleDocument.setInstances(InstanceDocument.fromDomainInstances(deployedModule.getInstances()));
+        return deployedModuleDocument;
+    }
+
+    public static List<DeployedModuleView> toDeployedModuleViews(List<DeployedModuleDocument> deployedModules) {
+        List<DeployedModuleView> deployedModuleViews = null;
+        if (deployedModules != null) {
+            deployedModuleViews = deployedModules.stream().map(DeployedModuleDocument::toDeployedModuleView).collect(Collectors.toList());
+        }
+        return deployedModuleViews;
+    }
+
+    public DeployedModuleView toDeployedModuleView() {
+        return new DeployedModuleView(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                propertiesPath,
+                path,
+                InstanceDocument.toInstanceViews(instances)
+        );
+    }
 }

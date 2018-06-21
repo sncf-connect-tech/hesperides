@@ -57,7 +57,7 @@ Paramètres de requêtes facultatifs :
 * from_application
 * from_platform
 
-Cors de la requête :
+Corps de la requête :
 
     {
       "application_name": "",

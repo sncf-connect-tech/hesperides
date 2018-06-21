@@ -18,17 +18,16 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.platforms.documents;
+package org.hesperides.domain.platforms.entities.properties;
 
-import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Value;
+import lombok.experimental.NonFinal;
 
-import java.util.List;
+@Value
+@NonFinal
+public abstract class AbstractValorisedProperty {
 
-@Data
-@Document
-public class ValorisedIterablePropertyDocument extends AbstractValorisedPropertyDocument {
-
-    private List<AbstractValorisedPropertyDocument> abstractValorisedProperties;
+    String name;
+    //boolean isNotActiveForThisVersion;
 
 }

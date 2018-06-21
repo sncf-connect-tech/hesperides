@@ -21,11 +21,15 @@
 package org.hesperides.domain.platforms.entities;
 
 import lombok.Value;
+import org.hesperides.domain.modules.entities.Module;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Value
 public class DeployedModule {
+
     Long id;
     String name;
     String version;
@@ -34,4 +38,46 @@ public class DeployedModule {
     String propertiesPath;
     //String deploymentGroup
     List<Instance> instances;
+
+    public static List<DeployedModule> getDeployedModulesWithIdAndPropertiesPath(List<DeployedModule> deployedModules) {
+        List<DeployedModule> deployedModulesWithIdAndPropertiesPath = null;
+
+        if (deployedModules != null) {
+            Long maxId = getDeployedModulesMaxId(deployedModules);
+
+            deployedModulesWithIdAndPropertiesPath = new ArrayList<>();
+            for (DeployedModule deployedModule : deployedModules) {
+                Long id = deployedModule.getId() == null || deployedModule.getId() < 1 ? ++maxId : deployedModule.getId();
+                deployedModulesWithIdAndPropertiesPath.add(
+                        new DeployedModule(
+                                id,
+                                deployedModule.getName(),
+                                deployedModule.getVersion(),
+                                deployedModule.isWorkingCopy(),
+                                deployedModule.getPath(),
+                                deployedModule.generatePropertiesPath(),
+                                deployedModule.getInstances()
+                        )
+                );
+            }
+        }
+        return deployedModulesWithIdAndPropertiesPath;
+    }
+
+    private static Long getDeployedModulesMaxId(List<DeployedModule> deployedModules) {
+        Long maxId = 0L;
+        if (deployedModules != null) {
+            for (DeployedModule deployedModule : deployedModules) {
+                if (deployedModule.getId() != null && deployedModule.getId() > maxId) {
+                    maxId = deployedModule.getId();
+                }
+            }
+        }
+        return maxId;
+    }
+
+    public String generatePropertiesPath() {
+        Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        return path + "#" + moduleKey.getNamespaceWithoutPrefix();
+    }
 }

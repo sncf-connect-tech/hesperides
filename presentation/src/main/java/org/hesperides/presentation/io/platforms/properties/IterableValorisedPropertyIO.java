@@ -18,17 +18,21 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.platforms.documents;
+package org.hesperides.presentation.io.platforms.properties;
 
-import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.google.gson.annotations.SerializedName;
+import lombok.Value;
 
 import java.util.List;
 
-@Data
-@Document
-public class ValorisedIterablePropertyDocument extends AbstractValorisedPropertyDocument {
+@Value
+public class IterableValorisedPropertyIO extends AbstractValorisedPropertyIO {
 
-    private List<AbstractValorisedPropertyDocument> abstractValorisedProperties;
+    @SerializedName("iterable_valorisation_items")
+    List<IterablePropertyItemIO> iterablePropertyItems;
 
+    public IterableValorisedPropertyIO(String name, List<IterablePropertyItemIO> iterablePropertyItems) {
+        super(name);
+        this.iterablePropertyItems = iterablePropertyItems;
+    }
 }

@@ -22,12 +22,27 @@ package org.hesperides.domain.platforms.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
+import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
+import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
+import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class PlatformQueries extends Queries {
 
     protected PlatformQueries(QueryGateway queryGateway) {
         super(queryGateway);
+    }
+
+    public boolean platformExists(Platform.Key platformKey) {
+        Optional<PlatformView> platformView = querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
+        return platformView.isPresent();
+    }
+
+    public Optional<PlatformView> getOptionalPlatform(Platform.Key platformKey) {
+        return querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
     }
 }

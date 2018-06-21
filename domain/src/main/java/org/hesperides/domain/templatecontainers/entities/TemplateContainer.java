@@ -32,8 +32,12 @@ public abstract class TemplateContainer {
 
         protected abstract String getNamespacePrefix();
 
-        public String getNamespace() {
-            return getNamespacePrefix() + "#" + name + "#" + version + "#" + versionType.name().toUpperCase();
+        public String getNamespaceWithPrefix() {
+            return getNamespacePrefix() + "#" + getNamespaceWithoutPrefix();
+        }
+
+        public String getNamespaceWithoutPrefix() {
+            return name + "#" + version + "#" + versionType.name().toUpperCase();
         }
 
         public boolean isWorkingCopy() {
