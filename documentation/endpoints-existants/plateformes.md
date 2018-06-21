@@ -88,7 +88,14 @@ Cors de la requête :
       ]
     }
     
-TODO : Quelle est la différence entre path et property_path ? Comment les générer ?
+Dans la liste de modules, le champ "id" permet d'identifier un module dans la plateforme en question. S'il est égal à 0, on l'initialise.
+
+Le champ "path" est fourni en entrée et contient le ou les groupes logiques séparés au format : #GROUPE_LOGIQUE_1#GROUPE_LOGIQUE_2...
+
+Le champ "properties_path" est à calculer et à renvoyer. Il est au format : path#module_namespace (exemple : "#GROUPE_LOGIQUE_1#GROUPE_LOGIQUE_2#module_name#module_version#WORKINGCOPY").
+
+Le champ "version_id" est initialisé à 1.
+
     
 #### Output
 
@@ -105,6 +112,8 @@ Paramètre de requête facultatif : copyPropertiesForUpgradedModules (?)
 TODO : Expliquer à quoi sert ce paramètre
 
 Structure identique à celle de la création.
+
+Le champ "version_id" est vérifié et incrémenté de 1.
 
 #### Output
 
