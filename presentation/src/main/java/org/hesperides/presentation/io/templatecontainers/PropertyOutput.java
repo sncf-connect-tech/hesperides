@@ -5,12 +5,13 @@ import lombok.Value;
 import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainers.queries.IterablePropertyView;
 import org.hesperides.domain.templatecontainers.queries.PropertyView;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Value
-public class PropertyOutput {
+public class PropertyOutput implements Comparable<PropertyOutput>{
 
     String name;
     @SerializedName("required")
@@ -72,5 +73,9 @@ public class PropertyOutput {
             propertyOutput = PropertyOutput.fromIterablePropertyView(iterablePropertyView);
         }
         return propertyOutput;
+    }
+    @Override
+    public int compareTo(@NotNull PropertyOutput o)  {
+        return this.name.compareTo(o.name);
     }
 }

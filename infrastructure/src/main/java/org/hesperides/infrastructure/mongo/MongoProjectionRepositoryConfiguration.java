@@ -4,46 +4,50 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Collections;
 
 import static org.hesperides.domain.framework.Profiles.MONGO;
 
 @Configuration
+@Profile(MONGO)
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.infrastructure.mongo")
-@Profile(MONGO)
+@Getter
+@Setter
+@Validated
+@ConfigurationProperties("projection_repository")
 public class MongoProjectionRepositoryConfiguration {
 
-    @Value("${hesperides.projection_repository.database}")
-    private String database;
-
-    @Value("${hesperides.projection_repository.host}")
+    @NotNull
     private String host;
-
-    @Value("${hesperides.projection_repository.port}")
-    private int port;
-
-    @Value("${hesperides.projection_repository.username}")
+    @NotNull
+    private String port;
+    private String database;
     private String username;
-
-    @Value("${hesperides.projection_repository.password}")
     private String password;
 
     @Bean
-    public Mongo mongo() throws Exception {
-        return new MongoClient(new ServerAddress(host, port), Collections.singletonList(MongoCredential.createCredential(username, database, password.toCharArray())));
+    public Mongo projectionRepositoryMongoClient() {
+        if (!username.isEmpty()) {
+            return new MongoClient(new ServerAddress(host, Integer.parseInt(port)), Collections.singletonList(MongoCredential.createCredential(username, database, password.toCharArray())));
+        } else
+            return new MongoClient(host, Integer.parseInt(port));
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() throws Exception {
-        return new MongoTemplate(mongo(), database);
+    public MongoTemplate mongoTemplate() {
+        return new MongoTemplate(projectionRepositoryMongoClient(), database);
     }
 }
