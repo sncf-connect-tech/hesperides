@@ -18,20 +18,24 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries.views;
+package org.hesperides.tests.bdd.platforms.samples;
 
-import lombok.Value;
+import org.hesperides.presentation.io.platforms.InstanceIO;
+import org.hesperides.presentation.io.platforms.properties.ValorisedPropertyIO;
 
-import java.util.List;
+import java.util.Arrays;
 
-@Value
-public class PlatformView {
+public class InstanceSamples {
 
-    String platformName;
-    String applicationName;
-    String version;
-    boolean isProductionPlatform;
-    List<DeployedModuleView> deployedModules;
-    Long versionId;
+    public static final String DEFAULT_NAME = "instance_name";
 
+    public static InstanceIO getInstanceIOWithDefaultValues() {
+        return new InstanceIO(
+                DEFAULT_NAME,
+                Arrays.asList(
+                        new ValorisedPropertyIO("foo", "bar"),
+                        new ValorisedPropertyIO("foo", "bar")
+                )
+        );
+    }
 }

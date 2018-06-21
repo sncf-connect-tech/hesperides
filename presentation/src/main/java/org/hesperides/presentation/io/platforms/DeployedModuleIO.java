@@ -23,10 +23,7 @@ package org.hesperides.presentation.io.platforms;
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.DeployedModule;
-import org.hesperides.domain.platforms.entities.Instance;
 import org.hesperides.domain.platforms.queries.views.DeployedModuleView;
-import org.hesperides.domain.platforms.queries.views.InstanceView;
-import org.hesperides.presentation.io.platforms.properties.ValorisedPropertyIO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,7 +65,7 @@ public class DeployedModuleIO {
                 deployedModuleView.isWorkingCopy(),
                 deployedModuleView.getPropertiesPath(),
                 deployedModuleView.getPath(),
-                InstanceIO.fromIstanceViews(deployedModuleView.getInstances())
+                InstanceIO.fromInstanceViews(deployedModuleView.getInstances())
         );
     }
 
@@ -84,38 +81,4 @@ public class DeployedModuleIO {
         );
     }
 
-    @Value
-    public static class InstanceIO {
-
-        String name;
-        @SerializedName("key_values")
-        List<ValorisedPropertyIO> valorisedProperties;
-
-        public static List<Instance> toDomainInstances(List<InstanceIO> instanceIOS) {
-            List<Instance> instances = null;
-            if (instanceIOS != null) {
-                instances = instanceIOS.stream().map(InstanceIO::toDomainInstance).collect(Collectors.toList());
-            }
-            return instances;
-        }
-
-        public static List<InstanceIO> fromIstanceViews(List<InstanceView> instanceViews) {
-            List<InstanceIO> instanceIOS = null;
-            if (instanceViews != null) {
-                instanceIOS = instanceViews.stream().map(InstanceIO::fromIstanceView).collect(Collectors.toList());
-            }
-            return instanceIOS;
-        }
-
-        public static InstanceIO fromIstanceView(InstanceView instanceView) {
-            return new InstanceIO(
-                    instanceView.getName(),
-                    ValorisedPropertyIO.fromPropertyViews(instanceView.getValorisedProperties())
-            );
-        }
-
-        public Instance toDomainInstance() {
-            return new Instance(name, ValorisedPropertyIO.toDomainInstances(valorisedProperties));
-        }
-    }
 }

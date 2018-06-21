@@ -49,7 +49,7 @@ public class PlatformIO {
 
     @SerializedName("production")
     boolean isProductionPlatform;
-    List<DeployedModuleIO> modules;
+    List<DeployedModuleIO> deployedModules;
     @SerializedName("version_id")
     Long versionId;
 
@@ -59,7 +59,7 @@ public class PlatformIO {
                 platformView.getApplicationName(),
                 platformView.getVersion(),
                 platformView.isProductionPlatform(),
-                DeployedModuleIO.fromDeployedModuleViews(platformView.getModules()),
+                DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules()),
                 platformView.getVersionId()
         );
     }
@@ -69,7 +69,7 @@ public class PlatformIO {
                 new Platform.Key(applicationName, platformName, version),
                 isProductionPlatform,
                 versionId,
-                DeployedModuleIO.toDomainInstances(modules)
+                DeployedModuleIO.toDomainInstances(deployedModules)
         );
     }
 
