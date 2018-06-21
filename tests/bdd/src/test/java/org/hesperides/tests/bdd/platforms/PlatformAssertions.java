@@ -20,6 +20,7 @@
  */
 package org.hesperides.tests.bdd.platforms;
 
+import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.presentation.io.platforms.InstanceIO;
 import org.hesperides.presentation.io.platforms.PlatformIO;
@@ -78,5 +79,13 @@ public class PlatformAssertions {
     public static void assertValorisedPropertie(ValorisedPropertyIO expectedValorisedProperty, ValorisedPropertyIO actualValorisedProperty) {
         assertEquals(expectedValorisedProperty.getName(), actualValorisedProperty.getName());
         assertEquals(expectedValorisedProperty.getValue(), actualValorisedProperty.getValue());
+    }
+
+    public static void assertApplication(ApplicationOutput expectedApplicationOutput, ApplicationOutput actualApplicationOutput) {
+        assertEquals(expectedApplicationOutput.getName(), actualApplicationOutput.getName());
+        assertEquals(expectedApplicationOutput.getPlatforms().size(), actualApplicationOutput.getPlatforms().size());
+        for (int i = 0; i < expectedApplicationOutput.getPlatforms().size(); i++) {
+            assertPlatform(expectedApplicationOutput.getPlatforms().get(i), actualApplicationOutput.getPlatforms().get(i));
+        }
     }
 }

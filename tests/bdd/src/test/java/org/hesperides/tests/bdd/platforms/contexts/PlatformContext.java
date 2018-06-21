@@ -22,6 +22,7 @@ package org.hesperides.tests.bdd.platforms.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -49,9 +50,23 @@ public class PlatformContext extends CucumberSpringBean implements En {
 
     public ResponseEntity<PlatformIO> createPlatform(PlatformIO platformInput) {
         ResponseEntity<PlatformIO> response = rest.getTestRest().postForEntity(
-                "/applications/{{application_name}}/platforms", platformInput, PlatformIO.class, platformInput.getApplicationName(), platformInput.getPlatformName());
+                "/applications/{application_name}/platforms", platformInput, PlatformIO.class, platformInput.getApplicationName());
         PlatformIO platformOutput = response.getBody();
         platformKey = new Platform.Key(platformOutput.getApplicationName(), platformOutput.getPlatformName(), platformOutput.getVersion());
         return response;
+    }
+
+    public ResponseEntity<PlatformIO> updatePlatform(PlatformIO platformInput) {
+        return rest.putForEntity("/applications/{application_name}/platforms", platformInput, PlatformIO.class, platformKey.getApplicationName());
+    }
+
+    public ResponseEntity<PlatformIO> retrieveExistingPlatform() {
+        return rest.getTestRest().getForEntity("/applications/{application_name}/platforms/{platform_name}",
+                PlatformIO.class, platformKey.getApplicationName(), platformKey.getPlatformName());
+    }
+
+    public ResponseEntity<ApplicationOutput> retrieveExistingApplication() {
+        return rest.getTestRest().getForEntity("/applications/{application_name}",
+                ApplicationOutput.class, platformKey.getApplicationName());
     }
 }
