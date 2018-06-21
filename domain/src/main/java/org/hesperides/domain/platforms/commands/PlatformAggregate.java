@@ -18,22 +18,22 @@
  *
  *
  */
-package org.hesperides.presentation.controllers;
+package org.hesperides.domain.platforms.commands;
 
-import org.hesperides.application.modules.ModuleUseCases;
-import org.hesperides.application.platforms.PlatformUseCases;
-import org.hesperides.application.technos.TechnoUseCases;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.axonframework.commandhandling.model.AggregateIdentifier;
+import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.platforms.entities.Platform;
 
-public abstract class AbstractControllerTest {
-    @Autowired
-    protected MockMvc mvc;
-    @MockBean
-    protected ModuleUseCases moduleUseCases;
-    @MockBean
-    protected TechnoUseCases technoUseCases;
-    @MockBean
-    protected PlatformUseCases platformUseCases;
+import java.io.Serializable;
+
+@Slf4j
+@Aggregate
+@NoArgsConstructor
+public class PlatformAggregate implements Serializable {
+
+    @AggregateIdentifier
+    private Platform.Key key;
+
 }

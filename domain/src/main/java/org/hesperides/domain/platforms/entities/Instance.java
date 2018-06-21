@@ -18,22 +18,14 @@
  *
  *
  */
-package org.hesperides.presentation.controllers;
+package org.hesperides.domain.platforms.entities;
 
-import org.hesperides.application.modules.ModuleUseCases;
-import org.hesperides.application.platforms.PlatformUseCases;
-import org.hesperides.application.technos.TechnoUseCases;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import lombok.Value;
 
-public abstract class AbstractControllerTest {
-    @Autowired
-    protected MockMvc mvc;
-    @MockBean
-    protected ModuleUseCases moduleUseCases;
-    @MockBean
-    protected TechnoUseCases technoUseCases;
-    @MockBean
-    protected PlatformUseCases platformUseCases;
+import java.util.List;
+
+@Value
+public class Instance {
+    String name;
+    List<AbstractValorisedProperty> properties;
 }

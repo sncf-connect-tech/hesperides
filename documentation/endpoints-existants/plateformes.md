@@ -1,6 +1,6 @@
 # Liste des endpoints de plateformes
 
-### GET /application/{application_name}
+### GET /applications/{application_name}
 
 Récupère le détail d'une application à partir de son nom.
 
@@ -46,7 +46,7 @@ Code HTTP 200
       ]
     }
     
-### POST /application/{application_name}/platforms
+### POST /applications/{application_name}/platforms
 
 Crée la plateforme d'une application, potentiellement à partir d'une autre plateforme.
 
@@ -94,7 +94,7 @@ TODO : Quelle est la différence entre path et property_path ? Comment les gén�
 
 Code 200 + structure identique à l'input.
 
-### PUT /application/{application_name}/platforms
+### PUT /applications/{application_name}/platforms
 
 Met à jour la plateforme d'une application, potentiellement à partir d'une autre plateforme.
 
@@ -110,7 +110,7 @@ Structure identique à celle de la création.
 
 Code 200 +  structure identique à l'input.
 
-### GET /application/{application_name}/platforms/{platform_name}
+### GET /applications/{application_name}/platforms/{platform_name}
 
 Récupère le détail d'une plateforme.
 
@@ -122,7 +122,7 @@ Paramètre de requête facultatif : timestamp
 
 Code 200 + Structure identique à celle de la création.
 
-### DELETE /application/{application_name}/platforms/{platform_name}
+### DELETE /applications/{application_name}/platforms/{platform_name}
 
 Supprime une plateforme.
 
@@ -134,7 +134,7 @@ Rien.
 
 Code 200.
 
-### GET /application/{application_name}/platforms/{platform_name}/global_properties_usage
+### GET /applications/{application_name}/platforms/{platform_name}/global_properties_usage
 
 Récupère la liste des utilisations des propriétés globales utilisées d'une plateforme.
 
@@ -156,7 +156,7 @@ Rien.
     
 Attention, l'output n'est pas un tableau...
 
-### GET /application/{application_name}/platforms/{platform_name}/properties
+### GET /applications/{application_name}/platforms/{platform_name}/properties
 
 Récupère la liste des propriétés *valorisées* et des propriétés itérables valorisées ou contenant elles-mêmes au moins une propriété itérable, pour un path donné, c'est-à-dire un module dans un groupe logique (?). 
 
@@ -201,7 +201,7 @@ Diagramme des classes d'output :
 
 ![Diagramme de classe des propriétés valorisées](schémas/valorised-properties.png)
 
-### POST /application/{application_name}/platforms/{platform_name}/properties
+### POST /applications/{application_name}/platforms/{platform_name}/properties
 
 Enregistre la valorisation des propriétés et propriétés itérables pour un path donné.
 
@@ -218,7 +218,7 @@ Paramètres de requête obligatoires :
 
 Code 200 + Structure identique à l'input.
 
-### GET /application/{application_name}/platforms/{platform_name}/properties/instance_model
+### GET /applications/{application_name}/platforms/{platform_name}/properties/instance_model
 
 Récupère les propriétés d'instance à partir d'un path.
 
@@ -243,19 +243,19 @@ Code 200
       ]
     }
 
-### POST /application/{application_name}/platforms/{platform_name}/restore_snapshot
+### POST /applications/{application_name}/platforms/{platform_name}/restore_snapshot
 
 ?
 
-## GET /application/{application_name}/platforms/{platform_name}/snapshots
+## GET /applications/{application_name}/platforms/{platform_name}/snapshots
 
 ?
 
-### POST /application/{application_name}/platforms/{platform_name}/take_snapshots
+### POST /applications/{application_name}/platforms/{platform_name}/take_snapshots
 
 ?
 
-### POST /application/perform_search
+### POST /applications/perform_search
 
 Recherche une application à partir de son nom.
 
@@ -275,7 +275,7 @@ Code 200
 
 Attention, ce n'est pas un tableau de Strings mais un tableau d'objets qui ne contiennent qu'une propriété "name".
 
-### GET /application/platforms/perform_search
+### GET /applications/platforms/perform_search
 
 Recherche une plateforme à partir d'un nom d'application et d'un nom de plateforme
 

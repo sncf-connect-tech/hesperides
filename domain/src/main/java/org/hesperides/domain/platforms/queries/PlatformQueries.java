@@ -18,22 +18,16 @@
  *
  *
  */
-package org.hesperides.presentation.controllers;
+package org.hesperides.domain.platforms.queries;
 
-import org.hesperides.application.modules.ModuleUseCases;
-import org.hesperides.application.platforms.PlatformUseCases;
-import org.hesperides.application.technos.TechnoUseCases;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.axonframework.queryhandling.QueryGateway;
+import org.hesperides.domain.framework.Queries;
+import org.springframework.stereotype.Component;
 
-public abstract class AbstractControllerTest {
-    @Autowired
-    protected MockMvc mvc;
-    @MockBean
-    protected ModuleUseCases moduleUseCases;
-    @MockBean
-    protected TechnoUseCases technoUseCases;
-    @MockBean
-    protected PlatformUseCases platformUseCases;
+@Component
+public class PlatformQueries extends Queries {
+
+    protected PlatformQueries(QueryGateway queryGateway) {
+        super(queryGateway);
+    }
 }

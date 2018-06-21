@@ -18,22 +18,18 @@
  *
  *
  */
-package org.hesperides.presentation.controllers;
+package org.hesperides.infrastructure.mongo.platforms.documents;
 
-import org.hesperides.application.modules.ModuleUseCases;
-import org.hesperides.application.platforms.PlatformUseCases;
-import org.hesperides.application.technos.TechnoUseCases;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-public abstract class AbstractControllerTest {
-    @Autowired
-    protected MockMvc mvc;
-    @MockBean
-    protected ModuleUseCases moduleUseCases;
-    @MockBean
-    protected TechnoUseCases technoUseCases;
-    @MockBean
-    protected PlatformUseCases platformUseCases;
+import java.io.Serializable;
+
+@Data
+@Document
+public class PlatformKeyDocument implements Serializable {
+
+    private String applicationName;
+    private String platformName;
+    private String version;
 }

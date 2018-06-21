@@ -18,22 +18,19 @@
  *
  *
  */
-package org.hesperides.presentation.controllers;
+package org.hesperides.domain.platforms.commands;
 
-import org.hesperides.application.modules.ModuleUseCases;
-import org.hesperides.application.platforms.PlatformUseCases;
-import org.hesperides.application.technos.TechnoUseCases;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.stereotype.Component;
 
-public abstract class AbstractControllerTest {
+@Component
+public class PlatformCommands {
+
+    private final CommandGateway commandGateway;
+
     @Autowired
-    protected MockMvc mvc;
-    @MockBean
-    protected ModuleUseCases moduleUseCases;
-    @MockBean
-    protected TechnoUseCases technoUseCases;
-    @MockBean
-    protected PlatformUseCases platformUseCases;
+    public PlatformCommands(CommandGateway commandGateway) {
+        this.commandGateway = commandGateway;
+    }
 }

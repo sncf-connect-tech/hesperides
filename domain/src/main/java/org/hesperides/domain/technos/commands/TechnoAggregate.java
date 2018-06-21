@@ -112,7 +112,7 @@ class TechnoAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void on(DeleteTechnoTemplateCommand command) {
-        // si le template n'existe pas, cette commandE n'a pas d'effet de bord
+        // si le template n'existe pas, cette commande n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }

@@ -29,6 +29,7 @@ import java.io.Serializable;
 @Data
 @Document
 public class KeyDocument implements Serializable {
+
     private String name;
     private String version;
     private boolean isWorkingCopy;
