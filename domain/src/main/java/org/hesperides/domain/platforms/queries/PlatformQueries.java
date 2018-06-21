@@ -22,7 +22,6 @@ package org.hesperides.domain.platforms.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
-import org.hesperides.domain.modules.ModuleAlreadyExistsQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.PlatformView;

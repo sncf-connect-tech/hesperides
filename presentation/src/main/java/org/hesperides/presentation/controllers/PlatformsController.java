@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import java.util.Optional;
-
 import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Api("/applications")

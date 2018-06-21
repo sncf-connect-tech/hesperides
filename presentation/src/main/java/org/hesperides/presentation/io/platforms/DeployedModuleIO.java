@@ -59,6 +59,7 @@ public class DeployedModuleIO {
         }
         return deployedModuleIOS;
     }
+
     public static DeployedModuleIO fromDeployedModuleView(DeployedModuleView deployedModuleView) {
         return new DeployedModuleIO(
                 deployedModuleView.getId(),
