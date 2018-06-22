@@ -69,4 +69,9 @@ public class PlatformContext extends CucumberSpringBean implements En {
         return rest.getTestRest().getForEntity("/applications/{application_name}",
                 ApplicationOutput.class, platformKey.getApplicationName());
     }
+
+    public void deleteExistingPlatform() {
+        rest.getTestRest().delete("/applications/{application_name}/platforms/{platform_name}",
+                platformKey.getApplicationName(), platformKey.getPlatformName());
+    }
 }
