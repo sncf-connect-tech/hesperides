@@ -64,6 +64,13 @@ public class DeployedModule {
         return deployedModulesWithIdAndPropertiesPath;
     }
 
+    /**
+     * L'identifiant des modules déployés est l'équivalent d'un identifiant auto-incrémenté d'une base de données relationnelle.
+     * Une fois qu'il est défini, il ne bouge plus.
+     *
+     * @param deployedModules
+     * @return
+     */
     private static Long getDeployedModulesMaxId(List<DeployedModule> deployedModules) {
         Long maxId = 0L;
         if (deployedModules != null) {
