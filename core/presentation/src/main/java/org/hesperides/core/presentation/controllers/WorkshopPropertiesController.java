@@ -38,8 +38,23 @@ public class WorkshopPropertiesController extends AbstractController {
         return ResponseEntity.ok(workshopPropertyOutput);
     }
 
-    @GetMapping
-    public String get() {
-        return "foo";
+    @GetMapping("/{key}")
+    public ResponseEntity<WorkshopPropertyOutput> getWorkshopProperty(@PathVariable("key") final String workshopPropertyKey) {
+        WorkshopPropertyView workshopPropertyView = workshopPropertyUseCases.getWorkshopProperty(workshopPropertyKey);
+        WorkshopPropertyOutput workshopPropertyOutput = WorkshopPropertyOutput.fromWorkshopPropertyView(workshopPropertyView);
+        return ResponseEntity.ok(workshopPropertyOutput);
+    }
+
+    @PutMapping
+    public ResponseEntity<WorkshopPropertyOutput> updateWorkshopProperty(Authentication authentication,
+                                                                         @Valid @RequestBody final WorkshopPropertyInput workshopPropertyInput) {
+
+        WorkshopProperty workshopProperty = workshopPropertyInput.toDomainInstance();
+        workshopPropertyUseCases.updateWorkshopProperty(workshopProperty, fromAuthentication(authentication));
+
+        WorkshopPropertyView workshopPropertyView = workshopPropertyUseCases.getWorkshopProperty(workshopPropertyInput.getKey());
+        WorkshopPropertyOutput workshopPropertyOutput = WorkshopPropertyOutput.fromWorkshopPropertyView(workshopPropertyView);
+
+        return ResponseEntity.ok(workshopPropertyOutput);
     }
 }

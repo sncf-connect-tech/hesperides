@@ -35,4 +35,11 @@ public class WorkshopPropertyUseCases {
         }
         return queries.getWorkshopProperty(workshopPropertyKey);
     }
+
+    public void updateWorkshopProperty(WorkshopProperty workshopProperty, User user) {
+        if (!queries.workshopPropertyExists(workshopProperty.getKey())) {
+            throw new WorkshopPropertyNotFoundException(workshopProperty.getKey());
+        }
+        commands.updateWorkshopProperty(workshopProperty, user);
+    }
 }

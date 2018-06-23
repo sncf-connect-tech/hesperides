@@ -5,6 +5,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.GetWorkshopPropertyByKeyQuery;
 import org.hesperides.domain.WorkshopPropertyCreatedEvent;
 import org.hesperides.domain.WorkshopPropertyExistsQuery;
+import org.hesperides.domain.WorkshopPropertyUpdatedEvent;
 import org.hesperides.domain.workshopproperties.WorkshopPropertyProjectionRepository;
 import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,13 @@ public class MongoWorkshopPropertyProjectionRepository implements WorkshopProper
     @EventSourcingHandler
     @Override
     public void on(WorkshopPropertyCreatedEvent event) {
+        WorkshopPropertyDocument workshopPropertyDocument = WorkshopPropertyDocument.fromDomainInstance(event.getWorkshopProperty());
+        workshopPropertyRepository.save(workshopPropertyDocument);
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(WorkshopPropertyUpdatedEvent event) {
         WorkshopPropertyDocument workshopPropertyDocument = WorkshopPropertyDocument.fromDomainInstance(event.getWorkshopProperty());
         workshopPropertyRepository.save(workshopPropertyDocument);
     }
