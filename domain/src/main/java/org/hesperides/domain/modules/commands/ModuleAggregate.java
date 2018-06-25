@@ -47,13 +47,7 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
-        // Initialise le version_id
-        Module module = new Module(
-                command.getModule().getKey(),
-                command.getModule().getTemplates(),
-                command.getModule().getTechnos(),
-                1L);
-
+        Module module = command.getModule().initVersionId();
         apply(new ModuleCreatedEvent(module, command.getUser()));
     }
 
