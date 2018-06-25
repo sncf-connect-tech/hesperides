@@ -24,7 +24,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,25 +32,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Api("/versions")
-@RestController
-@CrossOrigin
 @RequestMapping("/versions")
-public class VersionsController extends BaseController {
+@RestController
+public class VersionsController extends AbstractController {
 
     @Value("${application.name}")
     private String applicationName;
 
-    @Value("${build.version}")
+    @Value("${application.build.version}")
     private String buildVersion;
 
-    @Value("${build.timestamp}")
+    @Value("${application.build.timestamp}")
     private String buildTimestamp;
 
-    @Value("${app.encoding}")
-    private String appEncoding;
+    @Value("${application.encoding}")
+    private String applicationEncoding;
 
-    @Value("${app.java.version}")
-    private String appJavaVersion;
+    @Value("${application.java.version}")
+    private String javaVersion;
 
     @ApiOperation("Get backend and API versions")
     @GetMapping
@@ -60,11 +58,11 @@ public class VersionsController extends BaseController {
         Map<String, String> propertiesMap = new HashMap<>();
         propertiesMap.put("backend_version", buildVersion);
         propertiesMap.put("api_version", buildVersion);
-        propertiesMap.put("buildVersion", buildVersion);
-        propertiesMap.put("applicationName", applicationName);
-        propertiesMap.put("buildTimestamp", buildTimestamp);
-        propertiesMap.put("appEncoding", appEncoding);
-        propertiesMap.put("appJavaVersion", appJavaVersion);
+        propertiesMap.put("application_name", applicationName);
+        propertiesMap.put("build_version", buildVersion);
+        propertiesMap.put("build_timestamp", buildTimestamp);
+        propertiesMap.put("application_encoding", applicationEncoding);
+        propertiesMap.put("java_version", javaVersion);
 
         return ResponseEntity.ok(propertiesMap);
     }

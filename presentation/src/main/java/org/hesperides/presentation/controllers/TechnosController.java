@@ -50,9 +50,9 @@ import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api("/templates/packages")
-@RestController
 @RequestMapping("/templates/packages")
-public class TechnosController extends BaseController {
+@RestController
+public class TechnosController extends AbstractController {
 
     private final TechnoUseCases technoUseCases;
 

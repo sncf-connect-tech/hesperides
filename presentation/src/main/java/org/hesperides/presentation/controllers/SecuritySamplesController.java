@@ -33,9 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.util.Collection;
 
-@RestController
 @RequestMapping("/security")
-public class SecuritySamplesController {
+@RestController
+public class SecuritySamplesController extends AbstractController {
     @GetMapping("/currentUser")
     public String getPrincipal(Principal currentUser) {
         return currentUser.getName();

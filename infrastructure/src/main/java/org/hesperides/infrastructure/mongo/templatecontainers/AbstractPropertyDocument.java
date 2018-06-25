@@ -33,6 +33,7 @@ import java.util.List;
 
 @Data
 public abstract class AbstractPropertyDocument {
+
     private String name;
 
     public static List<AbstractPropertyDocument> fromDomainInstances(List<AbstractProperty> abstractProperties) {

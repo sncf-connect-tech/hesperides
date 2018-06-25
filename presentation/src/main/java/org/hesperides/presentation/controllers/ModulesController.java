@@ -47,10 +47,9 @@ import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api("/modules")
-@RestController
 @RequestMapping("/modules")
-@CrossOrigin
-public class ModulesController extends BaseController {
+@RestController
+public class ModulesController extends AbstractController {
 
     private final ModuleUseCases moduleUseCases;
 

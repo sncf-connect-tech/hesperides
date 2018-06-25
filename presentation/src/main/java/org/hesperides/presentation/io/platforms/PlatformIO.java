@@ -22,49 +22,55 @@ package org.hesperides.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
+import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Value
 public class PlatformIO {
 
+    @NotNull
+    @NotEmpty
     @SerializedName("platform_name")
     String platformName;
+
+    @NotNull
+    @NotEmpty
     @SerializedName("application_name")
     String applicationName;
+
+    @NotNull
+    @NotEmpty
     @SerializedName("application_version")
-    String applicationVersion;
+    String version;
+
     @SerializedName("production")
     boolean isProductionPlatform;
-    List<ModuleIO> modules;
+    List<DeployedModuleIO> deployedModules;
     @SerializedName("version_id")
     Long versionId;
 
-    @Value
-    public static class ModuleIO {
-
-        Long id;
-        String name;
-        String version;
-        @SerializedName("working_copy")
-        boolean isWorkingCopy;
-        @SerializedName("properties_path")
-        String propertiesPath;
-        String path;
-        List<InstanceIO> instances;
-
-        @Value
-        public static class InstanceIO {
-
-            String name;
-            @SerializedName("key_values")
-            List<KeyValueIO> keyValues;
-
-            @Value
-            public static class KeyValueIO {
-                String name;
-                String value;
-            }
-        }
+    public static PlatformIO fromPlatformView(PlatformView platformView) {
+        return new PlatformIO(
+                platformView.getPlatformName(),
+                platformView.getApplicationName(),
+                platformView.getVersion(),
+                platformView.isProductionPlatform(),
+                DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules()),
+                platformView.getVersionId()
+        );
     }
+
+    public Platform toDomainInstance() {
+        return new Platform(
+                new Platform.Key(applicationName, platformName, version),
+                isProductionPlatform,
+                versionId,
+                DeployedModuleIO.toDomainInstances(deployedModules)
+        );
+    }
+
 }

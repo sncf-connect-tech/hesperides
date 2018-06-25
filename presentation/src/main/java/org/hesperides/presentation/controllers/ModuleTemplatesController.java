@@ -23,10 +23,9 @@ import java.util.stream.Collectors;
 import static org.hesperides.domain.security.User.fromAuthentication;
 
 @Api("/modules")
-@RestController
 @RequestMapping("/modules/{module_name}/{module_version}")
-@CrossOrigin
-public class ModuleTemplatesController extends BaseController {
+@RestController
+public class ModuleTemplatesController extends AbstractController {
 
     private final ModuleUseCases moduleUseCases;
 

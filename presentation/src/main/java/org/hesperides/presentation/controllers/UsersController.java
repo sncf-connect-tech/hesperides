@@ -25,7 +25,6 @@ import io.swagger.annotations.ApiOperation;
 import org.hesperides.domain.security.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,10 +33,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Api("/users")
-@RestController
-@CrossOrigin
 @RequestMapping("/users")
-public class UsersController extends BaseController {
+@RestController
+public class UsersController extends AbstractController {
 
     @ApiOperation("Authenticates users. It returns useful information about the authenticated user.")
     @GetMapping("/auth")

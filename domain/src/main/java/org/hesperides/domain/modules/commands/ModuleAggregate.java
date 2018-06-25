@@ -37,6 +37,7 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
  */
 @NoArgsConstructor
 class ModuleAggregate implements Serializable {
+
     @AggregateIdentifier
     private TemplateContainer.Key key;
     @AggregateMember

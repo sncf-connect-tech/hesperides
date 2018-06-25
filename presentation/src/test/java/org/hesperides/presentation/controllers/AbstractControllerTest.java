@@ -21,6 +21,7 @@
 package org.hesperides.presentation.controllers;
 
 import org.hesperides.application.modules.ModuleUseCases;
+import org.hesperides.application.platforms.PlatformUseCases;
 import org.hesperides.application.technos.TechnoUseCases;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,4 +34,6 @@ public abstract class AbstractControllerTest {
     protected ModuleUseCases moduleUseCases;
     @MockBean
     protected TechnoUseCases technoUseCases;
+    @MockBean
+    protected PlatformUseCases platformUseCases;
 }
