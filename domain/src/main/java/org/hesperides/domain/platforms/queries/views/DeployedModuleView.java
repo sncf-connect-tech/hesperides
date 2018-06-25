@@ -30,7 +30,7 @@ public class DeployedModuleView {
     Long id;
     String name;
     String version;
-    boolean isWorkingCopy;
+    boolean workingCopy;
     String propertiesPath;
     String path;
     List<InstanceView> instances;

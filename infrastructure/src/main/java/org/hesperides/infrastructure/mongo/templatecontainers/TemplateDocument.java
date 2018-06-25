@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
@@ -31,7 +32,9 @@ import java.util.stream.Collectors;
 
 @Data
 @Document
+@NoArgsConstructor
 public class TemplateDocument {
+
     private String name;
     private String filename;
     private String location;
@@ -39,21 +42,19 @@ public class TemplateDocument {
     private RightsDocument rights;
     private Long versionId;
 
-    public static TemplateDocument fromDomainInstance(Template template) {
-        TemplateDocument templateDocument = new TemplateDocument();
-        templateDocument.setName(template.getName());
-        templateDocument.setFilename(template.getFilename());
-        templateDocument.setLocation(template.getLocation());
-        templateDocument.setContent(template.getContent());
-        templateDocument.setRights(RightsDocument.fromDomainInstance(template.getRights()));
-        templateDocument.setVersionId(template.getVersionId());
-        return templateDocument;
+    public TemplateDocument(Template template) {
+        this.name = template.getName();
+        this.filename = template.getFilename();
+        this.location = template.getLocation();
+        this.content = template.getContent();
+        this.rights = RightsDocument.fromDomainInstance(template.getRights());
+        this.versionId = template.getVersionId();
     }
 
     public static List<TemplateDocument> fromDomainInstances(List<Template> templates) {
         List<TemplateDocument> templateDocuments = null;
         if (templates != null) {
-            templateDocuments = templates.stream().map(TemplateDocument::fromDomainInstance).collect(Collectors.toList());
+            templateDocuments = templates.stream().map(TemplateDocument::new).collect(Collectors.toList());
         }
         return templateDocuments;
     }
@@ -89,7 +90,7 @@ public class TemplateDocument {
     public TemplateView toTemplateView(TemplateContainer.Key key) {
         return new TemplateView(
                 name,
-                key.getNamespaceWithPrefix(),
+                key.getNamespaceWithPrefix(), //TODO Est-ce qu'on ne passerait pas directement le namespace en paramètre ?
                 filename,
                 location,
                 content,

@@ -1,6 +1,7 @@
 package org.hesperides.presentation.io.templatecontainers;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
@@ -10,6 +11,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Value
+@AllArgsConstructor
 public class TemplateIO {
     @NotNull
     @NotEmpty
@@ -27,20 +29,18 @@ public class TemplateIO {
     @SerializedName("version_id")
     Long versionId;
 
-    public Template toDomainInstance(TemplateContainer.Key templateContainerKey) {
-        return new Template(name, filename, location, content, RightsIO.toDomainInstance(rights), versionId, templateContainerKey);
+    public TemplateIO(TemplateView templateView) {
+        this.name = templateView.getName();
+        this.namespace = templateView.getNamespace();
+        this.filename = templateView.getFilename();
+        this.location = templateView.getLocation();
+        this.content = templateView.getContent();
+        this.rights = RightsIO.fromRightsView(templateView.getRights());
+        this.versionId = templateView.getVersionId();
     }
 
-    public static TemplateIO fromTemplateView(TemplateView templateView) {
-        return new TemplateIO(
-                templateView.getName(),
-                templateView.getNamespace(),
-                templateView.getFilename(),
-                templateView.getLocation(),
-                templateView.getContent(),
-                RightsIO.fromRightsView(templateView.getRights()),
-                templateView.getVersionId()
-        );
+    public Template toDomainInstance(TemplateContainer.Key templateContainerKey) {
+        return new Template(name, filename, location, content, RightsIO.toDomainInstance(rights), versionId, templateContainerKey);
     }
 
     @Value
@@ -50,6 +50,7 @@ public class TemplateIO {
         FileRightsIO other;
 
         public static Template.Rights toDomainInstance(RightsIO rightsIO) {
+            //TODO Est-ce que je peux/dois utiliser un constructeur ?
             Template.Rights rights = null;
             if (rightsIO != null) {
                 rights = new Template.Rights(
@@ -61,6 +62,7 @@ public class TemplateIO {
         }
 
         public static RightsIO fromRightsView(TemplateView.RightsView rightsView) {
+            //TODO Est-ce que je peux/dois utiliser un constructeur ?
             return new RightsIO(
                     FileRightsIO.fromFileRightsView(rightsView.getUser()),
                     FileRightsIO.fromFileRightsView(rightsView.getGroup()),
@@ -76,6 +78,7 @@ public class TemplateIO {
         Boolean execute;
 
         public static Template.FileRights toDomainInstance(FileRightsIO fileRightsIO) {
+            //TODO Est-ce que je peux/dois utiliser un constructeur ?
             Template.FileRights fileRights = null;
             if (fileRightsIO != null) {
                 fileRights = new Template.FileRights(fileRightsIO.getRead(), fileRightsIO.getWrite(), fileRightsIO.getExecute());
@@ -84,6 +87,7 @@ public class TemplateIO {
         }
 
         public static FileRightsIO fromFileRightsView(TemplateView.FileRightsView fileRightsView) {
+            //TODO Est-ce que je peux/dois utiliser un constructeur ?
             FileRightsIO fileRightsIO = null;
             if (fileRightsView != null) {
                 fileRightsIO = new FileRightsIO(fileRightsView.getRead(), fileRightsView.getWrite(), fileRightsView.getExecute());

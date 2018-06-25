@@ -47,14 +47,15 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public void on(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
-        ModuleDocument moduleDocument = ModuleDocument.fromDomainInstance(event.getModule(), technoDocuments);
+        ModuleDocument moduleDocument = new ModuleDocument(event.getModule(), technoDocuments);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventSourcingHandler
     @Override
     public void on(ModuleTechnosUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
@@ -64,7 +65,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventSourcingHandler
     @Override
     public void on(ModuleDeletedEvent event) {
-        moduleRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
+        moduleRepository.deleteByKey(keyDocument);
     }
 
     /*** QUERY HANDLERS ***/
@@ -73,7 +75,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public Optional<ModuleView> query(GetModuleByKeyQuery query) {
         Optional<ModuleView> moduleView = Optional.empty();
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(query.getModuleKey()));
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         if (moduleDocument != null) {
             moduleView = Optional.of(moduleDocument.toModuleView());
         }
@@ -110,8 +113,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public Boolean query(ModuleAlreadyExistsQuery query) {
-        TemplateContainer.Key key = query.getModuleKey();
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(key));
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         return moduleDocument != null;
     }
 
@@ -129,7 +132,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @Override
     public List<AbstractPropertyView> query(GetModulePropertiesQuery query) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(query.getModuleKey()));
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         return AbstractPropertyDocument.toAbstractPropertyViews(moduleDocument.getProperties());
     }
 }

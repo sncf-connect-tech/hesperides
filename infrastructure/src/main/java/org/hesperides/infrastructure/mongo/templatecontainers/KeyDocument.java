@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,17 +29,16 @@ import java.io.Serializable;
 
 @Data
 @Document
+@NoArgsConstructor
 public class KeyDocument implements Serializable {
 
     private String name;
     private String version;
-    private boolean isWorkingCopy;
+    private boolean workingCopy;
 
-    public static KeyDocument fromDomainInstance(TemplateContainer.Key key) {
-        KeyDocument documentKey = new KeyDocument();
-        documentKey.setName(key.getName());
-        documentKey.setVersion(key.getVersion());
-        documentKey.setWorkingCopy(key.isWorkingCopy());
-        return documentKey;
+    public KeyDocument(TemplateContainer.Key key) {
+        this.name = key.getName();
+        this.version = key.getVersion();
+        this.workingCopy = key.isWorkingCopy();
     }
 }

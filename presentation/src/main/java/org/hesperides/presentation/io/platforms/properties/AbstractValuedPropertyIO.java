@@ -18,19 +18,13 @@
  *
  *
  */
-package org.hesperides.domain.platforms.entities.properties;
+package org.hesperides.presentation.io.platforms.properties;
 
 import lombok.Value;
-
-import java.util.List;
+import lombok.experimental.NonFinal;
 
 @Value
-public class ValorisedIterableProperty extends AbstractValorisedProperty {
-
-    List<AbstractValorisedProperty> properties;
-
-    public ValorisedIterableProperty(String name, List<AbstractValorisedProperty> properties) {
-        super(name);
-        this.properties = properties;
-    }
+@NonFinal
+public abstract class AbstractValuedPropertyIO {
+    String name;
 }

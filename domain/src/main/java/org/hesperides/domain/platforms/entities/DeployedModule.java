@@ -33,7 +33,7 @@ public class DeployedModule {
     Long id;
     String name;
     String version;
-    boolean isWorkingCopy;
+    boolean workingCopy;
     String path;
     String propertiesPath;
     //String deploymentGroup
@@ -84,7 +84,7 @@ public class DeployedModule {
     }
 
     public String generatePropertiesPath() {
-        Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(workingCopy));
         return path + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 }

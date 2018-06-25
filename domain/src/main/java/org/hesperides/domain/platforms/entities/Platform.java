@@ -28,7 +28,7 @@ import java.util.List;
 public class Platform {
 
     Key key;
-    boolean isProductionPlatform;
+    boolean productionPlatform;
     Long versionId;
     List<DeployedModule> deployedModules;
 

@@ -1,6 +1,7 @@
 package org.hesperides.presentation.io.templatecontainers;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainers.queries.IterablePropertyView;
@@ -11,41 +12,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Value
-public class PropertyOutput implements Comparable<PropertyOutput>{
+@AllArgsConstructor
+public class PropertyOutput implements Comparable<PropertyOutput> {
 
     String name;
-    @SerializedName("required")
-    boolean isRequired;
+    boolean required;
     String comment;
     String defaultValue;
     String pattern;
-    @SerializedName("password")
-    boolean isPassword;
+    boolean password;
     @SerializedName("fields")
     List<PropertyOutput> properties;
 
-    public static PropertyOutput fromPropertyView(PropertyView propertyView) {
-        return new PropertyOutput(
-                propertyView.getName(),
-                propertyView.isRequired(),
-                propertyView.getComment(),
-                propertyView.getDefaultValue(),
-                propertyView.getPattern(),
-                propertyView.isPassword(),
-                null
-        );
+    public PropertyOutput(PropertyView propertyView) {
+        this.name = propertyView.getName();
+        this.required = propertyView.isRequired();
+        this.comment = propertyView.getComment();
+        this.defaultValue = propertyView.getDefaultValue();
+        this.pattern = propertyView.getPattern();
+        this.password = propertyView.isPassword();
+        this.properties = null;
     }
 
-    public static PropertyOutput fromIterablePropertyView(IterablePropertyView iterablePropertyView) {
-        return new PropertyOutput(
-                iterablePropertyView.getName(),
-                false,
-                "",
-                "",
-                "",
-                false,
-                PropertyOutput.fromAbstractPropertyViews(iterablePropertyView.getProperties())
-        );
+    public PropertyOutput(IterablePropertyView iterablePropertyView) {
+        this.name = iterablePropertyView.getName();
+        this.required = false;
+        this.comment = "";
+        this.defaultValue = "";
+        this.pattern = "";
+        this.password = false;
+        this.properties = PropertyOutput.fromAbstractPropertyViews(iterablePropertyView.getProperties());
     }
 
     private static List<PropertyOutput> fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
@@ -64,18 +60,20 @@ public class PropertyOutput implements Comparable<PropertyOutput>{
     }
 
     public static PropertyOutput fromAbstractPropertyView(AbstractPropertyView abstractPropertyView) {
+        //TODO Est-ce que je peux/dois utiliser un constructeur ?
         PropertyOutput propertyOutput = null;
         if (abstractPropertyView instanceof PropertyView) {
             PropertyView propertyView = (PropertyView) abstractPropertyView;
-            propertyOutput = PropertyOutput.fromPropertyView(propertyView);
+            propertyOutput = new PropertyOutput(propertyView);
         } else if (abstractPropertyView instanceof IterablePropertyView) {
             IterablePropertyView iterablePropertyView = (IterablePropertyView) abstractPropertyView;
-            propertyOutput = PropertyOutput.fromIterablePropertyView(iterablePropertyView);
+            propertyOutput = new PropertyOutput(iterablePropertyView);
         }
         return propertyOutput;
     }
+
     @Override
-    public int compareTo(@NotNull PropertyOutput o)  {
+    public int compareTo(@NotNull PropertyOutput o) {
         return this.name.compareTo(o.name);
     }
 }

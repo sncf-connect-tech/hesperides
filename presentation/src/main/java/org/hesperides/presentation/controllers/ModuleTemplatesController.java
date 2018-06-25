@@ -43,7 +43,7 @@ public class ModuleTemplatesController extends AbstractController {
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
         List<PartialTemplateIO> partialTemplateOutputs = templateViews != null
-                ? templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList())
+                ? templateViews.stream().map(PartialTemplateIO::new).collect(Collectors.toList())
                 : new ArrayList<>();
 
         return ResponseEntity.ok(partialTemplateOutputs);
@@ -58,7 +58,7 @@ public class ModuleTemplatesController extends AbstractController {
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, templateName)
-                .map(TemplateIO::fromTemplateView)
+                .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
 
         return ResponseEntity.ok(templateOutput);
@@ -76,7 +76,7 @@ public class ModuleTemplatesController extends AbstractController {
         moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
 
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, template.getName())
-                .map(TemplateIO::fromTemplateView)
+                .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, template.getName()));
 
         return ResponseEntity.created(template.getTemplateContainerKey().getURI()).body(templateOutput);
@@ -94,7 +94,7 @@ public class ModuleTemplatesController extends AbstractController {
         moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
 
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, template.getName())
-                .map(TemplateIO::fromTemplateView)
+                .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, template.getName()));
 
         return ResponseEntity.ok(templateOutput);

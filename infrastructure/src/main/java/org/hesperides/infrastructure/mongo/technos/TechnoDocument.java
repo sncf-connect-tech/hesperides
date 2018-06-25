@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.technos;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
@@ -38,17 +39,16 @@ import java.util.stream.Collectors;
 
 @Data
 @Document(collection = "techno")
+@NoArgsConstructor
 public class TechnoDocument {
     @Id
     private KeyDocument key;
     private List<TemplateDocument> templates;
     private List<AbstractPropertyDocument> properties;
 
-    public static TechnoDocument fromDomainInstance(Techno techno) {
-        TechnoDocument technoDocument = new TechnoDocument();
-        technoDocument.setKey(KeyDocument.fromDomainInstance(techno.getKey()));
-        technoDocument.setTemplates(TemplateDocument.fromDomainInstances(techno.getTemplates()));
-        return technoDocument;
+    public TechnoDocument(Techno techno) {
+        this.key = new KeyDocument(techno.getKey());
+        this.templates = TemplateDocument.fromDomainInstances(techno.getTemplates());
     }
 
     public static List<TechnoView> toTechnoViews(List<TechnoDocument> technos) {

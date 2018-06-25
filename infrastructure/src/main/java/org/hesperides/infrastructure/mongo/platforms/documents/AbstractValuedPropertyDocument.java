@@ -18,16 +18,13 @@
  *
  *
  */
-package org.hesperides.domain.platforms.entities.properties;
+package org.hesperides.infrastructure.mongo.platforms.documents;
 
-import lombok.Value;
-import lombok.experimental.NonFinal;
+import lombok.Data;
 
-@Value
-@NonFinal
-public abstract class AbstractValorisedProperty {
+@Data
+public abstract class AbstractValuedPropertyDocument {
 
-    String name;
-    //boolean isNotActiveForThisVersion;
+    protected String name;
 
 }

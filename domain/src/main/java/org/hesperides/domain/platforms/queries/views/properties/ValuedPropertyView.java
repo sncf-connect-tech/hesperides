@@ -23,11 +23,11 @@ package org.hesperides.domain.platforms.queries.views.properties;
 import lombok.Value;
 
 @Value
-public class ValorisedPropertyView extends AbstractValorisedPropertyView {
+public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     String value;
 
-    public ValorisedPropertyView(String name, String value) {
+    public ValuedPropertyView(String name, String value) {
         super(name);
         this.value = value;
     }

@@ -30,5 +30,5 @@ public class IterablePropertyItemIO {
 
     String title;
     @SerializedName("values")
-    List<AbstractValorisedPropertyIO> abstractValorisedPropertyIOS;
+    List<AbstractValuedPropertyIO> abstractValuedPropertyIOS;
 }

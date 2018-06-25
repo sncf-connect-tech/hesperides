@@ -1,6 +1,7 @@
 package org.hesperides.infrastructure.mongo.modules;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Data
 @Document(collection = "module")
+@NoArgsConstructor
 public class ModuleDocument {
 
     @Id
@@ -30,13 +32,11 @@ public class ModuleDocument {
     private List<AbstractPropertyDocument> properties;
     private Long versionId;
 
-    public static ModuleDocument fromDomainInstance(Module module, List<TechnoDocument> technoDocuments) {
-        ModuleDocument moduleDocument = new ModuleDocument();
-        moduleDocument.setKey(KeyDocument.fromDomainInstance(module.getKey()));
-        moduleDocument.setTemplates(TemplateDocument.fromDomainInstances(module.getTemplates()));
-        moduleDocument.setTechnos(technoDocuments);
-        moduleDocument.setVersionId(module.getVersionId());
-        return moduleDocument;
+    public ModuleDocument(Module module, List<TechnoDocument> technoDocuments) {
+        this.key = new KeyDocument(module.getKey());
+        this.templates = TemplateDocument.fromDomainInstances(module.getTemplates());
+        this.technos = technoDocuments;
+        this.versionId = module.getVersionId();
     }
 
     public ModuleView toModuleView() {
