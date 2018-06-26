@@ -44,24 +44,26 @@ public class DeployedModule {
 
         if (deployedModules != null) {
             Long maxId = getDeployedModulesMaxId(deployedModules);
-
             deployedModulesWithIdAndPropertiesPath = new ArrayList<>();
             for (DeployedModule deployedModule : deployedModules) {
+                // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
                 Long id = deployedModule.getId() == null || deployedModule.getId() < 1 ? ++maxId : deployedModule.getId();
-                deployedModulesWithIdAndPropertiesPath.add(
-                        new DeployedModule(
-                                id,
-                                deployedModule.getName(),
-                                deployedModule.getVersion(),
-                                deployedModule.isWorkingCopy(),
-                                deployedModule.getPath(),
-                                deployedModule.generatePropertiesPath(),
-                                deployedModule.getInstances()
-                        )
-                );
+                deployedModulesWithIdAndPropertiesPath.add(deployedModule.setIdAndPropertiesPath(id));
             }
         }
         return deployedModulesWithIdAndPropertiesPath;
+    }
+
+    private DeployedModule setIdAndPropertiesPath(Long id) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                workingCopy,
+                path,
+                generatePropertiesPath(),
+                instances
+        );
     }
 
     /**

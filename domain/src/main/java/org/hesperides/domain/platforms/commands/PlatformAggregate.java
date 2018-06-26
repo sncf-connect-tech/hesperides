@@ -29,7 +29,6 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.platforms.CreatePlatformCommand;
 import org.hesperides.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
@@ -45,13 +44,9 @@ public class PlatformAggregate implements Serializable {
     @CommandHandler
     public PlatformAggregate(CreatePlatformCommand command) {
         //TODO Logs
-        Platform platform = new Platform(
-                command.getPlatform().getKey(),
-                command.getPlatform().isProductionPlatform(),
-                1L,
-                DeployedModule.getDeployedModulesWithIdAndPropertiesPath(command.getPlatform().getDeployedModules())
-        );
 
+        // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
+        Platform platform = command.getPlatform().initVersionIdAndDeployedModulesIdAndPropertiesPath();
         AggregateLifecycle.apply(new PlatformCreatedEvent(platform, command.getUser()));
     }
 

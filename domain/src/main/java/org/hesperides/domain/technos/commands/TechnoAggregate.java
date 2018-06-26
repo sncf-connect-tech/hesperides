@@ -58,22 +58,14 @@ class TechnoAggregate implements Serializable {
             throw new DuplicateTemplateCreationException(command.getTemplate());
         }
 
-        // Initialise le version_id du template à 1
-        Template template = command.getTemplate();
-        Template newTemplate = new Template(
-                template.getName(),
-                template.getFilename(),
-                template.getLocation(),
-                template.getContent(),
-                template.getRights(),
-                1L,
-                template.getTemplateContainerKey());
-
         // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(newTemplate);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
         AbstractProperty.validateProperties(abstractProperties);
 
-        apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), newTemplate, command.getUser()));
+        // Initialise le version_id du template à 1
+        Template template = command.getTemplate().initVersionId();
+
+        apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), template, command.getUser()));
     }
 
     @CommandHandler
@@ -81,32 +73,23 @@ class TechnoAggregate implements Serializable {
     public void on(UpdateTechnoTemplateCommand command) {
         log.debug("Applying update template command...");
 
-        // check qu'on a déjà un template avec ce nom, sinon erreur:
+        // Vérifie qu'on a déjà un template avec ce nom
         if (!templates.containsKey(command.getTemplate().getName())) {
             throw new TemplateNotFoundException(key, command.getTemplate().getName());
         }
+
         // Vérifie que le template n'a été modifié entre temps
         Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
-        Long actualVersionId = command.getTemplate().getVersionId();
-        if (!expectedVersionId.equals(actualVersionId)) {
-            throw new OutOfDateVersionException(expectedVersionId, actualVersionId);
-        }
-
-        // Met à jour le version_id
-        Template templateWithUpdatedVersionId = new Template(
-                command.getTemplate().getName(),
-                command.getTemplate().getFilename(),
-                command.getTemplate().getLocation(),
-                command.getTemplate().getContent(),
-                command.getTemplate().getRights(),
-                command.getTemplate().getVersionId() + 1,
-                command.getTechnoKey());
+        command.getTemplate().validateVersionId(expectedVersionId);
 
         // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(templateWithUpdatedVersionId);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
         AbstractProperty.validateProperties(abstractProperties);
 
-        apply(new TechnoTemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
+        // Met à jour le version_id
+        Template template = command.getTemplate().incrementVersionId();
+
+        apply(new TechnoTemplateUpdatedEvent(key, template, command.getUser()));
     }
 
     @CommandHandler
@@ -120,7 +103,7 @@ class TechnoAggregate implements Serializable {
 
     //EVENTS
 
-    //TODO Logs en anglais et plus précis (avec données ?)
+    //TODO Logs plus précis (avec données ?)
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
@@ -131,8 +114,7 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(TechnoDeletedEvent event) { //TODO Pourquoi private ?? Est-ce que ça fonctionne ?
-        this.key = event.getTechnoKey(); //TODO Pourquoi ?
+    private void on(TechnoDeletedEvent event) { //TODO Pourquoi private ? Est-ce que ça fonctionne ?
         log.debug("Techno deleted (aggregate is live ? {})", isLive());
     }
 

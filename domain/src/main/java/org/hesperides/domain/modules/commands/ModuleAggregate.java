@@ -72,26 +72,19 @@ class ModuleAggregate implements Serializable {
     public void on(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 
-        // check qu'on a pas déjà un template avec ce nom, sinon erreur:
+        // Vérifie qu'on a pas déjà un template avec ce nom
         if (this.templates.containsKey(command.getTemplate().getName())) {
             throw new DuplicateTemplateCreationException(command.getTemplate());
         }
 
-        // Initialise le version_id
-        Template newTemplate = new Template(
-                command.getTemplate().getName(),
-                command.getTemplate().getFilename(),
-                command.getTemplate().getLocation(),
-                command.getTemplate().getContent(),
-                command.getTemplate().getRights(),
-                1L,
-                command.getModuleKey());
-
         // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(newTemplate);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
         AbstractProperty.validateProperties(abstractProperties);
 
-        apply(new TemplateCreatedEvent(key, newTemplate, command.getUser()));
+        // Initialise le versionId
+        Template template = command.getTemplate().initVersionId();
+
+        apply(new TemplateCreatedEvent(key, template, command.getUser()));
     }
 
     @CommandHandler
@@ -103,28 +96,19 @@ class ModuleAggregate implements Serializable {
         if (!templates.containsKey(command.getTemplate().getName())) {
             throw new TemplateNotFoundException(key, command.getTemplate().getName());
         }
+
         // Vérifie que le template n'a été modifié entre temps
         Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
-        Long actualVersionId = command.getTemplate().getVersionId();
-        if (!expectedVersionId.equals(actualVersionId)) {
-            throw new OutOfDateVersionException(expectedVersionId, actualVersionId);
-        }
-
-        // Met à jour le version_id
-        Template templateWithUpdatedVersionId = new Template(
-                command.getTemplate().getName(),
-                command.getTemplate().getFilename(),
-                command.getTemplate().getLocation(),
-                command.getTemplate().getContent(),
-                command.getTemplate().getRights(),
-                command.getTemplate().getVersionId() + 1,
-                command.getModuleKey());
+        command.getTemplate().validateVersionId(expectedVersionId);
 
         // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(templateWithUpdatedVersionId);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
         AbstractProperty.validateProperties(abstractProperties);
 
-        apply(new TemplateUpdatedEvent(key, templateWithUpdatedVersionId, command.getUser()));
+        // Incrémente le versionId
+        Template template = command.getTemplate().incrementVersionId();
+
+        apply(new TemplateUpdatedEvent(key, template, command.getUser()));
     }
 
     @CommandHandler
@@ -149,20 +133,19 @@ class ModuleAggregate implements Serializable {
     private void on(ModuleCopiedEvent event) {
         this.key = event.getModuleKey();
         //TODO set les trucs du module en copiant depuis l'event.
+        //TODO Que faire ici ? Est-ce qu'on set la clé ? Est-ce qu'on ne fait rien puisque l'évènement de création contient la clé ?
         log.debug("module copié.");
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     private void on(ModuleTechnosUpdatedEvent event) {
-        this.key = event.getModuleKey();
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     private void on(ModuleDeletedEvent event) {
-        this.key = event.getModuleKey();
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 

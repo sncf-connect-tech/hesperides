@@ -18,33 +18,14 @@
  *
  *
  */
-package org.hesperides.domain.platforms.entities;
+package org.hesperides.domain.framework;
 
-import lombok.Value;
+import java.util.Optional;
 
-import java.util.List;
+public interface DomainPrimer<T> {
+    T toDomainInstance();
 
-@Value
-public class Platform {
-
-    Key key;
-    boolean productionPlatform;
-    Long versionId;
-    List<DeployedModule> deployedModules;
-
-    public Platform initVersionIdAndDeployedModulesIdAndPropertiesPath() {
-        return new Platform(
-                key,
-                productionPlatform,
-                1L,
-                DeployedModule.getDeployedModulesWithIdAndPropertiesPath(deployedModules)
-        );
-    }
-
-    @Value
-    public static class Key {
-        String applicationName;
-        String platformName;
-        String version;
+    static <O> O toDomainInstanceOrNull(DomainPrimer<O> candidate) {
+        return Optional.ofNullable(candidate).map(DomainPrimer::toDomainInstance).orElse(null);
     }
 }

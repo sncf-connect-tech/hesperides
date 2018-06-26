@@ -3,6 +3,7 @@ package org.hesperides.presentation.io.templatecontainers;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.domain.framework.DomainPrimer;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
@@ -35,64 +36,52 @@ public class TemplateIO {
         this.filename = templateView.getFilename();
         this.location = templateView.getLocation();
         this.content = templateView.getContent();
-        this.rights = RightsIO.fromRightsView(templateView.getRights());
+        this.rights = new RightsIO(templateView.getRights());
         this.versionId = templateView.getVersionId();
     }
 
     public Template toDomainInstance(TemplateContainer.Key templateContainerKey) {
-        return new Template(name, filename, location, content, RightsIO.toDomainInstance(rights), versionId, templateContainerKey);
+        return new Template(name, filename, location, content, DomainPrimer.toDomainInstanceOrNull(rights), versionId, templateContainerKey);
     }
 
     @Value
-    public static class RightsIO {
+    @AllArgsConstructor
+    public static class RightsIO implements DomainPrimer<Template.Rights> {
+
         FileRightsIO user;
         FileRightsIO group;
         FileRightsIO other;
 
-        public static Template.Rights toDomainInstance(RightsIO rightsIO) {
-            //TODO Est-ce que je peux/dois utiliser un constructeur ?
-            Template.Rights rights = null;
-            if (rightsIO != null) {
-                rights = new Template.Rights(
-                        FileRightsIO.toDomainInstance(rightsIO.getUser()),
-                        FileRightsIO.toDomainInstance(rightsIO.getGroup()),
-                        FileRightsIO.toDomainInstance(rightsIO.getOther()));
-            }
-            return rights;
+        public RightsIO(TemplateView.RightsView rightsView) {
+            this.user = new FileRightsIO(rightsView.getUser());
+            this.group = new FileRightsIO(rightsView.getGroup());
+            this.other = new FileRightsIO(rightsView.getOther());
         }
 
-        public static RightsIO fromRightsView(TemplateView.RightsView rightsView) {
-            //TODO Est-ce que je peux/dois utiliser un constructeur ?
-            return new RightsIO(
-                    FileRightsIO.fromFileRightsView(rightsView.getUser()),
-                    FileRightsIO.fromFileRightsView(rightsView.getGroup()),
-                    FileRightsIO.fromFileRightsView(rightsView.getOther())
+        public Template.Rights toDomainInstance() {
+            return new Template.Rights(
+                    DomainPrimer.toDomainInstanceOrNull(user),
+                    DomainPrimer.toDomainInstanceOrNull(group),
+                    DomainPrimer.toDomainInstanceOrNull(other)
             );
         }
     }
 
     @Value
-    public static class FileRightsIO {
+    public static class FileRightsIO implements DomainPrimer<Template.FileRights> {
+
         Boolean read;
         Boolean write;
         Boolean execute;
 
-        public static Template.FileRights toDomainInstance(FileRightsIO fileRightsIO) {
-            //TODO Est-ce que je peux/dois utiliser un constructeur ?
-            Template.FileRights fileRights = null;
-            if (fileRightsIO != null) {
-                fileRights = new Template.FileRights(fileRightsIO.getRead(), fileRightsIO.getWrite(), fileRightsIO.getExecute());
-            }
-            return fileRights;
+        public FileRightsIO(TemplateView.FileRightsView fileRightsView) {
+            this.read = fileRightsView.getRead();
+            this.write = fileRightsView.getWrite();
+            this.execute = fileRightsView.getExecute();
         }
 
-        public static FileRightsIO fromFileRightsView(TemplateView.FileRightsView fileRightsView) {
-            //TODO Est-ce que je peux/dois utiliser un constructeur ?
-            FileRightsIO fileRightsIO = null;
-            if (fileRightsView != null) {
-                fileRightsIO = new FileRightsIO(fileRightsView.getRead(), fileRightsView.getWrite(), fileRightsView.getExecute());
-            }
-            return fileRightsIO;
+        public Template.FileRights toDomainInstance() {
+            return new Template.FileRights(read, write, execute);
         }
     }
 }
