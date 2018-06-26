@@ -43,7 +43,7 @@ public class ModelOutput {
 
         if (abstractPropertyViews != null) {
             for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {
-                PropertyOutput propertyOutput = PropertyOutput.fromAbstractPropertyView(abstractPropertyView);
+                PropertyOutput propertyOutput = new PropertyOutput(abstractPropertyView);
                 if (abstractPropertyView instanceof PropertyView) {
                     propertyOutputs.add(propertyOutput);
                 } else if (abstractPropertyView instanceof IterablePropertyView) {

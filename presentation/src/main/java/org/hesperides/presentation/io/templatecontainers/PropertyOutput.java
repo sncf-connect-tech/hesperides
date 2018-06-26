@@ -7,7 +7,6 @@ import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.domain.templatecontainers.queries.IterablePropertyView;
 import org.hesperides.domain.templatecontainers.queries.PropertyView;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.security.access.method.P;
 
 import java.util.ArrayList;
 import java.util.List;

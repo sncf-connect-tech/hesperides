@@ -26,8 +26,6 @@ import lombok.experimental.NonFinal;
 @Value
 @NonFinal
 public abstract class AbstractValuedProperty {
-
     String name;
-    //boolean isNotActiveForThisVersion;
-
+    //boolean notActiveForThisVersion;
 }

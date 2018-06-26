@@ -68,6 +68,7 @@ public class TemplateIO {
     }
 
     @Value
+    @AllArgsConstructor
     public static class FileRightsIO implements DomainPrimer<Template.FileRights> {
 
         Boolean read;
