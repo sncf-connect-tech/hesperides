@@ -26,12 +26,13 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 @Slf4j
 @Aggregate
 class TechnoAggregate implements Serializable {
+
     @AggregateIdentifier
     private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
 
-    //COMMANDS
+    /*** COMMAND HANDLERS ***/
 
     @CommandHandler
     @SuppressWarnings("unused")
@@ -42,14 +43,14 @@ class TechnoAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void on(DeleteTechnoCommand command) {
+    public void onDeleteTechnoCommand(DeleteTechnoCommand command) {
         log.debug("Applying delete techno command...");
         apply(new TechnoDeletedEvent(command.getTechnoKey(), command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void on(AddTemplateToTechnoCommand command) {
+    public void onAddTemplateToTechnoCommand(AddTemplateToTechnoCommand command) {
         log.debug("Applying AddTemplateToTechnoCommand...");
 
         // Vérifie qu'on a pas déjà un template avec ce nom
@@ -69,7 +70,7 @@ class TechnoAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void on(UpdateTechnoTemplateCommand command) {
+    public void onUpdateTechnoTemplateCommand(UpdateTechnoTemplateCommand command) {
         log.debug("Applying update template command...");
 
         // Vérifie qu'on a déjà un template avec ce nom
@@ -93,47 +94,46 @@ class TechnoAggregate implements Serializable {
 
     @CommandHandler
     @SuppressWarnings("unused")
-    public void on(DeleteTechnoTemplateCommand command) {
+    public void onDeleteTechnoTemplateCommand(DeleteTechnoTemplateCommand command) {
         // si le template n'existe pas, cette commande n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
         }
     }
 
-    //EVENTS
+    /*** EVENT HANDLERS ***/
 
     //TODO Logs plus précis (avec données ?)
-
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    public void on(TechnoCreatedEvent event) {
+    public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
         this.key = event.getTechno().getKey();
         log.debug("Techno created (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(TechnoDeletedEvent event) { //TODO Pourquoi private ? Est-ce que ça fonctionne ?
+    private void onTechnoDeletedEvent(TechnoDeletedEvent event) { //TODO Pourquoi private ? Est-ce que ça fonctionne ?
         log.debug("Techno deleted (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    public void on(TemplateAddedToTechnoEvent event) {
+    public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template ajouté à la techno (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(TechnoTemplateUpdatedEvent event) {
+    private void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void on(TechnoTemplateDeletedEvent event) {
+    private void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé. ");
     }

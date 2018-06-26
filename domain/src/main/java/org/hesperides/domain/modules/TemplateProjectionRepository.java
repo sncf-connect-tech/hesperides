@@ -12,19 +12,19 @@ public interface TemplateProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    void on(TemplateCreatedEvent event);
+    void onTemplateCreatedEvent(TemplateCreatedEvent event);
 
     @EventSourcingHandler
-    void on(TemplateUpdatedEvent event);
+    void onTemplateUpdatedEvent(TemplateUpdatedEvent event);
 
     @EventSourcingHandler
-    void on(TemplateDeletedEvent event);
+    void onTemplateDeletedEvent(TemplateDeletedEvent event);
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Optional<TemplateView> query(GetTemplateByNameQuery query);
+    Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query);
 
     @QueryHandler
-    List<TemplateView> query(GetModuleTemplatesQuery query);
+    List<TemplateView> onGetModuleTemplatesQuery(GetModuleTemplatesQuery query);
 }

@@ -31,7 +31,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleCreatedEvent event) {
+    public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         Module module = event.getModule();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 module.getKey().getName(),
@@ -48,13 +48,13 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleTechnosUpdatedEvent event) {
+    public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleDeletedEvent event) {
+    public void onModuleDeletedEvent(ModuleDeletedEvent event) {
         TemplateContainer.Key key = event.getModuleKey();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 key.getName(),
@@ -66,7 +66,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @QueryHandler
     @Override
-    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
+    public Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query) {
         Optional<ModuleView> optionalModuleView = Optional.empty();
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleKey().getName(),
@@ -84,7 +84,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @QueryHandler
     @Override
-    public List<String> query(GetModulesNamesQuery query) {
+    public List<String> onGetModulesNamesQuery(GetModulesNamesQuery query) {
         return jpaModuleRepository.findAll()
                 .stream()
                 .map(ModuleEntity::getModuleEntityId)
@@ -94,7 +94,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleVersionTypesQuery query) {
+    public List<String> onGetModuleVersionTypesQuery(GetModuleVersionTypesQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleName(),
                 query.getModuleVersion(),
@@ -112,7 +112,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleVersionsQuery query) {
+    public List<String> onGetModuleVersionsQuery(GetModuleVersionsQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleName(),
                 null,
@@ -129,7 +129,7 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @QueryHandler
     @Override
-    public Boolean query(ModuleAlreadyExistsQuery query) {
+    public Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query) {
         ModuleEntity.ModuleEntityId id = new ModuleEntity.ModuleEntityId(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -142,12 +142,12 @@ public class JpaModuleProjectionRepository implements ModuleProjectionRepository
 
     @Override
     @QueryHandler
-    public List<ModuleView> query(SearchModulesQuery query) {
+    public List<ModuleView> onSearchModulesQuery(SearchModulesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public List<AbstractPropertyView> query(GetModulePropertiesQuery query) {
+    public List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

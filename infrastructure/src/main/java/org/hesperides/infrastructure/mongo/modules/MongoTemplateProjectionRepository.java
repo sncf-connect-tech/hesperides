@@ -54,7 +54,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @EventSourcingHandler
-    public void on(TemplateCreatedEvent event) {
+    public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
@@ -64,7 +64,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @EventSourcingHandler
-    public void on(TemplateUpdatedEvent event) {
+    public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
@@ -74,7 +74,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @EventSourcingHandler
-    public void on(TemplateDeletedEvent event) {
+    public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         moduleDocument.removeTemplate(event.getTemplateName());
@@ -85,7 +85,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @QueryHandler
-    public Optional<TemplateView> query(GetTemplateByNameQuery query) {
+    public Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query) {
         Optional<TemplateView> optionalTemplateView = Optional.empty();
 
         String templateName = query.getTemplateName();
@@ -102,7 +102,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @QueryHandler
-    public List<TemplateView> query(GetModuleTemplatesQuery query) {
+    public List<TemplateView> onGetModuleTemplatesQuery(GetModuleTemplatesQuery query) {
         List<TemplateView> templateViews = new ArrayList<>();
 
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());

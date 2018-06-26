@@ -30,7 +30,7 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleCreatedEvent event) {
+    public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(event.getModule().getKey().getName());
         moduleDocument.setVersion(event.getModule().getKey().getVersion());
@@ -41,13 +41,13 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleTechnosUpdatedEvent event) {
+    public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @EventSourcingHandler
     @Override
-    public void on(ModuleDeletedEvent event) {
+    public void onModuleDeletedEvent(ModuleDeletedEvent event) {
         TemplateContainer.Key moduleKey = event.getModuleKey();
         ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 moduleKey.getName(),
@@ -58,7 +58,7 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @QueryHandler
     @Override
-    public Optional<ModuleView> query(GetModuleByKeyQuery query) {
+    public Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query) {
         Optional<ModuleView> optionalModuleView = Optional.empty();
         ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 query.getModuleKey().getName(),
@@ -73,7 +73,7 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @QueryHandler
     @Override
-    public List<String> query(GetModulesNamesQuery query) {
+    public List<String> onGetModulesNamesQuery(GetModulesNamesQuery query) {
         return elasticsearchModuleRepository.findAll()
                 .getContent()
                 .stream()
@@ -83,7 +83,7 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleVersionTypesQuery query) {
+    public List<String> onGetModuleVersionTypesQuery(GetModuleVersionTypesQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         moduleDocument.setVersion(query.getModuleVersion());
@@ -96,7 +96,7 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @QueryHandler
     @Override
-    public List<String> query(GetModuleVersionsQuery query) {
+    public List<String> onGetModuleVersionsQuery(GetModuleVersionsQuery query) {
         ModuleDocument moduleDocument = new ModuleDocument();
         moduleDocument.setName(query.getModuleName());
         return elasticsearchModuleRepository.findAllByName(query.getModuleName())
@@ -107,7 +107,7 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @QueryHandler
     @Override
-    public Boolean query(ModuleAlreadyExistsQuery query) {
+    public Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query) {
         ModuleDocument moduleDocument = elasticsearchModuleRepository.findOneByNameAndVersionAndVersionType(
                 query.getModuleKey().getName(),
                 query.getModuleKey().getVersion(),
@@ -117,12 +117,12 @@ public class ElasticsearchModuleProjectionRepository implements ModuleProjection
 
     @QueryHandler
     @Override
-    public List<ModuleView> query(SearchModulesQuery query) {
+    public List<ModuleView> onSearchModulesQuery(SearchModulesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public List<AbstractPropertyView> query(GetModulePropertiesQuery query) {
+    public List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

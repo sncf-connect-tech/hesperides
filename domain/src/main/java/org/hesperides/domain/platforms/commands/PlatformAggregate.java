@@ -41,6 +41,8 @@ public class PlatformAggregate implements Serializable {
     @AggregateIdentifier
     private Platform.Key key;
 
+    /*** COMMAND HANDLERS ***/
+
     @CommandHandler
     public PlatformAggregate(CreatePlatformCommand command) {
         //TODO Logs
@@ -50,8 +52,10 @@ public class PlatformAggregate implements Serializable {
         AggregateLifecycle.apply(new PlatformCreatedEvent(platform, command.getUser()));
     }
 
+    /*** EVENT HANDLERS ***/
+
     @EventSourcingHandler
-    public void on(PlatformCreatedEvent event) {
+    public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         this.key = event.getPlatform().getKey();
         log.debug("Plateforme créée");
     }

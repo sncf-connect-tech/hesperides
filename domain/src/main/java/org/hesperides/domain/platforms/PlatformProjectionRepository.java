@@ -11,10 +11,10 @@ public interface PlatformProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    void on(PlatformCreatedEvent event);
+    void onPlatformCreatedEvent(PlatformCreatedEvent event);
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Optional<PlatformView> query(GetPlatformByKeyQuery query);
+    Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
 }
