@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Value
-public class PropertyOutput implements Comparable<PropertyOutput>{
+public class PropertyOutput implements Comparable<PropertyOutput> {
 
     String name;
     @SerializedName("required")
@@ -74,8 +74,9 @@ public class PropertyOutput implements Comparable<PropertyOutput>{
         }
         return propertyOutput;
     }
+
     @Override
-    public int compareTo(@NotNull PropertyOutput o)  {
+    public int compareTo(@NotNull PropertyOutput o) {
         return this.name.compareTo(o.name);
     }
 }

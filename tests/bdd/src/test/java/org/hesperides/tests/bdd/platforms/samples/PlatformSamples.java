@@ -20,6 +20,7 @@
  */
 package org.hesperides.tests.bdd.platforms.samples;
 
+import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 
 import java.util.Arrays;
@@ -57,6 +58,43 @@ public class PlatformSamples {
                         DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(2L)
                 ),
                 DEFAULT_OUTPUT_VERSION_ID
+        );
+    }
+
+    public static PlatformIO getPlatformInputWithVersionId(Long versionId) {
+        return new PlatformIO(
+                DEFAULT_PLATFORM_NAME,
+                DEFAULT_APPLICATION_NAME,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(1L),
+                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(2L)
+                ),
+                versionId
+        );
+    }
+
+    public static PlatformIO getPlatformOutputWithVersionId(Long versionId) {
+        return new PlatformIO(
+                DEFAULT_PLATFORM_NAME,
+                DEFAULT_APPLICATION_NAME,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(1L),
+                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(2L)
+                ),
+                versionId
+        );
+    }
+
+    public static ApplicationOutput getApplicationOutputWithDefaultValues() {
+        return new ApplicationOutput(
+                DEFAULT_APPLICATION_NAME,
+                Arrays.asList(
+                        getPlatformOutputWithDefaultValues()
+                )
         );
     }
 }
