@@ -48,7 +48,11 @@ public class PlatformAggregate implements Serializable {
         //TODO Logs
 
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
-        Platform platform = command.getPlatform().initVersionIdAndDeployedModulesIdAndPropertiesPath();
+        Platform platform = command.getPlatform()
+                .initVersionId()
+                .setNewDeployedModulesId()
+                .setDeployedModulesPropertiesPath();
+
         AggregateLifecycle.apply(new PlatformCreatedEvent(platform, command.getUser()));
     }
 

@@ -32,12 +32,30 @@ public class Platform {
     Long versionId;
     List<DeployedModule> deployedModules;
 
-    public Platform initVersionIdAndDeployedModulesIdAndPropertiesPath() {
+    public Platform initVersionId() {
         return new Platform(
                 key,
                 productionPlatform,
                 1L,
-                DeployedModule.getDeployedModulesWithIdAndPropertiesPath(deployedModules)
+                deployedModules
+        );
+    }
+
+    public Platform setNewDeployedModulesId() {
+        return new Platform(
+                key,
+                productionPlatform,
+                versionId,
+                DeployedModule.setNewDeployedModulesId(deployedModules)
+        );
+    }
+
+    public Platform setDeployedModulesPropertiesPath() {
+        return new Platform(
+                key,
+                productionPlatform,
+                versionId,
+                DeployedModule.setDeployedModulesPropertiesPath(deployedModules)
         );
     }
 
