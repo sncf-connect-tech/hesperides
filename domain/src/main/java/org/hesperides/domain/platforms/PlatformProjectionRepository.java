@@ -1,5 +1,6 @@
 package org.hesperides.domain.platforms;
 
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
@@ -10,10 +11,10 @@ public interface PlatformProjectionRepository {
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     void on(PlatformCreatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void on(PlatformDeletedEvent event);
 
     /*** QUERY HANDLERS ***/

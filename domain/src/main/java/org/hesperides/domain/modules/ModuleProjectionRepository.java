@@ -1,6 +1,6 @@
 package org.hesperides.domain.modules;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
@@ -12,13 +12,13 @@ public interface ModuleProjectionRepository {
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     void onModuleCreatedEvent(ModuleCreatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onModuleDeletedEvent(ModuleDeletedEvent event);
 
     /*** QUERY HANDLERS ***/
