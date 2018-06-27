@@ -30,6 +30,7 @@ public class Platform {
     Key key;
     boolean productionPlatform;
     Long versionId;
+    String version;
     List<DeployedModule> deployedModules;
 
     public Platform initVersionId() {
@@ -37,6 +38,7 @@ public class Platform {
                 key,
                 productionPlatform,
                 1L,
+                version,
                 deployedModules
         );
     }
@@ -46,6 +48,7 @@ public class Platform {
                 key,
                 productionPlatform,
                 versionId,
+                version,
                 DeployedModule.setNewDeployedModulesId(deployedModules)
         );
     }
@@ -55,6 +58,7 @@ public class Platform {
                 key,
                 productionPlatform,
                 versionId,
+                version,
                 DeployedModule.setDeployedModulesPropertiesPath(deployedModules)
         );
     }
@@ -63,6 +67,5 @@ public class Platform {
     public static class Key {
         String applicationName;
         String platformName;
-        String version;
     }
 }

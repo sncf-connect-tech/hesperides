@@ -4,6 +4,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.domain.platforms.PlatformDeletedEvent;
 import org.hesperides.domain.platforms.PlatformProjectionRepository;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
@@ -32,9 +33,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventSourcingHandler
     @Override
-    public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
+    public void on(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
+    }
+
+    @EventSourcingHandler
+    @Override
+    public void on(PlatformDeletedEvent event) {
+        platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
     }
 
     /*** QUERY HANDLERS ***/
@@ -46,7 +53,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         Optional<PlatformDocument> optionalPlatformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
         if (optionalPlatformDocument.isPresent()) {
-            optionalPlatformView = Optional.of(optionalPlatformDocument.get().toPlateformView());
+            optionalPlatformView = Optional.of(optionalPlatformDocument.get().toPlatformView());
         }
         return optionalPlatformView;
     }

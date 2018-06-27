@@ -11,7 +11,10 @@ public interface PlatformProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    void onPlatformCreatedEvent(PlatformCreatedEvent event);
+    void on(PlatformCreatedEvent event);
+
+    @EventSourcingHandler
+    void on(PlatformDeletedEvent event);
 
     /*** QUERY HANDLERS ***/
 

@@ -34,11 +34,9 @@ public class PlatformKeyDocument implements Serializable {
 
     private String applicationName;
     private String platformName;
-    private String version;
 
     public PlatformKeyDocument(Platform.Key platformKey) {
         this.applicationName = platformKey.getApplicationName();
         this.platformName = platformKey.getPlatformName();
-        this.version = platformKey.getVersion();
     }
 }

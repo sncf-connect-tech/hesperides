@@ -36,9 +36,44 @@ public class PlatformsController extends AbstractController {
         Platform platform = platformInput.toDomainInstance();
         Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
 
-        PlatformView platformView = platformUseCases.getPlateform(createdPlatformKey);
+
+        PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
         PlatformIO platformOutput = new PlatformIO(platformView);
 
         return ResponseEntity.ok(platformOutput);
+    }
+
+    @ApiOperation("Retrieve a platform")
+    @GetMapping("/{application_name}/platforms/{platform_name}")
+    public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
+                                                  @PathVariable("platform_name") final String platformName) {
+
+        // create key from path
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+
+        // retrieve platform
+        PlatformView platformView = platformUseCases.getPlatform(platformKey);
+
+        // transform it into IO
+        PlatformIO platformOutput = new PlatformIO(platformView);
+
+        // response
+        return ResponseEntity.ok(platformOutput);
+    }
+
+    @ApiOperation("Delete a platform")
+    @DeleteMapping("/{application_name}/platforms/{platform_name}")
+    public ResponseEntity deletePlatform(Authentication authentication,
+                                         @PathVariable("application_name") final String applicationName,
+                                         @PathVariable("platform_name") final String platformName) {
+
+        // create key from path
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+
+        // delete platform with this key
+        platformUseCases.deletePlatform(platformKey, fromAuthentication(authentication));
+
+        // response
+        return ResponseEntity.ok().build();
     }
 }
