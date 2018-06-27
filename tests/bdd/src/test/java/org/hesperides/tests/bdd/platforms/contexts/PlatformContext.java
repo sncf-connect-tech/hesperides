@@ -52,7 +52,7 @@ public class PlatformContext extends CucumberSpringBean implements En {
         ResponseEntity<PlatformIO> response = rest.getTestRest().postForEntity(
                 "/applications/{application_name}/platforms", platformInput, PlatformIO.class, platformInput.getApplicationName());
         PlatformIO platformOutput = response.getBody();
-        platformKey = new Platform.Key(platformOutput.getApplicationName(), platformOutput.getPlatformName(), platformOutput.getVersion());
+        platformKey = new Platform.Key(platformOutput.getApplicationName(), platformOutput.getPlatformName());
         return response;
     }
 

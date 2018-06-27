@@ -36,20 +36,23 @@ public class PlatformDocument {
     private PlatformKeyDocument key;
     private boolean productionPlatform;
     private Long versionId;
+    private String version;
     private List<DeployedModuleDocument> deployedModules;
 
     public PlatformDocument(Platform platform) {
         this.key = new PlatformKeyDocument(platform.getKey());
         this.productionPlatform = platform.isProductionPlatform();
         this.versionId = platform.getVersionId();
+        this.version = platform.getVersion();
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
+
     }
 
-    public PlatformView toPlateformView() {
+    public PlatformView toPlatformView() {
         return new PlatformView(
                 key.getPlatformName(),
                 key.getApplicationName(),
-                key.getVersion(),
+                version,
                 productionPlatform,
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
                 versionId
