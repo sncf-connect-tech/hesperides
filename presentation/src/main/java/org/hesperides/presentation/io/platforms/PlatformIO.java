@@ -28,7 +28,10 @@ import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
@@ -64,6 +67,14 @@ public class PlatformIO {
         this.productionPlatform = platformView.isProductionPlatform();
         this.deployedModules = DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules());
         this.versionId = platformView.getVersionId();
+    }
+
+    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
+        return Optional.ofNullable(platformViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(PlatformIO::new)
+                .collect(Collectors.toList());
     }
 
     public Platform toDomainInstance() {

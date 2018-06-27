@@ -21,13 +21,27 @@
 package org.hesperides.presentation.io.platforms;
 
 import lombok.Value;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Value
 public class ApplicationOutput {
 
+    @NotNull
+    @NotEmpty
     String name;
+
+    @NotNull
+    @NotEmpty
     List<PlatformIO> platforms;
 
+    public static ApplicationOutput fromApplicationView(ApplicationView applicationView) {
+        return new ApplicationOutput(
+                applicationView.getName(),
+                PlatformIO.fromPlatformViews(applicationView.getPlatforms())
+        );
+    }
 }

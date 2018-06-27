@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
@@ -18,4 +19,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
 
     void deleteByKey(PlatformKeyDocument key);
+
+    List<PlatformDocument> findAllByKeyApplicationName(String appName);
 }
