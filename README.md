@@ -28,12 +28,10 @@ See branch `master` for the production version
  Choose between:
 
  * Docker (see docker-compose & Dockerfile files)
-
-and one of these:
-
- * elasticSearch
- * mongo
- * jpa
+ 
+ And :
+ 
+ * MongoDB
 
 ## Build
 
@@ -57,18 +55,8 @@ Some variables are set as environment variables:
 * LDAP_CONNECT_TIMEOUT
 * LDAP_READ_TIMEOUT
 
-* ELASTICSEARCH_HOST
-* ELASTICSEARCH_PORT
-* ELASTICSEARCH_INDEX
-
 * MONGO_HOST
 * MONGO_PORT
-
-* JPA_HOST
-* JPA_PORT
-* JPA_DATABASE
-* JPA_DATABASE_USERNAME
-* JPA_DATABASE_PASSWORD
 
 * SPRING_BOOT_ADMIN_URL
 
@@ -86,7 +74,7 @@ Run backend using Docker
 
     docker run -d [-e ENV_VAR=ENV_VALUE] -p 8080:8080 --network hesperides_hesperides-network hesperides/hesperides
     
-Run without ldap or elasticsearch
+Run without ldap or mongodb
 
     java -jar bootstrap/target/hesperides.jar -Dspring.profiles.active=noldap,fake_mongo
 

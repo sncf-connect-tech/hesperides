@@ -2,7 +2,7 @@
 
 Spring Boot détecte automatiquement les dépendances ajoutées dans les pom.xml et auto configure les beans associés tels ques les beans de connexions en base de données.
 
-En ajoutant les dépendances suivantes :
+En ajoutant la dépendance suivante :
 - spring-boot-starter-data-jpa
 - spring-boot-starter-data-mongodb
 - spring-boot-starter-data-elasticsearch
