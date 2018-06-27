@@ -34,7 +34,7 @@ public class PlatformContext extends CucumberSpringBean implements En {
 
     public PlatformContext() {
         Given("^an existing platform", () -> {
-            createPlatform();
+            createPlatform(PlatformSamples.buildPlatformInputWithValues(PlatformSamples.DEFAULT_PLATFORM_NAME));
         });
     }
 
@@ -43,17 +43,18 @@ public class PlatformContext extends CucumberSpringBean implements En {
         return platformKey;
     }
 
-    private void createPlatform() {
-        PlatformIO platformInput = PlatformSamples.getPlatformInputWithDefaultValues();
-        createPlatform(platformInput);
-    }
-
     public ResponseEntity<PlatformIO> createPlatform(PlatformIO platformInput) {
         ResponseEntity<PlatformIO> response = rest.getTestRest().postForEntity(
                 "/applications/{application_name}/platforms", platformInput, PlatformIO.class, platformInput.getApplicationName());
         PlatformIO platformOutput = response.getBody();
         platformKey = new Platform.Key(platformOutput.getApplicationName(), platformOutput.getPlatformName());
         return response;
+    }
+
+    public ResponseEntity<String> failCreatingPlatform(PlatformIO input) {
+        return rest.doWithErrorHandlerDisabled(rest ->
+                rest.postForEntity("/applications/{application_name}/platforms", input, String.class, input.getApplicationName())
+        );
     }
 
     public ResponseEntity<PlatformIO> updatePlatform(PlatformIO platformInput) {
