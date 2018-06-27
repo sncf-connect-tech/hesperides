@@ -33,9 +33,9 @@ public class PlatformSamples {
     public static final long DEFAULT_INPUT_VERSION_ID = 0L;
     public static final long DEFAULT_OUTPUT_VERSION_ID = 1L;
 
-    public static PlatformIO getPlatformInputWithDefaultValues() {
+    public static PlatformIO buildPlatformInputWithValues(String name) {
         return new PlatformIO(
-                DEFAULT_PLATFORM_NAME,
+                name,
                 DEFAULT_APPLICATION_NAME,
                 DEFAULT_VERSION,
                 DEFAULT_PRODUCTION_PLATFORM,
