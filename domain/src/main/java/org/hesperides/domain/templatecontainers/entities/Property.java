@@ -7,23 +7,23 @@ import org.springframework.util.StringUtils;
 @Value
 public class Property extends AbstractProperty {
 
-    boolean isRequired;
+    boolean required;
     String comment;
     String defaultValue;
     String pattern;
-    boolean isPassword;
+    boolean password;
 
-    public Property(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
+    public Property(String name, boolean required, String comment, String defaultValue, String pattern, boolean password) {
         super(name);
-        this.isRequired = isRequired;
+        this.required = required;
         this.comment = comment;
         this.defaultValue = defaultValue;
         this.pattern = pattern;
-        this.isPassword = isPassword;
+        this.password = password;
     }
 
     public void validate() {
-        if (isRequired && !StringUtils.isEmpty(defaultValue)) {
+        if (required && !StringUtils.isEmpty(defaultValue)) {
             throw new RequiredPropertyCannotHaveDefaultValueException(getName());
         }
     }
@@ -85,11 +85,11 @@ public class Property extends AbstractProperty {
             String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX);
 
             String name = propertyAttributes[NAME_INDEX].trim();
-            boolean isRequired = false;
+            boolean required = false;
             String comment = "";
             String defaultValue = "";
             String pattern = "";
-            boolean isPassword = false;
+            boolean password = false;
 
             if (propertyAttributes.length > 1 && propertyAttributes[1].contains(ANNOTATION_PREFIX)) {
                 String[] annotations = propertyAttributes[ANNOTATIONS_INDEX].split(ANNOTATION_PREFIX);
@@ -97,7 +97,7 @@ public class Property extends AbstractProperty {
                 for (String annotation : annotations) {
 
                     if (annotation.toLowerCase().startsWith(Annotation.IS_REQUIRED.getName().toLowerCase())) {
-                        isRequired = true;
+                        required = true;
 
                     } else if (annotation.toLowerCase().startsWith(Annotation.COMMENT.getName().toLowerCase())) {
                         comment = extractPropertyAnnotationValue(annotation);
@@ -109,11 +109,11 @@ public class Property extends AbstractProperty {
                         pattern = extractPropertyAnnotationValue(annotation);
 
                     } else if (annotation.toLowerCase().startsWith(Annotation.IS_PASSWORD.getName().toLowerCase())) {
-                        isPassword = true;
+                        password = true;
                     }
                 }
             }
-            property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
+            property = new Property(name, required, comment, defaultValue, pattern, password);
         }
         return property;
     }

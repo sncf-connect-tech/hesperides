@@ -21,6 +21,7 @@
 package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Value
+@AllArgsConstructor
 public class TechnoIO {
     @NotNull
     @NotEmpty
@@ -42,7 +44,17 @@ public class TechnoIO {
     String version;
 
     @SerializedName("working_copy")
-    boolean isWorkingCopy;
+    boolean workingCopy;
+
+    public TechnoIO(TechnoView technoView) {
+        this.name = technoView.getName();
+        this.version = technoView.getVersion();
+        this.workingCopy = technoView.isWorkingCopy();
+    }
+
+    public Techno toDomainInstance() {
+        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(workingCopy)), null);
+    }
 
     public static List<Techno> toDomainInstances(List<TechnoIO> technoIOS) {
         List<Techno> technos = null;
@@ -55,17 +67,9 @@ public class TechnoIO {
     public static List<TechnoIO> fromTechnoViews(List<TechnoView> technoViews) {
         List<TechnoIO> technoIOS = null;
         if (technoViews != null) {
-            technoIOS = technoViews.stream().map(TechnoIO::fromTechnoView).collect(Collectors.toList());
+            technoIOS = technoViews.stream().map(TechnoIO::new).collect(Collectors.toList());
         }
         return technoIOS;
 
-    }
-
-    public static TechnoIO fromTechnoView(TechnoView technoView) {
-        return new TechnoIO(technoView.getName(), technoView.getVersion(), technoView.isWorkingCopy());
-    }
-
-    public Techno toDomainInstance() {
-        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)), null);
     }
 }

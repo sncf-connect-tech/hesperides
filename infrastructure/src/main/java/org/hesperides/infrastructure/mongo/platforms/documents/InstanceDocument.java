@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.Instance;
 import org.hesperides.domain.platforms.queries.views.InstanceView;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,24 +31,30 @@ import java.util.stream.Collectors;
 
 @Data
 @Document
+@NoArgsConstructor
 public class InstanceDocument {
 
     private String name;
-    List<ValorisedPropertyDocument> valorisedProperties;
+    List<ValuedPropertyDocument> valuedProperties;
+
+    public InstanceDocument(Instance instance) {
+        this.name = instance.getName();
+        this.valuedProperties = ValuedPropertyDocument.fromDomainInstances(instance.getValuedProperties());
+    }
+
+    public InstanceView toInstanceView() {
+        return new InstanceView(
+                name,
+                ValuedPropertyDocument.toValuedPropertyViews(valuedProperties)
+        );
+    }
 
     public static List<InstanceDocument> fromDomainInstances(List<Instance> instances) {
         List<InstanceDocument> instanceDocuments = null;
         if (instances != null) {
-            instanceDocuments = instances.stream().map(InstanceDocument::fromDomainInstance).collect(Collectors.toList());
+            instanceDocuments = instances.stream().map(InstanceDocument::new).collect(Collectors.toList());
         }
         return instanceDocuments;
-    }
-
-    public static InstanceDocument fromDomainInstance(Instance instance) {
-        InstanceDocument instanceDocument = new InstanceDocument();
-        instanceDocument.setName(instance.getName());
-        instanceDocument.setValorisedProperties(ValorisedPropertyDocument.fromDomainInstances(instance.getValorisedProperties()));
-        return instanceDocument;
     }
 
     public static List<InstanceView> toInstanceViews(List<InstanceDocument> instances) {
@@ -56,12 +63,5 @@ public class InstanceDocument {
             instanceViews = instances.stream().map(InstanceDocument::toInstanceView).collect(Collectors.toList());
         }
         return instanceViews;
-    }
-
-    public InstanceView toInstanceView() {
-        return new InstanceView(
-                name,
-                ValorisedPropertyDocument.toValorisedPropertyViews(valorisedProperties)
-        );
     }
 }

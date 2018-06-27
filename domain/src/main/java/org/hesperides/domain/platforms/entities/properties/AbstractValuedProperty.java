@@ -18,21 +18,14 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries.views;
+package org.hesperides.domain.platforms.entities.properties;
 
 import lombok.Value;
-
-import java.util.List;
+import lombok.experimental.NonFinal;
 
 @Value
-public class DeployedModuleView {
-
-    Long id;
+@NonFinal
+public abstract class AbstractValuedProperty {
     String name;
-    String version;
-    boolean workingCopy;
-    String propertiesPath;
-    String path;
-    List<InstanceView> instances;
-
+    //boolean notActiveForThisVersion;
 }

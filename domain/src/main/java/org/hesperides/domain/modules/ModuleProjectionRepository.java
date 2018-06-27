@@ -13,34 +13,34 @@ public interface ModuleProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    void on(ModuleCreatedEvent event);
+    void onModuleCreatedEvent(ModuleCreatedEvent event);
 
     @EventSourcingHandler
-    void on(ModuleTechnosUpdatedEvent event);
+    void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event);
 
     @EventSourcingHandler
-    void on(ModuleDeletedEvent event);
+    void onModuleDeletedEvent(ModuleDeletedEvent event);
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Optional<ModuleView> query(GetModuleByKeyQuery query);
+    Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query);
 
     @QueryHandler
-    List<String> query(GetModulesNamesQuery query);
+    List<String> onGetModulesNamesQuery(GetModulesNamesQuery query);
 
     @QueryHandler
-    List<String> query(GetModuleVersionTypesQuery query);
+    List<String> onGetModuleVersionTypesQuery(GetModuleVersionTypesQuery query);
 
     @QueryHandler
-    List<String> query(GetModuleVersionsQuery query);
+    List<String> onGetModuleVersionsQuery(GetModuleVersionsQuery query);
 
     @QueryHandler
-    Boolean query(ModuleAlreadyExistsQuery query);
+    Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query);
 
     @QueryHandler
-    List<ModuleView> query(SearchModulesQuery query);
+    List<ModuleView> onSearchModulesQuery(SearchModulesQuery query);
 
     @QueryHandler
-    List<AbstractPropertyView> query(GetModulePropertiesQuery query);
+    List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query);
 }

@@ -33,35 +33,25 @@ public class DeployedModule {
     Long id;
     String name;
     String version;
-    boolean isWorkingCopy;
+    boolean workingCopy;
     String path;
     String propertiesPath;
     //String deploymentGroup
     List<Instance> instances;
 
-    public static List<DeployedModule> getDeployedModulesWithIdAndPropertiesPath(List<DeployedModule> deployedModules) {
-        List<DeployedModule> deployedModulesWithIdAndPropertiesPath = null;
+    public static List<DeployedModule> setNewDeployedModulesId(List<DeployedModule> deployedModules) {
+        List<DeployedModule> deployedModulesWithId = null;
 
         if (deployedModules != null) {
             Long maxId = getDeployedModulesMaxId(deployedModules);
-
-            deployedModulesWithIdAndPropertiesPath = new ArrayList<>();
+            deployedModulesWithId = new ArrayList<>();
             for (DeployedModule deployedModule : deployedModules) {
+                // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
                 Long id = deployedModule.getId() == null || deployedModule.getId() < 1 ? ++maxId : deployedModule.getId();
-                deployedModulesWithIdAndPropertiesPath.add(
-                        new DeployedModule(
-                                id,
-                                deployedModule.getName(),
-                                deployedModule.getVersion(),
-                                deployedModule.isWorkingCopy(),
-                                deployedModule.getPath(),
-                                deployedModule.generatePropertiesPath(),
-                                deployedModule.getInstances()
-                        )
-                );
+                deployedModulesWithId.add(deployedModule.setId(id));
             }
         }
-        return deployedModulesWithIdAndPropertiesPath;
+        return deployedModulesWithId;
     }
 
     /**
@@ -83,8 +73,43 @@ public class DeployedModule {
         return maxId;
     }
 
-    public String generatePropertiesPath() {
-        Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+    private DeployedModule setId(Long id) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                workingCopy,
+                path,
+                propertiesPath,
+                instances
+        );
+    }
+
+    public static List<DeployedModule> setDeployedModulesPropertiesPath(List<DeployedModule> deployedModules) {
+        List<DeployedModule> deployedModulesWithPropertiesPath = null;
+        if (deployedModules != null) {
+            deployedModulesWithPropertiesPath = new ArrayList<>();
+            for (DeployedModule deployedModule : deployedModules) {
+                deployedModulesWithPropertiesPath.add(deployedModule.setGeneratedPropertiesPath());
+            }
+        }
+        return deployedModulesWithPropertiesPath;
+    }
+
+    private DeployedModule setGeneratedPropertiesPath() {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                workingCopy,
+                path,
+                generatePropertiesPath(),
+                instances
+        );
+    }
+
+    private String generatePropertiesPath() {
+        Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(workingCopy));
         return path + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 }

@@ -15,13 +15,11 @@ public class PartialTemplateIO implements Comparable<PartialTemplateIO> {
     @NotNull
     String location;
 
-    public static PartialTemplateIO fromTemplateView(TemplateView templateView) {
-        return new PartialTemplateIO(
-                templateView.getName(),
-                templateView.getNamespace(),
-                templateView.getFilename(),
-                templateView.getLocation()
-        );
+    public PartialTemplateIO(TemplateView templateView) {
+        this.name = templateView.getName();
+        this.namespace = templateView.getNamespace();
+        this.filename = templateView.getFilename();
+        this.location = templateView.getLocation();
     }
 
     //L'implémentation de l'interface comparable nous permet de comparer (trier) les partials templates par leur nom

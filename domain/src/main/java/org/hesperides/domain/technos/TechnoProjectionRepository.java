@@ -34,37 +34,37 @@ public interface TechnoProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    void on(TechnoCreatedEvent event);
+    void onTechnoCreatedEvent(TechnoCreatedEvent event);
 
     @EventSourcingHandler
-    void on(TechnoDeletedEvent event);
+    void onTechnoDeletedEvent(TechnoDeletedEvent event);
 
     @EventSourcingHandler
-    void on(TemplateAddedToTechnoEvent event);
+    void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event);
 
     @EventSourcingHandler
-    void on(TechnoTemplateUpdatedEvent event);
+    void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event);
 
     @EventSourcingHandler
-    void on(TechnoTemplateDeletedEvent event);
+    void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event);
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Optional<TemplateView> query(GetTemplateQuery query);
+    Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query);
 
     @QueryHandler
-    Boolean query(TechnoAlreadyExistsQuery query);
+    Boolean onTechnoAlreadyExistsQuery(TechnoAlreadyExistsQuery query);
 
     @QueryHandler
-    List<TemplateView> query(GetTemplatesQuery query);
+    List<TemplateView> onGetTemplatesQuery(GetTemplatesQuery query);
 
     @QueryHandler
-    Optional<TechnoView> query(GetTechnoQuery query);
+    Optional<TechnoView> onGetTechnoQuery(GetTechnoQuery query);
 
     @QueryHandler
-    List<TechnoView> query(SearchTechnosQuery query);
+    List<TechnoView> onSearchTechnosQuery(SearchTechnosQuery query);
 
     @QueryHandler
-    List<AbstractPropertyView> query(GetTechnoPropertiesQuery query);
+    List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query);
 }

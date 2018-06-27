@@ -37,8 +37,8 @@ public class PlatformQueries extends Queries {
     }
 
     public boolean platformExists(Platform.Key platformKey) {
-        Optional<PlatformView> platformView = querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
-        return platformView.isPresent();
+        Optional<PlatformView> optionalPlatformView = querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
+        return optionalPlatformView.isPresent();
     }
 
     public Optional<PlatformView> getOptionalPlatform(Platform.Key platformKey) {

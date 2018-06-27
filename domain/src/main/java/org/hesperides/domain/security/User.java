@@ -14,8 +14,8 @@ import java.util.Collection;
 public class User {
 
     String name;
-    boolean isProd;
-    boolean isTech;
+    boolean prod;
+    boolean tech;
 
     public static User fromAuthentication(Authentication authentication) {
         return new User(authentication.getName(), isProd(authentication.getAuthorities()), isTech(authentication.getAuthorities()));

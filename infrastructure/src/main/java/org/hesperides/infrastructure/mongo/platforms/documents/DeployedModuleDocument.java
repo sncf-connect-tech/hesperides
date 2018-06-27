@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.domain.platforms.queries.views.DeployedModuleView;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,34 +31,45 @@ import java.util.stream.Collectors;
 
 @Data
 @Document
+@NoArgsConstructor
 public class DeployedModuleDocument {
 
     private Long id;
     private String name;
     private String version;
-    private boolean isWorkingCopy;
+    private boolean workingCopy;
     private String path;
     private String propertiesPath;
     private List<InstanceDocument> instances;
 
+    public DeployedModuleDocument(DeployedModule deployedModule) {
+        this.id = deployedModule.getId();
+        this.name = deployedModule.getName();
+        this.version = deployedModule.getVersion();
+        this.workingCopy = deployedModule.isWorkingCopy();
+        this.path = deployedModule.getPath();
+        this.propertiesPath = deployedModule.getPropertiesPath();
+        this.instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
+    }
+
+    public DeployedModuleView toDeployedModuleView() {
+        return new DeployedModuleView(
+                id,
+                name,
+                version,
+                workingCopy,
+                propertiesPath,
+                path,
+                InstanceDocument.toInstanceViews(instances)
+        );
+    }
+
     public static List<DeployedModuleDocument> fromDomainInstances(List<DeployedModule> deployedModules) {
         List<DeployedModuleDocument> deployedModuleDocuments = null;
         if (deployedModules != null) {
-            deployedModuleDocuments = deployedModules.stream().map(DeployedModuleDocument::fromDomainInstance).collect(Collectors.toList());
+            deployedModuleDocuments = deployedModules.stream().map(DeployedModuleDocument::new).collect(Collectors.toList());
         }
         return deployedModuleDocuments;
-    }
-
-    public static DeployedModuleDocument fromDomainInstance(DeployedModule deployedModule) {
-        DeployedModuleDocument deployedModuleDocument = new DeployedModuleDocument();
-        deployedModuleDocument.setId(deployedModule.getId());
-        deployedModuleDocument.setName(deployedModule.getName());
-        deployedModuleDocument.setVersion(deployedModule.getVersion());
-        deployedModuleDocument.setWorkingCopy(deployedModule.isWorkingCopy());
-        deployedModuleDocument.setPath(deployedModule.getPath());
-        deployedModuleDocument.setPropertiesPath(deployedModule.getPropertiesPath());
-        deployedModuleDocument.setInstances(InstanceDocument.fromDomainInstances(deployedModule.getInstances()));
-        return deployedModuleDocument;
     }
 
     public static List<DeployedModuleView> toDeployedModuleViews(List<DeployedModuleDocument> deployedModules) {
@@ -66,17 +78,5 @@ public class DeployedModuleDocument {
             deployedModuleViews = deployedModules.stream().map(DeployedModuleDocument::toDeployedModuleView).collect(Collectors.toList());
         }
         return deployedModuleViews;
-    }
-
-    public DeployedModuleView toDeployedModuleView() {
-        return new DeployedModuleView(
-                id,
-                name,
-                version,
-                isWorkingCopy,
-                propertiesPath,
-                path,
-                InstanceDocument.toInstanceViews(instances)
-        );
     }
 }

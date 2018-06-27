@@ -21,32 +21,32 @@
 package org.hesperides.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.templatecontainers.entities.Property;
 import org.hesperides.domain.templatecontainers.queries.PropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document
+@NoArgsConstructor
 public class PropertyDocument extends AbstractPropertyDocument {
 
-    private boolean isRequired;
+    private boolean required;
     private String comment;
     private String defaultValue;
     private String pattern;
-    private boolean isPassword;
+    private boolean password;
 
-    public static PropertyDocument fromDomainInstance(Property property) {
-        PropertyDocument propertyDocument = new PropertyDocument();
-        propertyDocument.setName(property.getName());
-        propertyDocument.setRequired(property.isRequired());
-        propertyDocument.setComment(property.getComment());
-        propertyDocument.setDefaultValue(property.getDefaultValue());
-        propertyDocument.setPattern(property.getPattern());
-        propertyDocument.setPassword(property.isPassword());
-        return propertyDocument;
+    public PropertyDocument(Property property) {
+        this.name = property.getName();
+        this.required = property.isRequired();
+        this.comment = property.getComment();
+        this.defaultValue = property.getDefaultValue();
+        this.pattern = property.getPattern();
+        this.password = property.isPassword();
     }
 
     public PropertyView toPropertyView() {
-        return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
+        return new PropertyView(getName(), required, comment, defaultValue, pattern, password);
     }
 }

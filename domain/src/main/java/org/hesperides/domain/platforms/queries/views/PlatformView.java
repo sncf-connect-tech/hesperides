@@ -30,7 +30,7 @@ public class PlatformView {
     String platformName;
     String applicationName;
     String version;
-    boolean isProductionPlatform;
+    boolean productionPlatform;
     List<DeployedModuleView> deployedModules;
     Long versionId;
 

@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.templatecontainers.entities.IterableProperty;
 import org.hesperides.domain.templatecontainers.queries.IterablePropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,15 +30,14 @@ import java.util.List;
 
 @Data
 @Document
+@NoArgsConstructor
 public class IterablePropertyDocument extends AbstractPropertyDocument {
 
     private List<AbstractPropertyDocument> properties;
 
-    public static IterablePropertyDocument fromDomainInstance(IterableProperty iterableProperty) {
-        IterablePropertyDocument iterablePropertyDocument = new IterablePropertyDocument();
-        iterablePropertyDocument.setName(iterableProperty.getName());
-        iterablePropertyDocument.setProperties(AbstractPropertyDocument.fromDomainInstances(iterableProperty.getProperties()));
-        return iterablePropertyDocument;
+    public IterablePropertyDocument(IterableProperty iterableProperty) {
+        this.name = iterableProperty.getName();
+        this.properties = AbstractPropertyDocument.fromDomainInstances(iterableProperty.getProperties());
     }
 
     public IterablePropertyView toIterableProperyView() {

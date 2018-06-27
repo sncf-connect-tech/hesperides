@@ -73,7 +73,7 @@ public class TechnosController extends AbstractController {
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromAuthentication(authentication));
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateInput.getName())
-                .map(TemplateIO::fromTemplateView)
+                .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateInput.getName()));
 
         return ResponseEntity.created(technoKey.getURI()).body(templateOutput);
@@ -91,7 +91,7 @@ public class TechnosController extends AbstractController {
         technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromAuthentication(authentication));
 
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, template.getName())
-                .map(TemplateIO::fromTemplateView)
+                .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, template.getName()));
 
         return ResponseEntity.ok(templateOutput);
@@ -107,7 +107,7 @@ public class TechnosController extends AbstractController {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateName)
-                .map(TemplateIO::fromTemplateView)
+                .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateName));
         return ResponseEntity.ok(templateOutput);
     }
@@ -150,7 +150,7 @@ public class TechnosController extends AbstractController {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, versionType);
         List<TemplateView> templateViews = technoUseCases.getTemplates(technoKey);
-        return ResponseEntity.ok(templateViews.stream().map(PartialTemplateIO::fromTemplateView).collect(Collectors.toList()));
+        return ResponseEntity.ok(templateViews.stream().map(PartialTemplateIO::new).collect(Collectors.toList()));
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
@@ -163,7 +163,7 @@ public class TechnosController extends AbstractController {
 
         TemplateContainer.Key existingTechnoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, fromAuthentication(authentication));
-        TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
+        TechnoIO technoOutput = new TechnoIO(technoView);
 
         URI releasedTechnoLocation = technoView.toDomainInstance().getKey().getURI();
         return ResponseEntity.created(releasedTechnoLocation).body(technoOutput);
@@ -177,7 +177,7 @@ public class TechnosController extends AbstractController {
 
         List<TechnoView> technoViews = technoUseCases.search(input);
         List<TechnoIO> technoOutputs = technoViews != null
-                ? technoViews.stream().map(TechnoIO::fromTechnoView).collect(Collectors.toList())
+                ? technoViews.stream().map(TechnoIO::new).collect(Collectors.toList())
                 : new ArrayList<>();
 
         return ResponseEntity.ok(technoOutputs);
@@ -196,7 +196,7 @@ public class TechnosController extends AbstractController {
         TemplateContainer.Key existingTechnoKey = new Techno.Key(fromTechnoName, fromTechnoVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
         TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, technoInput.toDomainInstance().getKey(), fromAuthentication(authentication));
         TemplateContainer.Key createdTechnoKey = technoView.toDomainInstance().getKey();
-        TechnoIO technoOutput = TechnoIO.fromTechnoView(technoView);
+        TechnoIO technoOutput = new TechnoIO(technoView);
         return ResponseEntity.created(createdTechnoKey.getURI()).body(technoOutput);
     }
 
@@ -210,7 +210,7 @@ public class TechnosController extends AbstractController {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, versionType);
         List<AbstractPropertyView> abstractPropertyViews = technoUseCases.getProperties(technoKey);
-        ModelOutput modelOutput = ModelOutput.fromAbstractPropertyViews(abstractPropertyViews);
+        ModelOutput modelOutput = new ModelOutput(abstractPropertyViews);
 
         //TODO Gérer l'ordre des propriétés ?
 

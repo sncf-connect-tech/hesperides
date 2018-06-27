@@ -21,12 +21,12 @@
 package org.hesperides.domain.platforms.entities;
 
 import lombok.Value;
-import org.hesperides.domain.platforms.entities.properties.ValorisedProperty;
+import org.hesperides.domain.platforms.entities.properties.ValuedProperty;
 
 import java.util.List;
 
 @Value
 public class Instance {
     String name;
-    List<ValorisedProperty> valorisedProperties;
+    List<ValuedProperty> valuedProperties;
 }

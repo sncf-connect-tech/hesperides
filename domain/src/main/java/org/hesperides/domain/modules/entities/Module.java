@@ -19,6 +19,10 @@ public class Module extends TemplateContainer {
         this.versionId = versionId;
     }
 
+    public Module initVersionId() {
+        return new Module(getKey(), getTemplates(), technos, 1L);
+    }
+
     public static class Key extends TemplateContainer.Key {
 
         private static final String URI_PREFIX = "/modules";
