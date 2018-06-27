@@ -21,6 +21,7 @@
 package org.hesperides.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
@@ -30,6 +31,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Value
+@AllArgsConstructor
 public class PlatformIO {
 
     @NotNull
@@ -48,26 +50,26 @@ public class PlatformIO {
     String version;
 
     @SerializedName("production")
-    boolean isProductionPlatform;
+    boolean productionPlatform;
+
     List<DeployedModuleIO> deployedModules;
+
     @SerializedName("version_id")
     Long versionId;
 
-    public static PlatformIO fromPlatformView(PlatformView platformView) {
-        return new PlatformIO(
-                platformView.getPlatformName(),
-                platformView.getApplicationName(),
-                platformView.getVersion(),
-                platformView.isProductionPlatform(),
-                DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules()),
-                platformView.getVersionId()
-        );
+    public PlatformIO(PlatformView platformView) {
+        this.platformName = platformView.getPlatformName();
+        this.applicationName = platformView.getApplicationName();
+        this.version = platformView.getVersion();
+        this.productionPlatform = platformView.isProductionPlatform();
+        this.deployedModules = DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules());
+        this.versionId = platformView.getVersionId();
     }
 
     public Platform toDomainInstance() {
         return new Platform(
                 new Platform.Key(applicationName, platformName),
-                isProductionPlatform,
+                productionPlatform,
                 versionId,
                 version,
                 DeployedModuleIO.toDomainInstances(deployedModules)

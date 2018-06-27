@@ -21,6 +21,7 @@
 package org.hesperides.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.domain.platforms.queries.views.DeployedModuleView;
@@ -29,17 +30,40 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Value
+@AllArgsConstructor
 public class DeployedModuleIO {
 
     Long id;
     String name;
     String version;
     @SerializedName("working_copy")
-    boolean isWorkingCopy;
+    boolean workingCopy;
     @SerializedName("properties_path")
     String propertiesPath;
     String path;
     List<InstanceIO> instances;
+
+    public DeployedModuleIO(DeployedModuleView deployedModuleView) {
+        this.id = deployedModuleView.getId();
+        this.name = deployedModuleView.getName();
+        this.version = deployedModuleView.getVersion();
+        this.workingCopy = deployedModuleView.isWorkingCopy();
+        this.propertiesPath = deployedModuleView.getPropertiesPath();
+        this.path = deployedModuleView.getPath();
+        this.instances = InstanceIO.fromInstanceViews(deployedModuleView.getInstances());
+    }
+
+    public DeployedModule toDomainInstance() {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                workingCopy,
+                path,
+                propertiesPath,
+                InstanceIO.toDomainInstances(instances)
+        );
+    }
 
     public static List<DeployedModule> toDomainInstances(List<DeployedModuleIO> moduleIOS) {
         List<DeployedModule> modules = null;
@@ -52,33 +76,8 @@ public class DeployedModuleIO {
     public static List<DeployedModuleIO> fromDeployedModuleViews(List<DeployedModuleView> deployedModuleViews) {
         List<DeployedModuleIO> deployedModuleIOS = null;
         if (deployedModuleViews != null) {
-            deployedModuleIOS = deployedModuleViews.stream().map(DeployedModuleIO::fromDeployedModuleView).collect(Collectors.toList());
+            deployedModuleIOS = deployedModuleViews.stream().map(DeployedModuleIO::new).collect(Collectors.toList());
         }
         return deployedModuleIOS;
     }
-
-    public static DeployedModuleIO fromDeployedModuleView(DeployedModuleView deployedModuleView) {
-        return new DeployedModuleIO(
-                deployedModuleView.getId(),
-                deployedModuleView.getName(),
-                deployedModuleView.getVersion(),
-                deployedModuleView.isWorkingCopy(),
-                deployedModuleView.getPropertiesPath(),
-                deployedModuleView.getPath(),
-                InstanceIO.fromInstanceViews(deployedModuleView.getInstances())
-        );
-    }
-
-    public DeployedModule toDomainInstance() {
-        return new DeployedModule(
-                id,
-                name,
-                version,
-                isWorkingCopy,
-                path,
-                propertiesPath,
-                InstanceIO.toDomainInstances(instances)
-        );
-    }
-
 }

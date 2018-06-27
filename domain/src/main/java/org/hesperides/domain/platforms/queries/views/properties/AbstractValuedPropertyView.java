@@ -25,7 +25,7 @@ import lombok.experimental.NonFinal;
 
 @Value
 @NonFinal
-public abstract class AbstractValorisedPropertyView {
+public abstract class AbstractValuedPropertyView {
     String name;
 
 }

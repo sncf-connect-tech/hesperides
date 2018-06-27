@@ -58,12 +58,12 @@ public class ModuleUseCases {
     }
 
     public void updateModuleTechnos(Module module, User user) {
-        Optional<ModuleView> moduleView = queries.getModule(module.getKey());
-        if (!moduleView.isPresent()) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
+        if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
-        if (!moduleView.get().getVersionId().equals(module.getVersionId())) {
-            throw new OutOfDateVersionException(moduleView.get().getVersionId(), module.getVersionId());
+        if (!optionalModuleView.get().getVersionId().equals(module.getVersionId())) {
+            throw new OutOfDateVersionException(optionalModuleView.get().getVersionId(), module.getVersionId());
         }
         verifyTechnos(module.getTechnos());
         commands.updateModuleTechnos(module, user);
@@ -135,12 +135,12 @@ public class ModuleUseCases {
             throw new DuplicateModuleException(newModuleKey);
         }
 
-        Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
-        if (!moduleView.isPresent()) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(existingModuleKey);
+        if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        Module existingModule = moduleView.get().toDomainInstance();
+        Module existingModule = optionalModuleView.get().toDomainInstance();
         Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(newModule, user);
@@ -164,12 +164,12 @@ public class ModuleUseCases {
         }
 
         TemplateContainer.Key existingModuleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
-        Optional<ModuleView> moduleView = queries.getModule(existingModuleKey);
-        if (!moduleView.isPresent()) {
+        Optional<ModuleView> optionalModuleView = queries.getModule(existingModuleKey);
+        if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);
         }
 
-        Module existingModule = moduleView.get().toDomainInstance();
+        Module existingModule = optionalModuleView.get().toDomainInstance();
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(moduleRelease, user);

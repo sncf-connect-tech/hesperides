@@ -1,6 +1,7 @@
 package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Value
+@AllArgsConstructor
 public final class ModuleIO {
     @NotNull
     @NotEmpty
@@ -22,23 +24,27 @@ public final class ModuleIO {
     String version;
 
     @SerializedName("working_copy")
-    boolean isWorkingCopy;
+    boolean workingCopy;
 
     List<TechnoIO> technos;
 
     @SerializedName("version_id")
     Long versionId;
 
+    public ModuleIO(ModuleView moduleView) {
+        this.name = moduleView.getName();
+        this.version = moduleView.getVersion();
+        this.workingCopy = moduleView.isWorkingCopy();
+        this.technos = TechnoIO.fromTechnoViews(moduleView.getTechnos());
+        this.versionId = moduleView.getVersionId();
+    }
+
     public Module toDomainInstance(List<Template> templates) {
-        return new Module(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)),
+        return new Module(new Module.Key(name, version, TemplateContainer.getVersionType(workingCopy)),
                 templates, TechnoIO.toDomainInstances(technos), versionId);
     }
 
     public Module toDomainInstance() {
         return toDomainInstance(null);
-    }
-
-    public static ModuleIO fromModuleView(ModuleView moduleView) {
-        return new ModuleIO(moduleView.getName(), moduleView.getVersion(), moduleView.isWorkingCopy(), TechnoIO.fromTechnoViews(moduleView.getTechnos()), moduleView.getVersionId());
     }
 }

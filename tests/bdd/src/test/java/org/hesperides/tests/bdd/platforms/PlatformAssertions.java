@@ -24,7 +24,7 @@ import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.presentation.io.platforms.InstanceIO;
 import org.hesperides.presentation.io.platforms.PlatformIO;
-import org.hesperides.presentation.io.platforms.properties.ValorisedPropertyIO;
+import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import java.util.List;
 
@@ -66,19 +66,19 @@ public class PlatformAssertions {
 
     public static void assertInstance(InstanceIO expectedInstance, InstanceIO actualInstance) {
         assertEquals(expectedInstance.getName(), actualInstance.getName());
-        assertValorisedProperties(expectedInstance.getValorisedProperties(), actualInstance.getValorisedProperties());
+        assertValuedProperties(expectedInstance.getValuedProperties(), actualInstance.getValuedProperties());
     }
 
-    public static void assertValorisedProperties(List<ValorisedPropertyIO> expectedValorisedProperties, List<ValorisedPropertyIO> actualValorisedProperties) {
-        assertEquals(expectedValorisedProperties.size(), actualValorisedProperties.size());
-        for (int i = 0; i < expectedValorisedProperties.size(); i++) {
-            assertValorisedPropertie(expectedValorisedProperties.get(i), actualValorisedProperties.get(i));
+    public static void assertValuedProperties(List<ValuedPropertyIO> expectedValuedProperties, List<ValuedPropertyIO> actualValuedProperties) {
+        assertEquals(expectedValuedProperties.size(), actualValuedProperties.size());
+        for (int i = 0; i < expectedValuedProperties.size(); i++) {
+            assertValuedPropertie(expectedValuedProperties.get(i), actualValuedProperties.get(i));
         }
     }
 
-    public static void assertValorisedPropertie(ValorisedPropertyIO expectedValorisedProperty, ValorisedPropertyIO actualValorisedProperty) {
-        assertEquals(expectedValorisedProperty.getName(), actualValorisedProperty.getName());
-        assertEquals(expectedValorisedProperty.getValue(), actualValorisedProperty.getValue());
+    public static void assertValuedPropertie(ValuedPropertyIO expectedValuedProperty, ValuedPropertyIO actualValuedProperty) {
+        assertEquals(expectedValuedProperty.getName(), actualValuedProperty.getName());
+        assertEquals(expectedValuedProperty.getValue(), actualValuedProperty.getValue());
     }
 
     public static void assertApplication(ApplicationOutput expectedApplicationOutput, ApplicationOutput actualApplicationOutput) {

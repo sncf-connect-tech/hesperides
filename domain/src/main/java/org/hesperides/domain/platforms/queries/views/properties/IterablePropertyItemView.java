@@ -28,5 +28,5 @@ import java.util.List;
 public class IterablePropertyItemView {
 
     String title;
-    List<AbstractValorisedPropertyView> abstractValorisedPropertyViews;
+    List<AbstractValuedPropertyView> abstractValuedPropertyViews;
 }

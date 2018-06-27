@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.IterableProperty;
 import org.hesperides.domain.templatecontainers.entities.Property;
@@ -32,9 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public abstract class AbstractPropertyDocument {
 
-    private String name;
+    protected String name;
 
     public static List<AbstractPropertyDocument> fromDomainInstances(List<AbstractProperty> abstractProperties) {
         List<AbstractPropertyDocument> abstractPropertyDocuments = new ArrayList<>();
@@ -42,11 +44,11 @@ public abstract class AbstractPropertyDocument {
             for (AbstractProperty abstractProperty : abstractProperties) {
                 if (abstractProperty instanceof Property) {
                     Property property = (Property) abstractProperty;
-                    PropertyDocument propertyDocument = PropertyDocument.fromDomainInstance(property);
+                    PropertyDocument propertyDocument = new PropertyDocument(property);
                     abstractPropertyDocuments.add(propertyDocument);
                 } else if (abstractProperty instanceof IterableProperty) {
                     IterableProperty iterableProperty = (IterableProperty) abstractProperty;
-                    IterablePropertyDocument iterablePropertyDocument = IterablePropertyDocument.fromDomainInstance(iterableProperty);
+                    IterablePropertyDocument iterablePropertyDocument = new IterablePropertyDocument(iterableProperty);
                     abstractPropertyDocuments.add(iterablePropertyDocument);
                 }
             }

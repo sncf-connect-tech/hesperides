@@ -21,7 +21,7 @@
 package org.hesperides.tests.bdd.platforms.samples;
 
 import org.hesperides.presentation.io.platforms.InstanceIO;
-import org.hesperides.presentation.io.platforms.properties.ValorisedPropertyIO;
+import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import java.util.Arrays;
 
@@ -33,8 +33,8 @@ public class InstanceSamples {
         return new InstanceIO(
                 DEFAULT_NAME,
                 Arrays.asList(
-                        new ValorisedPropertyIO("foo", "bar"),
-                        new ValorisedPropertyIO("foo", "bar")
+                        new ValuedPropertyIO("foo", "bar"),
+                        new ValuedPropertyIO("foo", "bar")
                 )
         );
     }

@@ -76,7 +76,7 @@ public class ModulesController extends AbstractController {
 
             TemplateContainer.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), currentUser);
             ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
-                    .map(ModuleIO::fromModuleView)
+                    .map(ModuleIO::new)
                     .orElseThrow(() -> new ModuleNotFoundException(createdModuleKey));
             response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
 
@@ -88,7 +88,7 @@ public class ModulesController extends AbstractController {
             TemplateContainer.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
             ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), currentUser);
             TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
-            ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
+            ModuleIO moduleOutput = new ModuleIO(moduleView);
             response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
         }
         return response;
@@ -103,7 +103,7 @@ public class ModulesController extends AbstractController {
         Module module = moduleInput.toDomainInstance();
         moduleUseCases.updateModuleTechnos(module, fromAuthentication(authentication));
         ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
-                .map(ModuleIO::fromModuleView)
+                .map(ModuleIO::new)
                 .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
 
         return ResponseEntity.ok(moduleOutput);
@@ -156,7 +156,7 @@ public class ModulesController extends AbstractController {
 
         final TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         return moduleUseCases.getModule(moduleKey)
-                .map(ModuleIO::fromModuleView)
+                .map(ModuleIO::new)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ModuleNotFoundException(moduleKey));
     }
@@ -173,7 +173,7 @@ public class ModulesController extends AbstractController {
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
 
-        return ResponseEntity.ok().build(); // Should be ResponseEntity.accepted()
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
@@ -186,7 +186,7 @@ public class ModulesController extends AbstractController {
         log.info("createRelease {} {} => {}", moduleName, moduleVersion, releaseVersion);
 
         ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromAuthentication(authentication));
-        ModuleIO moduleOutput = ModuleIO.fromModuleView(moduleView);
+        ModuleIO moduleOutput = new ModuleIO(moduleView);
 
         return ResponseEntity.ok(moduleOutput);
     }
@@ -199,7 +199,7 @@ public class ModulesController extends AbstractController {
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
         List<ModuleIO> moduleOutputs = moduleViews != null
-                ? moduleViews.stream().map(ModuleIO::fromModuleView).collect(Collectors.toList())
+                ? moduleViews.stream().map(ModuleIO::new).collect(Collectors.toList())
                 : new ArrayList<>();
 
         return ResponseEntity.ok(moduleOutputs);
@@ -215,7 +215,7 @@ public class ModulesController extends AbstractController {
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, versionType);
         List<AbstractPropertyView> abstractPropertyViews = moduleUseCases.getProperties(moduleKey);
-        ModelOutput modelOutput = ModelOutput.fromAbstractPropertyViews(abstractPropertyViews);
+        ModelOutput modelOutput = new ModelOutput(abstractPropertyViews);
 
         //TODO Gérer l'ordre des propriétés ?
 

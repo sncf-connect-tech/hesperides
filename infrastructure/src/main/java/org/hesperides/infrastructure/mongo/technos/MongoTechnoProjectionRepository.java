@@ -56,39 +56,44 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         this.technoRepository = technoRepository;
     }
 
+    /*** EVENT HANDLERS ***/
+
     @EventSourcingHandler
     @Override
-    public void on(TechnoCreatedEvent event) {
-        TechnoDocument technoDocument = TechnoDocument.fromDomainInstance(event.getTechno());
+    public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
+        TechnoDocument technoDocument = new TechnoDocument(event.getTechno());
         technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
-    public void on(TechnoDeletedEvent event) {
-        technoRepository.deleteByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+    public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
+        technoRepository.deleteByKey(keyDocument);
     }
 
     @EventSourcingHandler
     @Override
-    public void on(TemplateAddedToTechnoEvent event) {
-        TemplateContainer.Key key = event.getTechnoKey();
-        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(key));
-        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+    public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
+        TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
-    public void on(TechnoTemplateUpdatedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
-        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+    public void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
+        TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
-    public void on(TechnoTemplateDeletedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(event.getTechnoKey()));
+    public void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
         technoDocument.removeTemplate(event.getTemplateName());
         technoDocument.extractPropertiesAndSave(technoRepository);
     }
@@ -97,11 +102,12 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
-    public Optional<TemplateView> query(GetTemplateQuery query) {
+    public Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query) {
         Optional<TemplateView> optionalTemplateView = Optional.empty();
         TemplateContainer.Key key = query.getTechnoKey();
 
-        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKeyAndTemplatesName(KeyDocument.fromDomainInstance(key), query.getTemplateName());
+        KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
+        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKeyAndTemplatesName(keyDocument, query.getTemplateName());
 
         if (optionalTechnoDocument.isPresent()) {
             TemplateDocument templateDocument = optionalTechnoDocument.get().getTemplates().stream()
@@ -114,18 +120,19 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
-    public Boolean query(TechnoAlreadyExistsQuery query) {
-        TemplateContainer.Key key = query.getTechnoKey();
-        Optional<TechnoDocument> technoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
+    public Boolean onTechnoAlreadyExistsQuery(TechnoAlreadyExistsQuery query) {
+        KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
+        Optional<TechnoDocument> technoDocument = technoRepository.findOptionalByKey(keyDocument);
         return technoDocument.isPresent();
     }
 
     @Override
-    public List<TemplateView> query(GetTemplatesQuery query) {
+    public List<TemplateView> onGetTemplatesQuery(GetTemplatesQuery query) {
         List<TemplateView> templateViews = new ArrayList<>();
         TemplateContainer.Key key = query.getTechnoKey();
 
-        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(key));
+        KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
+        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKey(keyDocument);
 
         if (optionalTechnoDocument.isPresent()) {
             templateViews = optionalTechnoDocument.get().getTemplates().stream()
@@ -136,9 +143,10 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
-    public Optional<TechnoView> query(GetTechnoQuery query) {
+    public Optional<TechnoView> onGetTechnoQuery(GetTechnoQuery query) {
         Optional<TechnoView> optionalTechnoView = Optional.empty();
-        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKey(KeyDocument.fromDomainInstance(query.getTechnoKey()));
+        KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
+        Optional<TechnoDocument> optionalTechnoDocument = technoRepository.findOptionalByKey(keyDocument);
         if (optionalTechnoDocument.isPresent()) {
             optionalTechnoView = Optional.of(optionalTechnoDocument.get().toTechnoView());
         }
@@ -146,7 +154,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
-    public List<TechnoView> query(SearchTechnosQuery query) {
+    public List<TechnoView> onSearchTechnosQuery(SearchTechnosQuery query) {
         String[] values = query.getInput().split(" ");
         String name = values.length >= 1 ? values[0] : "";
         String version = values.length >= 2 ? values[1] : "";
@@ -157,15 +165,16 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     @Override
-    public List<AbstractPropertyView> query(GetTechnoPropertiesQuery query) {
-        TechnoDocument technoDocument = technoRepository.findByKey(KeyDocument.fromDomainInstance(query.getTechnoKey()));
+    public List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query) {
+        KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
         return AbstractPropertyDocument.toAbstractPropertyViews(technoDocument.getProperties());
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
         List<TechnoDocument> technoDocuments = null;
         if (technos != null) {
-            List<KeyDocument> keyDocuments = technos.stream().map(techno -> KeyDocument.fromDomainInstance(techno.getKey())).collect(Collectors.toList());
+            List<KeyDocument> keyDocuments = technos.stream().map(techno -> new KeyDocument(techno.getKey())).collect(Collectors.toList());
             technoDocuments = technoRepository.findAllByKeyIn(keyDocuments);
         }
         return technoDocuments;

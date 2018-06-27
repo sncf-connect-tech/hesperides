@@ -20,11 +20,19 @@
  */
 package org.hesperides.presentation.io.platforms.properties;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import lombok.experimental.NonFinal;
+
+import java.util.List;
 
 @Value
-@NonFinal
-public abstract class AbstractValorisedPropertyIO {
-    String name;
+public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
+
+    @SerializedName("iterable_valorisation_items")
+    List<IterablePropertyItemIO> iterablePropertyItems;
+
+    public IterableValuedPropertyIO(String name, List<IterablePropertyItemIO> iterablePropertyItems) {
+        super(name);
+        this.iterablePropertyItems = iterablePropertyItems;
+    }
 }

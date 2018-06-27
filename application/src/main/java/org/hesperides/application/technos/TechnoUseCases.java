@@ -83,12 +83,12 @@ public class TechnoUseCases {
             throw new DuplicateTechnoException(newTechnoKey);
         }
 
-        Optional<TechnoView> technoView = queries.getTechno(existingTechnoKey);
-        if (!technoView.isPresent()) {
+        Optional<TechnoView> optionalTechnoView = queries.getTechno(existingTechnoKey);
+        if (!optionalTechnoView.isPresent()) {
             throw new TechnoNotFoundException(existingTechnoKey);
         }
 
-        Techno existingTechno = technoView.get().toDomainInstance();
+        Techno existingTechno = optionalTechnoView.get().toDomainInstance();
         Techno technoRelease = new Techno(newTechnoKey, existingTechno.getTemplates());
 
         commands.createTechno(technoRelease, user);
@@ -104,12 +104,12 @@ public class TechnoUseCases {
             throw new DuplicateModuleException(newTechnoKey);
         }
 
-        Optional<TechnoView> technoView = queries.getTechno(existingTechnoKey);
-        if (!technoView.isPresent()) {
+        Optional<TechnoView> optionalTechnoView = queries.getTechno(existingTechnoKey);
+        if (!optionalTechnoView.isPresent()) {
             throw new ModuleNotFoundException(existingTechnoKey);
         }
 
-        Techno existingTechno = technoView.get().toDomainInstance();
+        Techno existingTechno = optionalTechnoView.get().toDomainInstance();
         Techno newTechno = new Techno(newTechnoKey, existingTechno.getTemplates());
 
         commands.createTechno(newTechno, user);

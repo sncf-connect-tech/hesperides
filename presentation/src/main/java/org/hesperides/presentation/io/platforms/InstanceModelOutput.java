@@ -35,11 +35,11 @@ public class InstanceModelOutput {
     public static class InstancePropertyOutput {
         String name;
         @SerializedName("required")
-        boolean isRequired;
+        boolean required;
         String comment;
         String defaultValue;
         String pattern;
         @SerializedName("password")
-        boolean isPassword;
+        boolean password;
     }
 }

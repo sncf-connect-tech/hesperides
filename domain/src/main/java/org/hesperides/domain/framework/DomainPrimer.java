@@ -18,19 +18,14 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries.views.properties;
+package org.hesperides.domain.framework;
 
-import lombok.Value;
+import java.util.Optional;
 
-import java.util.List;
+public interface DomainPrimer<T> {
+    T toDomainInstance();
 
-@Value
-public class IterableValorisedPropertyView extends AbstractValorisedPropertyView {
-
-    List<IterablePropertyItemView> iterablePropertyItems;
-
-    public IterableValorisedPropertyView(String name, List<IterablePropertyItemView> iterablePropertyItems) {
-        super(name);
-        this.iterablePropertyItems = iterablePropertyItems;
+    static <O> O toDomainInstanceOrNull(DomainPrimer<O> candidate) {
+        return Optional.ofNullable(candidate).map(DomainPrimer::toDomainInstance).orElse(null);
     }
 }

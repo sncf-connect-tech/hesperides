@@ -28,10 +28,40 @@ import java.util.List;
 public class Platform {
 
     Key key;
-    boolean isProductionPlatform;
+    boolean productionPlatform;
     Long versionId;
     String version;
     List<DeployedModule> deployedModules;
+
+    public Platform initVersionId() {
+        return new Platform(
+                key,
+                productionPlatform,
+                1L,
+                version,
+                deployedModules
+        );
+    }
+
+    public Platform setNewDeployedModulesId() {
+        return new Platform(
+                key,
+                productionPlatform,
+                versionId,
+                version,
+                DeployedModule.setNewDeployedModulesId(deployedModules)
+        );
+    }
+
+    public Platform setDeployedModulesPropertiesPath() {
+        return new Platform(
+                key,
+                productionPlatform,
+                versionId,
+                version,
+                DeployedModule.setDeployedModulesPropertiesPath(deployedModules)
+        );
+    }
 
     @Value
     public static class Key {

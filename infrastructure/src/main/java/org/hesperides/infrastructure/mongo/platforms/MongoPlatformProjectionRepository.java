@@ -34,27 +34,27 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventSourcingHandler
     @Override
     public void on(PlatformCreatedEvent event) {
-        PlatformDocument platformDocument = PlatformDocument.fromDomainInstance(event.getPlatform());
+        PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 
     @EventSourcingHandler
     @Override
     public void on(PlatformDeletedEvent event) {
-        platformRepository.deleteByKey(PlatformKeyDocument.fromDomainInstance(event.getPlatformKey()));
+        platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
     }
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
     @Override
-    public Optional<PlatformView> query(GetPlatformByKeyQuery query) {
-        Optional<PlatformView> platformView = Optional.empty();
-        PlatformKeyDocument platformKeyDocument = PlatformKeyDocument.fromDomainInstance(query.getPlatformKey());
-        Optional<PlatformDocument> platformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
-        if (platformDocument.isPresent()) {
-            platformView = Optional.of(platformDocument.get().toPlatformView());
+    public Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query) {
+        Optional<PlatformView> optionalPlatformView = Optional.empty();
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        Optional<PlatformDocument> optionalPlatformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
+        if (optionalPlatformDocument.isPresent()) {
+            optionalPlatformView = Optional.of(optionalPlatformDocument.get().toPlatformView());
         }
-        return platformView;
+        return optionalPlatformView;
     }
 }

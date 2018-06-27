@@ -37,13 +37,13 @@ public class ModelOutput {
     @SerializedName("iterable_properties")
     List<PropertyOutput> iterableProperties;
 
-    public static ModelOutput fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
+    public ModelOutput(List<AbstractPropertyView> abstractPropertyViews) {
         List<PropertyOutput> propertyOutputs = new ArrayList<>();
         List<PropertyOutput> iterablePropertyOutputs = new ArrayList<>();
 
         if (abstractPropertyViews != null) {
             for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {
-                PropertyOutput propertyOutput = PropertyOutput.fromAbstractPropertyView(abstractPropertyView);
+                PropertyOutput propertyOutput = new PropertyOutput(abstractPropertyView);
                 if (abstractPropertyView instanceof PropertyView) {
                     propertyOutputs.add(propertyOutput);
                 } else if (abstractPropertyView instanceof IterablePropertyView) {
@@ -52,6 +52,7 @@ public class ModelOutput {
             }
         }
 
-        return new ModelOutput(propertyOutputs, iterablePropertyOutputs);
+        this.properties = propertyOutputs;
+        this.iterableProperties = iterablePropertyOutputs;
     }
 }

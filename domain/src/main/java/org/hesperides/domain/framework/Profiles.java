@@ -21,10 +21,8 @@
 package org.hesperides.domain.framework;
 
 public final class Profiles {
-    public static final String ELASTICSEARCH = "elasticsearch";
     public static final String FAKE_MONGO = "fake_mongo";
     public static final String GRAPHITE = "graphite";
-    public static final String JPA = "jpa";
     public static final String LDAP = "ldap";
     public static final String MONGO = "mongo";
     public static final String NOLDAP = "noldap";

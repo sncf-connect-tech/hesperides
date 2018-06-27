@@ -54,26 +54,29 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @EventSourcingHandler
-    public void on(TemplateCreatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
-        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+    public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.addTemplate(templateDocument);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @Override
     @EventSourcingHandler
-    public void on(TemplateUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
-        TemplateDocument templateDocument = TemplateDocument.fromDomainInstance(event.getTemplate());
+    public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @Override
     @EventSourcingHandler
-    public void on(TemplateDeletedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findByKey(KeyDocument.fromDomainInstance(event.getModuleKey()));
+    public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
+        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
+        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
         moduleDocument.removeTemplate(event.getTemplateName());
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
@@ -82,15 +85,16 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @QueryHandler
-    public Optional<TemplateView> query(GetTemplateByNameQuery query) {
+    public Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query) {
         Optional<TemplateView> optionalTemplateView = Optional.empty();
 
-        TemplateContainer.Key moduleKey = query.getModuleKey();
         String templateName = query.getTemplateName();
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKeyAndTemplatesName(keyDocument, templateName);
 
-        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKeyAndTemplatesName(KeyDocument.fromDomainInstance(moduleKey), templateName);
         if (optionalModuleDocument.isPresent()) {
             TemplateDocument templateDocument = optionalModuleDocument.get().findOptionalTemplateByName(templateName).get();
+            TemplateContainer.Key moduleKey = query.getModuleKey();
             optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey));
         }
         return optionalTemplateView;
@@ -98,13 +102,14 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @Override
     @QueryHandler
-    public List<TemplateView> query(GetModuleTemplatesQuery query) {
+    public List<TemplateView> onGetModuleTemplatesQuery(GetModuleTemplatesQuery query) {
         List<TemplateView> templateViews = new ArrayList<>();
 
-        TemplateContainer.Key moduleKey = query.getModuleKey();
-        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKey(KeyDocument.fromDomainInstance(moduleKey));
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKey(keyDocument);
 
         if (optionalModuleDocument.isPresent() && optionalModuleDocument.get().getTemplates() != null) {
+            TemplateContainer.Key moduleKey = query.getModuleKey();
             templateViews = optionalModuleDocument.get().getTemplates().stream()
                     .map(templateDocument -> templateDocument.toTemplateView(moduleKey))
                     .collect(Collectors.toList());

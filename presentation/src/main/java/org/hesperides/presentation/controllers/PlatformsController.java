@@ -36,8 +36,9 @@ public class PlatformsController extends AbstractController {
         Platform platform = platformInput.toDomainInstance();
         Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
 
+
         PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
-        PlatformIO platformOutput = PlatformIO.fromPlatformView(platformView);
+        PlatformIO platformOutput = new PlatformIO(platformView);
 
         return ResponseEntity.ok(platformOutput);
     }
@@ -54,7 +55,7 @@ public class PlatformsController extends AbstractController {
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
 
         // transform it into IO
-        PlatformIO platformOutput = PlatformIO.fromPlatformView(platformView);
+        PlatformIO platformOutput = new PlatformIO(platformView);
 
         // response
         return ResponseEntity.ok(platformOutput);

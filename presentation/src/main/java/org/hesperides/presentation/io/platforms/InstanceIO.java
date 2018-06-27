@@ -21,20 +21,31 @@
 package org.hesperides.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.Instance;
 import org.hesperides.domain.platforms.queries.views.InstanceView;
-import org.hesperides.presentation.io.platforms.properties.ValorisedPropertyIO;
+import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Value
+@AllArgsConstructor
 public class InstanceIO {
 
     String name;
     @SerializedName("key_values")
-    List<ValorisedPropertyIO> valorisedProperties;
+    List<ValuedPropertyIO> valuedProperties;
+
+    public InstanceIO(InstanceView instanceView) {
+        this.name = instanceView.getName();
+        this.valuedProperties = ValuedPropertyIO.fromPropertyViews(instanceView.getValuedProperties());
+    }
+
+    public Instance toDomainInstance() {
+        return new Instance(name, ValuedPropertyIO.toDomainInstances(valuedProperties));
+    }
 
     public static List<Instance> toDomainInstances(List<InstanceIO> instanceIOS) {
         List<Instance> instances = null;
@@ -47,19 +58,8 @@ public class InstanceIO {
     public static List<InstanceIO> fromInstanceViews(List<InstanceView> instanceViews) {
         List<InstanceIO> instanceIOS = null;
         if (instanceViews != null) {
-            instanceIOS = instanceViews.stream().map(InstanceIO::fromInstanceView).collect(Collectors.toList());
+            instanceIOS = instanceViews.stream().map(InstanceIO::new).collect(Collectors.toList());
         }
         return instanceIOS;
-    }
-
-    public static InstanceIO fromInstanceView(InstanceView instanceView) {
-        return new InstanceIO(
-                instanceView.getName(),
-                ValorisedPropertyIO.fromPropertyViews(instanceView.getValorisedProperties())
-        );
-    }
-
-    public Instance toDomainInstance() {
-        return new Instance(name, ValorisedPropertyIO.toDomainInstances(valorisedProperties));
     }
 }

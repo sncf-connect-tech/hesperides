@@ -28,8 +28,8 @@ import java.util.List;
 @Value
 public class PropertiesOutput {
     @SerializedName("key_value_properties")
-    List<ValorisedPropertyIO> valorisedPropertyOutputs;
+    List<ValuedPropertyIO> valuedPropertyOutputs;
     @SerializedName("iterable_properties")
-    List<IterableValorisedPropertyIO> iterableValorisedPropertyOutputs;
+    List<IterableValuedPropertyIO> iterableValuedPropertyOutputs;
 
 }
