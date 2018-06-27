@@ -20,7 +20,7 @@
  */
 package org.hesperides.infrastructure.mongo.modules;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
@@ -53,7 +53,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     /*** EVENT HANDLERS ***/
 
     @Override
-    @EventSourcingHandler
+    @EventHandler
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
@@ -63,7 +63,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     }
 
     @Override
-    @EventSourcingHandler
+    @EventHandler
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
@@ -73,7 +73,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     }
 
     @Override
-    @EventSourcingHandler
+    @EventHandler
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
