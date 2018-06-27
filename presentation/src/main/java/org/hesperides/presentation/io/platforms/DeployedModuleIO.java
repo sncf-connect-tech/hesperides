@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.domain.platforms.queries.views.DeployedModuleView;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,13 +35,22 @@ import java.util.stream.Collectors;
 public class DeployedModuleIO {
 
     Long id;
+
+    @OnlyPrintableCharacters(subject = "deployedModules.name")
     String name;
+
+    @OnlyPrintableCharacters(subject = "deployedModules.version")
     String version;
+
     @SerializedName("working_copy")
     boolean workingCopy;
+
     @SerializedName("properties_path")
     String propertiesPath;
+
+    @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
+
     List<InstanceIO> instances;
 
     public DeployedModuleIO(DeployedModuleView deployedModuleView) {
