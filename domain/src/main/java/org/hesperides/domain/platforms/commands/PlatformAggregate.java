@@ -28,7 +28,9 @@ import org.axonframework.commandhandling.model.AggregateLifecycle;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.platforms.CreatePlatformCommand;
+import org.hesperides.domain.platforms.DeletePlatformCommand;
 import org.hesperides.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.domain.platforms.PlatformDeletedEvent;
 import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.domain.platforms.entities.Platform;
 
@@ -56,9 +58,20 @@ public class PlatformAggregate implements Serializable {
         AggregateLifecycle.apply(new PlatformCreatedEvent(platform, command.getUser()));
     }
 
+    @CommandHandler
+    public void handle(DeletePlatformCommand command) {
+        AggregateLifecycle.apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
+    }
+
     @EventSourcingHandler
     public void on(PlatformCreatedEvent event) {
         this.key = event.getPlatform().getKey();
         log.debug("Plateforme créée");
+    }
+
+    @EventSourcingHandler
+    public void on(PlatformDeletedEvent event) {
+        this.key = event.getPlatformKey();
+        log.debug("Plateforme supprimée");
     }
 }

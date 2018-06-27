@@ -22,6 +22,7 @@ package org.hesperides.domain.platforms.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.domain.platforms.CreatePlatformCommand;
+import org.hesperides.domain.platforms.DeletePlatformCommand;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,5 +40,9 @@ public class PlatformCommands {
 
     public Platform.Key createPlatform(Platform platform, User user) {
         return commandGateway.sendAndWait(new CreatePlatformCommand(platform, user));
+    }
+
+    public void deletePlatform(Platform.Key platformKey, User user) {
+        commandGateway.sendAndWait(new DeletePlatformCommand(platformKey, user));
     }
 }

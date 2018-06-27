@@ -23,7 +23,7 @@ Feature: platforms related features.
 #    When retrieving this platform's application
 #    Then the application is successfully retrieved
 #
-#  Scenario: delete a platform
-#    Given an existing platform
-#    When deleting this platform
-#    Then the platform is successfully deleted
+  Scenario: delete a platform
+    Given an existing platform
+    When deleting this platform
+    Then the platform is successfully deleted

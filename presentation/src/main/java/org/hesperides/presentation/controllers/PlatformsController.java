@@ -41,4 +41,23 @@ public class PlatformsController extends AbstractController {
 
         return ResponseEntity.ok(platformOutput);
     }
+
+    @ApiOperation("Delete a platform")
+    @DeleteMapping("/{application_name}/platforms/{platform_name}")
+    public ResponseEntity deletePlatform(Authentication authentication,
+                                         @PathVariable("application_name") final String applicationName,
+                                         @PathVariable("platform_name") final String platformName) {
+
+        // create key from path
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+
+        // delete platform with this key
+        platformUseCases.deletePlatform(platformKey, fromAuthentication(authentication));
+
+        /*
+        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
+        moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
+        */
+        return ResponseEntity.ok().build();
+    }
 }

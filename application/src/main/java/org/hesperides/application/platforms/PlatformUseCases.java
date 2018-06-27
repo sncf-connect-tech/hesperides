@@ -31,6 +31,14 @@ public class PlatformUseCases {
         return commands.createPlatform(platform, user);
     }
 
+    public void deletePlatform(Platform.Key platformKey, User user) {
+        if (! queries.platformExists(platformKey)) {
+            throw new PlatformNotFoundException(platformKey);
+        }
+
+        commands.deletePlatform(platformKey, user);
+    }
+
     public PlatformView getPlatform(Platform.Key platformKey) {
         Optional<PlatformView> optionalPlatformView = queries.getOptionalPlatform(platformKey);
         if (!optionalPlatformView.isPresent()) {
