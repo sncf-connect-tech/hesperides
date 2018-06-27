@@ -42,6 +42,24 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(platformOutput);
     }
 
+    @ApiOperation("Retrieve a platform")
+    @GetMapping("/{application_name}/platforms/{platform_name}")
+    public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
+                                                  @PathVariable("platform_name") final String platformName) {
+
+        // create key from path
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+
+        // retrieve platform
+        PlatformView platformView = platformUseCases.getPlatform(platformKey);
+
+        // transform it into IO
+        PlatformIO platformOutput = PlatformIO.fromPlatformView(platformView);
+
+        // response
+        return ResponseEntity.ok(platformOutput);
+    }
+
     @ApiOperation("Delete a platform")
     @DeleteMapping("/{application_name}/platforms/{platform_name}")
     public ResponseEntity deletePlatform(Authentication authentication,
@@ -54,10 +72,7 @@ public class PlatformsController extends AbstractController {
         // delete platform with this key
         platformUseCases.deletePlatform(platformKey, fromAuthentication(authentication));
 
-        /*
-        TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
-        moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
-        */
+        // response
         return ResponseEntity.ok().build();
     }
 }
