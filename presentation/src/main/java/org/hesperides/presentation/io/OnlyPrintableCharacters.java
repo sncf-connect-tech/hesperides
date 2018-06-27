@@ -16,7 +16,7 @@ import javax.validation.constraintvalidation.ValidationTarget;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
- * Asserts that the annotated string does not contain any non printable characters (< 0x20).
+ * Asserts that the annotated string does not contain any non printable characters (&lt; 0x20).
  *
  * @since issue #232
  */
@@ -29,7 +29,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @NotEmpty
 public @interface OnlyPrintableCharacters {
     /**
-     * validation target, used in error message if value is found invalid
+     * @return validation target, used in error message if value is found invalid
      */
     String subject();
 
