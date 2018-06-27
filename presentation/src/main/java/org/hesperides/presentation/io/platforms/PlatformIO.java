@@ -20,36 +20,33 @@
  */
 package org.hesperides.presentation.io.platforms;
 
+import java.util.List;
+
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 @Value
 @AllArgsConstructor
 public class PlatformIO {
 
-    @NotNull
-    @NotEmpty
+    @OnlyPrintableCharacters(subject = "platform_name")
     @SerializedName("platform_name")
     String platformName;
 
-    @NotNull
-    @NotEmpty
+    @OnlyPrintableCharacters(subject = "application_name")
     @SerializedName("application_name")
     String applicationName;
 
-    @NotNull
-    @NotEmpty
-    @SerializedName("version")
+    @OnlyPrintableCharacters(subject = "version")
     String version;
 
     @SerializedName("production")

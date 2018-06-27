@@ -23,8 +23,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * se produit quand on veut executer une commande sur un aggregat qui n'existe pas.
      *
-     * @param ex
-     * @return
+     * @param ex "not found" failure
+     * @return entity
      */
     @ExceptionHandler(AggregateNotFoundException.class)
     public ResponseEntity handleAggregateNotFound(AggregateNotFoundException ex) {
@@ -44,8 +44,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * se produit sur les queries.
      *
-     * @param ex
-     * @return
+     * @param ex "not found" failure
+     * @return entitiy
      */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity handleNotFound(Exception ex) {
