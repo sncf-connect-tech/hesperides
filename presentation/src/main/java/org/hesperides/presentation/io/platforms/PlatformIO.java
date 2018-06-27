@@ -28,7 +28,7 @@ import lombok.Value;
 
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hesperides.presentation.exceptions.OnlyPrintableCharacters;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 @Value
 @AllArgsConstructor

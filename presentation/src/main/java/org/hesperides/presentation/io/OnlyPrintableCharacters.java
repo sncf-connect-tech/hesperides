@@ -1,4 +1,4 @@
-package org.hesperides.presentation.exceptions;
+package org.hesperides.presentation.io;
 
 
 import static java.lang.annotation.ElementType.FIELD;

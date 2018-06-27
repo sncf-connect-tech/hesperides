@@ -1,4 +1,4 @@
-package org.hesperides.presentation.exceptions;
+package org.hesperides.presentation.io;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

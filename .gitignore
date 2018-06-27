@@ -1,10 +1,11 @@
 .idea/
 target/
 *.iml
+*.orig
+*.bak
 hesperides.yml
 hesperides.iml
 rebel.xml
-.rebel.xml.bak
 data/
 .m2settings.xml
 /hesperides/bootstrap/src/main/resources/application-corp.yml
