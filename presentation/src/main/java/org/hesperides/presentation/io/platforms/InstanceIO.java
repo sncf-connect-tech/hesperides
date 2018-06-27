@@ -25,16 +25,21 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.Instance;
 import org.hesperides.domain.platforms.queries.views.InstanceView;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 
 @Value
 @AllArgsConstructor
 public class InstanceIO {
 
+    @OnlyPrintableCharacters(subject = "deployedModules.instances.name")
     String name;
+
+    @NotNull
     @SerializedName("key_values")
     List<ValuedPropertyIO> valuedProperties;
 
