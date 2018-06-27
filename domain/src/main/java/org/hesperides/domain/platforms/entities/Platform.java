@@ -30,12 +30,12 @@ public class Platform {
     Key key;
     boolean isProductionPlatform;
     Long versionId;
+    String version;
     List<DeployedModule> deployedModules;
 
     @Value
     public static class Key {
         String applicationName;
         String platformName;
-        String version;
     }
 }

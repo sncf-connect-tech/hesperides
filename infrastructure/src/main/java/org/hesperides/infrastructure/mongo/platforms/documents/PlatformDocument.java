@@ -34,6 +34,7 @@ public class PlatformDocument {
     private PlatformKeyDocument key;
     private boolean isProductionPlatform;
     private Long versionId;
+    private String version;
     private List<DeployedModuleDocument> deployedModules;
 
     public static PlatformDocument fromDomainInstance(Platform platform) {
@@ -41,15 +42,16 @@ public class PlatformDocument {
         platformDocument.setKey(PlatformKeyDocument.fromDomainInstance(platform.getKey()));
         platformDocument.setProductionPlatform(platform.isProductionPlatform());
         platformDocument.setVersionId(platform.getVersionId());
+        platformDocument.setVersion(platform.getVersion());
         platformDocument.setDeployedModules(DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules()));
         return platformDocument;
     }
 
-    public PlatformView toPlateformView() {
+    public PlatformView toPlatformView() {
         return new PlatformView(
                 key.getPlatformName(),
                 key.getApplicationName(),
-                key.getVersion(),
+                version,
                 isProductionPlatform,
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
                 versionId

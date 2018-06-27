@@ -44,7 +44,7 @@ public class PlatformIO {
 
     @NotNull
     @NotEmpty
-    @SerializedName("application_version")
+    @SerializedName("version")
     String version;
 
     @SerializedName("production")
@@ -66,9 +66,10 @@ public class PlatformIO {
 
     public Platform toDomainInstance() {
         return new Platform(
-                new Platform.Key(applicationName, platformName, version),
+                new Platform.Key(applicationName, platformName),
                 isProductionPlatform,
                 versionId,
+                version,
                 DeployedModuleIO.toDomainInstances(deployedModules)
         );
     }

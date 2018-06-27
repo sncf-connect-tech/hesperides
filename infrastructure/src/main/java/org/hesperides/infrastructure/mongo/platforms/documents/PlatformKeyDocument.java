@@ -32,13 +32,11 @@ public class PlatformKeyDocument implements Serializable {
 
     private String applicationName;
     private String platformName;
-    private String version;
 
     public static PlatformKeyDocument fromDomainInstance(Platform.Key platformKey) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument();
         platformKeyDocument.setApplicationName(platformKey.getApplicationName());
         platformKeyDocument.setPlatformName(platformKey.getPlatformName());
-        platformKeyDocument.setVersion(platformKey.getVersion());
         return platformKeyDocument;
     }
 }

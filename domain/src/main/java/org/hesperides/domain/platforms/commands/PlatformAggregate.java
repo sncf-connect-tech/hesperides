@@ -49,6 +49,7 @@ public class PlatformAggregate implements Serializable {
                 command.getPlatform().getKey(),
                 command.getPlatform().isProductionPlatform(),
                 1L,
+                command.getPlatform().getVersion(),
                 DeployedModule.getDeployedModulesWithIdAndPropertiesPath(command.getPlatform().getDeployedModules())
         );
 

@@ -46,7 +46,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         PlatformKeyDocument platformKeyDocument = PlatformKeyDocument.fromDomainInstance(query.getPlatformKey());
         Optional<PlatformDocument> platformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
         if (platformDocument.isPresent()) {
-            platformView = Optional.of(platformDocument.get().toPlateformView());
+            platformView = Optional.of(platformDocument.get().toPlatformView());
         }
         return platformView;
     }
