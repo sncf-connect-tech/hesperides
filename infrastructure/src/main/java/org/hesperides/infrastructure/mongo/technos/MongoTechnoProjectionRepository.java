@@ -20,7 +20,7 @@
  */
 package org.hesperides.infrastructure.mongo.technos;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.technos.entities.Techno;
@@ -58,7 +58,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
         TechnoDocument technoDocument = new TechnoDocument(event.getTechno());
@@ -71,7 +71,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         technoRepository.deleteByKey(keyDocument);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());

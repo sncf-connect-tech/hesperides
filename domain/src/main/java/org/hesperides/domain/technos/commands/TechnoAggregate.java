@@ -113,7 +113,7 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onTechnoDeletedEvent(TechnoDeletedEvent event) { //TODO Pourquoi private ? Est-ce que ça fonctionne ?
+    public void onTechnoDeletedEvent(TechnoDeletedEvent event) { //TODO Pourquoi public ? Est-ce que ça fonctionne ?
         log.debug("Techno deleted (aggregate is live ? {})", isLive());
     }
 
@@ -126,14 +126,14 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
+    public void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
+    public void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé. ");
     }

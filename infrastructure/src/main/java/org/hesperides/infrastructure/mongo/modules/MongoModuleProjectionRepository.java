@@ -1,6 +1,6 @@
 package org.hesperides.infrastructure.mongo.modules;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.queries.ModuleView;
@@ -43,7 +43,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
@@ -51,7 +51,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
@@ -62,7 +62,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());

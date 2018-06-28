@@ -1,6 +1,6 @@
 package org.hesperides.domain.modules;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
 
@@ -11,13 +11,13 @@ public interface TemplateProjectionRepository {
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     void onTemplateCreatedEvent(TemplateCreatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onTemplateUpdatedEvent(TemplateUpdatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onTemplateDeletedEvent(TemplateDeletedEvent event);
 
     /*** QUERY HANDLERS ***/

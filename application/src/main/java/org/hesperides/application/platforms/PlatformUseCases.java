@@ -34,7 +34,7 @@ public class PlatformUseCases {
     }
 
     public void deletePlatform(Platform.Key platformKey, User user) {
-        if (! queries.platformExists(platformKey)) {
+        if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
 

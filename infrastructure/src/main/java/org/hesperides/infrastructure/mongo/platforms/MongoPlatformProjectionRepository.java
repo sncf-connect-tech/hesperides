@@ -1,6 +1,6 @@
 package org.hesperides.infrastructure.mongo.platforms;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.GetApplicationByName;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
@@ -36,14 +36,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void on(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     @Override
     public void on(PlatformDeletedEvent event) {
         platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
