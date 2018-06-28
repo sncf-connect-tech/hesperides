@@ -2,15 +2,18 @@ package org.hesperides.infrastructure.mongo.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.domain.platforms.*;
 import org.hesperides.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.domain.platforms.PlatformCreatedEvent;
 import org.hesperides.domain.platforms.PlatformDeletedEvent;
 import org.hesperides.domain.platforms.PlatformProjectionRepository;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -65,6 +68,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    public List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query) {
+        List<ApplicationSearchView> applicationsViewSearch = platformRepository.findAllByKeyApplicationNameLike(query.getInput())
+                .stream()
+                .map(PlatformDocument::toApplicationSearchView)
+                .collect(Collectors.toList());
+
+        return applicationsViewSearch;
+    }
+
     public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
         Optional<ApplicationView> optionalApplicationView = Optional.empty();
 

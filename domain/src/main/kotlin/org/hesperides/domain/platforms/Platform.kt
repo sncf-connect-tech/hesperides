@@ -16,4 +16,6 @@ data class PlatformDeletedEvent(val platformKey: Platform.Key, override val user
 // Query
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
 
+data class SearchApplicationsByNameQuery(val input: String)
+
 data class GetApplicationByNameQuery(val applicationName: String)

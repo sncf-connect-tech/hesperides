@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hesperides.application.platforms.PlatformUseCases;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
 
@@ -86,5 +92,24 @@ public class PlatformsController extends AbstractController {
 
         // response
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Search an application")
+    @PostMapping("/perform_search")
+    public ResponseEntity searchApplication(Authentication authentication,
+                                            @RequestParam("name") final String input) {
+
+        // search applications
+        List<ApplicationSearchView> applicationsView = platformUseCases.searchApplications(input);
+
+        // transform it into IO
+        List<ApplicationSearchOutput> applicationSearchOutput = applicationsView != null
+                ? applicationsView.stream()
+                .distinct()
+                .map(ApplicationSearchOutput::new).collect(Collectors.toList())
+                : new ArrayList<>();
+
+        // response
+        return ResponseEntity.ok(applicationSearchOutput);
     }
 }
