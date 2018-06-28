@@ -2,10 +2,12 @@ package org.hesperides.application.platforms;
 
 import org.hesperides.domain.platforms.commands.PlatformCommands;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.domain.platforms.queries.PlatformQueries;
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +51,20 @@ public class PlatformUseCases {
         return optionalPlatformView.get();
     }
 
+
     public List<ApplicationSearchView> searchApplications(String input) {
         List<ApplicationSearchView> applicationSearchView = queries.searchApplications(input);
 
         return applicationSearchView;
+    }
+
+    public ApplicationView getApplication(String applicationName) {
+        Optional<ApplicationView> optionalApplicationView = queries.getApplication(applicationName);
+
+        if (!optionalApplicationView.isPresent()) {
+            throw new ApplicationNotFoundException(applicationName);
+        }
+
+        return optionalApplicationView.get();
     }
 }

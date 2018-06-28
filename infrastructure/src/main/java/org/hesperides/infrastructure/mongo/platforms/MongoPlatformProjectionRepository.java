@@ -3,7 +3,13 @@ package org.hesperides.infrastructure.mongo.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
+import org.hesperides.domain.platforms.GetApplicationByNameQuery;
+import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
+import org.hesperides.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.domain.platforms.PlatformDeletedEvent;
+import org.hesperides.domain.platforms.PlatformProjectionRepository;
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
@@ -11,6 +17,7 @@ import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,5 +75,23 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .collect(Collectors.toList());
 
         return applicationsViewSearch;
+    }
+
+    public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
+        Optional<ApplicationView> optionalApplicationView = Optional.empty();
+
+        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query
+                .getApplicationName());
+
+        if (!CollectionUtils.isEmpty(platformDocuments)) {
+            ApplicationView applicationView = new ApplicationView(query.getApplicationName(),
+                    platformDocuments.stream()
+                            .map(PlatformDocument::toPlatformView)
+                            .collect(Collectors.toList()));
+            optionalApplicationView = Optional.of(applicationView);
+        }
+
+
+        return optionalApplicationView;
     }
 }

@@ -8,6 +8,7 @@ import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
+import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,15 @@ public class PlatformsController extends AbstractController {
     @Autowired
     public PlatformsController(PlatformUseCases platformUseCases) {
         this.platformUseCases = platformUseCases;
+    }
+
+    @GetMapping("/{application_name}")
+    @ApiOperation("Get applications")
+    public ResponseEntity<ApplicationOutput> getApplications(@PathVariable("application_name") final String applicationName) {
+        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
+        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView);
+
+        return ResponseEntity.ok(applicationOutput);
     }
 
     @PostMapping("/{application_name}/platforms")
