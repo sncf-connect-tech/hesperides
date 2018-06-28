@@ -20,7 +20,7 @@
  */
 package org.hesperides.domain.technos;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
@@ -33,19 +33,19 @@ public interface TechnoProjectionRepository {
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
+    @EventHandler
     void onTechnoCreatedEvent(TechnoCreatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onTechnoDeletedEvent(TechnoDeletedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event);
 
-    @EventSourcingHandler
+    @EventHandler
     void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event);
 
     /*** QUERY HANDLERS ***/

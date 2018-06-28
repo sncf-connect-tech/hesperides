@@ -125,15 +125,14 @@ class ModuleAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onModuleCreatedEvent(ModuleCreatedEvent event) {
+    public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         this.key = event.getModule().getKey();
-
         log.debug("module créé. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onModuleCopiedEvent(ModuleCopiedEvent event) {
+    public void onModuleCopiedEvent(ModuleCopiedEvent event) {
         this.key = event.getModuleKey();
         //TODO set les trucs du module en copiant depuis l'event.
         //TODO Que faire ici ? Est-ce qu'on set la clé ? Est-ce qu'on ne fait rien puisque l'évènement de création contient la clé ?
@@ -142,30 +141,30 @@ class ModuleAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
+    public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    private void onModuleDeletedEvent(ModuleDeletedEvent event) {
+    public void onModuleDeletedEvent(ModuleDeletedEvent event) {
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
-    private void onTemplateCreatedEvent(TemplateCreatedEvent event) {
+    public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template crée. ");
     }
 
     @EventSourcingHandler
-    private void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
+    public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
-    private void onTemplateDeletedEvent(TemplateDeletedEvent event) {
+    public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé");
     }

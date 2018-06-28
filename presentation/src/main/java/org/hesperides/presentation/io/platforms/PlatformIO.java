@@ -66,9 +66,9 @@ public class PlatformIO {
     public Platform toDomainInstance() {
         return new Platform(
                 new Platform.Key(applicationName, platformName),
+                version,
                 productionPlatform,
                 versionId,
-                version,
                 DeployedModuleIO.toDomainInstances(deployedModules)
         );
     }

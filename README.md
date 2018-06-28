@@ -21,6 +21,26 @@ See branch `master` for the production version
 
 :exclamation: :exclamation: :exclamation:
 
+## Installation
+
+Pour lancer l'application sur un poste de dev, nous utilisons IntelliJ Ultimate Edition et les plugins suivants :
+
+* Maven
+* Kotlin
+* Lombok
+* Spring Boot, Data, MVC, Security
+* Spring Data, MVC, Security
+* Spring MVC, Security
+* Spring Security
+* Cucumber for Java
+
+Vous pourrez alors lancer l'application avec les profils Spring **noldap** et **fake_mongo**.
+
+
+*Nous avons rencontré un problème qui empêche l'application de démarrer : le bouton Run se grise après avoir cliqué dessus sans que rien ne se passe. La seule solution que nous avons trouvée à l'heure actuelle est de désactiver tous les plugins d'IntelliJ, et de ne réactiver que ceux listés ci-dessus (en acceptant leurs dépendences).*
+
+*Cela semble être un problème de compatibilité de plugins, espérons temporaire.*
+
 ## Requirements
 
  * Java 8 (openjdk, sun)
