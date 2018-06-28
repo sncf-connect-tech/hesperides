@@ -20,14 +20,28 @@
  */
 package org.hesperides.presentation.io.platforms;
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Value
+@AllArgsConstructor
 public class ApplicationOutput {
 
+    @NotNull
+    @NotEmpty
     String name;
+
+    @NotNull
+    @NotEmpty
     List<PlatformIO> platforms;
 
+    public ApplicationOutput(ApplicationView applicationView) {
+        this.name = applicationView.getName();
+        this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms());
+    }
 }

@@ -23,10 +23,10 @@ Feature: platforms related features.
     When retrieving this platform
     Then the platform is successfully retrieved
 
-#  Scenario: get an application
-#    Given an existing platform
-#    When retrieving this platform's application
-#    Then the application is successfully retrieved
+  Scenario: get an application
+    Given an existing platform
+    When retrieving this platform's application
+    Then the application is successfully retrieved
 
   Scenario: delete a platform
     Given an existing platform
