@@ -22,7 +22,7 @@ package org.hesperides.domain.platforms.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
-import org.hesperides.domain.platforms.GetApplicationByName;
+import org.hesperides.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
@@ -48,6 +48,6 @@ public class PlatformQueries extends Queries {
     }
 
     public Optional<ApplicationView> getApplication(String appName) {
-        return querySyncOptional(new GetApplicationByName(appName), ApplicationView.class);
+        return querySyncOptional(new GetApplicationByNameQuery(appName), ApplicationView.class);
     }
 }

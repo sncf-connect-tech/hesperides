@@ -1,7 +1,6 @@
 package org.hesperides.domain.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
@@ -24,5 +23,5 @@ public interface PlatformProjectionRepository {
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
 
     @QueryHandler
-    Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByName query);
+    Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByNameQuery query);
 }

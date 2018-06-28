@@ -2,7 +2,7 @@ package org.hesperides.infrastructure.mongo.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.platforms.GetApplicationByName;
+import org.hesperides.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.domain.platforms.PlatformCreatedEvent;
 import org.hesperides.domain.platforms.PlatformDeletedEvent;
@@ -65,7 +65,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByName query) {
+    public Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByNameQuery query) {
         Optional<ApplicationView> optionalApplicationView = Optional.empty();
 
         List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query
