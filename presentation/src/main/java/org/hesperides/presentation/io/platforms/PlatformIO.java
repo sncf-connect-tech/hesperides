@@ -28,6 +28,10 @@ import lombok.Value;
 
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 @Value
@@ -42,8 +46,7 @@ public class PlatformIO {
     @SerializedName("application_name")
     String applicationName;
 
-    @OnlyPrintableCharacters(subject = "application_version")
-    @SerializedName("version")
+    @OnlyPrintableCharacters(subject = "version")
     String version;
 
     @SerializedName("production")
@@ -61,6 +64,14 @@ public class PlatformIO {
         this.productionPlatform = platformView.isProductionPlatform();
         this.deployedModules = DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules());
         this.versionId = platformView.getVersionId();
+    }
+
+    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
+        return Optional.ofNullable(platformViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(PlatformIO::new)
+                .collect(Collectors.toList());
     }
 
     public Platform toDomainInstance() {
