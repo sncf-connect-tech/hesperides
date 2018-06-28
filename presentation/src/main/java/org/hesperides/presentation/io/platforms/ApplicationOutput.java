@@ -23,6 +23,7 @@ package org.hesperides.presentation.io.platforms;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -32,12 +33,10 @@ import java.util.List;
 @AllArgsConstructor
 public class ApplicationOutput {
 
-    @NotNull
-    @NotEmpty
+    @OnlyPrintableCharacters(subject = "name")
     String name;
 
-    @NotNull
-    @NotEmpty
+    @OnlyPrintableCharacters(subject = "platforms")
     List<PlatformIO> platforms;
 
     public ApplicationOutput(ApplicationView applicationView) {
