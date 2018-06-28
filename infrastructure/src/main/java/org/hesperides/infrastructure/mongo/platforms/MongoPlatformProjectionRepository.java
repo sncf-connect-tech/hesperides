@@ -2,18 +2,19 @@ package org.hesperides.infrastructure.mongo.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
-import org.hesperides.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.domain.platforms.PlatformDeletedEvent;
-import org.hesperides.domain.platforms.PlatformProjectionRepository;
+import org.hesperides.domain.platforms.*;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
 import static org.hesperides.domain.framework.Profiles.MONGO;
@@ -56,5 +57,16 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             optionalPlatformView = Optional.of(optionalPlatformDocument.get().toPlatformView());
         }
         return optionalPlatformView;
+    }
+
+    @QueryHandler
+    @Override
+    public List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query) {
+        List<ApplicationSearchView> applicationsViewSearch = platformRepository.findAllByKeyApplicationNameLike(query.getInput())
+                .stream()
+                .map(PlatformDocument::toApplicationSearchView)
+                .collect(Collectors.toList());
+
+        return applicationsViewSearch;
     }
 }
