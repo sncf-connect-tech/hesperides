@@ -65,7 +65,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByNameQuery query) {
+    public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
         Optional<ApplicationView> optionalApplicationView = Optional.empty();
 
         List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query

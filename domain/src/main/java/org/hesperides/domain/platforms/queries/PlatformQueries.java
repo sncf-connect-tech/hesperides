@@ -47,7 +47,7 @@ public class PlatformQueries extends Queries {
         return querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
     }
 
-    public Optional<ApplicationView> getApplication(String appName) {
-        return querySyncOptional(new GetApplicationByNameQuery(appName), ApplicationView.class);
+    public Optional<ApplicationView> getApplication(String applicationName) {
+        return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
     }
 }

@@ -31,9 +31,9 @@ public class PlatformsController extends AbstractController {
 
     @GetMapping("/{application_name}")
     @ApiOperation("Get applications")
-    public ResponseEntity<ApplicationOutput> getApplications(@PathVariable("application_name") final String appName) {
-        ApplicationView applicationView = platformUseCases.getApplication(appName);
-        ApplicationOutput applicationOutput = ApplicationOutput.fromApplicationView(applicationView);
+    public ResponseEntity<ApplicationOutput> getApplications(@PathVariable("application_name") final String applicationName) {
+        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
+        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView);
 
         return ResponseEntity.ok(applicationOutput);
     }

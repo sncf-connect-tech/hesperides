@@ -49,12 +49,11 @@ public class PlatformUseCases {
         return optionalPlatformView.get();
     }
 
-    public ApplicationView getApplication(String appName) {
-        Optional<ApplicationView> optionalApplicationView = queries.getApplication(appName);
+    public ApplicationView getApplication(String applicationName) {
+        Optional<ApplicationView> optionalApplicationView = queries.getApplication(applicationName);
 
-        // An application view must exists with at least one platform
         if (!optionalApplicationView.isPresent()) {
-            throw new ApplicationNotFoundException(appName);
+            throw new ApplicationNotFoundException(applicationName);
         }
 
         return optionalApplicationView.get();
