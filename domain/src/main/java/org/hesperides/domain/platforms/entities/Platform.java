@@ -33,6 +33,16 @@ public class Platform {
     Long versionId;
     List<DeployedModule> deployedModules;
 
+    public Platform incVersion() {
+        return new Platform(
+                key,
+                version,
+                productionPlatform,
+                versionId + 1,
+                deployedModules
+        );
+    }
+
     public Platform initVersionId() {
         return new Platform(
                 key,

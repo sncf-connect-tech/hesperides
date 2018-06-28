@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
-
 @Component
 public class PlatformUseCases {
 
@@ -44,11 +42,8 @@ public class PlatformUseCases {
     }
 
     public PlatformView getPlatform(Platform.Key platformKey) {
-        Optional<PlatformView> optionalPlatformView = queries.getOptionalPlatform(platformKey);
-        if (!optionalPlatformView.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
-        }
-        return optionalPlatformView.get();
+        return queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
 
@@ -59,12 +54,15 @@ public class PlatformUseCases {
     }
 
     public ApplicationView getApplication(String applicationName) {
-        Optional<ApplicationView> optionalApplicationView = queries.getApplication(applicationName);
+        return queries.getApplication(applicationName)
+                .orElseThrow(() -> new ApplicationNotFoundException(applicationName));
+    }
 
-        if (!optionalApplicationView.isPresent()) {
-            throw new ApplicationNotFoundException(applicationName);
+    public void updatePlatform(Platform.Key key, Platform newDefinition, boolean copyProps, User user) {
+        if (!queries.platformExists(key)) {
+            throw new PlatformNotFoundException(newDefinition.getKey());
         }
 
-        return optionalApplicationView.get();
+        commands.updatePlatform(key, newDefinition, copyProps, user);
     }
 }

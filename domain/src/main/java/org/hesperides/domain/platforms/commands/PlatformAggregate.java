@@ -27,10 +27,14 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateLifecycle;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.platforms.CreatePlatformCommand;
 import org.hesperides.domain.platforms.DeletePlatformCommand;
 import org.hesperides.domain.platforms.PlatformCreatedEvent;
 import org.hesperides.domain.platforms.PlatformDeletedEvent;
+import org.hesperides.domain.platforms.PlatformUpdatedEvent;
+import org.hesperides.domain.platforms.UpdatePlatformCommand;
 import org.hesperides.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
@@ -42,6 +46,8 @@ public class PlatformAggregate implements Serializable {
 
     @AggregateIdentifier
     private Platform.Key key;
+
+    private long versionId;
 
     /*** COMMAND HANDLERS ***/
 
@@ -62,16 +68,33 @@ public class PlatformAggregate implements Serializable {
         AggregateLifecycle.apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
     }
 
+    @CommandHandler
+    public void handleUpdate(UpdatePlatformCommand cmd) {
+        final Platform candidate = cmd.getNewDefintion();
+        if (!candidate.getVersionId().equals(versionId)) {
+            throw new OutOfDateVersionException(versionId, candidate.getVersionId());
+        }
+
+        AggregateLifecycle.apply(new PlatformUpdatedEvent(cmd.getKey(), candidate.incVersion(), cmd.getUser()));
+    }
+
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
     public void onCreate(PlatformCreatedEvent event) {
         this.key = event.getPlatform().getKey();
+        this.versionId = event.getPlatform().getVersionId();
         log.debug("Plateform created");
     }
 
     @EventSourcingHandler
     public void onDelete(PlatformDeletedEvent event) {
         log.debug("Platform deleted");
+    }
+
+    @EventSourcingHandler
+    public void onUpdate(PlatformUpdatedEvent event) {
+        this.versionId = event.getNewDefinition().getVersionId();
+        log.debug("Platform updated");
     }
 }

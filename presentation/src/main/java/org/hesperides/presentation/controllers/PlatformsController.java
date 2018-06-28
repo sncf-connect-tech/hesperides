@@ -78,6 +78,30 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(platformOutput);
     }
 
+    @ApiOperation("Update a platform")
+    @PutMapping("/{application_name}/platforms")
+    public ResponseEntity<PlatformIO> updatePlatform(Authentication authentication,
+                                                     @PathVariable("application_name") final String applicationName,
+                                                     @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProps,
+                                                     @Valid @RequestBody final PlatformIO newDefinition) {
+
+        // create key from path
+        Platform.Key platformKey = new Platform.Key(applicationName, newDefinition.getPlatformName());
+
+        // perform update
+        platformUseCases.updatePlatform(platformKey,
+                newDefinition.toDomainInstance(),
+                Boolean.TRUE.equals(copyProps), // no null anymore
+                fromAuthentication(authentication)
+        );
+
+        // retrieve updated view
+        PlatformView platformView = platformUseCases.getPlatform(platformKey);
+
+        // response
+        return ResponseEntity.ok(new PlatformIO(platformView));
+    }
+
     @ApiOperation("Delete a platform")
     @DeleteMapping("/{application_name}/platforms/{platform_name}")
     public ResponseEntity deletePlatform(Authentication authentication,

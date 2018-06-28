@@ -19,6 +19,9 @@ public interface PlatformProjectionRepository {
     @EventHandler
     void onDelete(PlatformDeletedEvent event);
 
+    @EventHandler
+    void onUpdate(PlatformUpdatedEvent event);
+
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
