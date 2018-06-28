@@ -14,10 +14,10 @@ public interface PlatformProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventHandler
-    void on(PlatformCreatedEvent event);
+    void onCreate(PlatformCreatedEvent event);
 
     @EventHandler
-    void on(PlatformDeletedEvent event);
+    void onDelete(PlatformDeletedEvent event);
 
     /*** QUERY HANDLERS ***/
 

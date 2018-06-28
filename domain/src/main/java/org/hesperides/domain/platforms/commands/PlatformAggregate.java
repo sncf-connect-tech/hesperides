@@ -51,8 +51,7 @@ public class PlatformAggregate implements Serializable {
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
         Platform platform = command.getPlatform()
                 .initVersionId()
-                .setNewDeployedModulesId()
-                .setDeployedModulesPropertiesPath();
+                .updateDeployedModules();
 
         AggregateLifecycle.apply(new PlatformCreatedEvent(platform, command.getUser()));
     }
@@ -66,14 +65,13 @@ public class PlatformAggregate implements Serializable {
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
+    public void onCreate(PlatformCreatedEvent event) {
         this.key = event.getPlatform().getKey();
-        log.debug("Plateforme créée");
+        log.debug("Plateform created");
     }
 
     @EventSourcingHandler
-    public void on(PlatformDeletedEvent event) {
-        this.key = event.getPlatformKey();
-        log.debug("Plateforme supprimée");
+    public void onDelete(PlatformDeletedEvent event) {
+        log.debug("Platform deleted");
     }
 }

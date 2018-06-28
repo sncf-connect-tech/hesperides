@@ -41,14 +41,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
-    public void on(PlatformCreatedEvent event) {
+    public void onCreate(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 
     @EventHandler
     @Override
-    public void on(PlatformDeletedEvent event) {
+    public void onDelete(PlatformDeletedEvent event) {
         platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
     }
 

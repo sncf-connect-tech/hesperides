@@ -43,23 +43,13 @@ public class Platform {
         );
     }
 
-    public Platform setNewDeployedModulesId() {
+    public Platform updateDeployedModules() {
         return new Platform(
                 key,
                 version,
                 productionPlatform,
                 versionId,
-                DeployedModule.setNewDeployedModulesId(deployedModules)
-        );
-    }
-
-    public Platform setDeployedModulesPropertiesPath() {
-        return new Platform(
-                key,
-                version,
-                productionPlatform,
-                versionId,
-                DeployedModule.setDeployedModulesPropertiesPath(deployedModules)
+                DeployedModule.fillMissingIdentifiers(deployedModules)
         );
     }
 
