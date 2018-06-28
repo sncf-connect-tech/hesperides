@@ -63,8 +63,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         return optionalPlatformView;
     }
 
+    @QueryHandler
     @Override
-    public Optional<ApplicationView> onGetPlatformByApplicationName(GetApplicationByName query) {
+    public Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByName query) {
         Optional<ApplicationView> optionalApplicationView = Optional.empty();
 
         List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query

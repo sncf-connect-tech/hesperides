@@ -24,5 +24,5 @@ public interface PlatformProjectionRepository {
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
 
     @QueryHandler
-    Optional<ApplicationView> onGetPlatformByApplicationName(GetApplicationByName query);
+    Optional<ApplicationView> onGetPlatformByApplicationNameQuery(GetApplicationByName query);
 }
