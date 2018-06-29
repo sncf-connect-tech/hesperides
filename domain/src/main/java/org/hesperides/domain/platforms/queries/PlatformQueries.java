@@ -25,7 +25,9 @@ import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.domain.platforms.GetPlatformsUsingModuleQuery;
+import org.hesperides.domain.platforms.SearchApplicationsByNameQuery;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
@@ -53,6 +55,10 @@ public class PlatformQueries extends Queries {
 
     public Optional<ApplicationView> getApplication(String applicationName) {
         return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
+    }
+
+    public List<ApplicationSearchView> searchApplications(String input) {
+        return querySyncList(new SearchApplicationsByNameQuery(input), ApplicationSearchView.class);
     }
 
     public List<ModulePlatformView> getPlatformsUsingModule(TemplateContainer.Key moduleKey) {

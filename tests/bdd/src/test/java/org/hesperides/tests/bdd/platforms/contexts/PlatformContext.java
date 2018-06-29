@@ -24,6 +24,7 @@ import cucumber.api.java8.En;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
@@ -39,7 +40,6 @@ public class PlatformContext extends CucumberSpringBean implements En {
             createPlatform(PlatformSamples.buildPlatformInputWithName(PlatformSamples.DEFAULT_PLATFORM_NAME));
         });
     }
-
 
     public Platform.Key getPlatformKey() {
         return platformKey;
@@ -83,5 +83,9 @@ public class PlatformContext extends CucumberSpringBean implements En {
                 .getForEntity("/applications/using_module/{module_name}/{module_version}/{version_type}",
                         ModulePlatformsOutput[].class,
                         moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType().toString());
+    }
+
+    public ResponseEntity<ApplicationSearchOutput[]> searchApplication(String search) {
+        return rest.getTestRest().postForEntity("/applications/perform_search?name=" + search, null, ApplicationSearchOutput[].class);
     }
 }

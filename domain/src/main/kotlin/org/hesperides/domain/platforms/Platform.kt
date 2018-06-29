@@ -20,3 +20,5 @@ data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
 data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)
 
 data class GetApplicationByNameQuery(val applicationName: String)
+
+data class SearchApplicationsByNameQuery(val input: String)

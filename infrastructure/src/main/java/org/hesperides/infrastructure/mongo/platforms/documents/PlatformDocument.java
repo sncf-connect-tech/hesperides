@@ -23,6 +23,7 @@ package org.hesperides.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.springframework.data.annotation.Id;
@@ -67,5 +68,10 @@ public class PlatformDocument {
                 key.getApplicationName(),
                 key.getPlatformName()
         );
+
+    }
+
+    public ApplicationSearchView toApplicationSearchView() {
+        return new ApplicationSearchView(key.getApplicationName());
     }
 }

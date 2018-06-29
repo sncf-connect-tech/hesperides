@@ -18,6 +18,8 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
 
+    List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
+
     void deleteByKey(PlatformKeyDocument key);
 
     List<PlatformDocument> findAllByKeyApplicationName(String applicationName);
