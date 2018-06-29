@@ -20,19 +20,17 @@
  */
 package org.hesperides.presentation.io.platforms;
 
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 @Value
 @AllArgsConstructor

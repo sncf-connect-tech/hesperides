@@ -1,18 +1,18 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import cucumber.api.java8.En;
 import org.hamcrest.Matchers;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.PlatformAssertions;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class CreateAPlatform extends CucumberSpringBean implements En {
 

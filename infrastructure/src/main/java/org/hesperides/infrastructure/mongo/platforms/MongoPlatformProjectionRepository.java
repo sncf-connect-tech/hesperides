@@ -2,11 +2,7 @@ package org.hesperides.infrastructure.mongo.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.platforms.GetApplicationByNameQuery;
-import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
-import org.hesperides.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.domain.platforms.PlatformDeletedEvent;
-import org.hesperides.domain.platforms.PlatformProjectionRepository;
+import org.hesperides.domain.platforms.*;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
