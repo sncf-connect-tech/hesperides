@@ -13,10 +13,10 @@ Feature: platforms related features.
     When creating this faulty platform
     Then a 400 error is returned, blaming "platform_name contains an invalid character"
 
-#  Scenario: update a platform
-#    Given an existing platform
-#    When updating this platform
-#    Then the platform is successfully updated
+  Scenario: update a platform
+    Given an existing platform
+    When updating this platform, requiring properties copy
+    Then the platform is successfully updated, but system warns about "no property copied!"
 
   Scenario: get a platform
     Given an existing platform
