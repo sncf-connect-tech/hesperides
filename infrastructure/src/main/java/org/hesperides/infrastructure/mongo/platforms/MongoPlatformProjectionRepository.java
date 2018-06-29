@@ -3,20 +3,13 @@ package org.hesperides.infrastructure.mongo.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
-import org.hesperides.domain.platforms.GetApplicationByNameQuery;
-import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
-import org.hesperides.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.domain.platforms.PlatformDeletedEvent;
-import org.hesperides.domain.platforms.PlatformProjectionRepository;
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -44,15 +37,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
-    public void on(PlatformCreatedEvent event) {
+    public void onCreate(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 
     @EventHandler
     @Override
-    public void on(PlatformDeletedEvent event) {
+    public void onDelete(PlatformDeletedEvent event) {
         platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
+    }
+
+    @EventHandler
+    @Override
+    public void onUpdate(PlatformUpdatedEvent event) {
+        PlatformDocument platformDocument = new PlatformDocument(event.getNewDefinition());
+        platformRepository.save(platformDocument);
     }
 
     /*** QUERY HANDLERS ***/

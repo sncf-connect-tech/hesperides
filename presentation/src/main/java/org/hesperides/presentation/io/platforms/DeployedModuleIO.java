@@ -70,7 +70,6 @@ public class DeployedModuleIO {
                 version,
                 workingCopy,
                 path,
-                propertiesPath,
                 InstanceIO.toDomainInstances(instances)
         );
     }

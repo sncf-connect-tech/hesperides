@@ -33,6 +33,16 @@ public class Platform {
     Long versionId;
     List<DeployedModule> deployedModules;
 
+    public Platform incVersion() {
+        return new Platform(
+                key,
+                version,
+                productionPlatform,
+                versionId + 1,
+                deployedModules
+        );
+    }
+
     public Platform initVersionId() {
         return new Platform(
                 key,
@@ -43,23 +53,13 @@ public class Platform {
         );
     }
 
-    public Platform setNewDeployedModulesId() {
+    public Platform updateDeployedModules() {
         return new Platform(
                 key,
                 version,
                 productionPlatform,
                 versionId,
-                DeployedModule.setNewDeployedModulesId(deployedModules)
-        );
-    }
-
-    public Platform setDeployedModulesPropertiesPath() {
-        return new Platform(
-                key,
-                version,
-                productionPlatform,
-                versionId,
-                DeployedModule.setDeployedModulesPropertiesPath(deployedModules)
+                DeployedModule.fillMissingIdentifiers(deployedModules)
         );
     }
 
