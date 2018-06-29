@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import org.hesperides.presentation.io.platforms.PlatformIO;
+import org.hesperides.presentation.io.platforms.PlatformInput;
+import org.hesperides.presentation.io.platforms.PlatformOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.PlatformAssertions;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
@@ -19,8 +20,8 @@ public class CreateAPlatform extends CucumberSpringBean implements En {
     @Autowired
     private PlatformContext platformContext;
 
-    private PlatformIO platformInput;
-    private ResponseEntity<PlatformIO> response;
+    private PlatformInput platformInput;
+    private ResponseEntity<PlatformOutput> response;
     private ResponseEntity<String> rawResponse;
 
     public CreateAPlatform() {
@@ -41,8 +42,8 @@ public class CreateAPlatform extends CucumberSpringBean implements En {
 
         Then("^the platform is successfully created$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            PlatformIO platformOutput = response.getBody();
-            PlatformIO expectedPlatformOutput = PlatformSamples.getPlatformOutputWithDefaultValues();
+            PlatformOutput platformOutput = response.getBody();
+            PlatformOutput expectedPlatformOutput = PlatformSamples.getPlatformOutputWithDefaultValues();
             PlatformAssertions.assertPlatform(expectedPlatformOutput, platformOutput);
         });
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {

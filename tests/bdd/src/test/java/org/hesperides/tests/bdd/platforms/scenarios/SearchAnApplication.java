@@ -1,17 +1,12 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.ModuleIO;
-import org.hesperides.presentation.io.platforms.ApplicationOutput;
+
 import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
-import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
-import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
