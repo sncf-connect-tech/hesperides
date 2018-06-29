@@ -2,9 +2,12 @@ package org.hesperides.application.platforms;
 
 import org.hesperides.domain.platforms.commands.PlatformCommands;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.domain.platforms.queries.PlatformQueries;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.hesperides.domain.security.User;
@@ -12,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Component
 public class PlatformUseCases {
@@ -42,14 +45,31 @@ public class PlatformUseCases {
     }
 
     public PlatformView getPlatform(Platform.Key platformKey) {
-        Optional<PlatformView> optionalPlatformView = queries.getOptionalPlatform(platformKey);
-        if (!optionalPlatformView.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
-        }
-        return optionalPlatformView.get();
+        return queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-    public List<SearchPlatformView> search (String applicationName, String platformName) {
-        return queries.search (applicationName, platformName);
+
+    public List<ApplicationSearchView> searchApplications(String input) {
+        List<ApplicationSearchView> applicationSearchView = queries.searchApplications(input);
+
+        return applicationSearchView;
+    }
+
+    public ApplicationView getApplication(String applicationName) {
+        return queries.getApplication(applicationName)
+                .orElseThrow(() -> new ApplicationNotFoundException(applicationName));
+    }
+
+    public void updatePlatform(Platform.Key key, Platform newDefinition, boolean copyProps, User user) {
+        if (!queries.platformExists(key)) {
+            throw new PlatformNotFoundException(newDefinition.getKey());
+        }
+
+        commands.updatePlatform(key, newDefinition, copyProps, user);
+    }
+
+    public List<SearchPlatformView> search(String applicationName, String platformName) {
+        return queries.search(applicationName, platformName);
     }
 }

@@ -3,6 +3,10 @@ package org.hesperides.infrastructure.mongo.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
+
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
+
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
@@ -10,6 +14,7 @@ import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocume
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,15 +38,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
-    public void on(PlatformCreatedEvent event) {
+    public void onCreate(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 
     @EventHandler
     @Override
-    public void on(PlatformDeletedEvent event) {
+    public void onDelete(PlatformDeletedEvent event) {
         platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
+    }
+
+    @EventHandler
+    @Override
+    public void onUpdate(PlatformUpdatedEvent event) {
+        PlatformDocument platformDocument = new PlatformDocument(event.getNewDefinition());
+        platformRepository.save(platformDocument);
     }
 
     /*** QUERY HANDLERS ***/
@@ -69,5 +81,36 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .stream()
                 .map(PlatformDocument::toSearchPlatformView)
                 .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query) {
+        List<ApplicationSearchView> applicationsViewSearch = platformRepository.findAllByKeyApplicationNameLike(query.getInput())
+                .stream()
+                .map(PlatformDocument::toApplicationSearchView)
+                .collect(Collectors.toList());
+
+        return applicationsViewSearch;
+    }
+
+    @QueryHandler
+    @Override
+    public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
+        Optional<ApplicationView> optionalApplicationView = Optional.empty();
+
+        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query
+                .getApplicationName());
+
+        if (!CollectionUtils.isEmpty(platformDocuments)) {
+            ApplicationView applicationView = new ApplicationView(query.getApplicationName(),
+                    platformDocuments.stream()
+                            .map(PlatformDocument::toPlatformView)
+                            .collect(Collectors.toList()));
+            optionalApplicationView = Optional.of(applicationView);
+        }
+
+
+        return optionalApplicationView;
     }
 }

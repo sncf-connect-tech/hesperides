@@ -23,10 +23,13 @@ package org.hesperides.tests.bdd.platforms.contexts;
 import cucumber.api.java8.En;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public class PlatformContext extends CucumberSpringBean implements En {
 
@@ -57,8 +60,12 @@ public class PlatformContext extends CucumberSpringBean implements En {
         );
     }
 
-    public ResponseEntity<PlatformIO> updatePlatform(PlatformIO platformInput) {
-        return rest.putForEntity("/applications/{application_name}/platforms", platformInput, PlatformIO.class, platformKey.getApplicationName());
+    public ResponseEntity<PlatformIO> updatePlatform(PlatformIO platformInput, boolean copyProps) {
+        String url = "/applications/{application_name}/platforms";
+        if (copyProps) {
+            url += "?copyPropertiesForUpgradedModules=true";
+        }
+        return rest.putForEntity(url, platformInput, PlatformIO.class, platformKey.getApplicationName());
     }
 
     public ResponseEntity<PlatformIO> retrieveExistingPlatform() {
@@ -76,4 +83,8 @@ public class PlatformContext extends CucumberSpringBean implements En {
                 platformKey.getApplicationName(), platformKey.getPlatformName());
     }
 
+    public ResponseEntity<ApplicationSearchOutput[]> searchApplication(String search) {
+        return rest.getTestRest().postForEntity("/applications/perform_search?name=" + search, null, ApplicationSearchOutput[].class);
+
+    }
 }

@@ -47,6 +47,20 @@ public class PlatformSamples {
         );
     }
 
+    public static PlatformIO buildPlatformInputWithValues(String name, String application) {
+        return new PlatformIO(
+                name,
+                application,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(),
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues()
+                ),
+                DEFAULT_INPUT_VERSION_ID
+        );
+    }
+
     public static PlatformIO getPlatformOutputWithDefaultValues() {
         return new PlatformIO(
                 DEFAULT_PLATFORM_NAME,

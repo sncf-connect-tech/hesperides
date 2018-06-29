@@ -23,8 +23,10 @@ package org.hesperides.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -34,6 +36,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PlatformDocument {
 
+    @Id
     private PlatformKeyDocument key;
     private String version;
     private boolean productionPlatform;
@@ -60,9 +63,14 @@ public class PlatformDocument {
         );
     }
 
+
     public SearchPlatformView toSearchPlatformView() {
         return new SearchPlatformView(
                 key.getPlatformName(),
                 key.getApplicationName());
+    }
+
+    public ApplicationSearchView toApplicationSearchView() {
+        return new ApplicationSearchView(key.getApplicationName());
     }
 }

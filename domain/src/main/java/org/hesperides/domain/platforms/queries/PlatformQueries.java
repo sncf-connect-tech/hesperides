@@ -22,9 +22,15 @@ package org.hesperides.domain.platforms.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
+import org.hesperides.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
+
 import org.hesperides.domain.platforms.SearchPlatformQuery;
+import org.hesperides.domain.platforms.SearchApplicationsByNameQuery;
+
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
+import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.springframework.stereotype.Component;
@@ -48,7 +54,16 @@ public class PlatformQueries extends Queries {
         return querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
     }
 
+
     public List<SearchPlatformView> search(String applicationName, String platformName) {
         return querySyncList(new SearchPlatformQuery(applicationName, platformName), SearchPlatformView.class);
+    }
+
+    public List<ApplicationSearchView> searchApplications(String input) {
+        return querySyncList(new SearchApplicationsByNameQuery(input), ApplicationSearchView.class);
+    }
+
+    public Optional<ApplicationView> getApplication(String applicationName) {
+        return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
     }
 }
