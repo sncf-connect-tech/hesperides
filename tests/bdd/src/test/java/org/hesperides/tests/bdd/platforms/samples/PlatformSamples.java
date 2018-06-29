@@ -97,4 +97,15 @@ public class PlatformSamples {
                 )
         );
     }
+
+    public static PlatformIO buildPlatformInputWithValues(String applicationName, String platformName) {
+        return new PlatformIO(
+                platformName,
+                applicationName,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(),
+                DEFAULT_INPUT_VERSION_ID
+        );
+    }
 }

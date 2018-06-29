@@ -4,7 +4,9 @@ import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PlatformProjectionRepository {
@@ -21,4 +23,7 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
+
+    @QueryHandler
+    public List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query);
 }

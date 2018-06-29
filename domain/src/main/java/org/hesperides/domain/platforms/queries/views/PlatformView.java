@@ -33,5 +33,5 @@ public class PlatformView {
     boolean productionPlatform;
     List<DeployedModuleView> deployedModules;
     Long versionId;
-
 }
+

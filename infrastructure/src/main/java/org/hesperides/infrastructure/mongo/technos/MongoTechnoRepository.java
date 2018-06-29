@@ -26,5 +26,5 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     void deleteByKey(KeyDocument key);
 
-    List<TechnoDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
+    List<TechnoDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 }
