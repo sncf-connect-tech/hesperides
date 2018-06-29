@@ -22,7 +22,9 @@ package org.hesperides.tests.bdd.platforms.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.domain.platforms.entities.Platform;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -34,7 +36,7 @@ public class PlatformContext extends CucumberSpringBean implements En {
 
     public PlatformContext() {
         Given("^an existing platform", () -> {
-            createPlatform(PlatformSamples.buildPlatformInputWithValues(PlatformSamples.DEFAULT_PLATFORM_NAME));
+            createPlatform(PlatformSamples.buildPlatformInputWithName(PlatformSamples.DEFAULT_PLATFORM_NAME));
         });
     }
 
@@ -74,5 +76,12 @@ public class PlatformContext extends CucumberSpringBean implements En {
     public void deleteExistingPlatform() {
         rest.getTestRest().delete("/applications/{application_name}/platforms/{platform_name}",
                 platformKey.getApplicationName(), platformKey.getPlatformName());
+    }
+
+    public ResponseEntity<ModulePlatformsOutput[]> retrieveExistingPlatformsUsingModule(TemplateContainer.Key moduleKey) {
+        return rest.getTestRest()
+                .getForEntity("/applications/using_module/{module_name}/{module_version}/{version_type}",
+                        ModulePlatformsOutput[].class,
+                        moduleKey.getName(), moduleKey.getVersion(), moduleKey.getVersionType().toString());
     }
 }

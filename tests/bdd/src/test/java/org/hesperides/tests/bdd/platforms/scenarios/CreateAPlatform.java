@@ -25,10 +25,10 @@ public class CreateAPlatform extends CucumberSpringBean implements En {
 
     public CreateAPlatform() {
         Given("a platform to create$", () -> {
-            platformInput = PlatformSamples.buildPlatformInputWithValues(PlatformSamples.DEFAULT_PLATFORM_NAME);
+            platformInput = PlatformSamples.buildPlatformInputWithName(PlatformSamples.DEFAULT_PLATFORM_NAME);
         });
         Given("a platform to create, named \"([^\"]*)\"$", (String name) -> {
-            platformInput = PlatformSamples.buildPlatformInputWithValues(name);
+            platformInput = PlatformSamples.buildPlatformInputWithName(name);
         });
 
         When("^creating this platform$", () -> {

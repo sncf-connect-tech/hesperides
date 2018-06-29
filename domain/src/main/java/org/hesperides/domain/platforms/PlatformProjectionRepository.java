@@ -3,8 +3,10 @@ package org.hesperides.domain.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PlatformProjectionRepository {
@@ -24,4 +26,7 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query);
+
+    @QueryHandler
+    List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query);
 }

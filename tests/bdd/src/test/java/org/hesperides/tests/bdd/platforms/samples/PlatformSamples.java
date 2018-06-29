@@ -33,7 +33,7 @@ public class PlatformSamples {
     public static final long DEFAULT_INPUT_VERSION_ID = 0L;
     public static final long DEFAULT_OUTPUT_VERSION_ID = 1L;
 
-    public static PlatformIO buildPlatformInputWithValues(String name) {
+    public static PlatformIO buildPlatformInputWithName(String name) {
         return new PlatformIO(
                 name,
                 DEFAULT_APPLICATION_NAME,
@@ -95,6 +95,20 @@ public class PlatformSamples {
                 Arrays.asList(
                         getPlatformOutputWithDefaultValues()
                 )
+        );
+    }
+
+    public static PlatformIO buildPlatformInputWithExistingModule(String platformName, String moduleName, String
+            moduleVersion) {
+        return new PlatformIO(
+                platformName,
+                DEFAULT_APPLICATION_NAME,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(moduleName, moduleVersion)
+                ),
+                DEFAULT_INPUT_VERSION_ID
         );
     }
 }

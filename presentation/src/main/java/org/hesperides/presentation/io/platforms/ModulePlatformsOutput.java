@@ -21,14 +21,21 @@
 package org.hesperides.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 
 @Value
-public class ModulePlatformOutput {
+@AllArgsConstructor
+public class ModulePlatformsOutput {
 
     @SerializedName("application_name")
     String applicationName;
     @SerializedName("platform_name")
     String platformName;
 
+    public ModulePlatformsOutput(ModulePlatformView modulePlatformView) {
+        this.applicationName = modulePlatformView.getApplicationName();
+        this.platformName = modulePlatformView.getPlatformName();
+    }
 }

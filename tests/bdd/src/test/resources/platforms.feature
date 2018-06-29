@@ -32,3 +32,9 @@ Feature: platforms related features.
     Given an existing platform
     When deleting this platform
     Then the platform is successfully deleted
+
+  Scenario: retrieve platforms using a module
+    Given an existing module
+    And existing platforms containing this module
+    When retrieving the platforms containing this module
+    Then the platforms are successfully retrieved

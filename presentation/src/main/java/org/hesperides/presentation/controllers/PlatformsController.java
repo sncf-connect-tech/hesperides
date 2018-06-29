@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import org.hesperides.application.platforms.PlatformUseCases;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
 
@@ -86,5 +90,23 @@ public class PlatformsController extends AbstractController {
 
         // response
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Retrieve platforms using module")
+    @GetMapping("/using_module/{module_name}/{module_version}/{version_type}")
+    public ResponseEntity<List<ModulePlatformsOutput>> getPlatformsUsingModule(
+            @PathVariable("module_name") final String moduleName,
+            @PathVariable("module_version") final String moduleVersion,
+            @PathVariable("version_type") final String moduleVersionType) {
+
+        List<ModulePlatformView> platformViews = platformUseCases.getPlatformUsingModule(moduleName, moduleVersion,
+                moduleVersionType);
+
+        List<ModulePlatformsOutput> modulePlatformsOutputs = platformViews
+                .stream()
+                .map(ModulePlatformsOutput::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(modulePlatformsOutputs);
     }
 }

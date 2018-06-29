@@ -63,4 +63,19 @@ public class DeployedModuleSamples {
                 )
         );
     }
+
+    public static DeployedModuleIO getDeployedModuleOutputWithDefaultValues(String name, String version) {
+        return new DeployedModuleIO(
+                DEFAULT_INPUT_ID,
+                name,
+                version,
+                DEFAULT_WORKING_COPY,
+                DEFAULT_INPUT_PROPERTIES_PATH,
+                DEFAULT_PATH,
+                Arrays.asList(
+                        InstanceSamples.getInstanceIOWithDefaultValues(),
+                        InstanceSamples.getInstanceIOWithDefaultValues()
+                )
+        );
+    }
 }

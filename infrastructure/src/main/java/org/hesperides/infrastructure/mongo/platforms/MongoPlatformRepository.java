@@ -21,4 +21,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     void deleteByKey(PlatformKeyDocument key);
 
     List<PlatformDocument> findAllByKeyApplicationName(String applicationName);
+
+    List<PlatformDocument> findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(String moduleName, String moduleVersion, boolean isWorkingCopy);
 }
