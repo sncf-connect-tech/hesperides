@@ -85,13 +85,14 @@ public class PlatformsController extends AbstractController {
                                                      @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProps,
                                                      @Valid @RequestBody final PlatformIO newDefinition) {
 
+        final boolean copyRequested = Boolean.TRUE.equals(copyProps); // no null anymore
         // create key from path
         Platform.Key platformKey = new Platform.Key(applicationName, newDefinition.getPlatformName());
 
         // perform update
         platformUseCases.updatePlatform(platformKey,
                 newDefinition.toDomainInstance(),
-                Boolean.TRUE.equals(copyProps), // no null anymore
+                copyRequested,
                 fromAuthentication(authentication)
         );
 
@@ -99,7 +100,12 @@ public class PlatformsController extends AbstractController {
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
 
         // response
-        return ResponseEntity.ok(new PlatformIO(platformView));
+        final ResponseEntity.BodyBuilder response = ResponseEntity.status(200);
+        if (copyRequested) {
+            // TODO remove as soon as properties are handled
+            response.header("x-hesperides-warning", "no property copied! (not implemented yet)");
+        }
+        return response.body(new PlatformIO(platformView));
     }
 
     @ApiOperation("Delete a platform")

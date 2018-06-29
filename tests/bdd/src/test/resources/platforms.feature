@@ -15,8 +15,8 @@ Feature: platforms related features.
 
   Scenario: update a platform
     Given an existing platform
-    When updating this platform
-    Then the platform is successfully updated
+    When updating this platform, requiring properties copy
+    Then the platform is successfully updated, but system warns about "no property copied!"
 
   Scenario: get a platform
     Given an existing platform

@@ -75,6 +75,8 @@ public class PlatformAggregate implements Serializable {
             throw new OutOfDateVersionException(versionId, candidate.getVersionId());
         }
 
+        // TODO populate properties when `cmd.copyProps` flag is set (-> dedicated aggregate / command ?)
+
         AggregateLifecycle.apply(new PlatformUpdatedEvent(cmd.getKey(), candidate.incVersion(), cmd.getUser()));
     }
 
