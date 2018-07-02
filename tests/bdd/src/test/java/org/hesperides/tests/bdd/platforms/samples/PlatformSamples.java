@@ -21,7 +21,8 @@
 package org.hesperides.tests.bdd.platforms.samples;
 
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.presentation.io.platforms.PlatformIO;
+import org.hesperides.presentation.io.platforms.PlatformInput;
+import org.hesperides.presentation.io.platforms.PlatformOutput;
 
 import java.util.Arrays;
 
@@ -33,7 +34,7 @@ public class PlatformSamples {
     public static final long DEFAULT_INPUT_VERSION_ID = 0L;
     public static final long DEFAULT_OUTPUT_VERSION_ID = 1L;
 
-    public static PlatformIO buildPlatformInputWithName(String name) {
+    public static PlatformInput buildPlatformInputWithName(String name) {
         return new PlatformIO(
                 name,
                 DEFAULT_APPLICATION_NAME,
@@ -45,60 +46,53 @@ public class PlatformSamples {
                 ),
                 DEFAULT_INPUT_VERSION_ID
         );
+
+      public static PlatformInput buildPlatformInputWithValues(String name) {
+        return buildPlatformInputWithValues(name, DEFAULT_APPLICATION_NAME);
     }
 
-    public static PlatformIO buildPlatformInputWithValues(String name, String application) {
-        return new PlatformIO(
+    public static PlatformInput buildPlatformInputWithValues(String name, String application) {
+        return new PlatformInput(
                 name,
                 application,
                 DEFAULT_VERSION,
                 DEFAULT_PRODUCTION_PLATFORM,
                 Arrays.asList(
-                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(),
-                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues()
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L),
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L)
                 ),
                 DEFAULT_INPUT_VERSION_ID
         );
     }
 
-    public static PlatformIO getPlatformOutputWithDefaultValues() {
-        return new PlatformIO(
-                DEFAULT_PLATFORM_NAME,
-                DEFAULT_APPLICATION_NAME,
-                DEFAULT_VERSION,
-                DEFAULT_PRODUCTION_PLATFORM,
-                Arrays.asList(
-                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(1L),
-                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(2L)
-                ),
-                DEFAULT_OUTPUT_VERSION_ID
-        );
+    public static PlatformOutput getPlatformOutputWithDefaultValues() {
+        return getPlatformOutputWithVersionId(DEFAULT_OUTPUT_VERSION_ID);
     }
 
-    public static PlatformIO getPlatformInputWithVersionId(Long versionId) {
-        return new PlatformIO(
+    public static PlatformInput getPlatformInputWithVersionId(Long versionId) {
+        return new PlatformInput(
                 DEFAULT_PLATFORM_NAME,
                 DEFAULT_APPLICATION_NAME,
                 DEFAULT_VERSION,
                 DEFAULT_PRODUCTION_PLATFORM,
                 Arrays.asList(
-                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(1L),
-                        DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(2L)
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(1L),
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(2L)
                 ),
                 versionId
         );
     }
 
-    public static PlatformIO getPlatformOutputWithVersionId(Long versionId) {
-        return new PlatformIO(
+    public static PlatformOutput getPlatformOutputWithVersionId(Long versionId) {
+        return new PlatformOutput(
                 DEFAULT_PLATFORM_NAME,
                 DEFAULT_APPLICATION_NAME,
-                DEFAULT_VERSION,
-                DEFAULT_PRODUCTION_PLATFORM,
                 Arrays.asList(
                         DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(1L),
                         DeployedModuleSamples.getDeployedModuleOutputWithDefaultValues(2L)
                 ),
+                DEFAULT_PRODUCTION_PLATFORM,
+                DEFAULT_VERSION,
                 versionId
         );
     }

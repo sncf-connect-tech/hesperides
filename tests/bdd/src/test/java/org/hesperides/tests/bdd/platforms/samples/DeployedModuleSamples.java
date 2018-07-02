@@ -20,27 +20,25 @@
  */
 package org.hesperides.tests.bdd.platforms.samples;
 
-import org.hesperides.presentation.io.platforms.DeployedModuleIO;
+import org.hesperides.presentation.io.platforms.DeployedModuleInput;
+import org.hesperides.presentation.io.platforms.DeployedModuleOutput;
 
 import java.util.Arrays;
 
 public class DeployedModuleSamples {
 
-    public static final long DEFAULT_INPUT_ID = 0L;
     public static final String DEFAULT_MODULE_NAME = "module_name";
     public static final String DEFAULT_MODULE_VERSION = "module_version";
     public static final boolean DEFAULT_WORKING_COPY = true;
     public static final String DEFAULT_PATH = "#GROUP";
-    public static final String DEFAULT_INPUT_PROPERTIES_PATH = null;
     public static final String DEFAULT_OUTPUT_PROPERTIES_PATH = "#GROUP#module_name#module_version#WORKINGCOPY";
 
-    public static DeployedModuleIO getDeployedModuleInputWithDefaultValues() {
-        return new DeployedModuleIO(
-                DEFAULT_INPUT_ID,
+    public static DeployedModuleInput getDeployedModuleInputWithDefaultValues(Long id) {
+        return new DeployedModuleInput(
+                id,
                 DEFAULT_MODULE_NAME,
                 DEFAULT_MODULE_VERSION,
                 DEFAULT_WORKING_COPY,
-                DEFAULT_INPUT_PROPERTIES_PATH,
                 DEFAULT_PATH,
                 Arrays.asList(
                         InstanceSamples.getInstanceIOWithDefaultValues(),
@@ -49,8 +47,8 @@ public class DeployedModuleSamples {
         );
     }
 
-    public static DeployedModuleIO getDeployedModuleOutputWithDefaultValues(Long id) {
-        return new DeployedModuleIO(
+    public static DeployedModuleOutput getDeployedModuleOutputWithDefaultValues(Long id) {
+        return new DeployedModuleOutput(
                 id,
                 DEFAULT_MODULE_NAME,
                 DEFAULT_MODULE_VERSION,
