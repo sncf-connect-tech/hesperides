@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-
 import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
@@ -30,17 +29,14 @@ public class SearchAnApplication extends CucumberSpringBean implements En {
             String[] applications = {"AAA", "AAB", "BBB", "CCC", "DDD", "EEE"};
 
             for (int i = 0; i < applications.length; i++) {
-                for(int j = 0; j < 5; j++) {
-                    if(i < 5) {
+                for (int j = 0; j < 5; j++) {
+                    if (i < 5) {
                         applicationName = "AAA";
-                    }
-                    else if(i >= 5 && i < 10) {
+                    } else if (i >= 5 && i < 10) {
                         applicationName = "BBB";
-                    }
-                    else if(i >= 10 && i < 15) {
+                    } else if (i >= 10 && i < 15) {
                         applicationName = "CCC";
-                    }
-                    else {
+                    } else {
                         applicationName = "DDD";
                     }
 

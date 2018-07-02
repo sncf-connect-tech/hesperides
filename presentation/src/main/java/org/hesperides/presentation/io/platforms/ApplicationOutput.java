@@ -35,13 +35,12 @@ public class ApplicationOutput {
     @NotNull
     @NotEmpty
     String name;
-
     @NotNull
     @NotEmpty
     List<PlatformOutput> platforms;
 
     public ApplicationOutput(ApplicationView applicationView) {
         this.name = applicationView.getName();
-        this.platforms = PlatformOutput.fromViews(applicationView.getPlatforms());
+        this.platforms = PlatformOutput.fromPlatformViews(applicationView.getPlatforms());
     }
 }

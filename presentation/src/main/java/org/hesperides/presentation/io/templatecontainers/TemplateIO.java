@@ -7,6 +7,7 @@ import org.hesperides.domain.framework.DomainPrimer;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -14,19 +15,19 @@ import javax.validation.constraints.NotNull;
 @Value
 @AllArgsConstructor
 public class TemplateIO {
-    @NotNull
-    @NotEmpty
+
+    @OnlyPrintableCharacters(subject = "name")
     String name;
     String namespace;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "filename")
     String filename;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "location")
     String location;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "content")
     String content;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "rights")
     RightsIO rights;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "version_id")
     @SerializedName("version_id")
     Long versionId;
 

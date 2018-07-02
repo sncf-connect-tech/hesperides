@@ -24,10 +24,8 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.domain.framework.Queries;
 import org.hesperides.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.domain.platforms.GetPlatformByKeyQuery;
-
-import org.hesperides.domain.platforms.SearchPlatformQuery;
 import org.hesperides.domain.platforms.SearchApplicationsByNameQuery;
-
+import org.hesperides.domain.platforms.SearchPlatformQuery;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;

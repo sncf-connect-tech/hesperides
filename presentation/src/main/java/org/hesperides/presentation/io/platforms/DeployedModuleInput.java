@@ -25,26 +25,25 @@ import lombok.Value;
 import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.toList;
 
 @Value
 public class DeployedModuleInput {
 
     Long id;
-
     @OnlyPrintableCharacters(subject = "deployedModules.name")
     String name;
-
     @OnlyPrintableCharacters(subject = "deployedModules.version")
     String version;
-
     @SerializedName("working_copy")
     boolean workingCopy;
-
     @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
-
     List<InstanceIO> instances;
 
     public DeployedModule toDomainInstance() {
@@ -59,10 +58,10 @@ public class DeployedModuleInput {
     }
 
     public static List<DeployedModule> toDomainInstances(List<DeployedModuleInput> moduleIOS) {
-        List<DeployedModule> modules = null;
-        if (moduleIOS != null) {
-            modules = moduleIOS.stream().map(DeployedModuleInput::toDomainInstance).collect(toList());
-        }
-        return modules;
+        return Optional.ofNullable(moduleIOS)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DeployedModuleInput::toDomainInstance)
+                .collect(Collectors.toList());
     }
 }

@@ -85,7 +85,7 @@ public class DeployedModule {
      * Une fois qu'il est défini, il ne bouge plus.
      *
      * @param deployedModules source à parcourir, ne peut être {@code null} mais peut contenir des instances de
-     *           {@code DeployedModules} dont l'identifiant vaut {@code null}
+     *                        {@code DeployedModules} dont l'identifiant vaut {@code null}
      * @return max trouvé, ou 0L
      */
     private static long maxId(List<DeployedModule> deployedModules) {

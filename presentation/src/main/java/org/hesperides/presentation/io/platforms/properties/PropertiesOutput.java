@@ -27,9 +27,9 @@ import java.util.List;
 
 @Value
 public class PropertiesOutput {
+
     @SerializedName("key_value_properties")
     List<ValuedPropertyIO> valuedPropertyOutputs;
     @SerializedName("iterable_properties")
     List<IterableValuedPropertyIO> iterableValuedPropertyOutputs;
-
 }

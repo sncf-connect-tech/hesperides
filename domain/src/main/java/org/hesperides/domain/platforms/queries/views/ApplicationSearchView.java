@@ -22,8 +22,6 @@ package org.hesperides.domain.platforms.queries.views;
 
 import lombok.Value;
 
-import java.util.List;
-
 @Value
 public class ApplicationSearchView {
 

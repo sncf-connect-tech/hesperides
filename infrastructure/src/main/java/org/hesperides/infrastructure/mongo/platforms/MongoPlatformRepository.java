@@ -17,6 +17,7 @@ import static org.hesperides.domain.framework.Profiles.MONGO;
 public interface MongoPlatformRepository extends MongoRepository<PlatformDocument, String> {
 
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
+
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
     void deleteByKey(PlatformKeyDocument key);

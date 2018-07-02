@@ -2,17 +2,19 @@ package org.hesperides.presentation.io.templatecontainers;
 
 import lombok.Value;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
+import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 import javax.validation.constraints.NotNull;
 
 @Value
 public class PartialTemplateIO implements Comparable<PartialTemplateIO> {
-    @NotNull
+
+    @OnlyPrintableCharacters(subject = "name")
     String name;
     String namespace;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "filename")
     String filename;
-    @NotNull
+    @OnlyPrintableCharacters(subject = "location")
     String location;
 
     public PartialTemplateIO(TemplateView templateView) {
@@ -22,8 +24,13 @@ public class PartialTemplateIO implements Comparable<PartialTemplateIO> {
         this.location = templateView.getLocation();
     }
 
-    //L'implémentation de l'interface comparable nous permet de comparer (trier) les partials templates par leur nom
-    //Ce triage facilite les test et permet un retour plus propre à l'utilisateur.
+    /**
+     * L'implémentation de l'interface Comparable nous permet de trier les partials templates par leur nom.
+     * Ce tri est nécessaire pour les tests de non régression.
+     *
+     * @param o
+     * @return
+     */
     @Override
     public int compareTo(@NotNull PartialTemplateIO o) {
         return this.name.compareTo(o.name);

@@ -27,14 +27,8 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateLifecycle;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
-import org.hesperides.domain.platforms.CreatePlatformCommand;
-import org.hesperides.domain.platforms.DeletePlatformCommand;
-import org.hesperides.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.domain.platforms.PlatformDeletedEvent;
-import org.hesperides.domain.platforms.PlatformUpdatedEvent;
-import org.hesperides.domain.platforms.UpdatePlatformCommand;
+import org.hesperides.domain.platforms.*;
 import org.hesperides.domain.platforms.entities.Platform;
 
 import java.io.Serializable;

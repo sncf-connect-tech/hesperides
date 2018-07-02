@@ -22,6 +22,12 @@ package org.hesperides.domain.framework;
 
 import java.util.Optional;
 
+/**
+ * Interface à utiliser lorsqu'un objet doit implémenter la méthode toDomainInstance sur un object potentiellement null.
+ * "Primer" signifie "amorceur" (du verbe to prime, amorcer).
+ *
+ * @param <T>
+ */
 public interface DomainPrimer<T> {
     T toDomainInstance();
 

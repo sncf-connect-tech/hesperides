@@ -24,8 +24,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.presentation.io.platforms.DeployedModuleOutput;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
@@ -44,23 +47,23 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
         this.value = valuedPropertyView.getValue();
     }
 
-    public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyIO> valuedPropertyOutputs) {
-        List<ValuedProperty> valuedProperties = null;
-        if (valuedPropertyOutputs != null) {
-            valuedProperties = valuedPropertyOutputs.stream().map(ValuedPropertyIO::toDomainInstance).collect(Collectors.toList());
-        }
-        return valuedProperties;
-    }
-
-    public static List<ValuedPropertyIO> fromPropertyViews(List<ValuedPropertyView> valuedPropertyViews) {
-        List<ValuedPropertyIO> valuedPropertyOutputs = null;
-        if (valuedPropertyViews != null) {
-            valuedPropertyOutputs = valuedPropertyViews.stream().map(ValuedPropertyIO::new).collect(Collectors.toList());
-        }
-        return valuedPropertyOutputs;
-    }
-
     public ValuedProperty toDomainInstance() {
         return new ValuedProperty(getName(), value);
+    }
+
+    public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyIO> valuedPropertyOutputs) {
+        return Optional.ofNullable(valuedPropertyOutputs)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ValuedPropertyIO::toDomainInstance)
+                .collect(Collectors.toList());
+    }
+
+    public static List<ValuedPropertyIO> fromValuedPropertyViews(List<ValuedPropertyView> valuedPropertyViews) {
+        return Optional.ofNullable(valuedPropertyViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ValuedPropertyIO::new)
+                .collect(Collectors.toList());
     }
 }

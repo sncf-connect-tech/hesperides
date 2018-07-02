@@ -20,13 +20,12 @@
  */
 package org.hesperides.presentation.io.platforms;
 
-import java.util.List;
-
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.presentation.io.OnlyPrintableCharacters;
+
+import java.util.List;
 
 @Value
 public class PlatformInput {
@@ -34,19 +33,14 @@ public class PlatformInput {
     @OnlyPrintableCharacters(subject = "platform_name")
     @SerializedName("platform_name")
     String platformName;
-
     @OnlyPrintableCharacters(subject = "application_name")
     @SerializedName("application_name")
     String applicationName;
-
     @OnlyPrintableCharacters(subject = "version")
     String version;
-
     @SerializedName("production")
     boolean productionPlatform;
-
     List<DeployedModuleInput> deployedModules;
-
     @SerializedName("version_id")
     Long versionId;
 
@@ -59,5 +53,4 @@ public class PlatformInput {
                 DeployedModuleInput.toDomainInstances(deployedModules)
         );
     }
-
 }

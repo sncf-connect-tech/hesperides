@@ -10,24 +10,20 @@ import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
 
 @Value
 @AllArgsConstructor
 public final class ModuleIO {
-    @NotNull
-    @NotEmpty
+
+    @OnlyPrintableCharacters(subject = "name")
     String name;
-
-    @NotNull
-    @NotEmpty
+    @OnlyPrintableCharacters(subject = "version")
     String version;
-
     @SerializedName("working_copy")
     boolean workingCopy;
-
     List<TechnoIO> technos;
-
     @SerializedName("version_id")
     Long versionId;
 
@@ -45,6 +41,6 @@ public final class ModuleIO {
     }
 
     public Module toDomainInstance() {
-        return toDomainInstance(null);
+        return toDomainInstance(Collections.emptyList());
     }
 }

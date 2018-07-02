@@ -29,7 +29,9 @@ import org.hesperides.presentation.io.OnlyPrintableCharacters;
 import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
@@ -38,14 +40,13 @@ public class InstanceIO {
 
     @OnlyPrintableCharacters(subject = "deployedModules.instances.name")
     String name;
-
     @NotNull
     @SerializedName("key_values")
     List<ValuedPropertyIO> valuedProperties;
 
     public InstanceIO(InstanceView instanceView) {
         this.name = instanceView.getName();
-        this.valuedProperties = ValuedPropertyIO.fromPropertyViews(instanceView.getValuedProperties());
+        this.valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(instanceView.getValuedProperties());
     }
 
     public Instance toDomainInstance() {
@@ -53,18 +54,18 @@ public class InstanceIO {
     }
 
     public static List<Instance> toDomainInstances(List<InstanceIO> instanceIOS) {
-        List<Instance> instances = null;
-        if (instanceIOS != null) {
-            instances = instanceIOS.stream().map(InstanceIO::toDomainInstance).collect(Collectors.toList());
-        }
-        return instances;
+        return Optional.ofNullable(instanceIOS)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstanceIO::toDomainInstance)
+                .collect(Collectors.toList());
     }
 
     public static List<InstanceIO> fromInstanceViews(List<InstanceView> instanceViews) {
-        List<InstanceIO> instanceIOS = null;
-        if (instanceViews != null) {
-            instanceIOS = instanceViews.stream().map(InstanceIO::new).collect(Collectors.toList());
-        }
-        return instanceIOS;
+        return Optional.ofNullable(instanceViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstanceIO::new)
+                .collect(Collectors.toList());
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 @Configuration
 @EnableWebMvc
 public class PresentationConfiguration extends WebMvcConfigurerAdapter {
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();

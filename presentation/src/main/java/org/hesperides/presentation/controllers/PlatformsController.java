@@ -10,19 +10,17 @@ import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
-import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.presentation.io.platforms.SearchPlatformOutput;
 import org.hesperides.presentation.io.platforms.PlatformInput;
 import org.hesperides.presentation.io.platforms.PlatformOutput;
-
+import org.hesperides.presentation.io.platforms.SearchOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,12 +51,11 @@ public class PlatformsController extends AbstractController {
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
     public ResponseEntity<PlatformOutput> createPlatform(Authentication authentication,
-                                                        @PathVariable("application_name") final String applicationName,
-                                                        @Valid @RequestBody final PlatformInput platformInput) {
+                                                         @PathVariable("application_name") final String applicationName,
+                                                         @Valid @RequestBody final PlatformInput platformInput) {
 
         Platform platform = platformInput.toDomainInstance();
         Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
-
 
         PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
         PlatformOutput platformOutput = new PlatformOutput(platformView);
@@ -69,48 +66,38 @@ public class PlatformsController extends AbstractController {
     @ApiOperation("Retrieve a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}")
     public ResponseEntity<PlatformOutput> getPlatform(@PathVariable("application_name") final String applicationName,
-                                                     @PathVariable("platform_name") final String platformName) {
+                                                      @PathVariable("platform_name") final String platformName) {
 
-        // create key from path
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-
-        // retrieve platform
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
-
-        // transform it into IO
         PlatformOutput platformOutput = new PlatformOutput(platformView);
 
-        // response
         return ResponseEntity.ok(platformOutput);
     }
 
     @ApiOperation("Update a platform")
     @PutMapping("/{application_name}/platforms")
     public ResponseEntity<PlatformOutput> updatePlatform(Authentication authentication,
-                                                     @PathVariable("application_name") final String applicationName,
-                                                     @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProps,
-                                                     @Valid @RequestBody final PlatformInput newDefinition) {
+                                                         @PathVariable("application_name") final String applicationName,
+                                                         @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProperties,
+                                                         @Valid @RequestBody final PlatformInput platformInput) {
 
-        final boolean copyRequested = Boolean.TRUE.equals(copyProps); // no null anymore
-        // create key from path
-        Platform.Key platformKey = new Platform.Key(applicationName, newDefinition.getPlatformName());
+        final boolean copyRequested = Boolean.TRUE.equals(copyProperties); // no null anymore
+        Platform.Key platformKey = new Platform.Key(applicationName, platformInput.getPlatformName());
 
-        // perform update
         platformUseCases.updatePlatform(platformKey,
-                newDefinition.toDomainInstance(),
+                platformInput.toDomainInstance(),
                 copyRequested,
                 fromAuthentication(authentication)
         );
 
-        // retrieve updated view
-        PlatformView platformView = platformUseCases.getPlatform(platformKey);
-
-        // response
-        final ResponseEntity.BodyBuilder response = ResponseEntity.status(200);
+        final ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.OK);
         if (copyRequested) {
             // TODO remove as soon as properties are handled
             response.header("x-hesperides-warning", "no property copied! (not implemented yet)");
         }
+
+        PlatformView platformView = platformUseCases.getPlatform(platformKey);
         return response.body(new PlatformOutput(platformView));
     }
 
@@ -120,22 +107,16 @@ public class PlatformsController extends AbstractController {
                                          @PathVariable("application_name") final String applicationName,
                                          @PathVariable("platform_name") final String platformName) {
 
-        // create key from path
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-
-        // delete platform with this key
         platformUseCases.deletePlatform(platformKey, fromAuthentication(authentication));
-
-        // response
         return ResponseEntity.ok().build();
     }
 
     @ApiOperation("Search one/all platform")
     @PostMapping("/platforms/perform_search")
-    public ResponseEntity<List<SearchPlatformOutput>> search(Authentication authentication,
-                                                             @RequestParam("application_name") final String applicationName,
-                                                             @RequestParam(value = "platform_name", required = false) final String platformName) {
-        // verify parameters.
+    public ResponseEntity<List<SearchOutput>> search(@RequestParam("application_name") final String applicationName,
+                                                     @RequestParam(value = "platform_name", required = false) final String platformName) {
+
         this.checkQueryParameterNotEmpty("application_name", applicationName);
         String platformName2 = platformName == null ? "" : platformName;
 

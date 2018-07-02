@@ -26,23 +26,20 @@ import lombok.Value;
 import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.technos.queries.TechnoView;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
 public class TechnoIO {
-    @NotNull
-    @NotEmpty
+
+    @OnlyPrintableCharacters(subject = "name")
     String name;
-
-    @NotNull
-    @NotEmpty
+    @OnlyPrintableCharacters(subject = "version")
     String version;
-
     @SerializedName("working_copy")
     boolean workingCopy;
 
@@ -53,23 +50,22 @@ public class TechnoIO {
     }
 
     public Techno toDomainInstance() {
-        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(workingCopy)), null);
+        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(workingCopy)), Collections.emptyList());
     }
 
     public static List<Techno> toDomainInstances(List<TechnoIO> technoIOS) {
-        List<Techno> technos = null;
-        if (technoIOS != null) {
-            technos = technoIOS.stream().map(TechnoIO::toDomainInstance).collect(Collectors.toList());
-        }
-        return technos;
+        return Optional.ofNullable(technoIOS)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TechnoIO::toDomainInstance)
+                .collect(Collectors.toList());
     }
 
     public static List<TechnoIO> fromTechnoViews(List<TechnoView> technoViews) {
-        List<TechnoIO> technoIOS = null;
-        if (technoViews != null) {
-            technoIOS = technoViews.stream().map(TechnoIO::new).collect(Collectors.toList());
-        }
-        return technoIOS;
-
+        return Optional.ofNullable(technoViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TechnoIO::new)
+                .collect(Collectors.toList());
     }
 }

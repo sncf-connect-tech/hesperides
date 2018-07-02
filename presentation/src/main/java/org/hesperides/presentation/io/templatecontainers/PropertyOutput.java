@@ -9,7 +9,10 @@ import org.hesperides.domain.templatecontainers.queries.PropertyView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
@@ -53,13 +56,11 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
     }
 
     private static List<PropertyOutput> fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
-        List<PropertyOutput> propertyOutputs = new ArrayList<>();
-        if (abstractPropertyViews != null) {
-            for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {
-                propertyOutputs.add(new PropertyOutput(abstractPropertyView));
-            }
-        }
-        return propertyOutputs;
+        return Optional.ofNullable(abstractPropertyViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(PropertyOutput::new)
+                .collect(Collectors.toList());
     }
 
     @Override

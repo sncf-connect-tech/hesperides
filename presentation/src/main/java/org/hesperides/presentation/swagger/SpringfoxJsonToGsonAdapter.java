@@ -15,5 +15,4 @@ public class SpringfoxJsonToGsonAdapter implements JsonSerializer<Json> {
         final JsonParser parser = new JsonParser();
         return parser.parse(json.value());
     }
-
 }
