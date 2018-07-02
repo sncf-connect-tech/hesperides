@@ -1,10 +1,12 @@
 package org.hesperides.domain.templatecontainers.entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
 import org.springframework.util.StringUtils;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class Property extends AbstractProperty {
 
     boolean required;

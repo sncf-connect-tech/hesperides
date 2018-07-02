@@ -20,7 +20,7 @@
  */
 package org.hesperides.domain.platforms.entities;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import lombok.Value;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
@@ -28,16 +28,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Value
 public class DeployedModule {
 
-    private final Long id;
-    private final String name;
-    private final String version;
-    private final boolean workingCopy;
-    private final String path;
-    private final String propertiesPath;
+    Long id;
+    String name;
+    String version;
+    boolean workingCopy;
+    String path;
+    String propertiesPath;
     //String deploymentGroup
-    private final List<Instance> instances;
+    List<Instance> instances;
 
     public DeployedModule(Long id, String name, String version, boolean workingCopy, String path, List<Instance> instances) {
         this.id = id;
@@ -59,51 +60,22 @@ public class DeployedModule {
         this.instances = other.instances;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, version, workingCopy, path, instances);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj instanceof DeployedModule) {
-            DeployedModule other = (DeployedModule) obj;
-            return new EqualsBuilder()
-                    .append(id, other.id)
-                    .append(name, other.name)
-                    .append(version, other.version)
-                    .append(workingCopy, other.workingCopy)
-                    .append(path, other.path)
-                    .append(instances, other.instances)
-                    .isEquals();
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
-        if (deployedModules == null) {
-            return null;
-        }
+        List<DeployedModule> deployedModulesWithId = null;
+        if (deployedModules != null) {
+            deployedModules = new ArrayList<>();
 
-        long seq = maxId(deployedModules);
-        final List<DeployedModule> deployedModulesWithId = new ArrayList<>();
-        for (DeployedModule mod : deployedModules) {
-            final DeployedModule identified;
-            if (mod.getId() == null || mod.getId() < 1) {
-                // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
-                identified = new DeployedModule(mod, ++seq);
-            } else {
-                identified = mod;
+            long sequence = maxId(deployedModules);
+            for (DeployedModule deployedModule : deployedModules) {
+                final DeployedModule identifiedModule;
+                if (deployedModule.getId() == null || deployedModule.getId() < 1) {
+                    // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
+                    identifiedModule = new DeployedModule(deployedModule, ++sequence);
+                } else {
+                    identifiedModule = deployedModule;
+                }
+                deployedModulesWithId.add(identifiedModule);
             }
-            deployedModulesWithId.add(identified);
         }
         return deployedModulesWithId;
     }
@@ -112,12 +84,12 @@ public class DeployedModule {
      * L'identifiant des modules déployés est l'équivalent d'un identifiant auto-incrémenté d'une base de données relationnelle.
      * Une fois qu'il est défini, il ne bouge plus.
      *
-     * @param in source à parcourir, ne peut être {@code null} mais peut contenir des instances de
+     * @param deployedModules source à parcourir, ne peut être {@code null} mais peut contenir des instances de
      *           {@code DeployedModules} dont l'identifiant vaut {@code null}
      * @return max trouvé, ou 0L
      */
-    private static long maxId(List<DeployedModule> in) {
-        return in.stream()
+    private static long maxId(List<DeployedModule> deployedModules) {
+        return deployedModules.stream()
                 .map(DeployedModule::getId)
                 .filter(Objects::nonNull)
                 .max(Long::compareTo)
@@ -127,33 +99,5 @@ public class DeployedModule {
     private String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(workingCopy));
         return path + "#" + moduleKey.getNamespaceWithoutPrefix();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public boolean isWorkingCopy() {
-        return workingCopy;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public String getPropertiesPath() {
-        return propertiesPath;
-    }
-
-    public List<Instance> getInstances() {
-        return instances;
     }
 }

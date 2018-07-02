@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hesperides.domain.templatecontainers.entities.IterableProperty;
 import org.hesperides.domain.templatecontainers.queries.IterablePropertyView;
@@ -29,8 +30,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
-@Document
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Document
 public class IterablePropertyDocument extends AbstractPropertyDocument {
 
     private List<AbstractPropertyDocument> properties;

@@ -20,6 +20,7 @@
  */
 package org.hesperides.presentation.io.platforms.properties;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class ValuedPropertyIO extends AbstractValuedPropertyIO {
 
     String value;

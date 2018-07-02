@@ -17,7 +17,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Asserts that the annotated string does not contain any non printable characters (&lt; 0x20).
+ * Vérifie que la propriété annotée ne contient pas de caractère invalide (&lt; 0x20).
+ * Cette annotation hérite de @NotEmpty qui hérite elle-même de @NotNull.
+ * La propriété doit donc est renseignée et valide.
  *
  * @since issue #232
  */

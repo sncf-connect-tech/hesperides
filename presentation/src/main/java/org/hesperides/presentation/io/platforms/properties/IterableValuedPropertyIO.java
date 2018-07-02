@@ -21,11 +21,13 @@
 package org.hesperides.presentation.io.platforms.properties;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
     @SerializedName("iterable_valorisation_items")

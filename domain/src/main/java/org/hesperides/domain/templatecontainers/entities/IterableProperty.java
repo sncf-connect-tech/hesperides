@@ -3,12 +3,14 @@ package org.hesperides.domain.templatecontainers.entities;
 import com.github.mustachejava.Code;
 import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class IterableProperty extends AbstractProperty {
 
     List<AbstractProperty> properties;

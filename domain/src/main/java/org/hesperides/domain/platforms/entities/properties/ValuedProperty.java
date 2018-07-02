@@ -20,9 +20,11 @@
  */
 package org.hesperides.domain.platforms.entities.properties;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class ValuedProperty extends AbstractValuedProperty {
 
     String value;

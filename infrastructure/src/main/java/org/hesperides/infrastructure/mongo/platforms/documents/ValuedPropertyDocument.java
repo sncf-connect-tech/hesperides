@@ -21,6 +21,7 @@
 package org.hesperides.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -30,8 +31,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-@Document
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Document
 public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     private String value;

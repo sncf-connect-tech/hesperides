@@ -1,5 +1,6 @@
 package org.hesperides.domain.technos.entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
@@ -7,6 +8,7 @@ import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import java.util.List;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class Techno extends TemplateContainer {
 
     public Techno(TemplateContainer.Key key, List<Template> templates) {

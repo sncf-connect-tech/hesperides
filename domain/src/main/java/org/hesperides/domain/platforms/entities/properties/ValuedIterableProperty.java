@@ -20,11 +20,13 @@
  */
 package org.hesperides.domain.platforms.entities.properties;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class ValuedIterableProperty extends AbstractValuedProperty {
 
     List<AbstractValuedProperty> properties;

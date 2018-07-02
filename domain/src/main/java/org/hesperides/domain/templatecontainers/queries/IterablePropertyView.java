@@ -1,10 +1,12 @@
 package org.hesperides.domain.templatecontainers.queries;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class IterablePropertyView extends AbstractPropertyView {
 
     List<AbstractPropertyView> properties;

@@ -1,8 +1,10 @@
 package org.hesperides.domain.templatecontainers.queries;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class PropertyView extends AbstractPropertyView {
 
     boolean required;
