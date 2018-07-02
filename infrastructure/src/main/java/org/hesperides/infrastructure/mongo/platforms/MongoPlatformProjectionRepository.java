@@ -3,10 +3,7 @@ package org.hesperides.infrastructure.mongo.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.domain.platforms.queries.views.*;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
@@ -67,6 +64,19 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             optionalPlatformView = Optional.of(optionalPlatformDocument.get().toPlatformView());
         }
         return optionalPlatformView;
+    }
+
+    @QueryHandler
+    @Override
+    public List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query) {
+        List<PlatformDocument> platformDocumentList =
+                platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
+                        query.getApplicationName(),
+                        query.getPlatformName());
+        return platformDocumentList
+                .stream()
+                .map(PlatformDocument::toSearchPlatformView)
+                .collect(Collectors.toList());
     }
 
     @QueryHandler

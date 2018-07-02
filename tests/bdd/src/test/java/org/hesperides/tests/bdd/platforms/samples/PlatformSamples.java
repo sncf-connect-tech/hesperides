@@ -126,4 +126,15 @@ public class PlatformSamples {
                 )
         );
     }
+
+    public static PlatformInput buildPlatformInputWithValues2(String applicationName, String platformName) {
+        return new PlatformInput(
+                platformName,
+                applicationName,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(),
+                DEFAULT_INPUT_VERSION_ID
+        );
+    }
 }

@@ -7,10 +7,7 @@ import org.hesperides.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.domain.platforms.queries.PlatformQueries;
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.domain.platforms.queries.views.*;
 import org.hesperides.domain.security.User;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer.VersionType;
@@ -18,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+
 @Component
 public class PlatformUseCases {
 
@@ -95,5 +94,9 @@ public class PlatformUseCases {
                 .equalsIgnoreCase(moduleVersionType);
 
         return TemplateContainer.getVersionType(versionType);
+    }
+
+    public List<SearchPlatformView> search(String applicationName, String platformName) {
+        return queries.search(applicationName, platformName);
     }
 }
