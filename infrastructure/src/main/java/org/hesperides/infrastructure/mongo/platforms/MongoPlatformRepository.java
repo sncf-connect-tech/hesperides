@@ -17,6 +17,7 @@ import static org.hesperides.domain.framework.Profiles.MONGO;
 public interface MongoPlatformRepository extends MongoRepository<PlatformDocument, String> {
 
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
+
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
     void deleteByKey(PlatformKeyDocument key);
@@ -24,4 +25,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
     List<PlatformDocument> findAllByKeyApplicationName(String applicationName);
+
+    List<PlatformDocument> findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(String moduleName, String moduleVersion, boolean isWorkingCopy);
 }

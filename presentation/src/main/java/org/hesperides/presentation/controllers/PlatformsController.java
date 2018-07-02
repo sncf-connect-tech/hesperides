@@ -6,23 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.platforms.PlatformUseCases;
 import org.hesperides.domain.platforms.entities.Platform;
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
-import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
-import org.hesperides.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.presentation.io.platforms.SearchPlatformOutput;
-import org.hesperides.presentation.io.platforms.PlatformInput;
-import org.hesperides.presentation.io.platforms.PlatformOutput;
-
+import org.hesperides.domain.platforms.queries.views.*;
+import org.hesperides.presentation.io.platforms.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -129,6 +120,24 @@ public class PlatformsController extends AbstractController {
 
         // response
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Retrieve platforms using module")
+    @GetMapping("/using_module/{module_name}/{module_version}/{version_type}")
+    public ResponseEntity<List<ModulePlatformsOutput>> getPlatformsUsingModule(
+            @PathVariable("module_name") final String moduleName,
+            @PathVariable("module_version") final String moduleVersion,
+            @PathVariable("version_type") final String moduleVersionType) {
+
+        List<ModulePlatformView> platformViews = platformUseCases.getPlatformUsingModule(moduleName, moduleVersion,
+                moduleVersionType);
+
+        List<ModulePlatformsOutput> modulePlatformsOutputs = platformViews
+                .stream()
+                .map(ModulePlatformsOutput::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(modulePlatformsOutputs);
     }
 
     @ApiOperation("Search one/all platform")

@@ -3,12 +3,8 @@ package org.hesperides.infrastructure.mongo.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
-
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-
-import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
+import org.hesperides.domain.platforms.queries.views.*;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +106,20 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             optionalApplicationView = Optional.of(applicationView);
         }
 
-
         return optionalApplicationView;
+    }
+
+    @QueryHandler
+    @Override
+    public List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query) {
+        TemplateContainer.Key moduleKey = query.getModuleKey();
+        List<PlatformDocument> platformDocuments = platformRepository
+                .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(moduleKey.getName(),
+                        moduleKey.getVersion(), moduleKey.isWorkingCopy());
+
+        return platformDocuments
+                .stream()
+                .map(PlatformDocument::toModulePlatformView)
+                .collect(Collectors.toList());
     }
 }

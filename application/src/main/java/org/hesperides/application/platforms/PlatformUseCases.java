@@ -1,16 +1,16 @@
 package org.hesperides.application.platforms;
 
+import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.platforms.commands.PlatformCommands;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.domain.platforms.queries.PlatformQueries;
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
+import org.hesperides.domain.platforms.queries.views.*;
 import org.hesperides.domain.security.User;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.domain.templatecontainers.entities.TemplateContainer.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +49,6 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-
     public List<ApplicationSearchView> searchApplications(String input) {
         List<ApplicationSearchView> applicationSearchView = queries.searchApplications(input);
 
@@ -67,6 +66,34 @@ public class PlatformUseCases {
         }
 
         commands.updatePlatform(key, newDefinition, copyProps, user);
+    }
+
+    public List<ModulePlatformView> getPlatformUsingModule(String moduleName, String moduleVersion, String moduleVersionType) {
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, stringToVersionType(moduleVersionType));
+
+        return queries.getPlatformsUsingModule(moduleKey);
+    }
+
+    /**
+     * Ce use case a une spécificité au niveau de la récupération
+     * des plateformes ayant un module. Le version type passé dans l'url
+     * peut-être soit release, soit workingcopy.
+     *
+     * Toutes les autres valeurs seront considérées comme étant workingcopy
+     * par défaut.
+     *
+     * Cette fonction est donc spécifique à ce use case et permet de gérer
+     * le cas par défaut. D'autres uses cases renvoient une erreur si la
+     * valeur ne correspond pas aux valeurs possible de l'énumération
+     * VersionType.
+     */
+    private VersionType stringToVersionType(String moduleVersionType) {
+        boolean versionType = !VersionType
+                .release
+                .toString()
+                .equalsIgnoreCase(moduleVersionType);
+
+        return TemplateContainer.getVersionType(versionType);
     }
 
     public List<SearchPlatformView> search(String applicationName, String platformName) {
