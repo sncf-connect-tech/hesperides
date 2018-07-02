@@ -51,15 +51,15 @@ public class PlatformQueries extends Queries {
         return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
     }
 
-    public List<SearchPlatformView> search(String applicationName, String platformName) {
-        return querySyncList(new SearchPlatformQuery(applicationName, platformName), SearchPlatformView.class);
-    }
-
-    public List<ApplicationSearchView> searchApplications(String input) {
-        return querySyncList(new SearchApplicationsByNameQuery(input), ApplicationSearchView.class);
-    }
-
     public List<ModulePlatformView> getPlatformsUsingModule(TemplateContainer.Key moduleKey) {
         return querySyncList(new GetPlatformsUsingModuleQuery(moduleKey), ModulePlatformView.class);
+    }
+
+    public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
+        return querySyncList(new SearchPlatformsQuery(applicationName, platformName), SearchPlatformResultView.class);
+    }
+
+    public List<SearchApplicationResultView> searchApplications(String applicationName) {
+        return querySyncList(new SearchApplicationsQuery(applicationName), SearchApplicationResultView.class);
     }
 }

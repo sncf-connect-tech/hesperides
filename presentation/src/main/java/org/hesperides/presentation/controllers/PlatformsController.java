@@ -3,7 +3,6 @@ package org.hesperides.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.platforms.PlatformUseCases;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.*;
@@ -14,8 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
@@ -45,8 +45,8 @@ public class PlatformsController extends AbstractController {
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
     public ResponseEntity<PlatformOutput> createPlatform(Authentication authentication,
-                                                        @PathVariable("application_name") final String applicationName,
-                                                        @Valid @RequestBody final PlatformInput platformInput) {
+                                                         @PathVariable("application_name") final String applicationName,
+                                                         @Valid @RequestBody final PlatformInput platformInput) {
 
         Platform platform = platformInput.toDomainInstance();
         Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
@@ -61,7 +61,7 @@ public class PlatformsController extends AbstractController {
     @ApiOperation("Retrieve a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}")
     public ResponseEntity<PlatformOutput> getPlatform(@PathVariable("application_name") final String applicationName,
-                                                     @PathVariable("platform_name") final String platformName) {
+                                                      @PathVariable("platform_name") final String platformName) {
 
         // create key from path
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
@@ -79,9 +79,9 @@ public class PlatformsController extends AbstractController {
     @ApiOperation("Update a platform")
     @PutMapping("/{application_name}/platforms")
     public ResponseEntity<PlatformOutput> updatePlatform(Authentication authentication,
-                                                     @PathVariable("application_name") final String applicationName,
-                                                     @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProps,
-                                                     @Valid @RequestBody final PlatformInput newDefinition) {
+                                                         @PathVariable("application_name") final String applicationName,
+                                                         @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProps,
+                                                         @Valid @RequestBody final PlatformInput newDefinition) {
 
         final boolean copyRequested = Boolean.TRUE.equals(copyProps); // no null anymore
         // create key from path
@@ -140,45 +140,37 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(modulePlatformsOutputs);
     }
 
-    @ApiOperation("Search one/all platform")
+    @ApiOperation("List platforms of a given application")
     @PostMapping("/platforms/perform_search")
-    public ResponseEntity<List<SearchPlatformOutput>> search(Authentication authentication,
-                                                             @RequestParam("application_name") final String applicationName,
-                                                             @RequestParam(value = "platform_name", required = false) final String platformName) {
-        // verify parameters.
+    public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("application_name") final String applicationName,
+                                                                    @RequestParam(value = "platform_name", required = false) final String platformName) {
+
         this.checkQueryParameterNotEmpty("application_name", applicationName);
-        String platformName2 = platformName == null ? "" : platformName;
+        String notNullPlatformName = platformName == null ? "" : platformName;
 
-        String msg = !StringUtils.isBlank(platformName)
-                ? "Search platform " + platformName
-                : "Search all platform";
-        msg += " from application " + applicationName;
-        log.debug(msg);
+        List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, notNullPlatformName);
 
-        List<SearchPlatformView> searchPlatformViewList = platformUseCases.search(applicationName, platformName2);
-        List<SearchPlatformOutput> searchPlatformOutputList = searchPlatformViewList != null
-                ? searchPlatformViewList.stream().map(SearchPlatformOutput::new).collect(Collectors.toList())
-                : new ArrayList<>();
+        List<SearchResultOutput> searchResultOutputs = Optional.of(searchPlatformResultViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(SearchResultOutput::new)
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(searchPlatformOutputList);
+        return ResponseEntity.ok(searchResultOutputs);
     }
 
-    @ApiOperation("Search an application")
+    @ApiOperation("Search applications")
     @PostMapping("/perform_search")
-    public ResponseEntity searchApplication(Authentication authentication,
-                                            @RequestParam("name") final String input) {
+    public ResponseEntity<List<SearchResultOutput>> searchApplications(@RequestParam("name") final String applicationName) {
 
-        // search applications
-        List<ApplicationSearchView> applicationsView = platformUseCases.searchApplications(input);
+        List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(applicationName);
 
-        // transform it into IO
-        List<ApplicationSearchOutput> applicationSearchOutput = applicationsView != null
-                ? applicationsView.stream()
-                .distinct()
-                .map(ApplicationSearchOutput::new).collect(Collectors.toList())
-                : new ArrayList<>();
+        List<SearchResultOutput> searchResultOutputs = Optional.of(searchApplicationResultViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(SearchResultOutput::new)
+                .collect(Collectors.toList());
 
-        // response
-        return ResponseEntity.ok(applicationSearchOutput);
+        return ResponseEntity.ok(searchResultOutputs);
     }
 }

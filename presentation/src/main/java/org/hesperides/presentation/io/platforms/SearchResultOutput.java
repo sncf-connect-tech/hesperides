@@ -18,13 +18,22 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries.views;
+package org.hesperides.presentation.io.platforms;
 
 import lombok.Value;
+import org.hesperides.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.domain.platforms.queries.views.SearchPlatformResultView;
 
 @Value
-public class ApplicationSearchView {
+public class SearchResultOutput {
 
     String name;
 
+    public SearchResultOutput(SearchPlatformResultView view) {
+        this.name = view.getPlatformName();
+    }
+
+    public SearchResultOutput(SearchApplicationResultView view) {
+        this.name = view.getApplicationName();
+    }
 }

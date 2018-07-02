@@ -3,7 +3,6 @@ package org.hesperides.domain.platforms.queries.views;
 import lombok.Value;
 
 @Value
-public class SearchPlatformView {
+public class SearchPlatformResultView {
     String platformName;
-    String applicationName;
 }

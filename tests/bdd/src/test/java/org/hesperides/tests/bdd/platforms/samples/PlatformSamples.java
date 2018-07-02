@@ -35,8 +35,8 @@ public class PlatformSamples {
     public static final long DEFAULT_OUTPUT_VERSION_ID = 1L;
 
     /*
-    * Inputs
-    */
+     * Inputs
+     */
     public static PlatformInput buildPlatformInputWithName(String name) {
         return new PlatformInput(
                 name,

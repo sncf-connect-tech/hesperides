@@ -23,14 +23,12 @@ package org.hesperides.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.Platform;
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
+import org.hesperides.domain.platforms.queries.views.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Document(collection = "platform")
@@ -71,13 +69,21 @@ public class PlatformDocument {
         );
     }
 
-    public SearchPlatformView toSearchPlatformView() {
-        return new SearchPlatformView(
-                key.getPlatformName(),
-                key.getApplicationName());
+    public SearchApplicationResultView toSearchApplicationResultView() {
+        return new SearchApplicationResultView(key.getApplicationName());
     }
 
-    public ApplicationSearchView toApplicationSearchView() {
-        return new ApplicationSearchView(key.getApplicationName());
+    public SearchPlatformResultView toSearchPlatformResultView() {
+        return new SearchPlatformResultView(key.getPlatformName());
+    }
+
+    public static ApplicationView toApplicationView(String applicationName, List<PlatformDocument> platformDocuments) {
+        return new ApplicationView(
+                applicationName,
+                platformDocuments
+                        .stream()
+                        .map(PlatformDocument::toPlatformView)
+                        .collect(Collectors.toList())
+        );
     }
 }

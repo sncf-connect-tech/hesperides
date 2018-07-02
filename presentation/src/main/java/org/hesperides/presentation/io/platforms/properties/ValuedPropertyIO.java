@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.domain.platforms.queries.views.properties.ValuedPropertyView;
-import org.hesperides.presentation.io.platforms.DeployedModuleOutput;
 
 import java.util.Collections;
 import java.util.List;

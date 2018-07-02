@@ -12,13 +12,13 @@ public interface PlatformProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventHandler
-    void onCreate(PlatformCreatedEvent event);
+    void onPlatformCreatedEvent(PlatformCreatedEvent event);
 
     @EventHandler
-    void onDelete(PlatformDeletedEvent event);
+    void onPlatformDeletedEvent(PlatformDeletedEvent event);
 
     @EventHandler
-    void onUpdate(PlatformUpdatedEvent event);
+    void onPlatformUpdatedEvent(PlatformUpdatedEvent event);
 
     /*** QUERY HANDLERS ***/
 
@@ -29,11 +29,11 @@ public interface PlatformProjectionRepository {
     Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query);
 
     @QueryHandler
-    List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query);
-
-    @QueryHandler
     List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query);
 
     @QueryHandler
-    List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query);
+    List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query);
+
+    @QueryHandler
+    List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
 }

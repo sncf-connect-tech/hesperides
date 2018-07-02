@@ -8,7 +8,6 @@ import org.hesperides.domain.templatecontainers.queries.IterablePropertyView;
 import org.hesperides.domain.templatecontainers.queries.PropertyView;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

@@ -7,9 +7,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.queries.ModuleView;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 

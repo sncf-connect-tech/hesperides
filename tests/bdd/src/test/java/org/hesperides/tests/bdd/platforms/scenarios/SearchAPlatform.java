@@ -2,7 +2,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.platforms.PlatformInput;
-import org.hesperides.presentation.io.platforms.SearchPlatformOutput;
+import org.hesperides.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -20,7 +20,7 @@ public class SearchAPlatform extends CucumberSpringBean implements En {
 
     @Autowired
     private PlatformContext platformContext;
-    private ResponseEntity<SearchPlatformOutput[]> response;
+    private ResponseEntity<SearchResultOutput[]> response;
 
     public SearchAPlatform() {
         Given("^a list of 25 platforms$", () -> {
@@ -37,14 +37,14 @@ public class SearchAPlatform extends CucumberSpringBean implements En {
             response = rest.getTestRest().postForEntity(
                     url,
                     null,
-                    SearchPlatformOutput[].class);
+                    SearchResultOutput[].class);
         });
 
         Then("^the platform is found$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            List<SearchPlatformOutput> platformOutputList = Arrays.asList(response.getBody());
+            List<SearchResultOutput> platformOutputList = Arrays.asList(response.getBody());
             assertEquals(1, platformOutputList.size());
-            assertEquals("TEST-2", platformOutputList.get(0).getPlatformName());
+            assertEquals("TEST-2", platformOutputList.get(0).getName());
         });
 
         When("^asking for the platform list of an application$", () -> {
@@ -52,12 +52,12 @@ public class SearchAPlatform extends CucumberSpringBean implements En {
             response = rest.getTestRest().postForEntity(
                     url,
                     null,
-                    SearchPlatformOutput[].class);
+                    SearchResultOutput[].class);
         });
 
         Then("^platform list is established for the targeted application$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            List<SearchPlatformOutput> platformOutputList = Arrays.asList(response.getBody());
+            List<SearchResultOutput> platformOutputList = Arrays.asList(response.getBody());
             assertEquals(5, platformOutputList.size());
         });
     }

@@ -34,20 +34,20 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
-    public void onCreate(PlatformCreatedEvent event) {
+    public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 
     @EventHandler
     @Override
-    public void onDelete(PlatformDeletedEvent event) {
+    public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
     }
 
     @EventHandler
     @Override
-    public void onUpdate(PlatformUpdatedEvent event) {
+    public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getNewDefinition());
         platformRepository.save(platformDocument);
     }
@@ -68,58 +68,56 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query) {
-        List<PlatformDocument> platformDocumentList =
-                platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
-                        query.getApplicationName(),
-                        query.getPlatformName());
-        return platformDocumentList
-                .stream()
-                .map(PlatformDocument::toSearchPlatformView)
-                .collect(Collectors.toList());
-    }
-
-    @QueryHandler
-    @Override
-    public List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query) {
-        List<ApplicationSearchView> applicationsViewSearch = platformRepository.findAllByKeyApplicationNameLike(query.getInput())
-                .stream()
-                .map(PlatformDocument::toApplicationSearchView)
-                .collect(Collectors.toList());
-
-        return applicationsViewSearch;
-    }
-
-    @QueryHandler
-    @Override
     public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
-        Optional<ApplicationView> optionalApplicationView = Optional.empty();
 
-        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query
-                .getApplicationName());
+        Optional<ApplicationView> optionalApplicationView = Optional.empty();
+        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query.getApplicationName());
 
         if (!CollectionUtils.isEmpty(platformDocuments)) {
-            ApplicationView applicationView = new ApplicationView(query.getApplicationName(),
-                    platformDocuments.stream()
-                            .map(PlatformDocument::toPlatformView)
-                            .collect(Collectors.toList()));
+            ApplicationView applicationView = PlatformDocument.toApplicationView(query.getApplicationName(), platformDocuments);
             optionalApplicationView = Optional.of(applicationView);
         }
-
         return optionalApplicationView;
     }
 
     @QueryHandler
     @Override
     public List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query) {
+
         TemplateContainer.Key moduleKey = query.getModuleKey();
         List<PlatformDocument> platformDocuments = platformRepository
-                .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(moduleKey.getName(),
-                        moduleKey.getVersion(), moduleKey.isWorkingCopy());
+                .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(
+                        moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
 
         return platformDocuments
                 .stream()
                 .map(PlatformDocument::toModulePlatformView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query) {
+
+        List<PlatformDocument> platformDocuments =
+                platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
+                        query.getApplicationName(),
+                        query.getPlatformName());
+
+        return platformDocuments
+                .stream()
+                .map(PlatformDocument::toSearchPlatformResultView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query) {
+        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationNameLike(query.getApplicationName());
+
+        return platformDocuments
+                .stream()
+                .map(PlatformDocument::toSearchApplicationResultView)
                 .collect(Collectors.toList());
     }
 }

@@ -49,12 +49,6 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-    public List<ApplicationSearchView> searchApplications(String input) {
-        List<ApplicationSearchView> applicationSearchView = queries.searchApplications(input);
-
-        return applicationSearchView;
-    }
-
     public ApplicationView getApplication(String applicationName) {
         return queries.getApplication(applicationName)
                 .orElseThrow(() -> new ApplicationNotFoundException(applicationName));
@@ -78,10 +72,10 @@ public class PlatformUseCases {
      * Ce use case a une spécificité au niveau de la récupération
      * des plateformes ayant un module. Le version type passé dans l'url
      * peut-être soit release, soit workingcopy.
-     *
+     * <p>
      * Toutes les autres valeurs seront considérées comme étant workingcopy
      * par défaut.
-     *
+     * <p>
      * Cette fonction est donc spécifique à ce use case et permet de gérer
      * le cas par défaut. D'autres uses cases renvoient une erreur si la
      * valeur ne correspond pas aux valeurs possible de l'énumération
@@ -96,7 +90,11 @@ public class PlatformUseCases {
         return TemplateContainer.getVersionType(versionType);
     }
 
-    public List<SearchPlatformView> search(String applicationName, String platformName) {
-        return queries.search(applicationName, platformName);
+    public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
+        return queries.searchPlatforms(applicationName, platformName);
+    }
+
+    public List<SearchApplicationResultView> searchApplications(String applicationName) {
+        return queries.searchApplications(applicationName);
     }
 }
