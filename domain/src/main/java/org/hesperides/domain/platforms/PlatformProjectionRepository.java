@@ -2,10 +2,7 @@ package org.hesperides.domain.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
-import org.hesperides.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
-import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
+import org.hesperides.domain.platforms.queries.views.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +26,14 @@ public interface PlatformProjectionRepository {
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
 
     @QueryHandler
-    public List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query);
+    Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query);
+
+    @QueryHandler
+    List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query);
+
+    @QueryHandler
+    List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query);
 
     @QueryHandler
     List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query);
-
-    @QueryHandler
-    Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query);
 }

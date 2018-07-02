@@ -71,7 +71,7 @@ public class PlatformAggregate implements Serializable {
 
         // TODO populate properties when `cmd.copyProps` flag is set (-> dedicated aggregate / command ?)
 
-        AggregateLifecycle.apply(new PlatformUpdatedEvent(cmd.getKey(), candidate.incVersion(), cmd.getUser()));
+        AggregateLifecycle.apply(new PlatformUpdatedEvent(cmd.getKey(), candidate.incVersion().updateDeployedModules(), cmd.getUser()));
     }
 
     /*** EVENT HANDLERS ***/

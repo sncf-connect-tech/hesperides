@@ -26,10 +26,11 @@ public class CreateAPlatform extends CucumberSpringBean implements En {
 
     public CreateAPlatform() {
         Given("a platform to create$", () -> {
-            platformInput = PlatformSamples.buildPlatformInputWithValues(PlatformSamples.DEFAULT_PLATFORM_NAME);
+            platformInput = PlatformSamples.buildPlatformInputWithName(PlatformSamples.DEFAULT_PLATFORM_NAME);
         });
+
         Given("a platform to create, named \"([^\"]*)\"$", (String name) -> {
-            platformInput = PlatformSamples.buildPlatformInputWithValues(name);
+            platformInput = PlatformSamples.buildPlatformInputWithName(name);
         });
 
         When("^creating this platform$", () -> {
@@ -46,6 +47,7 @@ public class CreateAPlatform extends CucumberSpringBean implements En {
             PlatformOutput expectedPlatformOutput = PlatformSamples.getPlatformOutputWithDefaultValues();
             PlatformAssertions.assertPlatform(expectedPlatformOutput, platformOutput);
         });
+
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
             assertEquals(HttpStatus.valueOf(httpCode), rawResponse.getStatusCode());
             assertThat(rawResponse.getBody(), Matchers.containsString(message));

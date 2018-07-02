@@ -34,6 +34,23 @@ public class PlatformSamples {
     public static final long DEFAULT_INPUT_VERSION_ID = 0L;
     public static final long DEFAULT_OUTPUT_VERSION_ID = 1L;
 
+    /*
+    * Inputs
+    */
+    public static PlatformInput buildPlatformInputWithName(String name) {
+        return new PlatformInput(
+                name,
+                DEFAULT_APPLICATION_NAME,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L),
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L)
+                ),
+                DEFAULT_INPUT_VERSION_ID
+        );
+    }
+
     public static PlatformInput buildPlatformInputWithValues(String name) {
         return buildPlatformInputWithValues(name, DEFAULT_APPLICATION_NAME);
     }
@@ -52,8 +69,18 @@ public class PlatformSamples {
         );
     }
 
-    public static PlatformOutput getPlatformOutputWithDefaultValues() {
-        return getPlatformOutputWithVersionId(DEFAULT_OUTPUT_VERSION_ID);
+    public static PlatformInput buildPlatformInputWithExistingModule(String platformName, String moduleName, String
+            moduleVersion) {
+        return new PlatformInput(
+                platformName,
+                DEFAULT_APPLICATION_NAME,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L, moduleName, moduleVersion)
+                ),
+                DEFAULT_INPUT_VERSION_ID
+        );
     }
 
     public static PlatformInput getPlatformInputWithVersionId(Long versionId) {
@@ -63,11 +90,18 @@ public class PlatformSamples {
                 DEFAULT_VERSION,
                 DEFAULT_PRODUCTION_PLATFORM,
                 Arrays.asList(
-                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(1L),
-                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(2L)
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L),
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L)
                 ),
                 versionId
         );
+    }
+
+    /*
+     * Outputs
+     */
+    public static PlatformOutput getPlatformOutputWithDefaultValues() {
+        return getPlatformOutputWithVersionId(DEFAULT_OUTPUT_VERSION_ID);
     }
 
     public static PlatformOutput getPlatformOutputWithVersionId(Long versionId) {
