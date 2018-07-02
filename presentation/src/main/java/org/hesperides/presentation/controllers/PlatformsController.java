@@ -2,13 +2,17 @@ package org.hesperides.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.application.platforms.PlatformUseCases;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.presentation.io.platforms.SearchPlatformOutput;
 import org.hesperides.presentation.io.platforms.PlatformInput;
 import org.hesperides.presentation.io.platforms.PlatformOutput;
 
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
 
+@Slf4j
 @Api("/applications")
 @RequestMapping("/applications")
 @RestController
@@ -124,6 +129,29 @@ public class PlatformsController extends AbstractController {
 
         // response
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Search one/all platform")
+    @PostMapping("/platforms/perform_search")
+    public ResponseEntity<List<SearchPlatformOutput>> search(Authentication authentication,
+                                                             @RequestParam("application_name") final String applicationName,
+                                                             @RequestParam(value = "platform_name", required = false) final String platformName) {
+        // verify parameters.
+        this.checkQueryParameterNotEmpty("application_name", applicationName);
+        String platformName2 = platformName == null ? "" : platformName;
+
+        String msg = !StringUtils.isBlank(platformName)
+                ? "Search platform " + platformName
+                : "Search all platform";
+        msg += " from application " + applicationName;
+        log.debug(msg);
+
+        List<SearchPlatformView> searchPlatformViewList = platformUseCases.search(applicationName, platformName2);
+        List<SearchPlatformOutput> searchPlatformOutputList = searchPlatformViewList != null
+                ? searchPlatformViewList.stream().map(SearchPlatformOutput::new).collect(Collectors.toList())
+                : new ArrayList<>();
+
+        return ResponseEntity.ok(searchPlatformOutputList);
     }
 
     @ApiOperation("Search an application")

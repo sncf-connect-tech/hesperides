@@ -3,9 +3,12 @@ package org.hesperides.infrastructure.mongo.platforms;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
+
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.ApplicationView;
+
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +72,19 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    public List<SearchPlatformView> onSearchPlatformQuery(SearchPlatformQuery query) {
+        List<PlatformDocument> platformDocumentList =
+                platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
+                        query.getApplicationName(),
+                        query.getPlatformName());
+        return platformDocumentList
+                .stream()
+                .map(PlatformDocument::toSearchPlatformView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
     public List<ApplicationSearchView> onSearchApplicationsByNameQuery(SearchApplicationsByNameQuery query) {
         List<ApplicationSearchView> applicationsViewSearch = platformRepository.findAllByKeyApplicationNameLike(query.getInput())
                 .stream()
@@ -78,6 +94,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         return applicationsViewSearch;
     }
 
+    @QueryHandler
+    @Override
     public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
         Optional<ApplicationView> optionalApplicationView = Optional.empty();
 

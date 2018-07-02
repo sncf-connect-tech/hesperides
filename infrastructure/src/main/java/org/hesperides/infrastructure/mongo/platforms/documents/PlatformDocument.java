@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 import org.hesperides.domain.platforms.queries.views.PlatformView;
+import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -60,6 +61,13 @@ public class PlatformDocument {
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
                 versionId
         );
+    }
+
+
+    public SearchPlatformView toSearchPlatformView() {
+        return new SearchPlatformView(
+                key.getPlatformName(),
+                key.getApplicationName());
     }
 
     public ApplicationSearchView toApplicationSearchView() {
