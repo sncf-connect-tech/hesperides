@@ -23,20 +23,13 @@ package org.hesperides.presentation.io.platforms;
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import org.hesperides.domain.platforms.entities.Platform;
-import org.hesperides.domain.platforms.queries.views.PlatformView;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.hesperides.presentation.io.OnlyPrintableCharacters;
 
 @Value
-@AllArgsConstructor
-public class PlatformIO {
+public class PlatformInput {
 
     @OnlyPrintableCharacters(subject = "platform_name")
     @SerializedName("platform_name")
@@ -52,27 +45,10 @@ public class PlatformIO {
     @SerializedName("production")
     boolean productionPlatform;
 
-    List<DeployedModuleIO> deployedModules;
+    List<DeployedModuleInput> deployedModules;
 
     @SerializedName("version_id")
     Long versionId;
-
-    public PlatformIO(PlatformView platformView) {
-        this.platformName = platformView.getPlatformName();
-        this.applicationName = platformView.getApplicationName();
-        this.version = platformView.getVersion();
-        this.productionPlatform = platformView.isProductionPlatform();
-        this.deployedModules = DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules());
-        this.versionId = platformView.getVersionId();
-    }
-
-    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
-        return Optional.ofNullable(platformViews)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(PlatformIO::new)
-                .collect(Collectors.toList());
-    }
 
     public Platform toDomainInstance() {
         return new Platform(
@@ -80,7 +56,7 @@ public class PlatformIO {
                 version,
                 productionPlatform,
                 versionId,
-                DeployedModuleIO.toDomainInstances(deployedModules)
+                DeployedModuleInput.toDomainInstances(deployedModules)
         );
     }
 

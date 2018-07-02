@@ -12,8 +12,10 @@ import org.hesperides.domain.platforms.queries.views.PlatformView;
 import org.hesperides.domain.platforms.queries.views.SearchPlatformView;
 import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.presentation.io.platforms.PlatformIO;
 import org.hesperides.presentation.io.platforms.SearchPlatformOutput;
+import org.hesperides.presentation.io.platforms.PlatformInput;
+import org.hesperides.presentation.io.platforms.PlatformOutput;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -51,24 +53,24 @@ public class PlatformsController extends AbstractController {
 
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
-    public ResponseEntity<PlatformIO> createPlatform(Authentication authentication,
-                                                     @PathVariable("application_name") final String applicationName,
-                                                     @Valid @RequestBody final PlatformIO platformInput) {
+    public ResponseEntity<PlatformOutput> createPlatform(Authentication authentication,
+                                                        @PathVariable("application_name") final String applicationName,
+                                                        @Valid @RequestBody final PlatformInput platformInput) {
 
         Platform platform = platformInput.toDomainInstance();
         Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
 
 
         PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
-        PlatformIO platformOutput = new PlatformIO(platformView);
+        PlatformOutput platformOutput = new PlatformOutput(platformView);
 
         return ResponseEntity.ok(platformOutput);
     }
 
     @ApiOperation("Retrieve a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}")
-    public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
-                                                  @PathVariable("platform_name") final String platformName) {
+    public ResponseEntity<PlatformOutput> getPlatform(@PathVariable("application_name") final String applicationName,
+                                                     @PathVariable("platform_name") final String platformName) {
 
         // create key from path
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
@@ -77,7 +79,7 @@ public class PlatformsController extends AbstractController {
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
 
         // transform it into IO
-        PlatformIO platformOutput = new PlatformIO(platformView);
+        PlatformOutput platformOutput = new PlatformOutput(platformView);
 
         // response
         return ResponseEntity.ok(platformOutput);
@@ -85,10 +87,10 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Update a platform")
     @PutMapping("/{application_name}/platforms")
-    public ResponseEntity<PlatformIO> updatePlatform(Authentication authentication,
+    public ResponseEntity<PlatformOutput> updatePlatform(Authentication authentication,
                                                      @PathVariable("application_name") final String applicationName,
                                                      @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProps,
-                                                     @Valid @RequestBody final PlatformIO newDefinition) {
+                                                     @Valid @RequestBody final PlatformInput newDefinition) {
 
         final boolean copyRequested = Boolean.TRUE.equals(copyProps); // no null anymore
         // create key from path
@@ -110,7 +112,7 @@ public class PlatformsController extends AbstractController {
             // TODO remove as soon as properties are handled
             response.header("x-hesperides-warning", "no property copied! (not implemented yet)");
         }
-        return response.body(new PlatformIO(platformView));
+        return response.body(new PlatformOutput(platformView));
     }
 
     @ApiOperation("Delete a platform")

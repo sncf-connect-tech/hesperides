@@ -24,12 +24,11 @@ import cucumber.api.java8.En;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
-import org.hesperides.presentation.io.platforms.PlatformIO;
+import org.hesperides.presentation.io.platforms.PlatformInput;
+import org.hesperides.presentation.io.platforms.PlatformOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 public class PlatformContext extends CucumberSpringBean implements En {
 
@@ -46,31 +45,31 @@ public class PlatformContext extends CucumberSpringBean implements En {
         return platformKey;
     }
 
-    public ResponseEntity<PlatformIO> createPlatform(PlatformIO platformInput) {
-        ResponseEntity<PlatformIO> response = rest.getTestRest().postForEntity(
-                "/applications/{application_name}/platforms", platformInput, PlatformIO.class, platformInput.getApplicationName());
-        PlatformIO platformOutput = response.getBody();
+    public ResponseEntity<PlatformOutput> createPlatform(PlatformInput platformInput) {
+        ResponseEntity<PlatformOutput> response = rest.getTestRest().postForEntity(
+                "/applications/{application_name}/platforms", platformInput, PlatformOutput.class, platformInput.getApplicationName());
+        PlatformOutput platformOutput = response.getBody();
         platformKey = new Platform.Key(platformOutput.getApplicationName(), platformOutput.getPlatformName());
         return response;
     }
 
-    public ResponseEntity<String> failCreatingPlatform(PlatformIO input) {
+    public ResponseEntity<String> failCreatingPlatform(PlatformInput input) {
         return rest.doWithErrorHandlerDisabled(rest ->
                 rest.postForEntity("/applications/{application_name}/platforms", input, String.class, input.getApplicationName())
         );
     }
 
-    public ResponseEntity<PlatformIO> updatePlatform(PlatformIO platformInput, boolean copyProps) {
+    public ResponseEntity<PlatformOutput> updatePlatform(PlatformInput platformInput, boolean copyProps) {
         String url = "/applications/{application_name}/platforms";
         if (copyProps) {
             url += "?copyPropertiesForUpgradedModules=true";
         }
-        return rest.putForEntity(url, platformInput, PlatformIO.class, platformKey.getApplicationName());
+        return rest.putForEntity(url, platformInput, PlatformOutput.class, platformKey.getApplicationName());
     }
 
-    public ResponseEntity<PlatformIO> retrieveExistingPlatform() {
+    public ResponseEntity<PlatformOutput> retrieveExistingPlatform() {
         return rest.getTestRest().getForEntity("/applications/{application_name}/platforms/{platform_name}",
-                PlatformIO.class, platformKey.getApplicationName(), platformKey.getPlatformName());
+                PlatformOutput.class, platformKey.getApplicationName(), platformKey.getPlatformName());
     }
 
     public ResponseEntity<ApplicationOutput> retrieveExistingApplication() {
