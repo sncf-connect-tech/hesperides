@@ -26,7 +26,7 @@ public class SearchAPlatform extends CucumberSpringBean implements En {
         Given("^a list of 25 platforms$", () -> {
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
-                    PlatformIO platformInput = PlatformSamples.buildPlatformInputWithValues("APP-"+i, "TEST-"+j);
+                    PlatformIO platformInput = PlatformSamples.buildPlatformInputWithValues2("APP-"+i, "TEST-"+j);
                     platformContext.createPlatform(platformInput);
                 }
             }
