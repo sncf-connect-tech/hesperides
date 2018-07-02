@@ -2,7 +2,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.presentation.io.platforms.ModulePlatformsOutput;
-import org.hesperides.presentation.io.platforms.PlatformIO;
+import org.hesperides.presentation.io.platforms.PlatformInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
@@ -28,7 +28,7 @@ public class GetPlatformsUsingModule extends CucumberSpringBean implements En {
     public GetPlatformsUsingModule() {
         Given("^existing platforms containing this module$", () -> {
             for (int x = 0; x < 2; x++) {
-                PlatformIO p = PlatformSamples.buildPlatformInputWithExistingModule("p" + x, "test", "1.0.0");
+                PlatformInput p = PlatformSamples.buildPlatformInputWithExistingModule("p" + x, "test", "1.0.0");
                 platformContext.createPlatform(p);
             }
         });
