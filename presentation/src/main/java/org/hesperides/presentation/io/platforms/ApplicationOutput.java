@@ -38,10 +38,10 @@ public class ApplicationOutput {
 
     @NotNull
     @NotEmpty
-    List<PlatformIO> platforms;
+    List<PlatformOutput> platforms;
 
     public ApplicationOutput(ApplicationView applicationView) {
         this.name = applicationView.getName();
-        this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms());
+        this.platforms = PlatformOutput.fromViews(applicationView.getPlatforms());
     }
 }
