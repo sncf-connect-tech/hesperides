@@ -93,8 +93,8 @@ public class PlatformSamples {
         );
     }
 
-    public static PlatformIO buildPlatformInputWithValues2(String applicationName, String platformName) {
-        return new PlatformIO(
+    public static PlatformInput buildPlatformInputWithValues2(String applicationName, String platformName) {
+        return new PlatformInput(
                 platformName,
                 applicationName,
                 DEFAULT_VERSION,
