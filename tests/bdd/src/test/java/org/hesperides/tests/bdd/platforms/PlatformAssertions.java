@@ -21,9 +21,9 @@
 package org.hesperides.tests.bdd.platforms;
 
 import org.hesperides.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.presentation.io.platforms.DeployedModuleIO;
+import org.hesperides.presentation.io.platforms.DeployedModuleOutput;
 import org.hesperides.presentation.io.platforms.InstanceIO;
-import org.hesperides.presentation.io.platforms.PlatformIO;
+import org.hesperides.presentation.io.platforms.PlatformOutput;
 import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 
 public class PlatformAssertions {
 
-    public static void assertPlatform(PlatformIO expectedPlatform, PlatformIO actualPlatform) {
+    public static void assertPlatform(PlatformOutput expectedPlatform, PlatformOutput actualPlatform) {
         assertEquals(expectedPlatform.getApplicationName(), actualPlatform.getApplicationName());
         assertEquals(expectedPlatform.getPlatformName(), actualPlatform.getPlatformName());
         assertEquals(expectedPlatform.getVersion(), actualPlatform.getVersion());
@@ -40,14 +40,14 @@ public class PlatformAssertions {
         assertDeployedModules(expectedPlatform.getDeployedModules(), actualPlatform.getDeployedModules());
     }
 
-    public static void assertDeployedModules(List<DeployedModuleIO> expectedDeployedModules, List<DeployedModuleIO> actualDeployedModules) {
+    public static void assertDeployedModules(List<DeployedModuleOutput> expectedDeployedModules, List<DeployedModuleOutput> actualDeployedModules) {
         assertEquals(expectedDeployedModules.size(), actualDeployedModules.size());
         for (int i = 0; i < expectedDeployedModules.size(); i++) {
             assertDeployedModule(expectedDeployedModules.get(i), actualDeployedModules.get(i));
         }
     }
 
-    public static void assertDeployedModule(DeployedModuleIO expectedDeployedModule, DeployedModuleIO actualDeployedModule) {
+    public static void assertDeployedModule(DeployedModuleOutput expectedDeployedModule, DeployedModuleOutput actualDeployedModule) {
         assertEquals(expectedDeployedModule.getId(), actualDeployedModule.getId());
         assertEquals(expectedDeployedModule.getName(), actualDeployedModule.getName());
         assertEquals(expectedDeployedModule.getVersion(), actualDeployedModule.getVersion());

@@ -25,13 +25,8 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class PlatformView {
+public class ApplicationSearchView {
 
-    String platformName;
-    String applicationName;
-    String version;
-    boolean productionPlatform;
-    List<DeployedModuleView> deployedModules;
-    Long versionId;
+    String name;
+
 }
-

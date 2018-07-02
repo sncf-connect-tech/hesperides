@@ -18,20 +18,17 @@
  *
  *
  */
-package org.hesperides.domain.platforms.queries.views;
+package org.hesperides.presentation.io.platforms;
 
 import lombok.Value;
-
-import java.util.List;
+import org.hesperides.domain.platforms.queries.views.ApplicationSearchView;
 
 @Value
-public class PlatformView {
+public class ApplicationSearchOutput {
 
-    String platformName;
-    String applicationName;
-    String version;
-    boolean productionPlatform;
-    List<DeployedModuleView> deployedModules;
-    Long versionId;
+    String name;
+
+    public ApplicationSearchOutput(ApplicationSearchView applicationSearchView) {
+        this.name = applicationSearchView.getName();
+    }
 }
-

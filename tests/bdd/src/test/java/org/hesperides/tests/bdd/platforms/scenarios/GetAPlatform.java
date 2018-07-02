@@ -1,7 +1,8 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.platforms.PlatformIO;
+import org.hesperides.presentation.io.platforms.PlatformInput;
+import org.hesperides.presentation.io.platforms.PlatformOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.PlatformAssertions;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
@@ -17,7 +18,7 @@ public class GetAPlatform extends CucumberSpringBean implements En {
     @Autowired
     private PlatformContext platformContext;
 
-    private ResponseEntity<PlatformIO> response;
+    private ResponseEntity<PlatformOutput> response;
 
     public GetAPlatform() {
 
@@ -27,8 +28,8 @@ public class GetAPlatform extends CucumberSpringBean implements En {
 
         Then("^the platform is successfully retrieved$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            PlatformIO platformOutput = response.getBody();
-            PlatformIO expectedPlatformOutput = PlatformSamples.getPlatformOutputWithDefaultValues();
+            PlatformOutput platformOutput = response.getBody();
+            PlatformOutput expectedPlatformOutput = PlatformSamples.getPlatformOutputWithDefaultValues();
             PlatformAssertions.assertPlatform(expectedPlatformOutput, platformOutput);
         });
     }
