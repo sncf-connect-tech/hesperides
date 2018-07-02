@@ -13,7 +13,7 @@ public class Template {
     Long versionId;
     TemplateContainer.Key templateContainerKey;
 
-    public Template initVersionId() {
+    public Template initializeVersionId() {
         return new Template(
                 name,
                 filename,

@@ -43,11 +43,11 @@ public class PlatformCommands {
         return commandGateway.sendAndWait(new CreatePlatformCommand(platform, user));
     }
 
-    public void deletePlatform(Platform.Key platformKey, User user) {
-        commandGateway.sendAndWait(new DeletePlatformCommand(platformKey, user));
+    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
+        commandGateway.sendAndWait(new UpdatePlatformCommand(platformKey, platform, copyProperties, user));
     }
 
-    public void updatePlatform(Platform.Key key, Platform newValue, boolean copyProps, User user) {
-        commandGateway.sendAndWait(new UpdatePlatformCommand(key, newValue, copyProps, user));
+    public void deletePlatform(Platform.Key platformKey, User user) {
+        commandGateway.sendAndWait(new DeletePlatformCommand(platformKey, user));
     }
 }

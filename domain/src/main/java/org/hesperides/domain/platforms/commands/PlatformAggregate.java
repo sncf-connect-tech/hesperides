@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.commandhandling.model.AggregateLifecycle;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
@@ -32,6 +31,8 @@ import org.hesperides.domain.platforms.*;
 import org.hesperides.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
+
+import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 @Slf4j
 @Aggregate
@@ -50,46 +51,50 @@ public class PlatformAggregate implements Serializable {
         //TODO Logs
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
         Platform platform = command.getPlatform()
-                .initVersionId()
+                .initializeVersionId()
                 .updateDeployedModules();
 
-        AggregateLifecycle.apply(new PlatformCreatedEvent(platform, command.getUser()));
+        apply(new PlatformCreatedEvent(platform, command.getUser()));
     }
 
 
     @CommandHandler
-    public void handle(DeletePlatformCommand command) {
-        AggregateLifecycle.apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
+    public void onDeletePlatformCommand(DeletePlatformCommand command) {
+        apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
     }
 
     @CommandHandler
-    public void handleUpdate(UpdatePlatformCommand cmd) {
-        final Platform candidate = cmd.getNewDefintion();
-        if (!candidate.getVersionId().equals(versionId)) {
-            throw new OutOfDateVersionException(versionId, candidate.getVersionId());
+    public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
+        final Platform platform = command.getPlatform();
+        if (!platform.getVersionId().equals(versionId)) {
+            throw new OutOfDateVersionException(versionId, platform.getVersionId());
         }
 
         // TODO populate properties when `cmd.copyProps` flag is set (-> dedicated aggregate / command ?)
 
-        AggregateLifecycle.apply(new PlatformUpdatedEvent(cmd.getKey(), candidate.incVersion().updateDeployedModules(), cmd.getUser()));
+        Platform processedPlatform = platform
+                .incrementVersionId()
+                .updateDeployedModules();
+
+        apply(new PlatformUpdatedEvent(command.getPlatformKey(), processedPlatform, command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
-    public void onCreate(PlatformCreatedEvent event) {
+    public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         this.key = event.getPlatform().getKey();
         this.versionId = event.getPlatform().getVersionId();
         log.debug("Plateform created");
     }
 
     @EventSourcingHandler
-    public void onDelete(PlatformDeletedEvent event) {
+    public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         log.debug("Platform deleted");
     }
 
     @EventSourcingHandler
-    public void onUpdate(PlatformUpdatedEvent event) {
+    public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
         this.versionId = event.getNewDefinition().getVersionId();
         log.debug("Platform updated");
     }

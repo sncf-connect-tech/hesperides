@@ -9,8 +9,6 @@ import org.hesperides.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.domain.platforms.queries.PlatformQueries;
 import org.hesperides.domain.platforms.queries.views.*;
 import org.hesperides.domain.security.User;
-import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.domain.templatecontainers.entities.TemplateContainer.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,17 +34,23 @@ public class PlatformUseCases {
         return commands.createPlatform(platform, user);
     }
 
+    public PlatformView getPlatform(Platform.Key platformKey) {
+        return queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+    }
+
+    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
+        if (!queries.platformExists(platformKey)) {
+            throw new PlatformNotFoundException(platform.getKey());
+        }
+        commands.updatePlatform(platformKey, platform, copyProperties, user);
+    }
+
     public void deletePlatform(Platform.Key platformKey, User user) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
-
         commands.deletePlatform(platformKey, user);
-    }
-
-    public PlatformView getPlatform(Platform.Key platformKey) {
-        return queries.getOptionalPlatform(platformKey)
-                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
     public ApplicationView getApplication(String applicationName) {
@@ -54,40 +58,8 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new ApplicationNotFoundException(applicationName));
     }
 
-    public void updatePlatform(Platform.Key key, Platform newDefinition, boolean copyProps, User user) {
-        if (!queries.platformExists(key)) {
-            throw new PlatformNotFoundException(newDefinition.getKey());
-        }
-
-        commands.updatePlatform(key, newDefinition, copyProps, user);
-    }
-
-    public List<ModulePlatformView> getPlatformUsingModule(String moduleName, String moduleVersion, String moduleVersionType) {
-        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, stringToVersionType(moduleVersionType));
-
+    public List<ModulePlatformView> getPlatformUsingModule(Module.Key moduleKey) {
         return queries.getPlatformsUsingModule(moduleKey);
-    }
-
-    /**
-     * Ce use case a une spécificité au niveau de la récupération
-     * des plateformes ayant un module. Le version type passé dans l'url
-     * peut-être soit release, soit workingcopy.
-     * <p>
-     * Toutes les autres valeurs seront considérées comme étant workingcopy
-     * par défaut.
-     * <p>
-     * Cette fonction est donc spécifique à ce use case et permet de gérer
-     * le cas par défaut. D'autres uses cases renvoient une erreur si la
-     * valeur ne correspond pas aux valeurs possible de l'énumération
-     * VersionType.
-     */
-    private VersionType stringToVersionType(String moduleVersionType) {
-        boolean versionType = !VersionType
-                .release
-                .toString()
-                .equalsIgnoreCase(moduleVersionType);
-
-        return TemplateContainer.getVersionType(versionType);
     }
 
     public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {

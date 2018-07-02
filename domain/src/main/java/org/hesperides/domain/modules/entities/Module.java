@@ -21,7 +21,7 @@ public class Module extends TemplateContainer {
         this.versionId = versionId;
     }
 
-    public Module initVersionId() {
+    public Module initializeVersionId() {
         return new Module(getKey(), getTemplates(), technos, 1L);
     }
 

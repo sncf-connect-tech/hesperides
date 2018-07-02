@@ -26,7 +26,9 @@ import org.hesperides.domain.platforms.entities.DeployedModule;
 import org.hesperides.domain.platforms.queries.views.DeployedModuleView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -65,18 +67,18 @@ public class DeployedModuleDocument {
     }
 
     public static List<DeployedModuleDocument> fromDomainInstances(List<DeployedModule> deployedModules) {
-        List<DeployedModuleDocument> deployedModuleDocuments = null;
-        if (deployedModules != null) {
-            deployedModuleDocuments = deployedModules.stream().map(DeployedModuleDocument::new).collect(Collectors.toList());
-        }
-        return deployedModuleDocuments;
+        return Optional.ofNullable(deployedModules)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DeployedModuleDocument::new)
+                .collect(Collectors.toList());
     }
 
     public static List<DeployedModuleView> toDeployedModuleViews(List<DeployedModuleDocument> deployedModules) {
-        List<DeployedModuleView> deployedModuleViews = null;
-        if (deployedModules != null) {
-            deployedModuleViews = deployedModules.stream().map(DeployedModuleDocument::toDeployedModuleView).collect(Collectors.toList());
-        }
-        return deployedModuleViews;
+        return Optional.ofNullable(deployedModules)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DeployedModuleDocument::toDeployedModuleView)
+                .collect(Collectors.toList());
     }
 }

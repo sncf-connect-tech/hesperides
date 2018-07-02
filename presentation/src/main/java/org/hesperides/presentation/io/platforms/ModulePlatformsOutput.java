@@ -25,6 +25,11 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.domain.platforms.queries.views.ModulePlatformView;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Value
 @AllArgsConstructor
 public class ModulePlatformsOutput {
@@ -37,5 +42,13 @@ public class ModulePlatformsOutput {
     public ModulePlatformsOutput(ModulePlatformView modulePlatformView) {
         this.applicationName = modulePlatformView.getApplicationName();
         this.platformName = modulePlatformView.getPlatformName();
+    }
+
+    public static List<ModulePlatformsOutput> fromViews(List<ModulePlatformView> modulePlatformViews) {
+        return Optional.ofNullable(modulePlatformViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ModulePlatformsOutput::new)
+                .collect(Collectors.toList());
     }
 }

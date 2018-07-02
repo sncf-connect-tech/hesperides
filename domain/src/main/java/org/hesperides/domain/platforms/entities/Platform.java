@@ -33,22 +33,22 @@ public class Platform {
     Long versionId;
     List<DeployedModule> deployedModules;
 
-    public Platform incVersion() {
-        return new Platform(
-                key,
-                version,
-                productionPlatform,
-                versionId + 1,
-                deployedModules
-        );
-    }
-
-    public Platform initVersionId() {
+    public Platform initializeVersionId() {
         return new Platform(
                 key,
                 version,
                 productionPlatform,
                 1L,
+                deployedModules
+        );
+    }
+
+    public Platform incrementVersionId() {
+        return new Platform(
+                key,
+                version,
+                productionPlatform,
+                versionId + 1,
                 deployedModules
         );
     }

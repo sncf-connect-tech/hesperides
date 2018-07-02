@@ -9,7 +9,7 @@ import org.hesperides.domain.templatecontainers.entities.TemplateContainer
 // Command
 data class CreatePlatformCommand(val platform: Platform, val user: User)
 data class DeletePlatformCommand(@TargetAggregateIdentifier val platformKey: Platform.Key, val user: User)
-data class UpdatePlatformCommand(@TargetAggregateIdentifier val key: Platform.Key, val newDefintion: Platform, val copyProps: Boolean, val user: User)
+data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformKey: Platform.Key, val platform: Platform, val copyProperties: Boolean, val user: User)
 
 // Event
 data class PlatformCreatedEvent(val platform: Platform, override val user: User) : UserEvent(user)
@@ -18,7 +18,7 @@ data class PlatformUpdatedEvent(val key: Platform.Key, val newDefinition: Platfo
 
 // Query
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
-data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)
 data class GetApplicationByNameQuery(val applicationName: String)
-data class SearchApplicationsQuery(val applicationName: String)
+data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)
 data class SearchPlatformsQuery(val applicationName: String, val platformName: String)
+data class SearchApplicationsQuery(val applicationName: String)

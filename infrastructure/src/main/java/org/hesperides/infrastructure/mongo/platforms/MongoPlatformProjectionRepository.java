@@ -1,5 +1,6 @@
 package org.hesperides.infrastructure.mongo.platforms;
 
+import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.domain.platforms.*;
@@ -99,10 +100,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query) {
 
+        String platformName = StringUtils.defaultString(query.getPlatformName(), "");
+
         List<PlatformDocument> platformDocuments =
                 platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
                         query.getApplicationName(),
-                        query.getPlatformName());
+                        platformName);
 
         return platformDocuments
                 .stream()
@@ -113,7 +116,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     public List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query) {
-        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationNameLike(query.getApplicationName());
+
+        List<PlatformDocument> platformDocuments = platformRepository
+                .findAllByKeyApplicationNameLike(query.getApplicationName());
 
         return platformDocuments
                 .stream()

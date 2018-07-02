@@ -27,7 +27,9 @@ import org.hesperides.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -48,18 +50,18 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
-        List<ValuedPropertyDocument> valuedPropertyDocuments = null;
-        if (valuedProperties != null) {
-            valuedPropertyDocuments = valuedProperties.stream().map(ValuedPropertyDocument::new).collect(Collectors.toList());
-        }
-        return valuedPropertyDocuments;
+        return Optional.ofNullable(valuedProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ValuedPropertyDocument::new)
+                .collect(Collectors.toList());
     }
 
     public static List<ValuedPropertyView> toValuedPropertyViews(List<ValuedPropertyDocument> valuedPropertyDocuments) {
-        List<ValuedPropertyView> valuedPropertyViews = null;
-        if (valuedPropertyDocuments != null) {
-            valuedPropertyViews = valuedPropertyDocuments.stream().map(ValuedPropertyDocument::toValuedPropertyView).collect(Collectors.toList());
-        }
-        return valuedPropertyViews;
+        return Optional.ofNullable(valuedPropertyDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ValuedPropertyDocument::toValuedPropertyView)
+                .collect(Collectors.toList());
     }
 }

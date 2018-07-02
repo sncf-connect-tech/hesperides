@@ -25,6 +25,7 @@ import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,9 +62,9 @@ public class DeployedModule {
     }
 
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
-        List<DeployedModule> deployedModulesWithId = null;
+        List<DeployedModule> deployedModulesWithId = Collections.emptyList();
         if (deployedModules != null) {
-            deployedModules = new ArrayList<>();
+            deployedModulesWithId = new ArrayList<>();
 
             long sequence = maxId(deployedModules);
             for (DeployedModule deployedModule : deployedModules) {

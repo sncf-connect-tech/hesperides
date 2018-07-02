@@ -26,7 +26,9 @@ import org.hesperides.domain.platforms.entities.Instance;
 import org.hesperides.domain.platforms.queries.views.InstanceView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -50,18 +52,18 @@ public class InstanceDocument {
     }
 
     public static List<InstanceDocument> fromDomainInstances(List<Instance> instances) {
-        List<InstanceDocument> instanceDocuments = null;
-        if (instances != null) {
-            instanceDocuments = instances.stream().map(InstanceDocument::new).collect(Collectors.toList());
-        }
-        return instanceDocuments;
+        return Optional.ofNullable(instances)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstanceDocument::new)
+                .collect(Collectors.toList());
     }
 
     public static List<InstanceView> toInstanceViews(List<InstanceDocument> instances) {
-        List<InstanceView> instanceViews = null;
-        if (instances != null) {
-            instanceViews = instances.stream().map(InstanceDocument::toInstanceView).collect(Collectors.toList());
-        }
-        return instanceViews;
+        return Optional.ofNullable(instances)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstanceDocument::toInstanceView)
+                .collect(Collectors.toList());
     }
 }

@@ -63,7 +63,7 @@ class TechnoAggregate implements Serializable {
         AbstractProperty.validateProperties(abstractProperties);
 
         // Initialise le version_id du template à 1
-        Template template = command.getTemplate().initVersionId();
+        Template template = command.getTemplate().initializeVersionId();
 
         apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), template, command.getUser()));
     }

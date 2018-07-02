@@ -48,7 +48,7 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
-        Module module = command.getModule().initVersionId();
+        Module module = command.getModule().initializeVersionId();
         apply(new ModuleCreatedEvent(module, command.getUser()));
     }
 
@@ -83,7 +83,7 @@ class ModuleAggregate implements Serializable {
         AbstractProperty.validateProperties(abstractProperties);
 
         // Initialise le versionId
-        Template template = command.getTemplate().initVersionId();
+        Template template = command.getTemplate().initializeVersionId();
 
         apply(new TemplateCreatedEvent(key, template, command.getUser()));
     }
@@ -128,15 +128,6 @@ class ModuleAggregate implements Serializable {
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         this.key = event.getModule().getKey();
         log.debug("module créé. (aggregate is live ? {})", isLive());
-    }
-
-    @EventSourcingHandler
-    @SuppressWarnings("unused")
-    public void onModuleCopiedEvent(ModuleCopiedEvent event) {
-        this.key = event.getModuleKey();
-        //TODO set les trucs du module en copiant depuis l'event.
-        //TODO Que faire ici ? Est-ce qu'on set la clé ? Est-ce qu'on ne fait rien puisque l'évènement de création contient la clé ?
-        log.debug("module copié.");
     }
 
     @EventSourcingHandler
