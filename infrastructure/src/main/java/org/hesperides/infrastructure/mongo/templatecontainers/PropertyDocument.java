@@ -33,22 +33,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PropertyDocument extends AbstractPropertyDocument {
 
-    private boolean required;
+    private boolean isRequired;
     private String comment;
     private String defaultValue;
     private String pattern;
-    private boolean password;
+    private boolean isPassword;
 
     public PropertyDocument(Property property) {
         this.name = property.getName();
-        this.required = property.isRequired();
+        this.isRequired = property.isRequired();
         this.comment = property.getComment();
         this.defaultValue = property.getDefaultValue();
         this.pattern = property.getPattern();
-        this.password = property.isPassword();
+        this.isPassword = property.isPassword();
     }
 
     public PropertyView toPropertyView() {
-        return new PropertyView(getName(), required, comment, defaultValue, pattern, password);
+        return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
     }
 }

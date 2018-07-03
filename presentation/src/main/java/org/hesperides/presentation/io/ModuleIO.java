@@ -20,7 +20,7 @@ public final class ModuleIO {
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("working_copy")
-    boolean workingCopy;
+    boolean isWorkingCopy;
     List<TechnoIO> technos;
     @SerializedName("version_id")
     Long versionId;
@@ -28,13 +28,13 @@ public final class ModuleIO {
     public ModuleIO(ModuleView moduleView) {
         this.name = moduleView.getName();
         this.version = moduleView.getVersion();
-        this.workingCopy = moduleView.isWorkingCopy();
+        this.isWorkingCopy = moduleView.isWorkingCopy();
         this.technos = TechnoIO.fromTechnoViews(moduleView.getTechnos());
         this.versionId = moduleView.getVersionId();
     }
 
     public Module toDomainInstance(List<Template> templates) {
-        return new Module(new Module.Key(name, version, TemplateContainer.getVersionType(workingCopy)),
+        return new Module(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)),
                 templates, TechnoIO.toDomainInstances(technos), versionId);
     }
 

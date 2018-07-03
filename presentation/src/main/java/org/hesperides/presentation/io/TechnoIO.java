@@ -41,16 +41,16 @@ public class TechnoIO {
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("working_copy")
-    boolean workingCopy;
+    boolean isWorkingCopy;
 
     public TechnoIO(TechnoView technoView) {
         this.name = technoView.getName();
         this.version = technoView.getVersion();
-        this.workingCopy = technoView.isWorkingCopy();
+        this.isWorkingCopy = technoView.isWorkingCopy();
     }
 
     public Techno toDomainInstance() {
-        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(workingCopy)), Collections.emptyList());
+        return new Techno(new Techno.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)), Collections.emptyList());
     }
 
     public static List<Techno> toDomainInstances(List<TechnoIO> technoIOS) {

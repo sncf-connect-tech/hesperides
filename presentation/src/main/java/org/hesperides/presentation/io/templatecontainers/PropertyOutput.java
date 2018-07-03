@@ -18,11 +18,13 @@ import java.util.stream.Collectors;
 public class PropertyOutput implements Comparable<PropertyOutput> {
 
     String name;
-    boolean required;
+    @SerializedName("required")
+    boolean isRequired;
     String comment;
     String defaultValue;
     String pattern;
-    boolean password;
+    @SerializedName("password")
+    boolean isPassword;
     @SerializedName("fields")
     List<PropertyOutput> properties;
 
@@ -31,20 +33,20 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
 
         if (abstractPropertyView instanceof PropertyView) {
             final PropertyView propertyView = (PropertyView) abstractPropertyView;
-            this.required = propertyView.isRequired();
+            this.isRequired = propertyView.isRequired();
             this.comment = propertyView.getComment();
             this.defaultValue = propertyView.getDefaultValue();
             this.pattern = propertyView.getPattern();
-            this.password = propertyView.isPassword();
+            this.isPassword = propertyView.isPassword();
             this.properties = Collections.emptyList();
 
         } else if (abstractPropertyView instanceof IterablePropertyView) {
             // Valeurs par défaut
-            this.required = false;
+            this.isRequired = false;
             this.comment = "";
             this.defaultValue = "";
             this.pattern = "";
-            this.password = false;
+            this.isPassword = false;
 
             final IterablePropertyView iterablePropertyView = (IterablePropertyView) abstractPropertyView;
             this.properties = PropertyOutput.fromAbstractPropertyViews(iterablePropertyView.getProperties());

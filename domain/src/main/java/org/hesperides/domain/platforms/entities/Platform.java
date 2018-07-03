@@ -29,7 +29,7 @@ public class Platform {
 
     Key key;
     String version;
-    boolean productionPlatform;
+    boolean isProductionPlatform;
     Long versionId;
     List<DeployedModule> deployedModules;
 
@@ -37,7 +37,7 @@ public class Platform {
         return new Platform(
                 key,
                 version,
-                productionPlatform,
+                isProductionPlatform,
                 1L,
                 deployedModules
         );
@@ -47,7 +47,7 @@ public class Platform {
         return new Platform(
                 key,
                 version,
-                productionPlatform,
+                isProductionPlatform,
                 versionId + 1,
                 deployedModules
         );
@@ -57,7 +57,7 @@ public class Platform {
         return new Platform(
                 key,
                 version,
-                productionPlatform,
+                isProductionPlatform,
                 versionId,
                 DeployedModule.fillMissingIdentifiers(deployedModules)
         );

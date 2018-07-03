@@ -18,7 +18,7 @@ public class DeployedModuleOutput {
     String name;
     String version;
     @SerializedName("working_copy")
-    boolean workingCopy;
+    boolean isWorkingCopy;
     @SerializedName("properties_path")
     String propertiesPath;
     String path;
@@ -28,7 +28,7 @@ public class DeployedModuleOutput {
         this.id = deployedModuleView.getId();
         this.name = deployedModuleView.getName();
         this.version = deployedModuleView.getVersion();
-        this.workingCopy = deployedModuleView.isWorkingCopy();
+        this.isWorkingCopy = deployedModuleView.isWorkingCopy();
         this.propertiesPath = deployedModuleView.getPropertiesPath();
         this.path = deployedModuleView.getPath();
         this.instances = InstanceIO.fromInstanceViews(deployedModuleView.getInstances());

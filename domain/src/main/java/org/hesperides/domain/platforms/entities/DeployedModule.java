@@ -35,17 +35,17 @@ public class DeployedModule {
     Long id;
     String name;
     String version;
-    boolean workingCopy;
+    boolean isWorkingCopy;
     String path;
     String propertiesPath;
     //String deploymentGroup
     List<Instance> instances;
 
-    public DeployedModule(Long id, String name, String version, boolean workingCopy, String path, List<Instance> instances) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<Instance> instances) {
         this.id = id;
         this.name = name;
         this.version = version;
-        this.workingCopy = workingCopy;
+        this.isWorkingCopy = isWorkingCopy;
         this.path = path;
         this.propertiesPath = generatePropertiesPath();
         this.instances = instances;
@@ -55,7 +55,7 @@ public class DeployedModule {
         this.id = id;
         this.name = other.name;
         this.version = other.version;
-        this.workingCopy = other.workingCopy;
+        this.isWorkingCopy = other.isWorkingCopy;
         this.path = other.path;
         this.propertiesPath = other.propertiesPath; // because id has no bearing on this
         this.instances = other.instances;
@@ -98,7 +98,7 @@ public class DeployedModule {
     }
 
     private String generatePropertiesPath() {
-        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(workingCopy));
+        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return path + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 }

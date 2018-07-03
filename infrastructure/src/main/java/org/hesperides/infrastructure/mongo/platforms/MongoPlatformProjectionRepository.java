@@ -87,7 +87,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         TemplateContainer.Key moduleKey = query.getModuleKey();
         List<PlatformDocument> platformDocuments = platformRepository
-                .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(
+                .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
                         moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
 
         return platformDocuments

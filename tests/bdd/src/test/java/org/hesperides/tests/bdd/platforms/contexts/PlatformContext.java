@@ -56,9 +56,9 @@ public class PlatformContext extends CucumberSpringBean implements En {
         );
     }
 
-    public ResponseEntity<PlatformOutput> updatePlatform(PlatformInput platformInput, boolean copyProps) {
+    public ResponseEntity<PlatformOutput> updatePlatform(PlatformInput platformInput, boolean copyProperties) {
         String url = "/applications/{application_name}/platforms";
-        if (copyProps) {
+        if (copyProperties) {
             url += "?copyPropertiesForUpgradedModules=true";
         }
         return rest.putForEntity(url, platformInput, PlatformOutput.class, platformKey.getApplicationName());

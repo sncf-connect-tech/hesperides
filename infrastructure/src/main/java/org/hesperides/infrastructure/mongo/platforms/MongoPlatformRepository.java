@@ -26,5 +26,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     List<PlatformDocument> findAllByKeyApplicationName(String applicationName);
 
-    List<PlatformDocument> findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesWorkingCopy(String moduleName, String moduleVersion, boolean isWorkingCopy);
+    List<PlatformDocument> findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
+            String moduleName, String moduleVersion, boolean isWorkingCopy);
 }

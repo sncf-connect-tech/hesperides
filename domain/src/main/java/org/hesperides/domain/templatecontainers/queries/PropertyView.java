@@ -7,18 +7,18 @@ import lombok.Value;
 @EqualsAndHashCode(callSuper = true)
 public class PropertyView extends AbstractPropertyView {
 
-    boolean required;
+    boolean isRequired;
     String comment;
     String defaultValue;
     String pattern;
-    boolean password;
+    boolean isPassword;
 
-    public PropertyView(String name, boolean required, String comment, String defaultValue, String pattern, boolean password) {
+    public PropertyView(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
         super(name);
-        this.required = required;
+        this.isRequired = isRequired;
         this.comment = comment;
         this.defaultValue = defaultValue;
         this.pattern = pattern;
-        this.password = password;
+        this.isPassword = isPassword;
     }
 }

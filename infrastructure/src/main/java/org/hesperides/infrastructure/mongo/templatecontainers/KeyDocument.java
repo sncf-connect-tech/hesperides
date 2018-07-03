@@ -34,11 +34,11 @@ public class KeyDocument implements Serializable {
 
     private String name;
     private String version;
-    private boolean workingCopy;
+    private boolean isWorkingCopy;
 
     public KeyDocument(TemplateContainer.Key key) {
         this.name = key.getName();
         this.version = key.getVersion();
-        this.workingCopy = key.isWorkingCopy();
+        this.isWorkingCopy = key.isWorkingCopy();
     }
 }

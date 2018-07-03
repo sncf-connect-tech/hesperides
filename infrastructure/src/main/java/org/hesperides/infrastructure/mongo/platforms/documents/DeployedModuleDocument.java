@@ -39,7 +39,7 @@ public class DeployedModuleDocument {
     private Long id;
     private String name;
     private String version;
-    private boolean workingCopy;
+    private boolean isWorkingCopy;
     private String path;
     private String propertiesPath;
     private List<InstanceDocument> instances;
@@ -48,7 +48,7 @@ public class DeployedModuleDocument {
         this.id = deployedModule.getId();
         this.name = deployedModule.getName();
         this.version = deployedModule.getVersion();
-        this.workingCopy = deployedModule.isWorkingCopy();
+        this.isWorkingCopy = deployedModule.isWorkingCopy();
         this.path = deployedModule.getPath();
         this.propertiesPath = deployedModule.getPropertiesPath();
         this.instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
@@ -59,7 +59,7 @@ public class DeployedModuleDocument {
                 id,
                 name,
                 version,
-                workingCopy,
+                isWorkingCopy,
                 propertiesPath,
                 path,
                 InstanceDocument.toInstanceViews(instances)

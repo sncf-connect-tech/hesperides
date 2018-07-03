@@ -39,7 +39,8 @@ public class PlatformInput {
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("production")
-    boolean productionPlatform;
+    boolean isProductionPlatform;
+    @SerializedName("modules")
     List<DeployedModuleInput> deployedModules;
     @SerializedName("version_id")
     Long versionId;
@@ -48,7 +49,7 @@ public class PlatformInput {
         return new Platform(
                 new Platform.Key(applicationName, platformName),
                 version,
-                productionPlatform,
+                isProductionPlatform,
                 versionId,
                 DeployedModuleInput.toDomainInstances(deployedModules)
         );

@@ -19,8 +19,10 @@ public class PlatformOutput {
     String platformName;
     @SerializedName("application_name")
     String applicationName;
+    @SerializedName("modules")
     List<DeployedModuleOutput> deployedModules;
-    boolean productionPlatform;
+    @SerializedName("production")
+    boolean isProductionPlatform;
     String version;
     Long versionId;
 
@@ -28,7 +30,7 @@ public class PlatformOutput {
         this.platformName = platformView.getPlatformName();
         this.applicationName = platformView.getApplicationName();
         this.version = platformView.getVersion();
-        this.productionPlatform = platformView.isProductionPlatform();
+        this.isProductionPlatform = platformView.isProductionPlatform();
         this.deployedModules = DeployedModuleOutput.fromDeployedModuleViews(platformView.getDeployedModules());
         this.versionId = platformView.getVersionId();
     }

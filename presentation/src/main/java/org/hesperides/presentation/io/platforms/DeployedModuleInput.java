@@ -39,7 +39,7 @@ public class DeployedModuleInput {
     @OnlyPrintableCharacters(subject = "deployedModules.version")
     String version;
     @SerializedName("working_copy")
-    boolean workingCopy;
+    boolean isWorkingCopy;
     @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
     List<InstanceIO> instances;
@@ -49,7 +49,7 @@ public class DeployedModuleInput {
                 id,
                 name,
                 version,
-                workingCopy,
+                isWorkingCopy,
                 path,
                 InstanceIO.toDomainInstances(instances)
         );
