@@ -83,7 +83,7 @@ public class TechnoUseCases {
             throw new DuplicateTechnoException(newTechnoKey);
         }
 
-        Optional<TechnoView> optionalTechnoView = queries.getTechno(existingTechnoKey);
+        Optional<TechnoView> optionalTechnoView = queries.getOptionalTechno(existingTechnoKey);
         if (!optionalTechnoView.isPresent()) {
             throw new TechnoNotFoundException(existingTechnoKey);
         }
@@ -92,7 +92,7 @@ public class TechnoUseCases {
         Techno technoRelease = new Techno(newTechnoKey, existingTechno.getTemplates());
 
         commands.createTechno(technoRelease, user);
-        return queries.getTechno(newTechnoKey).get();
+        return queries.getOptionalTechno(newTechnoKey).get();
     }
 
     public List<TechnoView> search(String input) {
@@ -104,7 +104,7 @@ public class TechnoUseCases {
             throw new DuplicateModuleException(newTechnoKey);
         }
 
-        Optional<TechnoView> optionalTechnoView = queries.getTechno(existingTechnoKey);
+        Optional<TechnoView> optionalTechnoView = queries.getOptionalTechno(existingTechnoKey);
         if (!optionalTechnoView.isPresent()) {
             throw new ModuleNotFoundException(existingTechnoKey);
         }
@@ -113,7 +113,7 @@ public class TechnoUseCases {
         Techno newTechno = new Techno(newTechnoKey, existingTechno.getTemplates());
 
         commands.createTechno(newTechno, user);
-        return queries.getTechno(newTechnoKey).get();
+        return queries.getOptionalTechno(newTechnoKey).get();
     }
 
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key technoKey) {

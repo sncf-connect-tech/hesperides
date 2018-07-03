@@ -29,7 +29,7 @@ public class TechnoQueries extends Queries {
         return querySyncList(new GetTemplatesQuery(technoKey), TemplateView.class);
     }
 
-    public Optional<TechnoView> getTechno(TemplateContainer.Key technoKey) {
+    public Optional<TechnoView> getOptionalTechno(TemplateContainer.Key technoKey) {
         return querySyncOptional(new GetTechnoQuery(technoKey), TechnoView.class);
     }
 

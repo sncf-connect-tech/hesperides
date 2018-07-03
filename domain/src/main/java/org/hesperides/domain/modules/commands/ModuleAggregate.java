@@ -41,6 +41,7 @@ class ModuleAggregate implements Serializable {
     private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
+    //TODO Gérer le versionId ici
 
     /*** COMMAND HANDLERS ***/
 

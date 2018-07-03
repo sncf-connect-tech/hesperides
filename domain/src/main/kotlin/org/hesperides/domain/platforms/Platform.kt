@@ -20,5 +20,5 @@ data class PlatformUpdatedEvent(val key: Platform.Key, val newDefinition: Platfo
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
 data class GetApplicationByNameQuery(val applicationName: String)
 data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)
-data class SearchPlatformsQuery(val applicationName: String, val platformName: String)
+data class SearchPlatformsQuery(val applicationName: String, val platformName: String? = null)
 data class SearchApplicationsQuery(val applicationName: String)

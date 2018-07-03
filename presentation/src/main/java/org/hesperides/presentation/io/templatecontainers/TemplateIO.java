@@ -8,23 +8,26 @@ import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
 import org.hesperides.presentation.io.OnlyPrintableCharacters;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
 
 @Value
 @AllArgsConstructor
 public class TemplateIO {
 
-    @OnlyPrintableCharacters(subject = "name")
+    @NotEmpty
     String name;
     String namespace;
-    @OnlyPrintableCharacters(subject = "filename")
+    @NotNull
     String filename;
-    @OnlyPrintableCharacters(subject = "location")
+    @NotNull
     String location;
-    @OnlyPrintableCharacters(subject = "content")
+    @NotNull
     String content;
-    @OnlyPrintableCharacters(subject = "rights")
+    @NotNull
     RightsIO rights;
-    @OnlyPrintableCharacters(subject = "version_id")
+    @NotNull
     @SerializedName("version_id")
     Long versionId;
 

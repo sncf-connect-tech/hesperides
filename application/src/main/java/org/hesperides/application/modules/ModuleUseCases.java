@@ -58,7 +58,7 @@ public class ModuleUseCases {
     }
 
     public void updateModuleTechnos(Module module, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getModule(module.getKey());
+        Optional<ModuleView> optionalModuleView = queries.getOptionalModule(module.getKey());
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
@@ -110,7 +110,7 @@ public class ModuleUseCases {
     }
 
     public Optional<ModuleView> getModule(TemplateContainer.Key moduleKey) {
-        return queries.getModule(moduleKey);
+        return queries.getOptionalModule(moduleKey);
     }
 
     public List<String> getModulesNames() {
@@ -135,7 +135,7 @@ public class ModuleUseCases {
             throw new DuplicateModuleException(newModuleKey);
         }
 
-        Optional<ModuleView> optionalModuleView = queries.getModule(existingModuleKey);
+        Optional<ModuleView> optionalModuleView = queries.getOptionalModule(existingModuleKey);
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);
         }
@@ -144,7 +144,7 @@ public class ModuleUseCases {
         Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(newModule, user);
-        return queries.getModule(newModuleKey).get();
+        return queries.getOptionalModule(newModuleKey).get();
     }
 
     public List<ModuleView> search(String input) {
@@ -164,7 +164,7 @@ public class ModuleUseCases {
         }
 
         TemplateContainer.Key existingModuleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
-        Optional<ModuleView> optionalModuleView = queries.getModule(existingModuleKey);
+        Optional<ModuleView> optionalModuleView = queries.getOptionalModule(existingModuleKey);
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(existingModuleKey);
         }
@@ -173,7 +173,7 @@ public class ModuleUseCases {
         Module moduleRelease = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
 
         commands.createModule(moduleRelease, user);
-        return queries.getModule(newModuleKey).get();
+        return queries.getOptionalModule(newModuleKey).get();
     }
 
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key moduleKey) {

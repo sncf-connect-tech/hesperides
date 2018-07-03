@@ -25,7 +25,7 @@ public class ModuleQueries extends Queries {
         return querySync(new ModuleAlreadyExistsQuery(moduleKey), Boolean.class);
     }
 
-    public Optional<ModuleView> getModule(TemplateContainer.Key moduleKey) {
+    public Optional<ModuleView> getOptionalModule(TemplateContainer.Key moduleKey) {
         return querySyncOptional(new GetModuleByKeyQuery(moduleKey), ModuleView.class);
     }
 
