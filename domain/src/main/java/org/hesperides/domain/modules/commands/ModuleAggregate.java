@@ -9,15 +9,11 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
-import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
-import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -74,17 +70,10 @@ class ModuleAggregate implements Serializable {
     public void onCreateTemplateCommand(CreateTemplateCommand command) {
         log.debug("Applying create template command...");
 
-        // Vérifie qu'on a pas déjà un template avec ce nom
-        if (this.templates.containsKey(command.getTemplate().getName())) {
-            throw new DuplicateTemplateCreationException(command.getTemplate());
-        }
-
-        // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
-        AbstractProperty.validateProperties(abstractProperties);
-
-        // Initialise le versionId
-        Template template = command.getTemplate().initializeVersionId();
+        Template template = command.getTemplate()
+                .validateNameNotTaken(templates, key)
+                .validateProperties()
+                .initializeVersionId();
 
         apply(new TemplateCreatedEvent(key, template, command.getUser()));
     }
@@ -94,21 +83,13 @@ class ModuleAggregate implements Serializable {
     public void onUpdateTemplateCommand(UpdateTemplateCommand command) {
         log.debug("Applying update template command...");
 
-        // check qu'on a déjà un template avec ce nom, sinon erreur:
-        if (!templates.containsKey(command.getTemplate().getName())) {
-            throw new TemplateNotFoundException(key, command.getTemplate().getName());
-        }
-
-        // Vérifie que le template n'a été modifié entre temps
         Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
-        command.getTemplate().validateVersionId(expectedVersionId);
 
-        // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
-        AbstractProperty.validateProperties(abstractProperties);
-
-        // Incrémente le versionId
-        Template template = command.getTemplate().incrementVersionId();
+        Template template = command.getTemplate()
+                .validateExistingName(templates, key)
+                .validateVersionId(expectedVersionId)
+                .validateProperties()
+                .incrementVersionId();
 
         apply(new TemplateUpdatedEvent(key, template, command.getUser()));
     }

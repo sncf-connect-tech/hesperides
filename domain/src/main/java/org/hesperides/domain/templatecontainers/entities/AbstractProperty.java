@@ -43,7 +43,7 @@ public abstract class AbstractProperty {
         return Optional.ofNullable(templates)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(AbstractProperty::extractPropertiesFromTemplate)
+                .map(Template::extractProperties)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
@@ -52,16 +52,6 @@ public abstract class AbstractProperty {
 //            templates.forEach((template) -> properties.addAll(extractPropertiesFromTemplate(template)));
 //        }
 //        return properties;
-    }
-
-    public static List<AbstractProperty> extractPropertiesFromTemplate(Template template) {
-        List<AbstractProperty> properties = new ArrayList<>();
-        if (template != null) {
-            properties.addAll(extractPropertiesFromStringContent(template.getFilename()));
-            properties.addAll(extractPropertiesFromStringContent(template.getLocation()));
-            properties.addAll(extractPropertiesFromStringContent(template.getContent()));
-        }
-        return properties;
     }
 
     public static List<AbstractProperty> extractPropertiesFromStringContent(String content) {

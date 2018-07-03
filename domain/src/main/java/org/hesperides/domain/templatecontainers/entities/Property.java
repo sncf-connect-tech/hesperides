@@ -51,19 +51,9 @@ public class Property extends AbstractProperty {
         }
 
         public static Optional<Annotation> fromName(String name) {
-            //TODO Pas utilisé ?
             return Arrays.stream(Annotation.values())
                     .filter(annotation -> annotation.getName().equalsIgnoreCase(name))
                     .findFirst();
-
-//            Annotation result = null;
-//            for (Annotation annotation : Annotation.values()) {
-//                if (annotation.getName().equalsIgnoreCase(name)) {
-//                    result = annotation;
-//                    break;
-//                }
-//            }
-//            return result;
         }
     }
 

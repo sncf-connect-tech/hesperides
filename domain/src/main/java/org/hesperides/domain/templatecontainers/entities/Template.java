@@ -2,6 +2,12 @@ package org.hesperides.domain.templatecontainers.entities;
 
 import lombok.Value;
 import org.hesperides.domain.exceptions.OutOfDateVersionException;
+import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
+import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Value
 public class Template {
@@ -12,6 +18,27 @@ public class Template {
     Rights rights;
     Long versionId;
     TemplateContainer.Key templateContainerKey;
+
+    public Template validateProperties() {
+        List<AbstractProperty> abstractProperties = extractProperties();
+        AbstractProperty.validateProperties(abstractProperties);
+        return this;
+    }
+
+    public List<AbstractProperty> extractProperties() {
+        List<AbstractProperty> properties = new ArrayList<>();
+        properties.addAll(AbstractProperty.extractPropertiesFromStringContent(filename));
+        properties.addAll(AbstractProperty.extractPropertiesFromStringContent(location));
+        properties.addAll(AbstractProperty.extractPropertiesFromStringContent(content));
+        return properties;
+    }
+
+    public Template validateNameNotTaken(Map<String, Template> templates, TemplateContainer.Key key) {
+        if (templates.containsKey(name)) {
+            throw new DuplicateTemplateCreationException(key, name);
+        }
+        return this;
+    }
 
     public Template initializeVersionId() {
         return new Template(
@@ -25,10 +52,18 @@ public class Template {
         );
     }
 
-    public void validateVersionId(Long expectedVersionId) {
+    public Template validateExistingName(Map<String, Template> templates, TemplateContainer.Key key) {
+        if (!templates.containsKey(name)) {
+            throw new TemplateNotFoundException(key, name);
+        }
+        return this;
+    }
+
+    public Template validateVersionId(Long expectedVersionId) {
         if (!versionId.equals(expectedVersionId)) {
             throw new OutOfDateVersionException(expectedVersionId, versionId);
         }
+        return this;
     }
 
     public Template incrementVersionId() {

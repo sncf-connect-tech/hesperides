@@ -7,16 +7,12 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.domain.modules.exceptions.DuplicateTemplateCreationException;
-import org.hesperides.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.domain.technos.*;
-import org.hesperides.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -53,17 +49,10 @@ class TechnoAggregate implements Serializable {
     public void onAddTemplateToTechnoCommand(AddTemplateToTechnoCommand command) {
         log.debug("Applying AddTemplateToTechnoCommand...");
 
-        // Vérifie qu'on a pas déjà un template avec ce nom
-        if (this.templates.containsKey(command.getTemplate().getName())) {
-            throw new DuplicateTemplateCreationException(command.getTemplate());
-        }
-
-        // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
-        AbstractProperty.validateProperties(abstractProperties);
-
-        // Initialise le version_id du template à 1
-        Template template = command.getTemplate().initializeVersionId();
+        Template template = command.getTemplate()
+                .validateNameNotTaken(templates, key)
+                .validateProperties()
+                .initializeVersionId();
 
         apply(new TemplateAddedToTechnoEvent(command.getTechnoKey(), template, command.getUser()));
     }
@@ -73,21 +62,13 @@ class TechnoAggregate implements Serializable {
     public void onUpdateTechnoTemplateCommand(UpdateTechnoTemplateCommand command) {
         log.debug("Applying update template command...");
 
-        // Vérifie qu'on a déjà un template avec ce nom
-        if (!templates.containsKey(command.getTemplate().getName())) {
-            throw new TemplateNotFoundException(key, command.getTemplate().getName());
-        }
-
-        // Vérifie que le template n'a été modifié entre temps
         Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
-        command.getTemplate().validateVersionId(expectedVersionId);
 
-        // Vérifie les propriétés
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplate(command.getTemplate());
-        AbstractProperty.validateProperties(abstractProperties);
-
-        // Met à jour le version_id
-        Template template = command.getTemplate().incrementVersionId();
+        Template template = command.getTemplate()
+                .validateExistingName(templates, key)
+                .validateVersionId(expectedVersionId)
+                .validateProperties()
+                .initializeVersionId();
 
         apply(new TechnoTemplateUpdatedEvent(key, template, command.getUser()));
     }
@@ -113,7 +94,7 @@ class TechnoAggregate implements Serializable {
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
-    public void onTechnoDeletedEvent(TechnoDeletedEvent event) { //TODO Pourquoi public ? Est-ce que ça fonctionne ?
+    public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
         log.debug("Techno deleted (aggregate is live ? {})", isLive());
     }
 

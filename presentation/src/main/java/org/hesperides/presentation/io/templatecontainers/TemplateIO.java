@@ -7,7 +7,6 @@ import org.hesperides.domain.framework.DomainPrimer;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
-import org.hesperides.presentation.io.OnlyPrintableCharacters;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
