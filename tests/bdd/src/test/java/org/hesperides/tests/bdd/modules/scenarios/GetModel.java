@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 public class GetModel extends CucumberSpringBean implements En {
@@ -84,9 +86,9 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(2, modelOutput.getProperties().size());
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", false, "content of template-a", "12", "*", true, null)));
+                    new PropertyOutput("foo", false, "content of template-a", "12", "*", true, Collections.emptyList())));
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", false, "content of template-b", "", "", false, null)));
+                    new PropertyOutput("foo", false, "content of template-b", "", "", false, Collections.emptyList())));
         });
 
         Given("^a template in this module containing properties that have been updated$", () -> {

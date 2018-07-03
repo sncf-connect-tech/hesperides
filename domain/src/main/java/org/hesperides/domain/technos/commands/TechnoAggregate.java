@@ -68,7 +68,7 @@ class TechnoAggregate implements Serializable {
                 .validateExistingName(templates, key)
                 .validateVersionId(expectedVersionId)
                 .validateProperties()
-                .initializeVersionId();
+                .incrementVersionId();
 
         apply(new TechnoTemplateUpdatedEvent(key, template, command.getUser()));
     }
