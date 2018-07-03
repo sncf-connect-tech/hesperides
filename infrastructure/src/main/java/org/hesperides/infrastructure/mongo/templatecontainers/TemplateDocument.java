@@ -27,7 +27,9 @@ import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -52,27 +54,27 @@ public class TemplateDocument {
     }
 
     public static List<TemplateDocument> fromDomainInstances(List<Template> templates) {
-        List<TemplateDocument> templateDocuments = null;
-        if (templates != null) {
-            templateDocuments = templates.stream().map(TemplateDocument::new).collect(Collectors.toList());
-        }
-        return templateDocuments;
+        return Optional.of(templates)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TemplateDocument::new)
+                .collect(Collectors.toList());
     }
 
-    public static List<TemplateView> toTemplateViews(List<TemplateDocument> templates, TemplateContainer.Key key) {
-        List<TemplateView> templateViews = null;
-        if (templates != null) {
-            templateViews = templates.stream().map(templateDocument -> templateDocument.toTemplateView(key)).collect(Collectors.toList());
-        }
-        return templateViews;
+    public static List<TemplateView> toTemplateViews(List<TemplateDocument> templateDocuments, TemplateContainer.Key key) {
+        return Optional.ofNullable(templateDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(templateDocument -> templateDocument.toTemplateView(key))
+                .collect(Collectors.toList());
     }
 
     public static List<Template> toDomainInstances(List<TemplateDocument> templateDocuments, TemplateContainer.Key key) {
-        List<Template> templates = null;
-        if (templateDocuments != null) {
-            templates = templateDocuments.stream().map(templateDocument -> templateDocument.toDomainInstance(key)).collect(Collectors.toList());
-        }
-        return templates;
+        return Optional.ofNullable(templateDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(templateDocument -> templateDocument.toDomainInstance(key))
+                .collect(Collectors.toList());
     }
 
     private Template toDomainInstance(TemplateContainer.Key key) {

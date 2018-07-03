@@ -43,7 +43,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
@@ -176,9 +178,11 @@ public class TechnosController extends AbstractController {
         log.debug("search technos {}", input);
 
         List<TechnoView> technoViews = technoUseCases.search(input);
-        List<TechnoIO> technoOutputs = technoViews != null
-                ? technoViews.stream().map(TechnoIO::new).collect(Collectors.toList())
-                : new ArrayList<>();
+        List<TechnoIO> technoOutputs = Optional.ofNullable(technoViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TechnoIO::new)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(technoOutputs);
     }

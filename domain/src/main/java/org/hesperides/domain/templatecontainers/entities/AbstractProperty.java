@@ -30,9 +30,8 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Value
 @NonFinal
@@ -41,11 +40,18 @@ public abstract class AbstractProperty {
     String name;
 
     public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates) {
-        List<AbstractProperty> properties = new ArrayList<>();
-        if (templates != null) {
-            templates.forEach((template) -> properties.addAll(extractPropertiesFromTemplate(template)));
-        }
-        return properties;
+        return Optional.ofNullable(templates)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractProperty::extractPropertiesFromTemplate)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+//        List<AbstractProperty> properties = new ArrayList<>();
+//        if (templates != null) {
+//            templates.forEach((template) -> properties.addAll(extractPropertiesFromTemplate(template)));
+//        }
+//        return properties;
     }
 
     public static List<AbstractProperty> extractPropertiesFromTemplate(Template template) {

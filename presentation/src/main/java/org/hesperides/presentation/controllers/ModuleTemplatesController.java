@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
@@ -42,9 +44,11 @@ public class ModuleTemplatesController extends AbstractController {
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
-        List<PartialTemplateIO> partialTemplateOutputs = templateViews != null
-                ? templateViews.stream().map(PartialTemplateIO::new).collect(Collectors.toList())
-                : new ArrayList<>();
+        List<PartialTemplateIO> partialTemplateOutputs = Optional.ofNullable(templateViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(PartialTemplateIO::new)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(partialTemplateOutputs);
     }

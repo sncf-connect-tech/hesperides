@@ -5,7 +5,9 @@ import lombok.Value;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
@@ -19,11 +21,11 @@ public class TemplateView {
     Long versionId;
 
     public static List<Template> toDomainInstances(List<TemplateView> templateViews, TemplateContainer.Key key) {
-        List<Template> templates = null;
-        if (templateViews != null) {
-            templates = templateViews.stream().map(templateView -> templateView.toDomainInstance(key)).collect(Collectors.toList());
-        }
-        return templates;
+        return Optional.ofNullable(templateViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(templateView -> templateView.toDomainInstance(key))
+                .collect(Collectors.toList());
     }
 
     public Template toDomainInstance(TemplateContainer.Key key) {

@@ -117,8 +117,8 @@ public class PlatformsController extends AbstractController {
                                                                                @PathVariable("module_version") final String moduleVersion,
                                                                                @PathVariable("version_type") final String moduleVersionType) {
 
-        // Exceptionnellement, le version-type fourni en paramètre est un String car on peut  lui attribuer
-        // N'importe quelle valeur. Si la valeur n'est pas release, alors on considère que c'est un working-copy.
+        // Exceptionnellement, le version-type fourni en paramètre est un String car on peut lui attribuer
+        // n'importe quelle valeur. Si la valeur n'est pas release, alors on considère que c'est un working-copy.
         boolean isWorkingCopy = !TemplateContainer.VersionType.release.toString().equalsIgnoreCase(moduleVersionType);
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));

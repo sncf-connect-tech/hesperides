@@ -40,7 +40,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.domain.security.User.fromAuthentication;
@@ -198,9 +200,11 @@ public class ModulesController extends AbstractController {
         log.debug("search module {}", input);
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
-        List<ModuleIO> moduleOutputs = moduleViews != null
-                ? moduleViews.stream().map(ModuleIO::new).collect(Collectors.toList())
-                : new ArrayList<>();
+        List<ModuleIO> moduleOutputs = Optional.ofNullable(moduleViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ModuleIO::new)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(moduleOutputs);
     }

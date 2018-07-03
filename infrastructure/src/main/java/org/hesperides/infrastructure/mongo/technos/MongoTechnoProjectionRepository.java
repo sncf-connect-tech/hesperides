@@ -38,6 +38,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -175,7 +176,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
-        List<TechnoDocument> technoDocuments = null;
+        List<TechnoDocument> technoDocuments = Collections.emptyList();
         if (technos != null) {
             List<KeyDocument> keyDocuments = technos.stream().map(techno -> new KeyDocument(techno.getKey())).collect(Collectors.toList());
             technoDocuments = technoRepository.findAllByKeyIn(keyDocuments);

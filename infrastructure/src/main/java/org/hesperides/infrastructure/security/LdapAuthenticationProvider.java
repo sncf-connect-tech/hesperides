@@ -74,7 +74,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     }
 
     private DirContext buildSearchContext(final String username, final String password) {
-        DirContext context = null;
+        DirContext context;
 
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -98,7 +98,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     }
 
     private DirContextOperations searchUser(final DirContext ctx, final String username) {
-        DirContextOperations dirContextOperations = null;
+        DirContextOperations dirContextOperations;
         try {
             SearchControls searchControls = new SearchControls();
             searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);

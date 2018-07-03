@@ -36,7 +36,7 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
             this.defaultValue = propertyView.getDefaultValue();
             this.pattern = propertyView.getPattern();
             this.password = propertyView.isPassword();
-            this.properties = null;
+            this.properties = Collections.emptyList();
 
         } else if (abstractPropertyView instanceof IterablePropertyView) {
             // Valeurs par défaut

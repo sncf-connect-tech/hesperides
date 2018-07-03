@@ -51,6 +51,7 @@ abstract class AbstractController {
     }
 
     final protected void checkQueryParameterNotEmpty(final String paramName, final String param) {
+        // Utiliser l'annotation ?
         if (param == null || isNonDisplayedChar(param)) {
             throw new IllegalArgumentException("Query parameter " + paramName + " is missing");
         }

@@ -5,6 +5,9 @@ import lombok.Value;
 import org.hesperides.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class Property extends AbstractProperty {
@@ -47,15 +50,20 @@ public class Property extends AbstractProperty {
             return name;
         }
 
-        public static Annotation fromName(String name) {
-            Annotation result = null;
-            for (Annotation annotation : Annotation.values()) {
-                if (annotation.getName().equalsIgnoreCase(name)) {
-                    result = annotation;
-                    break;
-                }
-            }
-            return result;
+        public static Optional<Annotation> fromName(String name) {
+            //TODO Pas utilisé ?
+            return Arrays.stream(Annotation.values())
+                    .filter(annotation -> annotation.getName().equalsIgnoreCase(name))
+                    .findFirst();
+
+//            Annotation result = null;
+//            for (Annotation annotation : Annotation.values()) {
+//                if (annotation.getName().equalsIgnoreCase(name)) {
+//                    result = annotation;
+//                    break;
+//                }
+//            }
+//            return result;
         }
     }
 

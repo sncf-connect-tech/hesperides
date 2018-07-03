@@ -34,7 +34,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -52,19 +54,19 @@ public class TechnoDocument {
     }
 
     public static List<TechnoView> toTechnoViews(List<TechnoDocument> technos) {
-        List<TechnoView> technoViews = null;
-        if (technos != null) {
-            technoViews = technos.stream().map(TechnoDocument::toTechnoView).collect(Collectors.toList());
-        }
-        return technoViews;
+        return Optional.ofNullable(technos)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TechnoDocument::toTechnoView)
+                .collect(Collectors.toList());
     }
 
     public static List<Techno> toDomainInstances(List<TechnoDocument> technoDocuments) {
-        List<Techno> technos = null;
-        if (technoDocuments != null) {
-            technos = technoDocuments.stream().map(TechnoDocument::toDomainInstance).collect(Collectors.toList());
-        }
-        return technos;
+        return Optional.of(technoDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TechnoDocument::toDomainInstance)
+                .collect(Collectors.toList());
     }
 
     public Techno toDomainInstance() {

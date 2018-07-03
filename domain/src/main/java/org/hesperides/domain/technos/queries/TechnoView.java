@@ -25,7 +25,9 @@ import org.hesperides.domain.technos.entities.Techno;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
@@ -36,11 +38,11 @@ public class TechnoView {
     List<TemplateView> templates;
 
     public static List<Techno> toDomainInstances(List<TechnoView> technoViews) {
-        List<Techno> technos = null;
-        if (technoViews != null) {
-            technos = technoViews.stream().map(TechnoView::toDomainInstance).collect(Collectors.toList());
-        }
-        return technos;
+        return Optional.of(technoViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TechnoView::toDomainInstance)
+                .collect(Collectors.toList());
     }
 
     public Techno toDomainInstance() {
