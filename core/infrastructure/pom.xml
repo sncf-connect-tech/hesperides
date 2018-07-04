@@ -6,30 +6,100 @@
 
     <parent>
         <groupId>org.hesperides</groupId>
-        <artifactId>hesperides</artifactId>
+        <artifactId>core</artifactId>
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>bootstrap</artifactId>
+    <artifactId>infrastructure</artifactId>
 
     <dependencies>
-        <!-- Dépendances DDD -->
+        <!-- DDD -->
         <dependency>
             <groupId>org.hesperides</groupId>
-            <artifactId>presentation</artifactId>
+            <artifactId>domain</artifactId>
         </dependency>
+
+        <!-- Spring -->
         <dependency>
-            <groupId>org.hesperides</groupId>
-            <artifactId>infrastructure</artifactId>
-        </dependency>
-        <!-- Spring Boot -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+
+        <!-- Axon -->
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-mongo</artifactId>
+        </dependency>
+
+        <!-- Fake Mongo -->
+        <dependency>
+            <groupId>com.github.fakemongo</groupId>
+            <artifactId>fongo</artifactId>
+        </dependency>
+
+        <!-- Various -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Metrics -->
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Admin -->
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-core</artifactId>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
 
@@ -54,10 +124,6 @@
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

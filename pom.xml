@@ -21,12 +21,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>application</module>
         <module>bootstrap</module>
         <module>commons</module>
-        <module>domain</module>
-        <module>infrastructure</module>
-        <module>presentation</module>
+        <module>core</module>
         <module>tests/bdd</module>
         <module>tests/integration</module>
         <module>tests/tech</module>
@@ -83,20 +80,22 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- DDD -->
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>application</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+            <!-- Bootstrap -->
             <dependency>
                 <groupId>org.hesperides</groupId>
                 <artifactId>bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Dépendances DDD -->
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>commons</artifactId>
+                <artifactId>presentation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -109,11 +108,15 @@
                 <artifactId>infrastructure</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Commons -->
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>presentation</artifactId>
+                <artifactId>commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Tests -->
             <dependency>
                 <groupId>org.hesperides</groupId>
                 <artifactId>tests-bdd</artifactId>
