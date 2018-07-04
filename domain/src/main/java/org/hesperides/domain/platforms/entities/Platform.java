@@ -21,6 +21,7 @@
 package org.hesperides.domain.platforms.entities;
 
 import lombok.Value;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 
 import java.util.List;
 
@@ -41,6 +42,13 @@ public class Platform {
                 1L,
                 deployedModules
         );
+    }
+
+    public Platform validateVersionId(Long expectedVersionId) {
+        if (!expectedVersionId.equals(versionId)) {
+            throw new OutOfDateVersionException(expectedVersionId, versionId);
+        }
+        return this;
     }
 
     public Platform incrementVersionId() {

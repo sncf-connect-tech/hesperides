@@ -1,6 +1,5 @@
 package org.hesperides.application.modules;
 
-import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.commands.ModuleCommands;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.modules.exceptions.DuplicateModuleException;
@@ -53,7 +52,7 @@ public class ModuleUseCases {
         if (queries.moduleExists(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
-        verifyTechnos(module.getTechnos());
+        verifyTechnosExistence(module.getTechnos());
         return commands.createModule(module, user);
     }
 
@@ -62,14 +61,11 @@ public class ModuleUseCases {
         if (!optionalModuleView.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
-        if (!optionalModuleView.get().getVersionId().equals(module.getVersionId())) {
-            throw new OutOfDateVersionException(optionalModuleView.get().getVersionId(), module.getVersionId());
-        }
-        verifyTechnos(module.getTechnos());
+        verifyTechnosExistence(module.getTechnos());
         commands.updateModuleTechnos(module, user);
     }
 
-    private void verifyTechnos(List<Techno> technos) {
+    private void verifyTechnosExistence(List<Techno> technos) {
         if (technos != null) {
             for (Techno techno : technos) {
                 if (!technoQueries.technoExists(techno.getKey())) {

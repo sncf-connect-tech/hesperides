@@ -49,7 +49,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getNewDefinition());
+        PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
         platformRepository.save(platformDocument);
     }
 

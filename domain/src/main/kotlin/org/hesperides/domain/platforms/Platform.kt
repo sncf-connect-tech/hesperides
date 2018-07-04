@@ -14,7 +14,7 @@ data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformKey: Pla
 // Event
 data class PlatformCreatedEvent(val platform: Platform, override val user: User) : UserEvent(user)
 data class PlatformDeletedEvent(val platformKey: Platform.Key, override val user: User) : UserEvent(user)
-data class PlatformUpdatedEvent(val key: Platform.Key, val newDefinition: Platform, override val user: User) : UserEvent(user)
+data class PlatformUpdatedEvent(val platformKey: Platform.Key, val platform: Platform, override val user: User) : UserEvent(user)
 
 // Query
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)

@@ -41,8 +41,7 @@ public class PlatformAggregate implements Serializable {
 
     @AggregateIdentifier
     private Platform.Key key;
-
-    private long versionId;
+    private Long versionId;
 
     /*** COMMAND HANDLERS ***/
 
@@ -59,24 +58,21 @@ public class PlatformAggregate implements Serializable {
 
 
     @CommandHandler
-    public void onDeletePlatformCommand(DeletePlatformCommand command) {
-        apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
-    }
-
-    @CommandHandler
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
-        final Platform platform = command.getPlatform();
-        if (!platform.getVersionId().equals(versionId)) {
-            throw new OutOfDateVersionException(versionId, platform.getVersionId());
-        }
 
         // TODO populate properties when `cmd.copyProps` flag is set (-> dedicated aggregate / command ?)
 
-        Platform processedPlatform = platform
+        Platform platform = command.getPlatform()
+                .validateVersionId(versionId)
                 .incrementVersionId()
                 .updateDeployedModules();
 
-        apply(new PlatformUpdatedEvent(command.getPlatformKey(), processedPlatform, command.getUser()));
+        apply(new PlatformUpdatedEvent(command.getPlatformKey(), platform, command.getUser()));
+    }
+
+    @CommandHandler
+    public void onDeletePlatformCommand(DeletePlatformCommand command) {
+        apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
@@ -89,13 +85,13 @@ public class PlatformAggregate implements Serializable {
     }
 
     @EventSourcingHandler
-    public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        log.debug("Platform deleted");
+    public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
+        this.versionId = event.getPlatform().getVersionId();
+        log.debug("Platform updated");
     }
 
     @EventSourcingHandler
-    public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
-        this.versionId = event.getNewDefinition().getVersionId();
-        log.debug("Platform updated");
+    public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
+        log.debug("Platform deleted");
     }
 }

@@ -7,6 +7,7 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.modules.entities.Module;
 import org.hesperides.domain.templatecontainers.entities.Template;
@@ -37,7 +38,7 @@ class ModuleAggregate implements Serializable {
     private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
-    //TODO Gérer le versionId ici
+    private Long versionId;
 
     /*** COMMAND HANDLERS ***/
 
@@ -53,9 +54,12 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     public void onUpdateModuleTechnosCommand(UpdateModuleTechnosCommand command) {
         log.debug("Applying update module command...");
-        // Met à jour le version_id
-        Long updatedVersionId = command.getVersionId() + 1;
-        apply(new ModuleTechnosUpdatedEvent(command.getModuleKey(), command.getTechnos(), updatedVersionId, command.getUser()));
+
+        Module module = command.getModule()
+                .validateVersionId(versionId)
+                .incrementVersiondId();
+
+        apply(new ModuleTechnosUpdatedEvent(command.getModuleKey(), module.getTechnos(), module.getVersionId(), command.getUser()));
     }
 
     @CommandHandler
@@ -109,35 +113,41 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         this.key = event.getModule().getKey();
+        this.versionId = event.getModule().getVersionId();
         log.debug("module créé. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
+        this.versionId = event.getVersionId();
         log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId ?
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId du module ? => Voir legacy
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template crée. ");
     }
 
     @EventSourcingHandler
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId du module ? => Voir legacy
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId du module ? => Voir legacy
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé");
     }

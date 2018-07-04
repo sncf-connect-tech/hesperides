@@ -27,7 +27,7 @@ public class ModuleCommands {
     }
 
     public void updateModuleTechnos(Module module, User user) {
-        commandGateway.sendAndWait(new UpdateModuleTechnosCommand(module.getKey(), module.getTechnos(), module.getVersionId(), user));
+        commandGateway.sendAndWait(new UpdateModuleTechnosCommand(module.getKey(), module, user));
     }
 
     public void deleteModule(TemplateContainer.Key moduleKey, User user) {
