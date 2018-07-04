@@ -24,9 +24,7 @@
         <module>bootstrap</module>
         <module>commons</module>
         <module>core</module>
-        <module>tests/bdd</module>
-        <module>tests/integration</module>
-        <module>tests/tech</module>
+        <module>tests</module>
     </modules>
 
     <properties>
