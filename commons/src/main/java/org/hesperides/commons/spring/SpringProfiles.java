@@ -18,9 +18,9 @@
  *
  *
  */
-package org.hesperides.domain.framework;
+package org.hesperides.commons.spring;
 
-public final class Profiles {
+public final class SpringProfiles {
     public static final String FAKE_MONGO = "fake_mongo";
     public static final String GRAPHITE = "graphite";
     public static final String LDAP = "ldap";

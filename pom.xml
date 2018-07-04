@@ -22,10 +22,11 @@
 
     <modules>
         <module>application</module>
-        <module>presentation</module>
+        <module>bootstrap</module>
+        <module>commons</module>
         <module>domain</module>
         <module>infrastructure</module>
-        <module>bootstrap</module>
+        <module>presentation</module>
         <module>tests/bdd</module>
         <module>tests/integration</module>
         <module>tests/tech</module>
@@ -91,6 +92,11 @@
             <dependency>
                 <groupId>org.hesperides</groupId>
                 <artifactId>bootstrap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

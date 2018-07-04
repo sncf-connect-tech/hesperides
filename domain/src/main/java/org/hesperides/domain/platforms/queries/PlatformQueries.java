@@ -21,7 +21,7 @@
 package org.hesperides.domain.platforms.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
-import org.hesperides.domain.framework.Queries;
+import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.domain.platforms.*;
 import org.hesperides.domain.platforms.entities.Platform;
 import org.hesperides.domain.platforms.queries.views.*;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class PlatformQueries extends Queries {
+public class PlatformQueries extends AxonQueries {
 
     protected PlatformQueries(QueryGateway queryGateway) {
         super(queryGateway);

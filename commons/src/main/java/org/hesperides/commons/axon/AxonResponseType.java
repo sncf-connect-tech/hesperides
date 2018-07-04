@@ -1,4 +1,4 @@
-package org.hesperides.domain.framework;
+package org.hesperides.commons.axon;
 
 import org.axonframework.queryhandling.responsetypes.AbstractResponseType;
 import org.axonframework.queryhandling.responsetypes.ResponseType;
@@ -12,8 +12,8 @@ import java.util.Optional;
  *
  * @param <R>
  */
-public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
-    private OptionalResponseType(Class<?> expectedResponseType) {
+public class AxonResponseType<R> extends AbstractResponseType<Optional<R>> {
+    private AxonResponseType(Class<?> expectedResponseType) {
         super(expectedResponseType);
     }
 
@@ -27,7 +27,7 @@ public class OptionalResponseType<R> extends AbstractResponseType<Optional<R>> {
      * optional of instances of type {@code R}
      */
     public static <R> ResponseType<Optional<R>> optionalInstancesOf(Class<R> type) {
-        return new OptionalResponseType<>(type);
+        return new AxonResponseType<>(type);
     }
 
     @Override

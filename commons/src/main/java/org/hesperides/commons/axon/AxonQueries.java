@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.domain.framework;
+package org.hesperides.commons.axon;
 
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public abstract class Queries {
+public abstract class AxonQueries {
 
     private final QueryGateway queryGateway;
 
-    protected Queries(QueryGateway queryGateway) {
+    protected AxonQueries(QueryGateway queryGateway) {
         this.queryGateway = queryGateway;
     }
 
@@ -46,7 +46,7 @@ public abstract class Queries {
 
     protected <R> Optional<R> querySyncOptional(Object query, Class<R> responseType) {
         try {
-            return queryGateway.query(query, OptionalResponseType.optionalInstancesOf(responseType)).get();
+            return queryGateway.query(query, AxonResponseType.optionalInstancesOf(responseType)).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new QueryExecutionException(e.getMessage(), e);
         }

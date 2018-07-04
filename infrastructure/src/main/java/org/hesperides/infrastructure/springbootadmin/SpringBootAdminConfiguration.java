@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
-import static org.hesperides.domain.framework.Profiles.SPRING_BOOT_ADMIN;
+import static org.hesperides.commons.spring.SpringProfiles.SPRING_BOOT_ADMIN;
 
 @Configuration
 @Profile(SPRING_BOOT_ADMIN)

@@ -1,7 +1,7 @@
 package org.hesperides.domain.modules.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
-import org.hesperides.domain.framework.Queries;
+import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.domain.modules.*;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * Permet de regrouper les queries
  */
 @Component
-public class ModuleQueries extends Queries {
+public class ModuleQueries extends AxonQueries {
 
     protected ModuleQueries(QueryGateway queryGateway) {
         super(queryGateway);

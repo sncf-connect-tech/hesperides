@@ -1,7 +1,7 @@
 package org.hesperides.domain.technos.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
-import org.hesperides.domain.framework.Queries;
+import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.domain.technos.*;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.AbstractPropertyView;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class TechnoQueries extends Queries {
+public class TechnoQueries extends AxonQueries {
     protected TechnoQueries(QueryGateway queryGateway) {
         super(queryGateway);
     }

@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.domain.framework;
+package org.hesperides.commons;
 
 import java.util.Optional;
 

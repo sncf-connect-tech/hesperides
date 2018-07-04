@@ -3,7 +3,7 @@ package org.hesperides.presentation.io.templatecontainers;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.domain.framework.DomainPrimer;
+import org.hesperides.commons.DomainPrimer;
 import org.hesperides.domain.templatecontainers.entities.Template;
 import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.domain.templatecontainers.queries.TemplateView;

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
+import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 
 @Configuration
 @Profile({FAKE_MONGO})

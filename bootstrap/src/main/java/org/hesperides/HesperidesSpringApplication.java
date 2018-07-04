@@ -22,5 +22,4 @@ public class HesperidesSpringApplication {
     public static void main(String[] args) {
         SpringApplication.run(HesperidesSpringApplication.class, args);
     }
-
 }

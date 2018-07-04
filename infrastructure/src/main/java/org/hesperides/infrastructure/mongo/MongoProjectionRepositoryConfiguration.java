@@ -18,7 +18,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.Collections;
 
-import static org.hesperides.domain.framework.Profiles.MONGO;
+import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Configuration
 @Profile(MONGO)
