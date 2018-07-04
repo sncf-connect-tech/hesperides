@@ -26,7 +26,6 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.domain.platforms.*;
 import org.hesperides.domain.platforms.entities.Platform;
 

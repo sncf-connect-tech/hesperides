@@ -160,8 +160,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         String name = values.length >= 1 ? values[0] : "";
         String version = values.length >= 2 ? values[1] : "";
 
-        Pageable pageableRequest = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
-        List<TechnoDocument> technoDocuments = technoRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageableRequest);
+        Pageable pageable = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
+        List<TechnoDocument> technoDocuments = technoRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable);
         return technoDocuments
                 .stream()
                 .map(TechnoDocument::toTechnoView)

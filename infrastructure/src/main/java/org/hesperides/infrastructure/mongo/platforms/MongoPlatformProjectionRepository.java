@@ -10,6 +10,8 @@ import org.hesperides.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -102,10 +104,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         String platformName = StringUtils.defaultString(query.getPlatformName(), "");
 
+        Pageable pageable = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
         List<PlatformDocument> platformDocuments =
                 platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
                         query.getApplicationName(),
-                        platformName);
+                        platformName,
+                        pageable);
 
         return platformDocuments
                 .stream()
@@ -117,8 +121,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query) {
 
+        Pageable pageable = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
         List<PlatformDocument> platformDocuments = platformRepository
-                .findAllByKeyApplicationNameLike(query.getApplicationName());
+                .findAllByKeyApplicationNameLike(query.getApplicationName(), pageable);
 
         return platformDocuments
                 .stream()

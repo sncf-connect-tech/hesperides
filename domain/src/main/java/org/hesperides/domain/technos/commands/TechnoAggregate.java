@@ -76,6 +76,7 @@ class TechnoAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteTechnoTemplateCommand(DeleteTechnoTemplateCommand command) {
+        //TODO Est-ce qu'on incrémente le versionId ? => Etudier la re-création d'une techno ?
         // si le template n'existe pas, cette commande n'a pas d'effet de bord
         if (this.templates.containsKey(command.getTemplateName())) {
             apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
