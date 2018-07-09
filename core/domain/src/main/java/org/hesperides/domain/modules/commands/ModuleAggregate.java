@@ -132,18 +132,21 @@ class ModuleAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId du module ? => Voir legacy
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template crée. ");
     }
 
     @EventSourcingHandler
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId du module ? => Voir legacy
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
         log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
+        //TODO Est-ce qu'on met à jour le versionId du module ? => Voir legacy
         this.templates.remove(event.getTemplateName());
         log.debug("Template supprimé");
     }
