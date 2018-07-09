@@ -17,38 +17,4 @@
         <module>domain</module>
         <module>infrastructure</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- Dépendances DDD -->
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>presentation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>application</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>domain</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>infrastructure</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- Commons -->
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
 </project>

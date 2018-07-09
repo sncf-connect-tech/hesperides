@@ -39,8 +39,8 @@ public class ApplicationOutput {
     @NotEmpty
     List<PlatformOutput> platforms;
 
-    public ApplicationOutput(ApplicationView applicationView) {
+    public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules) {
         this.name = applicationView.getName();
-        this.platforms = PlatformOutput.fromPlatformViews(applicationView.getPlatforms());
+        this.platforms = PlatformOutput.fromPlatformViews(applicationView.getPlatforms(), hidePlatformsModules);
     }
 }

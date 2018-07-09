@@ -103,10 +103,11 @@ public class PlatformsController extends AbstractController {
 
     @GetMapping("/{application_name}")
     @ApiOperation("Get applications")
-    public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName) {
+    public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
+                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
 
         ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView);
+        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
 
         return ResponseEntity.ok(applicationOutput);
     }
