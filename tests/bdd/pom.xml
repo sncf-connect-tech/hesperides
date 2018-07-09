@@ -5,13 +5,12 @@
 
     <parent>
         <groupId>org.hesperides</groupId>
-        <artifactId>hesperides</artifactId>
+        <artifactId>tests</artifactId>
         <version>0.0.5-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tests-bdd</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>bdd</artifactId>
 
     <dependencies>
         <dependency>

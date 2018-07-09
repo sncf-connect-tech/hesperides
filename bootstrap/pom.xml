@@ -13,7 +13,7 @@
     <artifactId>bootstrap</artifactId>
 
     <dependencies>
-        <!-- DDD -->
+        <!-- Dépendances DDD -->
         <dependency>
             <groupId>org.hesperides</groupId>
             <artifactId>presentation</artifactId>
@@ -22,7 +22,7 @@
             <groupId>org.hesperides</groupId>
             <artifactId>infrastructure</artifactId>
         </dependency>
-        <!-- Spring Boot dependencies -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

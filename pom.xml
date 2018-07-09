@@ -21,14 +21,10 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>application</module>
-        <module>presentation</module>
-        <module>domain</module>
-        <module>infrastructure</module>
         <module>bootstrap</module>
-        <module>tests/bdd</module>
-        <module>tests/integration</module>
-        <module>tests/tech</module>
+        <module>commons</module>
+        <module>core</module>
+        <module>tests</module>
     </modules>
 
     <properties>
@@ -82,15 +78,22 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- DDD -->
+            <!-- Bootstrap -->
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>application</artifactId>
+                <artifactId>bootstrap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Dépendances DDD -->
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>presentation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>bootstrap</artifactId>
+                <artifactId>application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -103,11 +106,15 @@
                 <artifactId>infrastructure</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Commons -->
             <dependency>
                 <groupId>org.hesperides</groupId>
-                <artifactId>presentation</artifactId>
+                <artifactId>commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!-- Tests -->
             <dependency>
                 <groupId>org.hesperides</groupId>
                 <artifactId>tests-bdd</artifactId>

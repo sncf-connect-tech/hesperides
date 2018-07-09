@@ -33,8 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
-import static org.hesperides.domain.framework.Profiles.LDAP;
+import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.spring.SpringProfiles.LDAP;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

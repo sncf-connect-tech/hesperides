@@ -1,8 +1,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-
-import org.hesperides.presentation.io.platforms.ApplicationSearchOutput;
+import org.hesperides.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -20,7 +19,7 @@ public class SearchAnApplication extends CucumberSpringBean implements En {
     @Autowired
     private PlatformContext platformContext;
 
-    private ResponseEntity<ApplicationSearchOutput[]> response;
+    private ResponseEntity<SearchResultOutput[]> response;
 
     public SearchAnApplication() {
 
@@ -30,17 +29,14 @@ public class SearchAnApplication extends CucumberSpringBean implements En {
             String[] applications = {"AAA", "AAB", "BBB", "CCC", "DDD", "EEE"};
 
             for (int i = 0; i < applications.length; i++) {
-                for(int j = 0; j < 5; j++) {
-                    if(i < 5) {
+                for (int j = 0; j < 5; j++) {
+                    if (i < 5) {
                         applicationName = "AAA";
-                    }
-                    else if(i >= 5 && i < 10) {
+                    } else if (i >= 5 && i < 10) {
                         applicationName = "BBB";
-                    }
-                    else if(i >= 10 && i < 15) {
+                    } else if (i >= 10 && i < 15) {
                         applicationName = "CCC";
-                    }
-                    else {
+                    } else {
                         applicationName = "DDD";
                     }
 
@@ -55,7 +51,7 @@ public class SearchAnApplication extends CucumberSpringBean implements En {
 
         Then("^application found$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            List<ApplicationSearchOutput> applications = Arrays.asList(response.getBody());
+            List<SearchResultOutput> applications = Arrays.asList(response.getBody());
             assertEquals(1, applications.size());
             assertEquals("AAA", applications.get(0).getName());
         });
@@ -66,7 +62,7 @@ public class SearchAnApplication extends CucumberSpringBean implements En {
 
         Then("^the number of application results is (\\d+)$", (Integer numberOfResults) -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            List<ApplicationSearchOutput> applications = Arrays.asList(response.getBody());
+            List<SearchResultOutput> applications = Arrays.asList(response.getBody());
             assertEquals(numberOfResults.intValue(), applications.size());
         });
 

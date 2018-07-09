@@ -6,12 +6,11 @@
 
     <parent>
         <groupId>org.hesperides</groupId>
-        <artifactId>hesperides</artifactId>
+        <artifactId>tests</artifactId>
         <version>0.0.5-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>tests-integration</artifactId>
+    <artifactId>integration</artifactId>
 
     <dependencies>
         <dependency>
