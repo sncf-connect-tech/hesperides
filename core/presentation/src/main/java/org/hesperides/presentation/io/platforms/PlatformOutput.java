@@ -27,19 +27,23 @@ public class PlatformOutput {
     Long versionId;
 
     public PlatformOutput(PlatformView platformView) {
+        this(platformView, false);
+    }
+
+    public PlatformOutput(PlatformView platformView, boolean hidePlatformsModules) {
         this.platformName = platformView.getPlatformName();
         this.applicationName = platformView.getApplicationName();
         this.version = platformView.getVersion();
         this.isProductionPlatform = platformView.isProductionPlatform();
-        this.deployedModules = DeployedModuleOutput.fromDeployedModuleViews(platformView.getDeployedModules());
+        this.deployedModules = hidePlatformsModules ? Collections.emptyList() : DeployedModuleOutput.fromDeployedModuleViews(platformView.getDeployedModules());
         this.versionId = platformView.getVersionId();
     }
 
-    public static List<PlatformOutput> fromPlatformViews(List<PlatformView> platformViews) {
+    public static List<PlatformOutput> fromPlatformViews(List<PlatformView> platformViews, boolean hidePlatformsModules) {
         return Optional.ofNullable(platformViews)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(PlatformOutput::new)
+                .map(platformView -> new PlatformOutput(platformView, hidePlatformsModules))
                 .collect(toList());
     }
 }
