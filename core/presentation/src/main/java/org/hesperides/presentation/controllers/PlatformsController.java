@@ -137,7 +137,7 @@ public class PlatformsController extends AbstractController {
         this.checkQueryParameterNotEmpty("application_name", applicationName);
         List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, platformName);
 
-        List<SearchResultOutput> searchResultOutputs = Optional.of(searchPlatformResultViews)
+        List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchPlatformResultViews)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(SearchResultOutput::new)
@@ -152,7 +152,7 @@ public class PlatformsController extends AbstractController {
 
         List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(applicationName);
 
-        List<SearchResultOutput> searchResultOutputs = Optional.of(searchApplicationResultViews)
+        List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchApplicationResultViews)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(SearchResultOutput::new)

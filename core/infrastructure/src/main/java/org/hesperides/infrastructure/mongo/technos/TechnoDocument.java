@@ -62,7 +62,7 @@ public class TechnoDocument {
     }
 
     public static List<Techno> toDomainInstances(List<TechnoDocument> technoDocuments) {
-        return Optional.of(technoDocuments)
+        return Optional.ofNullable(technoDocuments)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(TechnoDocument::toDomainInstance)
