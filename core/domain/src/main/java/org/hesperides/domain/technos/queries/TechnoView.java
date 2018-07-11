@@ -38,7 +38,7 @@ public class TechnoView {
     List<TemplateView> templates;
 
     public static List<Techno> toDomainInstances(List<TechnoView> technoViews) {
-        return Optional.of(technoViews)
+        return Optional.ofNullable(technoViews)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(TechnoView::toDomainInstance)

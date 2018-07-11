@@ -54,7 +54,7 @@ public class TemplateDocument {
     }
 
     public static List<TemplateDocument> fromDomainInstances(List<Template> templates) {
-        return Optional.of(templates)
+        return Optional.ofNullable(templates)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(TemplateDocument::new)
