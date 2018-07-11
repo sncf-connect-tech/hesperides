@@ -2,8 +2,7 @@ package org.hesperides.infrastructure.mongo;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.MongoClientURI;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -15,8 +14,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.Collections;
 
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
@@ -31,23 +28,20 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class MongoProjectionRepositoryConfiguration {
 
     @NotNull
-    private String host;
-    @NotNull
-    private String port;
-    private String database;
-    private String username;
-    private String password;
+    private String uri;
 
     @Bean
-    public Mongo projectionRepositoryMongoClient() {
-        if (!username.isEmpty()) {
-            return new MongoClient(new ServerAddress(host, Integer.parseInt(port)), Collections.singletonList(MongoCredential.createCredential(username, database, password.toCharArray())));
-        } else
-            return new MongoClient(host, Integer.parseInt(port));
+    public MongoTemplate mongoTemplate(MongoClientURI uri) {
+        return new MongoTemplate(mongo(uri), uri.getDatabase());
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() {
-        return new MongoTemplate(projectionRepositoryMongoClient(), database);
+    public Mongo mongo(MongoClientURI uri) {
+        return new MongoClient(uri);
+    }
+
+    @Bean
+    public MongoClientURI uri() {
+        return new MongoClientURI(uri);
     }
 }

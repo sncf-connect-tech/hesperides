@@ -1,8 +1,7 @@
 package org.hesperides.infrastructure.mongo.eventstores;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.MongoClientURI;
 import lombok.Getter;
 import lombok.Setter;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
@@ -16,8 +15,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Collections;
-
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Configuration
@@ -27,28 +24,23 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Validated
 @ConfigurationProperties("event_store")
 public class AxonMongoEventStoreConfiguration {
+
     @NotNull
-    private String host;
-    @NotNull
-    private String port;
-    private String database;
-    private String username;
-    private String password;
+    private String uri;
 
     @Bean
-    public MongoClient eventStoreMongoClient() {
-        if (!username.isEmpty()) {
-            return new MongoClient(new ServerAddress(host, Integer.parseInt(port)), Collections.singletonList(MongoCredential.createCredential(username, database, password.toCharArray())));
-        } else {
-            return new MongoClient(host, Integer.parseInt(port));
-        }
+    public MongoClient mongo(MongoClientURI uri) {
+        return new MongoClient(uri);
+    }
+
+    @Bean
+    public MongoClientURI uri() {
+        return new MongoClientURI(uri);
     }
 
     @Bean
     @Primary
-    public EventStorageEngine eventStore() {
-        return new MongoEventStorageEngine(new DefaultMongoTemplate(eventStoreMongoClient(), database));
+    public EventStorageEngine eventStore(MongoClientURI uri) {
+        return new MongoEventStorageEngine(new DefaultMongoTemplate(mongo(uri), uri.getDatabase()));
     }
-
-
 }
