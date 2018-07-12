@@ -20,9 +20,9 @@
  */
 package org.hesperides.tests.bdd.modules;
 
-import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.presentation.io.ModuleIO;
-import org.hesperides.presentation.io.TechnoIO;
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
 
 import java.util.Arrays;

@@ -1,8 +1,8 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.TechnoIO;
-import org.hesperides.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;

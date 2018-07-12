@@ -20,8 +20,8 @@
  */
 package org.hesperides.tests.bdd.platforms.samples;
 
-import org.hesperides.presentation.io.platforms.DeployedModuleInput;
-import org.hesperides.presentation.io.platforms.DeployedModuleOutput;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleInput;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleOutput;
 
 import java.util.Arrays;
 

@@ -20,7 +20,7 @@
  */
 package org.hesperides.tests.bdd.templatecontainers;
 
-import org.hesperides.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 
 import static org.junit.Assert.assertEquals;
 

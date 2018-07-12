@@ -1,10 +1,10 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.technos.entities.Techno;
-import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.presentation.io.TechnoIO;
-import org.hesperides.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.core.domain.technos.entities.Techno;
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.technos.TechnoAssertions;
 import org.hesperides.tests.bdd.technos.TechnosSamples;

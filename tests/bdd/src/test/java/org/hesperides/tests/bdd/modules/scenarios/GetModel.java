@@ -1,9 +1,9 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.presentation.io.templatecontainers.PropertyOutput;
-import org.hesperides.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
+import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
