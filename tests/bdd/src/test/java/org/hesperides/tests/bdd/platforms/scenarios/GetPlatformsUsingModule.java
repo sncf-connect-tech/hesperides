@@ -1,8 +1,8 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.platforms.ModulePlatformsOutput;
-import org.hesperides.presentation.io.platforms.PlatformInput;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformInput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;

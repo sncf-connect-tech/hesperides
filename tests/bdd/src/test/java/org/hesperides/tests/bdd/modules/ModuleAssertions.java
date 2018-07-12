@@ -20,8 +20,8 @@
  */
 package org.hesperides.tests.bdd.modules;
 
-import org.hesperides.presentation.io.ModuleIO;
-import org.hesperides.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.tests.bdd.technos.TechnoAssertions;
 
 import java.util.List;

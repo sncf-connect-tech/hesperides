@@ -21,9 +21,9 @@
 package org.hesperides.tests.bdd.platforms.contexts;
 
 import cucumber.api.java8.En;
-import org.hesperides.domain.platforms.entities.Platform;
-import org.hesperides.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.presentation.io.platforms.*;
+import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
 import org.springframework.http.ResponseEntity;

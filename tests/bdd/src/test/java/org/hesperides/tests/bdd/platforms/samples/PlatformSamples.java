@@ -20,9 +20,9 @@
  */
 package org.hesperides.tests.bdd.platforms.samples;
 
-import org.hesperides.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.presentation.io.platforms.PlatformInput;
-import org.hesperides.presentation.io.platforms.PlatformOutput;
+import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformInput;
+import org.hesperides.core.presentation.io.platforms.PlatformOutput;
 
 import java.util.Arrays;
 
