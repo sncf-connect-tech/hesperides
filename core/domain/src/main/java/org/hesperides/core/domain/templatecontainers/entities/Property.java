@@ -87,8 +87,9 @@ public class Property extends AbstractProperty {
                 } else {
                     // Sinon, on récupère la valeur à partir du premier espace jusqu'à la fin de la chaîne
                     // Mais dans le legacy, on récupère la valeur entre guillemets ou le premier mot s'il n'y a pas de guillemets...
-                    String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations);
+                    String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations.trim());
                     for (String annotationDefinition : splitAnnotations) {
+
                         if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED)) {
                             isRequired = true;
 
