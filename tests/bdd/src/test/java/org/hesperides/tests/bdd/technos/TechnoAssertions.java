@@ -20,7 +20,7 @@
  */
 package org.hesperides.tests.bdd.technos;
 
-import org.hesperides.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.TechnoIO;
 import org.junit.Assert;
 
 public class TechnoAssertions {

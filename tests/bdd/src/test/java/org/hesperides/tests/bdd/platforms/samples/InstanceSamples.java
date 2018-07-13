@@ -20,8 +20,8 @@
  */
 package org.hesperides.tests.bdd.platforms.samples;
 
-import org.hesperides.presentation.io.platforms.InstanceIO;
-import org.hesperides.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.InstanceIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 
 import java.util.Arrays;
 

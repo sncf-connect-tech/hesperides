@@ -1,7 +1,7 @@
 package org.hesperides.tests.bdd.templatecontainers;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 
 public class TemplateSamples extends CucumberSpringBean implements En {

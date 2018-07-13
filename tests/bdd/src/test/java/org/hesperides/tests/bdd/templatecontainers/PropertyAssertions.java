@@ -1,6 +1,6 @@
 package org.hesperides.tests.bdd.templatecontainers;
 
-import org.hesperides.presentation.io.templatecontainers.PropertyOutput;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 
 import static org.junit.Assert.assertEquals;
 
