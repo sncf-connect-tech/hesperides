@@ -18,18 +18,72 @@
  *
  *
  */
-package org.hesperides.core.domain.modules.commands;
+package org.hesperides.core.domain.templatecontainers.entities;
 
-import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
-import org.hesperides.core.domain.templatecontainers.entities.IterableProperty;
-import org.hesperides.core.domain.templatecontainers.entities.Property;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class PropertiesExtractionTest {
+public class PropertyTest {
+
+    @Test
+    public void test() {
+        assertProperty(
+                new Property("foo", false, "content", "12", "*", true),
+                Property.extractPropertyFromStringDefinition("foo | @comment content of template-a @default 12 @pattern * @password")
+        );
+        assertProperty(
+                new Property("var", false, "var is commented and can be composed with spaces", "", "", false),
+                Property.extractPropertyFromStringDefinition("var|var is commented and can be composed with spaces")
+        );
+        assertProperty(
+                new Property("var", false, "var is commented and has a", "default_value", "", false),
+                Property.extractPropertyFromStringDefinition("var|var is commented and has a @default default_value")
+        );
+        assertProperty(
+                new Property("var", false, null, "comment", "", false),
+                Property.extractPropertyFromStringDefinition("var|@default comment comment Should Be First")
+        );
+        assertProperty(
+                new Property("var", false, "cantHaveSpace", "okayValue", "", false),
+                Property.extractPropertyFromStringDefinition("var|@default okayValue @comment cantHaveSpace orElse")
+        );
+        assertProperty(
+                new Property("var", false, "spaced", "", "", false),
+                Property.extractPropertyFromStringDefinition("var|@comment spaced comment")
+        );
+        assertProperty(
+                new Property("var", false, "super long comment", "super", "", false),
+                Property.extractPropertyFromStringDefinition("var|@comment \"super long comment\" @default super long default")
+        );
+        assertProperty(
+                new Property("var", false, "\"comment between quotes\"", "", "", false),
+                Property.extractPropertyFromStringDefinition("var|\"comment between quotes\"")
+        );
+        assertProperty(
+                new Property("var", false, null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean a mauris auctor nunc ultricies aliquam et ac ipsum. Curabitur lectus urna, accumsan eget sapien et, lacinia lobortis sapien.", "", false),
+                Property.extractPropertyFromStringDefinition("var|@default \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean a mauris auctor nunc ultricies aliquam et ac ipsum. Curabitur lectus urna, accumsan eget sapien et, lacinia lobortis sapien.\"")
+        );
+        assertProperty(
+                new Property("var", false, null, "bob@bob.com", "", false),
+                Property.extractPropertyFromStringDefinition("var|@Default \"bob@bob.com\"")
+        );
+        assertProperty(
+                new Property("var", false, null, "bob@bob.com", "", false),
+                Property.extractPropertyFromStringDefinition("var|@Default bob@bob.com")
+        );
+    }
+
+    @Test
+    public void z() {
+        assertEquals("something", Property.extractAnnotationValueLegacyStyle("@annotation something in the way"));
+        assertEquals("something in the way", Property.extractAnnotationValueLegacyStyle("@annotation \"something in the way\""));
+        assertEquals("something in", Property.extractAnnotationValueLegacyStyle("@annotation \"something in\" the way\""));
+        assertEquals(null, Property.extractAnnotationValueLegacyStyle("@annotation \"something in the way"));
+        assertEquals("some\"thing", Property.extractAnnotationValueLegacyStyle("@annotation some\"thing"));
+    }
 
     @Test
     public void testExtractPropertiesFromStringContent() {
@@ -52,19 +106,19 @@ public class PropertiesExtractionTest {
         assertProperty(new Property("foo", false, "", "", "", false), noAnnotationProperty);
 
         Property requiredPropery = Property.extractPropertyFromStringDefinition("foo|@required");
-        assertProperty(new Property("foo", true, "", "", "", false), requiredPropery);
+        assertProperty(new Property("foo", true, null, "", "", false), requiredPropery);
 
         Property commentProperty = Property.extractPropertyFromStringDefinition("foo|@comment \"a comment\"");
         assertProperty(new Property("foo", false, "a comment", "", "", false), commentProperty);
 
         Property defaultProperty = Property.extractPropertyFromStringDefinition("foo|@default 5");
-        assertProperty(new Property("foo", false, "", "5", "", false), defaultProperty);
+        assertProperty(new Property("foo", false, null, "5", "", false), defaultProperty);
 
         Property patternProperty = Property.extractPropertyFromStringDefinition("foo|@pattern \"z\"");
-        assertProperty(new Property("foo", false, "", "", "z", false), patternProperty);
+        assertProperty(new Property("foo", false, null, "", "z", false), patternProperty);
 
         Property passwordProperty = Property.extractPropertyFromStringDefinition("foo|@password");
-        assertProperty(new Property("foo", false, "", "", "", true), passwordProperty);
+        assertProperty(new Property("foo", false, null, "", "", true), passwordProperty);
 
         Property moreThanOneAnnotationProperty = Property.extractPropertyFromStringDefinition("foo|@required   @comment \"a comment\"");
         assertProperty(new Property("foo", true, "a comment", "", "", false), moreThanOneAnnotationProperty);
@@ -83,10 +137,10 @@ public class PropertiesExtractionTest {
 
     @Test
     public void testExtractPropertyAnnotationValue() {
-        assertEquals("something without any quotes", Property.extractPropertyAnnotationValue("anyOption something without any quotes"));
-        assertEquals("something with quotes", Property.extractPropertyAnnotationValue("anyOption \"something with quotes\" "));
-        assertEquals("12", Property.extractPropertyAnnotationValue("anyOption 12"));
-        assertEquals("something else", Property.extractPropertyAnnotationValue("anyOption   something else      "));
+        assertEquals("something", Property.extractAnnotationValueLegacyStyle("anyOption something without any quotes"));
+        assertEquals("something with quotes", Property.extractAnnotationValueLegacyStyle("anyOption \"something with quotes\" "));
+        assertEquals("12", Property.extractAnnotationValueLegacyStyle("anyOption 12"));
+        assertEquals("something", Property.extractAnnotationValueLegacyStyle("anyOption   something else      "));
     }
 
     @Test
@@ -105,10 +159,10 @@ public class PropertiesExtractionTest {
         IterableProperty iterablePropertyA = (IterableProperty) abstractProperties.get(0);
         assertEquals("a", iterablePropertyA.getName());
         Property propertyFoo = (Property) iterablePropertyA.getProperties().get(0);
-        assertProperty(new Property("foo", true, "", "", "", false), propertyFoo);
+        assertProperty(new Property("foo", true, null, "", "", false), propertyFoo);
         IterableProperty iterablePropertyB = (IterableProperty) iterablePropertyA.getProperties().get(1);
         assertEquals("b", iterablePropertyB.getName());
         Property propertyBar = (Property) iterablePropertyB.getProperties().get(0);
-        assertProperty(new Property("bar", false, "", "zzz", "", false), propertyBar);
+        assertProperty(new Property("bar", false, null, "zzz", "", false), propertyBar);
     }
 }
