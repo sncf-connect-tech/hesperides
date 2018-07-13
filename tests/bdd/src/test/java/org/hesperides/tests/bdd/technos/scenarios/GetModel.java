@@ -39,7 +39,7 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content of template-a", "", "*", true, null),
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
                     modelOutput.getProperties().get(0));
         });
 
@@ -55,11 +55,11 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(3, modelOutput.getProperties().size());
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "filename of template-a", "", "", false, null),
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "filename", "", "", false, null),
                     modelOutput.getProperties().get(0));
             PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "location of template-a", "", "", false, null),
                     modelOutput.getProperties().get(1));
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content of template-a", "", "*", true, null),
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
                     modelOutput.getProperties().get(2));
         });
 
@@ -75,7 +75,7 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(2, modelOutput.getProperties().size());
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", false, "content of template-a", "12", "*", true, Collections.emptyList())));
+                    new PropertyOutput("foo", false, "content", "12", "*", true, Collections.emptyList())));
             assertEquals(true, modelOutput.getProperties().contains(
                     new PropertyOutput("foo", false, "content of template-b", "", "", false, Collections.emptyList())));
         });
