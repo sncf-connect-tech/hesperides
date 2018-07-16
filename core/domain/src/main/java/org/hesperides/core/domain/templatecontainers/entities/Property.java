@@ -66,7 +66,7 @@ public class Property extends AbstractProperty {
     public static Property extractPropertyFromStringDefinition(String propertyDefinition) {
         Property property = null;
         if (propertyDefinition != null) {
-            String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX);
+            String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX, 2);
 
             String name = propertyAttributes[NAME_INDEX].trim();
             // Valeurs par défaut
@@ -149,11 +149,11 @@ public class Property extends AbstractProperty {
      * Récupère la valeur entre guillemets ou le premier mot s'il n'y a pas de guillemets.
      * Mais s'il n'y a qu'une seule guillemet au début de la valeur, on retourne null.
      * <p>
-     * Ce bout de code est infâmant. Le but est de reproduire le comportement hérétique du legacy.
+     * Ce bout de code est infâme. Le but est de reproduire le comportement hérétique du legacy.
      * À terme, l'idée est de le supprimer mais cela nécessite une
      */
     public static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
-        String result = null;
+        String result;
 
         int indexOfFirstSpace = annotationDefinition.indexOf(" ");
         String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace).trim();
