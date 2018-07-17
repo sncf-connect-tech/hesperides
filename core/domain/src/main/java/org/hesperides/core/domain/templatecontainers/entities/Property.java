@@ -66,7 +66,7 @@ public class Property extends AbstractProperty {
     public static Property extractPropertyFromStringDefinition(String propertyDefinition) {
         Property property = null;
         if (propertyDefinition != null) {
-            String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX);
+            String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX, 2);
 
             String name = propertyAttributes[NAME_INDEX].trim();
             // Valeurs par défaut
@@ -131,9 +131,13 @@ public class Property extends AbstractProperty {
      * Récupère la valeur entre le premier espace et la fin de la chaîne de caractère passée en paramètre
      */
     public static String extractAnnotationValue(String annotationDefinition) {
+        String annotationValue = null;
         int indexOfFirstSpace = annotationDefinition.indexOf(" ");
-        String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace);
-        return removeSurroundingQuotesIfPresent(valueThatMayBeSurroundedByQuotes.trim());
+        if (indexOfFirstSpace != -1) {
+            String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace);
+            annotationValue = removeSurroundingQuotesIfPresent(valueThatMayBeSurroundedByQuotes.trim());
+        }
+        return annotationValue;
     }
 
     public static String removeSurroundingQuotesIfPresent(String value) {
@@ -149,24 +153,26 @@ public class Property extends AbstractProperty {
      * Récupère la valeur entre guillemets ou le premier mot s'il n'y a pas de guillemets.
      * Mais s'il n'y a qu'une seule guillemet au début de la valeur, on retourne null.
      * <p>
-     * Ce bout de code est infâmant. Le but est de reproduire le comportement hérétique du legacy.
+     * Ce bout de code est infâme. Le but est de reproduire le comportement hérétique du legacy.
      * À terme, l'idée est de le supprimer mais cela nécessite une
      */
     public static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
         String result = null;
 
         int indexOfFirstSpace = annotationDefinition.indexOf(" ");
-        String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace).trim();
-        String valueContainedInsideQuotes = extractValueContainedInsideQuotes(valueThatMayBeSurroundedByQuotes);
+        if (indexOfFirstSpace != -1) {
+            String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace).trim();
+            String valueContainedInsideQuotes = extractValueContainedInsideQuotes(valueThatMayBeSurroundedByQuotes);
 
-        if (valueContainedInsideQuotes == null && !valueThatMayBeSurroundedByQuotes.startsWith("\"")) {
-            if (valueThatMayBeSurroundedByQuotes.indexOf(" ") != -1) {
-                result = valueThatMayBeSurroundedByQuotes.substring(0, valueThatMayBeSurroundedByQuotes.indexOf(" "));
+            if (valueContainedInsideQuotes == null && !valueThatMayBeSurroundedByQuotes.startsWith("\"")) {
+                if (valueThatMayBeSurroundedByQuotes.indexOf(" ") != -1) {
+                    result = valueThatMayBeSurroundedByQuotes.substring(0, valueThatMayBeSurroundedByQuotes.indexOf(" "));
+                } else {
+                    result = valueThatMayBeSurroundedByQuotes;
+                }
             } else {
-                result = valueThatMayBeSurroundedByQuotes;
+                result = valueContainedInsideQuotes;
             }
-        } else {
-            result = valueContainedInsideQuotes;
         }
         return result;
     }

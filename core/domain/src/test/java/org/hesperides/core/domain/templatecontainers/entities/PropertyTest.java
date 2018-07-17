@@ -77,7 +77,7 @@ public class PropertyTest {
     }
 
     @Test
-    public void z() {
+    public void testExtractAnnotationValueLegacyStyle() {
         assertEquals("something", Property.extractAnnotationValueLegacyStyle("@annotation something in the way"));
         assertEquals("something in the way", Property.extractAnnotationValueLegacyStyle("@annotation \"something in the way\""));
         assertEquals("something in", Property.extractAnnotationValueLegacyStyle("@annotation \"something in\" the way\""));
@@ -96,6 +96,9 @@ public class PropertyTest {
 
     @Test
     public void testExtractPropertyFromStringDefinition() {
+        Property patternWithPipes = Property.extractPropertyFromStringDefinition("foo|@required @pattern a|b|c");
+        assertProperty(new Property("foo", true, null, "", "a|b|c", false), patternWithPipes);
+
         Property requiredCommentPatternPassword = Property.extractPropertyFromStringDefinition("foo|@required @comment \"a comment\" @pattern \"a pattern\" @password");
         assertProperty(new Property("foo", true, "a comment", "", "a pattern", true), requiredCommentPatternPassword);
 

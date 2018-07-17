@@ -46,12 +46,6 @@ public abstract class AbstractProperty {
                 .map(Template::extractProperties)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-
-//        List<AbstractProperty> properties = new ArrayList<>();
-//        if (templates != null) {
-//            templates.forEach((template) -> properties.addAll(extractPropertiesFromTemplate(template)));
-//        }
-//        return properties;
     }
 
     public static List<AbstractProperty> extractPropertiesFromStringContent(String content) {

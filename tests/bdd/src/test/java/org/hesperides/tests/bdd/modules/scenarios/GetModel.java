@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GetModel extends CucumberSpringBean implements En {
 
@@ -31,7 +33,7 @@ public class GetModel extends CucumberSpringBean implements En {
         Given("^a template in this module that has properties$", () -> {
             templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent(
                     "template-a",
-                    "{{foo|@required @comment content of template-a @pattern * @password }}"));
+                    "{{foo2|@required @comment content of template-a @pattern * @password }}"));
         });
 
         When("^retrieving the model of this module$", () -> {
@@ -42,8 +44,8 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
-                    modelOutput.getProperties().get(0));
+            PropertyAssertions.assertProperty(new PropertyOutput("foo2", true, "content", "", "*", true, null),
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
         Then("^the model of this module contains all the properties of the techno$", () -> {
@@ -51,13 +53,13 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
             PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
-                    modelOutput.getProperties().get(0));
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
         Given("^a template in this module that has properties with the same name but different attributes$", () -> {
             templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameFilenameLocationAndContent(
                     "template-a",
-                    "{{ foo | @comment filename of template-a}}.json",
+                    "{{ foo | @default filename of template-a}}.json",
                     "/{{foo|@comment \"location of template-a\"}}",
                     "{{foo|@required @comment content of template-a @pattern * @password }}"));
         });
@@ -66,12 +68,9 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(3, modelOutput.getProperties().size());
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "filename", "", "", false, null),
-                    modelOutput.getProperties().get(0));
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "location of template-a", "", "", false, null),
-                    modelOutput.getProperties().get(1));
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
-                    modelOutput.getProperties().get(2));
+            assertEquals(true, modelOutput.getProperties().contains(new PropertyOutput("foo", false, null, "filename", "", false, null)));
+            assertEquals(true, modelOutput.getProperties().contains(new PropertyOutput("foo", false, "location of template-a", "", "", false, null)));
+            assertEquals(true, modelOutput.getProperties().contains(new PropertyOutput("foo", true, "content", "", "*", true, null)));
         });
 
         Given("^templates in this module that have properties with the same name but different attributes$", () -> {
@@ -86,14 +85,14 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(2, modelOutput.getProperties().size());
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", false, "content", "12", "*", true, Collections.emptyList())));
+                    new PropertyOutput("foo", false, "content", "12", "*", true, null)));
             assertEquals(true, modelOutput.getProperties().contains(
-                    new PropertyOutput("foo", false, "content of template-b", "", "", false, Collections.emptyList())));
+                    new PropertyOutput("foo", false, "content of template-b", "", "", false, null)));
         });
 
         Given("^a template in this module containing properties that have been updated$", () -> {
             templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
-                    "{{foo|@required|@comment content of template-a|@default 12|@pattern *|@password }}"));
+                    "{{foo|@required|@comment content of template-a|@pattern *|@password }}"));
             templateContext.updateTemplate(TemplateSamples.getTemplateInputWithNameContentContentAndVersionId("template-a", "{{ foo }}", 1));
         });
 
@@ -102,12 +101,12 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
             PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "", "", "", false, null),
-                    modelOutput.getProperties().get(0));
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
         Given("^a template in this module containing properties but that is being deleted$", () -> {
             templateContext.addTemplateToExistingModule(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
-                    "{{foo|@required|@comment content of template-a|@default 12|@pattern *|@password }}"));
+                    "{{foo|@required|@comment content of template-a|@pattern *|@password }}"));
             templateContext.deleteTemplate("template-a");
         });
 
@@ -124,10 +123,10 @@ public class GetModel extends CucumberSpringBean implements En {
         Then("^the model of this module contains all the iterable properties$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
-            assertEquals("it1", modelOutput.getIterableProperties().get(0).getName());
-            assertEquals("foo", modelOutput.getIterableProperties().get(0).getProperties().get(0).getName());
-            assertEquals("it2", modelOutput.getIterableProperties().get(0).getProperties().get(1).getName());
-            assertEquals("bar", modelOutput.getIterableProperties().get(0).getProperties().get(1).getProperties().get(0).getName());
+            assertEquals("it1", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getName());
+            assertEquals("foo", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(0).getName());
+            assertEquals("it2", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(1).getName());
+            assertEquals("bar", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(1).getProperties().get(0).getName());
         });
 
         When("^trying to create a template in this module that has a property that is required and with a default value$", () -> {
