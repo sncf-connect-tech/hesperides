@@ -27,19 +27,27 @@ import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Value
 public class ModelOutput {
 
     @SerializedName("key_value_properties")
-    List<PropertyOutput> properties;
+    Set<PropertyOutput> properties;
     @SerializedName("iterable_properties")
-    List<PropertyOutput> iterableProperties;
+    Set<PropertyOutput> iterableProperties;
 
+    /**
+     * Le legacy distingue plus ou moins les propriétés identiques,
+     * D'où l'utilisation des Set dans cette classe.
+     *
+     * @param abstractPropertyViews
+     */
     public ModelOutput(List<AbstractPropertyView> abstractPropertyViews) {
-        List<PropertyOutput> propertyOutputs = new ArrayList<>();
-        List<PropertyOutput> iterablePropertyOutputs = new ArrayList<>();
+        Set<PropertyOutput> propertyOutputs = new HashSet<>();
+        Set<PropertyOutput> iterablePropertyOutputs = new HashSet<>();
 
         if (abstractPropertyViews != null) {
             for (AbstractPropertyView abstractPropertyView : abstractPropertyViews) {

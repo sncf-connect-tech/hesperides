@@ -131,9 +131,13 @@ public class Property extends AbstractProperty {
      * Récupère la valeur entre le premier espace et la fin de la chaîne de caractère passée en paramètre
      */
     public static String extractAnnotationValue(String annotationDefinition) {
+        String annotationValue = null;
         int indexOfFirstSpace = annotationDefinition.indexOf(" ");
-        String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace);
-        return removeSurroundingQuotesIfPresent(valueThatMayBeSurroundedByQuotes.trim());
+        if (indexOfFirstSpace != -1) {
+            String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace);
+            annotationValue = removeSurroundingQuotesIfPresent(valueThatMayBeSurroundedByQuotes.trim());
+        }
+        return annotationValue;
     }
 
     public static String removeSurroundingQuotesIfPresent(String value) {
@@ -153,20 +157,22 @@ public class Property extends AbstractProperty {
      * À terme, l'idée est de le supprimer mais cela nécessite une
      */
     public static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
-        String result;
+        String result = null;
 
         int indexOfFirstSpace = annotationDefinition.indexOf(" ");
-        String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace).trim();
-        String valueContainedInsideQuotes = extractValueContainedInsideQuotes(valueThatMayBeSurroundedByQuotes);
+        if (indexOfFirstSpace != -1) {
+            String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace).trim();
+            String valueContainedInsideQuotes = extractValueContainedInsideQuotes(valueThatMayBeSurroundedByQuotes);
 
-        if (valueContainedInsideQuotes == null && !valueThatMayBeSurroundedByQuotes.startsWith("\"")) {
-            if (valueThatMayBeSurroundedByQuotes.indexOf(" ") != -1) {
-                result = valueThatMayBeSurroundedByQuotes.substring(0, valueThatMayBeSurroundedByQuotes.indexOf(" "));
+            if (valueContainedInsideQuotes == null && !valueThatMayBeSurroundedByQuotes.startsWith("\"")) {
+                if (valueThatMayBeSurroundedByQuotes.indexOf(" ") != -1) {
+                    result = valueThatMayBeSurroundedByQuotes.substring(0, valueThatMayBeSurroundedByQuotes.indexOf(" "));
+                } else {
+                    result = valueThatMayBeSurroundedByQuotes;
+                }
             } else {
-                result = valueThatMayBeSurroundedByQuotes;
+                result = valueContainedInsideQuotes;
             }
-        } else {
-            result = valueContainedInsideQuotes;
         }
         return result;
     }
