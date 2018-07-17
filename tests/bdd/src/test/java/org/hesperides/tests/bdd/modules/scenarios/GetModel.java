@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -43,7 +44,7 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
             PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
-                    modelOutput.getProperties().get(0));
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
         Then("^the model of this module contains all the properties of the techno$", () -> {
@@ -51,7 +52,7 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
             PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
-                    modelOutput.getProperties().get(0));
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
         Given("^a template in this module that has properties with the same name but different attributes$", () -> {
@@ -67,11 +68,11 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(3, modelOutput.getProperties().size());
             PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "filename", "", "", false, null),
-                    modelOutput.getProperties().get(0));
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
             PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "location of template-a", "", "", false, null),
-                    modelOutput.getProperties().get(1));
+                    new ArrayList<>(modelOutput.getProperties()).get(1));
             PropertyAssertions.assertProperty(new PropertyOutput("foo", true, "content", "", "*", true, null),
-                    modelOutput.getProperties().get(2));
+                    new ArrayList<>(modelOutput.getProperties()).get(2));
         });
 
         Given("^templates in this module that have properties with the same name but different attributes$", () -> {
@@ -102,7 +103,7 @@ public class GetModel extends CucumberSpringBean implements En {
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
             PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "", "", "", false, null),
-                    modelOutput.getProperties().get(0));
+                    new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
         Given("^a template in this module containing properties but that is being deleted$", () -> {
@@ -124,10 +125,10 @@ public class GetModel extends CucumberSpringBean implements En {
         Then("^the model of this module contains all the iterable properties$", () -> {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
-            assertEquals("it1", modelOutput.getIterableProperties().get(0).getName());
-            assertEquals("foo", modelOutput.getIterableProperties().get(0).getProperties().get(0).getName());
-            assertEquals("it2", modelOutput.getIterableProperties().get(0).getProperties().get(1).getName());
-            assertEquals("bar", modelOutput.getIterableProperties().get(0).getProperties().get(1).getProperties().get(0).getName());
+            assertEquals("it1", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getName());
+            assertEquals("foo", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(0).getName());
+            assertEquals("it2", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(1).getName());
+            assertEquals("bar", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(1).getProperties().get(0).getName());
         });
 
         When("^trying to create a template in this module that has a property that is required and with a default value$", () -> {
