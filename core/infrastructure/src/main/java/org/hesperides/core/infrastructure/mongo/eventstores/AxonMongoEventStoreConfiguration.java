@@ -29,18 +29,18 @@ public class AxonMongoEventStoreConfiguration {
     private String uri;
 
     @Bean
-    public MongoClient mongo(MongoClientURI uri) {
-        return new MongoClient(uri);
+    public MongoClient axonMongoClient(MongoClientURI axonMongoClientUri) {
+        return new MongoClient(axonMongoClientUri);
     }
 
     @Bean
-    public MongoClientURI uri() {
+    public MongoClientURI axonMongoClientUri() {
         return new MongoClientURI(uri);
     }
 
     @Bean
     @Primary
-    public EventStorageEngine eventStore(MongoClientURI uri) {
-        return new MongoEventStorageEngine(new DefaultMongoTemplate(mongo(uri), uri.getDatabase()));
+    public EventStorageEngine eventStore(MongoClientURI axonMongoClientUri) {
+        return new MongoEventStorageEngine(new DefaultMongoTemplate(axonMongoClient(axonMongoClientUri), axonMongoClientUri.getDatabase()));
     }
 }
