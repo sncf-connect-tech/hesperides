@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.io.templatecontainers;
 
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -8,6 +9,7 @@ import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,27 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
     boolean isPassword;
     @SerializedName("fields")
     List<PropertyOutput> properties;
+
+
+
+    /**
+     * Permet d'exclure le champs properties de la sérialisation
+     * lorsque celui-ci est null. Ce sérialiseur est enregistré
+     * dans la classe PresentationConfiguration.
+     * PS : Ce serait tellement plus simple avec une annotation
+     * "ExcludeIfNull".
+     */
+    public static class Serializer implements JsonSerializer<PropertyOutput> {
+        @Override
+        public JsonElement serialize(PropertyOutput src, Type typeOfSrc, JsonSerializationContext context) {
+            Gson gson = new GsonBuilder().serializeNulls().create();
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(src);
+            if (src.getProperties() == null) {
+                jsonObject.remove("fields");
+            }
+            return jsonObject;
+        }
+    }
 
     public PropertyOutput(AbstractPropertyView abstractPropertyView) {
         this.name = abstractPropertyView.getName();
@@ -66,6 +89,7 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
 
     @Override
     public int compareTo(@NotNull PropertyOutput o) {
+        //TODO Supprimer
         return this.name.compareTo(o.name);
     }
 }

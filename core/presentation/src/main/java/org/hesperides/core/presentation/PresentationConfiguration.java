@@ -2,6 +2,7 @@ package org.hesperides.core.presentation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -26,13 +27,14 @@ public class PresentationConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureContentNegotiation(final ContentNegotiationConfigurer configurer) {
-        configurer
-                .favorPathExtension(false);
+        configurer.favorPathExtension(false);
     }
 
     private Gson gson() {
-        final GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter());
-        return builder.create();
+        return new GsonBuilder()
+                .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
+                .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer())
+                .serializeNulls()
+                .create();
     }
 }
