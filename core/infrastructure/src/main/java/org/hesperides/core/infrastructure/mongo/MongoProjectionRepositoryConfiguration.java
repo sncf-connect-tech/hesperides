@@ -31,17 +31,17 @@ public class MongoProjectionRepositoryConfiguration {
     private String uri;
 
     @Bean
-    public MongoTemplate mongoTemplate(MongoClientURI uri) {
-        return new MongoTemplate(mongo(uri), uri.getDatabase());
+    public MongoTemplate mongoTemplate(MongoClientURI projectionMongoClientUri) {
+        return new MongoTemplate(mongo(projectionMongoClientUri), projectionMongoClientUri.getDatabase());
     }
 
     @Bean
-    public Mongo mongo(MongoClientURI uri) {
-        return new MongoClient(uri);
+    public Mongo mongo(MongoClientURI projectionMongoClientUri) {
+        return new MongoClient(projectionMongoClientUri);
     }
 
     @Bean
-    public MongoClientURI uri() {
+    public MongoClientURI projectionMongoClientUri() {
         return new MongoClientURI(uri);
     }
 }
