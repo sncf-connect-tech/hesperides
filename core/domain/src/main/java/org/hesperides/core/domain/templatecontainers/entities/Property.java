@@ -157,7 +157,7 @@ public class Property extends AbstractProperty {
      * À terme, l'idée est de le supprimer mais cela nécessite une
      */
     public static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
-        String result;
+        String result = null;
 
         int indexOfFirstSpace = annotationDefinition.indexOf(" ");
         if (indexOfFirstSpace != -1) {

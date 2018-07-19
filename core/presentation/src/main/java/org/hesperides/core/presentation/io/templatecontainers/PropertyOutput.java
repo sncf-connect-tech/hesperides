@@ -66,6 +66,7 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
 
     @Override
     public int compareTo(@NotNull PropertyOutput o) {
+        //TODO Supprimer
         return this.name.compareTo(o.name);
     }
 }

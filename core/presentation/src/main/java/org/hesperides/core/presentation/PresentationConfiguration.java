@@ -33,6 +33,7 @@ public class PresentationConfiguration extends WebMvcConfigurerAdapter {
     private Gson gson() {
         final GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter());
+        builder.serializeNulls();
         return builder.create();
     }
 }
