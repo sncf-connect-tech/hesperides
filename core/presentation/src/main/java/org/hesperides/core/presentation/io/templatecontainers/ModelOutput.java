@@ -26,7 +26,6 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
