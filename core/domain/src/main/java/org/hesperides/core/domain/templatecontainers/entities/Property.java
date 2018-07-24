@@ -5,7 +5,6 @@ import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -37,7 +37,7 @@ public class TemplateIO {
         this.filename = templateView.getFilename();
         this.location = templateView.getLocation();
         this.content = templateView.getContent();
-        this.rights = new RightsIO(Optional.ofNullable(templateView.getRights()));
+        this.rights = Optional.ofNullable(templateView.getRights()).map(RightsIO::new).orElse(null);
         this.versionId = templateView.getVersionId();
     }
 
@@ -53,10 +53,10 @@ public class TemplateIO {
         FileRightsIO group;
         FileRightsIO other;
 
-        public RightsIO(Optional<TemplateView.RightsView> optionalRightsView) {
-            this.user = new FileRightsIO(optionalRightsView.map(TemplateView.RightsView::getUser));
-            this.group = new FileRightsIO(optionalRightsView.map(TemplateView.RightsView::getGroup));
-            this.other = new FileRightsIO(optionalRightsView.map(TemplateView.RightsView::getOther));
+        public RightsIO(TemplateView.RightsView rightsView) {
+            this.user = Optional.ofNullable(rightsView.getUser()).map(FileRightsIO::new).orElse(null);
+            this.group = Optional.ofNullable(rightsView.getGroup()).map(FileRightsIO::new).orElse(null);
+            this.other = Optional.ofNullable(rightsView.getOther()).map(FileRightsIO::new).orElse(null);
         }
 
         public Template.Rights toDomainInstance() {
@@ -76,10 +76,10 @@ public class TemplateIO {
         Boolean write;
         Boolean execute;
 
-        public FileRightsIO(Optional<TemplateView.FileRightsView> optionalFileRightsView) {
-            this.read = optionalFileRightsView.map(TemplateView.FileRightsView::getRead).orElse(null);
-            this.write = optionalFileRightsView.map(TemplateView.FileRightsView::getWrite).orElse(null);
-            this.execute = optionalFileRightsView.map(TemplateView.FileRightsView::getExecute).orElse(null);
+        public FileRightsIO(TemplateView.FileRightsView fileRightsView) {
+            this.read = Optional.ofNullable(fileRightsView.getRead()).orElse(null);
+            this.write = Optional.ofNullable(fileRightsView.getWrite()).orElse(null);
+            this.execute = Optional.ofNullable(fileRightsView.getExecute()).orElse(null);
         }
 
         public Template.FileRights toDomainInstance() {
