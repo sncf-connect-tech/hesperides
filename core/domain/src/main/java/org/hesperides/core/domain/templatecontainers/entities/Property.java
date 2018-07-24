@@ -27,6 +27,7 @@ public class Property extends AbstractProperty {
         this.isPassword = isPassword;
     }
 
+
     public void validate() {
         if (isRequired && !StringUtils.isEmpty(defaultValue)) {
             throw new RequiredPropertyCannotHaveDefaultValueException(getName());
