@@ -2,11 +2,10 @@ package org.hesperides.core.domain.templatecontainers.entities;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
-import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +28,7 @@ public class Property extends AbstractProperty {
         this.isPassword = isPassword;
     }
 
+
     public void validate() {
         if (isRequired && !StringUtils.isEmpty(defaultValue)) {
             throw new RequiredPropertyCannotHaveDefaultValueException(getName());
@@ -50,12 +50,6 @@ public class Property extends AbstractProperty {
 
         public String getName() {
             return name;
-        }
-
-        public static Optional<AnnotationType> fromName(String name) {
-            return Arrays.stream(AnnotationType.values())
-                    .filter(annotationType -> annotationType.getName().equalsIgnoreCase(name))
-                    .findFirst();
         }
     }
 

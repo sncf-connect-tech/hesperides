@@ -88,7 +88,7 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals(1, modelOutput.getProperties().size());
-            PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "", "", "", false, Collections.emptyList()),
+            PropertyAssertions.assertProperty(new PropertyOutput("foo", false, "", "", "", false, Collections.emptySet()),
                     new ArrayList<>(modelOutput.getProperties()).get(0));
         });
 
@@ -112,9 +112,9 @@ public class GetModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
             ModelOutput modelOutput = response.getBody();
             assertEquals("it1", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getName());
-            assertEquals("foo", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(0).getName());
-            assertEquals("it2", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(1).getName());
-            assertEquals("bar", new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties().get(1).getProperties().get(0).getName());
+            assertEquals("foo", new ArrayList<>(new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties()).get(0).getName());
+            assertEquals("it2", new ArrayList<>(new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties()).get(1).getName());
+            assertEquals("bar", new ArrayList<>(new ArrayList<>(new ArrayList<>(modelOutput.getIterableProperties()).get(0).getProperties()).get(1).getProperties()).get(0).getName());
         });
 
         When("^trying to create a template in this techno that has a property that is required and with a default value$", () -> {

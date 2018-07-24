@@ -10,6 +10,7 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Value
 @AllArgsConstructor
@@ -36,7 +37,7 @@ public class TemplateIO {
         this.filename = templateView.getFilename();
         this.location = templateView.getLocation();
         this.content = templateView.getContent();
-        this.rights = new RightsIO(templateView.getRights());
+        this.rights = new RightsIO(Optional.ofNullable(templateView.getRights()));
         this.versionId = templateView.getVersionId();
     }
 
@@ -52,10 +53,10 @@ public class TemplateIO {
         FileRightsIO group;
         FileRightsIO other;
 
-        public RightsIO(TemplateView.RightsView rightsView) {
-            this.user = new FileRightsIO(rightsView.getUser());
-            this.group = new FileRightsIO(rightsView.getGroup());
-            this.other = new FileRightsIO(rightsView.getOther());
+        public RightsIO(Optional<TemplateView.RightsView> optionalRightsView) {
+            this.user = new FileRightsIO(optionalRightsView.map(TemplateView.RightsView::getUser));
+            this.group = new FileRightsIO(optionalRightsView.map(TemplateView.RightsView::getGroup));
+            this.other = new FileRightsIO(optionalRightsView.map(TemplateView.RightsView::getOther));
         }
 
         public Template.Rights toDomainInstance() {
@@ -75,10 +76,10 @@ public class TemplateIO {
         Boolean write;
         Boolean execute;
 
-        public FileRightsIO(TemplateView.FileRightsView fileRightsView) {
-            this.read = fileRightsView.getRead();
-            this.write = fileRightsView.getWrite();
-            this.execute = fileRightsView.getExecute();
+        public FileRightsIO(Optional<TemplateView.FileRightsView> optionalFileRightsView) {
+            this.read = optionalFileRightsView.map(TemplateView.FileRightsView::getRead).orElse(null);
+            this.write = optionalFileRightsView.map(TemplateView.FileRightsView::getWrite).orElse(null);
+            this.execute = optionalFileRightsView.map(TemplateView.FileRightsView::getExecute).orElse(null);
         }
 
         public Template.FileRights toDomainInstance() {
