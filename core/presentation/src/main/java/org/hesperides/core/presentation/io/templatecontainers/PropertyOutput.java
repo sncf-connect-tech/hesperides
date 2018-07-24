@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -27,7 +29,7 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
     @SerializedName("password")
     boolean isPassword;
     @SerializedName("fields")
-    List<PropertyOutput> properties;
+    Set<PropertyOutput> properties;
 
 
     /**
@@ -81,17 +83,37 @@ public class PropertyOutput implements Comparable<PropertyOutput> {
         }
     }
 
-    private static List<PropertyOutput> fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
+    private static Set<PropertyOutput> fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
         return Optional.ofNullable(abstractPropertyViews)
                 .orElse(null)
                 .stream()
                 .map(PropertyOutput::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override
     public int compareTo(@NotNull PropertyOutput o) {
         //TODO Supprimer
         return this.name.compareTo(o.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getComment(), this.getName());
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        boolean equals;
+        if (this == object) {
+            equals = true;
+        } else if (object == null || getClass() != object.getClass()) {
+            equals = false;
+        } else {
+            final PropertyOutput otherProperty = (PropertyOutput) object;
+            equals = Objects.equals(this.getComment(), otherProperty.getComment()) &&
+                    Objects.equals(this.getName(), otherProperty.getName());
+        }
+        return equals;
     }
 }
