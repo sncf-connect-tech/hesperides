@@ -27,13 +27,6 @@ public class Property extends AbstractProperty {
         this.isPassword = isPassword;
     }
 
-
-    public void validate() {
-        if (isRequired && !StringUtils.isEmpty(defaultValue)) {
-            throw new RequiredPropertyCannotHaveDefaultValueException(getName());
-        }
-    }
-
     public enum AnnotationType {
         IS_REQUIRED("required"),
         COMMENT("comment"),
@@ -56,7 +49,7 @@ public class Property extends AbstractProperty {
     private static final int NAME_INDEX = 0;
     private static final int ANNOTATIONS_INDEX = 1;
 
-    public static Property extractPropertyFromStringDefinition(String propertyDefinition) {
+    public static Property extractProperty(String propertyDefinition) {
         Property property = null;
         if (propertyDefinition != null) {
             String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX, 2);
@@ -75,8 +68,7 @@ public class Property extends AbstractProperty {
                 String propertyAnnotations = propertyAttributes[ANNOTATIONS_INDEX];
                 if (!startsWithKnownAnnotation(propertyAnnotations)) {
                     // Si la valeur des annotations ne commence pas avec une annotation connue,
-                    // on considère que le début de chaîne est le commentaire,
-                    // potentiellement écrasé après.
+                    // on considère que le début de la chaîne est le commentaire,
                     comment = extractValueBeforeFirstKnownAnnotation(propertyAnnotations);
                 }
 
@@ -84,27 +76,62 @@ public class Property extends AbstractProperty {
                 for (String annotationDefinition : splitAnnotations) {
 
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED)) {
+                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                         isRequired = true;
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT)) {
+                        validateIsBlank(comment);
                         comment = extractAnnotationValueLegacyStyle(annotationDefinition);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE)) {
+                        validateIsBlank(defaultValue);
                         defaultValue = extractAnnotationValueLegacyStyle(annotationDefinition);
+                        validateIsNotBlank(defaultValue);
+                        validateDoesntStartWithArobase(defaultValue);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.PATTERN)) {
+                        validateIsBlank(pattern);
                         pattern = extractAnnotationValueLegacyStyle(annotationDefinition);
+                        validateIsNotBlank(pattern);
+                        validateDoesntStartWithArobase(pattern);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD)) {
+                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                         isPassword = true;
+
                     } else {
-                        //TODO Throw exception
+//                        if (extractAnnotationValueLegacyStyle(annotationDefinition) != null) {
+//                            throw new IllegalArgumentException();
+//                        }
                     }
                 }
             }
+
+            if (isRequired && !StringUtils.isEmpty(defaultValue)) {
+                throw new RequiredPropertyCannotHaveDefaultValueException(name);
+            }
+
             property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
+    }
+
+    private static void validateIsBlank(String value) {
+        if (StringUtils.isNotBlank(value)) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static void validateIsNotBlank(String value) {
+        if (StringUtils.isBlank(value)) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static void validateDoesntStartWithArobase(String value) {
+        if (value != null && value.startsWith("@")) {
+            throw new IllegalArgumentException();
+        }
     }
 
     public static boolean startsWithKnownAnnotation(String value) {
@@ -154,6 +181,9 @@ public class Property extends AbstractProperty {
         }
         if (result != null) {
             result = result.trim();
+        }
+        if (StringUtils.isEmpty(result)) {
+            result = null;
         }
         return result;
     }
