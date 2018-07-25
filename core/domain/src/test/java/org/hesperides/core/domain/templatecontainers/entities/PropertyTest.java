@@ -29,7 +29,57 @@ import static org.junit.Assert.assertEquals;
 public class PropertyTest {
 
     @Test
+    public void testStartsWithKnownAnnotation() {
+        assertEquals(true, Property.startsWithKnownAnnotation("@required"));
+        assertEquals(true, Property.startsWithKnownAnnotation(" @comment x"));
+        assertEquals(true, Property.startsWithKnownAnnotation("@default 12"));
+        assertEquals(true, Property.startsWithKnownAnnotation(" @pattern z"));
+        assertEquals(true, Property.startsWithKnownAnnotation("@password"));
+        assertEquals(false, Property.startsWithKnownAnnotation("@what @required"));
+        assertEquals(false, Property.startsWithKnownAnnotation(" zzz @required"));
+    }
+
+    @Test
+    public void testExtractValueBeforeFirstKnownAnnotation() {
+        assertEquals("anything", Property.extractValueBeforeFirstKnownAnnotation(" anything @required "));
+        assertEquals("@what what", Property.extractValueBeforeFirstKnownAnnotation(" @what what @required "));
+        assertEquals("\"comment\"", Property.extractValueBeforeFirstKnownAnnotation("\"comment\" @required"));
+        assertEquals("comment", Property.extractValueBeforeFirstKnownAnnotation(" comment "));
+        assertEquals("comment @what", Property.extractValueBeforeFirstKnownAnnotation(" comment @what"));
+        assertEquals("@what comment", Property.extractValueBeforeFirstKnownAnnotation("@what comment "));
+    }
+
+    @Test
+    public void extractAnnotationValueLegacyStyle() {
+        assertEquals("a", Property.extractAnnotationValueLegacyStyle(" @comment a comment "));
+        assertEquals("a comment", Property.extractAnnotationValueLegacyStyle(" @comment \" a comment \" "));
+        assertEquals("a comment", Property.extractAnnotationValueLegacyStyle(" @comment ' a comment ' "));
+        assertEquals(null, Property.extractAnnotationValueLegacyStyle(" @comment \" a comment "));
+        assertEquals(null, Property.extractAnnotationValueLegacyStyle(" @comment ' a comment "));
+        assertEquals("ab", Property.extractAnnotationValueLegacyStyle(" @comment \"ab\"cd "));
+        assertEquals("ab\"cd", Property.extractAnnotationValueLegacyStyle(" @comment ab\"cd "));
+        assertEquals("ab\"cd\"", Property.extractAnnotationValueLegacyStyle(" @comment ab\"cd\" ef "));
+        assertEquals("ab\"cd\"", Property.extractAnnotationValueLegacyStyle(" @comment ab\"cd\" \"ef "));
+    }
+
+    @Test
     public void test() {
+        assertProperty(
+                new Property("foo", false, "\"comment without annotation but with double quotes\"", "", "", false),
+                Property.extractPropertyFromStringDefinition("foo | \"comment without annotation but with double quotes\"")
+        );
+        assertProperty(
+                new Property("foo", false, "'content with simple quotes'", "", "", false),
+                Property.extractPropertyFromStringDefinition("foo | 'content with simple quotes'")
+        );
+        assertProperty(
+                new Property("foo", false, "content", "", "", false),
+                Property.extractPropertyFromStringDefinition("foo | content")
+        );
+        assertProperty(
+                new Property("foo", false, "content", "", "", false),
+                Property.extractPropertyFromStringDefinition("foo|content")
+        );
         assertProperty(
                 new Property("foo", false, "content", "12", "*", true),
                 Property.extractPropertyFromStringDefinition("foo | @comment content of template-a @default 12 @pattern * @password")
@@ -147,12 +197,10 @@ public class PropertyTest {
     }
 
     @Test
-    public void testRemoveSurroundingQuotesIfPresent() {
-        assertEquals("Surrounded by quotes", Property.removeSurroundingQuotesIfPresent("\"Surrounded by quotes\""));
-        assertEquals("Not surrounded by quotes", Property.removeSurroundingQuotesIfPresent("Not surrounded by quotes"));
-        assertEquals("Contains \"quotes\"", Property.removeSurroundingQuotesIfPresent("Contains \"quotes\""));
-        assertEquals("\"Only starts with quotes", Property.removeSurroundingQuotesIfPresent("\"Only starts with quotes"));
-        assertEquals("Only ends with quotes\"", Property.removeSurroundingQuotesIfPresent("Only ends with quotes\""));
+    public void testExtractValueBetweenQuotes() {
+        assertEquals("Surrounded by double quotes", Property.extractValueBetweenQuotes("\"Surrounded by double quotes\""));
+        assertEquals("Surrounded by simple quotes", Property.extractValueBetweenQuotes("\"Surrounded by simple quotes\""));
+        assertEquals(null, Property.extractValueBetweenQuotes("Not surrounded by simple quotes"));
     }
 
     @Test
