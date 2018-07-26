@@ -80,6 +80,12 @@ public class PropertyTest {
         assertProperty(new Property("empty comment", false, null, "", "", false),
                 Property.extractProperty("empty comment| @comment ''"));
 
+        assertProperty(new Property("blank comment", false, null, "", "", false),
+                Property.extractProperty("blank comment|                   "));
+
+        assertProperty(new Property("no comment", false, null, "", "", false),
+                Property.extractProperty("no comment|"));
+
         // Commentaire avant annotation
 
         assertProperty(new Property("comment before annotation", true, "comment", "", "", false),

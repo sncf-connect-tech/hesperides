@@ -155,7 +155,12 @@ public class Property extends AbstractProperty {
         } else {
             result = value;
         }
-        return result.trim();
+        if (StringUtils.isBlank(result)) {
+            result = null;
+        } else {
+            result = result.trim();
+        }
+        return result;
     }
 
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
