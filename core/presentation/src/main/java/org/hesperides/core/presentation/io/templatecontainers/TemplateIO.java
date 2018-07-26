@@ -25,7 +25,6 @@ public class TemplateIO {
     String location;
     @NotNull
     String content;
-    @NotNull
     RightsIO rights;
     @NotNull
     @SerializedName("version_id")
@@ -37,7 +36,7 @@ public class TemplateIO {
         this.filename = templateView.getFilename();
         this.location = templateView.getLocation();
         this.content = templateView.getContent();
-        this.rights = Optional.ofNullable(templateView.getRights()).map(RightsIO::new).orElse(null);
+        this.rights = Optional.ofNullable(templateView.getRights()).map(RightsIO::new).orElse(new RightsIO());
         this.versionId = templateView.getVersionId();
     }
 
@@ -53,10 +52,16 @@ public class TemplateIO {
         FileRightsIO group;
         FileRightsIO other;
 
-        public RightsIO(TemplateView.RightsView rightsView) {
+        private RightsIO(TemplateView.RightsView rightsView) {
             this.user = Optional.ofNullable(rightsView.getUser()).map(FileRightsIO::new).orElse(null);
             this.group = Optional.ofNullable(rightsView.getGroup()).map(FileRightsIO::new).orElse(null);
             this.other = Optional.ofNullable(rightsView.getOther()).map(FileRightsIO::new).orElse(null);
+        }
+        //Ce constructeur est appelé lorsque l'input ne comprends pas de rights, ou qu'ils sont null
+        private RightsIO() {
+            this.user = new FileRightsIO();
+            this.group = new FileRightsIO();
+            this.other = new FileRightsIO();
         }
 
         public Template.Rights toDomainInstance() {
@@ -76,10 +81,16 @@ public class TemplateIO {
         Boolean write;
         Boolean execute;
 
-        public FileRightsIO(TemplateView.FileRightsView fileRightsView) {
+        private FileRightsIO(TemplateView.FileRightsView fileRightsView) {
             this.read = Optional.ofNullable(fileRightsView.getRead()).orElse(null);
             this.write = Optional.ofNullable(fileRightsView.getWrite()).orElse(null);
             this.execute = Optional.ofNullable(fileRightsView.getExecute()).orElse(null);
+        }
+
+        private FileRightsIO() {
+            this.read = null;
+            this.write = null;
+            this.execute = null;
         }
 
         public Template.FileRights toDomainInstance() {
