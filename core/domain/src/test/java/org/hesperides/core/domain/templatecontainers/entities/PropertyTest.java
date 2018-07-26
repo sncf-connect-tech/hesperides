@@ -138,56 +138,56 @@ public class PropertyTest {
 
         // Antislashes
 
-        assertProperty(new Property("antislash", true, "\"N\\\\u\"", "", "", true),
-                Property.extractProperty("antislash|\"N\\\\u\""));
+        assertProperty(new Property("antislash", false, "\"\\\\u\"", "", "", false),
+                Property.extractProperty("antislash|\"\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\\\u", "", "", true),
-                Property.extractProperty("antislash|N\\\\u"));
+        assertProperty(new Property("antislash", false, "\\\\u", "", "", false),
+                Property.extractProperty("antislash|\\\\u"));
 
-        assertProperty(new Property("antislash", true, "N\\u", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\\\u\""));
+        assertProperty(new Property("antislash", false, "\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\\\u", "", "", true),
-                Property.extractProperty("antislash|@comment N\\\\u"));
+        assertProperty(new Property("antislash", false, "\\\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \\\\u"));
 
-        assertProperty(new Property("antislash", true, "\"N\\u\"", "", "", true),
-                Property.extractProperty("antislash|\"N\\u\""));
+        assertProperty(new Property("antislash", false, "\"\\u\"", "", "", false),
+                Property.extractProperty("antislash|\"\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\u", "", "", true),
-                Property.extractProperty("antislash|N\\u"));
+        assertProperty(new Property("antislash", false, "\\u", "", "", false),
+                Property.extractProperty("antislash|\\u"));
 
-        assertProperty(new Property("antislash", true, "Nu", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\u\""));
+        assertProperty(new Property("antislash", false, "u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\u", "", "", true),
-                Property.extractProperty("antislash|@comment N\\u"));
+        assertProperty(new Property("antislash", false, "\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \\u"));
 
-        assertProperty(new Property("antislash", true, "\"N\\\\\\u\"", "", "", true),
-                Property.extractProperty("antislash|\"N\\\\\\u\""));
+        assertProperty(new Property("antislash", false, "\"\\\\\\u\"", "", "", false),
+                Property.extractProperty("antislash|\"\\\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\\\\\u", "", "", true),
-                Property.extractProperty("antislash|N\\\\\\u"));
+        assertProperty(new Property("antislash", false, "\\\\\\u", "", "", false),
+                Property.extractProperty("antislash|\\\\\\u"));
 
-        assertProperty(new Property("antislash", true, "N\\u", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\\\\\u\""));
+        assertProperty(new Property("antislash", false, "\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\\\\\u", "", "", true),
-                Property.extractProperty("antislash|@comment N\\\\\\u"));
+        assertProperty(new Property("antislash", false, "\\\\\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \\\\\\u"));
 
-        assertProperty(new Property("antislash", true, "Nu", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\u\""));
+        assertProperty(new Property("antislash", false, "u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\u", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\\\u\""));
+        assertProperty(new Property("antislash", false, "\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\u", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\\\\\u\""));
+        assertProperty(new Property("antislash", false, "\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\\\u", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\\\\\\\u\""));
+        assertProperty(new Property("antislash", false, "\\\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\\\\\\\u\""));
 
-        assertProperty(new Property("antislash", true, "N\\\\u", "", "", true),
-                Property.extractProperty("antislash|@comment \"N\\\\\\\\\\u\""));
+        assertProperty(new Property("antislash", false, "\\\\u", "", "", false),
+                Property.extractProperty("antislash|@comment \"\\\\\\\\\\u\""));
     }
 
     private void assertProperty(Property expectedProperty, Property actualProperty) {
