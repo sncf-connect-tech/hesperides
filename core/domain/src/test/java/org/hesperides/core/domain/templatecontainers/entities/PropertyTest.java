@@ -49,9 +49,6 @@ public class PropertyTest {
         assertProperty(new Property("comment with simple quotes", false, "a comment", "", "", false),
                 Property.extractProperty("comment with simple quotes| @comment 'a comment'"));
 
-        assertProperty(new Property("comment with simple quotes", false, "a comment", "", "", false),
-                Property.extractProperty("comment with simple quotes| @comment 'a comment'"));
-
         assertProperty(new Property("default value", false, null, "12", "", false),
                 Property.extractProperty("default value| @default 12"));
 
