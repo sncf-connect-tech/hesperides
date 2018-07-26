@@ -32,7 +32,7 @@ public class IterableProperty extends AbstractProperty {
 
         for (Code childCode : code.getCodes()) {
             if (childCode instanceof ValueCode) {
-                properties.add(Property.extractPropertyFromStringDefinition(childCode.getName()));
+                properties.add(Property.extractProperty(childCode.getName()));
             } else if (childCode instanceof IterableCode) {
                 properties.add(extractIterablePropertyFromMustacheCode((IterableCode) childCode));
             }

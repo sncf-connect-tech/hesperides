@@ -27,13 +27,6 @@ public class Property extends AbstractProperty {
         this.isPassword = isPassword;
     }
 
-
-    public void validate() {
-        if (isRequired && !StringUtils.isEmpty(defaultValue)) {
-            throw new RequiredPropertyCannotHaveDefaultValueException(getName());
-        }
-    }
-
     public enum AnnotationType {
         IS_REQUIRED("required"),
         COMMENT("comment"),
@@ -56,7 +49,7 @@ public class Property extends AbstractProperty {
     private static final int NAME_INDEX = 0;
     private static final int ANNOTATIONS_INDEX = 1;
 
-    public static Property extractPropertyFromStringDefinition(String propertyDefinition) {
+    public static Property extractProperty(String propertyDefinition) {
         Property property = null;
         if (propertyDefinition != null) {
             String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX, 2);
@@ -73,43 +66,96 @@ public class Property extends AbstractProperty {
                 comment = null;
 
                 String propertyAnnotations = propertyAttributes[ANNOTATIONS_INDEX];
-                // Détecte la ou les annotations utilisées
-                if (!containsAnnotations(propertyAnnotations)) {
-                    // S'il n'y en a pas, c'est un commentaire brut
-                    comment = propertyAnnotations;
-                } else {
-                    // Sinon, on récupère la valeur à partir du premier espace jusqu'à la fin de la chaîne
-                    // Mais dans le legacy, on récupère la valeur entre guillemets ou le premier mot s'il n'y a pas de guillemets...
-                    String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations.trim());
-                    for (String annotationDefinition : splitAnnotations) {
+                if (!startsWithKnownAnnotation(propertyAnnotations)) {
+                    // Si la valeur des annotations ne commence pas avec une annotation connue,
+                    // on considère que le début de la chaîne est le commentaire,
+                    comment = extractValueBeforeFirstKnownAnnotation(propertyAnnotations);
+                }
 
-                        if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED)) {
-                            isRequired = true;
+                String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations.trim());
+                for (String annotationDefinition : splitAnnotations) {
 
-                        } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT)) {
-                            comment = extractAnnotationValueLegacyStyle(annotationDefinition);
+                    if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED)) {
+                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                        isRequired = true;
 
-                        } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE)) {
-                            defaultValue = extractAnnotationValueLegacyStyle(annotationDefinition);
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT)) {
+                        validateIsBlank(comment);
+                        comment = extractAnnotationValueLegacyStyle(annotationDefinition);
 
-                        } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.PATTERN)) {
-                            pattern = extractAnnotationValueLegacyStyle(annotationDefinition);
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE)) {
+                        validateIsBlank(defaultValue);
+                        defaultValue = extractAnnotationValueLegacyStyle(annotationDefinition);
+                        validateIsNotBlank(defaultValue);
+                        validateDoesntStartWithArobase(defaultValue);
 
-                        } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD)) {
-                            isPassword = true;
-                        } else {
-                            comment = annotationDefinition.trim();
-                        }
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.PATTERN)) {
+                        validateIsBlank(pattern);
+                        pattern = extractAnnotationValueLegacyStyle(annotationDefinition);
+                        validateIsNotBlank(pattern);
+                        validateDoesntStartWithArobase(pattern);
+
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD)) {
+                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                        isPassword = true;
+
+                    } else {
+//                        if (extractAnnotationValueLegacyStyle(annotationDefinition) != null) {
+//                            throw new IllegalArgumentException();
+//                        }
                     }
                 }
             }
+
+            if (isRequired && !StringUtils.isEmpty(defaultValue)) {
+                throw new RequiredPropertyCannotHaveDefaultValueException(name);
+            }
+
             property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
     }
 
-    private static boolean containsAnnotations(String propertyAnnotations) {
-        return propertyAnnotations.toLowerCase().matches(".*(@required|@comment|@default|@pattern|@password).*");
+    private static void validateIsBlank(String value) {
+        if (StringUtils.isNotBlank(value)) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static void validateIsNotBlank(String value) {
+        if (StringUtils.isBlank(value)) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private static void validateDoesntStartWithArobase(String value) {
+        if (value != null && value.startsWith("@")) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public static boolean startsWithKnownAnnotation(String value) {
+        return value
+                .trim()
+                .toLowerCase()
+                .matches("^(@required|@comment|@default|@pattern|@password).*");
+    }
+
+    /**
+     * Extrait la valeur d'une chaîne de caractères se trouvant avant la première annotation connue.
+     * Si la chaîne de caractères passée en paramètre ne contient pas d'annotation connue,
+     * la valeur du retour est celle du paramètre en entrée.
+     */
+    public static String extractValueBeforeFirstKnownAnnotation(String value) {
+        String result;
+        Matcher matcher = Pattern.compile("@required|@comment|@default|@pattern|@password").matcher(value);
+        if (matcher.find()) {
+            int indexOfFirstKnownAnnotation = matcher.start();
+            result = value.substring(0, indexOfFirstKnownAnnotation);
+        } else {
+            result = value;
+        }
+        return result.trim();
     }
 
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
@@ -121,61 +167,67 @@ public class Property extends AbstractProperty {
     }
 
     /**
-     * Récupère la valeur entre le premier espace et la fin de la chaîne de caractère passée en paramètre
-     */
-    public static String extractAnnotationValue(String annotationDefinition) {
-        String annotationValue = null;
-        int indexOfFirstSpace = annotationDefinition.indexOf(" ");
-        if (indexOfFirstSpace != -1) {
-            String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace);
-            annotationValue = removeSurroundingQuotesIfPresent(valueThatMayBeSurroundedByQuotes.trim());
-        }
-        return annotationValue;
-    }
-
-    public static String removeSurroundingQuotesIfPresent(String value) {
-        boolean startsWithQuotes = "\"".equals(value.substring(0, 1));
-        boolean endsWithQuotes = "\"".equals(value.substring(value.length() - 1));
-        if (startsWithQuotes && endsWithQuotes) {
-            value = value.substring(1, value.length() - 1);
-        }
-        return value.trim();
-    }
-
-    /**
-     * Récupère la valeur entre guillemets ou le premier mot s'il n'y a pas de guillemets.
-     * Mais s'il n'y a qu'une seule guillemet au début de la valeur, on retourne null.
-     * <p>
-     * Ce bout de code est infâme. Le but est de reproduire le comportement hérétique du legacy.
-     * À terme, l'idée est de le supprimer mais cela nécessite une
+     * Récupère la valeur d'une annotation. Si cette valeur est entre guillemets (simples ou doubles),
+     * on renvoie tout ce qu'il y a entre guillemets, sinon juste le premier mot.
+     * S'il n'y a qu'un seul guillemet au début de la valeur, on retourne null.
      */
     public static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
+        String result;
+        String valueAfterFirstSpace = extractValueAfterFirstSpace(annotationDefinition);
+        if (startsWithQuotes(valueAfterFirstSpace)) {
+            result = extractValueBetweenQuotes(valueAfterFirstSpace);
+        } else {
+            result = extractFirstWord(valueAfterFirstSpace);
+        }
+        if (result != null) {
+            result = result.trim();
+        }
+        if (StringUtils.isEmpty(result)) {
+            result = null;
+        }
+        return result;
+    }
+
+    public static String extractValueAfterFirstSpace(String value) {
         String result = null;
-
-        int indexOfFirstSpace = annotationDefinition.indexOf(" ");
-        if (indexOfFirstSpace != -1) {
-            String valueThatMayBeSurroundedByQuotes = annotationDefinition.substring(indexOfFirstSpace).trim();
-            String valueContainedInsideQuotes = extractValueContainedInsideQuotes(valueThatMayBeSurroundedByQuotes);
-
-            if (valueContainedInsideQuotes == null && !valueThatMayBeSurroundedByQuotes.startsWith("\"")) {
-                if (valueThatMayBeSurroundedByQuotes.indexOf(" ") != -1) {
-                    result = valueThatMayBeSurroundedByQuotes.substring(0, valueThatMayBeSurroundedByQuotes.indexOf(" "));
-                } else {
-                    result = valueThatMayBeSurroundedByQuotes;
-                }
-            } else {
-                result = valueContainedInsideQuotes;
+        if (value != null) {
+            String trimmedValue = value.trim();
+            int indexOfFirstSpace = trimmedValue.indexOf(" ");
+            if (indexOfFirstSpace != -1) {
+                result = trimmedValue.substring(indexOfFirstSpace).trim();
             }
         }
         return result;
     }
 
-    private static String extractValueContainedInsideQuotes(String value) {
+    /**
+     * Extrait la valeur entres guillemets (simples ou doubles).
+     */
+    public static String extractValueBetweenQuotes(String value) {
         String result = null;
-        Matcher matcher = Pattern.compile("\"([^\"]*)\"").matcher(value);
-        while (matcher.find()) {
-            result = matcher.group(1);
-            break;
+        if (value != null) {
+            result = StringUtils.substringBetween(value, "\"", "\"");
+            if (result == null) {
+                result = StringUtils.substringBetween(value, "'", "'");
+            }
+        }
+        return result;
+    }
+
+    public static boolean startsWithQuotes(String value) {
+        return value != null && (value.trim().startsWith("\"") || value.trim().startsWith("'"));
+    }
+
+    private static String extractFirstWord(String value) {
+        String result = null;
+        if (value != null) {
+            String trimmedValue = value.trim();
+            int indexOfFirstSpace = trimmedValue.indexOf(" ");
+            if (indexOfFirstSpace != -1) {
+                result = trimmedValue.substring(0, indexOfFirstSpace).trim();
+            } else {
+                result = trimmedValue;
+            }
         }
         return result;
     }

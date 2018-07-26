@@ -20,8 +20,7 @@ public class Template {
     TemplateContainer.Key templateContainerKey;
 
     public Template validateProperties() {
-        List<AbstractProperty> abstractProperties = extractProperties();
-        AbstractProperty.validateProperties(abstractProperties);
+        extractProperties();
         return this;
     }
 

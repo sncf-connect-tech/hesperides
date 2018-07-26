@@ -54,7 +54,7 @@ public abstract class AbstractProperty {
         for (Code code : mustache.getCodes()) {
             if (code instanceof ValueCode) {
                 String propertyDefinition = code.getName();
-                Property property = Property.extractPropertyFromStringDefinition(propertyDefinition);
+                Property property = Property.extractProperty(propertyDefinition);
                 if (property != null) {
                     properties.add(property);
                 }
@@ -71,16 +71,5 @@ public abstract class AbstractProperty {
     public static Mustache getMustacheInstanceFromStringContent(String content) {
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         return mustacheFactory.compile(new StringReader(content), "anything");
-    }
-
-    public static void validateProperties(List<AbstractProperty> abstractProperties) {
-        if (abstractProperties != null) {
-            abstractProperties.forEach(abstractProperty -> {
-                if (abstractProperty instanceof Property) {
-                    Property property = (Property) abstractProperty;
-                    property.validate();
-                }
-            });
-        }
     }
 }
