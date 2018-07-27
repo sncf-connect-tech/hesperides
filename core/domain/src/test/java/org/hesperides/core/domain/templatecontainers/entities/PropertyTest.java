@@ -67,9 +67,21 @@ public class PropertyTest {
         // Valeur d'annotation contenant un ou plusieurs pipes, typiquement un pattern
 
         assertProperty(new Property("pattern with pipe", false, null, "", "(a|b|c)", false),
+                Property.extractProperty("pattern with pipe| @pattern (a|b|c)"));
+
+        assertProperty(new Property("pattern with pipe", false, null, "", "(a|b|c)", false),
                 Property.extractProperty("pattern with pipe| @pattern '(a|b|c)'"));
 
-        // Commentaire vide et absent
+        // Annotations séparées par des pipes
+
+        assertProperty(new Property("pipe separated annotations", false, "comment", "12", "", false),
+                Property.extractProperty("pipe separated annotations | @comment comment | @default 12"));
+
+        //TODO Modifier la génération du model pour faire fonctionner ce cas
+//        assertProperty(new Property("weird pipe separated annotations", false, null, "", "", false),
+//                Property.extractProperty("weird pipe separated annotations | @comment \"comment | @default 12"));
+
+        // Commentaire vide ou absent
 
         assertProperty(new Property("missing comment", false, null, "", "", false),
                 Property.extractProperty("missing comment| @comment "));
@@ -268,6 +280,11 @@ public class PropertyTest {
     @Test(expected = IllegalArgumentException.class)
     public void multiplePatternsAreNotAllowed() {
         Property.extractProperty("multiple patterns|@pattern * @pattern ?");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void patternThatStartsButDoesntEndWithQuotesIsNotAllowed() {
+        Property.extractProperty("pattern that starts but doesn't end with quotes | @pattern \"*");
     }
 
     @Test
