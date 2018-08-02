@@ -144,7 +144,8 @@ public class Property extends AbstractProperty {
     /**
      * Extrait la valeur d'une chaîne de caractères se trouvant avant la première annotation connue.
      * Si la chaîne de caractères passée en paramètre ne contient pas d'annotation connue,
-     * la valeur du retour est celle du paramètre en entrée.
+     * la valeur du retour est celle du paramètre en entrée, sauf si elle est vide (blank).
+     * Dans ce cas on retourne null.
      */
     public static String extractValueBeforeFirstKnownAnnotation(String value) {
         String result;
@@ -155,7 +156,7 @@ public class Property extends AbstractProperty {
         } else {
             result = value;
         }
-        return result.trim();
+        return StringUtils.isBlank(result) ? null : result.trim();
     }
 
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
@@ -209,6 +210,45 @@ public class Property extends AbstractProperty {
             result = StringUtils.substringBetween(value, "\"", "\"");
             if (result == null) {
                 result = StringUtils.substringBetween(value, "'", "'");
+            }
+            if (result != null) {
+                result = someKindOfEscape(result);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Méthode récupérée telle quelle du legacy et très légèrement modifiée (les 3 premières ligne et la dernière)
+     * pour la faire fonctionner sans trop savoir comment. À ce niveau c'est de l'humour ^^
+     * Si quelqu'un a un peu de temps pour la comprendre et la refaire, bon courage.
+     */
+    private static String someKindOfEscape(String str) {
+        str = "\"" + str + "\"";
+        int start = 0;
+        int len = str.length();
+        // Char to protected string
+        final char protectedChar = str.charAt(start);
+        // String content
+        String result = null;
+        // Current char
+        char currentChar;
+        // builder
+        StringBuilder sb = new StringBuilder(len - start);
+        int index;
+        for (index = start + 1; index < len && result == null; index++) {
+            currentChar = str.charAt(index);
+            if (currentChar == '\\') {
+                // Escape char
+                index++;
+                // check if out of bound. For exemple -> "truc \
+                if (index < len) {
+                    sb.append(str.charAt(index));
+                }
+            } else if (currentChar == protectedChar) {
+                result = sb.toString();
+            } else {
+                sb.append(str.charAt(index));
             }
         }
         return result;
