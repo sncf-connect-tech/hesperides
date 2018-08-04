@@ -22,22 +22,25 @@ stages:
 - name: build
 - name: test
 - name: docker
+  if: type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 - name: deploy
   if: (branch = develop OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 jobs:
   include:
   - stage: build
+    env: BUILD WITHOUT TEST
     script: "./mvnw clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml"
   - stage: test
+    env: CUCUMBER TESTS
     before_script:
     - sudo touch /var/log/hesperides.log
     - sudo chown travis /var/log/hesperides.log
     script: "./mvnw test"
   - stage: test
-    env: INTEGRATION TEST
+    env: INTEGRATION TESTS
     script: "./mvnw -pl tests/integration verify -P integration-test"
   - stage: docker
-    if: type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
+    env: DEPLOY TO DOCKER HUB
     script: "./.travis/docker_build_push.sh"
   - stage: deploy
     env: DEPLOY TO NEXUS (SONATYPE)
