@@ -25,6 +25,11 @@ import org.junit.Assert;
 
 public class TechnoAssertions {
 
+    public static void assertTechnoAgainstDefaultValues(TechnoIO actualTechno) {
+        TechnoIO expectedTechno = TechnosSamples.getTechnoWithDefaultValues();
+        assertTechno(expectedTechno, actualTechno);
+    }
+
     public static void assertTechno(TechnoIO expectedTechno, TechnoIO actualTechno) {
         Assert.assertEquals(expectedTechno.getName(), actualTechno.getName());
         Assert.assertEquals(expectedTechno.getVersion(), actualTechno.getVersion());

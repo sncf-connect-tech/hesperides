@@ -95,6 +95,10 @@ public class TechnoUseCases {
         return queries.getOptionalTechno(newTechnoKey).get();
     }
 
+    public Optional<TechnoView> getTechno(TemplateContainer.Key technoKey) {
+        return queries.getOptionalTechno(technoKey);
+    }
+
     public List<TechnoView> search(String input) {
         return queries.search(input);
     }

@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.technos.TechnoUseCases;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.technos.entities.Techno;
+import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -78,6 +79,21 @@ public class TechnosController extends AbstractController {
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateInput.getName()));
 
         return ResponseEntity.created(technoKey.getURI()).body(templateOutput);
+    }
+
+    @ApiOperation("Get info for a given techno release/working-copy")
+    @GetMapping("/{techno_name}/{techno_version}/{techno_type}")
+    public ResponseEntity<TechnoIO> getTechnoInfo(@PathVariable("techno_name") final String technoName,
+                                                  @PathVariable("techno_version") final String technoVersion,
+                                                  @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType) {
+
+        log.debug("getTechnoInfo technoName: {}, technoVersion: {}, technoVersionType: {}", technoName, technoVersion, technoVersionType);
+
+        final TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
+        return technoUseCases.getTechno(technoKey)
+                .map(TechnoIO::new)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new TechnoNotFoundException(technoKey));
     }
 
     @ApiOperation("Update a template")
