@@ -23,7 +23,7 @@ stages:
 - name: test
 - name: docker
 - name: deploy
-  if: (branch = develop OR branch =~ ^v[0-9]) AND type != pull_request AND fork = false
+  if: (branch = develop OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 jobs:
   include:
   - stage: build
@@ -37,7 +37,7 @@ jobs:
     env: INTEGRATION TEST
     script: "./mvnw -pl tests/integration verify -P integration-test"
   - stage: docker
-    if: type != pull_request AND fork = false
+    if: type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
     script: "./.travis/docker_build_push.sh"
   - stage: deploy
     env: DEPLOY TO NEXUS (SONATYPE)
