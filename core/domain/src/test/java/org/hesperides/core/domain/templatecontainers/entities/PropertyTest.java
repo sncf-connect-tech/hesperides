@@ -23,6 +23,7 @@ package org.hesperides.core.domain.templatecontainers.entities;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -76,10 +77,6 @@ public class PropertyTest {
 
         assertProperty(new Property("pipe separated annotations", false, "comment", "12", "", false),
                 Property.extractProperty("pipe separated annotations | @comment comment | @default 12"));
-
-        //TODO Modifier la génération du model pour faire fonctionner ce cas
-//        assertProperty(new Property("weird pipe separated annotations", false, null, "", "", false),
-//                Property.extractProperty("weird pipe separated annotations | @comment \"comment | @default 12"));
 
         // Commentaire vide ou absent
 
@@ -148,6 +145,28 @@ public class PropertyTest {
         assertProperty(new Property("multiple required and password", true, null, "", "", true),
                 Property.extractProperty("multiple required and password|@required @required @password @password"));
 
+        // #307 Annotation collée au texte
+
+        assertProperty(new Property("comment typo", true, null, "", "", true),
+                Property.extractProperty("comment typo|@commentForgot space @required @password"));
+    }
+
+    @Test
+    public void legacyBugCases() {
+
+        // Pipe
+
+//        assertProperty(new Property("weird pipe separated annotations", false, null, "", "", false),
+//                Property.extractProperty("weird pipe separated annotations | @comment \"comment | @default 12"));
+
+        // Arobase
+
+//        assertProperty(new Property("http.proxy", false, "Format : [protocol://][user:password", "", "", false),
+//                Property.extractProperty("http.proxy | Format : [protocol://][user:password@]proxyhost[:port]"));
+//
+//        assertProperty(new Property("Module.PAHDeliveryMode", false, "Etat par d?faut du module P", "", "", false),
+//                Property.extractProperty("Module.PAHDeliveryMode|Etat par d?faut du module P@H [STARTED/STOPPED] "));
+
         // Antislashes
 
         assertProperty(new Property("antislash", false, "\"\\\\u\"", "", "", false),
@@ -200,6 +219,15 @@ public class PropertyTest {
 
         assertProperty(new Property("antislash", false, "\\\\u", "", "", false),
                 Property.extractProperty("antislash|@comment \"\\\\\\\\\\u\""));
+    }
+
+    @Test
+    public void diff() {
+//        assertProperty(new Property("tn.customer.file.api.login", false, "Login pour l'authentification à l'api", "", "", false),
+//                Property.extractProperty("tn.customer.file.api.login| @comment 'Login pour l\\'authentification à l\\'api'"));
+//
+//        assertProperty(new Property("pao.reference.data.cachemanager.name", false, "Nom du cache manager des donnees de reference", "pao-bridge-jms-reference-data-cache", "", false),
+//                Property.extractProperty("pao.reference.data.cachemanager.name|@comment \"Nom du cache manager des donnees de reference\"|@default pao-bridge-jms-reference-data-cache"));
     }
 
     private void assertProperty(Property expectedProperty, Property actualProperty) {
