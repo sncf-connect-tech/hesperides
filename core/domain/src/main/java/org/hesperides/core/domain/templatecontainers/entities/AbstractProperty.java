@@ -44,7 +44,7 @@ public abstract class AbstractProperty {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(Template::extractProperties)
-                .flatMap(List::stream)
+                .flatMap(List::stream) // Fusionne les listes
                 .collect(Collectors.toList());
     }
 
