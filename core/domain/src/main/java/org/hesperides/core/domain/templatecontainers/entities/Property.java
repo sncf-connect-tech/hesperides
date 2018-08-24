@@ -303,7 +303,11 @@ public class Property extends AbstractProperty {
         }
 
         public static boolean dataMigration() {
-            return Arrays.asList(staticEnvironment.getActiveProfiles()).contains(SpringProfiles.DATA_MIGRATION);
+            boolean isDataMigration = false;
+            if (staticEnvironment != null && Arrays.asList(staticEnvironment.getActiveProfiles()).contains(SpringProfiles.DATA_MIGRATION)) {
+                isDataMigration = true;
+            }
+            return isDataMigration;
         }
     }
 }
