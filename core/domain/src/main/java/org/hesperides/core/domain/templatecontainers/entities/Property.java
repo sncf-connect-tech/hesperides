@@ -220,13 +220,24 @@ public class Property extends AbstractProperty {
     public static String extractValueBetweenQuotes(String value) {
         String result = null;
         if (value != null) {
-            result = StringUtils.substringBetween(value, "\"", "\"");
-            if (result == null) {
-                result = StringUtils.substringBetween(value, "'", "'");
+            if (value.startsWith("\"")) {
+                result = extractBetweenFirstAndLast(value, "\"");
+            } else if (value.startsWith("'")) {
+                result = extractBetweenFirstAndLast(value, "'");
             }
             if (result != null) {
                 result = someKindOfEscape(result);
             }
+        }
+        return result;
+    }
+
+    private static String extractBetweenFirstAndLast(String value, String character) {
+        String result = null;
+        int first = value.indexOf(character);
+        int last = value.lastIndexOf(character);
+        if (first != last) {
+            result = value.substring(first + 1, last);
         }
         return result;
     }

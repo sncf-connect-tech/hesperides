@@ -158,8 +158,8 @@ public class PropertyTest {
                 Property.extractProperty("pao.reference.data.cachemanager.name|@comment \"Nom du cache manager des donnees de reference\"|@default pao-bridge-jms-reference-data-cache"));
 
         // #313
-        assertProperty(new Property("tn.customer.file.api.login", false, "Login pour l'authentification à l'api", "", "", false),
-                Property.extractProperty("tn.customer.file.api.login| @comment 'Login pour l\\'authentification à l\\'api'"));
+        assertProperty(new Property("quoted comment containing escaped quotes", false, "Login pour l'authentification à l'api", "", "", false),
+                Property.extractProperty("quoted comment containing escaped quotes| @comment 'Login pour l\\'authentification à l\\'api'"));
     }
 
     @Test
@@ -364,7 +364,8 @@ public class PropertyTest {
     @Test
     public void testExtractValueBetweenQuotes() {
         assertEquals("Surrounded by double quotes", Property.extractValueBetweenQuotes("\"Surrounded by double quotes\""));
-        assertEquals("Surrounded by simple quotes", Property.extractValueBetweenQuotes("\"Surrounded by simple quotes\""));
+        assertEquals("Surrounded by simple quotes", Property.extractValueBetweenQuotes("'Surrounded by simple quotes'"));
+        assertEquals("Surrounded by simple quotes and containing 'escaped simple quotes', yes...", Property.extractValueBetweenQuotes("'Surrounded by simple quotes and containing \'escaped simple quotes\', yes...'"));
         assertEquals(null, Property.extractValueBetweenQuotes("Not surrounded by simple quotes"));
     }
 
