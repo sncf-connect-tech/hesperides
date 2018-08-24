@@ -23,12 +23,20 @@ package org.hesperides.core.domain.templatecontainers.entities;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class PropertyTest {
+
+    private void assertProperty(Property expectedProperty, Property actualProperty) {
+        assertEquals(expectedProperty.getName(), actualProperty.getName());
+        assertEquals(expectedProperty.isRequired(), actualProperty.isRequired());
+        assertEquals(expectedProperty.getComment(), actualProperty.getComment());
+        assertEquals(expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
+        assertEquals(expectedProperty.getPattern(), actualProperty.getPattern());
+        assertEquals(expectedProperty.isPassword(), actualProperty.isPassword());
+    }
 
     @Test
     public void testExtractProperty() {
@@ -145,29 +153,41 @@ public class PropertyTest {
         assertProperty(new Property("multiple required and password", true, null, "", "", true),
                 Property.extractProperty("multiple required and password|@required @required @password @password"));
 
-        // #307 Annotation collée au texte
+        // Utilisation du pipe entre les annotations
+        assertProperty(new Property("pao.reference.data.cachemanager.name", false, "Nom du cache manager des donnees de reference", "pao-bridge-jms-reference-data-cache", "", false),
+                Property.extractProperty("pao.reference.data.cachemanager.name|@comment \"Nom du cache manager des donnees de reference\"|@default pao-bridge-jms-reference-data-cache"));
 
-        assertProperty(new Property("comment typo", true, null, "", "", true),
-                Property.extractProperty("comment typo|@commentForgot space @required @password"));
+        // #313
+        assertProperty(new Property("tn.customer.file.api.login", false, "Login pour l'authentification à l'api", "", "", false),
+                Property.extractProperty("tn.customer.file.api.login| @comment 'Login pour l\\'authentification à l\\'api'"));
     }
 
     @Test
     public void legacyBugCases() {
 
-        // Pipe
+        // #307 Annotation collée au texte
+//        assertProperty(new Property("comment typo", true, null, "", "", true),
+//                Property.extractProperty("comment typo|@commentForgot space @required @password"));
 
+        // #311
 //        assertProperty(new Property("weird pipe separated annotations", false, null, "", "", false),
 //                Property.extractProperty("weird pipe separated annotations | @comment \"comment | @default 12"));
 
-        // Arobase
-
+        // #312
 //        assertProperty(new Property("http.proxy", false, "Format : [protocol://][user:password", "", "", false),
 //                Property.extractProperty("http.proxy | Format : [protocol://][user:password@]proxyhost[:port]"));
-//
-//        assertProperty(new Property("Module.PAHDeliveryMode", false, "Etat par d?faut du module P", "", "", false),
-//                Property.extractProperty("Module.PAHDeliveryMode|Etat par d?faut du module P@H [STARTED/STOPPED] "));
 
-        // Antislashes
+        // #314
+//        assertProperty(new Property("logback.verbose.spring.web.logLevel", false, "Niveau des logs du package org.springframework.web|", "", "", false),
+//                Property.extractProperty("logback.verbose.spring.web.logLevel|Niveau des logs du package org.springframework.web|@default ERROR"));
+
+        // #315
+//        assertProperty(new Property("sumo.rules.generation", false, "true ou false", "", "", false),
+//                Property.extractProperty("sumo.rules.generation|true ou false@required"));
+    }
+
+    @Test
+    public void legacyAntislashes() {
 
         assertProperty(new Property("antislash", false, "\"\\\\u\"", "", "", false),
                 Property.extractProperty("antislash|\"\\\\u\""));
@@ -219,24 +239,6 @@ public class PropertyTest {
 
         assertProperty(new Property("antislash", false, "\\\\u", "", "", false),
                 Property.extractProperty("antislash|@comment \"\\\\\\\\\\u\""));
-    }
-
-    @Test
-    public void diff() {
-//        assertProperty(new Property("tn.customer.file.api.login", false, "Login pour l'authentification à l'api", "", "", false),
-//                Property.extractProperty("tn.customer.file.api.login| @comment 'Login pour l\\'authentification à l\\'api'"));
-//
-//        assertProperty(new Property("pao.reference.data.cachemanager.name", false, "Nom du cache manager des donnees de reference", "pao-bridge-jms-reference-data-cache", "", false),
-//                Property.extractProperty("pao.reference.data.cachemanager.name|@comment \"Nom du cache manager des donnees de reference\"|@default pao-bridge-jms-reference-data-cache"));
-    }
-
-    private void assertProperty(Property expectedProperty, Property actualProperty) {
-        assertEquals(expectedProperty.getName(), actualProperty.getName());
-        assertEquals(expectedProperty.isRequired(), actualProperty.isRequired());
-        assertEquals(expectedProperty.getComment(), actualProperty.getComment());
-        assertEquals(expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
-        assertEquals(expectedProperty.getPattern(), actualProperty.getPattern());
-        assertEquals(expectedProperty.isPassword(), actualProperty.isPassword());
     }
 
     @Test(expected = IllegalArgumentException.class)
