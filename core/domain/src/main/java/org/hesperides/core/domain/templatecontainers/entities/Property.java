@@ -3,8 +3,14 @@ package org.hesperides.core.domain.templatecontainers.entities;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.commons.spring.SpringProfiles;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -107,29 +113,33 @@ public class Property extends AbstractProperty {
                 }
             }
 
-            if (isRequired && !StringUtils.isEmpty(defaultValue)) {
-                throw new RequiredPropertyCannotHaveDefaultValueException(name);
-            }
+            validateRequiredOrDefaultValue(name, isRequired, defaultValue);
 
             property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
     }
 
+    private static void validateRequiredOrDefaultValue(String name, boolean isRequired, String defaultValue) {
+        if (!HasProfile.dataMigration() && isRequired && !StringUtils.isEmpty(defaultValue)) {
+            throw new RequiredPropertyCannotHaveDefaultValueException(name);
+        }
+    }
+
     private static void validateIsBlank(String value) {
-        if (StringUtils.isNotBlank(value)) {
+        if (!HasProfile.dataMigration() && StringUtils.isNotBlank(value)) {
             throw new IllegalArgumentException();
         }
     }
 
     private static void validateIsNotBlank(String value) {
-        if (StringUtils.isBlank(value)) {
+        if (!HasProfile.dataMigration() && StringUtils.isBlank(value)) {
             throw new IllegalArgumentException();
         }
     }
 
     private static void validateDoesntStartWithArobase(String value) {
-        if (value != null && value.startsWith("@")) {
+        if (!HasProfile.dataMigration() && value != null && value.startsWith("@")) {
             throw new IllegalArgumentException();
         }
     }
@@ -166,7 +176,7 @@ public class Property extends AbstractProperty {
 
     private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType) {
         // L'espace optionnel permet de résoudre le diff décrit dans l'issue 307
-        String optionalSpace = annotationType.equals(AnnotationType.COMMENT) ||annotationType.equals(AnnotationType.DEFAULT_VALUE) ||annotationType.equals(AnnotationType.PATTERN) ? " " : "";
+        String optionalSpace = annotationType.equals(AnnotationType.COMMENT) || annotationType.equals(AnnotationType.DEFAULT_VALUE) || annotationType.equals(AnnotationType.PATTERN) ? " " : "";
         return annotationDefinition.toLowerCase().startsWith("@" + annotationType.getName().toLowerCase() + optionalSpace);
     }
 
@@ -273,5 +283,27 @@ public class Property extends AbstractProperty {
             }
         }
         return result;
+    }
+
+    /**
+     * Bidouille permettant de détecter un profil dans un contexte statique.
+     * Utilisée pour éviter la validation des propriétés lors de la migration de données.
+     */
+    @Component
+    private static class HasProfile {
+
+        private static Environment staticEnvironment;
+
+        @Autowired
+        private Environment environment;
+
+        @PostConstruct
+        public void init() {
+            staticEnvironment = environment;
+        }
+
+        public static boolean dataMigration() {
+            return Arrays.asList(staticEnvironment.getActiveProfiles()).contains(SpringProfiles.DATA_MIGRATION);
+        }
     }
 }
