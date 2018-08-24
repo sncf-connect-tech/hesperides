@@ -72,7 +72,7 @@ public class Property extends AbstractProperty {
                     comment = extractValueBeforeFirstKnownAnnotation(propertyAnnotations);
                 }
 
-                String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations.trim());
+                String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations);
                 for (String annotationDefinition : splitAnnotations) {
 
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED)) {
@@ -138,7 +138,8 @@ public class Property extends AbstractProperty {
         return value
                 .trim()
                 .toLowerCase()
-                .matches("^(@required|@comment|@default|@pattern|@password).*");
+                // On met un espace après comment, default et pattern pour résoudre le problème de diff décrit dans l'issue 307
+                .matches("^(@required|@comment |@default |@pattern |@password).*");
     }
 
     /**
@@ -160,11 +161,13 @@ public class Property extends AbstractProperty {
     }
 
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
-        return propertyAnnotations.split("(?=@required|@comment|@default|@pattern|@password)");
+        return propertyAnnotations.split("(?=@required|@comment |@default |@pattern |@password)");
     }
 
     private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType) {
-        return annotationDefinition.toLowerCase().startsWith("@" + annotationType.getName().toLowerCase());
+        // L'espace optionnel permet de résoudre le diff décrit dans l'issue 307
+        String optionalSpace = annotationType.equals(AnnotationType.COMMENT) ||annotationType.equals(AnnotationType.DEFAULT_VALUE) ||annotationType.equals(AnnotationType.PATTERN) ? " " : "";
+        return annotationDefinition.toLowerCase().startsWith("@" + annotationType.getName().toLowerCase() + optionalSpace);
     }
 
     /**
