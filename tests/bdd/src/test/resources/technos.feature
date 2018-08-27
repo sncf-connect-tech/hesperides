@@ -74,6 +74,11 @@ Feature: technos related features
     When searching for a techno that does not exist
     Then the number of techno results is 0
 
+  Scenario: get info for a given techno
+    Given an existing techno
+    When retrieving the techno's info
+    Then the techno's info is retrieved
+
   Scenario: get the model of a techno
     Given an existing techno
     And a template in this techno that has properties
