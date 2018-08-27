@@ -151,6 +151,10 @@ public class PropertyTest {
         // #313
         assertProperty(new Property("quoted comment containing escaped quotes", false, "Login pour l'authentification à l'api", "", "", false),
                 Property.extractProperty("quoted comment containing escaped quotes| @comment 'Login pour l\\'authentification à l\\'api'"));
+
+        // #317
+        assertProperty(new Property("quoted values that begins and ends with space", false, "a comment", " a default ", " a pattern ", false),
+                Property.extractProperty("quoted values that begins and ends with space| @comment \" a comment \" @default \" a default \" @pattern \" a pattern \" "));
     }
 
     @Test
@@ -357,8 +361,8 @@ public class PropertyTest {
     @Test
     public void extractAnnotationValueLegacyStyle() {
         assertEquals("a", Property.extractAnnotationValueLegacyStyle(" @comment a comment "));
-        assertEquals("a comment", Property.extractAnnotationValueLegacyStyle(" @comment \" a comment \" "));
-        assertEquals("a comment", Property.extractAnnotationValueLegacyStyle(" @comment ' a comment ' "));
+        assertEquals(" a comment ", Property.extractAnnotationValueLegacyStyle(" @comment \" a comment \" "));
+        assertEquals(" a comment ", Property.extractAnnotationValueLegacyStyle(" @comment ' a comment ' "));
         assertEquals(null, Property.extractAnnotationValueLegacyStyle(" @comment \" a comment "));
         assertEquals(null, Property.extractAnnotationValueLegacyStyle(" @comment ' a comment "));
         assertEquals("ab", Property.extractAnnotationValueLegacyStyle(" @comment \"ab\"cd "));

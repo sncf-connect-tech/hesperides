@@ -92,6 +92,10 @@ public class Property extends AbstractProperty {
                             break;
                         }
                         comment = extractAnnotationValueLegacyStyle(annotationDefinition);
+                        // #317
+                        if (comment != null) {
+                            comment = comment.trim();
+                        }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE, propertyAnnotations)) {
                         validateIsBlank(defaultValue);
@@ -247,9 +251,6 @@ public class Property extends AbstractProperty {
             result = extractValueBetweenQuotes(valueAfterFirstSpace);
         } else {
             result = extractFirstWord(valueAfterFirstSpace);
-        }
-        if (result != null) {
-            result = result.trim();
         }
         if (StringUtils.isEmpty(result)) {
             result = null;
