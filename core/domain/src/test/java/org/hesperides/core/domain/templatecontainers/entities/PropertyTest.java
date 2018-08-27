@@ -193,8 +193,8 @@ public class PropertyTest {
                 Property.extractProperty("annotation after unrequired pipe|Niveau des logs du package org.springframework.web|@default ERROR|@pattern * @password"));
 
         // #315
-//        assertProperty(new Property("sumo.rules.generation", false, "true ou false", "", "", false),
-//                Property.extractProperty("sumo.rules.generation|true ou false@required"));
+        assertProperty(new Property("sumo.rules.generation", false, "true ou false", "", "", false),
+                Property.extractProperty("sumo.rules.generation|true ou false@required"));
     }
 
     @Test

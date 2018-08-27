@@ -87,8 +87,8 @@ public class Property extends AbstractProperty {
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT, propertyAnnotations)) {
                         validateIsBlank(comment);
+                        // #311
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
-                            // #311
                             break;
                         }
                         comment = extractAnnotationValueLegacyStyle(annotationDefinition);
@@ -220,24 +220,19 @@ public class Property extends AbstractProperty {
         // L'espace optionnel permet de résoudre le diff décrit dans l'issue 307
         String optionalSpace = annotationType.equals(AnnotationType.COMMENT) || annotationType.equals(AnnotationType.DEFAULT_VALUE) || annotationType.equals(AnnotationType.PATTERN) ? " " : "";
         return annotationDefinition.toLowerCase().startsWith("@" + annotationType.getName().toLowerCase() + optionalSpace) &&
-                !isAfterUnrequiredPipe(annotationType, propertyAnnotations);
+                isFirstAnnotationOrAfterSpace(annotationType, propertyAnnotations);
     }
 
     /**
-     * Bug du legacy (#314) :
-     * Si une annotation se trouve collée à un pipe, à partir du second pipe,
-     * elle n'est pas prise en compte.
+     * Résoud les issues #314 et #315 :
+     * <p>
+     * Dans le legacy, les annotations doivent commencer après un espace,
+     * sauf la première qui peut commencer après le pipe qui sépare le nom
+     * de la propriété et la définition des annotations.
      */
-    private static boolean isAfterUnrequiredPipe(AnnotationType annotationType, String propertyAnnotations) {
-        boolean result = false;
-        String[] annotationsSplitedWithPipe = propertyAnnotations.split(PIPE_REGEX);
-        for (int i = 0; i < annotationsSplitedWithPipe.length; i++) {
-            if (i > 0 && annotationsSplitedWithPipe[i].toLowerCase().startsWith("@" + annotationType.getName().toLowerCase())) {
-                result = true;
-                break;
-            }
-        }
-        return result;
+    private static boolean isFirstAnnotationOrAfterSpace(AnnotationType annotationType, String propertyAnnotations) {
+        int indexOfAnnotation = propertyAnnotations.toLowerCase().indexOf("@" + annotationType.getName().toLowerCase());
+        return indexOfAnnotation == 0 || propertyAnnotations.charAt(indexOfAnnotation - 1) == ' ';
     }
 
     /**
