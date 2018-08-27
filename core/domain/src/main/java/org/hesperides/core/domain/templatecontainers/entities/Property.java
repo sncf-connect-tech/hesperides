@@ -155,8 +155,14 @@ public class Property extends AbstractProperty {
     /**
      * Extrait la valeur d'une chaîne de caractères se trouvant avant la première annotation connue.
      * Si la chaîne de caractères passée en paramètre ne contient pas d'annotation connue,
-     * la valeur du retour est celle du paramètre en entrée, sauf si elle est vide (blank).
-     * Dans ce cas on retourne null.
+     * la valeur du retour est celle du paramètre en entrée,
+     * sauf si elle contient une arobase,
+     * et sauf si elle est vide (blank) auquel cas on retourne null.
+     * Enfin, presque.
+     *
+     * Il ne faut pas chercher à comprendre ce que fait cette méthode,
+     * on reproduit le comportement du legacy pour répondre aux cas d'utilisation
+     * décrits dans le test unitaire PropertyTest::oldCommentArobase.
      */
     public static String extractValueBeforeFirstKnownAnnotation(String value) {
         String result;
@@ -167,7 +173,38 @@ public class Property extends AbstractProperty {
         } else {
             result = value;
         }
-        return StringUtils.isBlank(result) ? null : result.trim();
+        result = extractValueBeforeFirstArobase(result); // #312
+        result = StringUtils.isBlank(result) ? null : result.trim();
+        // #312
+        if (result != null && result.startsWith("@") && !result.equals(value.trim())) {
+            result = null;
+        }
+        return result;
+    }
+
+    /**
+     * Legacy :
+     *
+     * Extrait la valeur d'une chaîne de caractères se trouvant avant la première arobase.
+     * Si la valeur passée en paramètre ne contient pas d'arobase,
+     * ou s'il y a un espace juste avant la première arobase,
+     * on retourne la valeur passée en paramètre telle quelle.
+     */
+    public static String extractValueBeforeFirstArobase(String value) {
+        String result = null;
+        if (value != null) {
+            int firstArobase = value.indexOf("@");
+            if (firstArobase > -1) {
+                if (firstArobase > 0 && value.charAt(firstArobase - 1) == ' ') {
+                    result = value;
+                } else {
+                    result = value.substring(0, firstArobase);
+                }
+            } else {
+                result = value;
+            }
+        }
+        return result;
     }
 
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {

@@ -21,6 +21,7 @@
 package org.hesperides.core.domain.templatecontainers.entities;
 
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -108,9 +109,6 @@ public class PropertyTest {
         assertProperty(new Property("comment before annotation", true, "comment", "", "", false),
                 Property.extractProperty("comment before annotation| comment @required "));
 
-        assertProperty(new Property("comment with arobase before annotation", true, "@oops", "", "", false),
-                Property.extractProperty("comment with arobase before annotation| @oops @required "));
-
         // Autres commentaires
 
         assertProperty(new Property("comment without annotation", false, "a comment", "", "", false),
@@ -122,16 +120,13 @@ public class PropertyTest {
         assertProperty(new Property("comment without annotation but with simple quotes", false, "'a comment'", "", "", false),
                 Property.extractProperty("comment without annotation but with simple quotes | 'a comment'"));
 
-        assertProperty(new Property("comment without annotation but with arobase", false, "@admin and @user", "", "", false),
-                Property.extractProperty("comment without annotation but with arobase| @admin and @user "));
-
         assertProperty(new Property("comment with annotation and arobase", false, "@admin and @user", "", "", false),
                 Property.extractProperty("comment with annotation and arobase| @comment '@admin and @user'"));
 
         assertProperty(new Property("comment with annotation and arobase", false, "@admin", "", "", false),
                 Property.extractProperty("comment with annotation and arobase| @comment @admin"));
 
-        assertProperty(new Property("comment that is an email address", false, "name@email.com", "", "", false),
+        assertProperty(new Property("comment that is an email address", false, "name", "", "", false),
                 Property.extractProperty("comment that is an email address| name@email.com "));
 
         assertProperty(new Property("comment that is an email address", false, "name@email.com", "", "", false),
@@ -163,19 +158,39 @@ public class PropertyTest {
     }
 
     @Test
+    public void oldCommentArobase() {
+
+        // #312
+        assertProperty(new Property("http.proxy", false, "Format : [protocol://][user:password", "", "", false),
+                Property.extractProperty("http.proxy | Format : [protocol://][user:password@]proxyhost[:port]"));
+
+        assertProperty(new Property("comment space arobase", false, "comment @arobase", "", "", false),
+                Property.extractProperty("comment space arobase| comment @arobase"));
+
+        assertProperty(new Property("comment arobase", false, "comment", "", "", false),
+                Property.extractProperty("comment arobase| comment@arobase"));
+
+        assertProperty(new Property("arobase space comment", false, "@arobase comment", "", "", false),
+                Property.extractProperty("arobase space comment| @arobase comment"));
+
+        assertProperty(new Property("arobase", false, "@arobase", "", "", false),
+                Property.extractProperty("arobase| @arobase"));
+
+        assertProperty(new Property("comment with arobase before annotation", true, null, "", "", false),
+                Property.extractProperty("comment with arobase before annotation| @oops @required "));
+    }
+
+    @Test
     public void legacyBugCases() {
 
         // #307 Annotation collée au texte
-//        assertProperty(new Property("comment typo", true, null, "", "", true),
-//                Property.extractProperty("comment typo|@commentForgot space @required @password"));
+        assertProperty(new Property("comment typo", true, null, "", "", true),
+                Property.extractProperty("comment typo|@commentForgot space @required @password"));
 
         // #311
 //        assertProperty(new Property("weird pipe separated annotations", false, null, "", "", false),
 //                Property.extractProperty("weird pipe separated annotations | @comment \"comment | @default 12"));
 
-        // #312
-//        assertProperty(new Property("http.proxy", false, "Format : [protocol://][user:password", "", "", false),
-//                Property.extractProperty("http.proxy | Format : [protocol://][user:password@]proxyhost[:port]"));
 
         // #314
 //        assertProperty(new Property("logback.verbose.spring.web.logLevel", false, "Niveau des logs du package org.springframework.web|", "", "", false),
@@ -317,6 +332,12 @@ public class PropertyTest {
         Property.extractProperty("pattern that starts but doesn't end with quotes | @pattern \"*");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    @Ignore
+    public void commentWithoutAnnotationButWithTwoArobase() {
+        Property.extractProperty("comment without annotation but with 2 arobases| @admin and @user");
+    }
+
     @Test
     public void testStartsWithKnownAnnotation() {
         assertEquals(true, Property.startsWithKnownAnnotation("@required"));
@@ -331,12 +352,10 @@ public class PropertyTest {
     @Test
     public void testExtractValueBeforeFirstKnownAnnotation() {
         assertEquals("anything", Property.extractValueBeforeFirstKnownAnnotation(" anything @required "));
-        assertEquals("@what what", Property.extractValueBeforeFirstKnownAnnotation(" @what what @required "));
         assertEquals("\" comment \"", Property.extractValueBeforeFirstKnownAnnotation(" \" comment \" @required"));
         assertEquals("' comment '", Property.extractValueBeforeFirstKnownAnnotation(" ' comment ' @required"));
         assertEquals("comment", Property.extractValueBeforeFirstKnownAnnotation(" comment "));
         assertEquals("comment @what", Property.extractValueBeforeFirstKnownAnnotation(" comment @what"));
-        assertEquals("@what comment", Property.extractValueBeforeFirstKnownAnnotation("@what comment "));
     }
 
     @Test
