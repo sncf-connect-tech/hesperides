@@ -51,14 +51,14 @@ public class Property extends AbstractProperty {
         }
     }
 
-    private static final String NAME_ANNOTATIONS_SEPARATOR_REGEX = "[|]";
+    private static final String PIPE_REGEX = "[|]";
     private static final int NAME_INDEX = 0;
     private static final int ANNOTATIONS_INDEX = 1;
 
     public static Property extractProperty(String propertyDefinition) {
         Property property = null;
         if (propertyDefinition != null) {
-            String[] propertyAttributes = propertyDefinition.split(NAME_ANNOTATIONS_SEPARATOR_REGEX, 2);
+            String[] propertyAttributes = propertyDefinition.split(PIPE_REGEX, 2);
 
             String name = propertyAttributes[NAME_INDEX].trim();
             // Valeurs par défaut
@@ -81,11 +81,11 @@ public class Property extends AbstractProperty {
                 String[] splitAnnotations = splitAnnotationsButKeepDelimiters(propertyAnnotations);
                 for (String annotationDefinition : splitAnnotations) {
 
-                    if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED)) {
+                    if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED, propertyAnnotations)) {
                         validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                         isRequired = true;
 
-                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT)) {
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT, propertyAnnotations)) {
                         validateIsBlank(comment);
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
                             // #311
@@ -93,26 +93,21 @@ public class Property extends AbstractProperty {
                         }
                         comment = extractAnnotationValueLegacyStyle(annotationDefinition);
 
-                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE)) {
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE, propertyAnnotations)) {
                         validateIsBlank(defaultValue);
                         defaultValue = extractAnnotationValueLegacyStyle(annotationDefinition);
                         validateIsNotBlank(defaultValue);
                         validateDoesntStartWithArobase(defaultValue);
 
-                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.PATTERN)) {
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.PATTERN, propertyAnnotations)) {
                         validateIsBlank(pattern);
                         pattern = extractAnnotationValueLegacyStyle(annotationDefinition);
                         validateIsNotBlank(pattern);
                         validateDoesntStartWithArobase(pattern);
 
-                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD)) {
+                    } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD, propertyAnnotations)) {
                         validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                         isPassword = true;
-
-                    } else {
-//                        if (extractAnnotationValueLegacyStyle(annotationDefinition) != null) {
-//                            throw new IllegalArgumentException();
-//                        }
                     }
                 }
             }
@@ -169,7 +164,7 @@ public class Property extends AbstractProperty {
      * sauf si elle contient une arobase,
      * et sauf si elle est vide (blank) auquel cas on retourne null.
      * Enfin, presque.
-     *
+     * <p>
      * Il ne faut pas chercher à comprendre ce que fait cette méthode,
      * on reproduit le comportement du legacy pour répondre aux cas d'utilisation
      * décrits dans le test unitaire PropertyTest::oldCommentArobase.
@@ -194,7 +189,7 @@ public class Property extends AbstractProperty {
 
     /**
      * Legacy :
-     *
+     * <p>
      * Extrait la valeur d'une chaîne de caractères se trouvant avant la première arobase.
      * Si la valeur passée en paramètre ne contient pas d'arobase,
      * ou s'il y a un espace juste avant la première arobase,
@@ -221,10 +216,28 @@ public class Property extends AbstractProperty {
         return propertyAnnotations.split("(?=@required|@comment |@default |@pattern |@password)");
     }
 
-    private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType) {
+    private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType, String propertyAnnotations) {
         // L'espace optionnel permet de résoudre le diff décrit dans l'issue 307
         String optionalSpace = annotationType.equals(AnnotationType.COMMENT) || annotationType.equals(AnnotationType.DEFAULT_VALUE) || annotationType.equals(AnnotationType.PATTERN) ? " " : "";
-        return annotationDefinition.toLowerCase().startsWith("@" + annotationType.getName().toLowerCase() + optionalSpace);
+        return annotationDefinition.toLowerCase().startsWith("@" + annotationType.getName().toLowerCase() + optionalSpace) &&
+                !isAfterUnrequiredPipe(annotationType, propertyAnnotations);
+    }
+
+    /**
+     * Bug du legacy (#314) :
+     * Si une annotation se trouve collée à un pipe, à partir du second pipe,
+     * elle n'est pas prise en compte.
+     */
+    private static boolean isAfterUnrequiredPipe(AnnotationType annotationType, String propertyAnnotations) {
+        boolean result = false;
+        String[] annotationsSplitedWithPipe = propertyAnnotations.split(PIPE_REGEX);
+        for (int i = 0; i < annotationsSplitedWithPipe.length; i++) {
+            if (i > 0 && annotationsSplitedWithPipe[i].toLowerCase().startsWith("@" + annotationType.getName().toLowerCase())) {
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
     /**

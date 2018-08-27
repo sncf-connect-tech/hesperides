@@ -148,10 +148,6 @@ public class PropertyTest {
         assertProperty(new Property("multiple required and password", true, null, "", "", true),
                 Property.extractProperty("multiple required and password|@required @required @password @password"));
 
-        // Utilisation du pipe entre les annotations
-        assertProperty(new Property("pao.reference.data.cachemanager.name", false, "Nom du cache manager des donnees de reference", "pao-bridge-jms-reference-data-cache", "", false),
-                Property.extractProperty("pao.reference.data.cachemanager.name|@comment \"Nom du cache manager des donnees de reference\"|@default pao-bridge-jms-reference-data-cache"));
-
         // #313
         assertProperty(new Property("quoted comment containing escaped quotes", false, "Login pour l'authentification à l'api", "", "", false),
                 Property.extractProperty("quoted comment containing escaped quotes| @comment 'Login pour l\\'authentification à l\\'api'"));
@@ -193,8 +189,8 @@ public class PropertyTest {
 
 
         // #314
-//        assertProperty(new Property("logback.verbose.spring.web.logLevel", false, "Niveau des logs du package org.springframework.web|", "", "", false),
-//                Property.extractProperty("logback.verbose.spring.web.logLevel|Niveau des logs du package org.springframework.web|@default ERROR"));
+        assertProperty(new Property("annotation after unrequired pipe", false, "Niveau des logs du package org.springframework.web|", "", "", true),
+                Property.extractProperty("annotation after unrequired pipe|Niveau des logs du package org.springframework.web|@default ERROR|@pattern * @password"));
 
         // #315
 //        assertProperty(new Property("sumo.rules.generation", false, "true ou false", "", "", false),
