@@ -87,6 +87,10 @@ public class Property extends AbstractProperty {
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT)) {
                         validateIsBlank(comment);
+                        if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
+                            // #311
+                            break;
+                        }
                         comment = extractAnnotationValueLegacyStyle(annotationDefinition);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE)) {
@@ -118,6 +122,12 @@ public class Property extends AbstractProperty {
             property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
+    }
+
+    private static boolean onlyStartsWithQuotes(String value) {
+        return value != null &&
+                ((value.startsWith("'") && value.substring(1).indexOf("'") == -1) ||
+                        (value.startsWith("\"") && value.substring(1).indexOf("\"") == -1));
     }
 
     private static void validateRequiredOrDefaultValue(String name, boolean isRequired, String defaultValue) {

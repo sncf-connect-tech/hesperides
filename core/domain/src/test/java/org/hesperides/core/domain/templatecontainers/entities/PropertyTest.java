@@ -188,8 +188,8 @@ public class PropertyTest {
                 Property.extractProperty("comment typo|@commentForgot space @required @password"));
 
         // #311
-//        assertProperty(new Property("weird pipe separated annotations", false, null, "", "", false),
-//                Property.extractProperty("weird pipe separated annotations | @comment \"comment | @default 12"));
+        assertProperty(new Property("comment that only starts with quotes", false, null, "", "", false),
+                Property.extractProperty("comment that only starts with quotes | @comment \"comment | @default 12"));
 
 
         // #314
