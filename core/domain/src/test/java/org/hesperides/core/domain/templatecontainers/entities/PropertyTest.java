@@ -178,6 +178,9 @@ public class PropertyTest {
 
         assertProperty(new Property("comment with arobase before annotation", true, null, "", "", false),
                 Property.extractProperty("comment with arobase before annotation| @oops @required "));
+
+        assertProperty(new Property("old comment that starts with arobase", false, "@Tag de pub DART pour le mail de conf", "", "", false),
+                Property.extractProperty("old comment that starts with arobase|@Tag de pub DART pour le mail de conf"));
     }
 
     @Test
