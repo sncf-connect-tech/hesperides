@@ -288,9 +288,9 @@ public class Property extends AbstractProperty {
         String result = null;
         if (value != null) {
             if (value.startsWith("\"")) {
-                result = extractBetweenFirstAndLast(value, "\"");
+                result = extractBetweenFirstAndNextUnescapedQuotes(value, "\"");
             } else if (value.startsWith("'")) {
-                result = extractBetweenFirstAndLast(value, "'");
+                result = extractBetweenFirstAndNextUnescapedQuotes(value, "'");
                 if (result != null) {
                     // #320
                     result = result.replaceAll("\\\"", "\\\\\"");
@@ -303,14 +303,25 @@ public class Property extends AbstractProperty {
         return result;
     }
 
-    private static String extractBetweenFirstAndLast(String value, String character) {
+    private static String extractBetweenFirstAndNextUnescapedQuotes(String value, String character) {
         String result = null;
         int first = value.indexOf(character);
-        int last = value.lastIndexOf(character);
-        if (first != last) {
-            result = value.substring(first + 1, last);
+        int next = getNextUnescapedCharacterPosition(value, first + 1, character);
+        if (next > first) {
+            result = value.substring(first + 1, next);
         }
         return result;
+    }
+
+    /**
+     * #321
+     */
+    private static int getNextUnescapedCharacterPosition(String value, int begin, String character) {
+        int position = value.indexOf(character, begin);
+        if (position > 0 && value.charAt(position - 1) == '\\') {
+            position = getNextUnescapedCharacterPosition(value, position + 1, character);
+        }
+        return position;
     }
 
     /**
