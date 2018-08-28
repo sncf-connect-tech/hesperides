@@ -155,6 +155,13 @@ public class PropertyTest {
         // #317
         assertProperty(new Property("quoted values that begins and ends with space", false, "a comment", " a default ", " a pattern ", false),
                 Property.extractProperty("quoted values that begins and ends with space| @comment \" a comment \" @default \" a default \" @pattern \" a pattern \" "));
+
+        // #320
+        assertProperty(new Property("comment wrapped with simple quotes but containing double quotes", false, "exemple: \"Bonjour\"", "", "", false),
+                Property.extractProperty("comment wrapped with simple quotes but containing double quotes|@comment 'exemple: \"Bonjour\"'"));
+
+        assertProperty(new Property("comment wrapped with double quotes but containing simple quotes", false, "exemple: 'Bonjour'", "", "", false),
+                Property.extractProperty("comment wrapped with double quotes but containing simple quotes|@comment \"exemple: 'Bonjour'\""));
     }
 
     @Test

@@ -291,6 +291,10 @@ public class Property extends AbstractProperty {
                 result = extractBetweenFirstAndLast(value, "\"");
             } else if (value.startsWith("'")) {
                 result = extractBetweenFirstAndLast(value, "'");
+                if (result != null) {
+                    // #320
+                    result = result.replaceAll("\\\"", "\\\\\"");
+                }
             }
             if (result != null) {
                 result = someKindOfEscape(result);
