@@ -199,6 +199,10 @@ public class PropertyTest {
         // #315
         assertProperty(new Property("sumo.rules.generation", false, "true ou false", "", "", false),
                 Property.extractProperty("sumo.rules.generation|true ou false@required"));
+
+        // #318
+        assertProperty(new Property("mur.url", false, null, "", "", false),
+                Property.extractProperty("mur.url|@required|url du service mur"));
     }
 
     @Test

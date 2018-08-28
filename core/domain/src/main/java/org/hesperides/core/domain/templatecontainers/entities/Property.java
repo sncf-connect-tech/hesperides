@@ -82,8 +82,11 @@ public class Property extends AbstractProperty {
                 for (String annotationDefinition : splitAnnotations) {
 
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED, propertyAnnotations)) {
-                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
-                        isRequired = true;
+                        // #318
+                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
+                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                            isRequired = true;
+                        }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT, propertyAnnotations)) {
                         validateIsBlank(comment);
@@ -121,6 +124,13 @@ public class Property extends AbstractProperty {
             property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
+    }
+
+    /**
+     * #318
+     */
+    private static boolean isAnnotationFollowedByPipe(AnnotationType annotationType, String propertyAnnotations) {
+        return propertyAnnotations.toLowerCase().contains("@" + annotationType.getName().toLowerCase() + "|");
     }
 
     private static boolean onlyStartsWithQuotes(String value) {
