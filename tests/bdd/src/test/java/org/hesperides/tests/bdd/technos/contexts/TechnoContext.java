@@ -89,4 +89,8 @@ public class TechnoContext extends CucumberSpringBean implements En {
     public void deleteTemplate(String templateName) {
         rest.getTestRest().delete(getTemplateURI(templateName));
     }
+
+    public void deleteTechno() {
+        rest.getTestRest().delete(getTechnoURI());
+    }
 }

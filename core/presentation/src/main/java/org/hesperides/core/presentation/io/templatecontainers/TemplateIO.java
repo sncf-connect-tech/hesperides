@@ -57,6 +57,7 @@ public class TemplateIO {
             this.group = Optional.ofNullable(rightsView.getGroup()).map(FileRightsIO::new).orElse(null);
             this.other = Optional.ofNullable(rightsView.getOther()).map(FileRightsIO::new).orElse(null);
         }
+
         //Ce constructeur est appelé lorsque l'input ne comprends pas de rights, ou qu'ils sont null
         private RightsIO() {
             this.user = new FileRightsIO();

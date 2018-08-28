@@ -28,6 +28,8 @@ import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
+import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
+import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
@@ -51,10 +53,12 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class MongoTechnoProjectionRepository implements TechnoProjectionRepository {
 
     private final MongoTechnoRepository technoRepository;
+    private final MongoModuleRepository moduleRepository;
 
     @Autowired
-    public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository) {
+    public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository, MongoModuleRepository moduleRepository) {
         this.technoRepository = technoRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     /*** EVENT HANDLERS ***/
@@ -70,6 +74,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
         technoRepository.deleteByKey(keyDocument);
+        //TODO Supprimer les références vers cette techno
+        updateModelUsingTechno(keyDocument);
     }
 
     @EventHandler
@@ -80,6 +86,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
+        updateModelUsingTechno(keyDocument);
     }
 
     @Override
@@ -89,6 +96,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
+        updateModelUsingTechno(keyDocument);
     }
 
     @Override
@@ -97,6 +105,17 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
         technoDocument.removeTemplate(event.getTemplateName());
         technoDocument.extractPropertiesAndSave(technoRepository);
+        updateModelUsingTechno(keyDocument);
+    }
+
+    /**
+     * Met à jour le model des modules utilisant cette techno.
+     * Cette logique devrait se trouver dans la couche application,
+     * mais le batch de migration nécessite de l'avoir ici.
+     */
+    private void updateModelUsingTechno(KeyDocument technoKey) {
+        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosKey(technoKey);
+        moduleDocuments.forEach(moduleDocument -> moduleDocument.extractPropertiesAndSave(moduleRepository));
     }
 
     /*** QUERY HANDLERS ***/
