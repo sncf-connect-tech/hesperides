@@ -206,7 +206,7 @@ public class Property extends AbstractProperty {
      * <p>
      * Extrait la valeur d'une chaîne de caractères se trouvant avant la première arobase.
      * Si l'arobase est le premier caractère et si le mot après l'arobase n'est pas la fin de la chaîne ou ne se termine pas par un espace,
-     * on retourne null;
+     * on retourne null.
      * Si la valeur passée en paramètre ne contient pas d'arobase,
      * ou si l'arobase est le premier caractère,
      * ou s'il y a un espace juste avant la première arobase et si le mot après l'arobase est la fin de la chaîne ou se termine par un espace,
@@ -235,8 +235,12 @@ public class Property extends AbstractProperty {
         return Pattern.compile("^@[a-zA-Z]+( |$)").matcher(value).find();
     }
 
+    /**
+     * Les annotations doivent être précédées d'un espace pour être détecté,
+     * sauf dans le cas de la première annotation.
+     */
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
-        return propertyAnnotations.split("(?=@required|@comment |@default |@pattern |@password)");
+        return propertyAnnotations.split("(^| )(?=@required|@comment |@default |@pattern |@password)");
     }
 
     private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType, String propertyAnnotations) {

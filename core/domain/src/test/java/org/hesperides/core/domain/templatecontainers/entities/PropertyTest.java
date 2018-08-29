@@ -229,6 +229,10 @@ public class PropertyTest {
 
         assertProperty(new Property("authentication.appKey", false, "Aujourd", "", "", false),
                 Property.extractProperty("authentication.appKey | @comment \"Aujourd\"hui\""));
+
+        // #323
+        assertProperty(new Property("ector.service.environment", false, null, "prod|@comment", "", false),
+                Property.extractProperty("ector.service.environment|@default prod|@comment \"Valorisation possible: prod ou validation\""));
     }
 
     @Test
