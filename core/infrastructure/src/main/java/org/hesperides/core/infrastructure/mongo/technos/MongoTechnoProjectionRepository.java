@@ -72,10 +72,20 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @Override
     public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
-        technoRepository.deleteByKey(keyDocument);
-        //TODO Supprimer les références vers cette techno
-        updateModelUsingTechno(keyDocument);
+        KeyDocument technoKey = new KeyDocument(event.getTechnoKey());
+        removeReferences(technoKey);
+        technoRepository.deleteByKey(technoKey);
+    }
+
+    private void removeReferences(KeyDocument technoKey) {
+        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosKey(technoKey);
+        moduleDocuments.forEach(moduleDocument -> {
+            moduleDocument.setTechnos(
+                    moduleDocument.getTechnos().stream()
+                            .filter(technoDocument -> !technoKey.equals(technoDocument.getKey()))
+                            .collect(Collectors.toList()));
+            moduleDocument.extractPropertiesAndSave(moduleRepository);
+        });
     }
 
     @EventHandler
