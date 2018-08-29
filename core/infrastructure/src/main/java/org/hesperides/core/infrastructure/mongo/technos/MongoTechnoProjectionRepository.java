@@ -82,7 +82,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         moduleDocuments.forEach(moduleDocument -> {
             moduleDocument.setTechnos(
                     moduleDocument.getTechnos().stream()
-                            .filter(technoDocument -> !technoKey.equals(technoDocument.getKey()))
+                            .filter(technoDocument -> !technoDocument.getKey().equals(technoKey))
                             .collect(Collectors.toList()));
             moduleDocument.extractPropertiesAndSave(moduleRepository);
         });

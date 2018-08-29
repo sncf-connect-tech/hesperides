@@ -188,6 +188,9 @@ public class PropertyTest {
 
         assertProperty(new Property("old comment that starts with arobase", false, "@Tag de pub DART pour le mail de conf", "", "", false),
                 Property.extractProperty("old comment that starts with arobase|@Tag de pub DART pour le mail de conf"));
+
+        assertProperty(new Property("atdesti.bookingManagement.url", false, "URL vers la page de gestion des commandes Open Jaw (dossier", "", "", false),
+                Property.extractProperty("atdesti.bookingManagement.url|URL vers la page de gestion des commandes Open Jaw (dossier @desti)"));
     }
 
     @Test
@@ -220,6 +223,14 @@ public class PropertyTest {
 
         assertProperty(new Property("authentication.appKey", false, "Aujourd", "", "", false),
                 Property.extractProperty("authentication.appKey | @comment \"Aujourd\"hui\""));
+    }
+
+    @Test
+    public void bar() {
+        assertEquals(true, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo "));
+        assertEquals(true, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo"));
+        assertEquals(false, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo)"));
+        assertEquals(false, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo-"));
     }
 
     @Test
