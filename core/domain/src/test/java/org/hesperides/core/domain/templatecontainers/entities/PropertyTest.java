@@ -191,6 +191,12 @@ public class PropertyTest {
 
         assertProperty(new Property("atdesti.bookingManagement.url", false, "URL vers la page de gestion des commandes Open Jaw (dossier", "", "", false),
                 Property.extractProperty("atdesti.bookingManagement.url|URL vers la page de gestion des commandes Open Jaw (dossier @desti)"));
+
+        assertProperty(new Property("atdesti.bookingManagement.url", false, "URL vers la page de gestion des @aro commandes Open Jaw (dossier @desti)", "", "", false),
+                Property.extractProperty("atdesti.bookingManagement.url|URL vers la page de gestion des @aro commandes Open Jaw (dossier @desti)"));
+
+        assertProperty(new Property("rcad.email.terminaison.adresse", false, null, "", "", false),
+                Property.extractProperty("rcad.email.terminaison.adresse|@contratpro.fr [chaine] "));
     }
 
     @Test
@@ -226,7 +232,7 @@ public class PropertyTest {
     }
 
     @Test
-    public void bar() {
+    public void testArobaseEndsWithSpaceOrIsTheEnd() {
         assertEquals(true, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo "));
         assertEquals(true, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo"));
         assertEquals(false, Property.arobaseEndsWithSpaceOrIsTheEnd("@foo)"));

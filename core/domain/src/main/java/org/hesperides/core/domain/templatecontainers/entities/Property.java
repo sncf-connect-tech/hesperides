@@ -205,6 +205,8 @@ public class Property extends AbstractProperty {
      * Legacy :
      * <p>
      * Extrait la valeur d'une chaîne de caractères se trouvant avant la première arobase.
+     * Si l'arobase est le premier caractère et si le mot après l'arobase n'est pas la fin de la chaîne ou ne se termine pas par un espace,
+     * on retourne null;
      * Si la valeur passée en paramètre ne contient pas d'arobase,
      * ou si l'arobase est le premier caractère,
      * ou s'il y a un espace juste avant la première arobase et si le mot après l'arobase est la fin de la chaîne ou se termine par un espace,
@@ -215,7 +217,9 @@ public class Property extends AbstractProperty {
         if (value != null) {
             int firstArobase = value.indexOf("@");
             if (firstArobase > -1) {
-                if (firstArobase == 0 || value.charAt(firstArobase - 1) == ' ' && arobaseEndsWithSpaceOrIsTheEnd(value.substring(firstArobase))) {
+                if (firstArobase == 0 && !arobaseEndsWithSpaceOrIsTheEnd(value.substring(firstArobase))) {
+                    result = null;
+                } else if (firstArobase == 0 || value.charAt(firstArobase - 1) == ' ' && arobaseEndsWithSpaceOrIsTheEnd(value.substring(firstArobase))) {
                     result = value;
                 } else {
                     result = value.substring(0, firstArobase);
