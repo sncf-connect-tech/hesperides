@@ -197,6 +197,9 @@ public class PropertyTest {
 
         assertProperty(new Property("rcad.email.terminaison.adresse", false, null, "", "", false),
                 Property.extractProperty("rcad.email.terminaison.adresse|@contratpro.fr [chaine] "));
+
+        assertProperty(new Property("mail.support.technique.incident", false, "surcharge des @ mails/Adresse mail ou sont diriges les mails concernant les incidents techniques sur le paiement", "", "", false),
+                Property.extractProperty("mail.support.technique.incident|surcharge des @ mails/Adresse mail ou sont diriges les mails concernant les incidents techniques sur le paiement"));
     }
 
     @Test

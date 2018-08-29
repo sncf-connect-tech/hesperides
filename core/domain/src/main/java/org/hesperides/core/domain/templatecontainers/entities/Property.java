@@ -232,7 +232,7 @@ public class Property extends AbstractProperty {
     }
 
     static boolean arobaseEndsWithSpaceOrIsTheEnd(String value) {
-        return Pattern.compile("^@[a-zA-Z]+( |$)").matcher(value).find();
+        return Pattern.compile("^@[a-zA-Z]*( |$)").matcher(value).find();
     }
 
     /**
