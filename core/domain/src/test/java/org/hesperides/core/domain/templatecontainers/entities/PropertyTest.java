@@ -238,6 +238,10 @@ public class PropertyTest {
         // #323
         assertProperty(new Property("ector.service.environment", false, null, "prod|@comment", "", false),
                 Property.extractProperty("ector.service.environment|@default prod|@comment \"Valorisation possible: prod ou validation\""));
+
+        // #324
+        assertProperty(new Property("sumon.graphite.enabled", false, "Activation de la publication des metrics SUMON dans graphite @default false", "", "", false),
+                Property.extractProperty("sumon.graphite.enabled|@comment \"Activation de la publication des metrics SUMON dans graphite @default false\""));
     }
 
     @Test

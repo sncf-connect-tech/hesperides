@@ -92,9 +92,15 @@ public class Property extends AbstractProperty {
                         validateIsBlank(comment);
                         // #311
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
+                            // #324
+                            String valueBetweenQuotes = StringUtils.substringBetween(propertyAnnotations, "\"");
+                            if (valueBetweenQuotes != null) {
+                                comment = valueBetweenQuotes;
+                            }
                             break;
+                        } else {
+                            comment = extractAnnotationValueLegacyStyle(annotationDefinition);
                         }
-                        comment = extractAnnotationValueLegacyStyle(annotationDefinition);
                         // #317
                         if (comment != null) {
                             comment = comment.trim();
