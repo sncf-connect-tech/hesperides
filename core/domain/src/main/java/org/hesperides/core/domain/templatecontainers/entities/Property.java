@@ -388,13 +388,7 @@ public class Property extends AbstractProperty {
     private static String extractFirstWord(String value) {
         String result = null;
         if (value != null) {
-            String trimmedValue = value.trim();
-            int indexOfFirstSpace = trimmedValue.indexOf(" ");
-            if (indexOfFirstSpace != -1) {
-                result = trimmedValue.substring(0, indexOfFirstSpace).trim();
-            } else {
-                result = trimmedValue;
-            }
+            result = value.trim().split("\\s")[0];
         }
         return result;
     }

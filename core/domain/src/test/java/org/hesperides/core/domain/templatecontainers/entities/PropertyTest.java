@@ -162,6 +162,10 @@ public class PropertyTest {
 
         assertProperty(new Property("comment wrapped with double quotes but containing simple quotes", false, "exemple: 'Bonjour'", "", "", false),
                 Property.extractProperty("comment wrapped with double quotes but containing simple quotes|@comment \"exemple: 'Bonjour'\""));
+
+        // #326
+        assertProperty(new Property("prop", false, "Foo", "", "", false),
+                Property.extractProperty("prop|@comment Foo\tbar"));
     }
 
     @Test
