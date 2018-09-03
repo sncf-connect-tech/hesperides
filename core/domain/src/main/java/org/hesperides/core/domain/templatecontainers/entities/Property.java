@@ -249,7 +249,7 @@ public class Property extends AbstractProperty {
      * sauf dans le cas de la première annotation.
      */
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
-        return propertyAnnotations.split("(^| )(?=@required|@comment |@default |@pattern |@password)");
+        return propertyAnnotations.split("(^| )((?i)(?=@required|@comment |@default |@pattern |@password))");
     }
 
     private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType, String propertyAnnotations) {

@@ -166,6 +166,10 @@ public class PropertyTest {
         // #326
         assertProperty(new Property("prop", false, "Foo", "", "", false),
                 Property.extractProperty("prop|@comment Foo\tbar"));
+
+        // #327
+        assertProperty(new Property("passengerType.companion.list", false, "Comma-separated list of passenger type (paxtype) to be considered as companion passengers.", "GG99AD", "", false),
+                Property.extractProperty("passengerType.companion.list|@Default \"GG99AD\" @Comment \"Comma-separated list of passenger type (paxtype) to be considered as companion passengers.\""));
     }
 
     @Test
