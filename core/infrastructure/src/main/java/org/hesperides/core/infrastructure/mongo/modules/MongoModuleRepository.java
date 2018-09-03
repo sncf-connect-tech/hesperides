@@ -4,6 +4,7 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +30,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
     List<ModuleDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
+
+    @Query(value = "{'technos.$id': ?0}")
+    List<ModuleDocument> findAllByTechnosKey(KeyDocument technoKey);
 }

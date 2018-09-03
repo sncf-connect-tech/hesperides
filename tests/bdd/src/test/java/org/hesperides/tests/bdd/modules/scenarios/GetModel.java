@@ -7,6 +7,7 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
+import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.PropertyAssertions;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class GetModel extends CucumberSpringBean implements En {
     private ModuleContext moduleContext;
     @Autowired
     private TemplateContext templateContext;
+    @Autowired
+    private TechnoContext technoContext;
 
     private ResponseEntity<ModelOutput> response;
     private ResponseEntity failResponse;
@@ -133,6 +136,42 @@ public class GetModel extends CucumberSpringBean implements En {
 
         Then("^the creation of the module template that has a property that is required and with a default value is rejected$", () -> {
             assertEquals(HttpStatus.BAD_REQUEST, failResponse.getStatusCode());
+        });
+
+        When("^the techno is updated with new properties", () -> {
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithContentAndVersionId("{{a}}{{b}}{{c}}{{d}}", 1);
+            technoContext.updateTemplate(templateInput);
+        });
+
+        Then("^the model of this module contains the new properties$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(5, modelOutput.getProperties().size());
+        });
+
+        When("^the techno's template is deleted$", () -> {
+            technoContext.deleteTemplate("template-a");
+        });
+
+        Then("^the model of this module does not contain the properties of the deleted techno template$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(0, modelOutput.getProperties().size());
+        });
+
+        When("^a new template is added to this techno$", () -> {
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithNameAndContent("another template", "{{a}}{{b}}{{c}}{{d}}");
+            technoContext.addTemplateToExistingTechno(templateInput);
+        });
+
+        When("^the techno is deleted$", () -> {
+            technoContext.deleteTechno();
+        });
+
+        Then("^the model of this module does not contain the properties of the deleted techno$", () -> {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            ModelOutput modelOutput = response.getBody();
+            assertEquals(0, modelOutput.getProperties().size());
         });
     }
 

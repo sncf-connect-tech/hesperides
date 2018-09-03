@@ -33,7 +33,7 @@ public class Property extends AbstractProperty {
         this.isPassword = isPassword;
     }
 
-    public enum AnnotationType {
+    private enum AnnotationType {
         IS_REQUIRED("required"),
         COMMENT("comment"),
         DEFAULT_VALUE("default"),
@@ -82,16 +82,29 @@ public class Property extends AbstractProperty {
                 for (String annotationDefinition : splitAnnotations) {
 
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED, propertyAnnotations)) {
-                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
-                        isRequired = true;
+                        // #318
+                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
+                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                            isRequired = true;
+                        }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT, propertyAnnotations)) {
                         validateIsBlank(comment);
                         // #311
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
+                            // #324
+                            String valueBetweenQuotes = StringUtils.substringBetween(propertyAnnotations, "\"");
+                            if (valueBetweenQuotes != null) {
+                                comment = valueBetweenQuotes;
+                            }
                             break;
+                        } else {
+                            comment = extractAnnotationValueLegacyStyle(annotationDefinition);
                         }
-                        comment = extractAnnotationValueLegacyStyle(annotationDefinition);
+                        // #317
+                        if (comment != null) {
+                            comment = comment.trim();
+                        }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE, propertyAnnotations)) {
                         validateIsBlank(defaultValue);
@@ -106,8 +119,11 @@ public class Property extends AbstractProperty {
                         validateDoesntStartWithArobase(pattern);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD, propertyAnnotations)) {
-                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
-                        isPassword = true;
+                        // #318
+                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
+                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                            isPassword = true;
+                        }
                     }
                 }
             }
@@ -117,6 +133,13 @@ public class Property extends AbstractProperty {
             property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
+    }
+
+    /**
+     * #318
+     */
+    private static boolean isAnnotationFollowedByPipe(AnnotationType annotationType, String propertyAnnotations) {
+        return propertyAnnotations.toLowerCase().contains("@" + annotationType.getName().toLowerCase() + "|");
     }
 
     private static boolean onlyStartsWithQuotes(String value) {
@@ -149,7 +172,7 @@ public class Property extends AbstractProperty {
         }
     }
 
-    public static boolean startsWithKnownAnnotation(String value) {
+    static boolean startsWithKnownAnnotation(String value) {
         return value
                 .trim()
                 .toLowerCase()
@@ -169,7 +192,7 @@ public class Property extends AbstractProperty {
      * on reproduit le comportement du legacy pour répondre aux cas d'utilisation
      * décrits dans le test unitaire PropertyTest::oldCommentArobase.
      */
-    public static String extractValueBeforeFirstKnownAnnotation(String value) {
+    static String extractValueBeforeFirstKnownAnnotation(String value) {
         String result;
         Matcher matcher = Pattern.compile("@required|@comment|@default|@pattern|@password").matcher(value);
         if (matcher.find()) {
@@ -191,16 +214,21 @@ public class Property extends AbstractProperty {
      * Legacy :
      * <p>
      * Extrait la valeur d'une chaîne de caractères se trouvant avant la première arobase.
+     * Si l'arobase est le premier caractère et si le mot après l'arobase n'est pas la fin de la chaîne ou ne se termine pas par un espace,
+     * on retourne null.
      * Si la valeur passée en paramètre ne contient pas d'arobase,
-     * ou s'il y a un espace juste avant la première arobase,
+     * ou si l'arobase est le premier caractère,
+     * ou s'il y a un espace juste avant la première arobase et si le mot après l'arobase est la fin de la chaîne ou se termine par un espace,
      * on retourne la valeur passée en paramètre telle quelle.
      */
-    public static String extractValueBeforeFirstArobase(String value) {
+    private static String extractValueBeforeFirstArobase(String value) {
         String result = null;
         if (value != null) {
             int firstArobase = value.indexOf("@");
             if (firstArobase > -1) {
-                if (firstArobase > 0 && value.charAt(firstArobase - 1) == ' ') {
+                if (firstArobase == 0 && !arobaseEndsWithSpaceOrIsTheEnd(value.substring(firstArobase))) {
+                    result = null;
+                } else if (firstArobase == 0 || value.charAt(firstArobase - 1) == ' ' && arobaseEndsWithSpaceOrIsTheEnd(value.substring(firstArobase))) {
                     result = value;
                 } else {
                     result = value.substring(0, firstArobase);
@@ -212,8 +240,16 @@ public class Property extends AbstractProperty {
         return result;
     }
 
+    static boolean arobaseEndsWithSpaceOrIsTheEnd(String value) {
+        return Pattern.compile("^@[a-zA-Z]*( |$)").matcher(value).find();
+    }
+
+    /**
+     * Les annotations doivent être précédées d'un espace pour être détecté,
+     * sauf dans le cas de la première annotation.
+     */
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
-        return propertyAnnotations.split("(?=@required|@comment |@default |@pattern |@password)");
+        return propertyAnnotations.split("(^| )(?=@required|@comment |@default |@pattern |@password)");
     }
 
     private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType, String propertyAnnotations) {
@@ -240,7 +276,7 @@ public class Property extends AbstractProperty {
      * on renvoie tout ce qu'il y a entre guillemets, sinon juste le premier mot.
      * S'il n'y a qu'un seul guillemet au début de la valeur, on retourne null.
      */
-    public static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
+    static String extractAnnotationValueLegacyStyle(String annotationDefinition) {
         String result;
         String valueAfterFirstSpace = extractValueAfterFirstSpace(annotationDefinition);
         if (startsWithQuotes(valueAfterFirstSpace)) {
@@ -248,16 +284,13 @@ public class Property extends AbstractProperty {
         } else {
             result = extractFirstWord(valueAfterFirstSpace);
         }
-        if (result != null) {
-            result = result.trim();
-        }
         if (StringUtils.isEmpty(result)) {
             result = null;
         }
         return result;
     }
 
-    public static String extractValueAfterFirstSpace(String value) {
+    private static String extractValueAfterFirstSpace(String value) {
         String result = null;
         if (value != null) {
             String trimmedValue = value.trim();
@@ -272,13 +305,17 @@ public class Property extends AbstractProperty {
     /**
      * Extrait la valeur entres guillemets (simples ou doubles).
      */
-    public static String extractValueBetweenQuotes(String value) {
+    static String extractValueBetweenQuotes(String value) {
         String result = null;
         if (value != null) {
             if (value.startsWith("\"")) {
-                result = extractBetweenFirstAndLast(value, "\"");
+                result = extractBetweenFirstAndNextUnescapedQuotes(value, "\"");
             } else if (value.startsWith("'")) {
-                result = extractBetweenFirstAndLast(value, "'");
+                result = extractBetweenFirstAndNextUnescapedQuotes(value, "'");
+                if (result != null) {
+                    // #320
+                    result = result.replaceAll("\\\"", "\\\\\"");
+                }
             }
             if (result != null) {
                 result = someKindOfEscape(result);
@@ -287,14 +324,25 @@ public class Property extends AbstractProperty {
         return result;
     }
 
-    private static String extractBetweenFirstAndLast(String value, String character) {
+    private static String extractBetweenFirstAndNextUnescapedQuotes(String value, String character) {
         String result = null;
         int first = value.indexOf(character);
-        int last = value.lastIndexOf(character);
-        if (first != last) {
-            result = value.substring(first + 1, last);
+        int next = getNextUnescapedCharacterPosition(value, first + 1, character);
+        if (next > first) {
+            result = value.substring(first + 1, next);
         }
         return result;
+    }
+
+    /**
+     * #321
+     */
+    private static int getNextUnescapedCharacterPosition(String value, int begin, String character) {
+        int position = value.indexOf(character, begin);
+        if (position > 0 && value.charAt(position - 1) == '\\') {
+            position = getNextUnescapedCharacterPosition(value, position + 1, character);
+        }
+        return position;
     }
 
     /**
@@ -333,7 +381,7 @@ public class Property extends AbstractProperty {
         return result;
     }
 
-    public static boolean startsWithQuotes(String value) {
+    private static boolean startsWithQuotes(String value) {
         return value != null && (value.trim().startsWith("\"") || value.trim().startsWith("'"));
     }
 

@@ -156,3 +156,39 @@ Feature: modules related features
     Given an existing module
     When trying to create a template in this module that has a property that is required and with a default value
     Then the creation of the module template that has a property that is required and with a default value is rejected
+
+  Scenario: get the model of a module with a techno's template updated
+    Given an existing techno
+    And a template in this techno that has properties
+    And an existing module
+    And the techno is attached to the module
+    And the techno is updated with new properties
+    When retrieving the model of this module
+    Then the model of this module contains the new properties
+
+  Scenario: get the model of a module with a techno's template deleted
+    Given an existing techno
+    And a template in this techno that has properties
+    And an existing module
+    And the techno is attached to the module
+    And the techno's template is deleted
+    When retrieving the model of this module
+    Then the model of this module does not contain the properties of the deleted techno template
+
+  Scenario: get the model of a module with a techno's template added
+    Given an existing techno
+    And a template in this techno that has properties
+    And an existing module
+    And the techno is attached to the module
+    And a new template is added to this techno
+    When retrieving the model of this module
+    Then the model of this module contains the new properties
+
+  Scenario: get the model of a module with a deleted
+    Given an existing techno
+    And a template in this techno that has properties
+    And an existing module
+    And the techno is attached to the module
+    And the techno is deleted
+    When retrieving the model of this module
+    Then the model of this module does not contain the properties of the deleted techno

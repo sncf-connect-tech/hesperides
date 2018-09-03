@@ -39,8 +39,8 @@ public class ModelOutput {
     Set<PropertyOutput> iterableProperties;
 
     /**
-     * Le legacy distingue plus ou moins les propriétés identiques,
-     * D'où l'utilisation des Set dans cette classe.
+     * Le legacy distingue les propriétés qui ont un nom et un commentaire identiques,
+     * d'où l'utilisation des Set dans cette classe.
      *
      * @param abstractPropertyViews
      */

@@ -16,7 +16,7 @@ public class DeleteATechno extends CucumberSpringBean implements En {
 
     public DeleteATechno() {
         When("^deleting this techno", () -> {
-            rest.getTestRest().delete(technoContext.getTechnoURI());
+            technoContext.deleteTechno();
         });
 
         Then("^the techno is successfully deleted$", () -> {
