@@ -93,7 +93,7 @@ public class Property extends AbstractProperty {
                         // #311
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
                             // #324
-                            String valueBetweenQuotes = StringUtils.substringBetween(propertyAnnotations, "\"");
+                            String valueBetweenQuotes = extractCommentThatStartsWithQuotes(propertyAnnotations);
                             if (valueBetweenQuotes != null) {
                                 comment = valueBetweenQuotes;
                             }
@@ -318,10 +318,19 @@ public class Property extends AbstractProperty {
                 }
             }
             if (result != null) {
-                result = someKindOfEscape(result);
+                result = legacyEscape(result);
             }
         }
         return result;
+    }
+
+    /**
+     * 324
+     */
+    private static String extractCommentThatStartsWithQuotes(String propertyAnnotations) {
+        String annotation = "@comment ";
+        String substring = propertyAnnotations.substring(propertyAnnotations.indexOf(annotation) + annotation.length());
+        return extractValueBetweenQuotes(substring);
     }
 
     private static String extractBetweenFirstAndNextUnescapedQuotes(String value, String character) {
@@ -350,7 +359,7 @@ public class Property extends AbstractProperty {
      * pour la faire fonctionner sans trop savoir comment. À ce niveau c'est de l'humour ^^
      * Si quelqu'un a un peu de temps pour la comprendre et la refaire, bon courage.
      */
-    private static String someKindOfEscape(String str) {
+    private static String legacyEscape(String str) {
         str = "\"" + str + "\"";
         int start = 0;
         int len = str.length();

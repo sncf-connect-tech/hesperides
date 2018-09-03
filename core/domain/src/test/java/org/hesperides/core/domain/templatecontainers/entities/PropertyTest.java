@@ -229,6 +229,7 @@ public class PropertyTest {
         // #318
         assertProperty(new Property("mur.url", false, null, "", "", false),
                 Property.extractProperty("mur.url|@required|url du service mur"));
+
         assertProperty(new Property("thalys.newsletter.password", true, null, "", "", false),
                 Property.extractProperty("thalys.newsletter.password|@required @password|password pour le service de newsletter"));
 
@@ -246,6 +247,9 @@ public class PropertyTest {
         // #324
         assertProperty(new Property("sumon.graphite.enabled", false, "Activation de la publication des metrics SUMON dans graphite @default false", "", "", false),
                 Property.extractProperty("sumon.graphite.enabled|@comment \"Activation de la publication des metrics SUMON dans graphite @default false\""));
+
+        assertProperty(new Property("newrest.key_api_key", false, null, "X-APIKEY", "", false),
+                Property.extractProperty("newrest.key_api_key | @default \"X-APIKEY\" @comment \"Key for send apiKey in header"));
     }
 
     @Test
