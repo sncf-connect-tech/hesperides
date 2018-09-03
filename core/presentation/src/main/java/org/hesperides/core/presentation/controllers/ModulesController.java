@@ -220,8 +220,6 @@ public class ModulesController extends AbstractController {
         List<AbstractPropertyView> abstractPropertyViews = moduleUseCases.getProperties(moduleKey);
         ModelOutput modelOutput = new ModelOutput(abstractPropertyViews);
 
-        //TODO Gérer l'ordre des propriétés ?
-
         return ResponseEntity.ok(modelOutput);
     }
 }
