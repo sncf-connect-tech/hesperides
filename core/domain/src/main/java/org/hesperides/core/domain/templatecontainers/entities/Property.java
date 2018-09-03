@@ -83,7 +83,7 @@ public class Property extends AbstractProperty {
 
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED, propertyAnnotations)) {
                         // #318
-                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
+                        if (annotationIsFollowedBySpace(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
                             validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                             isRequired = true;
                         }
@@ -120,7 +120,7 @@ public class Property extends AbstractProperty {
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD, propertyAnnotations)) {
                         // #318
-                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
+                        if (annotationIsFollowedBySpace(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
                             validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                             isPassword = true;
                         }
@@ -138,8 +138,8 @@ public class Property extends AbstractProperty {
     /**
      * #318
      */
-    private static boolean isAnnotationFollowedByPipe(AnnotationType annotationType, String propertyAnnotations) {
-        return propertyAnnotations.toLowerCase().contains("@" + annotationType.getName().toLowerCase() + "|");
+    private static boolean annotationIsFollowedBySpace(AnnotationType annotationType, String propertyAnnotations) {
+        return Pattern.compile("(?i)(@" + annotationType.getName() + ")(\\s|$)").matcher(propertyAnnotations).find();
     }
 
     private static boolean onlyStartsWithQuotes(String value) {
@@ -194,7 +194,7 @@ public class Property extends AbstractProperty {
      */
     static String extractValueBeforeFirstKnownAnnotation(String value) {
         String result;
-        Matcher matcher = Pattern.compile("@required|@comment|@default|@pattern|@password").matcher(value);
+        Matcher matcher = Pattern.compile("(?i)(@required|@comment|@default|@pattern|@password)").matcher(value);
         if (matcher.find()) {
             int indexOfFirstKnownAnnotation = matcher.start();
             result = value.substring(0, indexOfFirstKnownAnnotation);

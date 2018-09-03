@@ -237,6 +237,9 @@ public class PropertyTest {
         assertProperty(new Property("thalys.newsletter.password", true, null, "", "", false),
                 Property.extractProperty("thalys.newsletter.password|@required @password|password pour le service de newsletter"));
 
+        assertProperty(new Property("sidh.uri", false, "SIDH URL (http://uvsclbh01-vip05:50707/sidh1i/)", "", "", false),
+                Property.extractProperty("sidh.uri|@comment \"SIDH URL (http://uvsclbh01-vip05:50707/sidh1i/)\" @required\""));
+
         // #321
         assertProperty(new Property("authentication.appKey", false, "Aujourd", "", "", false),
                 Property.extractProperty("authentication.appKey | @comment 'Aujourd'hui'"));
