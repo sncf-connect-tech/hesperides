@@ -225,6 +225,8 @@ public class PropertyTest {
         // #318
         assertProperty(new Property("mur.url", false, null, "", "", false),
                 Property.extractProperty("mur.url|@required|url du service mur"));
+        assertProperty(new Property("thalys.newsletter.password", true, null, "", "", false),
+                Property.extractProperty("thalys.newsletter.password|@required @password|password pour le service de newsletter"));
 
         // #321
         assertProperty(new Property("authentication.appKey", false, "Aujourd", "", "", false),

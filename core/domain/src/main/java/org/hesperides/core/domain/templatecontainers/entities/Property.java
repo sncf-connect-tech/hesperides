@@ -113,8 +113,11 @@ public class Property extends AbstractProperty {
                         validateDoesntStartWithArobase(pattern);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD, propertyAnnotations)) {
-                        validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
-                        isPassword = true;
+                        // #318
+                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
+                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                            isPassword = true;
+                        }
                     }
                 }
             }
