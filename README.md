@@ -28,9 +28,9 @@ Pour lancer l'application sur un poste de dev, nous utilisons IntelliJ Ultimate 
 * Maven
 * Kotlin
 * Lombok
-* Spring Boot, Data, MVC, Security
-* Spring Data, MVC, Security
-* Spring MVC, Security
+* Spring Boot
+* Spring Data
+* Spring MVC
 * Spring Security
 * Cucumber for Java
 
