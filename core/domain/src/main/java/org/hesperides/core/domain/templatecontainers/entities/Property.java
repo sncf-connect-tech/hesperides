@@ -83,7 +83,7 @@ public class Property extends AbstractProperty {
 
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED, propertyAnnotations)) {
                         // #318
-                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
+                        if (annotationIsFollowedBySpace(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
                             validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                             isRequired = true;
                         }
@@ -93,7 +93,7 @@ public class Property extends AbstractProperty {
                         // #311
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
                             // #324
-                            String valueBetweenQuotes = StringUtils.substringBetween(propertyAnnotations, "\"");
+                            String valueBetweenQuotes = extractCommentThatStartsWithQuotes(propertyAnnotations);
                             if (valueBetweenQuotes != null) {
                                 comment = valueBetweenQuotes;
                             }
@@ -120,7 +120,7 @@ public class Property extends AbstractProperty {
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD, propertyAnnotations)) {
                         // #318
-                        if (!isAnnotationFollowedByPipe(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
+                        if (annotationIsFollowedBySpace(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
                             validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
                             isPassword = true;
                         }
@@ -138,8 +138,8 @@ public class Property extends AbstractProperty {
     /**
      * #318
      */
-    private static boolean isAnnotationFollowedByPipe(AnnotationType annotationType, String propertyAnnotations) {
-        return propertyAnnotations.toLowerCase().contains("@" + annotationType.getName().toLowerCase() + "|");
+    private static boolean annotationIsFollowedBySpace(AnnotationType annotationType, String propertyAnnotations) {
+        return Pattern.compile("(?i)(@" + annotationType.getName() + ")(\\s|$)").matcher(propertyAnnotations).find();
     }
 
     private static boolean onlyStartsWithQuotes(String value) {
@@ -194,7 +194,7 @@ public class Property extends AbstractProperty {
      */
     static String extractValueBeforeFirstKnownAnnotation(String value) {
         String result;
-        Matcher matcher = Pattern.compile("@required|@comment|@default|@pattern|@password").matcher(value);
+        Matcher matcher = Pattern.compile("(?i)(@required|@comment|@default|@pattern|@password)").matcher(value);
         if (matcher.find()) {
             int indexOfFirstKnownAnnotation = matcher.start();
             result = value.substring(0, indexOfFirstKnownAnnotation);
@@ -249,7 +249,7 @@ public class Property extends AbstractProperty {
      * sauf dans le cas de la première annotation.
      */
     private static String[] splitAnnotationsButKeepDelimiters(String propertyAnnotations) {
-        return propertyAnnotations.split("(^| )(?=@required|@comment |@default |@pattern |@password)");
+        return propertyAnnotations.split("(^| )((?i)(?=@required|@comment |@default |@pattern |@password))");
     }
 
     private static boolean annotationDefinitionStartsWith(String annotationDefinition, AnnotationType annotationType, String propertyAnnotations) {
@@ -318,10 +318,19 @@ public class Property extends AbstractProperty {
                 }
             }
             if (result != null) {
-                result = someKindOfEscape(result);
+                result = legacyEscape(result);
             }
         }
         return result;
+    }
+
+    /**
+     * 324
+     */
+    private static String extractCommentThatStartsWithQuotes(String propertyAnnotations) {
+        String annotation = "@comment ";
+        String substring = propertyAnnotations.substring(propertyAnnotations.indexOf(annotation) + annotation.length());
+        return extractValueBetweenQuotes(substring);
     }
 
     private static String extractBetweenFirstAndNextUnescapedQuotes(String value, String character) {
@@ -350,7 +359,7 @@ public class Property extends AbstractProperty {
      * pour la faire fonctionner sans trop savoir comment. À ce niveau c'est de l'humour ^^
      * Si quelqu'un a un peu de temps pour la comprendre et la refaire, bon courage.
      */
-    private static String someKindOfEscape(String str) {
+    private static String legacyEscape(String str) {
         str = "\"" + str + "\"";
         int start = 0;
         int len = str.length();
@@ -388,13 +397,7 @@ public class Property extends AbstractProperty {
     private static String extractFirstWord(String value) {
         String result = null;
         if (value != null) {
-            String trimmedValue = value.trim();
-            int indexOfFirstSpace = trimmedValue.indexOf(" ");
-            if (indexOfFirstSpace != -1) {
-                result = trimmedValue.substring(0, indexOfFirstSpace).trim();
-            } else {
-                result = trimmedValue;
-            }
+            result = value.trim().split("\\s")[0];
         }
         return result;
     }

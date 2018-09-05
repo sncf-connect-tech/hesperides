@@ -162,6 +162,14 @@ public class PropertyTest {
 
         assertProperty(new Property("comment wrapped with double quotes but containing simple quotes", false, "exemple: 'Bonjour'", "", "", false),
                 Property.extractProperty("comment wrapped with double quotes but containing simple quotes|@comment \"exemple: 'Bonjour'\""));
+
+        // #326
+        assertProperty(new Property("prop", false, "Foo", "", "", false),
+                Property.extractProperty("prop|@comment Foo\tbar"));
+
+        // #327
+        assertProperty(new Property("passengerType.companion.list", false, "Comma-separated list of passenger type (paxtype) to be considered as companion passengers.", "GG99AD", "", false),
+                Property.extractProperty("passengerType.companion.list|@Default \"GG99AD\" @Comment \"Comma-separated list of passenger type (paxtype) to be considered as companion passengers.\""));
     }
 
     @Test
@@ -225,8 +233,12 @@ public class PropertyTest {
         // #318
         assertProperty(new Property("mur.url", false, null, "", "", false),
                 Property.extractProperty("mur.url|@required|url du service mur"));
+
         assertProperty(new Property("thalys.newsletter.password", true, null, "", "", false),
                 Property.extractProperty("thalys.newsletter.password|@required @password|password pour le service de newsletter"));
+
+        assertProperty(new Property("sidh.uri", false, "SIDH URL (http://uvsclbh01-vip05:50707/sidh1i/)", "", "", false),
+                Property.extractProperty("sidh.uri|@comment \"SIDH URL (http://uvsclbh01-vip05:50707/sidh1i/)\" @required\""));
 
         // #321
         assertProperty(new Property("authentication.appKey", false, "Aujourd", "", "", false),
@@ -242,6 +254,9 @@ public class PropertyTest {
         // #324
         assertProperty(new Property("sumon.graphite.enabled", false, "Activation de la publication des metrics SUMON dans graphite @default false", "", "", false),
                 Property.extractProperty("sumon.graphite.enabled|@comment \"Activation de la publication des metrics SUMON dans graphite @default false\""));
+
+        assertProperty(new Property("newrest.key_api_key", false, null, "X-APIKEY", "", false),
+                Property.extractProperty("newrest.key_api_key | @default \"X-APIKEY\" @comment \"Key for send apiKey in header"));
     }
 
     @Test
