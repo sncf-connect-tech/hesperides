@@ -15,7 +15,7 @@ Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesp
 
 **The project is currently being rework**
 
-See branch `feature/springboot` for the new version under construction
+See branch `develop` for the new version under construction
 
 See branch `master` for the production version 
 
@@ -52,6 +52,8 @@ Vous pourrez alors lancer l'application avec les profils Spring **noldap** et **
  And :
  
  * MongoDB
+
+Or just launch the application with those Spring Profiles: noldap, fake_mongo
 
 ## Build
 
