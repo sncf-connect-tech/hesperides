@@ -1,21 +1,21 @@
-package org.hesperides.infrastructure.mongo.workshopproperties;
+package org.hesperides.core.infrastructure.mongo.workshopproperties;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.GetWorkshopPropertyByKeyQuery;
-import org.hesperides.domain.WorkshopPropertyCreatedEvent;
-import org.hesperides.domain.WorkshopPropertyExistsQuery;
-import org.hesperides.domain.WorkshopPropertyUpdatedEvent;
-import org.hesperides.domain.workshopproperties.WorkshopPropertyProjectionRepository;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.core.domain.GetWorkshopPropertyByKeyQuery;
+import org.hesperides.core.domain.WorkshopPropertyCreatedEvent;
+import org.hesperides.core.domain.WorkshopPropertyExistsQuery;
+import org.hesperides.core.domain.WorkshopPropertyUpdatedEvent;
+import org.hesperides.core.domain.workshopproperties.WorkshopPropertyProjectionRepository;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static org.hesperides.domain.framework.Profiles.FAKE_MONGO;
-import static org.hesperides.domain.framework.Profiles.MONGO;
+import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository

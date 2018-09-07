@@ -1,9 +1,9 @@
-package org.hesperides.domain
+package org.hesperides.core.domain
 
 import org.axonframework.commandhandling.TargetAggregateIdentifier
-import org.hesperides.domain.security.User
-import org.hesperides.domain.security.UserEvent
-import org.hesperides.domain.workshopproperties.entities.WorkshopProperty
+import org.hesperides.core.domain.security.User
+import org.hesperides.core.domain.security.UserEvent
+import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty
 
 // Command
 data class CreateWorkshopPropertyCommand(val workshopProperty: WorkshopProperty, val user: User)

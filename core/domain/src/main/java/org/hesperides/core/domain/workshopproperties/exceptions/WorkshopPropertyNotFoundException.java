@@ -1,6 +1,6 @@
-package org.hesperides.domain.workshopproperties.exceptions;
+package org.hesperides.core.domain.workshopproperties.exceptions;
 
-import org.hesperides.domain.exceptions.NotFoundException;
+import org.hesperides.core.domain.exceptions.NotFoundException;
 
 public class WorkshopPropertyNotFoundException extends NotFoundException {
     public WorkshopPropertyNotFoundException(String key) {

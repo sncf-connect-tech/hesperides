@@ -18,17 +18,17 @@
  *
  *
  */
-package org.hesperides.domain.workshopproperties.queries;
+package org.hesperides.core.domain.workshopproperties.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
-import org.hesperides.domain.GetWorkshopPropertyByKeyQuery;
-import org.hesperides.domain.WorkshopPropertyExistsQuery;
-import org.hesperides.domain.framework.Queries;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.commons.axon.AxonQueries;
+import org.hesperides.core.domain.GetWorkshopPropertyByKeyQuery;
+import org.hesperides.core.domain.WorkshopPropertyExistsQuery;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WorkshopPropertyQueries extends Queries {
+public class WorkshopPropertyQueries extends AxonQueries {
 
     protected WorkshopPropertyQueries(QueryGateway queryGateway) {
         super(queryGateway);

@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.domain.workshopproperties.commands;
+package org.hesperides.core.domain.workshopproperties.commands;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +26,11 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.domain.CreateWorkshopPropertyCommand;
-import org.hesperides.domain.UpdateWorkshopPropertyCommand;
-import org.hesperides.domain.WorkshopPropertyCreatedEvent;
-import org.hesperides.domain.WorkshopPropertyUpdatedEvent;
-import org.hesperides.domain.workshopproperties.entities.WorkshopProperty;
+import org.hesperides.core.domain.CreateWorkshopPropertyCommand;
+import org.hesperides.core.domain.UpdateWorkshopPropertyCommand;
+import org.hesperides.core.domain.WorkshopPropertyCreatedEvent;
+import org.hesperides.core.domain.WorkshopPropertyUpdatedEvent;
+import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty;
 
 import java.io.Serializable;
 

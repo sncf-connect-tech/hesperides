@@ -1,4 +1,4 @@
-package org.hesperides.domain.workshopproperties.entities;
+package org.hesperides.core.domain.workshopproperties.entities;
 
 import lombok.Value;
 

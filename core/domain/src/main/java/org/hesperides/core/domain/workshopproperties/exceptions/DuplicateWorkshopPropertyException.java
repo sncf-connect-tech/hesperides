@@ -1,6 +1,6 @@
-package org.hesperides.domain.workshopproperties.exceptions;
+package org.hesperides.core.domain.workshopproperties.exceptions;
 
-import org.hesperides.domain.exceptions.DuplicateException;
+import org.hesperides.core.domain.exceptions.DuplicateException;
 
 public class DuplicateWorkshopPropertyException extends DuplicateException {
     public DuplicateWorkshopPropertyException(String key) {

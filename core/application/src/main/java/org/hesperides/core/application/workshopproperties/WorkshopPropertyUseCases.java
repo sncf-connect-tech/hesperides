@@ -1,12 +1,12 @@
-package org.hesperides.application.workshopproperties;
+package org.hesperides.core.application.workshopproperties;
 
-import org.hesperides.domain.security.User;
-import org.hesperides.domain.workshopproperties.commands.WorkshopPropertyCommands;
-import org.hesperides.domain.workshopproperties.entities.WorkshopProperty;
-import org.hesperides.domain.workshopproperties.exceptions.DuplicateWorkshopPropertyException;
-import org.hesperides.domain.workshopproperties.exceptions.WorkshopPropertyNotFoundException;
-import org.hesperides.domain.workshopproperties.queries.WorkshopPropertyQueries;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.workshopproperties.commands.WorkshopPropertyCommands;
+import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty;
+import org.hesperides.core.domain.workshopproperties.exceptions.DuplicateWorkshopPropertyException;
+import org.hesperides.core.domain.workshopproperties.exceptions.WorkshopPropertyNotFoundException;
+import org.hesperides.core.domain.workshopproperties.queries.WorkshopPropertyQueries;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

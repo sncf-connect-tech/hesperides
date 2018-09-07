@@ -1,8 +1,8 @@
-package org.hesperides.presentation.controllers;
+package org.hesperides.core.presentation.controllers;
 
-import org.hesperides.application.workshopproperties.WorkshopPropertyUseCases;
-import org.hesperides.domain.workshopproperties.entities.WorkshopProperty;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.core.application.workshopproperties.WorkshopPropertyUseCases;
+import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.hesperides.presentation.io.WorkshopPropertyInput;
 import org.hesperides.presentation.io.WorkshopPropertyOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static org.hesperides.domain.security.User.fromAuthentication;
+import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @RequestMapping("/workshop/properties")
 @RestController

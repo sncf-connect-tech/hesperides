@@ -1,4 +1,4 @@
-package org.hesperides.domain.workshopproperties.queries.views;
+package org.hesperides.core.domain.workshopproperties.queries.views;
 
 import lombok.Value;
 

@@ -18,11 +18,11 @@
  *
  *
  */
-package org.hesperides.infrastructure.mongo.workshopproperties;
+package org.hesperides.core.infrastructure.mongo.workshopproperties;
 
 import lombok.Data;
-import org.hesperides.domain.workshopproperties.entities.WorkshopProperty;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

@@ -2,7 +2,7 @@ package org.hesperides.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 
 @Value
 public class WorkshopPropertyOutput {

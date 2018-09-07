@@ -1,12 +1,12 @@
-package org.hesperides.domain.workshopproperties;
+package org.hesperides.core.domain.workshopproperties;
 
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.domain.GetWorkshopPropertyByKeyQuery;
-import org.hesperides.domain.WorkshopPropertyCreatedEvent;
-import org.hesperides.domain.WorkshopPropertyExistsQuery;
-import org.hesperides.domain.WorkshopPropertyUpdatedEvent;
-import org.hesperides.domain.workshopproperties.queries.views.WorkshopPropertyView;
+import org.hesperides.core.domain.GetWorkshopPropertyByKeyQuery;
+import org.hesperides.core.domain.WorkshopPropertyCreatedEvent;
+import org.hesperides.core.domain.WorkshopPropertyExistsQuery;
+import org.hesperides.core.domain.WorkshopPropertyUpdatedEvent;
+import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 
 public interface WorkshopPropertyProjectionRepository {
 
