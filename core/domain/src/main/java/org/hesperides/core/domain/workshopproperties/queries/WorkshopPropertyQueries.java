@@ -22,9 +22,6 @@ package org.hesperides.core.domain.workshopproperties.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
-import org.hesperides.core.domain.GetWorkshopPropertyByKeyQuery;
-import org.hesperides.core.domain.WorkshopPropertyExistsQuery;
-import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,11 +31,4 @@ public class WorkshopPropertyQueries extends AxonQueries {
         super(queryGateway);
     }
 
-    public boolean workshopPropertyExists(String workshopPropertyKey) {
-        return querySync(new WorkshopPropertyExistsQuery(workshopPropertyKey), Boolean.class);
-    }
-
-    public WorkshopPropertyView getWorkshopProperty(String workshopPropertyKey) {
-        return querySync(new GetWorkshopPropertyByKeyQuery(workshopPropertyKey), WorkshopPropertyView.class);
-    }
 }

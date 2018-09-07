@@ -1,18 +1,9 @@
 package org.hesperides.core.infrastructure.mongo.workshopproperties;
 
-import org.axonframework.eventsourcing.EventSourcingHandler;
-import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.GetWorkshopPropertyByKeyQuery;
-import org.hesperides.core.domain.WorkshopPropertyCreatedEvent;
-import org.hesperides.core.domain.WorkshopPropertyExistsQuery;
-import org.hesperides.core.domain.WorkshopPropertyUpdatedEvent;
 import org.hesperides.core.domain.workshopproperties.WorkshopPropertyProjectionRepository;
-import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
@@ -30,37 +21,4 @@ public class MongoWorkshopPropertyProjectionRepository implements WorkshopProper
 
     /*** EVENT HANDLERS ***/
 
-    @EventSourcingHandler
-    @Override
-    public void on(WorkshopPropertyCreatedEvent event) {
-        WorkshopPropertyDocument workshopPropertyDocument = WorkshopPropertyDocument.fromDomainInstance(event.getWorkshopProperty());
-        workshopPropertyRepository.save(workshopPropertyDocument);
-    }
-
-    @EventSourcingHandler
-    @Override
-    public void on(WorkshopPropertyUpdatedEvent event) {
-        WorkshopPropertyDocument workshopPropertyDocument = WorkshopPropertyDocument.fromDomainInstance(event.getWorkshopProperty());
-        workshopPropertyRepository.save(workshopPropertyDocument);
-    }
-
-    /*** QUERY HANDLERS ***/
-
-    @QueryHandler
-    @Override
-    public Boolean query(WorkshopPropertyExistsQuery query) {
-        Optional<WorkshopPropertyDocument> optionalWorkshopPropertyDocument = workshopPropertyRepository.findOptionalByKey(query.getKey());
-        return optionalWorkshopPropertyDocument.isPresent();
-    }
-
-    @QueryHandler
-    @Override
-    public WorkshopPropertyView query(GetWorkshopPropertyByKeyQuery query) {
-        WorkshopPropertyView workshopPropertyView = null;
-        WorkshopPropertyDocument workshopPropertyDocument = workshopPropertyRepository.findByKey(query.getKey());
-        if (workshopPropertyDocument != null) {
-            workshopPropertyView = workshopPropertyDocument.toWorkshopPropertyView();
-        }
-        return workshopPropertyView;
-    }
 }

@@ -22,61 +22,12 @@ package org.hesperides.core.domain.workshopproperties.commands;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.core.domain.CreateWorkshopPropertyCommand;
-import org.hesperides.core.domain.UpdateWorkshopPropertyCommand;
-import org.hesperides.core.domain.WorkshopPropertyCreatedEvent;
-import org.hesperides.core.domain.WorkshopPropertyUpdatedEvent;
-import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty;
 
 import java.io.Serializable;
-
-import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 @Slf4j
 @Aggregate
 @NoArgsConstructor
 public class WorkshopPropertyAggregate implements Serializable {
-
-    @AggregateIdentifier
-    private String key;
-
-    @CommandHandler
-    public WorkshopPropertyAggregate(CreateWorkshopPropertyCommand command) {
-
-        WorkshopProperty processedWorkshopProperty = new WorkshopProperty(
-                command.getWorkshopProperty().getKey(),
-                command.getWorkshopProperty().getValue(),
-                command.getWorkshopProperty().getKey() + command.getWorkshopProperty().getValue()
-        );
-
-        apply(new WorkshopPropertyCreatedEvent(processedWorkshopProperty, command.getUser()));
-    }
-
-    @CommandHandler
-    public void handle(UpdateWorkshopPropertyCommand command) {
-
-        WorkshopProperty processedWorkshopProperty = new WorkshopProperty(
-                command.getWorkshopProperty().getKey(),
-                command.getWorkshopProperty().getValue(),
-                command.getWorkshopProperty().getKey() + command.getWorkshopProperty().getValue()
-        );
-
-        apply(new WorkshopPropertyUpdatedEvent(processedWorkshopProperty, command.getUser()));
-    }
-
-    @EventSourcingHandler
-    public void on(WorkshopPropertyCreatedEvent event) {
-        this.key = event.getWorkshopProperty().getKey();
-        log.debug("Workshop property created");
-    }
-
-    @EventSourcingHandler
-    public void on(WorkshopPropertyUpdatedEvent event) {
-        this.key = event.getWorkshopProperty().getKey();
-        log.debug("Workshop property updated");
-    }
 }
