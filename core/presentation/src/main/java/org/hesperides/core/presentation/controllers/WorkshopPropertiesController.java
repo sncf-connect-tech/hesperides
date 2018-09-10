@@ -1,8 +1,8 @@
 package org.hesperides.core.presentation.controllers;
 
 import org.hesperides.core.application.workshopproperties.WorkshopPropertyUseCases;
-import org.hesperides.presentation.io.WorkshopPropertyInput;
-import org.hesperides.presentation.io.WorkshopPropertyOutput;
+import org.hesperides.core.presentation.io.WorkshopPropertyInput;
+import org.hesperides.core.presentation.io.WorkshopPropertyOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

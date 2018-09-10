@@ -20,8 +20,8 @@
  */
 package org.hesperides.tests.bdd.workshopproperties.samples;
 
-import org.hesperides.presentation.io.WorkshopPropertyInput;
-import org.hesperides.presentation.io.WorkshopPropertyOutput;
+import org.hesperides.core.presentation.io.WorkshopPropertyInput;
+import org.hesperides.core.presentation.io.WorkshopPropertyOutput;
 
 public class WorkshopPropertySamples {
     public static final String DEFAULT_KEY = "key";

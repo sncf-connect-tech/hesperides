@@ -1,4 +1,4 @@
-package org.hesperides.presentation.io;
+package org.hesperides.core.presentation.io;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;

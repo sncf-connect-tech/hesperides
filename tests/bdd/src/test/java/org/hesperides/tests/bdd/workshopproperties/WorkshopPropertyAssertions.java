@@ -20,7 +20,7 @@
  */
 package org.hesperides.tests.bdd.workshopproperties;
 
-import org.hesperides.presentation.io.WorkshopPropertyOutput;
+import org.hesperides.core.presentation.io.WorkshopPropertyOutput;
 
 import static org.junit.Assert.assertEquals;
 

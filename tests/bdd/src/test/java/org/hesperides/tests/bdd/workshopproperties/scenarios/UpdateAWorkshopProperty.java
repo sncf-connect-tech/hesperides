@@ -1,8 +1,8 @@
 package org.hesperides.tests.bdd.workshopproperties.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.presentation.io.WorkshopPropertyInput;
-import org.hesperides.presentation.io.WorkshopPropertyOutput;
+import org.hesperides.core.presentation.io.WorkshopPropertyInput;
+import org.hesperides.core.presentation.io.WorkshopPropertyOutput;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.workshopproperties.WorkshopPropertyAssertions;
 import org.hesperides.tests.bdd.workshopproperties.contexts.WorkshopPropertyContext;
