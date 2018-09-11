@@ -5,14 +5,19 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-public class TechnoContext extends CucumberSpringBean implements En {
+public class TechnoContext implements En {
 
     private TemplateContainer.Key technoKey;
+  
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     public TechnoContext() {
         Given("^an existing techno$", () -> {

@@ -3,7 +3,8 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
@@ -16,10 +17,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SearchATechno extends CucumberSpringBean implements En {
+public class SearchATechno implements En {
 
     @Autowired
     private TechnoContext technoContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     private ResponseEntity<TechnoIO[]> response;
 

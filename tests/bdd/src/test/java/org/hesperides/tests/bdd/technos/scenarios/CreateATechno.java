@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class CreateATechno extends CucumberSpringBean implements En {
+public class CreateATechno implements En {
 
     @Autowired
     private TechnoContext technoContext;

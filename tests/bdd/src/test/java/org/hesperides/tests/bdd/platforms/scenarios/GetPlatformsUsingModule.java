@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformInput;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetPlatformsUsingModule extends CucumberSpringBean implements En {
+public class GetPlatformsUsingModule implements En {
     @Autowired
     private PlatformContext platformContext;
 

@@ -5,21 +5,23 @@ import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.ModuleSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-public class ModuleContext extends CucumberSpringBean implements En {
+public class ModuleContext implements En {
 
     private TemplateContainer.Key moduleKey;
 
+    @Autowired  
     private TechnoContext technoContext;
-
+  
     @Autowired
-    public ModuleContext(final TechnoContext technoContext) {
+    private HesperidesTestRestTemplate rest;
 
+    public ModuleContext() {
         Given("^an existing module$", (StepdefBody.A0) this::createModule);
 
         Given("^a module that is released$", () -> {

@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class HesperideTestRestTemplate {
+public class HesperidesTestRestTemplate {
 
     private final TestRestTemplate rest;
     private final ResponseErrorHandler noopResponseHandler;
 
-    public HesperideTestRestTemplate(TestRestTemplate rest) {
+    public HesperidesTestRestTemplate(TestRestTemplate rest) {
         super();
         this.rest = rest;
         this.noopResponseHandler = rest.getRestTemplate().getErrorHandler();

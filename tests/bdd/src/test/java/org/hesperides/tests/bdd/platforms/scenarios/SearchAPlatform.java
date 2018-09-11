@@ -3,7 +3,8 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformInput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,13 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 
-public class SearchAPlatform extends CucumberSpringBean implements En {
+public class SearchAPlatform implements En {
 
     @Autowired
     private PlatformContext platformContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
+
     private ResponseEntity<SearchResultOutput[]> response;
 
     public SearchAPlatform() {

@@ -24,13 +24,17 @@ import cucumber.api.java8.En;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.*;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-public class PlatformContext extends CucumberSpringBean implements En {
+public class PlatformContext implements En {
 
     private Platform.Key platformKey;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     public PlatformContext() {
         Given("^an existing platform", () -> {

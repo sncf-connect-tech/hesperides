@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformInput;
 import org.hesperides.core.presentation.io.platforms.PlatformOutput;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.platforms.PlatformAssertions;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.*;
 
-public class UpdateAPlatform extends CucumberSpringBean implements En {
+public class UpdateAPlatform implements En {
 
     @Autowired
     private PlatformContext platformContext;
