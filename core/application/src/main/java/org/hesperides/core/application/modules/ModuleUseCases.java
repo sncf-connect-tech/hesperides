@@ -57,8 +57,7 @@ public class ModuleUseCases {
     }
 
     public void updateModuleTechnos(Module module, User user) {
-        Optional<ModuleView> optionalModuleView = queries.getOptionalModule(module.getKey());
-        if (!optionalModuleView.isPresent()) {
+        if (!queries.moduleExists(module.getKey())) {
             throw new ModuleNotFoundException(module.getKey());
         }
         verifyTechnosExistence(module.getTechnos());

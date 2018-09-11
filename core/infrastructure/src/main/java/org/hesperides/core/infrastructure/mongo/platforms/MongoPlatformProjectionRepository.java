@@ -60,13 +60,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     public Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query) {
-        Optional<PlatformView> optionalPlatformView = Optional.empty();
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        Optional<PlatformDocument> optionalPlatformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
-        if (optionalPlatformDocument.isPresent()) {
-            optionalPlatformView = Optional.of(optionalPlatformDocument.get().toPlatformView());
-        }
-        return optionalPlatformView;
+        return platformRepository.findOptionalByKey(platformKeyDocument)
+                .map(PlatformDocument::toPlatformView);
     }
 
     @QueryHandler

@@ -29,7 +29,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
-    List<ModuleDocument> findAllByKeyNameLikeAndAndKeyVersionLike(String name, String version, Pageable pageable);
+    List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
     @Query(value = "{'technos.$id': ?0}")
     List<ModuleDocument> findAllByTechnosKey(KeyDocument technoKey);

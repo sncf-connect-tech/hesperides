@@ -74,13 +74,9 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query) {
-        Optional<ModuleView> optionalModuleView = Optional.empty();
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKey(keyDocument);
-        if (optionalModuleDocument.isPresent()) {
-            optionalModuleView = Optional.of(optionalModuleDocument.get().toModuleView());
-        }
-        return optionalModuleView;
+        return moduleRepository.findOptionalByKey(keyDocument)
+                .map(ModuleDocument::toModuleView);
     }
 
     @QueryHandler
@@ -126,7 +122,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         String version = values.length >= 2 ? values[1] : "";
 
         Pageable pageable = new PageRequest(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
-        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndAndKeyVersionLike(name, version, pageable);
+        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable);
         return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
     }
 
