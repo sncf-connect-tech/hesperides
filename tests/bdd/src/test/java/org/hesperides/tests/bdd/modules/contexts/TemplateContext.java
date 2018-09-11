@@ -2,7 +2,8 @@ package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,10 +11,13 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class TemplateContext extends CucumberSpringBean implements En {
+public class TemplateContext implements En {
 
     @Autowired
     private ModuleContext moduleContext;
+
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     public TemplateContext() {
         Given("^an existing template in this module$", () -> {

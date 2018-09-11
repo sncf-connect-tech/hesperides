@@ -2,7 +2,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.ModuleAssertions;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,12 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetModuleInfo extends CucumberSpringBean implements En {
+public class GetModuleInfo implements En {
 
     @Autowired
     private ModuleContext moduleContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     private ResponseEntity<ModuleIO> response;
 

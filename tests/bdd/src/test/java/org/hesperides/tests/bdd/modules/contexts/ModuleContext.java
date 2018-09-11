@@ -4,18 +4,21 @@ import cucumber.api.java8.En;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.ModuleSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-public class ModuleContext extends CucumberSpringBean implements En {
+public class ModuleContext implements En {
 
     private TemplateContainer.Key moduleKey;
 
     @Autowired
     private TechnoContext technoContext;
+
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     public ModuleContext() {
 

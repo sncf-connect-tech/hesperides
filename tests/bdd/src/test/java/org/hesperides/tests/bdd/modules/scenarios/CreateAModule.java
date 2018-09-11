@@ -3,7 +3,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.modules.ModuleAssertions;
 import org.hesperides.tests.bdd.modules.ModuleSamples;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class CreateAModule extends CucumberSpringBean implements En {
+public class CreateAModule implements En {
 
     @Autowired
     private ModuleContext moduleContext;

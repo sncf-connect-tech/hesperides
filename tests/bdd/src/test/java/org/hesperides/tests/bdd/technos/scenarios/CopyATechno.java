@@ -5,7 +5,8 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.TechnoAssertions;
 import org.hesperides.tests.bdd.technos.TechnosSamples;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
@@ -15,10 +16,12 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class CopyATechno extends CucumberSpringBean implements En {
+public class CopyATechno implements En {
 
     @Autowired
     private TechnoContext technoContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     private ResponseEntity<TechnoIO> response;
 

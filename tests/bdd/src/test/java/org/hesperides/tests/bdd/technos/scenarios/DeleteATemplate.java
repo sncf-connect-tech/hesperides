@@ -1,7 +1,8 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,12 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class DeleteATemplate extends CucumberSpringBean implements En {
+public class DeleteATemplate implements En {
 
     @Autowired
     private TechnoContext technoContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     public DeleteATemplate() {
         When("^deleting the template in this techno$", () -> {

@@ -3,7 +3,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,12 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetTemplates extends CucumberSpringBean implements En {
+public class GetTemplates implements En {
 
     @Autowired
     private TemplateContext templateContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     private ResponseEntity<PartialTemplateIO[]> response;
     private List<TemplateIO> templateInputs = new ArrayList<>();

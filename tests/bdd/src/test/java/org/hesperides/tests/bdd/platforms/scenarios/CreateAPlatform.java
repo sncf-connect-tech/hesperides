@@ -4,7 +4,7 @@ import cucumber.api.java8.En;
 import org.hamcrest.Matchers;
 import org.hesperides.core.presentation.io.platforms.PlatformInput;
 import org.hesperides.core.presentation.io.platforms.PlatformOutput;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.platforms.PlatformAssertions;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class CreateAPlatform extends CucumberSpringBean implements En {
+public class CreateAPlatform implements En {
 
     @Autowired
     private PlatformContext platformContext;

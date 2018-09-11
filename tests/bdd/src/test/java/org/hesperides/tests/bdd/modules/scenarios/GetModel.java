@@ -4,7 +4,8 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberSpringBean;
+import org.hesperides.tests.bdd.CucumberTests;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetModel extends CucumberSpringBean implements En {
+public class GetModel implements En {
 
     @Autowired
     private ModuleContext moduleContext;
@@ -26,6 +27,8 @@ public class GetModel extends CucumberSpringBean implements En {
     private TemplateContext templateContext;
     @Autowired
     private TechnoContext technoContext;
+    @Autowired
+    private HesperidesTestRestTemplate rest;
 
     private ResponseEntity<ModelOutput> response;
     private ResponseEntity failResponse;
