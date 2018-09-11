@@ -22,6 +22,7 @@ package org.hesperides.core.domain.workshopproperties.commands;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.spring.stereotype.Aggregate;
 
 import java.io.Serializable;
@@ -30,4 +31,7 @@ import java.io.Serializable;
 @Aggregate
 @NoArgsConstructor
 public class WorkshopPropertyAggregate implements Serializable {
+
+    @AggregateIdentifier
+    private String key;
 }

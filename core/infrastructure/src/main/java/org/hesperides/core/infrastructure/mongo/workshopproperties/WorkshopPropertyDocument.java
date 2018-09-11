@@ -21,12 +21,14 @@
 package org.hesperides.core.infrastructure.mongo.workshopproperties;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.workshopproperties.entities.WorkshopProperty;
 import org.hesperides.core.domain.workshopproperties.queries.views.WorkshopPropertyView;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@NoArgsConstructor
 @Document(collection = "workshopproperties")
 public class WorkshopPropertyDocument {
 
@@ -35,12 +37,10 @@ public class WorkshopPropertyDocument {
     private String value;
     private String keyValue;
 
-    public static WorkshopPropertyDocument fromDomainInstance(WorkshopProperty workshopProperty) {
-        WorkshopPropertyDocument workshopPropertyDocument = new WorkshopPropertyDocument();
-        workshopPropertyDocument.setKey(workshopProperty.getKey());
-        workshopPropertyDocument.setValue(workshopProperty.getValue());
-        workshopPropertyDocument.setKeyValue(workshopProperty.getKeyValue());
-        return workshopPropertyDocument;
+    public WorkshopPropertyDocument(WorkshopProperty workshopProperty) {
+        this.key = workshopProperty.getKey();
+        this.value = workshopProperty.getValue();
+        this.keyValue = workshopProperty.getKeyValue();
     }
 
     public WorkshopPropertyView toWorkshopPropertyView() {

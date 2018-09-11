@@ -11,11 +11,9 @@ public class WorkshopPropertyOutput {
     @SerializedName("key_value")
     String keyValue;
 
-    public static WorkshopPropertyOutput fromWorkshopPropertyView(WorkshopPropertyView workshopPropertyView) {
-        return new WorkshopPropertyOutput(
-                workshopPropertyView.getKey(),
-                workshopPropertyView.getValue(),
-                workshopPropertyView.getKeyValue()
-        );
+    public WorkshopPropertyOutput(WorkshopPropertyView workshopPropertyView) {
+        this.key = workshopPropertyView.getKey();
+        this.value = workshopPropertyView.getValue();
+        this.keyValue = workshopPropertyView.getKeyValue();
     }
 }
