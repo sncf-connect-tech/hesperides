@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
+import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
@@ -16,9 +17,7 @@ public class TemplateContext extends CucumberSpringBean implements En {
     private ModuleContext moduleContext;
 
     public TemplateContext() {
-        Given("^an existing template in this module$", () -> {
-            addTemplateToExistingModule();
-        });
+        Given("^an existing template in this module$", (StepdefBody.A0) this::addTemplateToExistingModule);
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate() {
@@ -64,6 +63,6 @@ public class TemplateContext extends CucumberSpringBean implements En {
     }
 
     public String getTemplateURI(String templateName) {
-        return String.format(getTemplatesURI() + "/" + templateName);
+        return getTemplatesURI() + "/" + templateName;
     }
 }
