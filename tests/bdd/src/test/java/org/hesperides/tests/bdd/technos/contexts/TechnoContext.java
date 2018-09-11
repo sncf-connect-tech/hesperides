@@ -14,12 +14,19 @@ import org.springframework.http.ResponseEntity;
 
 public class TechnoContext implements En {
 
-    TemplateContainer.Key technoKey;
+    private TemplateContainer.Key technoKey;
+  
     @Autowired
     private HesperidesTestRestTemplate rest;
 
     public TechnoContext() {
         Given("^an existing techno$", () -> {
+            TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
+            TechnoIO technoInput = TechnosSamples.getTechnoWithDefaultValues();
+            createTechno(technoInput, templateInput);
+        });
+
+        Given("^a techno(?: with this information)?$", () -> {
             TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
             TechnoIO technoInput = TechnosSamples.getTechnoWithDefaultValues();
             createTechno(technoInput, templateInput);
@@ -51,7 +58,7 @@ public class TechnoContext implements En {
         return retrieveExistingTemplate(TemplateSamples.DEFAULT_NAME);
     }
 
-    public ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
+    private ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
         return rest.getTestRest().getForEntity(getTemplateURI(name), TemplateIO.class);
     }
 

@@ -1,4 +1,4 @@
-Feature: versions
+Feature: Version retrieval
 
   Background:
     Given an authenticated user

@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
+import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
@@ -14,17 +15,14 @@ public class ModuleContext implements En {
 
     private TemplateContainer.Key moduleKey;
 
-    @Autowired
+    @Autowired  
     private TechnoContext technoContext;
-
+  
     @Autowired
     private HesperidesTestRestTemplate rest;
 
     public ModuleContext() {
-
-        Given("^an existing module$", () -> {
-            createModule();
-        });
+        Given("^an existing module$", (StepdefBody.A0) this::createModule);
 
         Given("^a module that is released$", () -> {
             createModule();

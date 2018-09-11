@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.contexts;
 
 import cucumber.api.java8.En;
+import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
@@ -20,9 +21,7 @@ public class TemplateContext implements En {
     private HesperidesTestRestTemplate rest;
 
     public TemplateContext() {
-        Given("^an existing template in this module$", () -> {
-            addTemplateToExistingModule();
-        });
+        Given("^an existing template in this module$", (StepdefBody.A0) this::addTemplateToExistingModule);
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate() {
@@ -68,6 +67,6 @@ public class TemplateContext implements En {
     }
 
     public String getTemplateURI(String templateName) {
-        return String.format(getTemplatesURI() + "/" + templateName);
+        return getTemplatesURI() + "/" + templateName;
     }
 }

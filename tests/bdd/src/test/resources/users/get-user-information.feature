@@ -1,4 +1,4 @@
-Feature: users
+Feature: User information retrieval
 
   Background:
     Given an authenticated user
