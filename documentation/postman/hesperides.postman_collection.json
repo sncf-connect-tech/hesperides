@@ -7,7 +7,6 @@
 	"item": [
 		{
 			"name": "modules",
-			"description": null,
 			"item": [
 				{
 					"name": "getModulesNames",
@@ -759,7 +758,6 @@
 		},
 		{
 			"name": "technos",
-			"description": "",
 			"item": [
 				{
 					"name": "getTechnoTemplatesList",
@@ -1277,6 +1275,54 @@
 								"workingcopy",
 								"templates",
 								"{{techno_template_name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "platforms",
+			"item": [
+				{
+					"name": "createPlatform",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "tech",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": -1\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/{{application_name}}/platforms",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"{{application_name}}",
+								"platforms"
 							]
 						}
 					},
