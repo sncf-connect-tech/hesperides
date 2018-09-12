@@ -131,8 +131,8 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("List platforms of a given application")
     @PostMapping("/platforms/perform_search")
-    public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("application_name") final String applicationName,
-                                                                    @RequestParam(value = "platform_name", required = false) final String platformName) {
+    public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("applicationName") final String applicationName,
+                                                                    @RequestParam(value = "platformName", required = false) final String platformName) {
 
         this.checkQueryParameterNotEmpty("application_name", applicationName);
         List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, platformName);

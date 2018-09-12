@@ -1286,19 +1286,118 @@
 			"name": "platforms",
 			"item": [
 				{
-					"name": "createPlatform",
+					"name": "getPlatform",
 					"request": {
 						"auth": {
 							"type": "basic",
 							"basic": [
 								{
 									"key": "password",
-									"value": "password",
+									"value": "{{password}}",
 									"type": "string"
 								},
 								{
 									"key": "username",
-									"value": "tech",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": -1\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/{{application_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"{{application_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPlatformUsingModule",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": -1\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/using_module/{{module_name}}/{{module_version}}/{{module_type}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"using_module",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createPlatform",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "df1cc139-d356-435c-b367-90e1c0420071",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
 									"type": "string"
 								}
 							]
@@ -1312,7 +1411,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": -1\r\n}"
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": {{platform_version_id}},\r\n\t\"production\": {{platform_is_production}}\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{hesperides_url}}/applications/{{application_name}}/platforms",
@@ -1323,6 +1422,274 @@
 								"applications",
 								"{{application_name}}",
 								"platforms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createPlatformWithModules",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "79819aeb-698a-4970-af76-a78a9adf1dcd",
+								"type": "text/javascript",
+								"exec": [
+									"pm.globals.set(\"module_type_boolean\", pm.module_type !== \"workingcopy\");",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [\r\n\t\t{\r\n\t\t\t\"id\" : 1, \r\n\t\t\t\"name\": {{module_name}}, \r\n\t\t\t\"version\" : {{module_version}}, \r\n\t\t\t\"working_copy\": {{module_type_boolean}},  \r\n\t\t\t\"instances\" : [], \r\n\t\t\t\"path\": \"{{deployed_module_path}}\"\r\n\t\t}\r\n\t],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": {{platform_version_id}}\r\n\t\"production\": {{platform_is_production}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/{{application_name}}/platforms",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"{{application_name}}",
+								"platforms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchApplicationPlatform",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"platform_name\": {{platform_name}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/platforms/perform_search?applicationName={{application_name}}&platformName={{platform_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"platforms",
+								"perform_search"
+							],
+							"query": [
+								{
+									"key": "applicationName",
+									"value": "{{application_name}}"
+								},
+								{
+									"key": "platformName",
+									"value": "{{platform_name}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchApplication",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\":\t{{application_name}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/perform_search?name={{application_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"perform_search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "{{application_name}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upadteModulesInPlatform",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "2d53aeaf-b725-4b91-a208-ddf9fd19e173",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"platform_version_id\", 1 + Number(pm.environment.get(\"platform_version_id\")));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [\r\n\t\t{\r\n\t\t\t\"id\" : 1, \r\n\t\t\t\"name\": {{module_name}}, \r\n\t\t\t\"version\" : {{module_version}}, \r\n\t\t\t\"working_copy\": true,  \r\n\t\t\t\"instances\" : [], \r\n\t\t\t\"path\": \"{{deployed_module_path}}\"\r\n\t\t}\r\n\t],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": {{platform_version_id}}\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/{{application_name}}/platforms",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"{{application_name}}",
+								"platforms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPlatform Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "30529a57-f5f3-4493-966d-49d9f4a47d13",
+								"type": "text/javascript",
+								"exec": [
+									"pm.environment.set(\"platform_version_id\", 0);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"application_name\":\t{{application_name}},\r\n\t\"version\": {{application_version}},\r\n\t\"modules\": [],\r\n\t\"platform_name\": {{platform_name}},\r\n\t\"version_id\": -1\r\n}"
+						},
+						"url": {
+							"raw": "{{hesperides_url}}/applications/{{application_name}}/platforms/{{platform_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"applications",
+								"{{application_name}}",
+								"platforms",
+								"{{platform_name}}"
 							]
 						}
 					},
