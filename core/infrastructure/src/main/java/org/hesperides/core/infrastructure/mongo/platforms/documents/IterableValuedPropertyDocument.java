@@ -18,41 +18,40 @@
  *
  *
  */
-package org.hesperides.core.presentation.io.platforms.properties;
+package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
-import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Value;
+import lombok.NoArgsConstructor;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Value
+@Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
+@Document
+public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
-    @SerializedName("iterable_valorisation_items")
-    List<IterablePropertyItemIO> iterablePropertyItems;
+    private List<IterablePropertyItemDocument> iterablePropertyItems;
 
-    public IterableValuedPropertyIO(String name, List<IterablePropertyItemIO> iterablePropertyItems) {
-        super(name);
-        this.iterablePropertyItems = iterablePropertyItems;
+    public IterableValuedPropertyView toIterableValuedPropertyView() {
+        return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemView(iterablePropertyItems));
     }
 
-    public IterableValuedPropertyIO(IterableValuedPropertyView iterableValuedPropertyView) {
-        super(iterableValuedPropertyView.getName());
-        this.iterablePropertyItems = IterablePropertyItemIO.fromIterablePropertyItem(iterableValuedPropertyView.getIterablePropertyItems());
-    }
-
-    public static List<IterableValuedPropertyIO> fromIterableValuedPropertyViews(final List<IterableValuedPropertyView> iterableValuedPropertyViews) {
-        return Optional.ofNullable(iterableValuedPropertyViews)
+    public static List<IterableValuedPropertyView> toIterableValuedPropertyViews(final List<IterableValuedPropertyDocument> iterableValuedPropertyDocuments) {
+        return Optional.ofNullable(iterableValuedPropertyDocuments)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(IterableValuedPropertyIO::new)
+                .map(IterableValuedPropertyDocument::toIterableValuedPropertyView)
                 .collect(Collectors.toList());
     }
+
+
 }

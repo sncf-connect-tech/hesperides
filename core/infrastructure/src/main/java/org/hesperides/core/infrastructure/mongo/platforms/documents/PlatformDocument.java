@@ -48,7 +48,6 @@ public class PlatformDocument {
         this.isProductionPlatform = platform.isProductionPlatform();
         this.versionId = platform.getVersionId();
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
-
     }
 
     public PlatformView toPlatformView() {

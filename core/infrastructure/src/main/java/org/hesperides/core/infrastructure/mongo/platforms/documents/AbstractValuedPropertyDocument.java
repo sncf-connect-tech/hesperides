@@ -21,10 +21,42 @@
 package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 public abstract class AbstractValuedPropertyDocument {
 
     protected String name;
 
+    public static List<AbstractValuedPropertyView> toAbstractValuedPropertyViews(final List<AbstractValuedPropertyDocument> properties) {
+        final List<ValuedPropertyDocument> valuedPropertyDocuments = AbstractValuedPropertyDocument.getAbstractValuedPropertyDocumentWithType(properties, ValuedPropertyDocument.class);
+        final List<ValuedPropertyView> valuedPropertyViews = ValuedPropertyDocument.toValuedPropertyViews(valuedPropertyDocuments);
+        final List<IterableValuedPropertyDocument> iterableValuedPropertyDocuments = AbstractValuedPropertyDocument.getAbstractValuedPropertyDocumentWithType(properties, IterableValuedPropertyDocument.class);
+        final List<IterableValuedPropertyView> iterableValuedPropertyViews = IterableValuedPropertyDocument.toIterableValuedPropertyViews(iterableValuedPropertyDocuments);
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = new ArrayList<>(valuedPropertyViews);
+        abstractValuedPropertyViews.addAll(iterableValuedPropertyViews);
+        return abstractValuedPropertyViews;
+    }
+
+    private static <T extends AbstractValuedPropertyDocument> List<T> getAbstractValuedPropertyDocumentWithType(final List<AbstractValuedPropertyDocument> properties, Class<T> clazz) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .collect(Collectors.toList());
+    }
+
+    public static List<AbstractValuedPropertyDocument> fromDomainProperties(final List<AbstractValuedProperty> properties) {
+        return null;
+    }
 }

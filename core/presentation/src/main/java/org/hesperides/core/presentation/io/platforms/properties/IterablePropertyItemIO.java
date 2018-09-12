@@ -22,8 +22,16 @@ package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 public class IterablePropertyItemIO {
@@ -31,4 +39,22 @@ public class IterablePropertyItemIO {
     String title;
     @SerializedName("values")
     List<AbstractValuedPropertyIO> abstractValuedPropertyIOS;
+
+    public IterablePropertyItemIO(final IterablePropertyItemView iterablePropertyItemView) {
+        this.title = iterablePropertyItemView.getTitle();
+        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(iterablePropertyItemView.getAbstractValuedPropertyViews(), ValuedPropertyView.class);
+        final List<ValuedPropertyIO> valuedPropertyIOS = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(iterablePropertyItemView.getAbstractValuedPropertyViews(), IterableValuedPropertyView.class);
+        final List<IterableValuedPropertyIO> iterableValuedPropertyIOS = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+        this.abstractValuedPropertyIOS = new ArrayList<>(valuedPropertyIOS);
+        this.abstractValuedPropertyIOS.addAll(iterableValuedPropertyIOS);
+    }
+
+    public static List<IterablePropertyItemIO> fromIterablePropertyItem(final List<IterablePropertyItemView> iterablePropertyItems) {
+        return Optional.ofNullable(iterablePropertyItems)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemIO::new)
+                .collect(Collectors.toList());
+    }
 }

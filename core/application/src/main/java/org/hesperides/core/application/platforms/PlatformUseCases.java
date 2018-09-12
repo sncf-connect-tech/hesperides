@@ -8,6 +8,7 @@ import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformExceptio
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,5 +69,12 @@ public class PlatformUseCases {
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
         return queries.searchApplications(applicationName);
+    }
+
+    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path, final User user) {
+        if (!queries.platformExists(platformKey)) {
+            throw new PlatformNotFoundException(platformKey);
+        }
+        return queries.getProperties(platformKey, path, user);
     }
 }

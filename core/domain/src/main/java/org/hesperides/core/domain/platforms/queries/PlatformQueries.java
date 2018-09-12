@@ -25,6 +25,8 @@ import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.stereotype.Component;
 
@@ -61,5 +63,9 @@ public class PlatformQueries extends AxonQueries {
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
         return querySyncList(new SearchApplicationsQuery(applicationName), SearchApplicationResultView.class);
+    }
+
+    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path, final User user) {
+        return querySyncList(new GetPropertiesQuery(platformKey, path, user), AbstractValuedPropertyView.class);
     }
 }
