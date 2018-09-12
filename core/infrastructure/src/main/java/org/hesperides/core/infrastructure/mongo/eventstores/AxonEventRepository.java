@@ -1,4 +1,4 @@
-package org.hesperides.core.infrastructure.mongo;
+package org.hesperides.core.infrastructure.mongo.eventstores;
 
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
@@ -17,13 +17,13 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
-public class Test implements EventRepository {
+public class AxonEventRepository implements EventRepository {
 
 
     EventStorageEngine eventStore;
 
     @Autowired
-    public Test(EventStorageEngine eventStore) {
+    public AxonEventRepository(EventStorageEngine eventStore) {
         this.eventStore = eventStore;
     }
 
