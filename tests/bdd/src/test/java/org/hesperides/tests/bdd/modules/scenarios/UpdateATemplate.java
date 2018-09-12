@@ -2,12 +2,11 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -30,12 +29,12 @@ public class UpdateATemplate implements En {
     public UpdateATemplate() {
 
         When("^updating this template$", () -> {
-            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            TemplateIO templateInput = new TemplateBuilder().withVersionId(1).build();
             response = templateContext.updateTemplate(templateInput);
         });
 
         When("^updating the same template at the same time$", () -> {
-            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            TemplateIO templateInput = new TemplateBuilder().withVersionId(1).build();
             response = failTryingToUpdateTemplate(templateInput);
         });
 

@@ -5,10 +5,9 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.TechnoAssertions;
-import org.hesperides.tests.bdd.technos.TechnosSamples;
+import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,10 @@ public class CopyATechno implements En {
     public CopyATechno() {
 
         When("^creating a copy of this techno$", () -> {
-            TechnoIO technoInput = TechnosSamples.getTechnoWithNameAndVersion("techno-copy", "1.0.0");
+            TechnoIO technoInput = new TechnoBuilder()
+                    .withName("techno-copy")
+                    .withVersion("1.0.0")
+                    .build();
             TemplateContainer.Key technoKey = technoContext.getTechnoKey();
             response = rest.getTestRest().postForEntity("/templates/packages?from_package_name={moduleName}&from_package_version={moduleVersion}&from_is_working_copy={isWorkingCopy}",
                     technoInput, TechnoIO.class,
@@ -38,7 +40,10 @@ public class CopyATechno implements En {
         Then("^the techno is successfully and completely duplicated$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             TechnoIO actualTechoOutput = response.getBody();
-            TechnoIO expectedTechnoOutput = TechnosSamples.getTechnoWithNameAndVersion("techno-copy", "1.0.0");
+            TechnoIO expectedTechnoOutput = new TechnoBuilder()
+                    .withName("techno-copy")
+                    .withVersion("1.0.0")
+                    .build();
             TechnoAssertions.assertTechno(expectedTechnoOutput, actualTechoOutput);
             //TODO Assert templates
         });

@@ -2,12 +2,10 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
-import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +39,7 @@ public class GetATemplate implements En {
             response = templateContext.retrieveExistingTemplate("template.sh");
         });
         Then("^the module template with a name ending in dot sh is retrieved$", () -> {
-            TemplateIO expectedTemplate = TemplateSamples.getTemplateInputWithName("template.sh");
+            TemplateIO expectedTemplate = new TemplateBuilder().withName("template.sh").build();
             assertEquals(HttpStatus.OK, response.getStatusCode());
             TemplateIO templateOutput = response.getBody();
             TemplateAssertions.assertTemplate(expectedTemplate, templateOutput, moduleContext.getNamespace(), 1);

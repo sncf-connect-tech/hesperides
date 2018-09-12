@@ -3,9 +3,8 @@ package org.hesperides.tests.bdd.modules.contexts;
 import cucumber.api.java8.En;
 import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ public class TemplateContext implements En {
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate() {
-        return retrieveExistingTemplate(TemplateSamples.DEFAULT_NAME);
+        return retrieveExistingTemplate(TemplateBuilder.DEFAULT_NAME);
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
@@ -33,12 +32,12 @@ public class TemplateContext implements En {
     }
 
     public ResponseEntity<TemplateIO> addTemplateToExistingModule() {
-        TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
+        TemplateIO templateInput = new TemplateBuilder().build();
         return addTemplateToExistingModule(templateInput);
     }
 
     public ResponseEntity<TemplateIO> addTemplateToExistingModule(String templateName) {
-        TemplateIO templateInput = TemplateSamples.getTemplateInputWithName(templateName);
+        TemplateIO templateInput = new TemplateBuilder().withName(templateName).build();
         return addTemplateToExistingModule(templateInput);
     }
 
@@ -53,7 +52,7 @@ public class TemplateContext implements En {
     }
 
     public void deleteTemplate() {
-        deleteTemplate(TemplateSamples.DEFAULT_NAME);
+        deleteTemplate(TemplateBuilder.DEFAULT_NAME);
     }
 
     public void deleteTemplate(String templateName) {

@@ -3,9 +3,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.modules.ModuleAssertions;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class CreateAModule implements En {
 
     public CreateAModule() {
         Given("^a module to create$", () -> {
-            moduleInput = ModuleSamples.getModuleInputWithDefaultValues();
+            moduleInput = new ModuleBuilder().build();
         });
 
         When("^creating a new module$", () -> {

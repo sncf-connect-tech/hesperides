@@ -26,7 +26,7 @@ import org.junit.Assert;
 public class TechnoAssertions {
 
     public static void assertTechnoAgainstDefaultValues(TechnoIO actualTechno) {
-        TechnoIO expectedTechno = TechnosSamples.getTechnoWithDefaultValues();
+        TechnoIO expectedTechno = new TechnoBuilder().build();
         assertTechno(expectedTechno, actualTechno);
     }
 

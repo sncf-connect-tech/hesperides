@@ -2,12 +2,11 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +47,7 @@ public class CreateATemplate implements En {
     }
 
     public ResponseEntity failTryingToAddTemplateToExistingModule() {
-        TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
+        TemplateIO templateInput = new TemplateBuilder().build();
         return rest.doWithErrorHandlerDisabled(rest -> rest.postForEntity(templateContext.getTemplatesURI(), templateInput, String.class));
     }
 }

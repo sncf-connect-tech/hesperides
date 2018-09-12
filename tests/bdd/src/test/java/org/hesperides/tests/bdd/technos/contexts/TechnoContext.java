@@ -5,30 +5,29 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.technos.TechnosSamples;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.technos.TechnoBuilder;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 public class TechnoContext implements En {
 
     private TemplateContainer.Key technoKey;
-  
+
     @Autowired
     private HesperidesTestRestTemplate rest;
 
     public TechnoContext() {
         Given("^an existing techno$", () -> {
-            TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
-            TechnoIO technoInput = TechnosSamples.getTechnoWithDefaultValues();
+            TemplateIO templateInput = new TemplateBuilder().build();
+            TechnoIO technoInput = new TechnoBuilder().build();
             createTechno(technoInput, templateInput);
         });
 
         Given("^a techno(?: with this information)?$", () -> {
-            TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
-            TechnoIO technoInput = TechnosSamples.getTechnoWithDefaultValues();
+            TemplateIO templateInput = new TemplateBuilder().build();
+            TechnoIO technoInput = new TechnoBuilder().build();
             createTechno(technoInput, templateInput);
         });
 
@@ -55,7 +54,7 @@ public class TechnoContext implements En {
     }
 
     public ResponseEntity<TemplateIO> retrieveExistingTemplate() {
-        return retrieveExistingTemplate(TemplateSamples.DEFAULT_NAME);
+        return retrieveExistingTemplate(TemplateBuilder.DEFAULT_NAME);
     }
 
     private ResponseEntity<TemplateIO> retrieveExistingTemplate(String name) {
@@ -74,13 +73,13 @@ public class TechnoContext implements En {
     }
 
     public ResponseEntity<TemplateIO> addTemplateToExistingTechno(String templateName) {
-        TemplateIO templateInput = TemplateSamples.getTemplateInputWithName(templateName);
-        TechnoIO technoInput = TechnosSamples.getTechnoFromTechnoKey(technoKey);
+        TemplateIO templateInput = new TemplateBuilder().withName(templateName).build();
+        TechnoIO technoInput = new TechnoBuilder().withKey(technoKey).build();
         return createTechno(technoInput, templateInput);
     }
 
     public ResponseEntity<TemplateIO> addTemplateToExistingTechno(TemplateIO templateInput) {
-        TechnoIO technoInput = TechnosSamples.getTechnoFromTechnoKey(technoKey);
+        TechnoIO technoInput = new TechnoBuilder().withKey(technoKey).build();
         return createTechno(technoInput, templateInput);
     }
 

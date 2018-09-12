@@ -6,7 +6,7 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ public class ModuleContext implements En {
 
     private TemplateContainer.Key moduleKey;
 
-    @Autowired  
+    @Autowired
     private TechnoContext technoContext;
-  
+
     @Autowired
     private HesperidesTestRestTemplate rest;
 
@@ -36,7 +36,7 @@ public class ModuleContext implements En {
     }
 
     private void createModule() {
-        ModuleIO moduleInput = ModuleSamples.getModuleInputWithDefaultValues();
+        ModuleIO moduleInput = new ModuleBuilder().build();
         createModule(moduleInput);
     }
 

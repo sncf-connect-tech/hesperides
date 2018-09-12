@@ -3,9 +3,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +29,12 @@ public class UpdateAModule implements En {
     public UpdateAModule() {
 
         When("^updating this module$", () -> {
-            ModuleIO moduleInput = ModuleSamples.getModuleInputWithVersionId(1);
+            ModuleIO moduleInput = new ModuleBuilder().withVersionId(1).build();
             response = moduleContext.updateModule(moduleInput);
         });
 
         When("^updating the same version of the module alongside$", () -> {
-            ModuleIO moduleInput = ModuleSamples.getModuleInputWithVersionId(1);
+            ModuleIO moduleInput = new ModuleBuilder().withVersionId(1).build();
             response = failTryingToUpdateModule(moduleInput);
         });
 

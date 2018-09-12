@@ -2,7 +2,6 @@ package org.hesperides.tests.bdd.templatecontainers;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 
 public class TemplateSamples implements En {
 

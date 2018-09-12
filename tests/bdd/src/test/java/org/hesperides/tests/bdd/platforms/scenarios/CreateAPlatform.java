@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hamcrest.Matchers;
 import org.hesperides.core.presentation.io.platforms.PlatformInput;
 import org.hesperides.core.presentation.io.platforms.PlatformOutput;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.platforms.PlatformAssertions;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;

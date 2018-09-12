@@ -1,10 +1,9 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.modules.contexts.TemplateContext;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,7 @@ public class DeleteATemplate implements En {
 
     public ResponseEntity<String> failTryingToRetrieveTemplate() {
         return rest.doWithErrorHandlerDisabled(rest ->
-                rest.getForEntity(templateContext.getTemplateURI(TemplateSamples.DEFAULT_NAME), String.class));
+                rest.getForEntity(templateContext.getTemplateURI(TemplateBuilder.DEFAULT_NAME), String.class));
     }
 
     /**

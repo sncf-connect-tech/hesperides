@@ -22,10 +22,9 @@ package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +41,7 @@ public class UpdateATemplate implements En {
     public UpdateATemplate() {
 
         When("^updating the template in this techno", () -> {
-            TemplateIO templateInput = TemplateSamples.getTemplateInputWithVersionId(1);
+            TemplateIO templateInput = new TemplateBuilder().withVersionId(1).build();
             response = technoContext.updateTemplate(templateInput);
         });
 

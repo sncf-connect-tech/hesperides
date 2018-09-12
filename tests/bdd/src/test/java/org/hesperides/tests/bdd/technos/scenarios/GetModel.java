@@ -4,11 +4,10 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.PropertyAssertions;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +29,10 @@ public class GetModel implements En {
 
     public GetModel() {
         Given("^a template in this techno that has properties$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent(
-                    "template-a",
-                    "{{foo|@required @comment content of template-a @pattern * @password }}"));
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-a")
+                    .withContent("{{foo|@required @comment content of template-a @pattern * @password }}")
+                    .build());
         });
 
         When("^retrieving the model of this techno$", () -> {
@@ -48,11 +48,12 @@ public class GetModel implements En {
         });
 
         Given("^a template in this techno that has properties with the same name but different attributes$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameFilenameLocationAndContent(
-                    "template-a",
-                    "{{ foo | @default filename of template-a}}.json",
-                    "/{{foo|@comment \"location of template-a\"}}",
-                    "{{foo|@required @comment content of template-a @pattern * @password }}"));
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-a")
+                    .withFilename("{{ foo | @default filename of template-a}}.json")
+                    .withLocation("/{{foo|@comment \"location of template-a\"}}")
+                    .withContent("{{foo|@required @comment content of template-a @pattern * @password }}")
+                    .build());
         });
 
         Then("^the model of this techno contains all the properties with the same name from this template$", () -> {
@@ -65,10 +66,14 @@ public class GetModel implements En {
         });
 
         Given("^templates in this techno that have properties with the same name but different attributes$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
-                    "{{ foo | @comment content of template-a @default 12 @pattern * @password }}"));
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-b",
-                    "{{foo|@comment \"content of template-b\" }}"));
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-a")
+                    .withContent("{{ foo | @comment content of template-a @default 12 @pattern * @password }}")
+                    .build());
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-b")
+                    .withContent("{{foo|@comment \"content of template-b\" }}")
+                    .build());
         });
 
         Then("^the model of this techno contains all the properties with the same name from these templates$", () -> {
@@ -82,9 +87,15 @@ public class GetModel implements En {
         });
 
         Given("^a template in this techno containing properties that have been updated$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
-                    "{{foo|@required|@comment content of template-a|@pattern *|@password }}"));
-            technoContext.updateTemplate(TemplateSamples.getTemplateInputWithNameContentContentAndVersionId("template-a", "{{ foo }}", 1));
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-a")
+                    .withContent("{{foo|@required|@comment content of template-a|@pattern *|@password }}")
+                    .build());
+            technoContext.updateTemplate(new TemplateBuilder()
+                    .withName("template-a")
+                    .withContent("{{ foo }}")
+                    .withVersionId(1)
+                    .build());
         });
 
         Then("^the model of this techno contains the updated properties$", () -> {
@@ -96,8 +107,10 @@ public class GetModel implements En {
         });
 
         Given("^a template in this techno containing properties but that is being deleted$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a",
-                    "{{foo|@required|@comment content of template-a|@pattern *|@password }}"));
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-a")
+                    .withContent("{{foo|@required|@comment content of template-a|@pattern *|@password }}")
+                    .build());
             technoContext.deleteTemplate("template-a");
         });
 
@@ -108,7 +121,10 @@ public class GetModel implements En {
         });
 
         Given("^a template in this techno that has iterable properties$", () -> {
-            technoContext.addTemplateToExistingTechno(TemplateSamples.getTemplateInputWithNameAndContent("template-a", "{{#it1}}{{foo}}{{#it2}}{{bar}}{{/it2}}{{/it1}}"));
+            technoContext.addTemplateToExistingTechno(new TemplateBuilder()
+                    .withName("template-a")
+                    .withContent("{{#it1}}{{foo}}{{#it2}}{{bar}}{{/it2}}{{/it1}}")
+                    .build());
         });
 
         Then("^the model of this techno contains all the iterable properties$", () -> {
@@ -121,7 +137,10 @@ public class GetModel implements En {
         });
 
         When("^trying to create a template in this techno that has a property that is required and with a default value$", () -> {
-            failResponse = failTryingToCreateTemplate(TemplateSamples.getTemplateInputWithNameAndContent("another-template", "{{foo|@required @default 12}}"));
+            failResponse = failTryingToCreateTemplate(new TemplateBuilder()
+                    .withName("another template")
+                    .withContent("{{foo|@required @default 12}}")
+                    .build());
         });
 
         Then("^the creation of the techno template that has a property that is required and with a default value is rejected$", () -> {

@@ -23,20 +23,35 @@ package org.hesperides.tests.bdd.technos;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 
-public class TechnosSamples {
+public class TechnoBuilder {
 
-    private static final String DEFAULT_NAME = "test-techno";
-    private static final String DEFAULT_VERSION = "1.0.0";
+    private String name = "test-techno";
+    private String version = "1.0.0";
+    private boolean isWorkingCopy = true;
 
-    public static TechnoIO getTechnoFromTechnoKey(TemplateContainer.Key technoKey) {
-        return new TechnoIO(technoKey.getName(), technoKey.getVersion(), technoKey.isWorkingCopy());
+    public TechnoBuilder withName(final String name) {
+        this.name = name;
+        return this;
     }
 
-    public static TechnoIO getTechnoWithDefaultValues() {
-        return getTechnoWithNameAndVersion(DEFAULT_NAME, DEFAULT_VERSION);
+    public TechnoBuilder withVersion(final String version) {
+        this.version = version;
+        return this;
     }
 
-    public static TechnoIO getTechnoWithNameAndVersion(String name, String version) {
-        return new TechnoIO(name, version, true);
+    public TechnoBuilder withIsWorkingCopy(final boolean isWorkingCopy) {
+        this.isWorkingCopy = isWorkingCopy;
+        return this;
+    }
+
+    public TechnoBuilder withKey(TemplateContainer.Key technoKey) {
+        this.name = technoKey.getName();
+        this.version = technoKey.getVersion();
+        this.isWorkingCopy = technoKey.isWorkingCopy();
+        return this;
+    }
+
+    public TechnoIO build() {
+        return new TechnoIO(name, version, isWorkingCopy);
     }
 }

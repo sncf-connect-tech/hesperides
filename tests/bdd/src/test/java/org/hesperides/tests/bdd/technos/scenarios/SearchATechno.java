@@ -3,11 +3,10 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.technos.TechnosSamples;
+import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +28,12 @@ public class SearchATechno implements En {
     public SearchATechno() {
 
         Given("^a list of 12 technos$", () -> {
-            TemplateIO templateInput = TemplateSamples.getTemplateInputWithDefaultValues();
+            TemplateIO templateInput = new TemplateBuilder().build();
             for (int i = 0; i < 12; i++) {
-                TechnoIO technoInput = TechnosSamples.getTechnoWithNameAndVersion("test-" + i, "1.0." + i);
+                TechnoIO technoInput = new TechnoBuilder()
+                        .withName("test-" + i)
+                        .withVersion("1.0." + i)
+                        .build();
                 technoContext.createTechno(technoInput, templateInput);
             }
         });

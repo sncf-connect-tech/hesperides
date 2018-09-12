@@ -2,7 +2,6 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
 import org.springframework.beans.factory.annotation.Autowired;

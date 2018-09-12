@@ -2,9 +2,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,14 +27,20 @@ public class SearchAModule implements En {
 
         Given("^a list of 20 modules$", () -> {
             for (int i = 0; i < 20; i++) {
-                ModuleIO moduleInput = ModuleSamples.getModuleInputWithNameAndVersion("test-" + i, "1.0." + i);
+                ModuleIO moduleInput = new ModuleBuilder()
+                        .withName("test-" + i)
+                        .withVersion("1.0." + i)
+                        .build();
                 moduleContext.createModule(moduleInput);
             }
         });
 
         Given("^a list of 20 released modules$", () -> {
             for (int i = 0; i < 20; i++) {
-                ModuleIO moduleInput = ModuleSamples.getModuleInputWithNameAndVersion("test-" + i, "1.0." + i);
+                ModuleIO moduleInput = new ModuleBuilder()
+                        .withName("test-" + i)
+                        .withVersion("1.0." + i)
+                        .build();
                 moduleContext.createModule(moduleInput);
                 moduleContext.releaseModule(moduleInput.getName(), moduleInput.getVersion());
             }

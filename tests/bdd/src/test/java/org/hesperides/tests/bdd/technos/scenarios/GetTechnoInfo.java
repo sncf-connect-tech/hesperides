@@ -2,7 +2,6 @@ package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.TechnoAssertions;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;

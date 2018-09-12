@@ -1,10 +1,9 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ public class DeleteATemplate implements En {
 
     public DeleteATemplate() {
         When("^deleting the template in this techno$", () -> {
-            technoContext.deleteTemplate(TemplateSamples.DEFAULT_NAME);
+            technoContext.deleteTemplate(TemplateBuilder.DEFAULT_NAME);
         });
 
         Then("^the template in this techno is successfully deleted$", () -> {
@@ -31,7 +30,7 @@ public class DeleteATemplate implements En {
 
     private ResponseEntity<String> failTryingToRetrieveTemplate() {
         return rest.doWithErrorHandlerDisabled(rest -> {
-            String templateURI = technoContext.getTemplateURI(TemplateSamples.DEFAULT_NAME);
+            String templateURI = technoContext.getTemplateURI(TemplateBuilder.DEFAULT_NAME);
             return rest.getForEntity(templateURI, String.class);
         });
     }

@@ -3,7 +3,6 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -3,9 +3,8 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +28,10 @@ public class GetModuleVersions implements En {
 
         Given("^an existing module with multiple versions$", () -> {
             for (int i = 0; i < 6; i++) {
-                ModuleIO moduleInput = ModuleSamples.getModuleInputWithNameAndVersion("test", "1.0." + i);
+                ModuleIO moduleInput = new ModuleBuilder()
+                        .withName("test")
+                        .withVersion("1.0." + i)
+                        .build();
                 moduleContext.createModule(moduleInput);
             }
         });

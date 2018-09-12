@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class ModuleAssertions {
 
     public static void assertModuleAgainstDefaultValues(ModuleIO actualModule, long expectedVersionId) {
-        ModuleIO expectedModule = ModuleSamples.getModuleInputWithDefaultValues();
+        ModuleIO expectedModule = new ModuleBuilder().build();
         assertModule(expectedModule, actualModule, expectedVersionId);
     }
 

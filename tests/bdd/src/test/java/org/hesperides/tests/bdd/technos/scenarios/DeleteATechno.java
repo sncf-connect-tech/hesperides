@@ -1,7 +1,6 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.springframework.beans.factory.annotation.Autowired;

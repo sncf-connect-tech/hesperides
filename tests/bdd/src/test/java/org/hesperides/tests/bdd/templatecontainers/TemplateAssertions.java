@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class TemplateAssertions {
 
     public static void assertTemplateAgainstDefaultValues(TemplateIO actualTemplate, String expectedNamespace, long expectedVersionId) {
-        TemplateIO expectedTemplate = TemplateSamples.getTemplateInputWithDefaultValues();
+        TemplateIO expectedTemplate = new TemplateBuilder().build();
         assertTemplate(expectedTemplate, actualTemplate, expectedNamespace, expectedVersionId);
     }
 

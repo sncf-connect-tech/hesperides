@@ -2,10 +2,9 @@ package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.CucumberTests;
 import org.hesperides.tests.bdd.technos.contexts.TechnoContext;
 import org.hesperides.tests.bdd.templatecontainers.TemplateAssertions;
-import org.hesperides.tests.bdd.templatecontainers.TemplateSamples;
+import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class AddATemplate implements En {
 
     public AddATemplate() {
         When("^adding a template to this techno$", () -> {
-            templateInput = TemplateSamples.getTemplateInputWithName("anotherone");
+            templateInput = new TemplateBuilder().withName("anotherone").build();
             response = technoContext.addTemplateToExistingTechno(templateInput);
         });
 
