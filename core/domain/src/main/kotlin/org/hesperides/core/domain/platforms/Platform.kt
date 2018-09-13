@@ -23,5 +23,7 @@ data class GetApplicationByNameQuery(val applicationName: String)
 data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)
 data class SearchPlatformsQuery(val applicationName: String, val platformName: String? = null)
 data class SearchApplicationsQuery(val applicationName: String)
-data class GetPropertiesQuery(val platformKey: Platform.Key, val path: String, val user: User)
+data class GetDeployedModulesPropertiesQuery(val platformKey: Platform.Key, val path: String, val user: User)
+data class GetGlobalPropertiesQuery(val platformKey: Platform.Key, val path: String, val user: User)
 data class GetInstanceModelQuery(val platformKey: Platform.Key, val path: String, val user: User)
+

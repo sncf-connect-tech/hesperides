@@ -9,6 +9,7 @@ import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResul
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,5 +51,8 @@ public interface PlatformProjectionRepository {
     List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
 
     @QueryHandler
-    List<AbstractValuedPropertyView> onGetPropertiesQuery(GetPropertiesQuery query);
+    List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query);
+
+    @QueryHandler
+    List<ValuedPropertyView> onGetGlobalPropertiesQuery(GetGlobalPropertiesQuery query);
 }

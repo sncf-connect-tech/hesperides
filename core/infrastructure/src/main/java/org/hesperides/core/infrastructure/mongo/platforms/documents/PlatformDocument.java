@@ -41,6 +41,7 @@ public class PlatformDocument {
     private boolean isProductionPlatform;
     private Long versionId;
     private List<DeployedModuleDocument> deployedModules;
+    private List<ValuedPropertyDocument> valuedProperties;
 
     public PlatformDocument(Platform platform) {
         this.key = new PlatformKeyDocument(platform.getKey());

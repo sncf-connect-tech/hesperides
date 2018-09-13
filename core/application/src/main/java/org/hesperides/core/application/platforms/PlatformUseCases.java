@@ -1,5 +1,6 @@
 package org.hesperides.core.application.platforms;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -11,10 +12,13 @@ import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,11 +84,18 @@ public class PlatformUseCases {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
-        final Module.Key moduleKey = Module.Key.fromPath(path);
-        if (!moduleQueries.moduleExists(moduleKey)) {
-            throw new ModuleNotFoundException(moduleKey);
+        if ("#".equals(path)) {
+            final List<ValuedPropertyView> globalProperties = queries.getGlobalProperties(platformKey, path, user);
+            return new ArrayList<>(globalProperties);
         }
-        return queries.getProperties(platformKey, path, user);
+        if (StringUtils.isNotEmpty(path) && path.length() > 1) {
+            final Module.Key moduleKey = Module.Key.fromPath(path);
+            if (!moduleQueries.moduleExists(moduleKey)) {
+                throw new ModuleNotFoundException(moduleKey);
+            }
+            return queries.getDeployedModuleProperties(platformKey, path, user);
+        }
+        return Collections.emptyList();
     }
     public Optional<InstanceModelView> getInstanceModel(final Platform.Key platformKey, final String modulePath, final User user) {
         if (!queries.platformExists(platformKey)) {

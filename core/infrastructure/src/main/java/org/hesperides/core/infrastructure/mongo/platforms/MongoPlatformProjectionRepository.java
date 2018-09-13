@@ -3,14 +3,33 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.platforms.*;
-import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.GetApplicationByNameQuery;
+import org.hesperides.core.domain.platforms.GetGlobalPropertiesQuery;
+import org.hesperides.core.domain.platforms.GetInstanceModelQuery;
+import org.hesperides.core.domain.platforms.GetPlatformByKeyQuery;
+import org.hesperides.core.domain.platforms.GetPlatformsUsingModuleQuery;
+import org.hesperides.core.domain.platforms.GetDeployedModulesPropertiesQuery;
+import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
+import org.hesperides.core.domain.platforms.PlatformDeletedEvent;
+import org.hesperides.core.domain.platforms.PlatformExistsByKeyQuery;
+import org.hesperides.core.domain.platforms.PlatformProjectionRepository;
+import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
+import org.hesperides.core.domain.platforms.SearchApplicationsQuery;
+import org.hesperides.core.domain.platforms.SearchPlatformsQuery;
+import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
+import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
+import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.InstanceDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -154,7 +173,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public List<AbstractValuedPropertyView> onGetPropertiesQuery(GetPropertiesQuery query) {
+    public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = Optional.ofNullable(platformDocument.getDeployedModules())
@@ -164,5 +183,16 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .flatMap(deployedModuleDocument -> deployedModuleDocument.getValuedProperties().stream())
                 .collect(Collectors.toList());
         return AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(abstractValuedPropertyDocuments);
+    }
+
+    @QueryHandler
+    @Override
+    public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        final Optional<PlatformDocument> platformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
+        if (platformDocument.isPresent()) {
+            return ValuedPropertyDocument.toValuedPropertyViews(platformDocument.get().getValuedProperties());
+        }
+        return Collections.emptyList();
     }
 }
