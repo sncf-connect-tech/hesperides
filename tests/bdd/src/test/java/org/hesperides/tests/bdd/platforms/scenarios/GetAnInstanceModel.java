@@ -6,6 +6,7 @@ import org.hesperides.tests.bdd.CucumberSpringBean;
 import org.hesperides.tests.bdd.platforms.contexts.PlatformContext;
 import org.hesperides.tests.bdd.platforms.samples.InstanceSamples;
 import org.hesperides.tests.bdd.platforms.samples.PlatformSamples;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,16 @@ public class GetAnInstanceModel extends CucumberSpringBean implements En {
             assertEquals(HttpStatus.OK, response.getStatusCode());
 
             InstanceModelOutput instanceModelOutput = response.getBody();
-            InstanceModelOutput.InstancePropertyOutput expectedInstancePropertyOutput = InstanceModelOutput.InstancePropertyOutput.fromKeyProperty(InstanceSamples.DEFAULT_PROPERTY_NAME1);
-            InstanceModelOutput.InstancePropertyOutput expectedInstancePropertyOutput2 = InstanceModelOutput.InstancePropertyOutput.fromKeyProperty(InstanceSamples.DEFAULT_PROPERTY_NAME2);
-            InstanceModelOutput expectedInstanceModelOutput = new InstanceModelOutput(Arrays.asList(expectedInstancePropertyOutput, expectedInstancePropertyOutput2));
+            InstanceModelOutput.InstancePropertyOutput expectedInstancePropertyOutput1 = getExpectedInstancePropertyOutput(InstanceSamples.DEFAULT_PROPERTY_NAME1);
+            InstanceModelOutput.InstancePropertyOutput expectedInstancePropertyOutput2 = getExpectedInstancePropertyOutput(InstanceSamples.DEFAULT_PROPERTY_NAME2);
+            InstanceModelOutput expectedInstanceModelOutput = new InstanceModelOutput(Arrays.asList(expectedInstancePropertyOutput1, expectedInstancePropertyOutput2));
             assertEquals(expectedInstanceModelOutput, instanceModelOutput);
         });
+    }
+
+    @NotNull
+    private InstanceModelOutput.InstancePropertyOutput getExpectedInstancePropertyOutput(String name) {
+        return new InstanceModelOutput.InstancePropertyOutput(name,  "", false, null, null, false);
     }
 
 }

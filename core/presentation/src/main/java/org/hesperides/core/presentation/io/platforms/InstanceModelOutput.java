@@ -22,7 +22,7 @@ package org.hesperides.core.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
-import org.hesperides.core.domain.platforms.queries.views.InstanceView;
+import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,15 +44,19 @@ public class InstanceModelOutput {
         @SerializedName("password")
         boolean isPassword;
 
-
-        public static InstancePropertyOutput fromKeyProperty(String name) {
-            return new InstancePropertyOutput(name, "",false, null, null, false);
+        public static InstancePropertyOutput fromInstanceModelPropertyView(InstanceModelView.InstanceModelPropertyView instanceModelPropertyView) {
+            return new InstancePropertyOutput(instanceModelPropertyView.getName(),
+                    instanceModelPropertyView.getComment(),
+                    instanceModelPropertyView.isRequired(),
+                    instanceModelPropertyView.getDefaultValue(),
+                    instanceModelPropertyView.getPattern(),
+                    instanceModelPropertyView.isPassword());
         }
     }
 
-    public static InstanceModelOutput fromInstanceView(InstanceView instanceView) {
-        List<InstancePropertyOutput> instancePropertyOutputs = instanceView.getValuedProperties().stream()
-                .map(valuedPropertyView -> InstancePropertyOutput.fromKeyProperty(valuedPropertyView.getName()))
+    public static InstanceModelOutput fromInstanceView(InstanceModelView instanceModelView) {
+        List<InstancePropertyOutput> instancePropertyOutputs = instanceModelView.getInstanceProperties().stream()
+                .map(InstancePropertyOutput::fromInstanceModelPropertyView)
                 .collect(Collectors.toList());
         return new InstanceModelOutput(instancePropertyOutputs);
     }

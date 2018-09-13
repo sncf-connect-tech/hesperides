@@ -3,26 +3,12 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.platforms.GetApplicationByNameQuery;
-import org.hesperides.core.domain.platforms.GetPlatformByKeyQuery;
-import org.hesperides.core.domain.platforms.GetPlatformsUsingModuleQuery;
-import org.hesperides.core.domain.platforms.GetPropertiesQuery;
-import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.core.domain.platforms.PlatformDeletedEvent;
-import org.hesperides.core.domain.platforms.PlatformExistsByKeyQuery;
-import org.hesperides.core.domain.platforms.PlatformProjectionRepository;
-import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
-import org.hesperides.core.domain.platforms.SearchApplicationsQuery;
-import org.hesperides.core.domain.platforms.SearchPlatformsQuery;
-import org.hesperides.core.domain.platforms.entities.Platform;
-import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
-import org.hesperides.core.domain.platforms.queries.views.PlatformView;
-import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
-import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
+import org.hesperides.core.domain.platforms.*;
+import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.InstanceDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +16,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -107,6 +91,17 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             optionalApplicationView = Optional.of(applicationView);
         }
         return optionalApplicationView;
+    }
+
+    @QueryHandler
+    @Override
+    public Optional<InstanceModelView> onGetInstanceModelQuery(GetInstanceModelQuery query) {
+
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
+        return  platformDocument.getDeployedModules().stream()
+                .findFirst().flatMap(deployedModuleDocument -> deployedModuleDocument.getInstances().stream().findFirst())
+                .map(InstanceDocument::toInstanceModelView);
     }
 
     @QueryHandler
