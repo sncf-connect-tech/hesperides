@@ -46,8 +46,5 @@ public interface PlatformProjectionRepository {
     List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
 
     @QueryHandler
-    Boolean onDeployedModuleExistsByKeyQuery(DeployedModuleExistsByKeyQuery query);
-
-    @QueryHandler
     List<AbstractValuedPropertyView> onGetPropertiesQuery(GetPropertiesQuery query);
 }

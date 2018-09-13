@@ -3,7 +3,6 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.platforms.DeployedModuleExistsByKeyQuery;
 import org.hesperides.core.domain.platforms.GetApplicationByNameQuery;
 import org.hesperides.core.domain.platforms.GetPlatformByKeyQuery;
 import org.hesperides.core.domain.platforms.GetPlatformsUsingModuleQuery;
@@ -26,7 +25,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +32,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -160,17 +157,11 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Boolean onDeployedModuleExistsByKeyQuery(final DeployedModuleExistsByKeyQuery query) {
-        BasicQuery dbQuery = getqueryPlatformByKeyAndDeployedModuleByPath(query.getPlatformKey(), query.getPath());
-        return mongoTemplate.count(dbQuery, PlatformDocument.class) > 0;
-    }
-
     @QueryHandler
     @Override
     public List<AbstractValuedPropertyView> onGetPropertiesQuery(GetPropertiesQuery query) {
-        BasicQuery dbQuery = getqueryPlatformByKeyAndDeployedModuleByPath(query.getPlatformKey(), query.getPath());
-        final PlatformDocument platformDocument = mongoTemplate.findOne(dbQuery, PlatformDocument.class);
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
                 .stream()
@@ -178,12 +169,5 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .flatMap(deployedModuleDocument -> deployedModuleDocument.getValuedProperties().stream())
                 .collect(Collectors.toList());
         return AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(abstractValuedPropertyDocuments);
-    }
-
-    private BasicQuery getqueryPlatformByKeyAndDeployedModuleByPath(final Platform.Key platformKey, final String path) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(platformKey);
-        Criteria findByPlatformKey = Criteria.where("_id").is(platformKeyDocument);
-        Criteria projectionByDeployedModulesPropertiesPath = Criteria.where("deployedModules").elemMatch(Criteria.where("propertiesPath").is(path));
-        return new BasicQuery(findByPlatformKey.getCriteriaObject(), projectionByDeployedModulesPropertiesPath.getCriteriaObject());
     }
 }
