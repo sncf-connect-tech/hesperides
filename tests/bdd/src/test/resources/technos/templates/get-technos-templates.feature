@@ -1,4 +1,4 @@
-Feature: Techno templates retrieval
+Feature: Get technos templates
 
   Regroup all use cases related to the retrieval of templates in technos
 

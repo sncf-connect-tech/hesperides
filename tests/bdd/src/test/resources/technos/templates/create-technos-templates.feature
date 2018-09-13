@@ -1,30 +1,14 @@
-Feature: Techno updates
+Feature: Create technos templates
 
-  Regroup all use cases related to the update of technos
+  Regroup all use cases related to the creation of technos templates
 
   Background:
     Given an authenticated user
-
-  Scenario: release a techno
-    Given an existing techno
-    When releasing this techno
-    Then the techno is successfully released
 
   Scenario: add a template to an existing techno
     Given an existing techno
     When adding a template to this techno
     Then the template is successfully added to the techno
-
-  Scenario: update an existing template in a techno
-    Given an existing techno
-    When updating the template in this techno
-    Then the template in this techno is updated
-
-  Scenario: delete an existing template in a techno
-    Given an existing techno
-    When deleting the template in this techno
-    Then the template in this techno is successfully deleted
-
 
   Scenario: a techno template property cannot have both required and default value annotations
     Given an existing techno

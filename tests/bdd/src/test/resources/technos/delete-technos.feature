@@ -1,4 +1,4 @@
-Feature: Techno deletions
+Feature: Delete technos
 
   Regroup all use cases related to the deletion of technos
 
