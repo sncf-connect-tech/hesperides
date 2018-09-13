@@ -25,6 +25,9 @@ public interface PlatformProjectionRepository {
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
+    Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query);
+
+    @QueryHandler
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
 
     @QueryHandler

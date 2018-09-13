@@ -17,6 +17,7 @@ data class PlatformDeletedEvent(val platformKey: Platform.Key, override val user
 data class PlatformUpdatedEvent(val platformKey: Platform.Key, val platform: Platform, override val user: User) : UserEvent(user)
 
 // Query
+data class PlatformExistsByKeyQuery(val platformKey: Platform.Key)
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
 data class GetApplicationByNameQuery(val applicationName: String)
 data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)

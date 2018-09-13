@@ -19,6 +19,8 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public interface MongoPlatformRepository extends MongoRepository<PlatformDocument, String> {
 
+    Long countByKey(PlatformKeyDocument platformKeyDocument);
+
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
 
     void deleteByKey(PlatformKeyDocument key);

@@ -9,6 +9,7 @@ import org.hesperides.core.domain.platforms.GetPlatformsUsingModuleQuery;
 import org.hesperides.core.domain.platforms.GetPropertiesQuery;
 import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
 import org.hesperides.core.domain.platforms.PlatformDeletedEvent;
+import org.hesperides.core.domain.platforms.PlatformExistsByKeyQuery;
 import org.hesperides.core.domain.platforms.PlatformProjectionRepository;
 import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.platforms.SearchApplicationsQuery;
@@ -78,6 +79,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     }
 
     /*** QUERY HANDLERS ***/
+
+    @QueryHandler
+    @Override
+    public Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        return platformRepository.countByKey(platformKeyDocument) > 0;
+    }
 
     @QueryHandler
     @Override

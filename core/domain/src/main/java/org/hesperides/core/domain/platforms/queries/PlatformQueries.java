@@ -41,8 +41,7 @@ public class PlatformQueries extends AxonQueries {
     }
 
     public boolean platformExists(Platform.Key platformKey) {
-        Optional<PlatformView> optionalPlatformView = querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
-        return optionalPlatformView.isPresent();
+        return querySync(new PlatformExistsByKeyQuery(platformKey), Boolean.class);
     }
 
     public Optional<PlatformView> getOptionalPlatform(Platform.Key platformKey) {
