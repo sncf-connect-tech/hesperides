@@ -184,7 +184,7 @@ public class PlatformsController extends AbstractController {
     public ResponseEntity<PropertiesOutput> getProperties(Authentication authentication,
                                                           @PathVariable("application_name") final String applicationName,
                                                           @PathVariable("platform_name") final String platformName,
-                                                          @RequestParam("path") final String path) {
+                                                          @RequestParam(value = "path", required = false) final String path) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         // TODO : gestion sécurité isProd pour cacher les propriétés de type @password
