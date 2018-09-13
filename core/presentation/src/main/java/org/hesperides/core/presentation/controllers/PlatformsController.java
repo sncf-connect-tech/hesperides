@@ -180,7 +180,7 @@ public class PlatformsController extends AbstractController {
     }
 
     @ApiOperation("Get properties with the given path in a platform")
-    @PostMapping("/{application_name}/platforms/{platform_name}/properties")
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesOutput> getProperties(Authentication authentication,
                                                           @PathVariable("application_name") final String applicationName,
                                                           @PathVariable("platform_name") final String platformName,

@@ -154,7 +154,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<AbstractValuedPropertyView> onGetPropertiesQuery(GetPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         Criteria findByPlatformKey = Criteria.where("_id").is(platformKeyDocument);
-        BasicQuery dbQuery = new BasicQuery(findByPlatformKey.getCriteriaObject());
+        Criteria projectionByDeployedModulesPropertiesPath = Criteria.where("deployedModules").elemMatch(Criteria.where("propertiesPath").is(query.getPath()));
+        BasicQuery dbQuery = new BasicQuery(findByPlatformKey.getCriteriaObject(), projectionByDeployedModulesPropertiesPath.getCriteriaObject());
         final PlatformDocument platformDocument = mongoTemplate.findOne(dbQuery, PlatformDocument.class);
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
