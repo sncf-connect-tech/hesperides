@@ -33,4 +33,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     @Query(value = "{'technos.$id': ?0}")
     List<ModuleDocument> findAllByTechnosKey(KeyDocument technoKey);
+
+    Long countByKey(KeyDocument keyDocument);
 }

@@ -1,6 +1,8 @@
 package org.hesperides.core.application.platforms;
 
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
+import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
@@ -21,11 +23,13 @@ public class PlatformUseCases {
 
     private final PlatformCommands commands;
     private final PlatformQueries queries;
+    private final ModuleQueries moduleQueries;
 
     @Autowired
-    public PlatformUseCases(PlatformCommands commands, PlatformQueries queries) {
+    public PlatformUseCases(PlatformCommands commands, PlatformQueries queries, final ModuleQueries moduleQueries) {
         this.commands = commands;
         this.queries = queries;
+        this.moduleQueries = moduleQueries;
     }
 
     public Platform.Key createPlatform(Platform platform, User user) {
@@ -74,6 +78,10 @@ public class PlatformUseCases {
     public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path, final User user) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
+        }
+        final Module.Key moduleKey = Module.Key.fromPath(path);
+        if (!moduleQueries.moduleExists(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
         }
         return queries.getProperties(platformKey, path, user);
     }

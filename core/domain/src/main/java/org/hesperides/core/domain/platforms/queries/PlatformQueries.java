@@ -64,6 +64,10 @@ public class PlatformQueries extends AxonQueries {
         return querySyncList(new SearchApplicationsQuery(applicationName), SearchApplicationResultView.class);
     }
 
+    public boolean deployedModuleExists(final Platform.Key platformKey, final String path) {
+        return querySync(new DeployedModuleExistsByKeyQuery(platformKey, path), Boolean.class);
+    }
+
     public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path, final User user) {
         return querySyncList(new GetPropertiesQuery(platformKey, path, user), AbstractValuedPropertyView.class);
     }

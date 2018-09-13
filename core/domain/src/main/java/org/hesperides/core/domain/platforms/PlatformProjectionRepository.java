@@ -2,8 +2,11 @@ package org.hesperides.core.domain.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.platforms.entities.Platform;
-import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
+import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 
 import java.util.List;
@@ -41,6 +44,9 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
+
+    @QueryHandler
+    Boolean onDeployedModuleExistsByKeyQuery(DeployedModuleExistsByKeyQuery query);
 
     @QueryHandler
     List<AbstractValuedPropertyView> onGetPropertiesQuery(GetPropertiesQuery query);
