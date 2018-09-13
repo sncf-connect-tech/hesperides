@@ -28,13 +28,17 @@ import java.util.Arrays;
 public class InstanceSamples {
 
     public static final String DEFAULT_NAME = "instance_name";
+    public static final String DEFAULT_PROPERTY_NAME1= "foo";
+    public static final String DEFAULT_PROPERTY_VALUE1= "bar";
+    public static final String DEFAULT_PROPERTY_NAME2= "toto";
+    public static final String DEFAULT_PROPERTY_VALUE2= "tata";
 
     public static InstanceIO getInstanceIOWithDefaultValues() {
         return new InstanceIO(
                 DEFAULT_NAME,
                 Arrays.asList(
-                        new ValuedPropertyIO("foo", "bar"),
-                        new ValuedPropertyIO("foo", "bar")
+                        new ValuedPropertyIO(DEFAULT_PROPERTY_NAME1, DEFAULT_PROPERTY_VALUE1),
+                        new ValuedPropertyIO(DEFAULT_PROPERTY_NAME2, DEFAULT_PROPERTY_VALUE2)
                 )
         );
     }

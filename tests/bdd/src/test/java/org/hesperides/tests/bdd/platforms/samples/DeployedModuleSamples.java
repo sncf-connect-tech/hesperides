@@ -47,6 +47,20 @@ public class DeployedModuleSamples {
         );
     }
 
+    public static DeployedModuleInput getDeployedModuleInputWithDefaultValues(Long id, String moduleName) {
+        return new DeployedModuleInput(
+                id,
+                moduleName,
+                DEFAULT_MODULE_VERSION,
+                DEFAULT_WORKING_COPY,
+                DEFAULT_PATH,
+                Arrays.asList(
+                        InstanceSamples.getInstanceIOWithDefaultValues(),
+                        InstanceSamples.getInstanceIOWithDefaultValues()
+                )
+        );
+    }
+
     public static DeployedModuleOutput getDeployedModuleOutputWithDefaultValues(Long id) {
         return new DeployedModuleOutput(
                 id,
@@ -54,6 +68,21 @@ public class DeployedModuleSamples {
                 DEFAULT_MODULE_VERSION,
                 DEFAULT_WORKING_COPY,
                 DEFAULT_OUTPUT_PROPERTIES_PATH,
+                DEFAULT_PATH,
+                Arrays.asList(
+                        InstanceSamples.getInstanceIOWithDefaultValues(),
+                        InstanceSamples.getInstanceIOWithDefaultValues()
+                )
+        );
+    }
+
+    public static DeployedModuleOutput getDeployedModuleOutputWithDifferentPath(Long id, String moduleName, String path) {
+        return new DeployedModuleOutput(
+                id,
+                moduleName,
+                DEFAULT_MODULE_VERSION,
+                DEFAULT_WORKING_COPY,
+                path,
                 DEFAULT_PATH,
                 Arrays.asList(
                         InstanceSamples.getInstanceIOWithDefaultValues(),

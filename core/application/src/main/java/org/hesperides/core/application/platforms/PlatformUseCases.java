@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -84,5 +85,16 @@ public class PlatformUseCases {
             throw new ModuleNotFoundException(moduleKey);
         }
         return queries.getProperties(platformKey, path, user);
+    }
+    public Optional<InstanceView> getInstanceModel(Platform.Key platformKey, String modulePath) {
+        // Récupération de la plateforme correspondante
+        PlatformView platform =  queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+
+        // Comme on a récupéré toutes les informations de la platforme, on peut se permettre d'utiliser cette réponse pour faire un filtre sur les DeployedModules avec le modulePath
+        return platform.getDeployedModules().stream()
+                .filter(deployedModuleView -> deployedModuleView.getPropertiesPath().equals(modulePath)).findFirst()
+                // On récupère la première instance car cela n'a pas d'importance, elles ont toutes le même nombre de propriétés
+                .flatMap(deployedModuleView -> deployedModuleView.getInstances().stream().findFirst());
     }
 }
