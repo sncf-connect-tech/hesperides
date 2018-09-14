@@ -25,29 +25,57 @@ import java.util.stream.Stream;
 @RestController
 public class EventsController extends AbstractController {
 
-    EventsUseCases eventsUseCases;
+    private EventsUseCases eventsUseCases;
 
     public EventsController(final EventsUseCases eventsUseCases) {
         this.eventsUseCases = eventsUseCases;
     }
 
-    @ApiOperation("Get the events list from a stream name of platform or module")
-    @GetMapping("/module/{module_name}/{module_version}/{module_type}")
+    @ApiOperation("Get the events list from a legacy stream name of platform or module")
+    @GetMapping("/{stream_name:.+}")
+    public ResponseEntity<List<EventOutput>> getEvents(@PathVariable("stream_name") final String streamName,
+                                                       @RequestParam(value = "page", defaultValue = "1") final Integer page,
+                                                       @RequestParam(value = "size", defaultValue = "25") final Integer size) {
+        List<EventOutput> events = eventsUseCases.parseStreamNameAndGetEvents(streamName, page, size)
+                .stream()
+                .map(EventOutput::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(events);
+    }
+
+    @ApiOperation("Get the events list of a module")
+    @GetMapping("/modules/{module_name}/{module_version}/{module_type}")
     public ResponseEntity<List<EventOutput>> getEvents(@PathVariable("module_name") final String moduleName,
                                                        @PathVariable("module_version") final String moduleVersion,
                                                        @PathVariable("module_type") final String moduleType,
                                                        @RequestParam(value = "page", defaultValue = "1") final Integer page,
                                                        @RequestParam(value = "size", defaultValue = "25") final Integer size) {
 
-        log.info("Get events from platform {}", moduleName);
         Module.Key key = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.valueOf(moduleType));
+        log.info("Get events from module {}", key);
         List<EventOutput> events = eventsUseCases
-                .getEvents(key)
+                .getEvents(key, page, size)
                 .stream()
                 .map(EventOutput::new)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok()
-                .body(events);
+        return ResponseEntity.ok().body(events);
+    }
+
+    @ApiOperation("Get the events list of a platform")
+    @GetMapping("/platforms/{application_name}/{platform_name}")
+    public ResponseEntity<List<EventOutput>> getEvents(@PathVariable("application_name") final String applicationName,
+                                                       @PathVariable("platform_name") final String platformName,
+                                                       @RequestParam(value = "page", defaultValue = "1") final Integer page,
+                                                       @RequestParam(value = "size", defaultValue = "25") final Integer size) {
+
+        Platform.Key key = new Platform.Key(applicationName, platformName);
+        log.info("Get events from module {}", key);
+        List<EventOutput> events = eventsUseCases
+                .getEvents(key, page, size)
+                .stream()
+                .map(EventOutput::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(events);
     }
 
 }
