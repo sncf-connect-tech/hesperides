@@ -1,6 +1,5 @@
 package org.hesperides.core.presentation.controllers;
 
-import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +8,12 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.events.EventOutput;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Slf4j
@@ -27,6 +24,7 @@ public class EventsController extends AbstractController {
 
     private EventsUseCases eventsUseCases;
 
+    @Autowired
     public EventsController(final EventsUseCases eventsUseCases) {
         this.eventsUseCases = eventsUseCases;
     }
