@@ -5,12 +5,11 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.events.EventOutput;
 import org.hesperides.tests.bdd.events.EventsAssertions;
 import org.hesperides.tests.bdd.events.contexts.EventsContext;
-import org.hesperides.tests.bdd.modules.ModuleSamples;
+import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.contexts.ModuleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Map;
 
 
 public class GetModuleEvents implements En {
@@ -24,8 +23,8 @@ public class GetModuleEvents implements En {
 
     public GetModuleEvents() {
         When("^get events occurred for the module created$", () -> {
-            ModuleIO modele = ModuleSamples.getModuleInputWithDefaultValues();
-            events = eventContext.getEvents(modele);
+            ModuleIO moduleInput = new ModuleBuilder().build();
+            events = eventContext.getEvents(moduleInput);
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer eventsSize) -> {

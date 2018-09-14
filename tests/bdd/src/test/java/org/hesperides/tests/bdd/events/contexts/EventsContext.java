@@ -2,12 +2,11 @@ package org.hesperides.tests.bdd.events.contexts;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.events.EventOutput;
-import org.hesperides.tests.bdd.commons.tools.HesperideTestRestTemplate;
+import org.hesperides.tests.bdd.commons.tools.HesperidesTestRestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +17,7 @@ import static org.hesperides.core.domain.templatecontainers.entities.TemplateCon
 public class EventsContext {
 
     @Autowired
-    private HesperideTestRestTemplate rest;
+    private HesperidesTestRestTemplate rest;
 
     public EventsContext() {
     }

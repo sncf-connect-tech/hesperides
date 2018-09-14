@@ -23,28 +23,19 @@ import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
 @RunWith(Cucumber.class)
 @CucumberOptions(
         features = "src/test/resources",
-        glue = {"classpath:org.hesperides.test.bdd"})
+        glue = {"classpath:org.hesperides.tests.bdd"})
 public class CucumberTests {
-    /**
-     * Ces tests fonctionnent en mode "RANDOM_PORT", c'est à dire avec un serveur tomcat
-     * démarré sur un port random.
-     */
+
     @Configuration
     @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
     @ContextConfiguration
-//    @DirtiesContext
     public static class CucumberSpringBean {
-        @Autowired
-        protected HesperidesTestRestTemplate rest;
+
         @Autowired
         private MongoTemplate mongoTemplate;
         @Autowired
         private MongoClient client;
-
-        @Before
-        public void triggerSpringBootAppTestContextByCucumber() {
-        }
 
         @After
         public void tearDown() {
