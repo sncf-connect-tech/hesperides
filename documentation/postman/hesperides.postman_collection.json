@@ -1696,6 +1696,118 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "events",
+			"item": [
+				{
+					"name": "getModuleEvents",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "user",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/events/modules/{{module_name}}/{{module_version}}/{{module_type}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"events",
+								"modules",
+								"{{module_name}}",
+								"{{module_version}}",
+								"{{module_type}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEventsStream",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "user",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/events/module-{{module_name}}-{{module_version}}-wc",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"events",
+								"module-{{module_name}}-{{module_version}}-wc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPlatformEvents",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "password",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "user",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{hesperides_url}}/events/platforms/{{application_name}}/{{platform_name}}",
+							"host": [
+								"{{hesperides_url}}"
+							],
+							"path": [
+								"events",
+								"platforms",
+								"{{application_name}}",
+								"{{platform_name}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
