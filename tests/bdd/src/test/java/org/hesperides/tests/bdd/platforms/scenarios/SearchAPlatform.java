@@ -36,7 +36,7 @@ public class SearchAPlatform implements En {
         });
 
         When("^searching for one of them giving an application name and a platform name$", () -> {
-            String url = "/applications/platforms/perform_search?application_name=APP-1&platform_name=TEST-2";
+            String url = "/applications/platforms/perform_search?applicationName=APP-1&platformName=TEST-2";
             response = rest.getTestRest().postForEntity(
                     url,
                     null,
@@ -51,7 +51,7 @@ public class SearchAPlatform implements En {
         });
 
         When("^asking for the platform list of an application$", () -> {
-            String url = "/applications/platforms/perform_search?application_name=APP-1";
+            String url = "/applications/platforms/perform_search?applicationName=APP-1";
             response = rest.getTestRest().postForEntity(
                     url,
                     null,
