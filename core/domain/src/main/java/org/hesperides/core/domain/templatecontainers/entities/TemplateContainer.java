@@ -4,7 +4,9 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Value
 @NonFinal
@@ -57,6 +59,12 @@ public abstract class TemplateContainer {
 
         public String getMinimizedForm() {
             return minimizedForm;
+        }
+
+        public static VersionType fromMinimizedForm(final String minimizedForm) {
+            return Stream.of(VersionType.values()).filter(v -> v.minimizedForm.equals(minimizedForm))
+                    .findFirst()
+                    .orElseThrow(() -> new InvalidParameterException(String.format("No minimized form of VersioType found for %s", minimizedForm)));
         }
 
         public static String toString(boolean isWorkingCopy) {
