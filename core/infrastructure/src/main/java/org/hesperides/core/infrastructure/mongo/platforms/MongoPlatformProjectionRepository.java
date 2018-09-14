@@ -25,11 +25,7 @@ import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultVi
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.InstanceDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
@@ -38,10 +34,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
@@ -124,11 +122,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .orElse(Collections.emptyList())
                 .stream()
                 .findFirst()
-                .flatMap(deployedModuleDocument ->
-                        Optional.ofNullable(deployedModuleDocument.getInstances())
-                                .orElse(Collections.emptyList())
-                                .stream()
-                                .findFirst())
+                .map(DeployedModuleDocument::getInstances)
+                .map(Collection::stream)
+                .flatMap(Stream::findFirst)
                 .map(InstanceDocument::toInstanceModelView);
     }
 
