@@ -36,7 +36,7 @@ public class PropertiesOutput {
     @SerializedName("iterable_properties")
     List<IterableValuedPropertyIO> iterableValuedPropertyOutputs;
 
-    public PropertiesOutput(List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+   public PropertiesOutput(List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         this.valuedPropertyOutputs = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);

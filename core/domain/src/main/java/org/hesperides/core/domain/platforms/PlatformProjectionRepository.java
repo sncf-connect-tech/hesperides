@@ -2,12 +2,7 @@ package org.hesperides.core.domain.platforms;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
-import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
-import org.hesperides.core.domain.platforms.queries.views.PlatformView;
-import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
-import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
-import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
+import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
@@ -26,6 +21,12 @@ public interface PlatformProjectionRepository {
 
     @EventHandler
     void onPlatformUpdatedEvent(PlatformUpdatedEvent event);
+
+    @EventHandler
+    void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event);
+
+    @EventHandler
+    void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event);
 
     /*** QUERY HANDLERS ***/
 

@@ -6,6 +6,8 @@ import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
@@ -97,10 +99,37 @@ public class PlatformUseCases {
         }
         return Collections.emptyList();
     }
+
     public Optional<InstanceModelView> getInstanceModel(final Platform.Key platformKey, final String modulePath, final User user) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
         return queries.getInstanceModel(platformKey, modulePath, user);
+    }
+
+    public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
+                                                           final String path,
+                                                           final Long platformVersionId,
+                                                           final List<AbstractValuedProperty> abstractValuedProperties,
+                                                           final User user) {
+        if (!queries.platformExists(platformKey)) {
+            throw new PlatformNotFoundException(platformKey);
+        }
+        if ("#".equals(path)) {
+            List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
+            // Platform properties are global and should always be of type ValuedProperty
+            if (valuedProperties.size() != abstractValuedProperties.size()) {
+                throw new IllegalArgumentException("Global properties should always be valued properties");
+            }
+            commands.savePlatformProperties(platformKey, platformVersionId, valuedProperties, user);
+        } else {
+            final Module.Key moduleKey = Module.Key.fromPath(path);
+            if (!moduleQueries.moduleExists(moduleKey)) {
+                throw new ModuleNotFoundException(moduleKey);
+            }
+            commands.saveModulePropertiesInPlatform(platformKey, path, platformVersionId, abstractValuedProperties, user);
+        }
+
+        return getProperties(platformKey, path, user);
     }
 }

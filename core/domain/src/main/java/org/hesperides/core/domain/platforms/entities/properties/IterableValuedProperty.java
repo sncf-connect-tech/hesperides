@@ -27,11 +27,11 @@ import java.util.List;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class ValuedIterableProperty extends AbstractValuedProperty {
+public class IterableValuedProperty extends AbstractValuedProperty {
 
-    List<AbstractValuedProperty> properties;
+    List<IterablePropertyItem> properties;
 
-    public ValuedIterableProperty(String name, List<AbstractValuedProperty> properties) {
+    public IterableValuedProperty(String name, List<IterablePropertyItem> properties) {
         super(name);
         this.properties = properties;
     }

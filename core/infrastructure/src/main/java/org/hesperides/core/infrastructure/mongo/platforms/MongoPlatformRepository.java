@@ -1,7 +1,5 @@
 package org.hesperides.core.infrastructure.mongo.platforms;
 
-import org.hesperides.core.domain.platforms.entities.Platform;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.context.annotation.Profile;

@@ -26,6 +26,7 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 
@@ -74,6 +75,22 @@ public class PlatformAggregate implements Serializable {
         apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
     }
 
+    @CommandHandler
+    public void onUpdatePlatformModulePropertiesCommand(UpdatePlatformModulePropertiesCommand command) {
+        if (command.getPlatformVersionId() != versionId) {
+            throw new OutOfDateVersionException(command.getPlatformVersionId(), versionId);
+        }
+        apply(new PlatformModulePropertiesUpdatedEvent(command.getPlatformKey(), command.getModulePath(), command.getPlatformVersionId()+1, command.getValuedProperties(), command.getUser()));
+    }
+
+    @CommandHandler
+    public void onUpdatePlatformPropertiesCommand(UpdatePlatformPropertiesCommand command) {
+        if (command.getPlatformVersionId() != versionId) {
+            throw new OutOfDateVersionException(command.getPlatformVersionId(), versionId);
+        }
+        apply(new PlatformPropertiesUpdatedEvent(command.getPlatformKey(), command.getPlatformVersionId()+1, command.getValuedProperties(), command.getUser()));
+    }
+
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
@@ -92,5 +109,19 @@ public class PlatformAggregate implements Serializable {
     @EventSourcingHandler
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         log.debug("Platform deleted");
+    }
+
+    @EventSourcingHandler
+    public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
+        this.key = event.getPlatformKey();
+        this.versionId = event.getPlatformVersionId();
+        log.debug("Plaform module {} updated with properties {}", event.getModulePath(), event.getValuedProperties());
+    }
+
+    @EventSourcingHandler
+    public void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event) {
+        this.key = event.getPlatformKey();
+        this.versionId = event.getPlatformVersionId();
+        log.debug("Plaform updated with properties {}", event.getValuedProperties());
     }
 }

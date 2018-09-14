@@ -54,6 +54,10 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         return new InstanceModelView.InstanceModelPropertyView(getName(), "",false, null, null, false);
     }
 
+    public static ValuedPropertyDocument fromDomainInstance(ValuedProperty valuedProperty) {
+        return new ValuedPropertyDocument(valuedProperty);
+    }
+
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
                 .orElse(Collections.emptyList())

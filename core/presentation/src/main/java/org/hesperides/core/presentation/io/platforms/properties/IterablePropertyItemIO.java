@@ -22,6 +22,8 @@ package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
@@ -56,5 +58,19 @@ public class IterablePropertyItemIO {
                 .stream()
                 .map(IterablePropertyItemIO::new)
                 .collect(Collectors.toList());
+    }
+
+    public IterablePropertyItem toDomainInstance() {
+        List<AbstractValuedProperty> abstractValuedProperties = new ArrayList<>();
+
+        // Récupération des valuedPropertyIOS dans la liste d'abstact et transformation en valuedProperties du domaine
+        List<ValuedPropertyIO> propertyIOS = AbstractValuedPropertyIO.getPropertyWithType(abstractValuedPropertyIOS, ValuedPropertyIO.class);
+        abstractValuedProperties.addAll(ValuedPropertyIO.toDomainInstances(propertyIOS));
+
+        // Récupération des iterableValuedPropertyIOS dans la liste d'abstact et transformation en iterableValuedProperties du domaine
+        List<IterableValuedPropertyIO> iterableValuedPropertyIOS = AbstractValuedPropertyIO.getPropertyWithType(abstractValuedPropertyIOS, IterableValuedPropertyIO.class);
+        abstractValuedProperties.addAll(IterableValuedPropertyIO.toDomainInstances(iterableValuedPropertyIOS));
+
+        return new IterablePropertyItem(title, abstractValuedProperties);
     }
 }

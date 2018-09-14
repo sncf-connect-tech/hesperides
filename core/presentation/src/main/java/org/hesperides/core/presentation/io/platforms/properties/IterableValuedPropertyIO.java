@@ -23,9 +23,10 @@ package org.hesperides.core.presentation.io.platforms.properties;
 import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,23 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(IterableValuedPropertyIO::new)
+                .collect(Collectors.toList());
+    }
+
+    public IterableValuedProperty toDomainInstance() {
+        List<IterablePropertyItem> iterablePropertyItems = Optional.ofNullable(this.iterablePropertyItems)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemIO::toDomainInstance)
+                .collect(Collectors.toList());
+        return new IterableValuedProperty(getName(), iterablePropertyItems);
+    }
+
+    public static List<IterableValuedProperty> toDomainInstances(List<IterableValuedPropertyIO> iterableValuedPropertyIOS) {
+        return Optional.ofNullable(iterableValuedPropertyIOS)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterableValuedPropertyIO::toDomainInstance)
                 .collect(Collectors.toList());
     }
 }

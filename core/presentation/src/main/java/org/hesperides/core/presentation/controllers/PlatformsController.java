@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.*;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -190,5 +192,21 @@ public class PlatformsController extends AbstractController {
         // TODO : gestion sécurité isProd pour cacher les propriétés de type @password
         List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, path, fromAuthentication(authentication));
         return ResponseEntity.ok(new PropertiesOutput(abstractValuedPropertyViews));
+    }
+
+    @ApiOperation("Save properties in a platform with the given module path")
+    @PostMapping("/{application_name}/platforms/{platform_name}/properties")
+    public ResponseEntity<PropertiesOutput> saveProperties(Authentication authentication,
+                                                           @PathVariable("application_name") final String applicationName,
+                                                           @PathVariable("platform_name") final String platformName,
+                                                           @RequestParam("path") final String modulePath,
+                                                           @RequestParam("platform_vid") final Long platformVersionId,
+                                                           @Valid @RequestBody final PropertiesInput properties) {
+        List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, modulePath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
+
+        return ResponseEntity.ok(new PropertiesOutput(propertyViews));
+
     }
 }
