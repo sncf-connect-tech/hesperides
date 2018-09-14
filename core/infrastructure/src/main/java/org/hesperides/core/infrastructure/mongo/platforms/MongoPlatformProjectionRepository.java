@@ -118,8 +118,17 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
-        return  platformDocument.getDeployedModules().stream()
-                .findFirst().flatMap(deployedModuleDocument -> deployedModuleDocument.getInstances().stream().findFirst())
+
+        // Création des instanceModelView depuis les propriétés de la première instance du module
+        return Optional.ofNullable(platformDocument.getDeployedModules())
+                .orElse(Collections.emptyList())
+                .stream()
+                .findFirst()
+                .flatMap(deployedModuleDocument ->
+                        Optional.ofNullable(deployedModuleDocument.getInstances())
+                                .orElse(Collections.emptyList())
+                                .stream()
+                                .findFirst())
                 .map(InstanceDocument::toInstanceModelView);
     }
 
