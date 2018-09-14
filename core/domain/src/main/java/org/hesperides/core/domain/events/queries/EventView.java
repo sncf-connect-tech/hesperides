@@ -2,7 +2,6 @@ package org.hesperides.core.domain.events.queries;
 
 import lombok.Value;
 import org.axonframework.eventsourcing.DomainEventMessage;
-import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.security.UserEvent;
 
 import java.time.Instant;
@@ -15,7 +14,7 @@ public class EventView {
     Instant timestamp;
 
     public EventView(final DomainEventMessage domainEventMessage) {
-        this.type = domainEventMessage.getType();
+        this.type = domainEventMessage.getPayload().getClass().getName();
         this.data = ((UserEvent) domainEventMessage.getPayload());
         this.timestamp = domainEventMessage.getTimestamp();
     }
