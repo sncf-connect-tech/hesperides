@@ -16,6 +16,7 @@
         <module>bdd</module>
         <module>integration</module>
         <module>tech</module>
+        <module>bddrefacto</module>
     </modules>
 
 </project>
