@@ -20,9 +20,13 @@
  */
 package org.hesperides.tests.bdd.templatecontainers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.tools.AbstractBuilder;
+import org.springframework.stereotype.Component;
 
-public class TemplateBuilder {
+@Component
+public class TemplateBuilder extends AbstractBuilder {
 
     public static final String DEFAULT_NAME = "template";
 
@@ -55,8 +59,22 @@ public class TemplateBuilder {
     }
 
     public TemplateBuilder withContent(final String content) {
-        this.content = content;
+        if (StringUtils.isBlank(this.content)) {
+            this.content = content;
+        } else {
+            this.content += "\n" + content;
+        }
         return this;
+    }
+
+    public TemplateBuilder withProperty(final String name) {
+        String property = "{{" + name + "}}";
+        return withContent(property);
+    }
+
+    public TemplateBuilder withDefaultAndRequiredProperty() {
+        String property = "{{defaultAndRequired|@default 12 @required}}";
+        return withContent(property);
     }
 
     public TemplateBuilder withRights(final TemplateIO.RightsIO rights) {

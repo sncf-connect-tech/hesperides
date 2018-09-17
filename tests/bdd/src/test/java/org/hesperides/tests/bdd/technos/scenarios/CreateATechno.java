@@ -14,9 +14,13 @@ import org.springframework.http.ResponseEntity;
 import static org.junit.Assert.assertEquals;
 
 public class CreateATechno implements En {
-
     @Autowired
     private TechnoContext technoContext;
+    @Autowired
+    private TemplateBuilder templateBuilder;
+
+    @Autowired
+    private TechnoBuilder technoBuilder;
 
     private TechnoIO technoInput;
     private TemplateIO templateInput;
@@ -32,10 +36,38 @@ public class CreateATechno implements En {
             response = technoContext.createTechno(technoInput, templateInput);
         });
 
+
         Then("^the techno is successfully created$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
             TemplateIO templateOutput = response.getBody();
             TemplateAssertions.assertTemplateAgainstDefaultValues(templateOutput, technoContext.getNamespace(), 1);
+        });
+
+        Given("^a template property with required and default value annotations$", () -> {
+            templateBuilder.withDefaultAndRequiredProperty();
+        });
+
+        Given("^a techno template with properties$", () -> {
+            templateBuilder.withProperty("foo").withProperty("bar");
+        });
+
+//        Given("^a techno for this module(?: with this information)?$", () -> {
+        Given("^an existing techno for this module$", () -> {
+            TechnoIO techno = technoBuilder.build();
+            technoContext.createTechno(techno, templateBuilder.build());
+
+            // TODO: Faire la vérification du 200
+
+
+//            sharedContext.getBuilder(ModuleBuilder.class).withTechno(techno);
+        });
+
+        When("^I create a template in techno with this property$", () -> {
+            response = technoContext.createTechno(technoBuilder.build(), templateBuilder.build());
+        });
+
+        Then("^the creation of the techno template is rejected$", () -> {
+            assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         });
     }
 }

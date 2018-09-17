@@ -22,8 +22,11 @@ package org.hesperides.tests.bdd.technos;
 
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.tests.bdd.commons.tools.AbstractBuilder;
+import org.springframework.stereotype.Component;
 
-public class TechnoBuilder {
+@Component
+public class TechnoBuilder extends AbstractBuilder {
 
     private String name = "test-techno";
     private String version = "1.0.0";

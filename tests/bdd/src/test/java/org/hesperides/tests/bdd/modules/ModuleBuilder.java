@@ -22,13 +22,13 @@ package org.hesperides.tests.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.tests.bdd.commons.tools.AbstractBuilder;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 
-public class ModuleBuilder {
+public class ModuleBuilder extends AbstractBuilder {
 
     private String name = "test";
     private String version = "1.0.0";
@@ -57,7 +57,7 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder withTechno(TechnoIO techno) {
-        this.technos = Arrays.asList(techno);
+        this.technos = Collections.singletonList(techno);
         return this;
     }
 

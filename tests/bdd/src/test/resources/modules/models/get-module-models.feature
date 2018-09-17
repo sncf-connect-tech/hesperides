@@ -7,7 +7,7 @@ Feature: Module model retrieval
 
   Scenario: get the model of a module
     Given an existing module
-    And a template in this module that has properties
+    And a template with properties in this module
     When retrieving the model of this module
     Then the model of this module contains all the properties
 

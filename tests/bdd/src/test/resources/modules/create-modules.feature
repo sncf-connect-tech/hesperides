@@ -15,16 +15,16 @@ Feature: Module creation
     When creating a module that has the same key as this techno
     Then the module is successfully created
 
-  Scenario: create a copy of an existing module
-    Given an existing techno
-    And a template in this techno that has properties
-    And an existing module
-    And a template in this module that has properties
-    And the techno is attached to the module
-    And an existing template in this module
-    When creating a copy of this module
-    Then the module is successfully and completely duplicated
-    And the model of the module is also duplicated
+#  Scenario: create a copy of an existing module
+#    Given an existing module
+#    And a template with properties in this module
+#    And an existing techno for this module
+#    And a template with properties in this techno
+##    And the techno is attached to the module
+##    And an existing template in this module
+#    When I create a copy of this module
+#    Then the module is successfully and completely duplicated
+#    And the model of the module is also duplicated
 
 #  Scenario: create a copy of an existing module
 #    Given a techno template with properties

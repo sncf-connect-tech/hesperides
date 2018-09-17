@@ -33,7 +33,7 @@ public class GetModel implements En {
     private ResponseEntity failResponse;
 
     public GetModel() {
-        Given("^a template in this module that has properties$", () -> {
+        Given("^a template with properties in this module$", () -> {
             templateContext.addTemplateToExistingModule(new TemplateBuilder()
                     .withName("template-a")
                     .withContent("{{foo2|@required @comment content of template-a @pattern * @password }}")

@@ -40,7 +40,7 @@ public class CopyAModule implements En {
             moduleContext.updateModule(moduleInput);
         });
 
-        When("^creating a copy of this module$", () -> {
+        When("^I create a copy of this module$", () -> {
             ModuleIO moduleInput = new ModuleBuilder()
                     .withName("module-copy")
                     .withVersion("1.0.1")
@@ -69,7 +69,7 @@ public class CopyAModule implements En {
         });
     }
 
-    public ResponseEntity<ModuleIO> copyModule(ModuleIO moduleInput) {
+    private ResponseEntity<ModuleIO> copyModule(ModuleIO moduleInput) {
         TemplateContainer.Key moduleKey = moduleContext.getModuleKey();
         return rest.getTestRest().postForEntity("/modules?from_module_name={moduleName}&from_module_version={moduleVersion}&from_is_working_copy={isWorkingCopy}",
                 moduleInput, ModuleIO.class,

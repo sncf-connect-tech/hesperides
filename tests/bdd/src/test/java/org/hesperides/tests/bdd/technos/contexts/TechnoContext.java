@@ -25,12 +25,6 @@ public class TechnoContext implements En {
             createTechno(technoInput, templateInput);
         });
 
-        Given("^a techno(?: with this information)?$", () -> {
-            TemplateIO templateInput = new TemplateBuilder().build();
-            TechnoIO technoInput = new TechnoBuilder().build();
-            createTechno(technoInput, templateInput);
-        });
-
     }
 
     public TemplateContainer.Key getTechnoKey() {
