@@ -8,7 +8,7 @@ Feature: Create technos
     When I create this techno
     Then the techno is successfully created
 
-  Scenario: try to create a techno that already exists
+  Scenario: create a techno that already exists
     Given an existing techno
     And a techno to create with the same name and version
     When I try to create this techno

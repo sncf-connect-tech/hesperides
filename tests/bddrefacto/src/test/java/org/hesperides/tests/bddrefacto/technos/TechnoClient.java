@@ -91,4 +91,9 @@ public class TechnoClient {
                 technoKey.getVersionType());
 
     }
+
+    public ResponseEntity addTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
+        // L'appel est le même que pour la création
+        return create(templateInput, technoInput, responseType);
+    }
 }
