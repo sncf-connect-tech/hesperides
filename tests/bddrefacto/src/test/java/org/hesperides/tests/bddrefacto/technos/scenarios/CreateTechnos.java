@@ -51,7 +51,7 @@ public class CreateTechnos implements En {
             TemplateAssertions.assertTemplate(excpedTemplate, actualTemplate);
         });
 
-        Then("^the techno is rejected with a 409 error$", () -> {
+        Then("^the techno creation is rejected with a 409 error$", () -> {
             assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         });
     }

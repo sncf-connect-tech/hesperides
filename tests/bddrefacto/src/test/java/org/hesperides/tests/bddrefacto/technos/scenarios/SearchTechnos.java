@@ -6,10 +6,11 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import static org.junit.Assert.assertEquals;
 
 public class SearchTechnos implements En {
 
@@ -48,18 +49,18 @@ public class SearchTechnos implements En {
         });
 
         Then("^the techno is found$", () -> {
-            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            Assert.assertEquals(1, responseEntity.getBody().length);
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(1, responseEntity.getBody().length);
         });
 
         Then("^the list of techno results is limited to (\\d+) items$", (Integer limit) -> {
-            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            Assert.assertEquals(limit.intValue(), responseEntity.getBody().length);
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(limit.intValue(), responseEntity.getBody().length);
         });
 
         Then("^the list of techno results is empty$", () -> {
-            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            Assert.assertEquals(0, responseEntity.getBody().length);
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(0, responseEntity.getBody().length);
         });
     }
 }

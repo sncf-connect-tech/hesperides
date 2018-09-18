@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,7 @@ public class TechnoClient {
 
     public ResponseEntity create(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
         return testRestTemplate.postForEntity(
-                "/templates/packages/{technoName}/{technoVersion}/workingcopy/templates",
+                "/templates/packages/{name}/{version}/workingcopy/templates",
                 templateInput,
                 responseType,
                 technoInput.getName(),
@@ -54,5 +55,23 @@ public class TechnoClient {
                 technoKey.getVersion(),
                 technoKey.getVersionType(),
                 TechnoIO.class);
+    }
+
+    public ResponseEntity releaseTechno(TemplateContainer.Key technoKey, Class responseType) {
+        return testRestTemplate.postForEntity("/templates/packages/create_release?techno_name={name}&techno_version={version}",
+                null,
+                responseType,
+                technoKey.getName(),
+                technoKey.getVersion());
+    }
+
+    public ResponseEntity delete(TemplateContainer.Key technoKey, Class responseType) {
+        return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}",
+                HttpMethod.DELETE,
+                null,
+                responseType,
+                technoKey.getName(),
+                technoKey.getVersion(),
+                technoKey.getVersionType());
     }
 }

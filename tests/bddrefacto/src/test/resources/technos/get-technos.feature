@@ -11,4 +11,4 @@ Feature: Get technos detail
   Scenario: try to get detail of a techno that doesn't exist
     Given a techno that doesn't exist
     When I try to get the techno detail
-    Then I get a 404 error
+    Then the techno is not found and I get a 404 error
