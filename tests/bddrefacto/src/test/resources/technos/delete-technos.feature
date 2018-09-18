@@ -16,4 +16,4 @@ Feature: Delete technos
   Scenario: delete a techno that doesn't exist
     Given a techno that doesn't exist
     When I try to delete this techno
-    Then the techno deletion is rejected with a 404 error
+    Then the techno deletion is rejected with a not found error

@@ -11,4 +11,4 @@ Feature: Release technos
   Scenario: release a techno that doesn't exist
     Given a techno that doesn't exist
     When I try to release this techno
-    Then the techno release is rejected with a 404 error
+    Then the techno release is rejected with a not found error

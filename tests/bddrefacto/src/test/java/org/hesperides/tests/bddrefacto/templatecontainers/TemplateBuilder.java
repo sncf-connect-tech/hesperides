@@ -29,13 +29,25 @@ public class TemplateBuilder {
 
     public static final String DEFAULT_NAME = "template";
 
-    private String name = DEFAULT_NAME;
-    private String namespace = null;
-    private String filename = "template.json";
-    private String location = "/location";
-    private String content = "content";
-    private TemplateIO.RightsIO rights = new RightsBuilder().build();
-    private long versionId = 0;
+    private String name;
+    private String namespace;
+    private String filename;
+    private String location;
+    private String content;
+    private TemplateIO.RightsIO rights;
+    private long versionId;
+
+    public TemplateBuilder() {
+        // Valeurs par défaut
+        this.name = DEFAULT_NAME;
+        this.namespace = null;
+        this.filename = "template.json";
+        this.location = "/location";
+        this.content = "content";
+        this.rights = new RightsBuilder().build();
+        this.versionId = 0;
+
+    }
 
     public TemplateBuilder withName(final String name) {
         this.name = name;

@@ -12,4 +12,4 @@ Feature: Create technos
     Given an existing techno
     And a techno to create with the same name and version
     When I try to create this techno
-    Then the techno creation is rejected with a 409 error
+    Then the techno creation is rejected with a conflict error

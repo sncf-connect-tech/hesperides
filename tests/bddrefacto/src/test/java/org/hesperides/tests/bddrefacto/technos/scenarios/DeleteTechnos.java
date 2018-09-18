@@ -38,7 +38,7 @@ public class DeleteTechnos implements En {
             assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         });
 
-        Then("^the techno deletion is rejected with a 404 error$", () -> {
+        Then("^the techno deletion is rejected with a not found error$", () -> {
             assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         });
     }

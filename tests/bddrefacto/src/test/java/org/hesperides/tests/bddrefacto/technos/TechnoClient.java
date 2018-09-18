@@ -53,8 +53,7 @@ public class TechnoClient {
                 responseType,
                 technoKey.getName(),
                 technoKey.getVersion(),
-                technoKey.getVersionType(),
-                TechnoIO.class);
+                technoKey.getVersionType());
     }
 
     public ResponseEntity releaseTechno(TemplateContainer.Key technoKey, Class responseType) {
@@ -73,5 +72,23 @@ public class TechnoClient {
                 technoKey.getName(),
                 technoKey.getVersion(),
                 technoKey.getVersionType());
+    }
+
+    public ResponseEntity copy(TemplateContainer.Key existingTechnoKey, TechnoIO newTechnoInput, Class responseType) {
+        return testRestTemplate.postForEntity("/templates/packages?from_package_name={name}&from_package_version={version}&from_is_working_copy={isWorkingCopy}",
+                newTechnoInput,
+                responseType,
+                existingTechnoKey.getName(),
+                existingTechnoKey.getVersion(),
+                existingTechnoKey.isWorkingCopy());
+    }
+
+    public ResponseEntity getModel(TemplateContainer.Key technoKey, Class responseType) {
+        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/model",
+                responseType,
+                technoKey.getName(),
+                technoKey.getVersion(),
+                technoKey.getVersionType());
+
     }
 }

@@ -213,7 +213,8 @@ public class TechnosController extends AbstractController {
         log.info("copyTechno {}", technoInput.toString());
 
         TemplateContainer.Key existingTechnoKey = new Techno.Key(fromTechnoName, fromTechnoVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
-        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, technoInput.toDomainInstance().getKey(), fromAuthentication(authentication));
+        TemplateContainer.Key newTechnoKey = new Techno.Key(technoInput.getName(), technoInput.getVersion(), TemplateContainer.VersionType.workingcopy);
+        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, newTechnoKey, fromAuthentication(authentication));
         TemplateContainer.Key createdTechnoKey = technoView.toDomainInstance().getKey();
         TechnoIO technoOutput = new TechnoIO(technoView);
         return ResponseEntity.created(createdTechnoKey.getURI()).body(technoOutput);

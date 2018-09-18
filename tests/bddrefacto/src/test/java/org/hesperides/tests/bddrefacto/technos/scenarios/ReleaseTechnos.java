@@ -1,6 +1,7 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -26,7 +27,14 @@ public class ReleaseTechnos implements En {
 
     public ReleaseTechnos() {
 
-        Given("^a released techno$", () -> {
+        Given("^a released techno( with properties)?$", (String withProperties) -> {
+            technoBuilder = new TechnoBuilder();
+            templateBuilder = new TemplateBuilder();
+
+            if (StringUtils.isNotEmpty(withProperties)) {
+                templateBuilder.withProperty("foo").withProperty("bar");
+            }
+
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
             technoClient.releaseTechno(technoBuilder.getTechnoKey(), TechnoIO.class);
         });
@@ -46,7 +54,7 @@ public class ReleaseTechnos implements En {
             assertTechno(expectedTechno, actualTechno);
         });
 
-        Then("^the techno release is rejected with a 404 error$", () -> {
+        Then("^the techno release is rejected with a not found error$", () -> {
             assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });

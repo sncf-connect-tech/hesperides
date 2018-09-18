@@ -28,9 +28,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class TechnoBuilder {
 
-    private String name = "test-techno";
-    private String version = "1.0.0";
-    private boolean isWorkingCopy = true;
+    private String name;
+    private String version;
+    private boolean isWorkingCopy;
+
+    public TechnoBuilder() {
+        // Valeurs par défaut
+        this.name = "test-techno";
+        this.version = "1.0.0";
+        this.isWorkingCopy = true;
+    }
 
     public TechnoBuilder withName(final String name) {
         this.name = name;

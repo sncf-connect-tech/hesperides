@@ -23,6 +23,7 @@ public class GetTechnos implements En {
     public GetTechnos() {
 
         Given("^a techno that doesn't exist$", () -> {
+            technoBuilder = new TechnoBuilder();
             technoBuilder.withName("nope");
         });
 
@@ -39,7 +40,7 @@ public class GetTechnos implements En {
             TechnoAssertions.assertTechno(technoBuilder.build(), (TechnoIO) responseEntity.getBody());
         });
 
-        Then("^the techno is not found and I get a 404 error$", () -> {
+        Then("^the techno is not found and I get a not found error$", () -> {
             assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });

@@ -25,7 +25,10 @@ public class SearchTechnos implements En {
 
     public SearchTechnos() {
 
-        Given("^a list of (\\d+) technos$", (Integer nbTechnos) -> {
+        Given("^a list of (\\d+) technos$", (final Integer nbTechnos) -> {
+            technoBuilder = new TechnoBuilder();
+            templateBuilder = new TemplateBuilder();
+
             TemplateIO templateInput = templateBuilder.build();
             for (int i = 0; i < nbTechnos; i++) {
                 TechnoIO technoInput = technoBuilder
@@ -53,7 +56,7 @@ public class SearchTechnos implements En {
             assertEquals(1, responseEntity.getBody().length);
         });
 
-        Then("^the list of techno results is limited to (\\d+) items$", (Integer limit) -> {
+        Then("^the list of techno results is limited to (\\d+) items$", (final Integer limit) -> {
             assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
             assertEquals(limit.intValue(), responseEntity.getBody().length);
         });

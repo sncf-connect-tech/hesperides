@@ -1,6 +1,7 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -26,7 +27,14 @@ public class CreateTechnos implements En {
 
     public CreateTechnos() {
 
-        Given("^an existing techno$", () -> {
+        Given("^an existing techno( with properties)?$", (String withProperties) -> {
+            technoBuilder = new TechnoBuilder();
+            templateBuilder = new TemplateBuilder();
+
+            if (StringUtils.isNotEmpty(withProperties)) {
+                templateBuilder.withProperty("foo").withProperty("bar");
+            }
+
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
         });
 
@@ -51,7 +59,7 @@ public class CreateTechnos implements En {
             TemplateAssertions.assertTemplate(excpedTemplate, actualTemplate);
         });
 
-        Then("^the techno creation is rejected with a 409 error$", () -> {
+        Then("^the techno creation is rejected with a conflict error$", () -> {
             assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         });
     }
