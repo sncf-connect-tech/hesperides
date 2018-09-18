@@ -1,4 +1,4 @@
-Feature: Create a techno
+Feature: Create technos
 
   Background:
     Given an authenticated user
