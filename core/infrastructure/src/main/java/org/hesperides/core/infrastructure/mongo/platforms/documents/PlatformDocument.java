@@ -58,7 +58,8 @@ public class PlatformDocument {
                 version,
                 isProductionPlatform,
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
-                versionId
+                versionId,
+                ValuedPropertyDocument.toValuedPropertyViews(valuedProperties)
         );
     }
 

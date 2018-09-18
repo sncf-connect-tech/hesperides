@@ -21,6 +21,7 @@
 package org.hesperides.core.domain.platforms.queries.views;
 
 import lombok.Value;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.List;
 
@@ -33,5 +34,6 @@ public class PlatformView {
     boolean isProductionPlatform;
     List<DeployedModuleView> deployedModules;
     Long versionId;
+    List<ValuedPropertyView> valuedProperties;
 }
 
