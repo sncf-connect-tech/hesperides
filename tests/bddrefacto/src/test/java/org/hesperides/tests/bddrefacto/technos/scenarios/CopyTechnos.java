@@ -3,6 +3,7 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
@@ -10,6 +11,9 @@ import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
@@ -38,10 +42,20 @@ public class CopyTechnos implements En {
 
         Then("^the techno is successfully duplicated$", () -> {
             assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-            TechnoIO expectedTechnoOutput = new TechnoBuilder().withVersion("1.0.1").build();
-            TechnoIO actualTechoOutput = (TechnoIO) responseEntity.getBody();
-            assertEquals(expectedTechnoOutput, actualTechoOutput);
-            //TODO Récupérer les templates et faire l'assertion
+            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
+            TechnoIO expectedTechno = expectedTechnoBuilder.build();
+            TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
+            assertEquals(expectedTechno, actualTechno);
+
+            // Vérifie la liste des templates
+            // Seul le namespace est différent
+            String expectedNamespace = expectedTechnoBuilder.getNamespace();
+            List<PartialTemplateIO> expectedTemplates = technoClient.getTemplates(technoBuilder.build())
+                    .stream()
+                    .map(expectedTemplate -> new PartialTemplateIO(expectedTemplate.getName(), expectedNamespace, expectedTemplate.getFilename(), expectedTemplate.getLocation()))
+                    .collect(Collectors.toList());
+            List<PartialTemplateIO> actualTemplates = technoClient.getTemplates(actualTechno);
+            assertEquals(expectedTemplates, actualTemplates);
         });
 
         Then("^the model of the techno is the same$", () -> {

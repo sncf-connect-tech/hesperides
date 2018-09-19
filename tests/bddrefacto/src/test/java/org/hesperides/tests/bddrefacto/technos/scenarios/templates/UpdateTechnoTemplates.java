@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
+import static org.junit.Assert.assertEquals;
 
 public class UpdateTechnoTemplates implements En {
 
@@ -58,6 +59,10 @@ public class UpdateTechnoTemplates implements En {
 
         Then("^the techno template is successfully updated$", () -> {
             assertOK(responseEntity);
+            String expectedNamespace = technoBuilder.getNamespace();
+            TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
+            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the techno template update is rejected with a method not allowed error$", () -> {

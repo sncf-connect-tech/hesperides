@@ -21,6 +21,7 @@
 package org.hesperides.tests.bddrefacto.technos;
 
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -28,6 +29,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class TechnoClient {
@@ -114,6 +118,11 @@ public class TechnoClient {
                 technoInput.getName(),
                 technoInput.getVersion(),
                 getVersionType(technoInput.isWorkingCopy()));
+    }
+
+    public List<PartialTemplateIO> getTemplates(TechnoIO technoInput) {
+        ResponseEntity<PartialTemplateIO[]> responseEntity = getTemplates(technoInput, PartialTemplateIO[].class);
+        return Arrays.asList(responseEntity.getBody());
     }
 
     public ResponseEntity getTemplate(String templateName, TechnoIO technoInput, Class responseType) {

@@ -32,3 +32,5 @@ Feature: Update techno templates
     And a template to update
     When I try to update this techno template
     Then the techno template update is rejected with a not found error
+
+    #TODO Différencier outdated version et ?

@@ -33,7 +33,9 @@ public class GetTechnos implements En {
 
         Then("^the techno detail is successfully retrieved$", () -> {
             assertOK(responseEntity);
-            assertEquals(technoBuilder.build(), (TechnoIO) responseEntity.getBody());
+            TechnoIO expectedTechno = technoBuilder.build();
+            TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
+            assertEquals(expectedTechno, actualTechno);
         });
 
         Then("^the techno is not found$", () -> {
