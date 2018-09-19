@@ -51,4 +51,8 @@ public class StepHelper {
     public static void assertMethodNotAllowed(ResponseEntity responseEntity) {
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
     }
+
+    public static void assertBadRequest(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    }
 }

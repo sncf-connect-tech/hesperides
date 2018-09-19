@@ -9,23 +9,31 @@ Feature: Create techno templates
     When I add this template to the techno
     Then the template is successfully added to the techno
 
-  Scenario: add a template to a released techno (the endpoint doesn't exist)
-#    Given a released techno
-#    And a template to create
-#    When I try to add this template to the techno
-#    Then the template is rejected with a conflict error
+  Scenario: add a template to a released techno
+    Given a released techno
+    And a template to create
+    When I try to add this template to the techno
+    Then the techno template creation is rejected with a method not allowed error
 
   Scenario: add a template to a techno that doesn't exist (it the same as creating a new techno)
-#    Given a techno that doesn't exist
-#    And a template to create
-#    When I try to add this template to the techno
-#    Then the template is rejected with a not found error
 
-  Scenario: add a template that already exists
+  Scenario: add a template without a name to an existing techno
     Given an existing techno
-    And a template to create with the same name as the existing one
+    And a template to create without a name
     When I try to add this template to the techno
-    Then the template is rejected with a conflict error
+    Then the techno template creation is rejected with a bad request error
+
+  Scenario: add a template without a filename to an existing techno
+    Given an existing techno
+    And a template to create without a filename
+    When I try to add this template to the techno
+    Then the techno template creation is rejected with a bad request error
+
+  Scenario: add a template without a location to an existing techno
+    Given an existing techno
+    And a template to create without a location
+    When I try to add this template to the techno
+    Then the techno template creation is rejected with a bad request error
 
 #  Scenario: a techno template property cannot have both required and default value annotations
 #    Given an existing techno

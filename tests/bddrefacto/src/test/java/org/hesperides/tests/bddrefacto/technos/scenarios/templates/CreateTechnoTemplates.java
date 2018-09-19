@@ -30,8 +30,7 @@ import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertConflict;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateTechnoTemplates implements En {
@@ -53,6 +52,18 @@ public class CreateTechnoTemplates implements En {
             }
         });
 
+        Given("^a template to create without a name$", () -> {
+            templateBuilder.withName("");
+        });
+
+        Given("^a template to create without a filename$", () -> {
+            templateBuilder.withName("new-template").withFilename("");
+        });
+
+        Given("^a template to create without a location", () -> {
+            templateBuilder.withName("new-template").withLocation("");
+        });
+
         When("^I( try to)? add this template to the techno$", (final String tryTo) -> {
             responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
         });
@@ -64,8 +75,12 @@ public class CreateTechnoTemplates implements En {
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the template is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+        Then("^the techno template creation is rejected with a method not allowed error$", () -> {
+            assertMethodNotAllowed(responseEntity);
+        });
+
+        Then("^the techno template creation is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 }
