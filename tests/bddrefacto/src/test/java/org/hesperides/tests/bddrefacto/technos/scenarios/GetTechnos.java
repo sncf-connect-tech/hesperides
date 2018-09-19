@@ -2,6 +2,7 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoAssertions;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
@@ -26,12 +27,8 @@ public class GetTechnos implements En {
             technoBuilder.withName("nope");
         });
 
-        When("^I get the techno detail$", () -> {
-            responseEntity = technoClient.get(technoBuilder.build(), TechnoIO.class);
-        });
-
-        When("^I try to get the techno detail$", () -> {
-            responseEntity = technoClient.get(technoBuilder.build(), String.class);
+        When("^I( try to)? get the techno detail$", (final String tryTo) -> {
+            responseEntity = technoClient.get(technoBuilder.build(), StepHelper.getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno detail is successfully retrieved$", () -> {

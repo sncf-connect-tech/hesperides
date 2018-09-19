@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -36,12 +37,8 @@ public class ReleaseTechnos implements En {
             technoBuilder.withIsWorkingCopy(false);
         });
 
-        When("^I release this techno$", () -> {
-            responseEntity = technoClient.releaseTechno(technoBuilder.build(), TechnoIO.class);
-        });
-
-        When("^I try to release this techno$", () -> {
-            responseEntity = technoClient.releaseTechno(technoBuilder.build(), String.class);
+        When("^I( try to)? release this techno$", (final String tryTo) -> {
+            responseEntity = technoClient.releaseTechno(technoBuilder.build(), StepHelper.getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno is successfully released$", () -> {

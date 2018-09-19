@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateAssertions;
@@ -38,12 +39,8 @@ public class CreateTechnos implements En {
             technoBuilder.reset();
         });
 
-        When("^I create this techno$", () -> {
-            responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
-        });
-
-        When("^I try to create this techno$", () -> {
-            responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), String.class);
+        When("^I( try to)? create this techno$", (final String tryTo) -> {
+            responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the techno is successfully created$", () -> {

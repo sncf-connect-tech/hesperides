@@ -2,6 +2,7 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -24,13 +25,10 @@ public class DeleteTechnos implements En {
 
     public DeleteTechnos() {
 
-        When("^I delete this techno$", () -> {
-            responseEntity = technoClient.delete(technoBuilder.build(), ResponseEntity.class);
+        When("^I( try to)? delete this techno$", (final String tryTo) -> {
+            responseEntity = technoClient.delete(technoBuilder.build(), StepHelper.getResponseType(tryTo, ResponseEntity.class));
         });
-
-        When("^I try to delete this techno$", () -> {
-            responseEntity = technoClient.delete(technoBuilder.build(), String.class);
-        });
+        ;
 
         Then("^the techno is successfully deleted$", () -> {
             assertEquals(HttpStatus.OK, responseEntity.getStatusCode());

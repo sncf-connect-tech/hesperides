@@ -3,6 +3,7 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoAssertions;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
@@ -27,12 +28,8 @@ public class CopyTechnos implements En {
 
     public CopyTechnos() {
 
-        When("^I create a copy of this techno$", () -> {
-            responseEntity = copy("1.0.1", TechnoIO.class);
-        });
-
-        When("^I try to create a copy of this techno$", () -> {
-            responseEntity = copy("1.0.1", String.class);
+        When("^I( try to)? create a copy of this techno$", (final String tryTo) -> {
+            responseEntity = copy("1.0.1", StepHelper.getResponseType(tryTo, TechnoIO.class));
         });
 
         When("^I try to create a copy of this techno, using the same key$", () -> {

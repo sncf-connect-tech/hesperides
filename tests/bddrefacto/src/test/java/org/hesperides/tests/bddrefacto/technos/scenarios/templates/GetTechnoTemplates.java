@@ -23,6 +23,7 @@ package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -60,20 +61,12 @@ public class GetTechnoTemplates implements En {
             templateBuilder.withName("nope");
         });
 
-        When("^I get the list of templates of this techno$", () -> {
-            responseEntity = technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
+        When("^I( try to)? get the list of templates of this techno$", (final String tryTo) -> {
+            responseEntity = technoClient.getTemplates(technoBuilder.build(), StepHelper.getResponseType(tryTo, PartialTemplateIO[].class));
         });
 
-        When("^I try to get the list of templates of this techno$", () -> {
-            responseEntity = technoClient.getTemplates(technoBuilder.build(), String.class);
-        });
-
-        When("^I get this template in this techno$", () -> {
-            responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), TemplateIO.class);
-        });
-
-        When("^I try to get this template in this techno$", () -> {
-            responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
+        When("^I( try to)? get this template in this techno$", (final String tryTo) -> {
+            responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^a list of all the templates of the techno is returned$", () -> {

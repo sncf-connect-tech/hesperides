@@ -22,6 +22,7 @@ package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -51,16 +52,16 @@ public class UpdateTechnoTemplates implements En {
             templateBuilder.withVersionId(0);
         });
 
-        When("^I update this techno template$", () -> {
-            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
-        });
-
-        When("^I try to update this techno template$", () -> {
-            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), String.class);
+        When("^I( try to)? update this techno template$", (final String tryTo) -> {
+            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the techno template is successfully updated$", () -> {
             Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        });
+
+        Then("^the techno template update is rejected with a method not allowed error$", () -> {
+            Assert.assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
         });
 
         Then("^the techno template update is rejected with a not found error$", () -> {

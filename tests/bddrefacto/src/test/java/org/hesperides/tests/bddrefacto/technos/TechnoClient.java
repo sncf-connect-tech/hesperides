@@ -99,12 +99,13 @@ public class TechnoClient {
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.exchange("/templates/packages/{name}/{version}/workingcopy/templates",
+        return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates",
                 HttpMethod.PUT,
                 new HttpEntity<>(templateInput),
                 responseType,
                 technoInput.getName(),
-                technoInput.getVersion());
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()));
     }
 
     public ResponseEntity getTemplates(TechnoIO technoInput, Class responseType) {

@@ -9,6 +9,12 @@ Feature: Update techno templates
     When I update this techno template
     Then the techno template is successfully updated
 
+  Scenario: update an existing template in a released techno
+    Given a released techno
+    And a template to update
+    When I try to update this techno template
+    Then the techno template update is rejected with a method not allowed error
+
   Scenario: update a template that doesn't exist in a techno
     Given an existing techno
     And a template that doesn't exist in this techno
@@ -26,5 +32,3 @@ Feature: Update techno templates
     And a template to update
     When I try to update this techno template
     Then the techno template update is rejected with a not found error
-
-  Scenario: it's not possible to update a template of a released techno
