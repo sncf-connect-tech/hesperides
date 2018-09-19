@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -95,5 +96,14 @@ public class TechnoClient {
     public ResponseEntity addTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
         // L'appel est le même que pour la création
         return create(templateInput, technoInput, responseType);
+    }
+
+    public ResponseEntity updateTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
+        return testRestTemplate.exchange("/templates/packages/{name}/{version}/workingcopy/templates",
+                HttpMethod.PUT,
+                new HttpEntity<>(templateInput),
+                responseType,
+                technoInput.getName(),
+                technoInput.getVersion());
     }
 }

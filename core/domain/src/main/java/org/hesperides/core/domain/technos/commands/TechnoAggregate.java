@@ -62,15 +62,17 @@ class TechnoAggregate implements Serializable {
     public void onUpdateTechnoTemplateCommand(UpdateTechnoTemplateCommand command) {
         log.debug("Applying update template command...");
 
-        Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
-
         Template template = command.getTemplate()
                 .validateExistingName(templates, key)
-                .validateVersionId(expectedVersionId)
+                .validateVersionId(getExpectedVersionId(command))
                 .validateProperties()
                 .incrementVersionId();
 
         apply(new TechnoTemplateUpdatedEvent(key, template, command.getUser()));
+    }
+
+    private Long getExpectedVersionId(UpdateTechnoTemplateCommand command) {
+        return templates.get(command.getTemplate().getName()).getVersionId();
     }
 
     @CommandHandler

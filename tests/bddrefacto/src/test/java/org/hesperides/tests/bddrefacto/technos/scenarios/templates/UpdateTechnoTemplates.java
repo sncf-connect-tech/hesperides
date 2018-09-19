@@ -21,7 +21,6 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
@@ -31,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class CreateTechnoTemplates implements En {
+public class UpdateTechnoTemplates implements En {
 
     @Autowired
     private TemplateBuilder templateBuilder;
@@ -42,28 +41,40 @@ public class CreateTechnoTemplates implements En {
 
     private ResponseEntity responseEntity;
 
-    public CreateTechnoTemplates() {
+    public UpdateTechnoTemplates() {
 
-        Given("^a template to create( with the same name as the existing one)?$", (final String withTheSameName) -> {
+        Given("^a template to update$", () -> {
             templateBuilder = new TemplateBuilder();
-            if (StringUtils.isEmpty(withTheSameName)) {
-                templateBuilder.withName("new-template");
-            }
+            templateBuilder.withVersionId(1);
         });
 
-        When("^I add this template to the techno$", () -> {
-            responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+        Given("^a template that doesn't exist in this techno$", () -> {
+            templateBuilder = new TemplateBuilder();
+            templateBuilder.withName("nope");
         });
 
-        When("^I try to add this template to the techno$", () -> {
-            responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), String.class);
+        Given("^a template with an outdated version$", () -> {
+            templateBuilder = new TemplateBuilder();
+            templateBuilder.withVersionId(0);
         });
 
-        Then("^the template is successfully added to the techno$", () -> {
-            Assert.assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        When("^I update this techno template$", () -> {
+            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
         });
 
-        Then("^the template is rejected with a conflict error$", () -> {
+        When("^I try to update this techno template$", () -> {
+            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), String.class);
+        });
+
+        Then("^the techno template is successfully updated$", () -> {
+            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        });
+
+        Then("^the techno template update is rejected with a not found error$", () -> {
+            Assert.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        });
+
+        Then("^the techno template update is rejected with a conflict error$", () -> {
             Assert.assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         });
     }
