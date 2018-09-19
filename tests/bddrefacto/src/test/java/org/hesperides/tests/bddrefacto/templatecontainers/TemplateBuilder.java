@@ -21,6 +21,7 @@
 package org.hesperides.tests.bddrefacto.templatecontainers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
@@ -104,6 +105,10 @@ public class TemplateBuilder {
 
     public TemplateIO build() {
         return new TemplateIO(name, namespace, filename, location, content, rights, versionId);
+    }
+
+    public PartialTemplateIO buildPartialTemplate(String namespace) {
+        return new PartialTemplateIO(name, namespace, filename, location);
     }
 
     public static class RightsBuilder {

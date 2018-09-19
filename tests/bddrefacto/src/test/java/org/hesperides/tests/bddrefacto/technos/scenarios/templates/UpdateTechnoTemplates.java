@@ -26,10 +26,10 @@ import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 
 public class UpdateTechnoTemplates implements En {
 
@@ -57,19 +57,19 @@ public class UpdateTechnoTemplates implements En {
         });
 
         Then("^the techno template is successfully updated$", () -> {
-            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
         });
 
         Then("^the techno template update is rejected with a method not allowed error$", () -> {
-            Assert.assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
+            assertMethodNotAllowed(responseEntity);
         });
 
         Then("^the techno template update is rejected with a not found error$", () -> {
-            Assert.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
         });
 
         Then("^the techno template update is rejected with a conflict error$", () -> {
-            Assert.assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+            assertConflict(responseEntity);
         });
     }
 }

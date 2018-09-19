@@ -21,10 +21,34 @@
 package org.hesperides.tests.bddrefacto.commons;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.Assert.assertEquals;
 
 public class StepHelper {
 
     public static Class getResponseType(final String tryTo, Class defaultResponseType) {
         return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
+    }
+
+    public static void assertOK(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    }
+
+    public static void assertCreated(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+    }
+
+    public static void assertNotFound(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    }
+
+    public static void assertConflict(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+    }
+
+    public static void assertMethodNotAllowed(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
     }
 }

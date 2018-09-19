@@ -27,10 +27,17 @@ import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.junit.Assert.assertEquals;
 
 public class GetTechnoTemplates implements En {
 
@@ -42,13 +49,17 @@ public class GetTechnoTemplates implements En {
     private TechnoClient technoClient;
 
     private ResponseEntity responseEntity;
+    private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
+
+    private static int nbTemplates = 12;
 
     public GetTechnoTemplates() {
 
         Given("^multiple templates in this techno$", () -> {
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < nbTemplates; i++) {
                 templateBuilder.withName("template-" + i + 1);
                 technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+                expectedPartialTemplates.add(templateBuilder.buildPartialTemplate(technoBuilder.getNamespace()));
             }
         });
 
@@ -70,24 +81,31 @@ public class GetTechnoTemplates implements En {
         });
 
         Then("^a list of all the templates of the techno is returned$", () -> {
-            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            PartialTemplateIO[] templates = (PartialTemplateIO[]) responseEntity.getBody();
+            assertOK(responseEntity);
+            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) responseEntity.getBody());
+            assertEquals(expectedPartialTemplates,
+                    actualPartialTemplates.stream()
+                            .filter(t -> !TemplateBuilder.DEFAULT_NAME.equals(t.getName()))
+                            .collect(Collectors.toList()));
         });
 
         Then("^the techno template is successfully returned$", () -> {
-            Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
+            TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
+            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the techno template is not found$", () -> {
-            Assert.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
         });
 
         Then("^the templates techno is not found$", () -> {
-            Assert.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
         });
 
         Then("^the template techno is not found$", () -> {
-            Assert.assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
         });
     }
 }

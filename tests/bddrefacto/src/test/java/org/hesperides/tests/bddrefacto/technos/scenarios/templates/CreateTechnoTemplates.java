@@ -27,10 +27,12 @@ import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertConflict;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
+import static org.junit.Assert.assertEquals;
 
 public class CreateTechnoTemplates implements En {
 
@@ -56,11 +58,14 @@ public class CreateTechnoTemplates implements En {
         });
 
         Then("^the template is successfully added to the techno$", () -> {
-            Assert.assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+            assertCreated(responseEntity);
+            TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
+            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the template is rejected with a conflict error$", () -> {
-            Assert.assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+            assertConflict(responseEntity);
         });
     }
 }

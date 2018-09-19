@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.technos.TechnoAssertions.assertTechno;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
 import static org.junit.Assert.assertEquals;
 
 public class ReleaseTechnos implements En {
@@ -45,11 +45,11 @@ public class ReleaseTechnos implements En {
             assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
             TechnoIO expectedTechno = technoBuilder.withIsWorkingCopy(false).build();
             TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
-            assertTechno(expectedTechno, actualTechno);
+            assertEquals(expectedTechno, actualTechno);
         });
 
         Then("^the techno release is rejected with a not found error$", () -> {
-            assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
     }

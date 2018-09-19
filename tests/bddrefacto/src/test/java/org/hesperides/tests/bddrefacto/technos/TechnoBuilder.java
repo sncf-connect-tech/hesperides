@@ -20,7 +20,6 @@
  */
 package org.hesperides.tests.bddrefacto.technos;
 
-import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.springframework.stereotype.Component;
@@ -70,7 +69,7 @@ public class TechnoBuilder {
         return new TechnoIO(name, version, isWorkingCopy);
     }
 
-    public TemplateContainer.Key getTechnoKey() {
-        return new Techno.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+    public String getNamespace() {
+        return "packages#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
     }
 }

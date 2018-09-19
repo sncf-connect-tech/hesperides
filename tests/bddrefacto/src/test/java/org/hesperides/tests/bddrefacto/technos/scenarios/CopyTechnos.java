@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
-import org.hesperides.tests.bddrefacto.technos.TechnoAssertions;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -40,13 +40,13 @@ public class CopyTechnos implements En {
             assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
             TechnoIO expectedTechnoOutput = new TechnoBuilder().withVersion("1.0.1").build();
             TechnoIO actualTechoOutput = (TechnoIO) responseEntity.getBody();
-            TechnoAssertions.assertTechno(expectedTechnoOutput, actualTechoOutput);
+            assertEquals(expectedTechnoOutput, actualTechoOutput);
             //TODO Récupérer les templates et faire l'assertion
         });
 
         Then("^the model of the techno is the same$", () -> {
             responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
             ModelOutput modelOutput = (ModelOutput) responseEntity.getBody();
             assertEquals(2, modelOutput.getProperties().size());
             //TODO Créer un property builder et un model builder et faire l'assertion des propriétés
@@ -58,12 +58,12 @@ public class CopyTechnos implements En {
         });
 
         Then("^the techno copy is rejected with a not found error$", () -> {
-            assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
 
         Then("^the techno copy is rejected with a conflict error$", () -> {
-            assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+            assertConflict(responseEntity);
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
     }

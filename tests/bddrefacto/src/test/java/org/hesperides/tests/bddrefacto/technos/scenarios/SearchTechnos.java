@@ -7,9 +7,9 @@ import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
 public class SearchTechnos implements En {
@@ -45,17 +45,17 @@ public class SearchTechnos implements En {
         });
 
         Then("^the techno is found$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
             assertEquals(1, responseEntity.getBody().length);
         });
 
         Then("^the list of techno results is limited to (\\d+) items$", (final Integer limit) -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
             assertEquals(limit.intValue(), responseEntity.getBody().length);
         });
 
         Then("^the list of techno results is empty$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
             assertEquals(0, responseEntity.getBody().length);
         });
     }

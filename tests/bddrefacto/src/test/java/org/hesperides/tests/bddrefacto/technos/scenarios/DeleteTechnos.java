@@ -1,16 +1,15 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.Assert.assertEquals;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
 
 public class DeleteTechnos implements En {
 
@@ -31,17 +30,13 @@ public class DeleteTechnos implements En {
         ;
 
         Then("^the techno is successfully deleted$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertOK(responseEntity);
             responseEntity = technoClient.get(technoBuilder.build(), String.class);
-            assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
         });
 
         Then("^the techno deletion is rejected with a not found error$", () -> {
-            assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+            assertNotFound(responseEntity);
         });
-    }
-
-    private String getExpectedNamespace(TechnoIO technoInput) {
-        return "packages#" + technoInput.getName() + "#" + technoInput.getVersion() + "#" + (technoInput.isWorkingCopy() ? "WORKINGCOPY" : "RELEASE");
     }
 }
