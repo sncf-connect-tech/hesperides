@@ -7,7 +7,6 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
-import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +22,6 @@ public class CopyTechnos implements En {
 
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoClient technoClient;
 

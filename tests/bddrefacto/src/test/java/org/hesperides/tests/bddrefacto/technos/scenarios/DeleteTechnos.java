@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
-import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -15,8 +14,6 @@ public class DeleteTechnos implements En {
 
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoClient technoClient;
 

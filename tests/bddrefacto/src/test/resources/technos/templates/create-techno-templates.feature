@@ -35,6 +35,12 @@ Feature: Create techno templates
     When I try to add this template to the techno
     Then the techno template creation is rejected with a bad request error
 
+  Scenario: create a template after it has been deleted
+    Given an existing techno
+    When I delete this techno template
+    And I add this template to the techno
+    Then the template is successfully added to the techno
+
 #  Scenario: a techno template property cannot have both required and default value annotations
 #    Given an existing techno
 #    When trying to create a template in this techno that has a property that is required and with a default value

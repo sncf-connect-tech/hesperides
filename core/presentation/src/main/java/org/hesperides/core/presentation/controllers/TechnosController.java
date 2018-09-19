@@ -154,7 +154,7 @@ public class TechnosController extends AbstractController {
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         this.technoUseCases.deleteTemplate(technoKey, templateName, fromAuthentication(authentication));
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation("Get techno templates")

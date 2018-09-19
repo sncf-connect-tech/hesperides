@@ -137,4 +137,15 @@ public class TechnoClient {
     private String getVersionType(boolean isWorkingCopy) {
         return isWorkingCopy ? "workingcopy" : "release";
     }
+
+    public ResponseEntity deleteTemplate(String templateName, TechnoIO technoInput, Class responseType) {
+        return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
+                HttpMethod.DELETE,
+                null,
+                responseType,
+                technoInput.getName(),
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()),
+                templateName);
+    }
 }

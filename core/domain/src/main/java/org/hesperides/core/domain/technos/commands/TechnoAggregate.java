@@ -7,6 +7,7 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.commandhandling.model.AggregateMember;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -79,10 +80,10 @@ class TechnoAggregate implements Serializable {
     @SuppressWarnings("unused")
     public void onDeleteTechnoTemplateCommand(DeleteTechnoTemplateCommand command) {
         //TODO Est-ce qu'on incrémente le versionId ? => Etudier la re-création d'une techno ?
-        // si le template n'existe pas, cette commande n'a pas d'effet de bord
-        if (this.templates.containsKey(command.getTemplateName())) {
-            apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
+        if (!this.templates.containsKey(command.getTemplateName())) {
+            throw new TemplateNotFoundException(key, command.getTemplateName());
         }
+        apply(new TechnoTemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
