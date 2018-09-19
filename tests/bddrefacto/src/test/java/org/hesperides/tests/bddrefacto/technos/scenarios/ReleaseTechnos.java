@@ -28,23 +28,24 @@ public class ReleaseTechnos implements En {
     public ReleaseTechnos() {
 
         Given("^a released techno( with properties)?$", (String withProperties) -> {
-            technoBuilder = new TechnoBuilder();
-            templateBuilder = new TemplateBuilder();
+            technoBuilder.reset();
+            templateBuilder.reset();
 
             if (StringUtils.isNotEmpty(withProperties)) {
                 templateBuilder.withProperty("foo").withProperty("bar");
             }
 
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
-            technoClient.releaseTechno(technoBuilder.getTechnoKey(), TechnoIO.class);
+            technoClient.releaseTechno(technoBuilder.build(), TechnoIO.class);
+            technoBuilder.withIsWorkingCopy(false);
         });
 
         When("^I release this techno$", () -> {
-            responseEntity = technoClient.releaseTechno(technoBuilder.getTechnoKey(), TechnoIO.class);
+            responseEntity = technoClient.releaseTechno(technoBuilder.build(), TechnoIO.class);
         });
 
         When("^I try to release this techno$", () -> {
-            responseEntity = technoClient.releaseTechno(technoBuilder.getTechnoKey(), String.class);
+            responseEntity = technoClient.releaseTechno(technoBuilder.build(), String.class);
         });
 
         Then("^the techno is successfully released$", () -> {

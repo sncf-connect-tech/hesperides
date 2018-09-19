@@ -25,16 +25,16 @@ public class DeleteTechnos implements En {
     public DeleteTechnos() {
 
         When("^I delete this techno$", () -> {
-            responseEntity = technoClient.delete(technoBuilder.getTechnoKey(), ResponseEntity.class);
+            responseEntity = technoClient.delete(technoBuilder.build(), ResponseEntity.class);
         });
 
         When("^I try to delete this techno$", () -> {
-            responseEntity = technoClient.delete(technoBuilder.getTechnoKey(), String.class);
+            responseEntity = technoClient.delete(technoBuilder.build(), String.class);
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            responseEntity = technoClient.get(technoBuilder.getTechnoKey(), String.class);
+            responseEntity = technoClient.get(technoBuilder.build(), String.class);
             assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         });
 

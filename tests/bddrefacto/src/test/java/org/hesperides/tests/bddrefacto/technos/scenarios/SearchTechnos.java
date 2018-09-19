@@ -26,8 +26,8 @@ public class SearchTechnos implements En {
     public SearchTechnos() {
 
         Given("^a list of (\\d+) technos$", (final Integer nbTechnos) -> {
-            technoBuilder = new TechnoBuilder();
-            templateBuilder = new TemplateBuilder();
+            technoBuilder.reset();
+            templateBuilder.reset();
 
             TemplateIO templateInput = templateBuilder.build();
             for (int i = 0; i < nbTechnos; i++) {

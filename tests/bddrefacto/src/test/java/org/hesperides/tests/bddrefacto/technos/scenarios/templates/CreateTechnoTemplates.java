@@ -45,7 +45,7 @@ public class CreateTechnoTemplates implements En {
     public CreateTechnoTemplates() {
 
         Given("^a template to create( with the same name as the existing one)?$", (final String withTheSameName) -> {
-            templateBuilder = new TemplateBuilder();
+            templateBuilder.reset();
             if (StringUtils.isEmpty(withTheSameName)) {
                 templateBuilder.withName("new-template");
             }

@@ -38,6 +38,10 @@ public class TemplateBuilder {
     private long versionId;
 
     public TemplateBuilder() {
+        reset();
+    }
+
+    public TemplateBuilder reset() {
         // Valeurs par défaut
         this.name = DEFAULT_NAME;
         this.namespace = null;
@@ -46,7 +50,7 @@ public class TemplateBuilder {
         this.content = "content";
         this.rights = new RightsBuilder().build();
         this.versionId = 0;
-
+        return this;
     }
 
     public TemplateBuilder withName(final String name) {

@@ -20,7 +20,6 @@
  */
 package org.hesperides.tests.bddrefacto.technos;
 
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,58 +37,59 @@ public class TechnoClient {
 
     public ResponseEntity create(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
         return testRestTemplate.postForEntity(
-                "/templates/packages/{name}/{version}/workingcopy/templates",
+                "/templates/packages/{name}/{version}/{type}/templates",
                 templateInput,
                 responseType,
                 technoInput.getName(),
-                technoInput.getVersion());
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()));
     }
 
     public ResponseEntity search(String terms) {
         return testRestTemplate.postForEntity("/templates/packages/perform_search?terms=" + terms, null, TechnoIO[].class);
     }
 
-    public ResponseEntity get(TemplateContainer.Key technoKey, Class responseType) {
+    public ResponseEntity get(TechnoIO technoInput, Class responseType) {
         return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}",
                 responseType,
-                technoKey.getName(),
-                technoKey.getVersion(),
-                technoKey.getVersionType());
+                technoInput.getName(),
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()));
     }
 
-    public ResponseEntity releaseTechno(TemplateContainer.Key technoKey, Class responseType) {
+    public ResponseEntity releaseTechno(TechnoIO technoInput, Class responseType) {
         return testRestTemplate.postForEntity("/templates/packages/create_release?techno_name={name}&techno_version={version}",
                 null,
                 responseType,
-                technoKey.getName(),
-                technoKey.getVersion());
+                technoInput.getName(),
+                technoInput.getVersion());
     }
 
-    public ResponseEntity delete(TemplateContainer.Key technoKey, Class responseType) {
+    public ResponseEntity delete(TechnoIO technoInput, Class responseType) {
         return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}",
                 HttpMethod.DELETE,
                 null,
                 responseType,
-                technoKey.getName(),
-                technoKey.getVersion(),
-                technoKey.getVersionType());
+                technoInput.getName(),
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()));
     }
 
-    public ResponseEntity copy(TemplateContainer.Key existingTechnoKey, TechnoIO newTechnoInput, Class responseType) {
+    public ResponseEntity copy(TechnoIO existingTechnoInput, TechnoIO newTechnoInput, Class responseType) {
         return testRestTemplate.postForEntity("/templates/packages?from_package_name={name}&from_package_version={version}&from_is_working_copy={isWorkingCopy}",
                 newTechnoInput,
                 responseType,
-                existingTechnoKey.getName(),
-                existingTechnoKey.getVersion(),
-                existingTechnoKey.isWorkingCopy());
+                existingTechnoInput.getName(),
+                existingTechnoInput.getVersion(),
+                existingTechnoInput.isWorkingCopy());
     }
 
-    public ResponseEntity getModel(TemplateContainer.Key technoKey, Class responseType) {
+    public ResponseEntity getModel(TechnoIO technoInput, Class responseType) {
         return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/model",
                 responseType,
-                technoKey.getName(),
-                technoKey.getVersion(),
-                technoKey.getVersionType());
+                technoInput.getName(),
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()));
 
     }
 
@@ -105,5 +105,26 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion());
+    }
+
+    public ResponseEntity getTemplates(TechnoIO technoInput, Class responseType) {
+        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates",
+                responseType,
+                technoInput.getName(),
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()));
+    }
+
+    public ResponseEntity getTemplate(String templateName, TechnoIO technoInput, Class responseType) {
+        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
+                responseType,
+                technoInput.getName(),
+                technoInput.getVersion(),
+                getVersionType(technoInput.isWorkingCopy()),
+                templateName);
+    }
+
+    private String getVersionType(boolean isWorkingCopy) {
+        return isWorkingCopy ? "workingcopy" : "release";
     }
 }

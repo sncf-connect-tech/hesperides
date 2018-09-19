@@ -33,10 +33,15 @@ public class TechnoBuilder {
     private boolean isWorkingCopy;
 
     public TechnoBuilder() {
+        reset();
+    }
+
+    public TechnoBuilder reset() {
         // Valeurs par défaut
         this.name = "test-techno";
         this.version = "1.0.0";
         this.isWorkingCopy = true;
+        return this;
     }
 
     public TechnoBuilder withName(final String name) {

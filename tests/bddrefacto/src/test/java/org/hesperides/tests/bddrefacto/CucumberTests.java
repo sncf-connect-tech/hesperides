@@ -6,6 +6,8 @@ import cucumber.api.java.After;
 import cucumber.api.junit.Cucumber;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.hesperides.HesperidesSpringApplication;
+import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
+import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +36,17 @@ public class CucumberTests {
         private MongoTemplate mongoTemplate;
         @Autowired
         private MongoClient client;
+        @Autowired
+        private TechnoBuilder technoBuilder;
+        @Autowired
+        private TemplateBuilder templateBuilder;
 
         @After
         public void tearDown() {
             mongoTemplate.getDb().dropDatabase();
             new DefaultMongoTemplate(client).eventCollection().drop();
+            technoBuilder.reset();
+            templateBuilder.reset();
         }
     }
 

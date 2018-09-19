@@ -1,7 +1,6 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.tests.bddrefacto.technos.TechnoAssertions;
@@ -49,7 +48,7 @@ public class CopyTechnos implements En {
         });
 
         Then("^the model of the techno is the same$", () -> {
-            responseEntity = technoClient.getModel(technoBuilder.getTechnoKey(), ModelOutput.class);
+            responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
             assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
             ModelOutput modelOutput = (ModelOutput) responseEntity.getBody();
             assertEquals(2, modelOutput.getProperties().size());
@@ -73,8 +72,7 @@ public class CopyTechnos implements En {
     }
 
     private ResponseEntity copy(final String newVersion, Class responseType) {
-        TemplateContainer.Key existingTechnoKey = technoBuilder.getTechnoKey();
         TechnoIO newTechnoInput = new TechnoBuilder().withVersion(newVersion).build();
-        return technoClient.copy(existingTechnoKey, newTechnoInput, responseType);
+        return technoClient.copy(technoBuilder.build(), newTechnoInput, responseType);
     }
 }

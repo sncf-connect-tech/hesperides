@@ -44,18 +44,11 @@ public class UpdateTechnoTemplates implements En {
     public UpdateTechnoTemplates() {
 
         Given("^a template to update$", () -> {
-            templateBuilder = new TemplateBuilder();
-            templateBuilder.withVersionId(1);
-        });
-
-        Given("^a template that doesn't exist in this techno$", () -> {
-            templateBuilder = new TemplateBuilder();
-            templateBuilder.withName("nope");
+            templateBuilder.reset().withVersionId(1);
         });
 
         Given("^a template with an outdated version$", () -> {
-            templateBuilder = new TemplateBuilder();
-            templateBuilder.withVersionId(0);
+            templateBuilder.reset();
         });
 
         When("^I update this techno template$", () -> {

@@ -23,16 +23,15 @@ public class GetTechnos implements En {
     public GetTechnos() {
 
         Given("^a techno that doesn't exist$", () -> {
-            technoBuilder = new TechnoBuilder();
-            technoBuilder.withName("nope");
+            technoBuilder.reset().withName("nope");
         });
 
         When("^I get the techno detail$", () -> {
-            responseEntity = technoClient.get(technoBuilder.getTechnoKey(), TechnoIO.class);
+            responseEntity = technoClient.get(technoBuilder.build(), TechnoIO.class);
         });
 
         When("^I try to get the techno detail$", () -> {
-            responseEntity = technoClient.get(technoBuilder.getTechnoKey(), String.class);
+            responseEntity = technoClient.get(technoBuilder.build(), String.class);
         });
 
         Then("^the techno detail is successfully retrieved$", () -> {
@@ -40,7 +39,7 @@ public class GetTechnos implements En {
             TechnoAssertions.assertTechno(technoBuilder.build(), (TechnoIO) responseEntity.getBody());
         });
 
-        Then("^the techno is not found and I get a not found error$", () -> {
+        Then("^the techno is not found$", () -> {
             assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
