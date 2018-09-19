@@ -44,11 +44,11 @@ public class UpdateTechnoTemplates implements En {
     public UpdateTechnoTemplates() {
 
         Given("^a template to update$", () -> {
-            templateBuilder.reset().withVersionId(1);
+            templateBuilder.withVersionId(1);
         });
 
         Given("^a template with an outdated version$", () -> {
-            templateBuilder.reset();
+            templateBuilder.withVersionId(0);
         });
 
         When("^I update this techno template$", () -> {

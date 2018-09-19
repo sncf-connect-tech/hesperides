@@ -45,7 +45,6 @@ public class GetTechnoTemplates implements En {
     public GetTechnoTemplates() {
 
         Given("^multiple templates in this techno$", () -> {
-            templateBuilder.reset();
             for (int i = 0; i < 12; i++) {
                 templateBuilder.withName("template-" + i + 1);
                 technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
@@ -53,12 +52,12 @@ public class GetTechnoTemplates implements En {
         });
 
         Given("^a template in this techno$", () -> {
-            templateBuilder.reset().withName("a-new-template");
+            templateBuilder.withName("a-new-template");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
         });
 
         Given("^a template that doesn't exist in this techno$", () -> {
-            templateBuilder.reset().withName("nope");
+            templateBuilder.withName("nope");
         });
 
         When("^I get the list of templates of this techno$", () -> {

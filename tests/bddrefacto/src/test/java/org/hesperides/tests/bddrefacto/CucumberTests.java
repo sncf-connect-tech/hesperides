@@ -45,8 +45,8 @@ public class CucumberTests {
         public void tearDown() {
             mongoTemplate.getDb().dropDatabase();
             new DefaultMongoTemplate(client).eventCollection().drop();
-            technoBuilder.reset();
             templateBuilder.reset();
+            technoBuilder.reset();
         }
     }
 

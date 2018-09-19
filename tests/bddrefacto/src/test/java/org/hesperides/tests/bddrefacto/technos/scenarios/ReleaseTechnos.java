@@ -28,13 +28,9 @@ public class ReleaseTechnos implements En {
     public ReleaseTechnos() {
 
         Given("^a released techno( with properties)?$", (String withProperties) -> {
-            technoBuilder.reset();
-            templateBuilder.reset();
-
             if (StringUtils.isNotEmpty(withProperties)) {
                 templateBuilder.withProperty("foo").withProperty("bar");
             }
-
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
             technoClient.releaseTechno(technoBuilder.build(), TechnoIO.class);
             technoBuilder.withIsWorkingCopy(false);

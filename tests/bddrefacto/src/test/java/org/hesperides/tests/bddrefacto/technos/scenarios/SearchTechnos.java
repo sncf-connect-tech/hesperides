@@ -26,16 +26,9 @@ public class SearchTechnos implements En {
     public SearchTechnos() {
 
         Given("^a list of (\\d+) technos$", (final Integer nbTechnos) -> {
-            technoBuilder.reset();
-            templateBuilder.reset();
-
-            TemplateIO templateInput = templateBuilder.build();
             for (int i = 0; i < nbTechnos; i++) {
-                TechnoIO technoInput = technoBuilder
-                        .withName("a-techno")
-                        .withVersion("0.0." + i + 1)
-                        .build();
-                technoClient.create(templateInput, technoInput, TemplateIO.class);
+                technoBuilder.withName("a-techno").withVersion("0.0." + i + 1);
+                technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
             }
         });
 

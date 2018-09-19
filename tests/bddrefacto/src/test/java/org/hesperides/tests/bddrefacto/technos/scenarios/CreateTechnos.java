@@ -28,18 +28,13 @@ public class CreateTechnos implements En {
     public CreateTechnos() {
 
         Given("^an existing techno( with properties)?$", (String withProperties) -> {
-            technoBuilder.reset();
-            templateBuilder.reset();
-
             if (StringUtils.isNotEmpty(withProperties)) {
                 templateBuilder.withProperty("foo").withProperty("bar");
             }
-
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
         });
 
         Given("^a techno to create(?: with the same name and version)?$", () -> {
-            templateBuilder.reset();
             technoBuilder.reset();
         });
 

@@ -23,7 +23,7 @@ public class GetTechnos implements En {
     public GetTechnos() {
 
         Given("^a techno that doesn't exist$", () -> {
-            technoBuilder.reset().withName("nope");
+            technoBuilder.withName("nope");
         });
 
         When("^I get the techno detail$", () -> {
