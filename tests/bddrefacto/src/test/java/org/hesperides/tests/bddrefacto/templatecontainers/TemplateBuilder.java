@@ -42,16 +42,15 @@ public class TemplateBuilder {
         reset();
     }
 
-    public TemplateBuilder reset() {
+    public void reset() {
         // Valeurs par défaut
-        this.name = DEFAULT_NAME;
-        this.namespace = null;
-        this.filename = "template.json";
-        this.location = "/location";
-        this.content = "content";
-        this.rights = new RightsBuilder().build();
-        this.versionId = 0;
-        return this;
+        name = DEFAULT_NAME;
+        namespace = null;
+        filename = "template.json";
+        location = "/location";
+        content = "content";
+        rights = new RightsBuilder().build();
+        versionId = 0;
     }
 
     public TemplateBuilder withName(final String name) {
@@ -83,8 +82,7 @@ public class TemplateBuilder {
         return this;
     }
 
-    public TemplateBuilder withProperty(final String name) {
-        String property = "{{" + name + "}}";
+    public TemplateBuilder withProperty(final String property) {
         return withContent(property);
     }
 

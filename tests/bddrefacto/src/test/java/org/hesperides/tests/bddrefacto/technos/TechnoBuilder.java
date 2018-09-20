@@ -34,12 +34,11 @@ public class TechnoBuilder {
         reset();
     }
 
-    public TechnoBuilder reset() {
+    public void reset() {
         // Valeurs par défaut
-        this.name = "test-techno";
-        this.version = "1.0.0";
-        this.isWorkingCopy = true;
-        return this;
+        name = "test-techno";
+        version = "1.0.0";
+        isWorkingCopy = true;
     }
 
     public TechnoBuilder withName(final String name) {

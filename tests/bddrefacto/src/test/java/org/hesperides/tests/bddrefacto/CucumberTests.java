@@ -7,6 +7,8 @@ import cucumber.api.junit.Cucumber;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.hesperides.HesperidesSpringApplication;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
+import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
+import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
@@ -40,6 +42,10 @@ public class CucumberTests {
         private TechnoBuilder technoBuilder;
         @Autowired
         private TemplateBuilder templateBuilder;
+        @Autowired
+        private PropertyBuilder propertyBuilder;
+        @Autowired
+        private ModelBuilder modelBuilder;
 
         @After
         public void tearDown() {
@@ -47,6 +53,8 @@ public class CucumberTests {
             new DefaultMongoTemplate(client).eventCollection().drop();
             templateBuilder.reset();
             technoBuilder.reset();
+            propertyBuilder.reset();
+            modelBuilder.reset();
         }
     }
 
