@@ -23,8 +23,12 @@ package org.hesperides.tests.bddrefacto.templatecontainers;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class PropertyBuilder {
@@ -36,7 +40,7 @@ public class PropertyBuilder {
     private String defaultValue;
     private String pattern;
     private boolean isPassword;
-    private Set<PropertyOutput> properties;
+    private List<PropertyBuilder> properties;
 
     public PropertyBuilder() {
         reset();
@@ -45,7 +49,7 @@ public class PropertyBuilder {
     public PropertyBuilder reset() {
         name = "foo";
         isRequired = false;
-        comment = null;
+        comment = "";
         defaultValue = "";
         pattern = "";
         isPassword = false;
@@ -83,36 +87,64 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder withProperties(final Set<PropertyOutput> properties) {
+    public PropertyBuilder withProperty(final PropertyBuilder property) {
+        if (properties == null) {
+            properties = new ArrayList<>();
+        }
+        this.properties.add(property);
+        return this;
+    }
+
+    public PropertyBuilder withProperties(final List<PropertyBuilder> properties) {
         this.properties = properties;
         return this;
     }
 
     public PropertyOutput build() {
-        return new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, properties);
+        Set<PropertyOutput> propertyOutputs = properties == null ? null : properties
+                .stream()
+                .map(PropertyBuilder::build)
+                .collect(Collectors.toSet());
+        return new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, propertyOutputs);
     }
 
     public String toString() {
         StringBuilder property = new StringBuilder();
-        property.append("{{");
-        property.append(name);
-        property.append("|");
-        if (isRequired) {
-            property.append(" @required");
+
+        if (CollectionUtils.isEmpty(properties)) {
+            property.append("{{");
+            property.append(name);
+            if (isRequired || !StringUtils.isEmpty(comment) || !StringUtils.isEmpty(defaultValue) || !StringUtils.isEmpty(pattern) || isPassword) {
+                property.append(" |");
+            }
+            if (isRequired) {
+                property.append(" @required");
+            }
+            if (!StringUtils.isEmpty(comment)) {
+                property.append(" @comment " + comment);
+            }
+            if (!StringUtils.isEmpty(defaultValue)) {
+                property.append(" @default " + defaultValue);
+            }
+            if (!StringUtils.isEmpty(pattern)) {
+                property.append(" @pattern " + pattern);
+            }
+            if (isPassword) {
+                property.append(" @password");
+            }
+            property.append("}}");
+
+        } else {
+            property.append("{{#");
+            property.append(name);
+            property.append("}}");
+            for (PropertyBuilder propertyBuilder : properties) {
+                property.append(propertyBuilder);
+            }
+            property.append("{{/");
+            property.append(name);
+            property.append("}}");
         }
-        if (!StringUtils.isEmpty(comment)) {
-            property.append(" @comment " + comment);
-        }
-        if (!StringUtils.isEmpty(defaultValue)) {
-            property.append(" @default " + defaultValue);
-        }
-        if (!StringUtils.isEmpty(pattern)) {
-            property.append(" @pattern " + pattern);
-        }
-        if (isPassword) {
-            property.append(" @password");
-        }
-        property.append("}}");
         return property.toString();
     }
 }

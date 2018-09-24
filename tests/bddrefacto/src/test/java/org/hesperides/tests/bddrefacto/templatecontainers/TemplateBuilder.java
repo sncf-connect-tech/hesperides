@@ -42,7 +42,7 @@ public class TemplateBuilder {
         reset();
     }
 
-    public void reset() {
+    public TemplateBuilder reset() {
         // Valeurs par défaut
         name = DEFAULT_NAME;
         namespace = null;
@@ -51,6 +51,7 @@ public class TemplateBuilder {
         content = "content";
         rights = new RightsBuilder().build();
         versionId = 0;
+        return this;
     }
 
     public TemplateBuilder withName(final String name) {
@@ -80,10 +81,6 @@ public class TemplateBuilder {
             this.content += "\n" + content;
         }
         return this;
-    }
-
-    public TemplateBuilder withProperty(final String property) {
-        return withContent(property);
     }
 
     public TemplateBuilder withDefaultAndRequiredProperty() {

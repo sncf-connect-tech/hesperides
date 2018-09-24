@@ -6,6 +6,8 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
+import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
+import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,10 @@ public class CreateTechnos implements En {
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoClient technoClient;
+    @Autowired
+    private PropertyBuilder propertyBuilder;
+    @Autowired
+    private ModelBuilder modelBuilder;
 
     private ResponseEntity responseEntity;
 
@@ -29,7 +35,13 @@ public class CreateTechnos implements En {
 
         Given("^an existing techno( with properties)?$", (String withProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
-                templateBuilder.withProperty("foo").withProperty("bar");
+                propertyBuilder.reset().withName("foo");
+                modelBuilder.withProperty(propertyBuilder.build());
+                templateBuilder.withContent(propertyBuilder.toString());
+
+                propertyBuilder.reset().withName("bar");
+                modelBuilder.withProperty(propertyBuilder.build());
+                templateBuilder.withContent(propertyBuilder.toString());
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
         });

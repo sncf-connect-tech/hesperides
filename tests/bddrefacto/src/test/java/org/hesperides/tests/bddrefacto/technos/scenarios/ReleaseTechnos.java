@@ -34,7 +34,7 @@ public class ReleaseTechnos implements En {
 
         Given("^a released techno( with properties)?$", (String withProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
-                templateBuilder.withProperty("foo").withProperty("bar");
+                templateBuilder.withContent("foo").withContent("bar");
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
             technoClient.releaseTechno(technoBuilder.build(), TechnoIO.class);

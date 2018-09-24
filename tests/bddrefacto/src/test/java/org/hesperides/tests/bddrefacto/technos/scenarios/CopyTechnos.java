@@ -7,6 +7,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
+import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,8 @@ public class CopyTechnos implements En {
     private TechnoBuilder technoBuilder;
     @Autowired
     private TechnoClient technoClient;
+    @Autowired
+    private ModelBuilder modelBuilder;
 
     private ResponseEntity responseEntity;
 
@@ -58,9 +61,9 @@ public class CopyTechnos implements En {
         Then("^the model of the techno is the same$", () -> {
             responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
             assertOK(responseEntity);
-            ModelOutput modelOutput = (ModelOutput) responseEntity.getBody();
-            assertEquals(2, modelOutput.getProperties().size());
-            //TODO Créer un property builder et un model builder et faire l'assertion des propriétés
+            ModelOutput expectedModel = modelBuilder.build();
+            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            assertEquals(expectedModel, actualModel);
         });
 
         Then("^the version type of the duplicated techno is working copy$", () -> {

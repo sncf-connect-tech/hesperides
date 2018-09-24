@@ -25,7 +25,6 @@ import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -39,13 +38,19 @@ public class ModelBuilder {
         reset();
     }
 
-    public void reset() {
+    public ModelBuilder reset() {
         properties = new ArrayList<>();
-        iterableProperties = Collections.emptyList();
+        iterableProperties = new ArrayList<>();
+        return this;
     }
 
     public ModelBuilder withProperty(final PropertyOutput property) {
         properties.add(property);
+        return this;
+    }
+
+    public ModelBuilder withIterableProperty(final PropertyOutput property) {
+        iterableProperties.add(property);
         return this;
     }
 
