@@ -1,11 +1,12 @@
-package org.hesperides.tests.bddrefacto.technos.scenarios;
+package org.hesperides.tests.bddrefacto.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
-import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
-import org.hesperides.tests.bddrefacto.technos.TechnoClient;
+import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
+import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -16,14 +17,14 @@ import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertConflict;
 import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
 import static org.junit.Assert.assertEquals;
 
-public class CreateTechnos implements En {
+public class CreateModules implements En {
 
     @Autowired
-    private TechnoBuilder technoBuilder;
+    private ModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
-    private TechnoClient technoClient;
+    private ModuleClient moduleClient;
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
@@ -31,9 +32,11 @@ public class CreateTechnos implements En {
 
     private ResponseEntity responseEntity;
 
-    public CreateTechnos() {
+    public CreateModules() {
 
-        Given("^an existing techno( with properties)?$", (String withProperties) -> {
+        Given("^an existing module( with a template)?( with properties)?$", (final String withATemplate, final String withProperties) -> {
+            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+
             if (StringUtils.isNotEmpty(withProperties)) {
                 propertyBuilder.reset().withName("foo");
                 modelBuilder.withProperty(propertyBuilder.build());
@@ -42,27 +45,31 @@ public class CreateTechnos implements En {
                 propertyBuilder.reset().withName("bar");
                 modelBuilder.withProperty(propertyBuilder.build());
                 templateBuilder.withContent(propertyBuilder.toString());
+
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
             }
-            technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+
+            if (StringUtils.isNotEmpty(withATemplate) && StringUtils.isEmpty(withProperties)) {
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            }
         });
 
-        Given("^a techno to create(?: with the same name and version)?$", () -> {
-            technoBuilder.reset();
+        Given("^a module to create(?: with the same name and version)?$", () -> {
+            moduleBuilder.reset();
         });
 
-        When("^I( try to)? create this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
+        When("^I( try to)? create this module$", (final String tryTo) -> {
+            responseEntity = moduleClient.create(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
         });
 
-        Then("^the techno is successfully created$", () -> {
+        Then("^the module is successfully created$", () -> {
             assertCreated(responseEntity);
-            String expectedNamespace = technoBuilder.getNamespace();
-            TemplateIO excpectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
-            assertEquals(excpectedTemplate, actualTemplate);
+            ModuleIO excpectedModule = moduleBuilder.withVersionId(1).build();
+            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            assertEquals(excpectedModule, actualModule);
         });
 
-        Then("^the techno creation is rejected with a conflict error$", () -> {
+        Then("^the module creation is rejected with a conflict error$", () -> {
             assertConflict(responseEntity);
         });
     }

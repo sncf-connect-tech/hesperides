@@ -55,4 +55,8 @@ public class StepHelper {
     public static void assertBadRequest(ResponseEntity responseEntity) {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
+
+    public static void assertNoContent(ResponseEntity responseEntity) {
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+    }
 }

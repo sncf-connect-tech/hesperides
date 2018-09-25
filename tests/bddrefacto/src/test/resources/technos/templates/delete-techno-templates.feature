@@ -1,4 +1,4 @@
-Feature: Delete techos templates
+Feature: Delete techno templates
 
   Background:
     Given an authenticated user

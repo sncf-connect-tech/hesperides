@@ -6,6 +6,7 @@ import cucumber.api.java.After;
 import cucumber.api.junit.Cucumber;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.hesperides.HesperidesSpringApplication;
+import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -32,6 +34,7 @@ public class CucumberTests {
     @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
     @ContextConfiguration
+    @DirtiesContext
     public static class CucumberSpringBean {
 
         @Autowired
@@ -46,6 +49,8 @@ public class CucumberTests {
         private PropertyBuilder propertyBuilder;
         @Autowired
         private ModelBuilder modelBuilder;
+        @Autowired
+        private ModuleBuilder moduleBuilder;
 
         @After
         public void tearDown() {
@@ -55,6 +60,7 @@ public class CucumberTests {
             technoBuilder.reset();
             propertyBuilder.reset();
             modelBuilder.reset();
+            moduleBuilder.reset();
         }
     }
 

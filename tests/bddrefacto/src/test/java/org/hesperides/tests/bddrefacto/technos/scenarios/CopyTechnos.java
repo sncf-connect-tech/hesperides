@@ -9,7 +9,6 @@ import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -41,7 +40,7 @@ public class CopyTechnos implements En {
         });
 
         Then("^the techno is successfully duplicated$", () -> {
-            assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+            assertCreated(responseEntity);
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
             TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();

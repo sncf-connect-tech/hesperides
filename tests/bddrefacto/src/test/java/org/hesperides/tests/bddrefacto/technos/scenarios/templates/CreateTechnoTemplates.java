@@ -21,7 +21,6 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -45,24 +44,6 @@ public class CreateTechnoTemplates implements En {
     private ResponseEntity responseEntity;
 
     public CreateTechnoTemplates() {
-
-        Given("^a template to create( with the same name as the existing one)?$", (final String withTheSameName) -> {
-            if (StringUtils.isEmpty(withTheSameName)) {
-                templateBuilder.withName("new-template");
-            }
-        });
-
-        Given("^a template to create without a name$", () -> {
-            templateBuilder.withName("");
-        });
-
-        Given("^a template to create without a filename$", () -> {
-            templateBuilder.withName("new-template").withFilename("");
-        });
-
-        Given("^a template to create without a location", () -> {
-            templateBuilder.withName("new-template").withLocation("");
-        });
 
         When("^I( try to)? add this template to the techno$", (final String tryTo) -> {
             responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));

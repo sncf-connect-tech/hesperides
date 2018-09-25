@@ -10,12 +10,12 @@ import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
 import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
 import static org.junit.Assert.assertEquals;
 
@@ -46,7 +46,7 @@ public class ReleaseTechnos implements En {
         });
 
         Then("^the techno is successfully released$", () -> {
-            assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+            assertCreated(responseEntity);
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withIsWorkingCopy(false);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
             TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
