@@ -2,17 +2,17 @@ package org.hesperides.tests.bddrefacto.users;
 
 import cucumber.api.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.web.client.RestTemplate;
 
 public class UserContext implements En {
 
     @Autowired
-    TestRestTemplate testRestTemplate;
+    private RestTemplate restTemplate;
 
     public UserContext() {
         Given("^an authenticated user$", () -> {
-            testRestTemplate.getRestTemplate().getInterceptors().add(
+            restTemplate.getInterceptors().add(
                     new BasicAuthorizationInterceptor("user", "password"));
         });
     }

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -34,7 +33,7 @@ public class CucumberTests {
     @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
     @ContextConfiguration
-    @DirtiesContext
+//    @DirtiesContext
     public static class CucumberSpringBean {
 
         @Autowired

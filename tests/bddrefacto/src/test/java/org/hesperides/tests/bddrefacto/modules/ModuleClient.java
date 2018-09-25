@@ -24,11 +24,11 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,18 +37,18 @@ import java.util.List;
 public class ModuleClient {
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTemplate restTemplate;
 
     public ResponseEntity create(ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.postForEntity("/modules", moduleInput, responseType);
+        return restTemplate.postForEntity("/modules", moduleInput, responseType);
     }
 
     public ResponseEntity search(String terms) {
-        return testRestTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, ModuleIO[].class);
+        return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, ModuleIO[].class);
     }
 
     public ResponseEntity get(ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.getForEntity("/modules/{name}/{version}/{type}",
+        return restTemplate.getForEntity("/modules/{name}/{version}/{type}",
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
@@ -56,7 +56,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity releaseModule(ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
+        return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
                 null,
                 responseType,
                 moduleInput.getName(),
@@ -64,7 +64,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity delete(ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.exchange("/modules/{name}/{version}/{type}",
+        return restTemplate.exchange("/modules/{name}/{version}/{type}",
                 HttpMethod.DELETE,
                 null,
                 responseType,
@@ -74,7 +74,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity copy(ModuleIO existingModuleInput, ModuleIO newModuleInput, Class responseType) {
-        return testRestTemplate.postForEntity("/modules?from_module_name={name}&from_module_version={version}&from_is_working_copy={isWorkingCopy}",
+        return restTemplate.postForEntity("/modules?from_module_name={name}&from_module_version={version}&from_is_working_copy={isWorkingCopy}",
                 newModuleInput,
                 responseType,
                 existingModuleInput.getName(),
@@ -83,7 +83,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity getModel(ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.getForEntity("/modules/{name}/{version}/{type}/model",
+        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/model",
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
@@ -92,7 +92,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity addTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.postForEntity(
+        return restTemplate.postForEntity(
                 "/modules/{name}/{version}/{type}/templates",
                 templateInput,
                 responseType,
@@ -102,7 +102,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.exchange("/modules/{name}/{version}/{type}/templates",
+        return restTemplate.exchange("/modules/{name}/{version}/{type}/templates",
                 HttpMethod.PUT,
                 new HttpEntity<>(templateInput),
                 responseType,
@@ -112,7 +112,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity getTemplates(ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.getForEntity("/modules/{name}/{version}/{type}/templates",
+        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates",
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
@@ -125,7 +125,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity getTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
+        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
@@ -138,7 +138,7 @@ public class ModuleClient {
     }
 
     public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return testRestTemplate.exchange("/modules/{name}/{version}/{type}/templates/{template_name}",
+        return restTemplate.exchange("/modules/{name}/{version}/{type}/templates/{template_name}",
                 HttpMethod.DELETE,
                 null,
                 responseType,

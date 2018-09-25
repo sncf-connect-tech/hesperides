@@ -24,11 +24,11 @@ import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,10 +37,10 @@ import java.util.List;
 public class TechnoClient {
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTemplate restTemplate;
 
     public ResponseEntity create(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.postForEntity(
+        return restTemplate.postForEntity(
                 "/templates/packages/{name}/{version}/{type}/templates",
                 templateInput,
                 responseType,
@@ -50,11 +50,11 @@ public class TechnoClient {
     }
 
     public ResponseEntity search(String terms) {
-        return testRestTemplate.postForEntity("/templates/packages/perform_search?terms=" + terms, null, TechnoIO[].class);
+        return restTemplate.postForEntity("/templates/packages/perform_search?terms=" + terms, null, TechnoIO[].class);
     }
 
     public ResponseEntity get(TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}",
+        return restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
@@ -62,7 +62,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity releaseTechno(TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.postForEntity("/templates/packages/create_release?techno_name={name}&techno_version={version}",
+        return restTemplate.postForEntity("/templates/packages/create_release?techno_name={name}&techno_version={version}",
                 null,
                 responseType,
                 technoInput.getName(),
@@ -70,7 +70,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity delete(TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}",
+        return restTemplate.exchange("/templates/packages/{name}/{version}/{type}",
                 HttpMethod.DELETE,
                 null,
                 responseType,
@@ -80,7 +80,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity copy(TechnoIO existingTechnoInput, TechnoIO newTechnoInput, Class responseType) {
-        return testRestTemplate.postForEntity("/templates/packages?from_package_name={name}&from_package_version={version}&from_is_working_copy={isWorkingCopy}",
+        return restTemplate.postForEntity("/templates/packages?from_package_name={name}&from_package_version={version}&from_is_working_copy={isWorkingCopy}",
                 newTechnoInput,
                 responseType,
                 existingTechnoInput.getName(),
@@ -89,7 +89,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity getModel(TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/model",
+        return restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/model",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
@@ -103,7 +103,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates",
+        return restTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates",
                 HttpMethod.PUT,
                 new HttpEntity<>(templateInput),
                 responseType,
@@ -113,7 +113,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity getTemplates(TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates",
+        return restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
@@ -126,7 +126,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity getTemplate(String templateName, TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
+        return restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
@@ -139,7 +139,7 @@ public class TechnoClient {
     }
 
     public ResponseEntity deleteTemplate(String templateName, TechnoIO technoInput, Class responseType) {
-        return testRestTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
+        return restTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
                 HttpMethod.DELETE,
                 null,
                 responseType,
