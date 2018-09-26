@@ -49,7 +49,8 @@ public class DeleteModuleTemplates implements En {
 
         Then("^the module template is successfully deleted$", () -> {
             assertNoContent(responseEntity);
-            moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), String.class);
+            responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), String.class);
+            assertNotFound(responseEntity);
         });
 
         Then("^the module template delete is rejected with a method not allowed error$", () -> {

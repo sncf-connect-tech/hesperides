@@ -18,7 +18,7 @@ public class GetModulesName implements En {
     public GetModulesName() {
 
         When("^I get the modules name$", () -> {
-            responseEntity = moduleClient.getModulesName();
+            responseEntity = moduleClient.getNames();
         });
 
         Then("^a list of (\\d+) name(?:s)? is returned$", (final Integer nbModulesName) -> {

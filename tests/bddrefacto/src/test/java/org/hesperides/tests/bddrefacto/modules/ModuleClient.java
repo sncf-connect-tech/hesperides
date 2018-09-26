@@ -156,11 +156,15 @@ public class ModuleClient {
                 templateName);
     }
 
-    public ResponseEntity<String[]> getModulesName() {
+    public ResponseEntity<String[]> getNames() {
         return restTemplate.getForEntity("/modules", String[].class);
     }
 
-    public ResponseEntity<String[]> getModuleVersions(String name) {
+    public ResponseEntity<String[]> getVersions(String name) {
         return restTemplate.getForEntity("/modules/{name}", String[].class, name);
+    }
+
+    public ResponseEntity<String[]> getTypes(String name, String version) {
+        return restTemplate.getForEntity("/modules/{name}/{version}", String[].class, name, version);
     }
 }
