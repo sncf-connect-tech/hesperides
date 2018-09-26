@@ -37,7 +37,7 @@ public class EventsUseCases {
         String streamName = split[1];
         switch (streamType) {
             case "module":
-                return moduleUseCases.getModulesNames()
+                return moduleUseCases.getModulesName()
                         .stream()
                         .filter(m -> contains(streamName, m))
                         .findFirst()

@@ -147,4 +147,8 @@ public class ModuleClient {
                 getVersionType(moduleInput.isWorkingCopy()),
                 templateName);
     }
+
+    public ResponseEntity<String[]> getModulesName() {
+        return restTemplate.getForEntity("/modules", String[].class);
+    }
 }

@@ -20,7 +20,7 @@ data class ModuleDeletedEvent(val moduleKey: TemplateContainer.Key, override val
 // Query
 data class ModuleAlreadyExistsQuery(val moduleKey: TemplateContainer.Key)
 data class GetModuleByKeyQuery(val moduleKey: TemplateContainer.Key)
-class GetModulesNamesQuery
+class GetModulesNameQuery
 data class GetModuleVersionTypesQuery(val moduleName: String, val moduleVersion: String)
 data class GetModuleVersionsQuery(val moduleName: String)
 data class SearchModulesQuery(val input: String)

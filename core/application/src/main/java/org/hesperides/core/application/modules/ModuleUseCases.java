@@ -117,8 +117,8 @@ public class ModuleUseCases {
         return queries.getOptionalModule(moduleKey);
     }
 
-    public List<String> getModulesNames() {
-        return queries.getModulesNames();
+    public List<String> getModulesName() {
+        return queries.getModulesName();
     }
 
     public List<String> getModuleVersions(String moduleName) {

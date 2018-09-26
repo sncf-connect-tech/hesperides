@@ -1,10 +1,10 @@
 package org.hesperides.tests.bddrefacto.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
-import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -16,27 +16,31 @@ public class SearchModules implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
-    private TemplateBuilder templateBuilder;
-    @Autowired
     private ModuleClient moduleClient;
 
     private ResponseEntity<ModuleIO[]> responseEntity;
 
     public SearchModules() {
 
-        Given("^a list of (\\d+) modules$", (final Integer nbModules) -> {
+        Given("^a list of (\\d+) modules( with different names)?(?: with the same name)?$",
+                (final Integer nbModules, final String withDifferentNames) -> {
             for (int i = 0; i < nbModules; i++) {
-                moduleBuilder.withName("a-module").withVersion("0.0." + i + 1);
+                if (StringUtils.isNotEmpty(withDifferentNames)) {
+                    moduleBuilder.withName("new-module-" + i);
+                } else {
+                    moduleBuilder.withName("new-module");
+                }
+                moduleBuilder.withVersion("0.0." + i + 1);
                 moduleClient.create(moduleBuilder.build(), ModuleIO.class);
             }
         });
 
         When("^I search for one specific module$", () -> {
-            responseEntity = moduleClient.search("a-module 0.0.3");
+            responseEntity = moduleClient.search("new-module 0.0.3");
         });
 
         When("^I search for some of those modules$", () -> {
-            responseEntity = moduleClient.search("a-module");
+            responseEntity = moduleClient.search("new-module");
         });
 
         When("^I search for a module that does not exist$", () -> {

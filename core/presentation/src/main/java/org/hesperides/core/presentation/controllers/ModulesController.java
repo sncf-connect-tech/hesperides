@@ -112,14 +112,14 @@ public class ModulesController extends AbstractController {
 
     @ApiOperation("Get all module names")
     @GetMapping
-    public ResponseEntity<List<String>> getModulesNames() {
+    public ResponseEntity<List<String>> getModulesName() {
 
-        log.debug("getModulesNames");
+        log.debug("getModulesName");
 
-        List<String> modulesNames = moduleUseCases.getModulesNames();
-        log.debug("return getModulesNames: {}", modulesNames.toString());
+        List<String> modulesName = moduleUseCases.getModulesName();
+        log.debug("return getModulesName: {}", modulesName.toString());
 
-        return ResponseEntity.ok(modulesNames);
+        return ResponseEntity.ok(modulesName);
     }
 
     @ApiOperation("Get all versions for a given module")

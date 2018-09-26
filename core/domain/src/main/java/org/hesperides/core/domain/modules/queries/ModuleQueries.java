@@ -29,8 +29,8 @@ public class ModuleQueries extends AxonQueries {
         return querySyncOptional(new GetModuleByKeyQuery(moduleKey), ModuleView.class);
     }
 
-    public List<String> getModulesNames() {
-        return querySyncList(new GetModulesNamesQuery(), String.class);
+    public List<String> getModulesName() {
+        return querySyncList(new GetModulesNameQuery(), String.class);
     }
 
     public List<String> getModuleVersions(String moduleName) {
