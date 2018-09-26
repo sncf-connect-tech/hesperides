@@ -25,7 +25,6 @@ import org.hesperides.core.presentation.io.TechnoIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -41,13 +40,14 @@ public class ModuleBuilder {
         reset();
     }
 
-    public void reset() {
+    public ModuleBuilder reset() {
         // Valeurs par défaut
         name = "test-module";
         version = "1.0.0";
         isWorkingCopy = true;
-        technos = Collections.emptyList();
+        technos = new ArrayList<>();
         versionId = 0;
+        return this;
     }
 
     public ModuleBuilder withName(final String name) {
@@ -66,9 +66,6 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder withTechno(final TechnoIO techno) {
-        if (technos == null) {
-            technos = new ArrayList<>();
-        }
         technos.add(techno);
         return this;
     }
@@ -84,5 +81,11 @@ public class ModuleBuilder {
 
     public String getNamespace() {
         return "modules#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+    }
+
+    public void removeTechno(TechnoIO techno) {
+        if (technos.contains(techno)) {
+            technos.remove(techno);
+        }
     }
 }

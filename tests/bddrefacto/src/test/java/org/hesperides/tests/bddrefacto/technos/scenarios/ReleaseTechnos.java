@@ -36,12 +36,12 @@ public class ReleaseTechnos implements En {
                 templateBuilder.withContent("foo").withContent("bar");
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build());
-            technoClient.releaseTechno(technoBuilder.build());
+            technoClient.release(technoBuilder.build());
             technoBuilder.withIsWorkingCopy(false);
         });
 
         When("^I( try to)? release this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.releaseTechno(technoBuilder.build(), StepHelper.getResponseType(tryTo, TechnoIO.class));
+            responseEntity = technoClient.release(technoBuilder.build(), StepHelper.getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno is successfully released$", () -> {

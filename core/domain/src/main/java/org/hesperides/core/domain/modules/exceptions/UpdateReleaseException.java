@@ -1,7 +1,7 @@
 /*
  *
  * This file is part of the Hesperides distribution.
- * (https://github.com/voyages-sncf-modulelogies/hesperides)
+ * (https://github.com/voyages-sncf-technologies/hesperides)
  * Copyright (c) 2016 VSCT.
  *
  * Hesperides is free software: you can redistribute it and/or modify
@@ -18,25 +18,12 @@
  *
  *
  */
-package org.hesperides.tests.bddrefacto.templatecontainers.scenarios.templates;
+package org.hesperides.core.domain.modules.exceptions;
 
-import cucumber.api.java8.En;
-import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-public class UpdateTemplates implements En {
-
-    @Autowired
-    private TemplateBuilder templateBuilder;
-
-    public UpdateTemplates() {
-
-        Given("^a template to update$", () -> {
-            templateBuilder.withVersionId(1);
-        });
-
-        Given("^the template is outdated", () -> {
-            templateBuilder.withVersionId(0);
-        });
+public class UpdateReleaseException extends RuntimeException {
+    public UpdateReleaseException(TemplateContainer.Key key) {
+        super("Could not update a released version of a module (key: " + key + ")");
     }
 }

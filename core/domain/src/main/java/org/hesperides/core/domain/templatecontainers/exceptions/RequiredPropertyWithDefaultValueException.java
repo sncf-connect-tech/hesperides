@@ -1,8 +1,8 @@
 package org.hesperides.core.domain.templatecontainers.exceptions;
 
-public class RequiredPropertyCannotHaveDefaultValueException extends RuntimeException {
+public class RequiredPropertyWithDefaultValueException extends RuntimeException {
 
-    public RequiredPropertyCannotHaveDefaultValueException(String propertyName) {
+    public RequiredPropertyWithDefaultValueException(String propertyName) {
         super(String.format("Property %s cannot have both annotations @required and @default", propertyName));
     }
 }

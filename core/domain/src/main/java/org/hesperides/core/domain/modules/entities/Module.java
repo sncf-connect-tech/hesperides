@@ -3,6 +3,7 @@ package org.hesperides.core.domain.modules.entities;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
+import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -24,6 +25,13 @@ public class Module extends TemplateContainer {
 
     public Module initializeVersionId() {
         return new Module(getKey(), getTemplates(), technos, 1L);
+    }
+
+    public Module validateIsWorkingCopy() {
+        if (!getKey().isWorkingCopy()) {
+            throw new UpdateReleaseException(getKey());
+        }
+        return this;
     }
 
     public Module validateVersionId(Long expectedVersionId) {

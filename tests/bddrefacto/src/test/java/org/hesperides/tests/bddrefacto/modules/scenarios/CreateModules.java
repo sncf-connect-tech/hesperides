@@ -6,20 +6,22 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
+import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertConflict;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateModules implements En {
 
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
@@ -33,18 +35,19 @@ public class CreateModules implements En {
 
     public CreateModules() {
 
-        Given("^an existing module( with a template)?( with properties)?$", (final String withATemplate, final String withProperties) -> {
+        Given("^an existing module( with a template)?( with properties)?( (?:and|with) this techno)?$", (
+                final String withATemplate, final String withProperties, final String withThisTechno) -> {
+
+            if (StringUtils.isNotEmpty(withThisTechno)) {
+                moduleBuilder.withTechno(technoBuilder.build());
+            }
+
             moduleClient.create(moduleBuilder.build());
+            moduleBuilder.withVersionId(1);
 
             if (StringUtils.isNotEmpty(withProperties)) {
-                propertyBuilder.reset().withName("foo");
-                modelBuilder.withProperty(propertyBuilder.build());
-                templateBuilder.withContent(propertyBuilder.toString());
-
-                propertyBuilder.reset().withName("bar");
-                modelBuilder.withProperty(propertyBuilder.build());
-                templateBuilder.withContent(propertyBuilder.toString());
-
+                addPropertyToBuilders("module-foo");
+                addPropertyToBuilders("module-bar");
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
 
@@ -53,8 +56,11 @@ public class CreateModules implements En {
             }
         });
 
-        Given("^a module to create(?: with the same name and version)?$", () -> {
+        Given("^a module to create(?: with the same name and version)?( with this techno)?$", (final String withThisTechno) -> {
             moduleBuilder.reset();
+            if (StringUtils.isNotEmpty(withThisTechno)) {
+                moduleBuilder.withTechno(technoBuilder.build());
+            }
         });
 
         When("^I( try to)? create this module$", (final String tryTo) -> {
@@ -71,5 +77,15 @@ public class CreateModules implements En {
         Then("^the module creation is rejected with a conflict error$", () -> {
             assertConflict(responseEntity);
         });
+
+        Then("^the module creation is rejected with a not found error$", () -> {
+            assertNotFound(responseEntity);
+        });
+    }
+
+    private void addPropertyToBuilders(String name) {
+        propertyBuilder.reset().withName(name);
+        modelBuilder.withProperty(propertyBuilder.build());
+        templateBuilder.withContent(propertyBuilder.toString());
     }
 }

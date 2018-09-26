@@ -23,7 +23,7 @@ Feature: Update techno templates
 
   Scenario: update the wrong version of a template
     Given an existing techno
-    And a template with an outdated version
+    And the template is outdated
     When I try to update this techno template
     Then the techno template update is rejected with a conflict error
 

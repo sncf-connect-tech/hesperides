@@ -21,7 +21,11 @@
 package org.hesperides.tests.bddrefacto.technos;
 
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class TechnoBuilder {
@@ -29,6 +33,7 @@ public class TechnoBuilder {
     private String name;
     private String version;
     private boolean isWorkingCopy;
+    private List<PropertyOutput> properties;
 
     public TechnoBuilder() {
         reset();
@@ -39,6 +44,7 @@ public class TechnoBuilder {
         name = "test-techno";
         version = "1.0.0";
         isWorkingCopy = true;
+        properties = new ArrayList<>();
     }
 
     public TechnoBuilder withName(final String name) {
@@ -62,5 +68,13 @@ public class TechnoBuilder {
 
     public String getNamespace() {
         return "packages#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+    }
+
+    public void withProperty(PropertyOutput property) {
+        properties.add(property);
+    }
+
+    public List<PropertyOutput> getProperties() {
+        return properties;
     }
 }

@@ -4,7 +4,8 @@ Feature: Create modules
     Given an authenticated user
 
   Scenario: create a new module
-    Given a module to create
+    Given an existing techno
+    And a module to create with this techno
     When I create this module
     Then the module is successfully created
 
@@ -19,3 +20,9 @@ Feature: Create modules
 #    When I delete this module
 #    And I create this module
 #    Then the module is successfully created
+
+  Scenario: create a module with a techno that doesn't exist
+    Given a techno that doesn't exist
+    And a module to create with this techno
+    When I try to create this module
+    Then the module creation is rejected with a not found error

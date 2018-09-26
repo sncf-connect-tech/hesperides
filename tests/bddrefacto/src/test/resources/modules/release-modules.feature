@@ -4,7 +4,8 @@ Feature: Release modules
     Given an authenticated user
 
   Scenario: release an existing module
-    Given an existing module
+    Given an existing techno
+    And an existing module with this techno
     When I release this module
     Then the module is successfully released
 

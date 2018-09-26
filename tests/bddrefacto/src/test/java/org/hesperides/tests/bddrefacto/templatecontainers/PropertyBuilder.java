@@ -95,17 +95,12 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder withProperties(final List<PropertyBuilder> properties) {
-        this.properties = properties;
-        return this;
-    }
-
     public PropertyOutput build() {
-        Set<PropertyOutput> propertyOutputs = properties == null ? null : properties
+        Set<PropertyOutput> properties = this.properties == null ? null : this.properties
                 .stream()
                 .map(PropertyBuilder::build)
                 .collect(Collectors.toSet());
-        return new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, propertyOutputs);
+        return new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, properties);
     }
 
     public String toString() {

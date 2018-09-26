@@ -21,7 +21,7 @@ public class GetModulesName implements En {
             responseEntity = moduleClient.getNames();
         });
 
-        Then("^a list of (\\d+) name(?:s)? is returned$", (final Integer nbModulesName) -> {
+        Then("^a list of (\\d+) names? is returned$", (final Integer nbModulesName) -> {
             assertOK(responseEntity);
             assertEquals(nbModulesName.intValue(), responseEntity.getBody().length);
         });

@@ -39,12 +39,12 @@ public class CopyATechno implements En {
 
         Then("^the techno is successfully and completely duplicated$", () -> {
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
-            TechnoIO actualTechoOutput = response.getBody();
+            TechnoIO actualTechnoOutput = response.getBody();
             TechnoIO expectedTechnoOutput = new TechnoBuilder()
                     .withName("techno-copy")
                     .withVersion("1.0.0")
                     .build();
-            TechnoAssertions.assertTechno(expectedTechnoOutput, actualTechoOutput);
+            TechnoAssertions.assertTechno(expectedTechnoOutput, actualTechnoOutput);
             //TODO Assert templates
         });
 

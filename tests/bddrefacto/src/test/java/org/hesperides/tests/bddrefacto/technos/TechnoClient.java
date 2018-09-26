@@ -65,11 +65,11 @@ public class TechnoClient {
                 getVersionType(technoInput.isWorkingCopy()));
     }
 
-    public ResponseEntity releaseTechno(TechnoIO technoInput) {
-        return releaseTechno(technoInput, TechnoIO.class);
+    public ResponseEntity release(TechnoIO technoInput) {
+        return release(technoInput, TechnoIO.class);
     }
 
-    public ResponseEntity releaseTechno(TechnoIO technoInput, Class responseType) {
+    public ResponseEntity release(TechnoIO technoInput, Class responseType) {
         return restTemplate.postForEntity("/templates/packages/create_release?techno_name={name}&techno_version={version}",
                 null,
                 responseType,

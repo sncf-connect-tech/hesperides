@@ -7,6 +7,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
+import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -25,6 +26,8 @@ public class ReleaseModules implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private TechnoBuilder technoBuilder;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleClient moduleClient;
@@ -37,7 +40,13 @@ public class ReleaseModules implements En {
 
     public ReleaseModules() {
 
-        Given("^a released module( with a template)?( with properties)?$", (final String withATemplate, final String withProperties) -> {
+        Given("^a released module( with a template)?( with properties)?( (?:and|with) this techno)?$", (
+                final String withATemplate, final String withProperties, final String withThisTechno) -> {
+
+            if (StringUtils.isNotEmpty(withThisTechno)) {
+                moduleBuilder.withTechno(technoBuilder.build());
+            }
+
             moduleClient.create(moduleBuilder.build());
 
             if (StringUtils.isNotEmpty(withProperties)) {
@@ -56,17 +65,17 @@ public class ReleaseModules implements En {
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
 
-            moduleClient.releaseModule(moduleBuilder.build(), ModuleIO.class);
-            moduleBuilder.withIsWorkingCopy(false);
+            moduleClient.release(moduleBuilder.build(), ModuleIO.class);
+            moduleBuilder.withVersionId(1).withIsWorkingCopy(false);
         });
 
         When("^I( try to)? release this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.releaseModule(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
+            responseEntity = moduleClient.release(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully released$", () -> {
             assertOK(responseEntity);
-            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withVersionId(1).withIsWorkingCopy(false);
+            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withIsWorkingCopy(false);
             ModuleIO expectedModule = expectedModuleBuilder.build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
             assertEquals(expectedModule, actualModule);

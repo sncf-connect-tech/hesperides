@@ -56,6 +56,7 @@ class ModuleAggregate implements Serializable {
         log.debug("Applying update module command...");
 
         Module module = command.getModule()
+                .validateIsWorkingCopy()
                 .validateVersionId(versionId)
                 .incrementVersiondId();
 

@@ -4,7 +4,8 @@ Feature: Get module model
     Given an authenticated user
 
   Scenario: get the model of a module with properties
-    Given an existing module with properties
+    Given an existing techno with properties
+    Given an existing module with properties and this techno
     When I get the model of this module
     Then the model of this module contains the properties
 
@@ -44,3 +45,10 @@ Feature: Get module model
     Given an existing module with properties with the same name but different comments in two templates
     When I get the model of this module
     Then the model of this module contains the properties
+
+  Scenario: get the model of a module after its techno has deleted
+#    Given an existing techno with properties
+#    And an existing module with properties and this techno
+#    And I delete this techno
+#    When I get the model of this module
+#    Then the model of this module contains the properties

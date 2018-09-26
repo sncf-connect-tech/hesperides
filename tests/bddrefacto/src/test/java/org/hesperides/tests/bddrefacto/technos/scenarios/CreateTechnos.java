@@ -35,13 +35,8 @@ public class CreateTechnos implements En {
 
         Given("^an existing techno( with properties)?$", (String withProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
-                propertyBuilder.reset().withName("foo");
-                modelBuilder.withProperty(propertyBuilder.build());
-                templateBuilder.withContent(propertyBuilder.toString());
-
-                propertyBuilder.reset().withName("bar");
-                modelBuilder.withProperty(propertyBuilder.build());
-                templateBuilder.withContent(propertyBuilder.toString());
+                addPropertyToBuilders("techno-foo");
+                addPropertyToBuilders("techno-bar");
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build());
         });
@@ -65,5 +60,12 @@ public class CreateTechnos implements En {
         Then("^the techno creation is rejected with a conflict error$", () -> {
             assertConflict(responseEntity);
         });
+    }
+
+    private void addPropertyToBuilders(String name) {
+        propertyBuilder.reset().withName(name);
+        modelBuilder.withProperty(propertyBuilder.build());
+        templateBuilder.withContent(propertyBuilder.toString());
+        technoBuilder.withProperty(propertyBuilder.build());
     }
 }

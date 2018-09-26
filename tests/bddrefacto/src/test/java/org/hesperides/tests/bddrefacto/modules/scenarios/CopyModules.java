@@ -7,6 +7,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
+import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,8 @@ public class CopyModules implements En {
     private ModuleClient moduleClient;
     @Autowired
     private ModelBuilder modelBuilder;
+    @Autowired
+    private TechnoBuilder technoBuilder;
 
     private ResponseEntity responseEntity;
 
@@ -41,7 +44,7 @@ public class CopyModules implements En {
 
         Then("^the module is successfully duplicated$", () -> {
             assertCreated(responseEntity);
-            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withVersionId(1).withVersion("1.0.1");
+            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersion("1.0.1");
             ModuleIO expectedModule = expectedModuleBuilder.build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
             assertEquals(expectedModule, actualModule);

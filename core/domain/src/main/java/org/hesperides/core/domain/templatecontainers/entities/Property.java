@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.commons.spring.SpringProfiles;
-import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -150,7 +150,7 @@ public class Property extends AbstractProperty {
 
     private static void validateRequiredOrDefaultValue(String name, boolean isRequired, String defaultValue) {
         if (!HasProfile.dataMigration() && isRequired && !StringUtils.isEmpty(defaultValue)) {
-            throw new RequiredPropertyCannotHaveDefaultValueException(name);
+            throw new RequiredPropertyWithDefaultValueException(name);
         }
     }
 

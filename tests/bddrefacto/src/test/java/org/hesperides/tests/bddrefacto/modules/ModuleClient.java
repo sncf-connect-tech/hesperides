@@ -59,12 +59,20 @@ public class ModuleClient {
                 getVersionType(moduleInput.isWorkingCopy()));
     }
 
-    public ResponseEntity releaseModule(ModuleIO moduleInput, Class responseType) {
+    public ResponseEntity release(ModuleIO moduleInput) {
+        return release(moduleInput, ModuleIO.class);
+    }
+
+    public ResponseEntity release(ModuleIO moduleInput, Class responseType) {
         return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
                 null,
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion());
+    }
+
+    public ResponseEntity delete(ModuleIO moduleInput) {
+        return delete(moduleInput, ResponseEntity.class);
     }
 
     public ResponseEntity delete(ModuleIO moduleInput, Class responseType) {
@@ -166,5 +174,12 @@ public class ModuleClient {
 
     public ResponseEntity<String[]> getTypes(String name, String version) {
         return restTemplate.getForEntity("/modules/{name}/{version}", String[].class, name, version);
+    }
+
+    public ResponseEntity update(ModuleIO moduleInput, Class responseType) {
+        return restTemplate.exchange("/modules",
+                HttpMethod.PUT,
+                new HttpEntity<>(moduleInput),
+                responseType);
     }
 }

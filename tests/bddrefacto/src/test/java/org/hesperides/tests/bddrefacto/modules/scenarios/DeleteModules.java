@@ -21,10 +21,13 @@ public class DeleteModules implements En {
 
     public DeleteModules() {
 
+        Given("^the module is deleted", () -> {
+            moduleClient.delete(moduleBuilder.build());
+        });
+
         When("^I( try to)? delete this module$", (final String tryTo) -> {
             responseEntity = moduleClient.delete(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ResponseEntity.class));
         });
-        ;
 
         Then("^the module is successfully deleted$", () -> {
             assertOK(responseEntity);

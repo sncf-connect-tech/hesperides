@@ -57,4 +57,8 @@ public class ModelBuilder {
     public ModelOutput build() {
         return new ModelOutput(new HashSet<>(properties), new HashSet<>(iterableProperties));
     }
+
+    public void removeProperties(List<PropertyOutput> properties) {
+        this.properties.removeAll(properties);
+    }
 }

@@ -4,7 +4,8 @@ import org.axonframework.commandhandling.model.AggregateNotFoundException;
 import org.hesperides.core.domain.exceptions.DuplicateException;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
-import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
+import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +33,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({DuplicateException.class, OutOfDateVersionException.class})
-    public ResponseEntity handleDuplicateTemplateCreation(Exception ex) {
+    public ResponseEntity handleConflict(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    @ExceptionHandler(RequiredPropertyCannotHaveDefaultValueException.class)
-    public ResponseEntity handleAggregateNotFound(RequiredPropertyCannotHaveDefaultValueException ex) {
+    @ExceptionHandler({RequiredPropertyWithDefaultValueException.class, UpdateReleaseException.class})
+    public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 

@@ -21,9 +21,9 @@ Feature: Update module templates
     When I try to update this module template
     Then the module template update is rejected with a not found error
 
-  Scenario: update the wrong version of a template
+  Scenario: update an outdated template
     Given an existing module with a template
-    And a template with an outdated version
+    And the template is outdated
     When I try to update this module template
     Then the module template update is rejected with a conflict error
 
