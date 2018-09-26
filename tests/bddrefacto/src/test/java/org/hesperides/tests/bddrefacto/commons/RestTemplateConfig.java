@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-public class RestClientConfig {
+public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate restTemplate(TestRestTemplate testRestTemplate) {
+    public RestTemplate testRestTemplate(TestRestTemplate testRestTemplate) {
         // Remplace Jackson par Gson
         List<HttpMessageConverter<?>> converters = testRestTemplate.getRestTemplate().getMessageConverters().stream()
                 .filter(httpMessageConverter -> !(httpMessageConverter instanceof MappingJackson2HttpMessageConverter))

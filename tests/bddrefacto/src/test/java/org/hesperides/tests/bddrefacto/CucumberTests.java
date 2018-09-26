@@ -11,6 +11,7 @@ import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
+import org.hesperides.tests.bddrefacto.users.UserContext;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.RestTemplate;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
@@ -30,16 +33,19 @@ import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
 public class CucumberTests {
 
     @Configuration
-    @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
     @ContextConfiguration
-//    @DirtiesContext
     public static class CucumberSpringBean {
 
         @Autowired
         private MongoTemplate mongoTemplate;
         @Autowired
         private MongoClient client;
+
+        @Autowired
+        private RestTemplate restTemplate;
+
         @Autowired
         private TechnoBuilder technoBuilder;
         @Autowired
@@ -53,8 +59,14 @@ public class CucumberTests {
 
         @After
         public void tearDown() {
+            // Databases
             mongoTemplate.getDb().dropDatabase();
             new DefaultMongoTemplate(client).eventCollection().drop();
+            // Authorization header
+            if (restTemplate.getInterceptors().contains(UserContext.BASIC_AUTH_INTERCEPTOR)) {
+                restTemplate.getInterceptors().remove(UserContext.BASIC_AUTH_INTERCEPTOR);
+            }
+            // Builders
             templateBuilder.reset();
             technoBuilder.reset();
             propertyBuilder.reset();
