@@ -39,6 +39,10 @@ public class ModuleClient {
     @Autowired
     private RestTemplate restTemplate;
 
+    public ResponseEntity create(ModuleIO moduleInput) {
+        return create(moduleInput, ModuleIO.class);
+    }
+
     public ResponseEntity create(ModuleIO moduleInput, Class responseType) {
         return restTemplate.postForEntity("/modules", moduleInput, responseType);
     }
@@ -89,6 +93,10 @@ public class ModuleClient {
                 moduleInput.getVersion(),
                 getVersionType(moduleInput.isWorkingCopy()));
 
+    }
+
+    public ResponseEntity addTemplate(TemplateIO templateInput, ModuleIO moduleInput) {
+        return addTemplate(templateInput, moduleInput, TemplateIO.class);
     }
 
     public ResponseEntity addTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
@@ -150,5 +158,9 @@ public class ModuleClient {
 
     public ResponseEntity<String[]> getModulesName() {
         return restTemplate.getForEntity("/modules", String[].class);
+    }
+
+    public ResponseEntity<String[]> getModuleVersions(String name) {
+        return restTemplate.getForEntity("/modules/{name}", String[].class, name);
     }
 }

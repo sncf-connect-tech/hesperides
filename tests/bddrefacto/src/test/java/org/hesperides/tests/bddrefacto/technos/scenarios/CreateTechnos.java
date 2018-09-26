@@ -43,7 +43,7 @@ public class CreateTechnos implements En {
                 modelBuilder.withProperty(propertyBuilder.build());
                 templateBuilder.withContent(propertyBuilder.toString());
             }
-            technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.create(templateBuilder.build(), technoBuilder.build());
         });
 
         Given("^a techno to create(?: with the same name and version)?$", () -> {

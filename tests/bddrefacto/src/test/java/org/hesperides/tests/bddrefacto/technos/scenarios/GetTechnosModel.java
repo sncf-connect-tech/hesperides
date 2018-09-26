@@ -2,7 +2,6 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
@@ -38,7 +37,7 @@ public class GetTechnosModel implements En {
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
         Given("^an existing techno with iterable-ception$", () -> {
@@ -46,7 +45,7 @@ public class GetTechnosModel implements En {
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
         Given("^an existing techno with properties with the same name and comment, but different default values, in two templates$", () -> {
@@ -58,23 +57,23 @@ public class GetTechnosModel implements En {
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("12");
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.reset().withName("template-a").withContent(propertyBuilder.toString());
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
 
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
             templateBuilder.reset().withName("template-b").withContent(propertyBuilder.toString());
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
         Given("^an existing techno with properties with the same name but different comments in two templates$", () -> {
             propertyBuilder.reset().withName("foo").withComment("comment-a");
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.reset().withName("template-a").withContent(propertyBuilder.toString());
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
 
             propertyBuilder.reset().withName("foo").withComment("comment-b");
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.reset().withName("template-b").withContent(propertyBuilder.toString());
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
         Given("^the techno template properties are modified$", () -> {
@@ -89,7 +88,7 @@ public class GetTechnosModel implements En {
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
-            technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
         When("^I( try to)? get the model of this techno$", (final String tryTo) -> {

@@ -1,7 +1,6 @@
 package org.hesperides.tests.bddrefacto.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
@@ -35,27 +34,27 @@ public class GetModulesModel implements En {
     public GetModulesModel() {
 
         Given("^an existing module with iterable properties$", () -> {
-            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+            moduleClient.create(moduleBuilder.build());
 
             propertyBuilder.reset().withName("foo").withProperty(new PropertyBuilder().withName("bar"));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
 
         Given("^an existing module with iterable-ception$", () -> {
-            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+            moduleClient.create(moduleBuilder.build());
 
             propertyBuilder.reset().withName("foo").withProperty(new PropertyBuilder().withName("bar").withProperty(new PropertyBuilder().withName("foobar")));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
 
         Given("^an existing module with properties with the same name and comment, but different default values, in two templates$", () -> {
-            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+            moduleClient.create(moduleBuilder.build());
 
             // On peut définir le model attendu ici ou à partir de la seconde propriété,
             // cela ne change rien puisque le assertEquals tient compte du equals de PropertyOutput
@@ -65,25 +64,25 @@ public class GetModulesModel implements En {
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("12");
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.reset().withName("template-a").withContent(propertyBuilder.toString());
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
 
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
             templateBuilder.reset().withName("template-b").withContent(propertyBuilder.toString());
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
 
         Given("^an existing module with properties with the same name but different comments in two templates$", () -> {
-            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+            moduleClient.create(moduleBuilder.build());
 
             propertyBuilder.reset().withName("foo").withComment("comment-a");
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.reset().withName("template-a").withContent(propertyBuilder.toString());
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
 
             propertyBuilder.reset().withName("foo").withComment("comment-b");
             modelBuilder.withProperty(propertyBuilder.build());
             templateBuilder.reset().withName("template-b").withContent(propertyBuilder.toString());
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
 
         Given("^the module template properties are modified$", () -> {

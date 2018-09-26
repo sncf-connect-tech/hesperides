@@ -2,7 +2,6 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -28,7 +27,7 @@ public class SearchTechnos implements En {
         Given("^a list of (\\d+) technos$", (final Integer nbTechnos) -> {
             for (int i = 0; i < nbTechnos; i++) {
                 technoBuilder.withName("a-techno").withVersion("0.0." + i + 1);
-                technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+                technoClient.create(templateBuilder.build(), technoBuilder.build());
             }
         });
 

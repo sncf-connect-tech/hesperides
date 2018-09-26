@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
@@ -39,7 +38,7 @@ public class ReleaseModules implements En {
     public ReleaseModules() {
 
         Given("^a released module( with a template)?( with properties)?$", (final String withATemplate, final String withProperties) -> {
-            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+            moduleClient.create(moduleBuilder.build());
 
             if (StringUtils.isNotEmpty(withProperties)) {
                 propertyBuilder.reset().withName("foo");
@@ -50,11 +49,11 @@ public class ReleaseModules implements En {
                 modelBuilder.withProperty(propertyBuilder.build());
                 templateBuilder.withContent(propertyBuilder.toString());
 
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
 
             if (StringUtils.isNotEmpty(withATemplate) && StringUtils.isEmpty(withProperties)) {
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
 
             moduleClient.releaseModule(moduleBuilder.build(), ModuleIO.class);

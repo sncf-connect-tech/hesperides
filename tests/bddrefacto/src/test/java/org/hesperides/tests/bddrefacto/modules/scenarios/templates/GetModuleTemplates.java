@@ -58,14 +58,14 @@ public class GetModuleTemplates implements En {
         Given("^multiple templates in this module$", () -> {
             for (int i = 0; i < nbTemplates; i++) {
                 templateBuilder.withName("template-" + i + 1);
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
                 expectedPartialTemplates.add(templateBuilder.buildPartialTemplate(moduleBuilder.getNamespace()));
             }
         });
 
         Given("^a template in this module$", () -> {
             templateBuilder.withName("a-new-template");
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
 
         Given("^a template that doesn't exist in this module$", () -> {

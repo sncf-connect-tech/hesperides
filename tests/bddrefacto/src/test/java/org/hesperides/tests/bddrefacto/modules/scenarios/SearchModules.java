@@ -31,7 +31,7 @@ public class SearchModules implements En {
                     moduleBuilder.withName("new-module");
                 }
                 moduleBuilder.withVersion("0.0." + i + 1);
-                moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+                moduleClient.create(moduleBuilder.build());
             }
         });
 

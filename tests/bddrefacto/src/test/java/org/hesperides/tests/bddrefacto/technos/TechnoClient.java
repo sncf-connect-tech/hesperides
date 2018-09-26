@@ -39,6 +39,10 @@ public class TechnoClient {
     @Autowired
     private RestTemplate restTemplate;
 
+    public ResponseEntity create(TemplateIO templateInput, TechnoIO technoInput) {
+        return create(templateInput, technoInput, TemplateIO.class);
+    }
+
     public ResponseEntity create(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
         return restTemplate.postForEntity(
                 "/templates/packages/{name}/{version}/{type}/templates",
@@ -59,6 +63,10 @@ public class TechnoClient {
                 technoInput.getName(),
                 technoInput.getVersion(),
                 getVersionType(technoInput.isWorkingCopy()));
+    }
+
+    public ResponseEntity releaseTechno(TechnoIO technoInput) {
+        return releaseTechno(technoInput, TechnoIO.class);
     }
 
     public ResponseEntity releaseTechno(TechnoIO technoInput, Class responseType) {
@@ -97,9 +105,17 @@ public class TechnoClient {
 
     }
 
+    public ResponseEntity addTemplate(TemplateIO templateInput, TechnoIO technoInput) {
+        return addTemplate(templateInput, technoInput, TemplateIO.class);
+    }
+
     public ResponseEntity addTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
         // L'appel est le même que pour la création
         return create(templateInput, technoInput, responseType);
+    }
+
+    public ResponseEntity updateTemplate(TemplateIO templateInput, TechnoIO technoInput) {
+        return updateTemplate(templateInput, technoInput, TemplateIO.class);
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {

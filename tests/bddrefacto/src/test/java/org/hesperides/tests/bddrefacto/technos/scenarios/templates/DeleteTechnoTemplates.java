@@ -49,7 +49,8 @@ public class DeleteTechnoTemplates implements En {
 
         Then("^the techno template is successfully deleted$", () -> {
             assertOK(responseEntity);
-            technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
+            responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
+            assertNotFound(responseEntity);
         });
 
         Then("^the techno template delete is rejected with a method not allowed error$", () -> {

@@ -58,14 +58,14 @@ public class GetTechnoTemplates implements En {
         Given("^multiple templates in this techno$", () -> {
             for (int i = 0; i < nbTemplates; i++) {
                 templateBuilder.withName("template-" + i + 1);
-                technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+                technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
                 expectedPartialTemplates.add(templateBuilder.buildPartialTemplate(technoBuilder.getNamespace()));
             }
         });
 
         Given("^a template in this techno$", () -> {
             templateBuilder.withName("a-new-template");
-            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
         Given("^a template that doesn't exist in this techno$", () -> {

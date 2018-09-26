@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
@@ -36,8 +35,8 @@ public class ReleaseTechnos implements En {
             if (StringUtils.isNotEmpty(withProperties)) {
                 templateBuilder.withContent("foo").withContent("bar");
             }
-            technoClient.create(templateBuilder.build(), technoBuilder.build(), TemplateIO.class);
-            technoClient.releaseTechno(technoBuilder.build(), TechnoIO.class);
+            technoClient.create(templateBuilder.build(), technoBuilder.build());
+            technoClient.releaseTechno(technoBuilder.build());
             technoBuilder.withIsWorkingCopy(false);
         });
 

@@ -3,7 +3,6 @@ package org.hesperides.tests.bddrefacto.modules.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
@@ -35,7 +34,7 @@ public class CreateModules implements En {
     public CreateModules() {
 
         Given("^an existing module( with a template)?( with properties)?$", (final String withATemplate, final String withProperties) -> {
-            moduleClient.create(moduleBuilder.build(), ModuleIO.class);
+            moduleClient.create(moduleBuilder.build());
 
             if (StringUtils.isNotEmpty(withProperties)) {
                 propertyBuilder.reset().withName("foo");
@@ -46,11 +45,11 @@ public class CreateModules implements En {
                 modelBuilder.withProperty(propertyBuilder.build());
                 templateBuilder.withContent(propertyBuilder.toString());
 
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
 
             if (StringUtils.isNotEmpty(withATemplate) && StringUtils.isEmpty(withProperties)) {
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
         });
 
