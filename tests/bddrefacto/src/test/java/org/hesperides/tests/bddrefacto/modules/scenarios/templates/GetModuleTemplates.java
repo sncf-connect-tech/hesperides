@@ -23,7 +23,6 @@ package org.hesperides.tests.bddrefacto.modules.scenarios.templates;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -35,18 +34,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class GetModuleTemplates implements En {
 
     @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
 
     private ResponseEntity responseEntity;
     private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
@@ -73,11 +71,11 @@ public class GetModuleTemplates implements En {
         });
 
         When("^I( try to)? get the list of templates of this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.getTemplates(moduleBuilder.build(), StepHelper.getResponseType(tryTo, PartialTemplateIO[].class));
+            responseEntity = moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
         });
 
         When("^I( try to)? get this template in this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
+            responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^a list of all the templates of the module is returned$", () -> {

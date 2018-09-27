@@ -2,7 +2,6 @@ package org.hesperides.tests.bddrefacto.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -15,11 +14,11 @@ import static org.junit.Assert.assertEquals;
 public class UpdateModules implements En {
 
     @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
 
     private ResponseEntity responseEntity;
 
@@ -34,7 +33,7 @@ public class UpdateModules implements En {
         });
 
         When("^I( try to)? update this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.update(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
+            responseEntity = moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully updated$", () -> {

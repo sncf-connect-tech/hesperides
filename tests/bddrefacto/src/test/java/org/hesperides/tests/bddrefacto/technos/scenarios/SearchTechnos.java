@@ -14,11 +14,11 @@ import static org.junit.Assert.assertEquals;
 public class SearchTechnos implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private TechnoClient technoClient;
 
     private ResponseEntity<TechnoIO[]> responseEntity;
 

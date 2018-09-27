@@ -22,7 +22,6 @@ package org.hesperides.tests.bddrefacto.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -35,18 +34,18 @@ import static org.junit.Assert.assertEquals;
 public class UpdateModuleTemplates implements En {
 
     @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
 
     private ResponseEntity responseEntity;
 
     public UpdateModuleTemplates() {
 
         When("^I( try to)? update this module template$", (final String tryTo) -> {
-            responseEntity = moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
+            responseEntity = moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the module template is successfully updated$", () -> {

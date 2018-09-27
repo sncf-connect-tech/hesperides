@@ -2,22 +2,20 @@ package org.hesperides.tests.bddrefacto.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class GetModules implements En {
 
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
     private ModuleClient moduleClient;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     private ResponseEntity responseEntity;
 
@@ -28,7 +26,7 @@ public class GetModules implements En {
         });
 
         When("^I( try to)? get the module detail$", (final String tryTo) -> {
-            responseEntity = moduleClient.get(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
+            responseEntity = moduleClient.get(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module detail is successfully retrieved$", () -> {

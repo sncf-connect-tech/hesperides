@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -14,18 +13,17 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class ReleaseTechnos implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private TechnoClient technoClient;
 
     private ResponseEntity responseEntity;
 
@@ -41,7 +39,7 @@ public class ReleaseTechnos implements En {
         });
 
         When("^I( try to)? release this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.release(technoBuilder.build(), StepHelper.getResponseType(tryTo, TechnoIO.class));
+            responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno is successfully released$", () -> {

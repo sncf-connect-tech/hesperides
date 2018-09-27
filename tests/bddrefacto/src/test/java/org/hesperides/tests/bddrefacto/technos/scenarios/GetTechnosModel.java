@@ -2,7 +2,6 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
@@ -11,18 +10,17 @@ import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class GetTechnosModel implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private TechnoClient technoClient;
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
@@ -92,7 +90,7 @@ public class GetTechnosModel implements En {
         });
 
         When("^I( try to)? get the model of this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.getModel(technoBuilder.build(), StepHelper.getResponseType(tryTo, ModelOutput.class));
+            responseEntity = technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
         Then("^the model of this techno contains the properties$", () -> {

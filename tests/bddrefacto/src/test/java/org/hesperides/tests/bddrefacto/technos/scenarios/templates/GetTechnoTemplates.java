@@ -23,7 +23,6 @@ package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -35,18 +34,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class GetTechnoTemplates implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private TechnoClient technoClient;
 
     private ResponseEntity responseEntity;
     private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
@@ -73,11 +71,11 @@ public class GetTechnoTemplates implements En {
         });
 
         When("^I( try to)? get the list of templates of this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.getTemplates(technoBuilder.build(), StepHelper.getResponseType(tryTo, PartialTemplateIO[].class));
+            responseEntity = technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
         });
 
         When("^I( try to)? get this template in this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
+            responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^a list of all the templates of the techno is returned$", () -> {

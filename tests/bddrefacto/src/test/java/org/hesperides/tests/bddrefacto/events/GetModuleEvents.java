@@ -3,7 +3,6 @@ package org.hesperides.tests.bddrefacto.events;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.events.EventOutput;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.getResponseType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -28,7 +28,7 @@ public class GetModuleEvents implements En {
     public GetModuleEvents() {
 
         When("^I( try to)? get the events of this module$", (final String tryTo) -> {
-            responseEntity = getModuleEvents(moduleBuilder.build(), StepHelper.getResponseType(tryTo, EventOutput[].class));
+            responseEntity = getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class));
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (final Integer nbEvents) -> {

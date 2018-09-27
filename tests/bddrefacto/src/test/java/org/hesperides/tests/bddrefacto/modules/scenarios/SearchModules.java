@@ -14,9 +14,9 @@ import static org.junit.Assert.assertEquals;
 public class SearchModules implements En {
 
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
     private ModuleClient moduleClient;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     private ResponseEntity<ModuleIO[]> responseEntity;
 

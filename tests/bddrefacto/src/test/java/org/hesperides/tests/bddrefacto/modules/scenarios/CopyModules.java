@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -22,9 +21,9 @@ import static org.junit.Assert.assertTrue;
 public class CopyModules implements En {
 
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
     private ModuleClient moduleClient;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
@@ -35,7 +34,7 @@ public class CopyModules implements En {
     public CopyModules() {
 
         When("^I( try to)? create a copy of this module$", (final String tryTo) -> {
-            responseEntity = copy("1.0.1", StepHelper.getResponseType(tryTo, ModuleIO.class));
+            responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
         });
 
         When("^I try to create a copy of this module, using the same key$", () -> {

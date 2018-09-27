@@ -3,7 +3,6 @@ package org.hesperides.tests.bddrefacto.technos.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
@@ -12,18 +11,17 @@ import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertConflict;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertCreated;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateTechnos implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private TechnoClient technoClient;
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
@@ -46,7 +44,7 @@ public class CreateTechnos implements En {
         });
 
         When("^I( try to)? create this techno$", (final String tryTo) -> {
-            responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
+            responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the techno is successfully created$", () -> {

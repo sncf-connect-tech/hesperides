@@ -22,7 +22,6 @@ package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -35,18 +34,18 @@ import static org.junit.Assert.assertEquals;
 public class UpdateTechnoTemplates implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private TechnoClient technoClient;
 
     private ResponseEntity responseEntity;
 
     public UpdateTechnoTemplates() {
 
         When("^I( try to)? update this techno template$", (final String tryTo) -> {
-            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), StepHelper.getResponseType(tryTo, TemplateIO.class));
+            responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the techno template is successfully updated$", () -> {

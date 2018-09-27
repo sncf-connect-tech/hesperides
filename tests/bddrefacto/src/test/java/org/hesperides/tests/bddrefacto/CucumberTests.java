@@ -8,6 +8,7 @@ import org.axonframework.mongo.DefaultMongoTemplate;
 import org.hesperides.HesperidesSpringApplication;
 import org.hesperides.tests.bddrefacto.commons.UserContext;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
+import org.hesperides.tests.bddrefacto.platforms.PlatformBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
 import org.hesperides.tests.bddrefacto.templatecontainers.PropertyBuilder;
@@ -56,22 +57,34 @@ public class CucumberTests {
         private ModelBuilder modelBuilder;
         @Autowired
         private ModuleBuilder moduleBuilder;
+        @Autowired
+        private PlatformBuilder platformBuilder;
 
         @After
         public void tearDown() {
-            // Databases
-            mongoTemplate.getDb().dropDatabase();
-            new DefaultMongoTemplate(client).eventCollection().drop();
-            // Authorization header
-            if (restTemplate.getInterceptors().contains(UserContext.BASIC_AUTH_INTERCEPTOR)) {
-                restTemplate.getInterceptors().remove(UserContext.BASIC_AUTH_INTERCEPTOR);
-            }
-            // Builders
+            resetDatabases();
+            resetRestTemplateAuthHeader();
+            resetBuilders();
+        }
+
+        private void resetBuilders() {
             templateBuilder.reset();
             technoBuilder.reset();
             propertyBuilder.reset();
             modelBuilder.reset();
             moduleBuilder.reset();
+            platformBuilder.reset();
+        }
+
+        private void resetRestTemplateAuthHeader() {
+            if (restTemplate.getInterceptors().contains(UserContext.BASIC_AUTH_INTERCEPTOR)) {
+                restTemplate.getInterceptors().remove(UserContext.BASIC_AUTH_INTERCEPTOR);
+            }
+        }
+
+        private void resetDatabases() {
+            mongoTemplate.getDb().dropDatabase();
+            new DefaultMongoTemplate(client).eventCollection().drop();
         }
     }
 

@@ -21,7 +21,6 @@
 package org.hesperides.tests.bddrefacto.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -33,18 +32,18 @@ import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 public class DeleteTechnoTemplates implements En {
 
     @Autowired
+    private TechnoClient technoClient;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private TechnoClient technoClient;
 
     private ResponseEntity responseEntity;
 
     public DeleteTechnoTemplates() {
 
         When("^I( try to)? delete this techno template$", (final String tryTo) -> {
-            responseEntity = technoClient.deleteTemplate(templateBuilder.build().getName(), technoBuilder.build(), StepHelper.getResponseType(tryTo, ResponseEntity.class));
+            responseEntity = technoClient.deleteTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 
         Then("^the techno template is successfully deleted$", () -> {

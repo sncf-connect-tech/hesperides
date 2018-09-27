@@ -3,7 +3,6 @@ package org.hesperides.tests.bddrefacto.modules.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -19,13 +18,13 @@ import static org.junit.Assert.assertEquals;
 public class CreateModules implements En {
 
     @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
@@ -64,7 +63,7 @@ public class CreateModules implements En {
         });
 
         When("^I( try to)? create this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.create(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
+            responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully created$", () -> {

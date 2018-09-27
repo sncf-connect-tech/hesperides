@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
@@ -17,20 +16,19 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class ReleaseModules implements En {
 
+    @Autowired
+    private ModuleClient moduleClient;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
@@ -70,7 +68,7 @@ public class ReleaseModules implements En {
         });
 
         When("^I( try to)? release this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.release(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModuleIO.class));
+            responseEntity = moduleClient.release(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully released$", () -> {

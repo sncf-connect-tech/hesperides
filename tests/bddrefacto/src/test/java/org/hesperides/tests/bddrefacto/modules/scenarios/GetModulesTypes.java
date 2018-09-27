@@ -13,9 +13,9 @@ import static org.junit.Assert.assertEquals;
 public class GetModulesTypes implements En {
 
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
     private ModuleClient moduleClient;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     private ResponseEntity<String[]> responseEntity;
 

@@ -4,7 +4,6 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.technos.TechnoBuilder;
 import org.hesperides.tests.bddrefacto.technos.TechnoClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
@@ -21,9 +20,9 @@ import static org.junit.Assert.assertTrue;
 public class CopyTechnos implements En {
 
     @Autowired
-    private TechnoBuilder technoBuilder;
-    @Autowired
     private TechnoClient technoClient;
+    @Autowired
+    private TechnoBuilder technoBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
 
@@ -32,7 +31,7 @@ public class CopyTechnos implements En {
     public CopyTechnos() {
 
         When("^I( try to)? create a copy of this techno$", (final String tryTo) -> {
-            responseEntity = copy("1.0.1", StepHelper.getResponseType(tryTo, TechnoIO.class));
+            responseEntity = copy("1.0.1", getResponseType(tryTo, TechnoIO.class));
         });
 
         When("^I try to create a copy of this techno, using the same key$", () -> {

@@ -3,7 +3,6 @@ package org.hesperides.tests.bddrefacto.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.ModelBuilder;
@@ -12,18 +11,17 @@ import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertNotFound;
-import static org.hesperides.tests.bddrefacto.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class GetModulesModel implements En {
 
     @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
     @Autowired
     private PropertyBuilder propertyBuilder;
     @Autowired
@@ -101,7 +99,7 @@ public class GetModulesModel implements En {
         });
 
         When("^I( try to)? get the model of this module$", (final String tryTo) -> {
-            responseEntity = moduleClient.getModel(moduleBuilder.build(), StepHelper.getResponseType(tryTo, ModelOutput.class));
+            responseEntity = moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
         Then("^the model of this module contains the properties$", () -> {

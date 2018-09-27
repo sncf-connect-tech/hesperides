@@ -21,7 +21,6 @@
 package org.hesperides.tests.bddrefacto.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bddrefacto.commons.StepHelper;
 import org.hesperides.tests.bddrefacto.modules.ModuleBuilder;
 import org.hesperides.tests.bddrefacto.modules.ModuleClient;
 import org.hesperides.tests.bddrefacto.templatecontainers.TemplateBuilder;
@@ -33,18 +32,18 @@ import static org.hesperides.tests.bddrefacto.commons.StepHelper.*;
 public class DeleteModuleTemplates implements En {
 
     @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
 
     private ResponseEntity responseEntity;
 
     public DeleteModuleTemplates() {
 
         When("^I( try to)? delete this module template$", (final String tryTo) -> {
-            responseEntity = moduleClient.deleteTemplate(templateBuilder.build().getName(), moduleBuilder.build(), StepHelper.getResponseType(tryTo, ResponseEntity.class));
+            responseEntity = moduleClient.deleteTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 
         Then("^the module template is successfully deleted$", () -> {
