@@ -1,4 +1,4 @@
-package org.hesperides.tests.bddrefacto.users;
+package org.hesperides.tests.bddrefacto.commons;
 
 import cucumber.api.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
