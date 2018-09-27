@@ -33,6 +33,10 @@ public class PlatformSamples {
     public static final boolean DEFAULT_PRODUCTION_PLATFORM = false;
     public static final long DEFAULT_INPUT_VERSION_ID = 0L;
     public static final long DEFAULT_OUTPUT_VERSION_ID = 1L;
+    public static final String MODULE1_NAME = "module_name1";
+    public static final String MODULE1_OUTPUT_PROPERTIES_PATH = "#GROUP#module_name1#module_version#WORKINGCOPY";
+    public static final String MODULE2_NAME = "module_name2";
+    public static final String MODULE2_OUTPUT_PROPERTIES_PATH = "#GROUP#module_name2#module_version#WORKINGCOPY";
 
     /*
      * Inputs
@@ -46,6 +50,20 @@ public class PlatformSamples {
                 Arrays.asList(
                         DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L),
                         DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L)
+                ),
+                DEFAULT_INPUT_VERSION_ID
+        );
+    }
+
+    public static PlatformInput buildPlatformInputWithNameAndDifferentsModules(String name) {
+        return new PlatformInput(
+                name,
+                DEFAULT_APPLICATION_NAME,
+                DEFAULT_VERSION,
+                DEFAULT_PRODUCTION_PLATFORM,
+                Arrays.asList(
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L, MODULE1_NAME),
+                        DeployedModuleSamples.getDeployedModuleInputWithDefaultValues(0L, MODULE2_NAME)
                 ),
                 DEFAULT_INPUT_VERSION_ID
         );

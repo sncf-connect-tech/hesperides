@@ -41,6 +41,7 @@ public class PlatformDocument {
     private boolean isProductionPlatform;
     private Long versionId;
     private List<DeployedModuleDocument> deployedModules;
+    private List<ValuedPropertyDocument> valuedProperties;
 
     public PlatformDocument(Platform platform) {
         this.key = new PlatformKeyDocument(platform.getKey());
@@ -48,7 +49,6 @@ public class PlatformDocument {
         this.isProductionPlatform = platform.isProductionPlatform();
         this.versionId = platform.getVersionId();
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
-
     }
 
     public PlatformView toPlatformView() {
@@ -58,7 +58,8 @@ public class PlatformDocument {
                 version,
                 isProductionPlatform,
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
-                versionId
+                versionId,
+                ValuedPropertyDocument.toValuedPropertyViews(valuedProperties)
         );
     }
 

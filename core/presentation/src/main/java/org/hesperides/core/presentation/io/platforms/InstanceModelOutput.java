@@ -22,8 +22,10 @@ package org.hesperides.core.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 public class InstanceModelOutput {
@@ -34,12 +36,28 @@ public class InstanceModelOutput {
     @Value
     public static class InstancePropertyOutput {
         String name;
+        String comment;
         @SerializedName("required")
         boolean isRequired;
-        String comment;
         String defaultValue;
         String pattern;
         @SerializedName("password")
         boolean isPassword;
+
+        public static InstancePropertyOutput fromInstanceModelPropertyView(InstanceModelView.InstanceModelPropertyView instanceModelPropertyView) {
+            return new InstancePropertyOutput(instanceModelPropertyView.getName(),
+                    instanceModelPropertyView.getComment(),
+                    instanceModelPropertyView.isRequired(),
+                    instanceModelPropertyView.getDefaultValue(),
+                    instanceModelPropertyView.getPattern(),
+                    instanceModelPropertyView.isPassword());
+        }
+    }
+
+    public static InstanceModelOutput fromInstanceView(InstanceModelView instanceModelView) {
+        List<InstancePropertyOutput> instancePropertyOutputs = instanceModelView.getInstanceProperties().stream()
+                .map(InstancePropertyOutput::fromInstanceModelPropertyView)
+                .collect(Collectors.toList());
+        return new InstanceModelOutput(instancePropertyOutputs);
     }
 }

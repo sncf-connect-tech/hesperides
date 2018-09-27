@@ -22,6 +22,7 @@ package org.hesperides.core.domain.platforms.entities;
 
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.ArrayList;
@@ -40,8 +41,9 @@ public class DeployedModule {
     String propertiesPath;
     //String deploymentGroup
     List<Instance> instances;
+    List<AbstractValuedProperty> properties;
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<Instance> instances) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<Instance> instances, List<AbstractValuedProperty> properties) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -49,6 +51,7 @@ public class DeployedModule {
         this.path = path;
         this.propertiesPath = generatePropertiesPath();
         this.instances = instances;
+        this.properties = properties;
     }
 
     private DeployedModule(DeployedModule other, Long id) {
@@ -59,6 +62,7 @@ public class DeployedModule {
         this.path = other.path;
         this.propertiesPath = other.propertiesPath; // because id has no bearing on this
         this.instances = other.instances;
+        this.properties = other.properties;
     }
 
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {

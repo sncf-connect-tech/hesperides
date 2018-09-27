@@ -5,6 +5,7 @@ import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyD
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +17,8 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Profile({MONGO, FAKE_MONGO})
 @Repository
 public interface MongoPlatformRepository extends MongoRepository<PlatformDocument, String> {
+
+    Long countByKey(PlatformKeyDocument platformKeyDocument);
 
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
 
@@ -29,4 +32,7 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input, Pageable pageable);
 
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName, Pageable pageable);
+
+    @Query(value = "{'_id': ?0}", fields="{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1}}}")
+    PlatformDocument findByKeyAndFilterDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);
 }

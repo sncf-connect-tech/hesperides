@@ -2,6 +2,7 @@ package org.hesperides.core.domain.templatecontainers.entities;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.security.InvalidParameterException;
