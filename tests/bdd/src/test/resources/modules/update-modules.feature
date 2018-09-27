@@ -1,24 +1,39 @@
-Feature: Module update
-
-  Regroup all uses cases related to the update of modules.
+Feature: Update modules
 
   Background:
     Given an authenticated user
 
-  Scenario: update a module
-    Given an existing module
-    When updating this module
+  Scenario: update an existing module
+    Given an existing techno
+    And an existing module with this techno
+    When I update this module
     Then the module is successfully updated
 
-  Scenario: update a module containing a template
-    Given an existing module
-    And an existing template in this module
-    When updating this module
-    Then the module is successfully updated
-    And the module contains the template
+  Scenario: update a released module
+    Given a released module
+    When I try to update this module
+    Then the module update is rejected with a bad request error
 
-  Scenario: trying to update a module twice at the same time
+  Scenario: update a module that doesn't exist
+    Given a module that doesn't exist
+    When I try to update this module
+    Then the module update is rejected with a not found error
+
+  Scenario: update an outdated module
     Given an existing module
-    When updating this module
-    And updating the same version of the module alongside
-    Then the module update is rejected
+    But the module is outdated
+    When I try to update this module
+    Then the module update is rejected with a conflict error
+
+  Scenario: update a module that has been deleted
+    Given an existing module
+    And the module is deleted
+    When I try to update this module
+    Then the module update is rejected with a not found error
+
+  Scenario: update a module with a techno that doesn't exist
+    Given an existing module
+    And a techno that doesn't exist
+    And this techno is associated to this module
+    When I try to update this module
+    Then the module update is rejected with a not found error

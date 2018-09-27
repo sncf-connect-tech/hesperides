@@ -1,21 +1,28 @@
-Feature: Module retrieval
-
-  Regroup all uses cases related to the retrieval of modules.
+Feature: Get modules detail
 
   Background:
     Given an authenticated user
 
-  Scenario: search for an existing module
-    Given a list of 20 modules
-    When searching for one of them
-    Then it is found
+  Scenario: get the detail of an existing module
+    Given an existing techno
+    And an existing module with this techno
+    When I get the module detail
+    Then the module detail is successfully retrieved
 
-  Scenario: search for existing modules
-    Given a list of 20 modules
-    When searching for some of them
-    Then the number of module results is 10
+  Scenario: get the detail of a released module
+    Given an existing techno
+    And a released module with this techno
+    When I get the module detail
+    Then the module detail is successfully retrieved
 
-  Scenario: search for a module that doesn't exist
-    Given a list of 20 modules
-    When searching for one that does not exist
-    Then the number of module results is 0
+  Scenario: get the detail of a module that doesn't exist
+    Given a module that doesn't exist
+    When I try to get the module detail
+    Then the module is not found
+
+  Scenario: get the detail of a module after its techno has been deleted
+    Given an existing techno
+    And an existing module with this techno
+    And I delete this techno
+    When I get the module detail
+    Then the module detail is successfully retrieved

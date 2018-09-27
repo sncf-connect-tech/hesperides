@@ -1,8 +1,8 @@
-Feature: User information retrieval
+Feature: Get user information
 
   Background:
     Given an authenticated user
 
-  Scenario: get user info
-    When retrieving user info
-    Then user info is provided
+  Scenario: get current user information
+    When I get the current user information
+    Then the user information is provided

@@ -20,14 +20,42 @@
  */
 package org.hesperides.tests.bdd.templatecontainers;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Component
 public class PropertyBuilder {
 
-    private String name = "foo";
+
+    private String name;
     private boolean isRequired;
     private String comment;
     private String defaultValue;
     private String pattern;
     private boolean isPassword;
+    private List<PropertyBuilder> properties;
+
+    public PropertyBuilder() {
+        reset();
+    }
+
+    public PropertyBuilder reset() {
+        name = "foo";
+        isRequired = false;
+        comment = "";
+        defaultValue = "";
+        pattern = "";
+        isPassword = false;
+        properties = null;
+        return this;
+    }
 
     public PropertyBuilder withName(final String name) {
         this.name = name;
@@ -59,27 +87,59 @@ public class PropertyBuilder {
         return this;
     }
 
-    public String build() {
+    public PropertyBuilder withProperty(final PropertyBuilder property) {
+        if (properties == null) {
+            properties = new ArrayList<>();
+        }
+        this.properties.add(property);
+        return this;
+    }
+
+    public PropertyOutput build() {
+        Set<PropertyOutput> properties = this.properties == null ? null : this.properties
+                .stream()
+                .map(PropertyBuilder::build)
+                .collect(Collectors.toSet());
+        return new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, properties);
+    }
+
+    public String toString() {
         StringBuilder property = new StringBuilder();
-        property.append("{{");
-        property.append(name);
-        property.append("|");
-        if (isRequired) {
-            property.append(" @required");
+
+        if (CollectionUtils.isEmpty(properties)) {
+            property.append("{{");
+            property.append(name);
+            if (isRequired || !StringUtils.isEmpty(comment) || !StringUtils.isEmpty(defaultValue) || !StringUtils.isEmpty(pattern) || isPassword) {
+                property.append(" |");
+            }
+            if (isRequired) {
+                property.append(" @required");
+            }
+            if (!StringUtils.isEmpty(comment)) {
+                property.append(" @comment " + comment);
+            }
+            if (!StringUtils.isEmpty(defaultValue)) {
+                property.append(" @default " + defaultValue);
+            }
+            if (!StringUtils.isEmpty(pattern)) {
+                property.append(" @pattern " + pattern);
+            }
+            if (isPassword) {
+                property.append(" @password");
+            }
+            property.append("}}");
+
+        } else {
+            property.append("{{#");
+            property.append(name);
+            property.append("}}");
+            for (PropertyBuilder propertyBuilder : properties) {
+                property.append(propertyBuilder);
+            }
+            property.append("{{/");
+            property.append(name);
+            property.append("}}");
         }
-        if (comment != null) {
-            property.append(" @comment " + comment);
-        }
-        if (defaultValue != null) {
-            property.append(" @default " + defaultValue);
-        }
-        if (pattern != null) {
-            property.append(" @pattern " + pattern);
-        }
-        if (isPassword) {
-            property.append(" @password");
-        }
-        property.append("}}");
         return property.toString();
     }
 }

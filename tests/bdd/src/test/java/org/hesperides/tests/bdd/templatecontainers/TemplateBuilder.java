@@ -21,22 +21,38 @@
 package org.hesperides.tests.bdd.templatecontainers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.tests.bdd.commons.tools.AbstractBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TemplateBuilder extends AbstractBuilder {
+public class TemplateBuilder {
 
     public static final String DEFAULT_NAME = "template";
 
-    private String name = DEFAULT_NAME;
-    private String namespace = null;
-    private String filename = "template.json";
-    private String location = "/location";
-    private String content = "content";
-    private TemplateIO.RightsIO rights = new RightsBuilder().build();
-    private long versionId = 0;
+    private String name;
+    private String namespace;
+    private String filename;
+    private String location;
+    private String content;
+    private TemplateIO.RightsIO rights;
+    private long versionId;
+
+    public TemplateBuilder() {
+        reset();
+    }
+
+    public TemplateBuilder reset() {
+        // Valeurs par défaut
+        name = DEFAULT_NAME;
+        namespace = null;
+        filename = "template.json";
+        location = "/location";
+        content = "content";
+        rights = new RightsBuilder().build();
+        versionId = 0;
+        return this;
+    }
 
     public TemplateBuilder withName(final String name) {
         this.name = name;
@@ -67,11 +83,6 @@ public class TemplateBuilder extends AbstractBuilder {
         return this;
     }
 
-    public TemplateBuilder withProperty(final String name) {
-        String property = "{{" + name + "}}";
-        return withContent(property);
-    }
-
     public TemplateBuilder withDefaultAndRequiredProperty() {
         String property = "{{defaultAndRequired|@default 12 @required}}";
         return withContent(property);
@@ -89,6 +100,10 @@ public class TemplateBuilder extends AbstractBuilder {
 
     public TemplateIO build() {
         return new TemplateIO(name, namespace, filename, location, content, rights, versionId);
+    }
+
+    public PartialTemplateIO buildPartialTemplate(String namespace) {
+        return new PartialTemplateIO(name, namespace, filename, location);
     }
 
     public static class RightsBuilder {

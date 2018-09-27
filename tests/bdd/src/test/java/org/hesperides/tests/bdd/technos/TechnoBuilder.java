@@ -20,17 +20,32 @@
  */
 package org.hesperides.tests.bdd.technos;
 
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.tests.bdd.commons.tools.AbstractBuilder;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.springframework.stereotype.Component;
 
-@Component
-public class TechnoBuilder extends AbstractBuilder {
+import java.util.ArrayList;
+import java.util.List;
 
-    private String name = "test-techno";
-    private String version = "1.0.0";
-    private boolean isWorkingCopy = true;
+@Component
+public class TechnoBuilder {
+
+    private String name;
+    private String version;
+    private boolean isWorkingCopy;
+    private List<PropertyOutput> properties;
+
+    public TechnoBuilder() {
+        reset();
+    }
+
+    public void reset() {
+        // Valeurs par défaut
+        name = "test-techno";
+        version = "1.0.0";
+        isWorkingCopy = true;
+        properties = new ArrayList<>();
+    }
 
     public TechnoBuilder withName(final String name) {
         this.name = name;
@@ -47,14 +62,19 @@ public class TechnoBuilder extends AbstractBuilder {
         return this;
     }
 
-    public TechnoBuilder withKey(TemplateContainer.Key technoKey) {
-        this.name = technoKey.getName();
-        this.version = technoKey.getVersion();
-        this.isWorkingCopy = technoKey.isWorkingCopy();
-        return this;
-    }
-
     public TechnoIO build() {
         return new TechnoIO(name, version, isWorkingCopy);
+    }
+
+    public String getNamespace() {
+        return "packages#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+    }
+
+    public void withProperty(PropertyOutput property) {
+        properties.add(property);
+    }
+
+    public List<PropertyOutput> getProperties() {
+        return properties;
     }
 }

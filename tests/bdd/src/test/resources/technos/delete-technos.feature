@@ -1,17 +1,19 @@
 Feature: Delete technos
 
-  Regroup all use cases related to the deletion of technos
-
   Background:
     Given an authenticated user
 
-  Scenario: delete a techno
+  Scenario: delete an existing techno
     Given an existing techno
-    When deleting this techno
+    When I delete this techno
     Then the techno is successfully deleted
 
   Scenario: delete a released techno
-    Given an existing techno
-    When releasing this techno
-    And deleting this techno
+    Given a released techno
+    When I delete this techno
     Then the techno is successfully deleted
+
+  Scenario: delete a techno that doesn't exist
+    Given a techno that doesn't exist
+    When I try to delete this techno
+    Then the techno deletion is rejected with a not found error

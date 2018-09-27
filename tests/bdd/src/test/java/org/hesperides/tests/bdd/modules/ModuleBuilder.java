@@ -1,7 +1,7 @@
 /*
  *
  * This file is part of the Hesperides distribution.
- * (https://github.com/voyages-sncf-technologies/hesperides)
+ * (https://github.com/voyages-sncf-modulelogies/hesperides)
  * Copyright (c) 2016 VSCT.
  *
  * Hesperides is free software: you can redistribute it and/or modify
@@ -22,19 +22,33 @@ package org.hesperides.tests.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.tests.bdd.commons.tools.AbstractBuilder;
+import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+@Component
+public class ModuleBuilder {
 
-public class ModuleBuilder extends AbstractBuilder {
+    private String name;
+    private String version;
+    private boolean isWorkingCopy;
+    private List<TechnoIO> technos;
+    private long versionId;
 
-    private String name = "test";
-    private String version = "1.0.0";
-    private boolean isWorkingCopy = true;
-    private List<TechnoIO> technos = Collections.emptyList();
-    private long versionId = 0;
+    public ModuleBuilder() {
+        reset();
+    }
+
+    public ModuleBuilder reset() {
+        // Valeurs par défaut
+        name = "test-module";
+        version = "1.0.0";
+        isWorkingCopy = true;
+        technos = new ArrayList<>();
+        versionId = 0;
+        return this;
+    }
 
     public ModuleBuilder withName(final String name) {
         this.name = name;
@@ -51,13 +65,8 @@ public class ModuleBuilder extends AbstractBuilder {
         return this;
     }
 
-    public ModuleBuilder withTechnos(List<TechnoIO> technos) {
-        this.technos = technos;
-        return this;
-    }
-
-    public ModuleBuilder withTechno(TechnoIO techno) {
-        this.technos = Collections.singletonList(techno);
+    public ModuleBuilder withTechno(final TechnoIO techno) {
+        technos.add(techno);
         return this;
     }
 
@@ -68,5 +77,19 @@ public class ModuleBuilder extends AbstractBuilder {
 
     public ModuleIO build() {
         return new ModuleIO(name, version, isWorkingCopy, technos, versionId);
+    }
+
+    public String getNamespace() {
+        return "modules#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+    }
+
+    public void removeTechno(TechnoIO techno) {
+        if (technos.contains(techno)) {
+            technos.remove(techno);
+        }
+    }
+
+    public String getPropertiesPath() {
+        return "GROUP#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
     }
 }

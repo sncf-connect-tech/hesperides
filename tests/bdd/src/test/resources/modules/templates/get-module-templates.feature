@@ -1,36 +1,38 @@
-Feature: Module template retrieval
-
-  Regroup all uses cases releated to the retrieval of module templates.
+Feature: Get module templates
 
   Background:
     Given an authenticated user
 
-  Scenario: get a template bundled in a module for a version workingcopy
-    Given an existing module
-    And an existing template in this module
-    When retrieving this module template
-    Then the module template is retrieved
-
-  Scenario: get all templates bundled in a module of a version workingcopy
+  Scenario: get the list of templates of an existing module
     Given an existing module
     And multiple templates in this module
-    When retrieving those templates
-    Then the templates are retrieved
+    When I get the list of templates of this module
+    Then a list of all the templates of the module is returned
 
-  Scenario: get template bundled in a module for a version release
-    Given a module that is released
-    And an existing template in this module
-    When retrieving this module template
-    Then the module template is retrieved
-
-  Scenario: get all templates bundled in a module of a version release
-    Given a module that is released
-    And multiple templates in this module
-    When retrieving those templates
-    Then the templates are retrieved
-
-  Scenario: get a template with its name ending in .sh bundled in a module
+  Scenario: get the list of templates of a released module
     Given an existing module
-    And an existing template with a name ending in dot sh in this module
-    When retrieving this module template with a name ending in dot sh
-    Then the module template with a name ending in dot sh is retrieved
+    And multiple templates in this module
+    And I release this module
+    When I get the list of templates of this module
+    Then a list of all the templates of the module is returned
+
+  Scenario: get a template of a module
+    Given an existing module with a template
+    When I get this template in this module
+    Then the module template is successfully returned
+
+  Scenario: get a template that doesn't exist in a a module
+    Given an existing module
+    And a template that doesn't exist in this module
+    When I try to get this template in this module
+    Then the module template is not found
+
+  Scenario: get the list of templates of a module that doesn't exist
+    Given a module that doesn't exist
+    When I get the list of templates of this module
+    Then the module templates is empty
+
+  Scenario: get a template of a module that doesn't exist
+    Given a module that doesn't exist
+    When I try to get this template in this module
+    Then the template module is not found
