@@ -29,7 +29,7 @@ public class ModulesControllerTest extends AbstractControllerTest {
     @WithMockUser
     public void getModulesNamesTest() throws Exception {
         List<String> modulesList = Arrays.asList("module1", "module2", "module3");
-        given(moduleUseCases.getModulesNames()).willReturn(modulesList);
+        given(moduleUseCases.getModulesName()).willReturn(modulesList);
 
         this.mvc.perform(get("/modules")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE))

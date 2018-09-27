@@ -9,6 +9,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
@@ -55,6 +56,7 @@ class ModuleAggregate implements Serializable {
         log.debug("Applying update module command...");
 
         Module module = command.getModule()
+                .validateIsWorkingCopy()
                 .validateVersionId(versionId)
                 .incrementVersiondId();
 
@@ -86,24 +88,27 @@ class ModuleAggregate implements Serializable {
     public void onUpdateTemplateCommand(UpdateTemplateCommand command) {
         log.debug("Applying update template command...");
 
-        Long expectedVersionId = templates.get(command.getTemplate().getName()).getVersionId();
-
         Template template = command.getTemplate()
                 .validateExistingName(templates, key)
-                .validateVersionId(expectedVersionId)
+                .validateVersionId(getExpectedVersionId(command))
                 .validateProperties()
                 .incrementVersionId();
 
         apply(new TemplateUpdatedEvent(key, template, command.getUser()));
     }
 
+    private Long getExpectedVersionId(UpdateTemplateCommand command) {
+        return templates.get(command.getTemplate().getName()).getVersionId();
+    }
+
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteTemplateCommand(DeleteTemplateCommand command) {
         // Si le template n'existe pas, cette commande n'a pas d'effet de bord
-        if (this.templates.containsKey(command.getTemplateName())) {
-            apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
+        if (!this.templates.containsKey(command.getTemplateName())) {
+            throw new TemplateNotFoundException(key, command.getTemplateName());
         }
+        apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/

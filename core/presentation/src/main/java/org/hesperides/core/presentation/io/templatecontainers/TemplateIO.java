@@ -19,9 +19,9 @@ public class TemplateIO {
     @NotEmpty
     String name;
     String namespace;
-    @NotNull
+    @NotEmpty
     String filename;
-    @NotNull
+    @NotEmpty
     String location;
     @NotNull
     String content;

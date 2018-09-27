@@ -20,7 +20,7 @@
  */
 package org.hesperides.core.domain.templatecontainers.entities;
 
-import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyCannotHaveDefaultValueException;
+import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -373,7 +373,7 @@ public class PropertyTest {
         Property.extractProperty("unknown annotation|@default @oops");
     }
 
-    @Test(expected = RequiredPropertyCannotHaveDefaultValueException.class)
+    @Test(expected = RequiredPropertyWithDefaultValueException.class)
     public void requiredDefaultValueIsNotAllowed() {
         Property.extractProperty("required default value|@required @default 12");
     }

@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.io.templatecontainers;
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
@@ -7,6 +8,7 @@ import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 import javax.validation.constraints.NotNull;
 
 @Value
+@AllArgsConstructor
 public class PartialTemplateIO implements Comparable<PartialTemplateIO> {
 
     @OnlyPrintableCharacters(subject = "name")

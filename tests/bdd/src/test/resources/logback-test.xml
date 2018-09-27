@@ -11,6 +11,6 @@
     <logger name="org.apache.http.wire" level="trace"/>
 
     <root level="info">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

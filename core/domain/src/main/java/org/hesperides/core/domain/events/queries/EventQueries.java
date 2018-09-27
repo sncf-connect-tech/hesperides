@@ -4,7 +4,6 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
 import org.hesperides.core.domain.events.PlatformEventsByStreamQuery;
-import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Component

@@ -52,14 +52,23 @@ public class TechnoUseCases {
     }
 
     public void updateTemplateInWorkingCopy(TemplateContainer.Key technoKey, Template template, User user) {
+        if (!queries.technoExists(technoKey)) {
+            throw new TechnoNotFoundException(technoKey);
+        }
         commands.updateTemplate(technoKey, template, user);
     }
 
     public void deleteTemplate(TemplateContainer.Key technoKey, String templateName, User user) {
+        if (!queries.technoExists(technoKey)) {
+            throw new TechnoNotFoundException(technoKey);
+        }
         commands.deleteTemplate(technoKey, templateName, user);
     }
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
+        if (!queries.technoExists(technoKey)) {
+            throw new TechnoNotFoundException(technoKey);
+        }
         return queries.getTemplate(technoKey, templateName);
     }
 

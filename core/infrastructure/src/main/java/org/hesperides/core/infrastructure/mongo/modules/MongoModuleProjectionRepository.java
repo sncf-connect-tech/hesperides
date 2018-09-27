@@ -81,7 +81,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
-    public List<String> onGetModulesNamesQuery(GetModulesNamesQuery query) {
+    public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
         return mongoTemplate.getCollection("module").distinct("_id.name");
     }
 

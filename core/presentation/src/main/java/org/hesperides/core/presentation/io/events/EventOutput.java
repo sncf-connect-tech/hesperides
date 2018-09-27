@@ -8,9 +8,7 @@ import org.hesperides.core.domain.platforms.PlatformDeletedEvent;
 import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
 import org.hesperides.core.domain.security.UserEvent;
 import org.hesperides.core.domain.technos.*;
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,10 +32,10 @@ public class EventOutput {
     }
 
     /*
-    * TODO: Map future new events here based on Angular directive in front
-    * Some event does not require a mapping, but we prefer set them here even if there's nothing to do
-    * https://github.com/voyages-sncf-technologies/hesperides-gui/tree/master/src/app/event/directives
-    */
+     * TODO: Map future new events here based on Angular directive in front
+     * Some event does not require a mapping, but we prefer set them here even if there's nothing to do
+     * https://github.com/voyages-sncf-technologies/hesperides-gui/tree/master/src/app/event/directives
+     */
     private static Map<String, Object> getEventData(final UserEvent userEvent) {
         final Map<String, Object> eventData = new HashMap<>();
         if (userEvent instanceof ModuleCreatedEvent) {

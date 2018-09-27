@@ -93,14 +93,23 @@ public class ModuleUseCases {
      * @param user
      */
     public void createTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
+        if (!queries.moduleExists(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
+        }
         commands.createTemplateInWorkingCopy(moduleKey, template, user);
     }
 
     public void updateTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
+        if (!queries.moduleExists(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
+        }
         commands.updateTemplateInWorkingCopy(moduleKey, template, user);
     }
 
     public void deleteTemplate(TemplateContainer.Key moduleKey, String templateName, User user) {
+        if (!queries.moduleExists(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
+        }
         commands.deleteTemplate(moduleKey, templateName, user);
     }
 
@@ -108,8 +117,8 @@ public class ModuleUseCases {
         return queries.getOptionalModule(moduleKey);
     }
 
-    public List<String> getModulesNames() {
-        return queries.getModulesNames();
+    public List<String> getModulesName() {
+        return queries.getModulesName();
     }
 
     public List<String> getModuleVersions(String moduleName) {

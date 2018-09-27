@@ -27,7 +27,7 @@ public interface ModuleProjectionRepository {
     Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query);
 
     @QueryHandler
-    List<String> onGetModulesNamesQuery(GetModulesNamesQuery query);
+    List<String> onGetModulesNameQuery(GetModulesNameQuery query);
 
     @QueryHandler
     List<String> onGetModuleVersionTypesQuery(GetModuleVersionTypesQuery query);
