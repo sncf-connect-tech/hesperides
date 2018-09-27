@@ -22,6 +22,9 @@ package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.List;
 
@@ -32,4 +35,13 @@ public class PropertiesOutput {
     List<ValuedPropertyIO> valuedPropertyOutputs;
     @SerializedName("iterable_properties")
     List<IterableValuedPropertyIO> iterableValuedPropertyOutputs;
+
+   public PropertiesOutput(List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+
+        final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
+        this.valuedPropertyOutputs = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+
+        final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
+        this.iterableValuedPropertyOutputs = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+    }
 }

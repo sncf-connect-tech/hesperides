@@ -23,9 +23,23 @@ package org.hesperides.core.domain.platforms.entities.properties;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Value
 @NonFinal
 public abstract class AbstractValuedProperty {
     String name;
     //boolean notActiveForThisVersion;
+
+    public static <T extends AbstractValuedProperty> List<T> filterAbstractValuedPropertyWithType(List<AbstractValuedProperty> properties, Class<T> clazz) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .collect(Collectors.toList());
+    }
 }

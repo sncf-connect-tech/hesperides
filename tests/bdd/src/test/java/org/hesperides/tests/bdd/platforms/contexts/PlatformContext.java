@@ -33,8 +33,14 @@ public class PlatformContext extends CucumberSpringBean implements En {
     private Platform.Key platformKey;
 
     public PlatformContext() {
-        Given("^an existing platform", () -> {
-            createPlatform(PlatformSamples.buildPlatformInputWithName(PlatformSamples.DEFAULT_PLATFORM_NAME));
+
+
+        Given("^an existing platform( with differents modules)?", (String differentsModules) -> {
+            if(differentsModules != null){
+                createPlatform(PlatformSamples.buildPlatformInputWithNameAndDifferentsModules(PlatformSamples.DEFAULT_PLATFORM_NAME));
+            } else {
+                createPlatform(PlatformSamples.buildPlatformInputWithName(PlatformSamples.DEFAULT_PLATFORM_NAME));
+            }
         });
     }
 
@@ -88,5 +94,10 @@ public class PlatformContext extends CucumberSpringBean implements En {
 
     public ResponseEntity<SearchResultOutput[]> searchApplication(String search) {
         return rest.getTestRest().postForEntity("/applications/perform_search?name=" + search, null, SearchResultOutput[].class);
+    }
+
+    public ResponseEntity<InstanceModelOutput> retriveInstanceModelByPlatformAndModulPath(String path) {
+        return rest.getTestRest().getForEntity("/applications/{application_name}/platforms/{platform_name}/properties/instance_model?path={path}",
+                InstanceModelOutput.class, platformKey.getApplicationName(), platformKey.getPlatformName(), path);
     }
 }

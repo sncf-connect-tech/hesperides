@@ -18,7 +18,7 @@ import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
 @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
 @ContextConfiguration
-@DirtiesContext
+//@DirtiesContext
 public class CucumberSpringBean {
     @Autowired
     protected HesperideTestRestTemplate rest;

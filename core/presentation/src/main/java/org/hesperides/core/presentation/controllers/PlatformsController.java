@@ -6,9 +6,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.*;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
+import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformInput;
+import org.hesperides.core.presentation.io.platforms.PlatformOutput;
+import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
+import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +27,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.security.User.fromAuthentication;
@@ -112,6 +126,21 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(applicationOutput);
     }
 
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
+    @ApiOperation("Get properties with the given path in a platform")
+    public ResponseEntity<InstanceModelOutput> getInstanceModel(Authentication authentication,
+                                                                @PathVariable("application_name") final String applicationName,
+                                                                @PathVariable(value = "platform_name") final String platform_name,
+                                                                @RequestParam(value = "path") final String path) {
+
+        Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
+        Optional<InstanceModelView> instanceModelView = platformUseCases.getInstanceModel(platformKey, path, fromAuthentication(authentication));
+        Optional<InstanceModelOutput> instanceModelOutput = instanceModelView.map(InstanceModelOutput::fromInstanceView);
+        InstanceModelOutput instanceModelOutputReponse = instanceModelOutput.map(instanceModelOutput1 -> instanceModelOutput.get()).orElse(new InstanceModelOutput(new ArrayList<>()));
+
+        return ResponseEntity.ok(instanceModelOutputReponse);
+    }
+
     @ApiOperation("Retrieve platforms using module")
     @GetMapping("/using_module/{module_name}/{module_version}/{version_type}")
     public ResponseEntity<List<ModulePlatformsOutput>> getPlatformsUsingModule(@PathVariable("module_name") final String moduleName,
@@ -159,5 +188,46 @@ public class PlatformsController extends AbstractController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(searchResultOutputs);
+    }
+
+    @ApiOperation("List all platform global properties usage")
+    @GetMapping("/{application_name}/platforms/{platform_name}/global_properties_usage")
+    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getPlatformGlobalPropertiesUsage(@PathVariable("application_name") final String applicationName,
+                                                                                                         @PathVariable("platform_name") final String platformName) {
+        Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = platformUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
+
+        return ResponseEntity.ok(globalPropertyUsageView.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
+                        .map(globalPropertyUsage -> new GlobalPropertyUsageOutput(globalPropertyUsage.isInModel(), globalPropertyUsage.getPath()))
+                        .collect(Collectors.toSet()))));
+    }
+
+    @ApiOperation("Get properties with the given path in a platform")
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties")
+    public ResponseEntity<PropertiesOutput> getProperties(Authentication authentication,
+                                                          @PathVariable("application_name") final String applicationName,
+                                                          @PathVariable("platform_name") final String platformName,
+                                                          @RequestParam(value = "path", required = false) final String path) {
+
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        // TODO : gestion sécurité isProd pour cacher les propriétés de type @password
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, path, fromAuthentication(authentication));
+        return ResponseEntity.ok(new PropertiesOutput(abstractValuedPropertyViews));
+    }
+
+    @ApiOperation("Save properties in a platform with the given module path")
+    @PostMapping("/{application_name}/platforms/{platform_name}/properties")
+    public ResponseEntity<PropertiesOutput> saveProperties(Authentication authentication,
+                                                           @PathVariable("application_name") final String applicationName,
+                                                           @PathVariable("platform_name") final String platformName,
+                                                           @RequestParam("path") final String modulePath,
+                                                           @RequestParam("platform_vid") final Long platformVersionId,
+                                                           @Valid @RequestBody final PropertiesInput properties) {
+        List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, modulePath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
+
+        return ResponseEntity.ok(new PropertiesOutput(propertyViews));
+
     }
 }

@@ -51,7 +51,8 @@ public class DeployedModuleInput {
                 version,
                 isWorkingCopy,
                 path,
-                InstanceIO.toDomainInstances(instances)
+                InstanceIO.toDomainInstances(instances),
+                null
         );
     }
 

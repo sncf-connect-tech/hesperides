@@ -18,21 +18,21 @@
  *
  *
  */
-package org.hesperides.core.infrastructure.mongo.platforms.documents;
+package org.hesperides.core.domain.platforms.entities.properties;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.Value;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
+@Value
 @EqualsAndHashCode(callSuper = true)
-@Document
-public class ValuedIterablePropertyDocument extends AbstractValuedPropertyDocument {
+public class IterableValuedProperty extends AbstractValuedProperty {
 
-    private List<AbstractValuedPropertyDocument> abstractValuedProperties;
+    List<IterablePropertyItem> properties;
 
+    public IterableValuedProperty(String name, List<IterablePropertyItem> properties) {
+        super(name);
+        this.properties = properties;
+    }
 }

@@ -23,8 +23,14 @@ package org.hesperides.core.presentation.io.platforms.properties;
 import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -36,5 +42,35 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
     public IterableValuedPropertyIO(String name, List<IterablePropertyItemIO> iterablePropertyItems) {
         super(name);
         this.iterablePropertyItems = iterablePropertyItems;
+    }
+
+    public IterableValuedPropertyIO(IterableValuedPropertyView iterableValuedPropertyView) {
+        super(iterableValuedPropertyView.getName());
+        this.iterablePropertyItems = IterablePropertyItemIO.fromIterablePropertyItem(iterableValuedPropertyView.getIterablePropertyItems());
+    }
+
+    public static List<IterableValuedPropertyIO> fromIterableValuedPropertyViews(final List<IterableValuedPropertyView> iterableValuedPropertyViews) {
+        return Optional.ofNullable(iterableValuedPropertyViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterableValuedPropertyIO::new)
+                .collect(Collectors.toList());
+    }
+
+    public IterableValuedProperty toDomainInstance() {
+        List<IterablePropertyItem> iterablePropertyItems = Optional.ofNullable(this.iterablePropertyItems)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemIO::toDomainInstance)
+                .collect(Collectors.toList());
+        return new IterableValuedProperty(getName(), iterablePropertyItems);
+    }
+
+    public static List<IterableValuedProperty> toDomainInstances(List<IterableValuedPropertyIO> iterableValuedPropertyIOS) {
+        return Optional.ofNullable(iterableValuedPropertyIOS)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterableValuedPropertyIO::toDomainInstance)
+                .collect(Collectors.toList());
     }
 }

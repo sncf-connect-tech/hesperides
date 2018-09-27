@@ -28,6 +28,11 @@ Feature: platforms related features.
     When retrieving this platform's application
     Then the application is successfully retrieved
 
+  Scenario: get an instanceModel
+    Given an existing platform with differents modules
+    When retrieving the instanceModel contained in that platform
+    Then the instanceModel is successfully retrieved
+
 #  Scenario: search for an existing application
 #    Given a list of applications
 #    When searching for one of those applications

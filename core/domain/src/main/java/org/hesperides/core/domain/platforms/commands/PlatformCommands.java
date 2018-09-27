@@ -21,13 +21,15 @@
 package org.hesperides.core.domain.platforms.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.core.domain.platforms.CreatePlatformCommand;
-import org.hesperides.core.domain.platforms.DeletePlatformCommand;
-import org.hesperides.core.domain.platforms.UpdatePlatformCommand;
+import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class PlatformCommands {
@@ -49,5 +51,20 @@ public class PlatformCommands {
 
     public void deletePlatform(Platform.Key platformKey, User user) {
         commandGateway.sendAndWait(new DeletePlatformCommand(platformKey, user));
+    }
+
+    public void saveModulePropertiesInPlatform(final Platform.Key platformKey,
+                                               final String modulePath,
+                                               final Long platformVersionId,
+                                               final List<AbstractValuedProperty> valuedProperties,
+                                               final User user) {
+        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformKey, modulePath, platformVersionId, valuedProperties, user));
+    }
+
+    public void savePlatformProperties(final Platform.Key platformKey,
+                                               final Long platformVersionId,
+                                               final List<ValuedProperty> valuedProperties,
+                                               final User user) {
+        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformKey, platformVersionId, valuedProperties, user));
     }
 }
