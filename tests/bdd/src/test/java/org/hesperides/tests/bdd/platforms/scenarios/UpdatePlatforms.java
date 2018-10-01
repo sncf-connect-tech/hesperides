@@ -46,7 +46,7 @@ public class UpdatePlatforms implements En {
     public UpdatePlatforms() {
 
         When("^updating this platform(, requiring properties copy)?$", (String withCopy) -> {
-            responseEntity = platformClient.update(platformBuilder.build(), withCopy != null);
+            responseEntity = platformClient.update(platformBuilder.buildInput(), withCopy != null);
         });
 
         Then("^the platform is successfully updated(?:, but system warns about \"([^\"]+)\")?", (String warning) -> {
@@ -56,7 +56,7 @@ public class UpdatePlatforms implements En {
                 assertTrue("expected at least 1 custom warning", warnings != null && warnings.size() > 0);
                 assertThat(warnings, hasItem(containsString(warning)));
             }
-            PlatformIO expectedPlatformIO = platformBuilder.withVersionId(2).build();
+            PlatformIO expectedPlatformIO = platformBuilder.withVersionId(2).buildOutput();
             PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
             assertEquals(expectedPlatformIO, actualPlatform);
         });

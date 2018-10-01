@@ -28,7 +28,7 @@ public class GetInstanceModel implements En {
     public GetInstanceModel() {
 
         When("^retrieving the instanceModel contained in that platform( whitout instance)?$", (String) -> {
-            responseEntity = platformClient.getInstanceModel(platformBuilder.build(), moduleBuilder.getPropertiesPath());
+            responseEntity = platformClient.getInstanceModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
         });
 
         Then("^the instanceModel is successfully retrieved$", () -> {

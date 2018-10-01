@@ -38,7 +38,8 @@ public class PlatformBuilder {
     private String applicationName;
     private String version;
     private boolean isProductionPlatform;
-    private List<DeployedModuleIO> deployedModules;
+    private List<DeployedModuleIO> deployedModuleInputs;
+    private List<DeployedModuleIO> deployedModuleOutputs;
     private long versionId;
 
     public PlatformBuilder() {
@@ -50,7 +51,8 @@ public class PlatformBuilder {
         applicationName = "test-application";
         version = "1.0";
         isProductionPlatform = false;
-        deployedModules = new ArrayList<>();
+        deployedModuleInputs = new ArrayList<>();
+        deployedModuleOutputs = new ArrayList<>();
         versionId = 1;
         return this;
     }
@@ -76,7 +78,8 @@ public class PlatformBuilder {
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        deployedModules.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", new ArrayList<>()));
+        deployedModuleInputs.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", null));
+        deployedModuleOutputs.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", Collections.emptyList()));
         return this;
     }
 
@@ -85,16 +88,20 @@ public class PlatformBuilder {
         return this;
     }
 
-    public PlatformIO build() {
-        return build(false);
+    public PlatformIO buildInput() {
+        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, deployedModuleInputs, versionId);
     }
 
-    public PlatformIO build(boolean hidePlatform) {
-        List<DeployedModuleIO> modules = hidePlatform ? Collections.emptyList() : deployedModules;
+    public PlatformIO buildOutput() {
+        return buildOutput(false);
+    }
+
+    public PlatformIO buildOutput(boolean hidePlatform) {
+        List<DeployedModuleIO> modules = hidePlatform ? Collections.emptyList() : deployedModuleOutputs;
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
     }
 
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
-        return new ApplicationOutput(applicationName, Arrays.asList(build(hidePlatform)));
+        return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
     }
 }

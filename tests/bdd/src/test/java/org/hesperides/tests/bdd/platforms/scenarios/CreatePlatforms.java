@@ -54,7 +54,7 @@ public class CreatePlatforms implements En {
             if (StringUtils.isNotEmpty(usingThisModule)) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
             }
-            platformClient.create(platformBuilder.build());
+            platformClient.create(platformBuilder.buildInput());
             platformBuilder.withVersionId(1);
         });
 
@@ -65,12 +65,12 @@ public class CreatePlatforms implements En {
         });
 
         When("^I( try to)? create this platform$", (final String tryTo) -> {
-            responseEntity = platformClient.create(platformBuilder.build(), getResponseType(tryTo, PlatformIO.class));
+            responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 
         Then("^the platform is successfully created$", () -> {
             assertOK(responseEntity);
-            PlatformIO expectedPlatform = platformBuilder.build();
+            PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });

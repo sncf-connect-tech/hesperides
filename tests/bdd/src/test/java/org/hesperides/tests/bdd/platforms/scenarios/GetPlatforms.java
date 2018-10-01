@@ -42,12 +42,12 @@ public class GetPlatforms implements En {
     public GetPlatforms() {
 
         When("^I( try to)? get the platform detail$", (final String tryTo) -> {
-            responseEntity = platformClient.get(platformBuilder.build(), getResponseType(tryTo, PlatformIO.class));
+            responseEntity = platformClient.get(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 
         Then("^the platform detail is successfully retrieved", () -> {
             assertOK(responseEntity);
-            PlatformIO expectedPlatform = platformBuilder.build();
+            PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
