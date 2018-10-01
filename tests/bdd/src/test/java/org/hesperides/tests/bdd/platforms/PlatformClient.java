@@ -59,11 +59,12 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public ResponseEntity getApplication(PlatformInput platformInput, Class responseType) {
+    public ResponseEntity getApplication(PlatformInput platformInput, boolean hidePlatform, Class responseType) {
         return restTemplate.getForEntity(
-                "/applications/{application_name}",
+                "/applications/{application_name}?hide_platform={hide_platform}",
                 responseType,
-                platformInput.getApplicationName());
+                platformInput.getApplicationName(),
+                hidePlatform);
     }
 
     public ResponseEntity get(PlatformInput platformInput, Class responseType) {

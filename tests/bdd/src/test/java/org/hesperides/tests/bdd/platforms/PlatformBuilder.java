@@ -90,10 +90,15 @@ public class PlatformBuilder {
     }
 
     public PlatformOutput buildOutput() {
-        return new PlatformOutput(platformName, applicationName, deployedModuleOutputs, isProductionPlatform, version, versionId);
+        return buildOutput(false);
     }
 
-    public ApplicationOutput buildApplicationOutput() {
-        return new ApplicationOutput(applicationName, Arrays.asList(buildOutput()));
+    public PlatformOutput buildOutput(boolean hidePlatform) {
+        List<DeployedModuleOutput> modules = hidePlatform ? new ArrayList<>() : deployedModuleOutputs;
+        return new PlatformOutput(platformName, applicationName, modules, isProductionPlatform, version, versionId);
+    }
+
+    public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
+        return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
     }
 }

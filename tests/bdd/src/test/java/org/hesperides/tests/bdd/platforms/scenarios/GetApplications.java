@@ -38,16 +38,21 @@ public class GetApplications implements En {
     private PlatformBuilder platformBuilder;
 
     private ResponseEntity responseEntity;
+    private boolean hidePlatform;
 
     public GetApplications() {
 
-        When("^I( try to)? get the platform application$", (final String tryTo) -> {
-            responseEntity = platformClient.getApplication(platformBuilder.buildInput(), getResponseType(tryTo, ApplicationOutput.class));
+        When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (final String tryTo, final String withHidePlatform) -> {
+            hidePlatform = withHidePlatform != null;
+            responseEntity = platformClient.getApplication(
+                    platformBuilder.buildInput(),
+                    hidePlatform,
+                    getResponseType(tryTo, ApplicationOutput.class));
         });
 
         Then("^the application is successfully retrieved", () -> {
             assertOK(responseEntity);
-            ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput();
+            ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
             ApplicationOutput actualApplication = (ApplicationOutput) responseEntity.getBody();
             Assert.assertEquals(expectedApplication, actualApplication);
         });
