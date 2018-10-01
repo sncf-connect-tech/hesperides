@@ -21,11 +21,13 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -46,14 +48,14 @@ public class UpdatePlatforms implements En {
     public UpdatePlatforms() {
 
         When("^updating this platform(, requiring properties copy)?$", (String withCopy) -> {
-            responseEntity = platformClient.update(platformBuilder.buildInput(), withCopy != null);
+            responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy));
         });
 
         Then("^the platform is successfully updated(?:, but system warns about \"([^\"]+)\")?", (String warning) -> {
             assertOK(responseEntity);
-            if (warning != null) {
+            if (StringUtils.isNotEmpty(warning)) {
                 final List<String> warnings = responseEntity.getHeaders().get("x-hesperides-warning");
-                assertTrue("expected at least 1 custom warning", warnings != null && warnings.size() > 0);
+                assertTrue("expected at least 1 custom warning", !CollectionUtils.isEmpty(warnings));
                 assertThat(warnings, hasItem(containsString(warning)));
             }
             PlatformIO expectedPlatformIO = platformBuilder.withVersionId(2).buildOutput();

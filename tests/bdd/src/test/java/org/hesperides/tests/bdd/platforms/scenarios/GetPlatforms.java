@@ -21,6 +21,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
@@ -41,7 +42,10 @@ public class GetPlatforms implements En {
 
     public GetPlatforms() {
 
-        When("^I( try to)? get the platform detail$", (final String tryTo) -> {
+        When("^I( try to)? get the platform detail( at a specific time in the past)?$", (final String tryTo, final String withTimestamp) -> {
+            if (StringUtils.isNotEmpty(withTimestamp)) {
+                //TODO
+            }
             responseEntity = platformClient.get(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 

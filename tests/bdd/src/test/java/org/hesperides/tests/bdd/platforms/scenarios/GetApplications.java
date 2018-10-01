@@ -21,6 +21,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
@@ -43,7 +44,7 @@ public class GetApplications implements En {
     public GetApplications() {
 
         When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (final String tryTo, final String withHidePlatform) -> {
-            hidePlatform = withHidePlatform != null;
+            hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
             responseEntity = platformClient.getApplication(
                     platformBuilder.buildInput(),
                     hidePlatform,

@@ -20,6 +20,7 @@
  */
 package org.hesperides.tests.bdd.platforms;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
@@ -97,7 +98,7 @@ public class PlatformClient {
 
     public ResponseEntity<SearchResultOutput[]> search(String applicationName, String platformName) {
         String url = "/applications/platforms/perform_search?applicationName=" + applicationName;
-        if (platformName != null) {
+        if (StringUtils.isNotBlank(platformName)) {
             url += "&platformName=" + platformName;
         }
         return restTemplate.postForEntity(
