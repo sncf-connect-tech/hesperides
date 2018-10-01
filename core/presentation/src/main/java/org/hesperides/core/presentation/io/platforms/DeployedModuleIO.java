@@ -43,10 +43,10 @@ public class DeployedModuleIO {
     String version;
     @SerializedName("working_copy")
     boolean isWorkingCopy;
-    @SerializedName("properties_path")
-    String propertiesPath;
     @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
+    @SerializedName("properties_path")
+    String propertiesPath;
 
     List<InstanceIO> instances;
 
@@ -55,8 +55,8 @@ public class DeployedModuleIO {
         name = deployedModuleView.getName();
         version = deployedModuleView.getVersion();
         isWorkingCopy = deployedModuleView.isWorkingCopy();
-        propertiesPath = deployedModuleView.getPropertiesPath();
         path = deployedModuleView.getPath();
+        propertiesPath = deployedModuleView.getPropertiesPath();
         instances = InstanceIO.fromInstanceViews(deployedModuleView.getInstances());
     }
 

@@ -22,7 +22,6 @@ package org.hesperides.core.domain.platforms.queries.views;
 
 import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 
 import java.util.List;
 
@@ -33,9 +32,8 @@ public class DeployedModuleView {
     String name;
     String version;
     boolean isWorkingCopy;
-    String propertiesPath;
     String path;
+    String propertiesPath;
     List<InstanceView> instances;
     List<AbstractValuedPropertyView> valuedProperties;
-
 }

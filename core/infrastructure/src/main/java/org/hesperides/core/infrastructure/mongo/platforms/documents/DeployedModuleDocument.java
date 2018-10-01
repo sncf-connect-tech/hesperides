@@ -24,7 +24,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
@@ -54,7 +53,7 @@ public class DeployedModuleDocument {
         this.path = deployedModule.getPath();
         this.propertiesPath = deployedModule.getPropertiesPath();
         this.instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
-        this.valuedProperties = AbstractValuedPropertyDocument.fromDomainProperties(deployedModule.getProperties());
+        this.valuedProperties = AbstractValuedPropertyDocument.fromDomainProperties(deployedModule.getValuedProperties());
     }
 
     public DeployedModuleView toDeployedModuleView() {
@@ -63,8 +62,8 @@ public class DeployedModuleDocument {
                 name,
                 version,
                 isWorkingCopy,
-                propertiesPath,
                 path,
+                propertiesPath,
                 InstanceDocument.toInstanceViews(instances),
                 AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(valuedProperties)
         );

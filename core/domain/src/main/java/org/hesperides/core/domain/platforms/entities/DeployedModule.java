@@ -39,11 +39,10 @@ public class DeployedModule {
     boolean isWorkingCopy;
     String path;
     String propertiesPath;
-    //String deploymentGroup
     List<Instance> instances;
-    List<AbstractValuedProperty> properties;
+    List<AbstractValuedProperty> valuedProperties;
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<Instance> instances, List<AbstractValuedProperty> properties) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<Instance> instances, List<AbstractValuedProperty> valuedProperties) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -51,18 +50,23 @@ public class DeployedModule {
         this.path = path;
         this.propertiesPath = generatePropertiesPath();
         this.instances = instances;
-        this.properties = properties;
+        this.valuedProperties = valuedProperties;
     }
 
-    private DeployedModule(DeployedModule other, Long id) {
-        this.id = id;
-        this.name = other.name;
-        this.version = other.version;
-        this.isWorkingCopy = other.isWorkingCopy;
-        this.path = other.path;
-        this.propertiesPath = other.propertiesPath; // because id has no bearing on this
-        this.instances = other.instances;
-        this.properties = other.properties;
+    private String generatePropertiesPath() {
+        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        return path + "#" + moduleKey.getNamespaceWithoutPrefix();
+    }
+
+    private DeployedModule(Long newId, DeployedModule other) {
+        id = newId;
+        name = other.name;
+        version = other.version;
+        isWorkingCopy = other.isWorkingCopy;
+        path = other.path;
+        propertiesPath = other.propertiesPath; // because id has no bearing on this
+        instances = other.instances;
+        valuedProperties = other.valuedProperties;
     }
 
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
@@ -75,7 +79,7 @@ public class DeployedModule {
                 final DeployedModule identifiedModule;
                 if (deployedModule.getId() == null || deployedModule.getId() < 1) {
                     // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
-                    identifiedModule = new DeployedModule(deployedModule, ++sequence);
+                    identifiedModule = new DeployedModule(++sequence, deployedModule);
                 } else {
                     identifiedModule = deployedModule;
                 }
@@ -99,10 +103,5 @@ public class DeployedModule {
                 .filter(Objects::nonNull)
                 .max(Long::compareTo)
                 .orElse(0L);
-    }
-
-    private String generatePropertiesPath() {
-        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
-        return path + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 }

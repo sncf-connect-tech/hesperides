@@ -78,8 +78,8 @@ public class PlatformBuilder {
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        deployedModuleInputs.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", null));
-        deployedModuleOutputs.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", Collections.emptyList()));
+        deployedModuleInputs.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", propertiesPath, null));
+        deployedModuleOutputs.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", propertiesPath, Collections.emptyList()));
         return this;
     }
 
