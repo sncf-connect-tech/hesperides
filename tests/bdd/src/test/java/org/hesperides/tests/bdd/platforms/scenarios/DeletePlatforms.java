@@ -44,7 +44,7 @@ public class DeletePlatforms implements En {
         });
 
         When("^I( try to)? delete this platform$", (final String tryTo) -> {
-            responseEntity = platformClient.delete(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class));
+            responseEntity = platformClient.delete(platformBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 
         Then("^the platform is successfully deleted", () -> {

@@ -22,7 +22,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.platforms.PlatformOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
@@ -54,7 +54,7 @@ public class CreatePlatforms implements En {
             if (StringUtils.isNotEmpty(usingThisModule)) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
             }
-            platformClient.create(platformBuilder.buildInput());
+            platformClient.create(platformBuilder.build());
             platformBuilder.withVersionId(1);
         });
 
@@ -65,13 +65,13 @@ public class CreatePlatforms implements En {
         });
 
         When("^I( try to)? create this platform$", (final String tryTo) -> {
-            responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformOutput.class));
+            responseEntity = platformClient.create(platformBuilder.build(), getResponseType(tryTo, PlatformIO.class));
         });
 
         Then("^the platform is successfully created$", () -> {
             assertOK(responseEntity);
-            PlatformOutput expectedPlatform = platformBuilder.buildOutput();
-            PlatformOutput actualPlatform = (PlatformOutput) responseEntity.getBody();
+            PlatformIO expectedPlatform = platformBuilder.build();
+            PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 

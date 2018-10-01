@@ -12,13 +12,8 @@ import org.hesperides.core.domain.platforms.queries.views.properties.AbstractVal
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.*;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
-import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformInput;
-import org.hesperides.core.presentation.io.platforms.PlatformOutput;
-import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,12 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.security.User.fromAuthentication;
@@ -52,37 +42,37 @@ public class PlatformsController extends AbstractController {
 
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
-    public ResponseEntity<PlatformOutput> createPlatform(Authentication authentication,
-                                                         @PathVariable("application_name") final String applicationName,
-                                                         @Valid @RequestBody final PlatformInput platformInput) {
+    public ResponseEntity<PlatformIO> createPlatform(Authentication authentication,
+                                                     @PathVariable("application_name") final String applicationName,
+                                                     @Valid @RequestBody final PlatformIO platformInput) {
 
         Platform platform = platformInput.toDomainInstance();
         Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
 
         PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
-        PlatformOutput platformOutput = new PlatformOutput(platformView);
+        PlatformIO platformOutput = new PlatformIO(platformView);
 
         return ResponseEntity.ok(platformOutput);
     }
 
     @ApiOperation("Retrieve a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}")
-    public ResponseEntity<PlatformOutput> getPlatform(@PathVariable("application_name") final String applicationName,
-                                                      @PathVariable("platform_name") final String platformName) {
+    public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
+                                                  @PathVariable("platform_name") final String platformName) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
-        PlatformOutput platformOutput = new PlatformOutput(platformView);
+        PlatformIO platformOutput = new PlatformIO(platformView);
 
         return ResponseEntity.ok(platformOutput);
     }
 
     @ApiOperation("Update a platform")
     @PutMapping("/{application_name}/platforms")
-    public ResponseEntity<PlatformOutput> updatePlatform(Authentication authentication,
-                                                         @PathVariable("application_name") final String applicationName,
-                                                         @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProperties,
-                                                         @Valid @RequestBody final PlatformInput platformInput) {
+    public ResponseEntity<PlatformIO> updatePlatform(Authentication authentication,
+                                                     @PathVariable("application_name") final String applicationName,
+                                                     @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProperties,
+                                                     @Valid @RequestBody final PlatformIO platformInput) {
 
         final boolean copyRequested = Boolean.TRUE.equals(copyProperties); // no null anymore
         Platform.Key platformKey = new Platform.Key(applicationName, platformInput.getPlatformName());
@@ -100,7 +90,7 @@ public class PlatformsController extends AbstractController {
         }
 
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
-        return response.body(new PlatformOutput(platformView));
+        return response.body(new PlatformIO(platformView));
     }
 
     @ApiOperation("Delete a platform")

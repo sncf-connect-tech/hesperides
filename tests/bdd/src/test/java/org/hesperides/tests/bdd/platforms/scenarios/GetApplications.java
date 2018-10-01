@@ -45,7 +45,7 @@ public class GetApplications implements En {
         When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (final String tryTo, final String withHidePlatform) -> {
             hidePlatform = withHidePlatform != null;
             responseEntity = platformClient.getApplication(
-                    platformBuilder.buildInput(),
+                    platformBuilder.build(),
                     hidePlatform,
                     getResponseType(tryTo, ApplicationOutput.class));
         });

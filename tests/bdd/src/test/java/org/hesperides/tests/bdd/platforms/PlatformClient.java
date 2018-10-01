@@ -21,8 +21,7 @@
 package org.hesperides.tests.bdd.platforms;
 
 import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformInput;
-import org.hesperides.core.presentation.io.platforms.PlatformOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -37,11 +36,11 @@ public class PlatformClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    public ResponseEntity create(PlatformInput platformInput) {
-        return create(platformInput, PlatformOutput.class);
+    public ResponseEntity create(PlatformIO platformInput) {
+        return create(platformInput, PlatformIO.class);
     }
 
-    public ResponseEntity create(PlatformInput platformInput, Class responseType) {
+    public ResponseEntity create(PlatformIO platformInput, Class responseType) {
         return restTemplate.postForEntity(
                 "/applications/{application_name}/platforms",
                 platformInput,
@@ -49,7 +48,7 @@ public class PlatformClient {
                 platformInput.getApplicationName());
     }
 
-    public ResponseEntity delete(PlatformInput platformInput, Class responseType) {
+    public ResponseEntity delete(PlatformIO platformInput, Class responseType) {
         return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}",
                 HttpMethod.DELETE,
@@ -59,7 +58,7 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public ResponseEntity getApplication(PlatformInput platformInput, boolean hidePlatform, Class responseType) {
+    public ResponseEntity getApplication(PlatformIO platformInput, boolean hidePlatform, Class responseType) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}?hide_platform={hide_platform}",
                 responseType,
@@ -67,7 +66,7 @@ public class PlatformClient {
                 hidePlatform);
     }
 
-    public ResponseEntity get(PlatformInput platformInput, Class responseType) {
+    public ResponseEntity get(PlatformIO platformInput, Class responseType) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}",
                 responseType,
@@ -75,7 +74,7 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public ResponseEntity update(PlatformInput platformInput, boolean copyProperties) {
+    public ResponseEntity update(PlatformIO platformInput, boolean copyProperties) {
         String url = "/applications/{application_name}/platforms";
         if (copyProperties) {
             url += "?copyPropertiesForUpgradedModules=true";
@@ -84,7 +83,7 @@ public class PlatformClient {
                 url,
                 HttpMethod.PUT,
                 new HttpEntity<>(platformInput),
-                PlatformOutput.class,
+                PlatformIO.class,
                 platformInput.getApplicationName());
     }
 
@@ -107,7 +106,7 @@ public class PlatformClient {
                 SearchResultOutput[].class);
     }
 
-    public ResponseEntity<InstanceModelOutput> getInstanceModel(PlatformInput platformInput, String propertiesPath) {
+    public ResponseEntity<InstanceModelOutput> getInstanceModel(PlatformIO platformInput, String propertiesPath) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties/instance_model?path={path}",
                 InstanceModelOutput.class,

@@ -37,10 +37,10 @@ public class ApplicationOutput {
     String name;
     @NotNull
     @NotEmpty
-    List<PlatformOutput> platforms;
+    List<PlatformIO> platforms;
 
     public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules) {
         this.name = applicationView.getName();
-        this.platforms = PlatformOutput.fromPlatformViews(applicationView.getPlatforms(), hidePlatformsModules);
+        this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms(), hidePlatformsModules);
     }
 }

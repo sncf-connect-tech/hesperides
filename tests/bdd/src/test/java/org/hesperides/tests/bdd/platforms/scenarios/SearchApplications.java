@@ -41,7 +41,7 @@ public class SearchApplications implements En {
                         applicationName = "DDD";
                     }
                     platformBuilder.withApplicationName(applications[i]).withPlatformName("REL" + j);
-                    platformClient.create(platformBuilder.buildInput());
+                    platformClient.create(platformBuilder.build());
                 }
             }
         });

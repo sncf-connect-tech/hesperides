@@ -21,8 +21,10 @@
 package org.hesperides.core.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
+import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
 import java.util.Collections;
@@ -31,7 +33,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
-public class DeployedModuleInput {
+@AllArgsConstructor
+public class DeployedModuleIO {
 
     Long id;
     @OnlyPrintableCharacters(subject = "deployedModules.name")
@@ -40,9 +43,22 @@ public class DeployedModuleInput {
     String version;
     @SerializedName("working_copy")
     boolean isWorkingCopy;
+    @SerializedName("properties_path")
+    String propertiesPath;
     @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
+
     List<InstanceIO> instances;
+
+    public DeployedModuleIO(DeployedModuleView deployedModuleView) {
+        id = deployedModuleView.getId();
+        name = deployedModuleView.getName();
+        version = deployedModuleView.getVersion();
+        isWorkingCopy = deployedModuleView.isWorkingCopy();
+        propertiesPath = deployedModuleView.getPropertiesPath();
+        path = deployedModuleView.getPath();
+        instances = InstanceIO.fromInstanceViews(deployedModuleView.getInstances());
+    }
 
     public DeployedModule toDomainInstance() {
         return new DeployedModule(
@@ -56,11 +72,19 @@ public class DeployedModuleInput {
         );
     }
 
-    public static List<DeployedModule> toDomainInstances(List<DeployedModuleInput> moduleIOS) {
+    public static List<DeployedModule> toDomainInstances(List<DeployedModuleIO> moduleIOS) {
         return Optional.ofNullable(moduleIOS)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(DeployedModuleInput::toDomainInstance)
+                .map(DeployedModuleIO::toDomainInstance)
+                .collect(Collectors.toList());
+    }
+
+    public static List<DeployedModuleIO> fromDeployedModuleViews(List<DeployedModuleView> deployedModuleViews) {
+        return Optional.ofNullable(deployedModuleViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DeployedModuleIO::new)
                 .collect(Collectors.toList());
     }
 }

@@ -21,11 +21,14 @@
 package org.hesperides.tests.bdd.platforms;
 
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.*;
+import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -35,8 +38,7 @@ public class PlatformBuilder {
     private String applicationName;
     private String version;
     private boolean isProductionPlatform;
-    private List<DeployedModuleInput> deployedModuleInputs;
-    private List<DeployedModuleOutput> deployedModuleOutputs;
+    private List<DeployedModuleIO> deployedModules;
     private long versionId;
 
     public PlatformBuilder() {
@@ -48,8 +50,7 @@ public class PlatformBuilder {
         applicationName = "test-application";
         version = "1.0";
         isProductionPlatform = false;
-        deployedModuleInputs = new ArrayList<>();
-        deployedModuleOutputs = new ArrayList<>();
+        deployedModules = new ArrayList<>();
         versionId = 1;
         return this;
     }
@@ -75,8 +76,7 @@ public class PlatformBuilder {
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        deployedModuleInputs.add(new DeployedModuleInput(0L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", null));
-        deployedModuleOutputs.add(new DeployedModuleOutput(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", new ArrayList<>()));
+        deployedModules.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), propertiesPath, "GROUP", new ArrayList<>()));
         return this;
     }
 
@@ -85,20 +85,16 @@ public class PlatformBuilder {
         return this;
     }
 
-    public PlatformInput buildInput() {
-        return new PlatformInput(platformName, applicationName, version, isProductionPlatform, deployedModuleInputs, versionId);
+    public PlatformIO build() {
+        return build(false);
     }
 
-    public PlatformOutput buildOutput() {
-        return buildOutput(false);
-    }
-
-    public PlatformOutput buildOutput(boolean hidePlatform) {
-        List<DeployedModuleOutput> modules = hidePlatform ? new ArrayList<>() : deployedModuleOutputs;
-        return new PlatformOutput(platformName, applicationName, modules, isProductionPlatform, version, versionId);
+    public PlatformIO build(boolean hidePlatform) {
+        List<DeployedModuleIO> modules = hidePlatform ? Collections.emptyList() : deployedModules;
+        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
     }
 
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
-        return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
+        return new ApplicationOutput(applicationName, Arrays.asList(build(hidePlatform)));
     }
 }

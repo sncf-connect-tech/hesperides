@@ -21,7 +21,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.platforms.PlatformOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.junit.Assert;
@@ -42,13 +42,13 @@ public class GetPlatforms implements En {
     public GetPlatforms() {
 
         When("^I( try to)? get the platform detail$", (final String tryTo) -> {
-            responseEntity = platformClient.get(platformBuilder.buildInput(), getResponseType(tryTo, PlatformOutput.class));
+            responseEntity = platformClient.get(platformBuilder.build(), getResponseType(tryTo, PlatformIO.class));
         });
 
         Then("^the platform detail is successfully retrieved", () -> {
             assertOK(responseEntity);
-            PlatformOutput expectedPlatform = platformBuilder.buildOutput();
-            PlatformOutput actualPlatform = (PlatformOutput) responseEntity.getBody();
+            PlatformIO expectedPlatform = platformBuilder.build();
+            PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 

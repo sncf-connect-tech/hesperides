@@ -21,14 +21,21 @@
 package org.hesperides.core.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 @Value
-public class PlatformInput {
+@AllArgsConstructor
+public class PlatformIO {
 
     @OnlyPrintableCharacters(subject = "platform_name")
     @SerializedName("platform_name")
@@ -41,9 +48,22 @@ public class PlatformInput {
     @SerializedName("production")
     boolean isProductionPlatform;
     @SerializedName("modules")
-    List<DeployedModuleInput> deployedModules;
+    List<DeployedModuleIO> deployedModules;
     @SerializedName("version_id")
     Long versionId;
+
+    public PlatformIO(PlatformView platformView) {
+        this(platformView, false);
+    }
+
+    public PlatformIO(PlatformView platformView, boolean hidePlatformsModules) {
+        platformName = platformView.getPlatformName();
+        applicationName = platformView.getApplicationName();
+        version = platformView.getVersion();
+        isProductionPlatform = platformView.isProductionPlatform();
+        deployedModules = hidePlatformsModules ? Collections.emptyList() : DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules());
+        versionId = platformView.getVersionId();
+    }
 
     public Platform toDomainInstance() {
         return new Platform(
@@ -51,7 +71,15 @@ public class PlatformInput {
                 version,
                 isProductionPlatform,
                 versionId,
-                DeployedModuleInput.toDomainInstances(deployedModules)
+                DeployedModuleIO.toDomainInstances(deployedModules)
         );
+    }
+
+    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews, boolean hidePlatformsModules) {
+        return Optional.ofNullable(platformViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(platformView -> new PlatformIO(platformView, hidePlatformsModules))
+                .collect(toList());
     }
 }
