@@ -182,8 +182,9 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("List all platform global properties usage")
     @GetMapping("/{application_name}/platforms/{platform_name}/global_properties_usage")
-    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getPlatformGlobalPropertiesUsage(@PathVariable("application_name") final String applicationName,
-                                                                                                         @PathVariable("platform_name") final String platformName) {
+    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getGlobalPropertiesUsage(@PathVariable("application_name") final String applicationName,
+                                                                                                @PathVariable("platform_name") final String platformName) {
+
         Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = platformUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
 
         return ResponseEntity.ok(globalPropertyUsageView.entrySet().stream()

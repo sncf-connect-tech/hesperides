@@ -26,6 +26,7 @@ import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.stereotype.Component;
@@ -134,6 +135,16 @@ public class PlatformBuilder {
 
     public void withProperty(String name, String value) {
         properties.add(new Property(name, value, false, false, false));
+    }
+
+    public void incrementVersionId() {
+        versionId++;
+    }
+
+    public PropertiesOutput getPropertiesOutput() {
+        return new PropertiesOutput(
+                properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
+                Collections.emptyList());
     }
 
     @Value

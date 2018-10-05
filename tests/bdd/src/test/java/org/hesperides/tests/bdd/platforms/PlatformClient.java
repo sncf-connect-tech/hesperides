@@ -114,17 +114,17 @@ public class PlatformClient {
                 SearchResultOutput[].class);
     }
 
-    public ResponseEntity<InstanceModelOutput> getInstanceModel(PlatformIO platformInput, String propertiesPath) {
+    public ResponseEntity<InstanceModelOutput> getInstanceModel(PlatformIO platform, String propertiesPath) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties/instance_model?path={path}",
                 InstanceModelOutput.class,
-                platformInput.getApplicationName(),
-                platformInput.getPlatformName(),
+                platform.getApplicationName(),
+                platform.getPlatformName(),
                 propertiesPath);
     }
 
-    public ResponseEntity<PropertiesOutput> saveGlobalProperties(PlatformIO platformInput, PropertiesInput propertiesInput) {
-        return saveProperties(platformInput, propertiesInput, "#");
+    public ResponseEntity<PropertiesOutput> saveGlobalProperties(PlatformIO platform, PropertiesInput propertiesInput) {
+        return saveProperties(platform, propertiesInput, "#");
     }
 
     public ResponseEntity<PropertiesOutput> saveProperties(PlatformIO platformInput, PropertiesInput propertiesInput, String path) {
@@ -139,14 +139,24 @@ public class PlatformClient {
                 "this is a comment");
     }
 
-    public ResponseEntity getGlobalPropertiesUsage(PlatformIO platformInput) {
+    public ResponseEntity getGlobalPropertiesUsage(PlatformIO platform) {
         return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}/global_properties_usage",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<Map<String, Set<GlobalPropertyUsageOutput>>>() {
                 },
-                platformInput.getApplicationName(),
-                platformInput.getPlatformName());
+                platform.getApplicationName(),
+                platform.getPlatformName());
+    }
+
+    public ResponseEntity<PropertiesOutput> getProperties(PlatformIO platform, String path) {
+        return restTemplate.getForEntity(
+                "/applications/{application_name}/platforms/{platform_name}/properties?path={path}",
+                PropertiesOutput.class,
+                platform.getApplicationName(),
+                platform.getPlatformName(),
+                path
+        );
     }
 }

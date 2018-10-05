@@ -21,6 +21,7 @@
 package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
@@ -29,6 +30,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import java.util.List;
 
 @Value
+@AllArgsConstructor
 public class PropertiesOutput {
 
     @SerializedName("key_value_properties")

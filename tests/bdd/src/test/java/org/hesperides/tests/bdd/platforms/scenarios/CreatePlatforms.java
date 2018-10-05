@@ -53,21 +53,27 @@ public class CreatePlatforms implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform( with global properties)?( (?:and|with) this module)?$", (
-                final String withGlobalProperties, final String withThisModule) -> {
+        Given("^an existing platform( with global properties)?( with valued properties)?( (?:and|with) this module)?$", (
+                final String withGlobalProperties, final String withValuedProperties, final String withThisModule) -> {
 
             if (StringUtils.isNotEmpty(withThisModule)) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
             }
             platformClient.create(platformBuilder.buildInput());
-            platformBuilder.withVersionId(1);
+
+            if (StringUtils.isNotEmpty(withValuedProperties)) {
+                platformBuilder.withProperty("module-foo", "12");
+                platformBuilder.withProperty("techno-foo", "12");
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(), moduleBuilder.getPropertiesPath());
+                platformBuilder.incrementVersionId();
+            }
 
             if (StringUtils.isNotEmpty(withGlobalProperties)) {
                 platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
                 platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
                 platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
                 platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput());
-                platformBuilder.withVersionId(2);
+                platformBuilder.incrementVersionId();
             }
         });
 
