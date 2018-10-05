@@ -23,8 +23,10 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
+import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,10 @@ public class GetGlobalPropertiesUsage implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private ModuleClient moduleClient;
+    @Autowired
+    private ModelBuilder modelBuilder;
 
     private ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> responseEntity;
 
@@ -55,6 +61,13 @@ public class GetGlobalPropertiesUsage implements En {
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(), moduleBuilder.getPropertiesPath());
             platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, true);
             platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, true);
+        });
+
+        Given("^the properties are removed from the module$", () -> {
+            moduleClient.delete(moduleBuilder.build());
+            platformBuilder.withGlobalProperty("global-module-foo", "whatever", false, true);
+            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", false, true);
+            platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
         });
 
         When("^I get this platform global properties usage$", () -> {

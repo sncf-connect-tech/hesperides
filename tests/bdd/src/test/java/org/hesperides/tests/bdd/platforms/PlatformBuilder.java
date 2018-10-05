@@ -28,7 +28,6 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -39,9 +38,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class PlatformBuilder {
-
-    @Autowired
-    private ModelBuilder modelBuilder;
 
     private String platformName;
     private String applicationName;
@@ -127,11 +123,7 @@ public class PlatformBuilder {
         return properties;
     }
 
-    public void resetProperties() {
-        properties = new ArrayList<>();
-    }
-
-    public void withGlobalProperty(String name, String value) {
+    public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
         boolean isInModel = modelBuilder.containsProperty(name);
         properties.add(new Property(name, value, true, isInModel, isInModel));
     }
