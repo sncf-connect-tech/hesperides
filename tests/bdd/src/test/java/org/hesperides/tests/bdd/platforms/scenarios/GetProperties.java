@@ -50,8 +50,12 @@ public class GetProperties implements En {
 
     public GetProperties() {
 
-        When("^I get this platform properties$", () -> {
+        When("^I get the platform properties for this module$", () -> {
             responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+        });
+
+        When("^I get the global properties of this platform$", () -> {
+            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
         });
 
         Then("^the platform properties are successfully retrieved$", () -> {

@@ -7,14 +7,17 @@ Feature: Get properties
     Given an existing techno with properties
     And an existing module with properties and this techno
     And an existing platform with valued properties and this module
-    When I get this platform properties
+    When I get the platform properties for this module
     Then the platform properties are successfully retrieved
 
-  Scenario: get valued properties of a platform with global properties
+  Scenario: get value properties of a platform with global properties
+    Given an existing platform with global properties
+    When I get the global properties of this platform
+    Then the platform properties are successfully retrieved
 
   Scenario: get valued properties of a platform with iterable properties
 
-  # sans path ? avec path = # ?
+  # sans path ? => erreur 400
 #
 #  Scenario: get global properties used as deployed module property value
 #    Given an existing techno with properties
