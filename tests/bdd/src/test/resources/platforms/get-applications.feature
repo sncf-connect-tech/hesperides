@@ -5,13 +5,13 @@ Feature: Get applications
 
   Scenario: get an existing application
     Given an existing module
-    And an existing platform using this module
+    And an existing platform with this module
     When I get the platform application
     Then the application is successfully retrieved
 
   Scenario: get an existing application without modules
     Given an existing module
-    And an existing platform using this module
+    And an existing platform with this module
     When I get the platform application with parameter hide_platform set to true
     Then the application is successfully retrieved
 

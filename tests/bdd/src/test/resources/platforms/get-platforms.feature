@@ -5,13 +5,13 @@ Feature: Get platforms
 
   Scenario: get the detail of an existing platform
     Given an existing module
-    Given an existing platform using this module
+    Given an existing platform with this module
     When I get the platform detail
     Then the platform detail is successfully retrieved
 
   Scenario: get the detail of an existing platform at a specific time
     Given an existing module
-    Given an existing platform using this module
+    Given an existing platform with this module
     When I get the platform detail at a specific time in the past
     Then the platform detail is successfully retrieved
 
