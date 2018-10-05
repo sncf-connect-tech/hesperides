@@ -5,9 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
-import org.hesperides.tests.bdd.templatecontainers.ModelBuilder;
-import org.hesperides.tests.bdd.templatecontainers.PropertyBuilder;
-import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -31,10 +31,11 @@ public class CreateTechnos implements En {
 
     public CreateTechnos() {
 
-        Given("^an existing techno( with properties)?$", (String withProperties) -> {
+        Given("^an existing techno( with( global)? properties)?$", (final String withProperties, final String globalProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
-                addPropertyToBuilders("techno-foo");
-                addPropertyToBuilders("techno-bar");
+                String prefix = StringUtils.isNotEmpty(globalProperties) ? "global-" : "";
+                addPropertyToBuilders(prefix + "techno-foo");
+                addPropertyToBuilders(prefix + "techno-bar");
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build());
         });

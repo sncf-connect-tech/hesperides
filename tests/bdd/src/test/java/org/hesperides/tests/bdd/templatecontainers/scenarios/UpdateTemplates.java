@@ -18,10 +18,10 @@
  *
  *
  */
-package org.hesperides.tests.bdd.templatecontainers.scenarios.templates;
+package org.hesperides.tests.bdd.templatecontainers.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class UpdateTemplates implements En {

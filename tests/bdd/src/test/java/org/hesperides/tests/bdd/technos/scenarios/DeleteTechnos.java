@@ -4,7 +4,7 @@ import cucumber.api.java8.En;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
-import org.hesperides.tests.bdd.templatecontainers.ModelBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 

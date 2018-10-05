@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.tests.bdd.templatecontainers;
+package org.hesperides.tests.bdd.templatecontainers.builders;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;

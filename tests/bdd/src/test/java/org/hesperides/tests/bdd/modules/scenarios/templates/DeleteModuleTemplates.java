@@ -23,7 +23,7 @@ package org.hesperides.tests.bdd.modules.scenarios.templates;
 import cucumber.api.java8.En;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
-import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 

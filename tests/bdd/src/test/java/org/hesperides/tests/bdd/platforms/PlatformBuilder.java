@@ -20,19 +20,28 @@
  */
 package org.hesperides.tests.bdd.platforms;
 
+import lombok.Value;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class PlatformBuilder {
+
+    @Autowired
+    private ModelBuilder modelBuilder;
 
     private String platformName;
     private String applicationName;
@@ -41,6 +50,8 @@ public class PlatformBuilder {
     private List<DeployedModuleIO> deployedModuleInputs;
     private List<DeployedModuleIO> deployedModuleOutputs;
     private long versionId;
+
+    private List<Property> properties;
 
     public PlatformBuilder() {
         reset();
@@ -54,6 +65,7 @@ public class PlatformBuilder {
         deployedModuleInputs = new ArrayList<>();
         deployedModuleOutputs = new ArrayList<>();
         versionId = 1;
+        properties = new ArrayList<>();
         return this;
     }
 
@@ -72,8 +84,8 @@ public class PlatformBuilder {
         return this;
     }
 
-    public PlatformBuilder withProductionPlatform(boolean productionPlatform) {
-        isProductionPlatform = productionPlatform;
+    public PlatformBuilder withIsProductionPlatform(boolean isProductionPlatform) {
+        this.isProductionPlatform = isProductionPlatform;
         return this;
     }
 
@@ -104,4 +116,41 @@ public class PlatformBuilder {
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
         return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
     }
+
+    public PropertiesInput buildPropertiesInput() {
+        return new PropertiesInput(
+                properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
+                Collections.emptyList());
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public void resetProperties() {
+        properties = new ArrayList<>();
+    }
+
+    public void withGlobalProperty(String name, String value) {
+        boolean isInModel = modelBuilder.containsProperty(name);
+        properties.add(new Property(name, value, true, isInModel, isInModel));
+    }
+
+    public void withGlobalProperty(String name, String value, boolean isInModel, boolean isUsed) {
+        properties.add(new Property(name, value, true, isInModel, isUsed));
+    }
+
+    public void withProperty(String name, String value) {
+        properties.add(new Property(name, value, false, false, false));
+    }
+
+    @Value
+    public static class Property {
+        String name;
+        String value;
+        boolean isGlobal;
+        boolean isInModel;
+        boolean isUsed;
+    }
+
 }

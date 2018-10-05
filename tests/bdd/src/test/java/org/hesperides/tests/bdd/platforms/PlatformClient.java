@@ -24,12 +24,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
+import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class PlatformClient {
@@ -114,5 +121,32 @@ public class PlatformClient {
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName(),
                 propertiesPath);
+    }
+
+    public ResponseEntity<PropertiesOutput> saveGlobalProperties(PlatformIO platformInput, PropertiesInput propertiesInput) {
+        return saveProperties(platformInput, propertiesInput, "#");
+    }
+
+    public ResponseEntity<PropertiesOutput> saveProperties(PlatformIO platformInput, PropertiesInput propertiesInput, String path) {
+        return restTemplate.postForEntity(
+                "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={path}&comment={comment}",
+                propertiesInput,
+                PropertiesOutput.class,
+                platformInput.getApplicationName(),
+                platformInput.getPlatformName(),
+                platformInput.getVersionId(),
+                path,
+                "this is a comment");
+    }
+
+    public ResponseEntity getGlobalPropertiesUsage(PlatformIO platformInput) {
+        return restTemplate.exchange(
+                "/applications/{application_name}/platforms/{platform_name}/global_properties_usage",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Map<String, Set<GlobalPropertyUsageOutput>>>() {
+                },
+                platformInput.getApplicationName(),
+                platformInput.getPlatformName());
     }
 }

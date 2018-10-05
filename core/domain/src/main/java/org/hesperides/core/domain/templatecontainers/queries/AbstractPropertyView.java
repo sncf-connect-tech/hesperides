@@ -30,11 +30,17 @@ import java.util.stream.Stream;
 @Value
 @NonFinal
 public abstract class AbstractPropertyView {
+
     String name;
 
-    public static List<AbstractPropertyView> flattenAbstractPropertyView(final List<AbstractPropertyView> properties) {
+    /**
+     * Extrait la liste complète des propriétés mises à plat
+     */
+    public static List<AbstractPropertyView> flattenProperties(final List<AbstractPropertyView> properties) {
         return properties.stream()
-                .flatMap(propertyView -> propertyView instanceof PropertyView ? Stream.of(propertyView) : flattenAbstractPropertyView(((IterablePropertyView)propertyView).getProperties()).stream())
+                .flatMap(propertyView -> propertyView instanceof PropertyView
+                        ? Stream.of(propertyView)
+                        : flattenProperties(((IterablePropertyView) propertyView).getProperties()).stream())
                 .collect(Collectors.toList());
     }
 }

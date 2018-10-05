@@ -6,9 +6,9 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
-import org.hesperides.tests.bdd.templatecontainers.ModelBuilder;
-import org.hesperides.tests.bdd.templatecontainers.PropertyBuilder;
-import org.hesperides.tests.bdd.templatecontainers.TemplateBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -34,8 +34,8 @@ public class CreateModules implements En {
 
     public CreateModules() {
 
-        Given("^an existing module( with a template)?( with properties)?( (?:and|with) this techno)?$", (
-                final String withATemplate, final String withProperties, final String withThisTechno) -> {
+        Given("^an existing module( with a template)?( with( global)? properties)?( (?:and|with) this techno)?$", (
+                final String withATemplate, final String withProperties, final String globalProperties, final String withThisTechno) -> {
 
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
@@ -45,8 +45,9 @@ public class CreateModules implements En {
             moduleBuilder.withVersionId(1);
 
             if (StringUtils.isNotEmpty(withProperties)) {
-                addPropertyToBuilders("module-foo");
-                addPropertyToBuilders("module-bar");
+                String prefix = StringUtils.isNotEmpty(globalProperties) ? "global-" : "";
+                addPropertyToBuilders(prefix + "module-foo");
+                addPropertyToBuilders(prefix + "module-bar");
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
 

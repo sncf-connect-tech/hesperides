@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.tests.bdd.templatecontainers;
+package org.hesperides.tests.bdd.templatecontainers.builders;
 
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
@@ -60,5 +60,13 @@ public class ModelBuilder {
 
     public void removeProperties(List<PropertyOutput> properties) {
         this.properties.removeAll(properties);
+    }
+
+    public List<PropertyOutput> getProperties() {
+        return properties;
+    }
+
+    public boolean containsProperty(String name) {
+        return properties.stream().anyMatch(property -> name.equals(property.getName()));
     }
 }

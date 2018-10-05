@@ -43,9 +43,15 @@ public abstract class AbstractValuedPropertyView {
                 .collect(Collectors.toList());
     }
 
-    public static List<AbstractValuedPropertyView> flattenAbstractValuedPropertyView(final List<AbstractValuedPropertyView> properties) {
-        return properties.stream()
-                .flatMap(propertyView -> propertyView instanceof ValuedPropertyView ? Stream.of(propertyView) : flattenAbstractValuedPropertyView(((IterableValuedPropertyView)propertyView).getIterablePropertyItems().stream()
+    /**
+     * Extrait la liste des propriétés valorisée, mises à plat
+     */
+    public static List<AbstractValuedPropertyView> flattenValuedProperties(final List<AbstractValuedPropertyView> valuedProperties) {
+        return valuedProperties
+                .stream()
+                .flatMap(propertyView -> propertyView instanceof ValuedPropertyView
+                        ? Stream.of(propertyView)
+                        : flattenValuedProperties(((IterableValuedPropertyView) propertyView).getIterablePropertyItems().stream()
                         .flatMap(iterablePropertyItemView -> iterablePropertyItemView.getAbstractValuedPropertyViews().stream())
                         .collect(Collectors.toList())).stream())
                 .collect(Collectors.toList());

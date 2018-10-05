@@ -58,9 +58,9 @@ public class UpdatePlatforms implements En {
                 assertTrue("expected at least 1 custom warning", !CollectionUtils.isEmpty(warnings));
                 assertThat(warnings, hasItem(containsString(warning)));
             }
-            PlatformIO expectedPlatformIO = platformBuilder.withVersionId(2).buildOutput();
+            PlatformIO expectedPlatform = platformBuilder.withVersionId(2).buildOutput();
             PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
-            assertEquals(expectedPlatformIO, actualPlatform);
+            assertEquals(expectedPlatform, actualPlatform);
         });
     }
 }

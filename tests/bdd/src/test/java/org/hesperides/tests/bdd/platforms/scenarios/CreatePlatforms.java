@@ -26,6 +26,7 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,17 +46,29 @@ public class CreatePlatforms implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private ModelBuilder modelBuilder;
 
     private ResponseEntity responseEntity;
 
     public CreatePlatforms() {
 
-        Given("^an existing platform( using this module)?$", (final String usingThisModule) -> {
-            if (StringUtils.isNotEmpty(usingThisModule)) {
+        Given("^an existing platform( with global properties)?( (?:and|with) this module)?$", (
+                final String withGlobalProperties, final String withThisModule) -> {
+
+            if (StringUtils.isNotEmpty(withThisModule)) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
             }
             platformClient.create(platformBuilder.buildInput());
             platformBuilder.withVersionId(1);
+
+            if (StringUtils.isNotEmpty(withGlobalProperties)) {
+                platformBuilder.withGlobalProperty("global-module-foo", "12");
+                platformBuilder.withGlobalProperty("global-techno-foo", "12");
+                platformBuilder.withGlobalProperty("unused-global-property", "12");
+                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput());
+                platformBuilder.withVersionId(2);
+            }
         });
 
         Given("^a platform to create(?:, named \"([^\"]*)\")?$", (final String name) -> {
