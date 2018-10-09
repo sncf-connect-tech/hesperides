@@ -1,5 +1,6 @@
 package org.hesperides.tests.bdd.commons;
 
+import com.google.gson.Gson;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,12 +16,17 @@ import java.util.stream.Collectors;
 public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate testRestTemplate(TestRestTemplate testRestTemplate) {
+    public RestTemplate testRestTemplate(TestRestTemplate testRestTemplate, Gson gson) {
         // Remplace Jackson par Gson
         List<HttpMessageConverter<?>> converters = testRestTemplate.getRestTemplate().getMessageConverters().stream()
                 .filter(httpMessageConverter -> !(httpMessageConverter instanceof MappingJackson2HttpMessageConverter))
                 .collect(Collectors.toList());
-        converters.add(new GsonHttpMessageConverter());
+
+        // Récupère la configuration Gson définie dans PresentationConfiguration
+        GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
+        gsonHttpMessageConverter.setGson(gson);
+        converters.add(gsonHttpMessageConverter);
+
         testRestTemplate.getRestTemplate().setMessageConverters(converters);
 
         return testRestTemplate.getRestTemplate();

@@ -16,6 +16,11 @@ Feature: Get properties
     Then the platform properties are successfully retrieved
 
   Scenario: get valued properties of a platform with iterable properties
+    Given an existing techno with iterable properties
+    And an existing module with iterable properties
+    And an existing platform with iterable properties and this module
+    When I get the platform properties for this module
+    Then the platform properties are successfully retrieved
 
   # sans path ? => erreur 400
 #

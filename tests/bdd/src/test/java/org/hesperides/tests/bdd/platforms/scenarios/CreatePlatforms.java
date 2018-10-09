@@ -23,6 +23,9 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
@@ -31,6 +34,8 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
@@ -53,8 +58,8 @@ public class CreatePlatforms implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform( with global properties)?( with valued properties)?( (?:and|with) this module)?$", (
-                final String withGlobalProperties, final String withValuedProperties, final String withThisModule) -> {
+        Given("^an existing platform( with global properties)?( with valued properties)?( with iterable properties)?( (?:and|with) this module)?$", (
+                final String withGlobalProperties, final String withValuedProperties, final String withIterableProperties, final String withThisModule) -> {
 
             if (StringUtils.isNotEmpty(withThisModule)) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
@@ -73,6 +78,21 @@ public class CreatePlatforms implements En {
                 platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
                 platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
                 platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput());
+                platformBuilder.incrementVersionId();
+            }
+
+            if (StringUtils.isNotEmpty(withIterableProperties)) {
+                platformBuilder.withIterableProperties(Arrays.asList(
+                        new IterableValuedPropertyIO("module-foo", Arrays.asList(
+                                new IterablePropertyItemIO("bloc-module-1", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1"))),
+                                new IterablePropertyItemIO("bloc-module-2", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2")))
+                        )),
+                        new IterableValuedPropertyIO("techno-foo", Arrays.asList(
+                                new IterablePropertyItemIO("bloc-techno-1", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1"))),
+                                new IterablePropertyItemIO("bloc-techno-2", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2")))
+                        ))
+                ));
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
         });

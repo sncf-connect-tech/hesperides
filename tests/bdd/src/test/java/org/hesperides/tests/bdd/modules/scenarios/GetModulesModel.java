@@ -34,7 +34,7 @@ public class GetModulesModel implements En {
         Given("^an existing module with iterable properties$", () -> {
             moduleClient.create(moduleBuilder.build());
 
-            propertyBuilder.reset().withName("foo").withProperty(new PropertyBuilder().withName("bar"));
+            propertyBuilder.reset().withName("module-foo").withProperty(new PropertyBuilder().withName("module-bar"));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
@@ -44,7 +44,7 @@ public class GetModulesModel implements En {
         Given("^an existing module with iterable-ception$", () -> {
             moduleClient.create(moduleBuilder.build());
 
-            propertyBuilder.reset().withName("foo").withProperty(new PropertyBuilder().withName("bar").withProperty(new PropertyBuilder().withName("foobar")));
+            propertyBuilder.reset().withName("module-foo").withProperty(new PropertyBuilder().withName("module-bar").withProperty(new PropertyBuilder().withName("module-foobar")));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 

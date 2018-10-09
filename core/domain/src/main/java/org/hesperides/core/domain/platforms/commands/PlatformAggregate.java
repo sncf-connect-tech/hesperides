@@ -80,7 +80,7 @@ public class PlatformAggregate implements Serializable {
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
-        apply(new PlatformModulePropertiesUpdatedEvent(command.getPlatformKey(), command.getModulePath(), command.getPlatformVersionId()+1, command.getValuedProperties(), command.getUser()));
+        apply(new PlatformModulePropertiesUpdatedEvent(command.getPlatformKey(), command.getModulePath(), command.getPlatformVersionId() + 1, command.getValuedProperties(), command.getUser()));
     }
 
     @CommandHandler
@@ -88,7 +88,7 @@ public class PlatformAggregate implements Serializable {
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
-        apply(new PlatformPropertiesUpdatedEvent(command.getPlatformKey(), command.getPlatformVersionId()+1, command.getValuedProperties(), command.getUser()));
+        apply(new PlatformPropertiesUpdatedEvent(command.getPlatformKey(), command.getPlatformVersionId() + 1, command.getValuedProperties(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/

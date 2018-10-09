@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
@@ -49,6 +50,7 @@ public class PlatformBuilder {
     private long versionId;
 
     private List<Property> properties;
+    private List<IterableValuedPropertyIO> iterableProperties;
 
     public PlatformBuilder() {
         reset();
@@ -63,6 +65,7 @@ public class PlatformBuilder {
         deployedModuleOutputs = new ArrayList<>();
         versionId = 1;
         properties = new ArrayList<>();
+        iterableProperties = new ArrayList<>();
         return this;
     }
 
@@ -117,7 +120,7 @@ public class PlatformBuilder {
     public PropertiesInput buildPropertiesInput() {
         return new PropertiesInput(
                 properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
-                Collections.emptyList());
+                iterableProperties);
     }
 
     public List<Property> getProperties() {
@@ -144,7 +147,11 @@ public class PlatformBuilder {
     public PropertiesOutput getPropertiesOutput() {
         return new PropertiesOutput(
                 properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
-                Collections.emptyList());
+                iterableProperties);
+    }
+
+    public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
+        this.iterableProperties.addAll(iterableProperties);
     }
 
     @Value
@@ -155,5 +162,4 @@ public class PlatformBuilder {
         boolean isInModel;
         boolean isUsed;
     }
-
 }

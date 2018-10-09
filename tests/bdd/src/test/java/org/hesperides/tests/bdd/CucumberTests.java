@@ -67,13 +67,9 @@ public class CucumberTests {
             resetBuilders();
         }
 
-        private void resetBuilders() {
-            templateBuilder.reset();
-            technoBuilder.reset();
-            propertyBuilder.reset();
-            modelBuilder.reset();
-            moduleBuilder.reset();
-            platformBuilder.reset();
+        private void resetDatabases() {
+            mongoTemplate.getDb().dropDatabase();
+            new DefaultMongoTemplate(client).eventCollection().drop();
         }
 
         private void resetRestTemplateAuthHeader() {
@@ -82,9 +78,13 @@ public class CucumberTests {
             }
         }
 
-        private void resetDatabases() {
-            mongoTemplate.getDb().dropDatabase();
-            new DefaultMongoTemplate(client).eventCollection().drop();
+        private void resetBuilders() {
+            templateBuilder.reset();
+            technoBuilder.reset();
+            propertyBuilder.reset();
+            modelBuilder.reset();
+            moduleBuilder.reset();
+            platformBuilder.reset();
         }
     }
 

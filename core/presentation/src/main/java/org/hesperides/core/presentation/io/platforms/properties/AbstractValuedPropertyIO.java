@@ -20,9 +20,11 @@
  */
 package org.hesperides.core.presentation.io.platforms.properties;
 
+import com.google.gson.*;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,5 +42,22 @@ public abstract class AbstractValuedPropertyIO {
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
                 .collect(Collectors.toList());
+    }
+
+    public static class Adapter implements JsonDeserializer<AbstractValuedPropertyIO>, JsonSerializer<AbstractValuedPropertyIO> {
+
+        @Override
+        public AbstractValuedPropertyIO deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+            JsonElement items = jsonObject.get("iterable_valorisation_items");
+            Class<? extends AbstractValuedPropertyIO> subClass = items != null ? IterableValuedPropertyIO.class : ValuedPropertyIO.class;
+            return context.deserialize(json, subClass);
+        }
+
+        @Override
+        public JsonElement serialize(AbstractValuedPropertyIO src, Type typeOfSrc, JsonSerializationContext context) {
+            Class<? extends AbstractValuedPropertyIO> subClass = src instanceof ValuedPropertyIO ? ValuedPropertyIO.class : IterableValuedPropertyIO.class;
+            return context.serialize(src, subClass);
+        }
     }
 }

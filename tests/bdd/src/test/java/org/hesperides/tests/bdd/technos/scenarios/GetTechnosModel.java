@@ -31,7 +31,7 @@ public class GetTechnosModel implements En {
     public GetTechnosModel() {
 
         Given("^an existing techno with iterable properties$", () -> {
-            propertyBuilder.reset().withName("foo").withProperty(new PropertyBuilder().withName("bar"));
+            propertyBuilder.reset().withName("techno-foo").withProperty(new PropertyBuilder().withName("techno-bar"));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 
@@ -39,7 +39,7 @@ public class GetTechnosModel implements En {
         });
 
         Given("^an existing techno with iterable-ception$", () -> {
-            propertyBuilder.reset().withName("foo").withProperty(new PropertyBuilder().withName("bar").withProperty(new PropertyBuilder().withName("foobar")));
+            propertyBuilder.reset().withName("techno-foo").withProperty(new PropertyBuilder().withName("techno-bar").withProperty(new PropertyBuilder().withName("techno-foobar")));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
 

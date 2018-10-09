@@ -84,9 +84,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         platform.getDeployedModules().stream()
                 .filter(moduleDocument -> moduleDocument.getPropertiesPath().equals(event.getModulePath()))
                 .findAny().ifPresent(module -> {
-                    module.setValuedProperties(abstractValuedPropertyDocuments);
-                    platformRepository.save(platform);
-                });
+            module.setValuedProperties(abstractValuedPropertyDocuments);
+            platformRepository.save(platform);
+        });
     }
 
     @EventHandler
@@ -217,7 +217,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(deployedModuleDocument -> query.getPath().equals(deployedModuleDocument.getPropertiesPath()))
-                .flatMap(deployedModuleDocument -> deployedModuleDocument.getValuedProperties().stream())
+                .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getValuedProperties())
+                        .orElse(Collections.emptyList())
+                        .stream())
                 .collect(Collectors.toList());
         return AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(abstractValuedPropertyDocuments);
     }

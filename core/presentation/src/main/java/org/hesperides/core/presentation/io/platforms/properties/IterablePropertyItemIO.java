@@ -21,6 +21,7 @@
 package org.hesperides.core.presentation.io.platforms.properties;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
@@ -36,6 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
+@AllArgsConstructor
 public class IterablePropertyItemIO {
 
     String title;
