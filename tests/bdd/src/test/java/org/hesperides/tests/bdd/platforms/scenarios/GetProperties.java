@@ -21,12 +21,11 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
-import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
-import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -41,10 +40,6 @@ public class GetProperties implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModuleClient moduleClient;
-    @Autowired
-    private ModelBuilder modelBuilder;
 
     private ResponseEntity<PropertiesIO> responseEntity;
 
@@ -58,9 +53,9 @@ public class GetProperties implements En {
             responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
         });
 
-        Then("^the platform properties are successfully retrieved$", () -> {
+        Then("^the platform( global)? properties are successfully retrieved$", (final String global) -> {
             assertOK(responseEntity);
-            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO();
+            PropertiesIO expectedProperties = platformBuilder.getProperties(StringUtils.isNotEmpty(global));
             PropertiesIO actualProperties = responseEntity.getBody();
             assertEquals(expectedProperties, actualProperties);
         });

@@ -31,11 +31,14 @@ public class CreateTechnos implements En {
 
     public CreateTechnos() {
 
-        Given("^an existing techno( with( global)? properties)?$", (final String withProperties, final String globalProperties) -> {
+        Given("^an existing techno( with properties)?( (?:and|with) global properties)?$", (final String withProperties, final String withGlobalProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
-                String prefix = StringUtils.isNotEmpty(globalProperties) ? "global-" : "";
-                addPropertyToBuilders(prefix + "techno-foo");
-                addPropertyToBuilders(prefix + "techno-bar");
+                addPropertyToBuilders("techno-foo");
+                addPropertyToBuilders("techno-bar");
+            }
+            if (StringUtils.isNotEmpty(withGlobalProperties)) {
+                addPropertyToBuilders("global-techno-foo");
+                addPropertyToBuilders("global-techno-bar");
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build());
         });

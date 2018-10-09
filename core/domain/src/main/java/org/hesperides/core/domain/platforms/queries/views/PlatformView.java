@@ -21,9 +21,11 @@
 package org.hesperides.core.domain.platforms.queries.views;
 
 import lombok.Value;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.List;
+import java.util.Optional;
 
 @Value
 public class PlatformView {
@@ -35,5 +37,11 @@ public class PlatformView {
     List<DeployedModuleView> deployedModules;
     Long versionId;
     List<ValuedPropertyView> globalProperties;
+
+    public Optional<DeployedModuleView> getDeployedModule(Module.Key moduleKey) {
+        return deployedModules.stream()
+                .filter(deployedModule -> deployedModule.getModuleKey().equals(moduleKey))
+                .findFirst();
+    }
 }
 

@@ -58,7 +58,7 @@ public class GetGlobalPropertiesUsage implements En {
         Given("^the deployed module properties are valued with the platform global properties$", () -> {
             platformBuilder.withProperty("module-foo", "{{global-module-foo}}");
             platformBuilder.withProperty("techno-foo", "{{global-techno-foo}}");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
             platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, true);
             platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, true);
         });

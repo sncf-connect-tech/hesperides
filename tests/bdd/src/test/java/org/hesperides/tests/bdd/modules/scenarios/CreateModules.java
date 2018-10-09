@@ -34,8 +34,8 @@ public class CreateModules implements En {
 
     public CreateModules() {
 
-        Given("^an existing module( with a template)?( with( global)? properties)?( (?:and|with) this techno)?$", (
-                final String withATemplate, final String withProperties, final String globalProperties, final String withThisTechno) -> {
+        Given("^an existing module( with a template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
+                final String withATemplate, final String withProperties, final String withGlobalProperties, final String withThisTechno) -> {
 
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
@@ -45,13 +45,16 @@ public class CreateModules implements En {
             moduleBuilder.withVersionId(1);
 
             if (StringUtils.isNotEmpty(withProperties)) {
-                String prefix = StringUtils.isNotEmpty(globalProperties) ? "global-" : "";
-                addPropertyToBuilders(prefix + "module-foo");
-                addPropertyToBuilders(prefix + "module-bar");
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+                addPropertyToBuilders("module-foo");
+                addPropertyToBuilders("module-bar");
             }
 
-            if (StringUtils.isNotEmpty(withATemplate) && StringUtils.isEmpty(withProperties)) {
+            if (StringUtils.isNotEmpty(withGlobalProperties)) {
+                addPropertyToBuilders("global-module-foo");
+                addPropertyToBuilders("global-module-bar");
+            }
+
+            if (StringUtils.isNotEmpty(withATemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
         });

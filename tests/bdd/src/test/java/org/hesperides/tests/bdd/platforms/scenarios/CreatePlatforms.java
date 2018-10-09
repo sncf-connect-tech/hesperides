@@ -58,8 +58,8 @@ public class CreatePlatforms implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform( with global properties)?( with valued properties)?( with iterable properties)?( (?:and|with) this module)?$", (
-                final String withGlobalProperties, final String withValuedProperties, final String withIterableProperties, final String withThisModule) -> {
+        Given("^an existing platform( (?:and|with) this module)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?$", (
+                final String withThisModule, final String withValuedProperties, final String withIterableProperties, final String withGlobalProperties) -> {
 
             if (StringUtils.isNotEmpty(withThisModule)) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
@@ -69,15 +69,7 @@ public class CreatePlatforms implements En {
             if (StringUtils.isNotEmpty(withValuedProperties)) {
                 platformBuilder.withProperty("module-foo", "12");
                 platformBuilder.withProperty("techno-foo", "12");
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(), moduleBuilder.getPropertiesPath());
-                platformBuilder.incrementVersionId();
-            }
-
-            if (StringUtils.isNotEmpty(withGlobalProperties)) {
-                platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
-                platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
-                platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
-                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput());
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
 
@@ -92,7 +84,15 @@ public class CreatePlatforms implements En {
                                 new IterablePropertyItemIO("bloc-techno-2", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2")))
                         ))
                 ));
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(), moduleBuilder.getPropertiesPath());
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+                platformBuilder.incrementVersionId();
+            }
+
+            if (StringUtils.isNotEmpty(withGlobalProperties)) {
+                platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
+                platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
+                platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
+                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
                 platformBuilder.incrementVersionId();
             }
         });

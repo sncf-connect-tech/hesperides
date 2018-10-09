@@ -116,9 +116,13 @@ public class PlatformBuilder {
         return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
     }
 
-    public PropertiesIO buildPropertiesInput() {
+    public PropertiesIO buildPropertiesInput(boolean isGlobal) {
         return new PropertiesIO(
-                properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
+                properties
+                        .stream()
+                        .filter(property -> property.isGlobal() == isGlobal)
+                        .map(property -> new ValuedPropertyIO(property.name, property.value))
+                        .collect(Collectors.toList()),
                 iterableProperties);
     }
 
@@ -143,10 +147,26 @@ public class PlatformBuilder {
         versionId++;
     }
 
-    public PropertiesIO getPropertiesIO() {
+    public PropertiesIO getProperties(boolean onlyGlobalProperties) {
         return new PropertiesIO(
-                properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
+                onlyGlobalProperties ? getAllGlobalProperties() : getModulePropertiesAndUsedGlobalProperties(),
                 iterableProperties);
+    }
+
+    private List<ValuedPropertyIO> getAllGlobalProperties() {
+        return properties
+                .stream()
+                .filter(property -> property.isGlobal())
+                .map(property -> new ValuedPropertyIO(property.name, property.value))
+                .collect(Collectors.toList());
+    }
+
+    private List<ValuedPropertyIO> getModulePropertiesAndUsedGlobalProperties() {
+        return properties
+                .stream()
+                .filter(property -> !property.isGlobal() || property.isUsed())
+                .map(property -> new ValuedPropertyIO(property.name, property.value))
+                .collect(Collectors.toList());
     }
 
     public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {

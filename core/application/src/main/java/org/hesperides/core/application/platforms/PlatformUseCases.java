@@ -21,6 +21,7 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -85,21 +86,45 @@ public class PlatformUseCases {
     }
 
     public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path, final User user) {
+        List<AbstractValuedPropertyView> properties = new ArrayList<>();
+
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
+
         if (ROOT_PATH.equals(path)) {
-            final List<ValuedPropertyView> globalProperties = queries.getGlobalProperties(platformKey, path, user);
-            return new ArrayList<>(globalProperties);
-        }
-        if (StringUtils.isNotEmpty(path) && path.length() > 1) {
+            properties.addAll(queries.getGlobalProperties(platformKey, user));
+        } else if (StringUtils.isNotEmpty(path)) {
             final Module.Key moduleKey = Module.Key.fromPath(path);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            return queries.getDeployedModuleProperties(platformKey, path, user);
+            properties.addAll(queries.getDeployedModuleProperties(platformKey, path, user));
+            properties.addAll(getGlobalPropertiesUsedInModule(platformKey, moduleKey));
         }
-        return Collections.emptyList();
+        return properties;
+    }
+
+    // TODO Cette méthode est à revoir car il y a peut-être moyen de factoriser ou de réutiliser le code du use case getGlobalPropertiesUsage
+    private List<AbstractValuedPropertyView> getGlobalPropertiesUsedInModule(Platform.Key platformKey, Module.Key moduleKey) {
+        List<AbstractValuedPropertyView> globalPropertiesUsedInModule = new ArrayList<>();
+
+        PlatformView platform = queries.getOptionalPlatform(platformKey).get();
+        Optional<DeployedModuleView> deployedModule = platform.getDeployedModule(moduleKey);
+        if (deployedModule.isPresent()) {
+            List<AbstractPropertyView> moduleProperties = moduleQueries.getProperties(moduleKey);
+            List<AbstractPropertyView> flatModuleProperties = AbstractPropertyView.flattenProperties(moduleProperties);
+
+            platform.getGlobalProperties().forEach(globalProperty -> {
+                List<GlobalPropertyUsageView> moduleGlobalProperties = GlobalPropertyUsageView.getModuleGlobalProperties(
+                        flatModuleProperties, globalProperty.getName(), deployedModule.get().getPropertiesPath());
+                if (!CollectionUtils.isEmpty(moduleGlobalProperties)) {
+                    globalPropertiesUsedInModule.add(globalProperty);
+                }
+            });
+        }
+
+        return globalPropertiesUsedInModule;
     }
 
     public Optional<InstanceModelView> getInstanceModel(final Platform.Key platformKey, final String modulePath, final User user) {
@@ -135,9 +160,6 @@ public class PlatformUseCases {
         return getProperties(platformKey, path, user);
     }
 
-    /**
-     * Pour chaque propriété globale déclarée, on regarde si elle est utilisée.
-     */
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
 
         return queries.getOptionalPlatform(platformKey)
@@ -148,7 +170,7 @@ public class PlatformUseCases {
     }
 
     /**
-     * Détermine les usages d'une propriété globale.
+     * Pour chaque propriété globale, on regarde si elle est utilisée.
      * Il existe 2 façons d'utiliser les propriétés globales :
      * - En tant que propriété dans un template
      * - En tant que valeur de propriété d'un module déployé
