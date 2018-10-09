@@ -25,8 +25,7 @@ import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -123,15 +122,15 @@ public class PlatformClient {
                 propertiesPath);
     }
 
-    public ResponseEntity<PropertiesOutput> saveGlobalProperties(PlatformIO platform, PropertiesInput propertiesInput) {
+    public ResponseEntity<PropertiesIO> saveGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
         return saveProperties(platform, propertiesInput, "#");
     }
 
-    public ResponseEntity<PropertiesOutput> saveProperties(PlatformIO platformInput, PropertiesInput propertiesInput, String path) {
+    public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String path) {
         return restTemplate.postForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={path}&comment={comment}",
                 propertiesInput,
-                PropertiesOutput.class,
+                PropertiesIO.class,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName(),
                 platformInput.getVersionId(),
@@ -150,10 +149,10 @@ public class PlatformClient {
                 platform.getPlatformName());
     }
 
-    public ResponseEntity<PropertiesOutput> getProperties(PlatformIO platform, String path) {
+    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String path) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties?path={path}",
-                PropertiesOutput.class,
+                PropertiesIO.class,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 path

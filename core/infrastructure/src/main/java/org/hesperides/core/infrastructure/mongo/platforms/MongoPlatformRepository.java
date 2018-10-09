@@ -33,6 +33,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName, Pageable pageable);
 
-    @Query(value = "{'_id': ?0}", fields="{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1}}}")
+    @Query(value = "{'_id': ?0}", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1}}}")
     PlatformDocument findByKeyAndFilterDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);
 }

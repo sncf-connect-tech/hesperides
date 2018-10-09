@@ -23,7 +23,6 @@ package org.hesperides.core.presentation.io.platforms.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.Collections;

@@ -21,7 +21,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
@@ -46,7 +46,7 @@ public class GetProperties implements En {
     @Autowired
     private ModelBuilder modelBuilder;
 
-    private ResponseEntity<PropertiesOutput> responseEntity;
+    private ResponseEntity<PropertiesIO> responseEntity;
 
     public GetProperties() {
 
@@ -60,8 +60,8 @@ public class GetProperties implements En {
 
         Then("^the platform properties are successfully retrieved$", () -> {
             assertOK(responseEntity);
-            PropertiesOutput expectedProperties = platformBuilder.getPropertiesOutput();
-            PropertiesOutput actualProperties = responseEntity.getBody();
+            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO();
+            PropertiesIO actualProperties = responseEntity.getBody();
             assertEquals(expectedProperties, actualProperties);
         });
     }

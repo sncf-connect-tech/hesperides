@@ -23,27 +23,44 @@ package org.hesperides.core.presentation.io.platforms.properties;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Value
 @AllArgsConstructor
-public class PropertiesOutput {
+public class PropertiesIO {
 
+    @NotNull
     @SerializedName("key_value_properties")
-    List<ValuedPropertyIO> valuedPropertyOutputs;
-    @SerializedName("iterable_properties")
-    List<IterableValuedPropertyIO> iterableValuedPropertyOutputs;
+    List<ValuedPropertyIO> valuedProperties;
 
-   public PropertiesOutput(List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+    @NotNull
+    @SerializedName("iterable_properties")
+    List<IterableValuedPropertyIO> iterableValuedProperties;
+
+    public List<AbstractValuedProperty> toDomainInstances() {
+        final List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
+        final List<IterableValuedProperty> iterableValuedProperties = IterableValuedPropertyIO.toDomainInstances(this.iterableValuedProperties);
+        final List<AbstractValuedProperty> properties = new ArrayList<>();
+        properties.addAll(valuedProperties);
+        properties.addAll(iterableValuedProperties);
+        return properties;
+    }
+
+    public PropertiesIO(List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
-        this.valuedPropertyOutputs = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+        valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
 
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
-        this.iterableValuedPropertyOutputs = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+        iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
     }
 }

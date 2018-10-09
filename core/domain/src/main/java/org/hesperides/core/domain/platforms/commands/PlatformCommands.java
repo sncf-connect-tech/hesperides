@@ -62,9 +62,9 @@ public class PlatformCommands {
     }
 
     public void savePlatformProperties(final Platform.Key platformKey,
-                                               final Long platformVersionId,
-                                               final List<ValuedProperty> valuedProperties,
-                                               final User user) {
+                                       final Long platformVersionId,
+                                       final List<ValuedProperty> valuedProperties,
+                                       final User user) {
         commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformKey, platformVersionId, valuedProperties, user));
     }
 }

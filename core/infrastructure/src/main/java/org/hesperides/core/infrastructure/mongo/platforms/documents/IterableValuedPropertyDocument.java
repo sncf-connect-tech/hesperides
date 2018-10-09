@@ -55,7 +55,7 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
     public static IterableValuedPropertyDocument fromDomainInstance(final IterableValuedProperty iterableValuedProperty) {
         IterableValuedPropertyDocument document = new IterableValuedPropertyDocument();
         document.setName(iterableValuedProperty.getName());
-        List<IterablePropertyItemDocument> iterablePropertyItemDocuments =  iterableValuedProperty.getProperties().stream()
+        List<IterablePropertyItemDocument> iterablePropertyItemDocuments = iterableValuedProperty.getProperties().stream()
                 .map(IterablePropertyItemDocument::fromDomainInstance)
                 .collect(Collectors.toList());
         document.setIterablePropertyItems(iterablePropertyItemDocuments);

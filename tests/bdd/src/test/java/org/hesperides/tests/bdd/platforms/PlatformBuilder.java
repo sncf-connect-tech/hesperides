@@ -26,8 +26,7 @@ import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesInput;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesOutput;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.stereotype.Component;
@@ -117,8 +116,8 @@ public class PlatformBuilder {
         return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
     }
 
-    public PropertiesInput buildPropertiesInput() {
-        return new PropertiesInput(
+    public PropertiesIO buildPropertiesInput() {
+        return new PropertiesIO(
                 properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
                 iterableProperties);
     }
@@ -144,8 +143,8 @@ public class PlatformBuilder {
         versionId++;
     }
 
-    public PropertiesOutput getPropertiesOutput() {
-        return new PropertiesOutput(
+    public PropertiesIO getPropertiesIO() {
+        return new PropertiesIO(
                 properties.stream().map(property -> new ValuedPropertyIO(property.name, property.value)).collect(Collectors.toList()),
                 iterableProperties);
     }

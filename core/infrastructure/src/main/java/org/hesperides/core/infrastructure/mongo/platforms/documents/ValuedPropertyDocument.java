@@ -51,7 +51,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public InstanceModelView.InstanceModelPropertyView toInstanceModelPropertyView() {
-        return new InstanceModelView.InstanceModelPropertyView(getName(), "",false, null, null, false);
+        return new InstanceModelView.InstanceModelPropertyView(getName(), "", false, null, null, false);
     }
 
     public static ValuedPropertyDocument fromDomainInstance(ValuedProperty valuedProperty) {
