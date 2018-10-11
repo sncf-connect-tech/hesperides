@@ -21,7 +21,9 @@
 package org.hesperides.tests.bdd.platforms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
@@ -155,7 +157,15 @@ public class PlatformClient {
                 PropertiesIO.class,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
-                path
-        );
+                path);
+    }
+
+    public ResponseEntity<ModulePlatformsOutput[]> getPlatformsUsingModule(ModuleIO module) {
+        return restTemplate.getForEntity(
+                "/applications/using_module/{module_name}/{module_version}/{version_type}",
+                ModulePlatformsOutput[].class,
+                module.getName(),
+                module.getVersion(),
+                module.isWorkingCopy() ? "workingcopy" : "release");
     }
 }

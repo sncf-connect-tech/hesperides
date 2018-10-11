@@ -85,6 +85,7 @@ public class CucumberTests {
             modelBuilder.reset();
             moduleBuilder.reset();
             platformBuilder.reset();
+            platformBuilder.resetPlatforms();
         }
     }
 

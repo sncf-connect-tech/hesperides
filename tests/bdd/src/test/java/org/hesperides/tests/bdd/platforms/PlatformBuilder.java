@@ -46,8 +46,9 @@ public class PlatformBuilder {
     private List<Property> properties;
     private List<IterableValuedPropertyIO> iterableProperties;
     private Map<String, String> instanceProperties;
-
     private List<InstanceIO> instances;
+
+    private List<PlatformIO> platforms = new ArrayList<>();
 
     public PlatformBuilder() {
         reset();
@@ -66,6 +67,10 @@ public class PlatformBuilder {
         instanceProperties = new HashMap<>();
         instances = new ArrayList<>();
         return this;
+    }
+
+    public void resetPlatforms() {
+        platforms = new ArrayList<>();
     }
 
     public PlatformBuilder withPlatformName(String platformName) {
@@ -189,6 +194,18 @@ public class PlatformBuilder {
                         .map(entry -> new InstanceModelOutput.InstancePropertyOutput(
                                 entry.getValue(), "", false, "", "", false))
                         .collect(Collectors.toList()));
+    }
+
+    public void addPlatform(PlatformIO platform) {
+        platforms.add(platform);
+    }
+
+    public List<ModulePlatformsOutput> buildModulePlatforms() {
+        return Optional.ofNullable(platforms)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(platform -> new ModulePlatformsOutput(platform.getApplicationName(), platform.getPlatformName()))
+                .collect(Collectors.toList());
     }
 
     @Value

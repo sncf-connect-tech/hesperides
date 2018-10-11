@@ -58,8 +58,12 @@ public class CreatePlatforms implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
-                final String withThisModule, final String withAnInstance, final String withValuedProperties, final String withIterableProperties, final String withGlobalProperties, final String withInstanceProperties) -> {
+        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
+                final String platformName, final String withThisModule, final String withAnInstance, final String withValuedProperties, final String withIterableProperties, final String withGlobalProperties, final String withInstanceProperties) -> {
+
+            if (StringUtils.isNotEmpty(platformName)) {
+                platformBuilder.withPlatformName(platformName);
+            }
 
             if (StringUtils.isNotEmpty(withThisModule)) {
                 if (StringUtils.isNotEmpty(withAnInstance)) {
@@ -105,6 +109,8 @@ public class CreatePlatforms implements En {
                 platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
+
+            platformBuilder.addPlatform(platformBuilder.buildInput());
         });
 
         Given("^a platform to create(?:, named \"([^\"]*)\")?$", (final String name) -> {
