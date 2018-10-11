@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Data
 @Document(collection = "module")
@@ -75,10 +74,6 @@ public class ModuleDocument {
 
     public void removeTemplate(String templateName) {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
-    }
-
-    public Optional<TemplateDocument> findOptionalTemplateByName(String templateName) {
-        return templates.stream().filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName)).findFirst();
     }
 
     /**

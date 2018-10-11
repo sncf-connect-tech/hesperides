@@ -125,6 +125,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
     }
 
+    @QueryHandler
     @Override
     public List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());

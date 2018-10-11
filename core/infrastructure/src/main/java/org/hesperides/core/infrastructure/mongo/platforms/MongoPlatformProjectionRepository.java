@@ -133,25 +133,17 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
-
-        Optional<ApplicationView> optionalApplicationView = Optional.empty();
         List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query.getApplicationName());
-
-        if (!CollectionUtils.isEmpty(platformDocuments)) {
-            ApplicationView applicationView = PlatformDocument.toApplicationView(query.getApplicationName(), platformDocuments);
-            optionalApplicationView = Optional.of(applicationView);
-        }
-        return optionalApplicationView;
+        return Optional.ofNullable(CollectionUtils.isEmpty(platformDocuments) ? null
+                : PlatformDocument.toApplicationView(query.getApplicationName(), platformDocuments));
     }
 
     @QueryHandler
     @Override
     public List<InstancePropertyView> onGetInstanceModelQuery(GetInstanceModelQuery query) {
-
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
 
-        // Création des instanceModelView depuis les propriétés de la première instance du module
         return Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
                 .stream()
@@ -214,6 +206,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
+
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
                 .stream()
@@ -229,10 +222,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository.findOptionalByKey(platformKeyDocument);
-        if (platformDocument.isPresent()) {
-            return ValuedPropertyDocument.toValuedPropertyViews(platformDocument.get().getValuedProperties());
-        }
-        return Collections.emptyList();
+        return platformRepository.findOptionalByKey(platformKeyDocument)
+                .map(PlatformDocument::getValuedProperties)
+                .map(ValuedPropertyDocument::toValuedPropertyViews)
+                .orElse(Collections.emptyList());
     }
 }

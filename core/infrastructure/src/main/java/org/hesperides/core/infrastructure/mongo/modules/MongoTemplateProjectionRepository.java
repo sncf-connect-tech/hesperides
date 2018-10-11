@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,8 +52,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     /*** EVENT HANDLERS ***/
 
-    @Override
     @EventHandler
+    @Override
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
@@ -62,8 +62,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
-    @Override
     @EventHandler
+    @Override
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
@@ -72,8 +72,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
-    @Override
     @EventHandler
+    @Override
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
         KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
         ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
@@ -83,37 +83,28 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     /*** QUERY HANDLERS ***/
 
-    @Override
     @QueryHandler
+    @Override
     public Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query) {
-        Optional<TemplateView> optionalTemplateView = Optional.empty();
-
         String templateName = query.getTemplateName();
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKeyAndTemplatesName(keyDocument, templateName);
-
-        if (optionalModuleDocument.isPresent()) {
-            TemplateDocument templateDocument = optionalModuleDocument.get().findOptionalTemplateByName(templateName).get();
-            TemplateContainer.Key moduleKey = query.getModuleKey();
-            optionalTemplateView = Optional.of(templateDocument.toTemplateView(moduleKey));
-        }
-        return optionalTemplateView;
+        return moduleRepository.findOptionalByKeyAndTemplatesName(new KeyDocument(query.getModuleKey()), templateName)
+                .map(moduleDocument -> moduleDocument.getTemplates()
+                        .stream()
+                        .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName))
+                        .findFirst()
+                        .map(templateDocument -> templateDocument.toTemplateView(query.getModuleKey())))
+                .orElse(Optional.empty());
     }
 
-    @Override
     @QueryHandler
+    @Override
     public List<TemplateView> onGetModuleTemplatesQuery(GetModuleTemplatesQuery query) {
-        List<TemplateView> templateViews = new ArrayList<>();
-
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        Optional<ModuleDocument> optionalModuleDocument = moduleRepository.findOptionalByKey(keyDocument);
-
-        if (optionalModuleDocument.isPresent() && optionalModuleDocument.get().getTemplates() != null) {
-            TemplateContainer.Key moduleKey = query.getModuleKey();
-            templateViews = optionalModuleDocument.get().getTemplates().stream()
-                    .map(templateDocument -> templateDocument.toTemplateView(moduleKey))
-                    .collect(Collectors.toList());
-        }
-        return templateViews;
+        TemplateContainer.Key moduleKey = query.getModuleKey();
+        return moduleRepository.findOptionalByKey(new KeyDocument(moduleKey))
+                .map(moduleDocument -> moduleDocument.getTemplates()
+                        .stream()
+                        .map(templateDocument -> templateDocument.toTemplateView(moduleKey))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 }
