@@ -53,8 +53,8 @@ public class PlatformQueries extends AxonQueries {
         return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
     }
 
-    public Optional<InstanceModelView> getInstanceModel(final Platform.Key platformKey, final String path, final User user) {
-        return querySyncOptional(new GetInstanceModelQuery(platformKey, path, user), InstanceModelView.class);
+    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String path, final User user) {
+        return querySyncList(new GetInstanceModelQuery(platformKey, path, user), InstancePropertyView.class);
     }
 
     public List<ModulePlatformView> getPlatformsUsingModule(TemplateContainer.Key moduleKey) {

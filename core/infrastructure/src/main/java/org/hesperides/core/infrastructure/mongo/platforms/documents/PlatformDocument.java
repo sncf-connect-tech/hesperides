@@ -24,10 +24,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data
@@ -86,5 +89,18 @@ public class PlatformDocument {
                         .map(PlatformDocument::toPlatformView)
                         .collect(Collectors.toList())
         );
+    }
+
+    public void extractInstancePropertiesAndSave(MongoPlatformRepository platformRepository) {
+        deployedModules = Optional.ofNullable(deployedModules)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(deployedModule -> deployedModule.toDomainInstance())
+                .map(deployedModule -> deployedModule.extractAndSetInstanceProperties(
+                        ValuedPropertyDocument.toDomainInstances(valuedProperties)))
+                .map(DeployedModuleDocument::new)
+                .collect(Collectors.toList());
+
+        platformRepository.save(this);
     }
 }

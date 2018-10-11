@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @NonFinal
@@ -40,6 +41,17 @@ public abstract class AbstractValuedProperty {
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
+                .collect(Collectors.toList());
+    }
+
+    public static List<ValuedProperty> flattenValuedProperties(final List<AbstractValuedProperty> abstractValuedProperties) {
+        return abstractValuedProperties
+                .stream()
+                .flatMap(abstractValuedProperty -> abstractValuedProperty instanceof ValuedProperty
+                        ? Stream.of((ValuedProperty) abstractValuedProperty)
+                        : flattenValuedProperties(
+                        ((IterableValuedProperty) abstractValuedProperty).getItems().stream().flatMap(
+                                item -> item.getAbstractValuedProperties().stream()).collect(Collectors.toList())).stream())
                 .collect(Collectors.toList());
     }
 }

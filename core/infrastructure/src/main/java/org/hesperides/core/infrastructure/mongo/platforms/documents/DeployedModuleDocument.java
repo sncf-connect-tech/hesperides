@@ -42,18 +42,20 @@ public class DeployedModuleDocument {
     private boolean isWorkingCopy;
     private String path;
     private String propertiesPath;
-    private List<InstanceDocument> instances;
     private List<AbstractValuedPropertyDocument> valuedProperties;
+    private List<InstanceDocument> instances;
+    private List<InstancePropertyDocument> instanceProperties;
 
     public DeployedModuleDocument(DeployedModule deployedModule) {
-        this.id = deployedModule.getId();
-        this.name = deployedModule.getName();
-        this.version = deployedModule.getVersion();
-        this.isWorkingCopy = deployedModule.isWorkingCopy();
-        this.path = deployedModule.getPath();
-        this.propertiesPath = deployedModule.getPropertiesPath();
-        this.instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
-        this.valuedProperties = AbstractValuedPropertyDocument.fromDomainProperties(deployedModule.getValuedProperties());
+        id = deployedModule.getId();
+        name = deployedModule.getName();
+        version = deployedModule.getVersion();
+        isWorkingCopy = deployedModule.isWorkingCopy();
+        path = deployedModule.getPath();
+        propertiesPath = deployedModule.getPropertiesPath();
+        valuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(deployedModule.getValuedProperties());
+        instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
+        instanceProperties = InstancePropertyDocument.fromDomainInstances(deployedModule.getInstancesProperties());
     }
 
     public DeployedModuleView toDeployedModuleView() {
@@ -83,5 +85,12 @@ public class DeployedModuleDocument {
                 .stream()
                 .map(DeployedModuleDocument::toDeployedModuleView)
                 .collect(Collectors.toList());
+    }
+
+    public DeployedModule toDomainInstance() {
+        return new DeployedModule(id, name, version, isWorkingCopy, path,
+                AbstractValuedPropertyDocument.toAbstractDomainInstances(valuedProperties),
+                InstanceDocument.toDomainInstances(instances),
+                InstancePropertyDocument.toDomainInstances(instanceProperties));
     }
 }

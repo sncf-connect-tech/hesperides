@@ -23,12 +23,14 @@ package org.hesperides.core.domain.platforms.entities;
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Value
 public class DeployedModule {
@@ -39,18 +41,20 @@ public class DeployedModule {
     boolean isWorkingCopy;
     String path;
     String propertiesPath;
-    List<Instance> instances;
     List<AbstractValuedProperty> valuedProperties;
+    List<Instance> instances;
+    List<InstanceProperty> instancesProperties;
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<Instance> instances, List<AbstractValuedProperty> valuedProperties) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<InstanceProperty> instanceProperties) {
         this.id = id;
         this.name = name;
         this.version = version;
         this.isWorkingCopy = isWorkingCopy;
         this.path = path;
         this.propertiesPath = generatePropertiesPath();
-        this.instances = instances;
         this.valuedProperties = valuedProperties;
+        this.instances = instances;
+        this.instancesProperties = instanceProperties;
     }
 
     private String generatePropertiesPath() {
@@ -65,8 +69,9 @@ public class DeployedModule {
         isWorkingCopy = other.isWorkingCopy;
         path = other.path;
         propertiesPath = other.propertiesPath; // because id has no bearing on this
-        instances = other.instances;
         valuedProperties = other.valuedProperties;
+        instances = other.instances;
+        instancesProperties = other.instancesProperties;
     }
 
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
@@ -103,5 +108,25 @@ public class DeployedModule {
                 .filter(Objects::nonNull)
                 .max(Long::compareTo)
                 .orElse(0L);
+    }
+
+    public DeployedModule extractAndSetInstanceProperties(List<ValuedProperty> platformGlobalProperties) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                valuedProperties,
+                instances,
+                extractInstanceProperties(valuedProperties, platformGlobalProperties));
+    }
+
+    private static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleValuedProperties, List<ValuedProperty> platformGlobalProperties) {
+        return AbstractValuedProperty.flattenValuedProperties(moduleValuedProperties)
+                .stream()
+                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(platformGlobalProperties))
+                .map(valuedProperty -> valuedProperty.extractInstancePropertyNameFromValue())
+                .collect(Collectors.toList());
     }
 }

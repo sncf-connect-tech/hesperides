@@ -21,20 +21,34 @@
 package org.hesperides.core.presentation.io.platforms;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
+import org.hesperides.core.domain.platforms.queries.views.InstancePropertyView;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Value
+@AllArgsConstructor
 public class InstanceModelOutput {
 
     @SerializedName("keys")
     List<InstancePropertyOutput> instanceProperties;
 
+    public static InstanceModelOutput fromInstancePropertyViews(List<InstancePropertyView> instancePropertyViews) {
+        return new InstanceModelOutput(Optional.ofNullable(instancePropertyViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstancePropertyOutput::new)
+                .collect(Collectors.toList()));
+    }
+
     @Value
+    @AllArgsConstructor
     public static class InstancePropertyOutput {
+
         String name;
         String comment;
         @SerializedName("required")
@@ -44,20 +58,13 @@ public class InstanceModelOutput {
         @SerializedName("password")
         boolean isPassword;
 
-        public static InstancePropertyOutput fromInstanceModelPropertyView(InstanceModelView.InstanceModelPropertyView instanceModelPropertyView) {
-            return new InstancePropertyOutput(instanceModelPropertyView.getName(),
-                    instanceModelPropertyView.getComment(),
-                    instanceModelPropertyView.isRequired(),
-                    instanceModelPropertyView.getDefaultValue(),
-                    instanceModelPropertyView.getPattern(),
-                    instanceModelPropertyView.isPassword());
+        public InstancePropertyOutput(InstancePropertyView instancePropertyView) {
+            name = instancePropertyView.getName();
+            comment = "";
+            isRequired = false;
+            defaultValue = "";
+            pattern = "";
+            isPassword = false;
         }
-    }
-
-    public static InstanceModelOutput fromInstanceView(InstanceModelView instanceModelView) {
-        List<InstancePropertyOutput> instancePropertyOutputs = instanceModelView.getInstanceProperties().stream()
-                .map(InstancePropertyOutput::fromInstanceModelPropertyView)
-                .collect(Collectors.toList());
-        return new InstanceModelOutput(instancePropertyOutputs);
     }
 }

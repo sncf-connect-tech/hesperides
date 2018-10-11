@@ -67,6 +67,7 @@ public class DeployedModuleIO {
                 version,
                 isWorkingCopy,
                 path,
+                null,
                 InstanceIO.toDomainInstances(instances),
                 null
         );

@@ -22,6 +22,8 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -40,10 +42,13 @@ public abstract class AbstractValuedPropertyDocument {
     public static List<AbstractValuedPropertyView> toAbstractValuedPropertyViews(final List<AbstractValuedPropertyDocument> properties) {
         final List<ValuedPropertyDocument> valuedPropertyDocuments = AbstractValuedPropertyDocument.getAbstractValuedPropertyDocumentWithType(properties, ValuedPropertyDocument.class);
         final List<ValuedPropertyView> valuedPropertyViews = ValuedPropertyDocument.toValuedPropertyViews(valuedPropertyDocuments);
+
         final List<IterableValuedPropertyDocument> iterableValuedPropertyDocuments = AbstractValuedPropertyDocument.getAbstractValuedPropertyDocumentWithType(properties, IterableValuedPropertyDocument.class);
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = IterableValuedPropertyDocument.toIterableValuedPropertyViews(iterableValuedPropertyDocuments);
+
         List<AbstractValuedPropertyView> abstractValuedPropertyViews = new ArrayList<>(valuedPropertyViews);
         abstractValuedPropertyViews.addAll(iterableValuedPropertyViews);
+
         return abstractValuedPropertyViews;
     }
 
@@ -56,7 +61,23 @@ public abstract class AbstractValuedPropertyDocument {
                 .collect(Collectors.toList());
     }
 
-    public static List<AbstractValuedPropertyDocument> fromDomainProperties(final List<AbstractValuedProperty> properties) {
-        return null;
+    public static List<AbstractValuedPropertyDocument> fromAbstractDomainInstances(final List<AbstractValuedProperty> abstractValuedProperties) {
+        return Optional.ofNullable(abstractValuedProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(abstractValuedProperty -> abstractValuedProperty instanceof ValuedProperty
+                        ? new ValuedPropertyDocument((ValuedProperty) abstractValuedProperty)
+                        : new IterableValuedPropertyDocument((IterableValuedProperty) abstractValuedProperty)
+                ).collect(Collectors.toList());
+    }
+
+    public static List<AbstractValuedProperty> toAbstractDomainInstances(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments) {
+        return Optional.ofNullable(abstractValuedPropertyDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(document -> document instanceof ValuedPropertyDocument
+                        ? ValuedPropertyDocument.toDomainInstance((ValuedPropertyDocument) document)
+                        : IterableValuedPropertyDocument.toDomainInstance((IterableValuedPropertyDocument) document)
+                ).collect(Collectors.toList());
     }
 }

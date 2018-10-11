@@ -22,6 +22,12 @@ package org.hesperides.core.domain.platforms.entities.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.platforms.entities.InstanceProperty;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -32,5 +38,25 @@ public class ValuedProperty extends AbstractValuedProperty {
     public ValuedProperty(String name, String value) {
         super(name);
         this.value = value;
+    }
+
+    /**
+     * True si la valeur est entre moustaches et si cette valeur entre moustaches
+     * ne correspond pas au nom d'une propriété globale
+     */
+    public boolean valueIsInstanceProperty(List<ValuedProperty> platformGlobalProperties) {
+        String valueBetweenMustaches = extractValueBetweenMustaches(value);
+        return StringUtils.isNotEmpty(valueBetweenMustaches) && !Optional.ofNullable(platformGlobalProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .anyMatch(globalProperty -> globalProperty.getName().equals(valueBetweenMustaches));
+    }
+
+    private String extractValueBetweenMustaches(String value) {
+        return StringUtils.substringBetween(value, "{{", "}}");
+    }
+
+    public InstanceProperty extractInstancePropertyNameFromValue() {
+        return new InstanceProperty(extractValueBetweenMustaches(value));
     }
 }

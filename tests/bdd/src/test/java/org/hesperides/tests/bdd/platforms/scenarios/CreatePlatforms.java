@@ -58,10 +58,13 @@ public class CreatePlatforms implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform( (?:and|with) this module)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?$", (
-                final String withThisModule, final String withValuedProperties, final String withIterableProperties, final String withGlobalProperties) -> {
+        Given("^an existing platform( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
+                final String withThisModule, final String withAnInstance, final String withValuedProperties, final String withIterableProperties, final String withGlobalProperties, final String withInstanceProperties) -> {
 
             if (StringUtils.isNotEmpty(withThisModule)) {
+                if (StringUtils.isNotEmpty(withAnInstance)) {
+                    platformBuilder.withInstance("instance-foo-1");
+                }
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
             }
             platformClient.create(platformBuilder.buildInput());
@@ -93,6 +96,13 @@ public class CreatePlatforms implements En {
                 platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
                 platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
                 platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
+                platformBuilder.incrementVersionId();
+            }
+
+            if (StringUtils.isNotEmpty(withInstanceProperties)) {
+                platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
+                platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
         });

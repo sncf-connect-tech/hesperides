@@ -123,11 +123,10 @@ public class PlatformsController extends AbstractController {
                                                                 @RequestParam(value = "path") final String path) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
-        Optional<InstanceModelView> instanceModelView = platformUseCases.getInstanceModel(platformKey, path, fromAuthentication(authentication));
-        Optional<InstanceModelOutput> instanceModelOutput = instanceModelView.map(InstanceModelOutput::fromInstanceView);
-        InstanceModelOutput instanceModelOutputReponse = instanceModelOutput.map(instanceModelOutput1 -> instanceModelOutput.get()).orElse(new InstanceModelOutput(new ArrayList<>()));
 
-        return ResponseEntity.ok(instanceModelOutputReponse);
+        List<InstancePropertyView> instancePropertyViews = platformUseCases.getInstanceModel(platformKey, path, fromAuthentication(authentication));
+        InstanceModelOutput instanceModelOutput = InstanceModelOutput.fromInstancePropertyViews(instancePropertyViews);
+        return ResponseEntity.ok(instanceModelOutput);
     }
 
     @ApiOperation("Retrieve platforms using module")

@@ -127,7 +127,7 @@ public class PlatformUseCases {
         return globalPropertiesUsedInModule;
     }
 
-    public Optional<InstanceModelView> getInstanceModel(final Platform.Key platformKey, final String modulePath, final User user) {
+    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String modulePath, final User user) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }

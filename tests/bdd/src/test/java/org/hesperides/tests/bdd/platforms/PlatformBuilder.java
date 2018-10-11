@@ -22,19 +22,14 @@ package org.hesperides.tests.bdd.platforms;
 
 import lombok.Value;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -50,6 +45,9 @@ public class PlatformBuilder {
 
     private List<Property> properties;
     private List<IterableValuedPropertyIO> iterableProperties;
+    private Map<String, String> instanceProperties;
+
+    private List<InstanceIO> instances;
 
     public PlatformBuilder() {
         reset();
@@ -65,6 +63,8 @@ public class PlatformBuilder {
         versionId = 1;
         properties = new ArrayList<>();
         iterableProperties = new ArrayList<>();
+        instanceProperties = new HashMap<>();
+        instances = new ArrayList<>();
         return this;
     }
 
@@ -88,9 +88,13 @@ public class PlatformBuilder {
         return this;
     }
 
+    public void withInstance(String name) {
+        instances.add(new InstanceIO(name, Collections.emptyList()));
+    }
+
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        deployedModuleInputs.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", propertiesPath, null));
-        deployedModuleOutputs.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", propertiesPath, Collections.emptyList()));
+        deployedModuleInputs.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", propertiesPath, instances));
+        deployedModuleOutputs.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.isWorkingCopy(), "GROUP", propertiesPath, instances));
         return this;
     }
 
@@ -143,6 +147,11 @@ public class PlatformBuilder {
         properties.add(new Property(name, value, false, false, false));
     }
 
+    public void withInstanceProperty(String propertyName, String instancePropertyName) {
+        withProperty(propertyName, "{{" + instancePropertyName + "}}");
+        instanceProperties.put(propertyName, instancePropertyName);
+    }
+
     public void incrementVersionId() {
         versionId++;
     }
@@ -171,6 +180,15 @@ public class PlatformBuilder {
 
     public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
         this.iterableProperties.addAll(iterableProperties);
+    }
+
+    public InstanceModelOutput buildInstanceModel() {
+        return new InstanceModelOutput(
+                instanceProperties.entrySet()
+                        .stream()
+                        .map(entry -> new InstanceModelOutput.InstancePropertyOutput(
+                                entry.getValue(), "", false, "", "", false))
+                        .collect(Collectors.toList()));
     }
 
     @Value

@@ -40,8 +40,27 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
 
     private List<IterablePropertyItemDocument> iterablePropertyItems;
 
+    public IterableValuedPropertyDocument(final IterableValuedProperty iterableValuedProperty) {
+        name = iterableValuedProperty.getName();
+        iterablePropertyItems = IterablePropertyItemDocument.fromDomainInstances(iterableValuedProperty.getItems());
+    }
+
+    public static IterableValuedProperty toDomainInstance(IterableValuedPropertyDocument iterableValuedPropertyDocument) {
+        return new IterableValuedProperty(
+                iterableValuedPropertyDocument.name,
+                IterablePropertyItemDocument.toDomainInstances(iterableValuedPropertyDocument.iterablePropertyItems));
+    }
+
+    public static List<IterableValuedPropertyDocument> fromDomainInstances(List<IterableValuedProperty> iterableValuedProperties) {
+        return Optional.ofNullable(iterableValuedProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterableValuedPropertyDocument::new)
+                .collect(Collectors.toList());
+    }
+
     public IterableValuedPropertyView toIterableValuedPropertyView() {
-        return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemView(iterablePropertyItems));
+        return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemViews(iterablePropertyItems));
     }
 
     public static List<IterableValuedPropertyView> toIterableValuedPropertyViews(final List<IterableValuedPropertyDocument> iterableValuedPropertyDocuments) {
@@ -51,25 +70,4 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
                 .map(IterableValuedPropertyDocument::toIterableValuedPropertyView)
                 .collect(Collectors.toList());
     }
-
-    public static IterableValuedPropertyDocument fromDomainInstance(final IterableValuedProperty iterableValuedProperty) {
-        IterableValuedPropertyDocument document = new IterableValuedPropertyDocument();
-        document.setName(iterableValuedProperty.getName());
-        List<IterablePropertyItemDocument> iterablePropertyItemDocuments = iterableValuedProperty.getProperties().stream()
-                .map(IterablePropertyItemDocument::fromDomainInstance)
-                .collect(Collectors.toList());
-        document.setIterablePropertyItems(iterablePropertyItemDocuments);
-        return document;
-
-    }
-
-    public static List<IterableValuedPropertyDocument> fromDomainInstances(final List<IterableValuedProperty> iterableValuedProperties) {
-        return Optional.ofNullable(iterableValuedProperties)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(IterableValuedPropertyDocument::fromDomainInstance)
-                .collect(Collectors.toList());
-    }
-
-
 }

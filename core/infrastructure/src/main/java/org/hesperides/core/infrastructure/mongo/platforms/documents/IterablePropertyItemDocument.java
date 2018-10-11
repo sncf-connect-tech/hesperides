@@ -1,46 +1,62 @@
 package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
-import lombok.Value;
-import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
-import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Value
+@Data
+@Document
+@NoArgsConstructor
 public class IterablePropertyItemDocument {
 
     String title;
-    private List<AbstractValuedPropertyDocument> iterableValuedPropertyDocument;
+    private List<AbstractValuedPropertyDocument> iterableValuedProperties;
 
-    public static List<IterablePropertyItemView> toIterablePropertyItemView(final List<IterablePropertyItemDocument> iterablePropertyItems) {
+    public IterablePropertyItemDocument(final IterablePropertyItem iterablePropertyItem) {
+        title = iterablePropertyItem.getTitle();
+        iterableValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(iterablePropertyItem.getAbstractValuedProperties());
+    }
+
+    public static List<IterablePropertyItemView> toIterablePropertyItemViews(final List<IterablePropertyItemDocument> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(IterablePropertyItemDocument::IterablePropertyItemView)
+                .map(IterablePropertyItemDocument::toIterablePropertyItemView)
                 .collect(Collectors.toList());
     }
 
-    private static IterablePropertyItemView IterablePropertyItemView(final IterablePropertyItemDocument iterablePropertyItemDocument) {
+    public static IterablePropertyItemView toIterablePropertyItemView(final IterablePropertyItemDocument iterablePropertyItemDocument) {
         return new IterablePropertyItemView(iterablePropertyItemDocument.getTitle(),
-                AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(iterablePropertyItemDocument.getIterableValuedPropertyDocument()));
+                AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(iterablePropertyItemDocument.getIterableValuedProperties()));
     }
 
-    public static IterablePropertyItemDocument fromDomainInstance(final IterablePropertyItem iterablePropertyItem) {
-        List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = new ArrayList<>();
+    public static List<IterablePropertyItem> toDomainInstances(List<IterablePropertyItemDocument> iterablePropertyItemDocuments) {
+        return Optional.ofNullable(iterablePropertyItemDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemDocument::toDomainInstance)
+                .collect(Collectors.toList());
+    }
 
-        List<ValuedProperty> valuedPropertyDocuments = AbstractValuedProperty.filterAbstractValuedPropertyWithType(iterablePropertyItem.getAbstractValuedProperties(), ValuedProperty.class);
-        abstractValuedPropertyDocuments.addAll(ValuedPropertyDocument.fromDomainInstances(valuedPropertyDocuments));
+    public static IterablePropertyItem toDomainInstance(IterablePropertyItemDocument iterablePropertyItemDocument) {
+        return new IterablePropertyItem(
+                iterablePropertyItemDocument.title,
+                AbstractValuedPropertyDocument.toAbstractDomainInstances(iterablePropertyItemDocument.iterableValuedProperties)
+        );
+    }
 
-        List<IterableValuedProperty> iterableValuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(iterablePropertyItem.getAbstractValuedProperties(), IterableValuedProperty.class);
-        abstractValuedPropertyDocuments.addAll(IterableValuedPropertyDocument.fromDomainInstances(iterableValuedProperties));
-
-        return new IterablePropertyItemDocument(iterablePropertyItem.getTitle(), abstractValuedPropertyDocuments);
+    public static List<IterablePropertyItemDocument> fromDomainInstances(List<IterablePropertyItem> items) {
+        return Optional.ofNullable(items)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemDocument::new)
+                .collect(Collectors.toList());
     }
 }

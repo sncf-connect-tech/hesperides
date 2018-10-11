@@ -21,9 +21,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
@@ -76,16 +78,16 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         abstractValuedPropertyDocuments.addAll(IterableValuedPropertyDocument.fromDomainInstances(iterableValuedProperties));
 
         // Récupération de la plateforme et contrôle de la version
-        PlatformDocument platform = platformRepository.findOptionalByKey(platformKeyDocument)
+        PlatformDocument platformDocument = platformRepository.findOptionalByKey(platformKeyDocument)
                 .orElseThrow(() -> new PlatformNotFoundException(event.getPlatformKey()));
-        platform.setVersionId(event.getPlatformVersionId());
+        platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
-        platform.getDeployedModules().stream()
+        platformDocument.getDeployedModules().stream()
                 .filter(moduleDocument -> moduleDocument.getPropertiesPath().equals(event.getModulePath()))
                 .findAny().ifPresent(module -> {
             module.setValuedProperties(abstractValuedPropertyDocuments);
-            platformRepository.save(platform);
+            platformDocument.extractInstancePropertiesAndSave(platformRepository);
         });
     }
 
@@ -97,18 +99,18 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // Transform the properties into documents
         List<ValuedPropertyDocument> valuedProperties = event.getValuedProperties()
                 .stream()
-                .map(ValuedPropertyDocument::fromDomainInstance)
+                .map(ValuedPropertyDocument::new)
                 .collect(Collectors.toList());
 
         // Retrieve platform and check its version id
-        PlatformDocument platform = platformRepository.findOptionalByKey(platformKeyDocument)
+        PlatformDocument platformDocument = platformRepository.findOptionalByKey(platformKeyDocument)
                 .orElseThrow(() -> new PlatformNotFoundException(event.getPlatformKey()));
 
         // Update platform information
-        platform.setVersionId(event.getPlatformVersionId());
-        platform.setValuedProperties(valuedProperties);
+        platformDocument.setVersionId(event.getPlatformVersionId());
+        platformDocument.setValuedProperties(valuedProperties);
 
-        platformRepository.save(platform);
+        platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
 
     /*** QUERY HANDLERS ***/
@@ -144,7 +146,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public Optional<InstanceModelView> onGetInstanceModelQuery(GetInstanceModelQuery query) {
+    public List<InstancePropertyView> onGetInstanceModelQuery(GetInstanceModelQuery query) {
 
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
@@ -153,11 +155,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         return Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
                 .stream()
-                .findFirst()
-                .map(DeployedModuleDocument::getInstances)
-                .map(Collection::stream)
-                .flatMap(Stream::findFirst)
-                .map(InstanceDocument::toInstanceModelView);
+                .flatMap(deployedModule -> deployedModule.getInstanceProperties()
+                        .stream()
+                        .map(InstancePropertyDocument::toInstancePropertyView))
+                .collect(Collectors.toList());
     }
 
     @QueryHandler

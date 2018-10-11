@@ -23,7 +23,6 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Instance;
-import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
 import org.hesperides.core.domain.platforms.queries.views.InstanceView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -43,6 +42,18 @@ public class InstanceDocument {
     public InstanceDocument(Instance instance) {
         this.name = instance.getName();
         this.valuedProperties = ValuedPropertyDocument.fromDomainInstances(instance.getValuedProperties());
+    }
+
+    public static List<Instance> toDomainInstances(List<InstanceDocument> instanceDocuments) {
+        return Optional.ofNullable(instanceDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstanceDocument::toDomainInstance)
+                .collect(Collectors.toList());
+    }
+
+    private static Instance toDomainInstance(InstanceDocument instanceDocument) {
+        return new Instance(instanceDocument.name, ValuedPropertyDocument.toDomainInstances(instanceDocument.valuedProperties));
     }
 
     public InstanceView toInstanceView() {
@@ -66,11 +77,5 @@ public class InstanceDocument {
                 .stream()
                 .map(InstanceDocument::toInstanceView)
                 .collect(Collectors.toList());
-    }
-
-    public static InstanceModelView toInstanceModelView(InstanceDocument instanceDocument) {
-        List<ValuedPropertyDocument> valuedPropertyDocuments = instanceDocument.getValuedProperties();
-        List<InstanceModelView.InstanceModelPropertyView> instanceModelPropertyViews = ValuedPropertyDocument.toInstanceModelPropertyViews(valuedPropertyDocuments);
-        return new InstanceModelView(instanceModelPropertyViews);
     }
 }

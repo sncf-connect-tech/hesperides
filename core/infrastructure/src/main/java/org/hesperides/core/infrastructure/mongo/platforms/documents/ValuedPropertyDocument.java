@@ -24,7 +24,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.queries.views.InstanceModelView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -46,16 +45,20 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         this.value = valuedProperty.getValue();
     }
 
+    public static ValuedProperty toDomainInstance(ValuedPropertyDocument valuedPropertyDocument) {
+        return new ValuedProperty(valuedPropertyDocument.name, valuedPropertyDocument.value);
+    }
+
+    public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
+        return Optional.ofNullable(valuedPropertyDocuments)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ValuedPropertyDocument::toDomainInstance)
+                .collect(Collectors.toList());
+    }
+
     public ValuedPropertyView toValuedPropertyView() {
         return new ValuedPropertyView(getName(), value);
-    }
-
-    public InstanceModelView.InstanceModelPropertyView toInstanceModelPropertyView() {
-        return new InstanceModelView.InstanceModelPropertyView(getName(), "", false, null, null, false);
-    }
-
-    public static ValuedPropertyDocument fromDomainInstance(ValuedProperty valuedProperty) {
-        return new ValuedPropertyDocument(valuedProperty);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -71,14 +74,6 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(ValuedPropertyDocument::toValuedPropertyView)
-                .collect(Collectors.toList());
-    }
-
-    public static List<InstanceModelView.InstanceModelPropertyView> toInstanceModelPropertyViews(List<ValuedPropertyDocument> valuedPropertyDocuments) {
-        return Optional.ofNullable(valuedPropertyDocuments)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(ValuedPropertyDocument::toInstanceModelPropertyView)
                 .collect(Collectors.toList());
     }
 }
