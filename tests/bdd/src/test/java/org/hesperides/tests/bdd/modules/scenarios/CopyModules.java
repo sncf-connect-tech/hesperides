@@ -33,7 +33,7 @@ public class CopyModules implements En {
 
     public CopyModules() {
 
-        When("^I( try to)? create a copy of this module$", (final String tryTo) -> {
+        When("^I( try to)? create a copy of this module$", (String tryTo) -> {
             responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
         });
 
@@ -83,7 +83,7 @@ public class CopyModules implements En {
         });
     }
 
-    private ResponseEntity copy(final String newVersion, Class responseType) {
+    private ResponseEntity copy(String newVersion, Class responseType) {
         ModuleIO newModuleInput = new ModuleBuilder().withVersion(newVersion).build();
         return moduleClient.copy(moduleBuilder.build(), newModuleInput, responseType);
     }

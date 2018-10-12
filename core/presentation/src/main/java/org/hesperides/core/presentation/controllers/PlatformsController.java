@@ -3,6 +3,7 @@ package org.hesperides.core.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -43,10 +44,21 @@ public class PlatformsController extends AbstractController {
     @ApiOperation("Create platform")
     public ResponseEntity<PlatformIO> createPlatform(Authentication authentication,
                                                      @PathVariable("application_name") final String applicationName,
+                                                     @RequestParam(value = "from_application", required = false) final String fromApplication,
+                                                     @RequestParam(value = "from_platform", required = false) final String fromPlatform,
                                                      @Valid @RequestBody final PlatformIO platformInput) {
 
-        Platform platform = platformInput.toDomainInstance();
-        Platform.Key createdPlatformKey = platformUseCases.createPlatform(platform, fromAuthentication(authentication));
+        Platform newPlatform = platformInput.toDomainInstance();
+
+        Platform.Key createdPlatformKey;
+        if (StringUtils.isBlank(fromApplication) && StringUtils.isBlank(fromPlatform)) {
+            createdPlatformKey = platformUseCases.createPlatform(newPlatform, fromAuthentication(authentication));
+        } else {
+            checkQueryParameterNotEmpty("from_application", fromApplication);
+            checkQueryParameterNotEmpty("from_platform", fromPlatform);
+            Platform.Key existingPlatformKey = new Platform.Key(fromApplication, fromPlatform);
+            createdPlatformKey = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, fromAuthentication(authentication));
+        }
 
         PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
         PlatformIO platformOutput = new PlatformIO(platformView);

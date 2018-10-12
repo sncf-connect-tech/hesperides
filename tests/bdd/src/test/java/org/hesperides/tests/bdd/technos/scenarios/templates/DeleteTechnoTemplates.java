@@ -42,7 +42,7 @@ public class DeleteTechnoTemplates implements En {
 
     public DeleteTechnoTemplates() {
 
-        When("^I( try to)? delete this techno template$", (final String tryTo) -> {
+        When("^I( try to)? delete this techno template$", (String tryTo) -> {
             responseEntity = technoClient.deleteTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 

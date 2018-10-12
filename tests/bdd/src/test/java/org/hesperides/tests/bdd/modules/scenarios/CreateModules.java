@@ -35,7 +35,7 @@ public class CreateModules implements En {
     public CreateModules() {
 
         Given("^an existing module( with a template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
-                final String withATemplate, final String withProperties, final String withGlobalProperties, final String withThisTechno) -> {
+                String withATemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
 
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
@@ -59,14 +59,14 @@ public class CreateModules implements En {
             }
         });
 
-        Given("^a module to create(?: with the same name and version)?( with this techno)?$", (final String withThisTechno) -> {
+        Given("^a module to create(?: with the same name and version)?( with this techno)?$", (String withThisTechno) -> {
             moduleBuilder.reset();
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
         });
 
-        When("^I( try to)? create this module$", (final String tryTo) -> {
+        When("^I( try to)? create this module$", (String tryTo) -> {
             responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 

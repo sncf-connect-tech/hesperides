@@ -70,11 +70,11 @@ public class GetModuleTemplates implements En {
             templateBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the list of templates of this module$", (final String tryTo) -> {
+        When("^I( try to)? get the list of templates of this module$", (String tryTo) -> {
             responseEntity = moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
         });
 
-        When("^I( try to)? get this template in this module$", (final String tryTo) -> {
+        When("^I( try to)? get this template in this module$", (String tryTo) -> {
             responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

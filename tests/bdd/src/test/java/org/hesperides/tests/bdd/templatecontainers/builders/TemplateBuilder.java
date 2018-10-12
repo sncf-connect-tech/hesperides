@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TemplateBuilder {
 
-    public static final String DEFAULT_NAME = "template";
+    public static String DEFAULT_NAME = "template";
 
     private String name;
     private String namespace;
@@ -54,27 +54,27 @@ public class TemplateBuilder {
         return this;
     }
 
-    public TemplateBuilder withName(final String name) {
+    public TemplateBuilder withName(String name) {
         this.name = name;
         return this;
     }
 
-    public TemplateBuilder withNamespace(final String namespace) {
+    public TemplateBuilder withNamespace(String namespace) {
         this.namespace = namespace;
         return this;
     }
 
-    public TemplateBuilder withFilename(final String filename) {
+    public TemplateBuilder withFilename(String filename) {
         this.filename = filename;
         return this;
     }
 
-    public TemplateBuilder withLocation(final String location) {
+    public TemplateBuilder withLocation(String location) {
         this.location = location;
         return this;
     }
 
-    public TemplateBuilder withContent(final String content) {
+    public TemplateBuilder withContent(String content) {
         if (StringUtils.isBlank(this.content)) {
             this.content = content;
         } else {
@@ -88,12 +88,12 @@ public class TemplateBuilder {
         return withContent(property);
     }
 
-    public TemplateBuilder withRights(final TemplateIO.RightsIO rights) {
+    public TemplateBuilder withRights(TemplateIO.RightsIO rights) {
         this.rights = rights;
         return this;
     }
 
-    public TemplateBuilder withVersionId(final long versionId) {
+    public TemplateBuilder withVersionId(long versionId) {
         this.versionId = versionId;
         return this;
     }
@@ -112,17 +112,17 @@ public class TemplateBuilder {
         private TemplateIO.FileRightsIO group = new FileRightsBuilder().build();
         private TemplateIO.FileRightsIO other = new FileRightsBuilder().build();
 
-        public RightsBuilder withUser(final TemplateIO.FileRightsIO user) {
+        public RightsBuilder withUser(TemplateIO.FileRightsIO user) {
             this.user = user;
             return this;
         }
 
-        public RightsBuilder withGroup(final TemplateIO.FileRightsIO group) {
+        public RightsBuilder withGroup(TemplateIO.FileRightsIO group) {
             this.group = group;
             return this;
         }
 
-        public RightsBuilder withOther(final TemplateIO.FileRightsIO other) {
+        public RightsBuilder withOther(TemplateIO.FileRightsIO other) {
             this.other = other;
             return this;
         }
@@ -138,17 +138,17 @@ public class TemplateBuilder {
         private Boolean write = null;
         private Boolean execute = null;
 
-        public FileRightsBuilder withRead(final Boolean read) {
+        public FileRightsBuilder withRead(Boolean read) {
             this.read = read;
             return this;
         }
 
-        public FileRightsBuilder withWrite(final Boolean write) {
+        public FileRightsBuilder withWrite(Boolean write) {
             this.write = write;
             return this;
         }
 
-        public FileRightsBuilder withExecute(final Boolean execute) {
+        public FileRightsBuilder withExecute(Boolean execute) {
             this.execute = execute;
             return this;
         }

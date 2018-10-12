@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 
 public class StepHelper {
 
-    public static Class getResponseType(final String tryTo, Class defaultResponseType) {
+    public static Class getResponseType(String tryTo, Class defaultResponseType) {
         return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
     }
 

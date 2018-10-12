@@ -42,7 +42,7 @@ public class GetPlatforms implements En {
 
     public GetPlatforms() {
 
-        When("^I( try to)? get the platform detail( at a specific time in the past)?$", (final String tryTo, final String withTimestamp) -> {
+        When("^I( try to)? get the platform detail( at a specific time in the past)?$", (String tryTo, String withTimestamp) -> {
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 //TODO
             }

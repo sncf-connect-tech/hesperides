@@ -93,8 +93,12 @@ public class PlatformBuilder {
         return this;
     }
 
+    public void withInstance(String name, List<ValuedPropertyIO> properties) {
+        instances.add(new InstanceIO(name, properties));
+    }
+
     public void withInstance(String name) {
-        instances.add(new InstanceIO(name, Collections.emptyList()));
+        withInstance(name, Collections.emptyList());
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {

@@ -25,7 +25,7 @@ public class GetTechnos implements En {
             technoBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the techno detail$", (final String tryTo) -> {
+        When("^I( try to)? get the techno detail$", (String tryTo) -> {
             responseEntity = technoClient.get(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
         });
 

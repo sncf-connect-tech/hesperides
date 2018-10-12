@@ -38,7 +38,7 @@ public class ReleaseTechnos implements En {
             technoBuilder.withIsWorkingCopy(false);
         });
 
-        When("^I( try to)? release this techno$", (final String tryTo) -> {
+        When("^I( try to)? release this techno$", (String tryTo) -> {
             responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
         });
 

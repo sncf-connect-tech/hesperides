@@ -57,6 +57,16 @@ public class PlatformClient {
                 platformInput.getApplicationName());
     }
 
+    public ResponseEntity copy(PlatformIO existingPlatform, PlatformIO newPlatform, Class responseType) {
+        return restTemplate.postForEntity(
+                "/applications/{application_name}/platforms?from_application={from_application}&from_platform={from_platform}",
+                newPlatform,
+                responseType,
+                existingPlatform.getApplicationName(),
+                existingPlatform.getApplicationName(),
+                existingPlatform.getPlatformName());
+    }
+
     public ResponseEntity delete(PlatformIO platformInput, Class responseType) {
         return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}",

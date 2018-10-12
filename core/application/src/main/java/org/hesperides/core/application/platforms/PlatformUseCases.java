@@ -49,6 +49,16 @@ public class PlatformUseCases {
         return commands.createPlatform(platform, user);
     }
 
+    public Platform.Key copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
+        if (!queries.platformExists(existingPlatformKey)) {
+            throw new PlatformNotFoundException(newPlatform.getKey());
+        }
+        if (queries.platformExists(newPlatform.getKey())) {
+            throw new DuplicatePlatformException(newPlatform.getKey());
+        }
+        return commands.copyPlatform(newPlatform, existingPlatformKey, user);
+    }
+
     public PlatformView getPlatform(Platform.Key platformKey) {
         return queries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));

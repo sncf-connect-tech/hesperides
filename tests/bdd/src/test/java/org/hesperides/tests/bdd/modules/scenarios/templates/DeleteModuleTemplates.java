@@ -42,7 +42,7 @@ public class DeleteModuleTemplates implements En {
 
     public DeleteModuleTemplates() {
 
-        When("^I( try to)? delete this module template$", (final String tryTo) -> {
+        When("^I( try to)? delete this module template$", (String tryTo) -> {
             responseEntity = moduleClient.deleteTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 

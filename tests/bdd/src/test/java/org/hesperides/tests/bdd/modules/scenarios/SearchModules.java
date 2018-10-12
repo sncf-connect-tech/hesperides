@@ -23,7 +23,7 @@ public class SearchModules implements En {
     public SearchModules() {
 
         Given("^a list of (\\d+) modules( with different names)?(?: with the same name)?$",
-                (final Integer nbModules, final String withDifferentNames) -> {
+                (Integer nbModules, String withDifferentNames) -> {
                     for (int i = 0; i < nbModules; i++) {
                         if (StringUtils.isNotEmpty(withDifferentNames)) {
                             moduleBuilder.withName("new-module-" + i);
@@ -52,7 +52,7 @@ public class SearchModules implements En {
             assertEquals(1, responseEntity.getBody().length);
         });
 
-        Then("^the list of module results is limited to (\\d+) items$", (final Integer limit) -> {
+        Then("^the list of module results is limited to (\\d+) items$", (Integer limit) -> {
             assertOK(responseEntity);
             assertEquals(limit.intValue(), responseEntity.getBody().length);
         });

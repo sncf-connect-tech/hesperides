@@ -54,7 +54,7 @@ public class UpdatePlatforms implements En {
         Then("^the platform is successfully updated(?:, but system warns about \"([^\"]+)\")?", (String warning) -> {
             assertOK(responseEntity);
             if (StringUtils.isNotEmpty(warning)) {
-                final List<String> warnings = responseEntity.getHeaders().get("x-hesperides-warning");
+                List<String> warnings = responseEntity.getHeaders().get("x-hesperides-warning");
                 assertTrue("expected at least 1 custom warning", !CollectionUtils.isEmpty(warnings));
                 assertThat(warnings, hasItem(containsString(warning)));
             }

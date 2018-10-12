@@ -39,7 +39,7 @@ public class ReleaseModules implements En {
     public ReleaseModules() {
 
         Given("^a released module( with a template)?( with properties)?( (?:and|with) this techno)?$", (
-                final String withATemplate, final String withProperties, final String withThisTechno) -> {
+                String withATemplate, String withProperties, String withThisTechno) -> {
 
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
@@ -67,7 +67,7 @@ public class ReleaseModules implements En {
             moduleBuilder.withVersionId(1).withIsWorkingCopy(false);
         });
 
-        When("^I( try to)? release this module$", (final String tryTo) -> {
+        When("^I( try to)? release this module$", (String tryTo) -> {
             responseEntity = moduleClient.release(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 

@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class UserContext implements En {
 
-    public static final BasicAuthorizationInterceptor BASIC_AUTH_INTERCEPTOR = new BasicAuthorizationInterceptor("user", "password");
+    public static BasicAuthorizationInterceptor BASIC_AUTH_INTERCEPTOR = new BasicAuthorizationInterceptor("user", "password");
 
     @Autowired
     private RestTemplate restTemplate;

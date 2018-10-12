@@ -98,7 +98,7 @@ public class GetModulesModel implements En {
             moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
         });
 
-        When("^I( try to)? get the model of this module$", (final String tryTo) -> {
+        When("^I( try to)? get the model of this module$", (String tryTo) -> {
             responseEntity = moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 

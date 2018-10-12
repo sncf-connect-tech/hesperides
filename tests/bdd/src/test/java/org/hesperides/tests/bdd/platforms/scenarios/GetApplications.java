@@ -43,7 +43,7 @@ public class GetApplications implements En {
 
     public GetApplications() {
 
-        When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (final String tryTo, final String withHidePlatform) -> {
+        When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (String tryTo, String withHidePlatform) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
             responseEntity = platformClient.getApplication(
                     platformBuilder.buildInput(),

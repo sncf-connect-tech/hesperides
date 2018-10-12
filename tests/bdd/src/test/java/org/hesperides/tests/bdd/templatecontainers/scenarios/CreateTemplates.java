@@ -32,7 +32,7 @@ public class CreateTemplates implements En {
 
     public CreateTemplates() {
 
-        Given("^a template to create( with the same name as the existing one)?$", (final String withTheSameName) -> {
+        Given("^a template to create( with the same name as the existing one)?$", (String withTheSameName) -> {
             if (StringUtils.isEmpty(withTheSameName)) {
                 templateBuilder.withName("new-template");
             }

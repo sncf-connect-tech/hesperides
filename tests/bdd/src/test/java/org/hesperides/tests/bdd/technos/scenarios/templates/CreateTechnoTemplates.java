@@ -44,7 +44,7 @@ public class CreateTechnoTemplates implements En {
 
     public CreateTechnoTemplates() {
 
-        When("^I( try to)? add this template to the techno$", (final String tryTo) -> {
+        When("^I( try to)? add this template to the techno$", (String tryTo) -> {
             responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

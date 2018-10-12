@@ -30,7 +30,7 @@ public class CopyTechnos implements En {
 
     public CopyTechnos() {
 
-        When("^I( try to)? create a copy of this techno$", (final String tryTo) -> {
+        When("^I( try to)? create a copy of this techno$", (String tryTo) -> {
             responseEntity = copy("1.0.1", getResponseType(tryTo, TechnoIO.class));
         });
 
@@ -80,7 +80,7 @@ public class CopyTechnos implements En {
         });
     }
 
-    private ResponseEntity copy(final String newVersion, Class responseType) {
+    private ResponseEntity copy(String newVersion, Class responseType) {
         TechnoIO newTechnoInput = new TechnoBuilder().withVersion(newVersion).build();
         return technoClient.copy(technoBuilder.build(), newTechnoInput, responseType);
     }

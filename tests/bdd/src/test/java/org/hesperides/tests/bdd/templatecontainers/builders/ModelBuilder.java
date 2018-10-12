@@ -44,12 +44,12 @@ public class ModelBuilder {
         return this;
     }
 
-    public ModelBuilder withProperty(final PropertyOutput property) {
+    public ModelBuilder withProperty(PropertyOutput property) {
         properties.add(property);
         return this;
     }
 
-    public ModelBuilder withIterableProperty(final PropertyOutput property) {
+    public ModelBuilder withIterableProperty(PropertyOutput property) {
         iterableProperties.add(property);
         return this;
     }

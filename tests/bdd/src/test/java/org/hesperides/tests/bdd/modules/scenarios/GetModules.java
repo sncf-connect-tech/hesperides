@@ -25,7 +25,7 @@ public class GetModules implements En {
             moduleBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the module detail$", (final String tryTo) -> {
+        When("^I( try to)? get the module detail$", (String tryTo) -> {
             responseEntity = moduleClient.get(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 

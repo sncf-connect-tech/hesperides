@@ -50,27 +50,27 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder withName(final String name) {
+    public ModuleBuilder withName(String name) {
         this.name = name;
         return this;
     }
 
-    public ModuleBuilder withVersion(final String version) {
+    public ModuleBuilder withVersion(String version) {
         this.version = version;
         return this;
     }
 
-    public ModuleBuilder withIsWorkingCopy(final boolean isWorkingCopy) {
+    public ModuleBuilder withIsWorkingCopy(boolean isWorkingCopy) {
         this.isWorkingCopy = isWorkingCopy;
         return this;
     }
 
-    public ModuleBuilder withTechno(final TechnoIO techno) {
+    public ModuleBuilder withTechno(TechnoIO techno) {
         technos.add(techno);
         return this;
     }
 
-    public ModuleBuilder withVersionId(final long versionId) {
+    public ModuleBuilder withVersionId(long versionId) {
         this.versionId = versionId;
         return this;
     }

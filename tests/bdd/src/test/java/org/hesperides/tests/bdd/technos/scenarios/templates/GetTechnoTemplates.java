@@ -70,11 +70,11 @@ public class GetTechnoTemplates implements En {
             templateBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the list of templates of this techno$", (final String tryTo) -> {
+        When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> {
             responseEntity = technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
         });
 
-        When("^I( try to)? get this template in this techno$", (final String tryTo) -> {
+        When("^I( try to)? get this template in this techno$", (String tryTo) -> {
             responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

@@ -57,7 +57,7 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder withName(final String name) {
+    public PropertyBuilder withName(String name) {
         this.name = name;
         return this;
     }
@@ -67,17 +67,17 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder withComment(final String comment) {
+    public PropertyBuilder withComment(String comment) {
         this.comment = comment;
         return this;
     }
 
-    public PropertyBuilder withDefaultValue(final String defaultValue) {
+    public PropertyBuilder withDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
         return this;
     }
 
-    public PropertyBuilder withPattern(final String pattern) {
+    public PropertyBuilder withPattern(String pattern) {
         this.pattern = pattern;
         return this;
     }
@@ -87,7 +87,7 @@ public class PropertyBuilder {
         return this;
     }
 
-    public PropertyBuilder withProperty(final PropertyBuilder property) {
+    public PropertyBuilder withProperty(PropertyBuilder property) {
         if (properties == null) {
             properties = new ArrayList<>();
         }

@@ -27,17 +27,17 @@ public class GetModuleEvents implements En {
 
     public GetModuleEvents() {
 
-        When("^I( try to)? get the events of this module$", (final String tryTo) -> {
+        When("^I( try to)? get the events of this module$", (String tryTo) -> {
             responseEntity = getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class));
         });
 
-        Then("^(\\d+) event(?: is|s are) returned$", (final Integer nbEvents) -> {
+        Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {
             assertOK(responseEntity);
             EventOutput[] events = (EventOutput[]) responseEntity.getBody();
             assertEquals(nbEvents.intValue(), events.length);
         });
 
-        Then("^event at index (\\d+) is a (.*) event type$", (final Integer index, final String eventType) -> {
+        Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
             EventOutput[] events = (EventOutput[]) responseEntity.getBody();
             assertThat(events[index], hasProperty("type", endsWith(eventType)));
         });

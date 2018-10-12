@@ -44,7 +44,7 @@ public class CreateModuleTemplates implements En {
 
     public CreateModuleTemplates() {
 
-        When("^I( try to)? add this template to the module$", (final String tryTo) -> {
+        When("^I( try to)? add this template to the module$", (String tryTo) -> {
             responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

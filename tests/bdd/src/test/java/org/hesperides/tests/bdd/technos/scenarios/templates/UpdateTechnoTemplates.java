@@ -44,7 +44,7 @@ public class UpdateTechnoTemplates implements En {
 
     public UpdateTechnoTemplates() {
 
-        When("^I( try to)? update this techno template$", (final String tryTo) -> {
+        When("^I( try to)? update this techno template$", (String tryTo) -> {
             responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

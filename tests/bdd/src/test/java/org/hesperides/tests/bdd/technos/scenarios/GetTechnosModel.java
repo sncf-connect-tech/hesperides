@@ -89,7 +89,7 @@ public class GetTechnosModel implements En {
             technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build());
         });
 
-        When("^I( try to)? get the model of this techno$", (final String tryTo) -> {
+        When("^I( try to)? get the model of this techno$", (String tryTo) -> {
             responseEntity = technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 

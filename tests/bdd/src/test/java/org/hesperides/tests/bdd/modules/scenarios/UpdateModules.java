@@ -32,7 +32,7 @@ public class UpdateModules implements En {
             moduleBuilder.withTechno(technoBuilder.build());
         });
 
-        When("^I( try to)? update this module$", (final String tryTo) -> {
+        When("^I( try to)? update this module$", (String tryTo) -> {
             responseEntity = moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 

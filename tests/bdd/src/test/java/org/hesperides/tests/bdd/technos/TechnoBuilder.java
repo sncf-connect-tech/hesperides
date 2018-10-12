@@ -47,17 +47,17 @@ public class TechnoBuilder {
         properties = new ArrayList<>();
     }
 
-    public TechnoBuilder withName(final String name) {
+    public TechnoBuilder withName(String name) {
         this.name = name;
         return this;
     }
 
-    public TechnoBuilder withVersion(final String version) {
+    public TechnoBuilder withVersion(String version) {
         this.version = version;
         return this;
     }
 
-    public TechnoBuilder withIsWorkingCopy(final boolean isWorkingCopy) {
+    public TechnoBuilder withIsWorkingCopy(boolean isWorkingCopy) {
         this.isWorkingCopy = isWorkingCopy;
         return this;
     }

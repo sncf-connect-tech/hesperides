@@ -31,7 +31,7 @@ public class CreateTechnos implements En {
 
     public CreateTechnos() {
 
-        Given("^an existing techno( with properties)?( (?:and|with) global properties)?$", (final String withProperties, final String withGlobalProperties) -> {
+        Given("^an existing techno( with properties)?( (?:and|with) global properties)?$", (String withProperties, String withGlobalProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
                 addPropertyToBuilders("techno-foo");
                 addPropertyToBuilders("techno-bar");
@@ -47,7 +47,7 @@ public class CreateTechnos implements En {
             technoBuilder.reset();
         });
 
-        When("^I( try to)? create this techno$", (final String tryTo) -> {
+        When("^I( try to)? create this techno$", (String tryTo) -> {
             responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

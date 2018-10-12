@@ -53,7 +53,7 @@ public class GetProperties implements En {
             responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
         });
 
-        Then("^the platform( global)? properties are successfully retrieved$", (final String global) -> {
+        Then("^the platform( global)? properties are successfully retrieved$", (String global) -> {
             assertOK(responseEntity);
             PropertiesIO expectedProperties = platformBuilder.getProperties(StringUtils.isNotEmpty(global));
             PropertiesIO actualProperties = responseEntity.getBody();

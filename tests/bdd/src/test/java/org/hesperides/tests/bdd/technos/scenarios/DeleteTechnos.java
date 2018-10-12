@@ -25,7 +25,7 @@ public class DeleteTechnos implements En {
 
     public DeleteTechnos() {
 
-        When("^I( try to)? delete this techno$", (final String tryTo) -> {
+        When("^I( try to)? delete this techno$", (String tryTo) -> {
             responseEntity = technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
             moduleBuilder.removeTechno(technoBuilder.build());
             modelBuilder.removeProperties(technoBuilder.getProperties());

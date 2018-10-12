@@ -44,7 +44,7 @@ public class UpdateModuleTemplates implements En {
 
     public UpdateModuleTemplates() {
 
-        When("^I( try to)? update this module template$", (final String tryTo) -> {
+        When("^I( try to)? update this module template$", (String tryTo) -> {
             responseEntity = moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

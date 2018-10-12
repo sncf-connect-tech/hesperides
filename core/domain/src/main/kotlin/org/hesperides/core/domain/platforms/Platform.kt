@@ -10,6 +10,8 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer
 
 // Command
 data class CreatePlatformCommand(val platform: Platform, val user: User)
+
+data class CopyPlatformCommand(val newPlatform: Platform, val existingPlatformKey: Platform.Key, val user: User)
 data class DeletePlatformCommand(@TargetAggregateIdentifier val platformKey: Platform.Key, val user: User)
 data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformKey: Platform.Key, val platform: Platform, val copyProperties: Boolean, val user: User)
 data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val platformKey: Platform.Key, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
@@ -17,6 +19,8 @@ data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val 
 
 // Event
 data class PlatformCreatedEvent(val platform: Platform, override val user: User) : UserEvent(user)
+
+data class PlatformCopiedEvent(val newPlatform: Platform, val existingPlatformKey: Platform.Key, override val user: User) : UserEvent(user)
 data class PlatformDeletedEvent(val platformKey: Platform.Key, override val user: User) : UserEvent(user)
 data class PlatformUpdatedEvent(val platformKey: Platform.Key, val platform: Platform, override val user: User) : UserEvent(user)
 data class PlatformPropertiesUpdatedEvent(val platformKey: Platform.Key, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, override val user: User): UserEvent(user)

@@ -20,7 +20,7 @@ public class GetModulesVersions implements En {
 
     public GetModulesVersions() {
 
-        Given("^a module with (\\d+) versions$", (final Integer nbVersions) -> {
+        Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {
             moduleBuilder.withName("new-module");
             for (int i = 0; i < nbVersions; i++) {
                 moduleBuilder.withVersion("1." + i);
@@ -32,7 +32,7 @@ public class GetModulesVersions implements En {
             responseEntity = moduleClient.getVersions("new-module");
         });
 
-        Then("^a list of (\\d+) versions is returned$", (final Integer nbVersions) -> {
+        Then("^a list of (\\d+) versions is returned$", (Integer nbVersions) -> {
             assertOK(responseEntity);
             assertEquals(nbVersions.intValue(), responseEntity.getBody().length);
         });

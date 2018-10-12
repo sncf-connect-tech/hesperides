@@ -20,6 +20,8 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     Long countByKey(PlatformKeyDocument platformKeyDocument);
 
+    PlatformDocument findByKey(PlatformKeyDocument platformKeyDocument);
+
     Optional<PlatformDocument> findOptionalByKey(PlatformKeyDocument platformKeyDocument);
 
     void deleteByKey(PlatformKeyDocument key);

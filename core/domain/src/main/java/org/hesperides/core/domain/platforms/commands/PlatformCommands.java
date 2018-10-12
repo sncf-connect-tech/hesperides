@@ -45,6 +45,10 @@ public class PlatformCommands {
         return commandGateway.sendAndWait(new CreatePlatformCommand(platform, user));
     }
 
+    public Platform.Key copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
+        return commandGateway.sendAndWait(new CopyPlatformCommand(newPlatform, existingPlatformKey, user));
+    }
+
     public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
         commandGateway.sendAndWait(new UpdatePlatformCommand(platformKey, platform, copyProperties, user));
     }

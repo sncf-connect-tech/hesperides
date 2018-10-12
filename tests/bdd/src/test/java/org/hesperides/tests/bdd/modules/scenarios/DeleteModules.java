@@ -23,7 +23,7 @@ public class DeleteModules implements En {
             moduleClient.delete(moduleBuilder.build());
         });
 
-        When("^I( try to)? delete this module$", (final String tryTo) -> {
+        When("^I( try to)? delete this module$", (String tryTo) -> {
             responseEntity = moduleClient.delete(moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 
