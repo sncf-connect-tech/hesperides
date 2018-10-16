@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
+import static org.hesperides.tests.bdd.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 public class SearchApplications implements En {
@@ -20,55 +21,45 @@ public class SearchApplications implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
 
-    private ResponseEntity<SearchResultOutput[]> responseEntity;
+    private ResponseEntity responseEntity;
 
     public SearchApplications() {
 
-        Given("^a list of applications$", () -> {
-            String applicationName = "";
+        Given("^a list of (\\d+) applications prefixed by \"([^\"]*)\"( with (\\d+) platforms prefixed by \"([^\"]*)\" in each application)?$", (
+                Integer nbApplications, String applicationPrefix, String withPlatform, Integer nbPlatforms, String platformPrefix) -> {
 
-            String[] applications = {"AAA", "AAB", "BBB", "CCC", "DDD", "EEE"};
+            for (int i = 0; i < nbApplications; i++) {
+                platformBuilder.withApplicationName(applicationPrefix + "-" + (i + 1));
 
-            for (int i = 0; i < applications.length; i++) {
-                for (int j = 0; j < 5; j++) {
-                    if (i < 5) {
-                        applicationName = "AAA";
-                    } else if (i >= 5 && i < 10) {
-                        applicationName = "BBB";
-                    } else if (i >= 10 && i < 15) {
-                        applicationName = "CCC";
-                    } else {
-                        applicationName = "DDD";
+                if (StringUtils.isNotEmpty(withPlatform)) {
+                    for (int j = 0; j < nbPlatforms; j++) {
+                        platformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
+                        platformClient.create(platformBuilder.buildInput());
                     }
-                    platformBuilder.withApplicationName(applications[i]).withPlatformName("REL" + j);
+                } else {
                     platformClient.create(platformBuilder.buildInput());
                 }
             }
         });
 
-        When("^searching for one of those applications$", () -> {
-            responseEntity = platformClient.searchApplication("AAA");
+        When("^I( try to)? search for the application \"(.*?)\"", (String tryTo, String applicationName) -> {
+            responseEntity = platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class));
         });
 
-        Then("^application found$", () -> {
+        Then("^the application search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK(responseEntity);
-            List<SearchResultOutput> applications = Arrays.asList(responseEntity.getBody());
-            assertEquals(1, applications.size());
-            assertEquals("AAA", applications.get(0).getName());
+            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) responseEntity.getBody());
+            assertEquals(nbEntries.intValue(), result.size());
         });
 
-        When("^searching for some of those applications$", () -> {
-            responseEntity = platformClient.searchApplication("AA");
-        });
-
-        Then("^the number of application results is (\\d+)$", (Integer numberOfResults) -> {
+        Then("^the application \"(.*?)\" is found$", (String applicationName) -> {
             assertOK(responseEntity);
-            List<SearchResultOutput> applications = Arrays.asList(responseEntity.getBody());
-            assertEquals(numberOfResults.intValue(), applications.size());
+            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) responseEntity.getBody());
+            assertEquals(applicationName, result.get(0).getName());
         });
 
-        When("^searching for an application that does not exist$", () -> {
-            responseEntity = platformClient.searchApplication("ZZZ");
+        Then("^the application search is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 }

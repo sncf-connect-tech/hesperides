@@ -1,19 +1,30 @@
-Feature: Get applications
+Feature: Search applications
 
   Background:
     Given an authenticated user
 
-#  Scenario: search for an existing application
-#    Given a list of applications
-#    When searching for one of those applications
-#    Then application found
+  Scenario: search for an existing application
+    Given a list of 12 applications prefixed by "app"
+    When I search for the application "app-6"
+    Then the application search result contains 1 entry
+    And the application "app-6" is found
 
-#  Scenario: search for existing application
-#    Given a list of applications
-#    When searching for some of those applications
-#    Then the number of application results is 2
+  Scenario: search for multiple applications
+    Given a list of 12 applications prefixed by "app"
+    When I search for the application "app"
+    Then the application search result contains 12 entries
+
+  Scenario: search for multiple applications with only one letter
+    Given a list of 12 applications prefixed by "app"
+    When I search for the application "a"
+    Then the application search result contains 12 entries
 
   Scenario: search for an application that doesn't exist
-    Given a list of applications
-    When searching for an application that does not exist
-    Then the number of application results is 0
+    Given a list of 12 applications prefixed by "app"
+    When I search for the application "app-13"
+    Then the application search result contains 0 entries
+
+  Scenario: search for an application without specifying the name
+    Given a list of 12 applications prefixed by "app"
+    When I try to search for the application ""
+    Then the application search is rejected with a bad request error

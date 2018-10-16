@@ -37,7 +37,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    @ExceptionHandler({RequiredPropertyWithDefaultValueException.class, UpdateReleaseException.class})
+    @ExceptionHandler({IllegalArgumentException.class, RequiredPropertyWithDefaultValueException.class, UpdateReleaseException.class})
     public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }

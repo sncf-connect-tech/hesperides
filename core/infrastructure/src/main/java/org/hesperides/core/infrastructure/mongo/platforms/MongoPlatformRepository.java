@@ -3,7 +3,6 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -31,9 +30,9 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     List<PlatformDocument> findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
             String moduleName, String moduleVersion, boolean isWorkingCopy);
 
-    List<PlatformDocument> findAllByKeyApplicationNameLike(String input, Pageable pageable);
+    List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
-    List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName, Pageable pageable);
+    List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
     @Query(value = "{'_id': ?0}", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1}}}")
     PlatformDocument findByKeyAndFilterDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);

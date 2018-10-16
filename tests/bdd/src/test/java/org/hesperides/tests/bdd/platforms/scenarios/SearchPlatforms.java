@@ -5,12 +5,12 @@ import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hesperides.tests.bdd.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 
 
@@ -21,39 +21,29 @@ public class SearchPlatforms implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
 
-    private ResponseEntity<SearchResultOutput[]> responseEntity;
+    private ResponseEntity responseEntity;
 
     public SearchPlatforms() {
-        Given("^a list of 25 platforms$", () -> {
-            for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < 5; j++) {
-                    platformBuilder.withApplicationName("APP-" + i).withPlatformName("TEST-" + j);
-                    platformClient.create(platformBuilder.buildInput());
-                }
-            }
+
+        When("^I( try to)? search for the platform \"([^\"]*)\" in the application \"([^\"]*)\"$", (
+                String tryTo, String platformName, String applicationName) -> {
+            responseEntity = platformClient.search(applicationName, platformName, getResponseType(tryTo, SearchResultOutput[].class));
         });
 
-        When("^searching for one of them giving an application name and a platform name$", () -> {
-            String applicationName = "APP-1";
-            String platformName = "TEST-2";
-            responseEntity = platformClient.search(applicationName, platformName);
+        Then("^the platform search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
+            assertOK(responseEntity);
+            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) responseEntity.getBody());
+            assertEquals(nbEntries.intValue(), result.size());
         });
 
-        Then("^the platform is found$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            List<SearchResultOutput> platformOutputList = Arrays.asList(responseEntity.getBody());
-            assertEquals(1, platformOutputList.size());
-            assertEquals("TEST-2", platformOutputList.get(0).getName());
+        Then("^the platform \"([^\"]*)\" is found$", (String platformName) -> {
+            assertOK(responseEntity);
+            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) responseEntity.getBody());
+            assertEquals(platformName, result.get(0).getName());
         });
 
-        When("^asking for the platform list of an application$", () -> {
-            responseEntity = platformClient.search("APP-1");
-        });
-
-        Then("^platform list is established for the targeted application$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            List<SearchResultOutput> platformOutputList = Arrays.asList(responseEntity.getBody());
-            assertEquals(5, platformOutputList.size());
+        Then("^the platform search is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 

@@ -163,7 +163,7 @@ public class PlatformsController extends AbstractController {
     public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("applicationName") final String applicationName,
                                                                     @RequestParam(value = "platformName", required = false) final String platformName) {
 
-        this.checkQueryParameterNotEmpty("application_name", applicationName);
+        checkQueryParameterNotEmpty("applicationName", applicationName);
         List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, platformName);
 
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchPlatformResultViews)
@@ -178,6 +178,8 @@ public class PlatformsController extends AbstractController {
     @ApiOperation("Search applications")
     @PostMapping("/perform_search")
     public ResponseEntity<List<SearchResultOutput>> searchApplications(@RequestParam("name") final String applicationName) {
+
+        checkQueryParameterNotEmpty("name", applicationName);
 
         List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(applicationName);
 

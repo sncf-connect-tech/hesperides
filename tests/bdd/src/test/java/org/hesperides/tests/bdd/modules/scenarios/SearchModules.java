@@ -22,18 +22,19 @@ public class SearchModules implements En {
 
     public SearchModules() {
 
-        Given("^a list of (\\d+) modules( with different names)?(?: with the same name)?$",
-                (Integer nbModules, String withDifferentNames) -> {
-                    for (int i = 0; i < nbModules; i++) {
-                        if (StringUtils.isNotEmpty(withDifferentNames)) {
-                            moduleBuilder.withName("new-module-" + i);
-                        } else {
-                            moduleBuilder.withName("new-module");
-                        }
-                        moduleBuilder.withVersion("0.0." + i + 1);
-                        moduleClient.create(moduleBuilder.build());
-                    }
-                });
+        Given("^a list of (\\d+) modules( with different names)?(?: with the same name)?$", (
+                Integer nbModules, String withDifferentNames) -> {
+
+            for (int i = 0; i < nbModules; i++) {
+                if (StringUtils.isNotEmpty(withDifferentNames)) {
+                    moduleBuilder.withName("new-module-" + i);
+                } else {
+                    moduleBuilder.withName("new-module");
+                }
+                moduleBuilder.withVersion("0.0." + i + 1);
+                moduleClient.create(moduleBuilder.build());
+            }
+        });
 
         When("^I search for one specific module$", () -> {
             responseEntity = moduleClient.search("new-module 0.0.3");

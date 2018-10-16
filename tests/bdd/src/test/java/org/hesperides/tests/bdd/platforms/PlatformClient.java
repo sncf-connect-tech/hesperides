@@ -106,15 +106,11 @@ public class PlatformClient {
                 platformInput.getApplicationName());
     }
 
-    public ResponseEntity<SearchResultOutput[]> searchApplication(String search) {
-        return restTemplate.postForEntity("/applications/perform_search?name=" + search, null, SearchResultOutput[].class);
+    public ResponseEntity<SearchResultOutput[]> searchApplication(String search, Class responseType) {
+        return restTemplate.postForEntity("/applications/perform_search?name=" + search, null, responseType);
     }
 
-    public ResponseEntity<SearchResultOutput[]> search(String applicationName) {
-        return search(applicationName, null);
-    }
-
-    public ResponseEntity<SearchResultOutput[]> search(String applicationName, String platformName) {
+    public ResponseEntity<SearchResultOutput[]> search(String applicationName, String platformName, Class responseType) {
         String url = "/applications/platforms/perform_search?applicationName=" + applicationName;
         if (StringUtils.isNotBlank(platformName)) {
             url += "&platformName=" + platformName;
@@ -122,7 +118,7 @@ public class PlatformClient {
         return restTemplate.postForEntity(
                 url,
                 null,
-                SearchResultOutput[].class);
+                responseType);
     }
 
     public ResponseEntity<InstanceModelOutput> getInstanceModel(PlatformIO platform, String propertiesPath) {
