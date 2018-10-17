@@ -1,9 +1,9 @@
 package org.hesperides.core.application.events;
 
+import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.domain.events.queries.EventQueries;
 import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.jetbrains.annotations.NotNull;
@@ -19,15 +19,16 @@ import java.util.regex.Pattern;
 import static org.apache.commons.lang3.StringUtils.contains;
 
 @Component
-public class EventsUseCases {
+public class EventUseCases {
 
-    private final EventQueries eventQueries;
-    private final ModuleQueries moduleQueries;
+    private final ModuleUseCases moduleUseCases;
+
+    private final EventQueries queries;
 
     @Autowired
-    public EventsUseCases(EventQueries eventQueries, ModuleQueries moduleQueries) {
-        this.eventQueries = eventQueries;
-        this.moduleQueries = moduleQueries;
+    public EventUseCases(ModuleUseCases moduleUseCases, EventQueries queries) {
+        this.moduleUseCases = moduleUseCases;
+        this.queries = queries;
     }
 
     public List<EventView> parseStreamNameAndGetEvents(String streamNameWithType, Integer page, Integer size) {
@@ -36,7 +37,7 @@ public class EventsUseCases {
         String streamName = split[1];
         switch (streamType) {
             case "module":
-                return moduleQueries.getModulesName()
+                return moduleUseCases.getModulesName()
                         .stream()
                         .filter(m -> contains(streamName, m))
                         .findFirst()
@@ -63,12 +64,10 @@ public class EventsUseCases {
     }
 
     public List<EventView> getEvents(TemplateContainer.Key key, Integer page, Integer size) {
-        return moduleQueries.getOptionalModuleId(key)
-                .map(moduleId -> eventQueries.getEvents(moduleId, page, size))
-                .orElse(Collections.emptyList());
+        return queries.getEvents(key, page, size);
     }
 
     public List<EventView> getEvents(Platform.Key key, Integer page, Integer size) {
-        return eventQueries.getEvents(key, page, size);
+        return queries.getEvents(key, page, size);
     }
 }
