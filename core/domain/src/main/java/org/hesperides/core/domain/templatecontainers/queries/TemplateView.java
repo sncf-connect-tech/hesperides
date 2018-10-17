@@ -52,5 +52,25 @@ public class TemplateView {
         public Template.FileRights toDomainInstance() {
             return new Template.FileRights(read, write, execute);
         }
+
+        public String toString() {
+            return new StringBuilder()
+                    .append(booleanToString(read, "r"))
+                    .append(booleanToString(write, "w"))
+                    .append(booleanToString(execute, "e"))
+                    .toString();
+        }
+
+        public String booleanToString(Boolean value, String valueIfTrue) {
+            String string = "";
+            if (value == null) {
+                string = " ";
+            } else if (value) {
+                string = valueIfTrue;
+            } else {
+                string = "-";
+            }
+            return string;
+        }
     }
 }

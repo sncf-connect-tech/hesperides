@@ -20,7 +20,6 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public class AxonEventRepository implements EventRepository {
 
-
     EventStore eventStore;
 
     @Autowired

@@ -19,14 +19,14 @@ import java.util.regex.Pattern;
 import static org.apache.commons.lang3.StringUtils.contains;
 
 @Component
-public class EventsUseCases {
+public class EventUseCases {
 
     private final ModuleUseCases moduleUseCases;
 
     private final EventQueries queries;
 
     @Autowired
-    public EventsUseCases(ModuleUseCases moduleUseCases, EventQueries queries) {
+    public EventUseCases(ModuleUseCases moduleUseCases, EventQueries queries) {
         this.moduleUseCases = moduleUseCases;
         this.queries = queries;
     }
