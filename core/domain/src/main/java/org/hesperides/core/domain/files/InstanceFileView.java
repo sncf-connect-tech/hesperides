@@ -41,7 +41,7 @@ public class InstanceFileView {
                 + "/" + moduleKey.getVersion()
                 + "/instances/" + instanceName
                 + "/" + template.getName()
-                + "?isWorkingCopy=" + moduleKey.isWorkingCopy()
+                + "?isWorkingcopy=" + moduleKey.isWorkingCopy()
                 + "&template_namespace=" + template.getNamespace()
                 + "&simulate=" + simulate;
         rights = new Rights(template.getRights());
@@ -55,7 +55,7 @@ public class InstanceFileView {
                 fileLocation.append("/");
             }
         }
-        fileLocation.append(filename);
+        fileLocation.append(fileLocation);
         return fileLocation.toString();
     }
 
