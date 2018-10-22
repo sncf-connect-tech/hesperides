@@ -14,14 +14,22 @@ Pour qu'une pull request soit acceptée, il faut :
 
 ## Où trouver la documentation ?
 
-La documentation de l'application (choix techniques, architecture, etc.) se trouve dans le dossier [documentation](documentation). Le modèle de domaine (model.mdj) peut-être ouvert avec l'application StarUML.
+La documentation de l'application (choix techniques, architecture, etc.) se trouve dans le dossier [documentation](documentation).
+Le modèle de domaine (`domain-model.mdj`) peut-être ouvert avec l'application StarUML.
 
 ## Tests manuellement avec Postman
 
-L'application étant une API REST, nous utilisons Postman pour effectuer des tests manuels. Vous pouvez consulter la documentation sur cette [page](documentation/postman/postman.md).
+L'application étant une API REST, nous utilisons Postman pour effectuer des tests manuels.
+Vous pouvez consulter la documentation sur cette [page](documentation/postman/postman.md).
 
 ## Tests automatiques, test-first, BDD
 
-Chaque feature/bugfix doit être testé automatiquement. Cela peut être un test fonctionnel et/ou un test unitaire. L'idéal est de créer un ou plusieurs tests avant d'implémenter une fonctionnalité ou de corriger un bug.
+Chaque feature/bugfix doit être testé automatiquement. Cela peut être un test fonctionnel et/ou un test unitaire.
+L'idéal est de créer un ou plusieurs tests avant d'implémenter une fonctionnalité ou de corriger un bug.
 
-Nous utilisons le framework Cucumber pour les tests fonctionnels et privilégions les tests de fonctionnalités *end-to-end*. Nous utilisons les tests unitaires lorsque cela nous semble pertinent.
+Nous utilisons le framework Cucumber pour les tests fonctionnels et privilégions les tests de fonctionnalités *end-to-end*.
+Nous utilisons les tests unitaires lorsque cela nous semble pertinent. Pour plus de context, _cf._ [LADR - Stratégie de tests](documentation/lightweight-architecture-decision-records/tests-strategy.md)
+
+Pour exécuter tous les tests unitaires:
+
+    mvn test
