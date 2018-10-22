@@ -75,6 +75,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+
         return moduleRepository.findOptionalByKey(keyDocument)
                 .map(ModuleDocument::toModuleView);
     }
