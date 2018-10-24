@@ -111,7 +111,7 @@ public class PlatformAggregate implements Serializable {
     public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
         this.key = event.getNewPlatform().getKey();
         this.versionId = event.getNewPlatform().getVersionId();
-        log.debug("Plateform created");
+        log.debug("Plateform copied");
     }
 
     @EventSourcingHandler
