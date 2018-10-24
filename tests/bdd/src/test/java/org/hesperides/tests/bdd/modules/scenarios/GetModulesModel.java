@@ -102,7 +102,7 @@ public class GetModulesModel implements En {
             responseEntity = moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
-        Then("^the model of this module contains the properties$", () -> {
+        Then("^the model of this module contains the(?: updated)? properties$", () -> {
             assertOK(responseEntity);
             ModelOutput expectedModel = modelBuilder.build();
             ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
