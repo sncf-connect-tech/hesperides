@@ -37,6 +37,8 @@ public class CreateModules implements En {
         Given("^an existing module( with a template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
                 String withATemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
 
+            templateBuilder.reset();
+
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
             }

@@ -72,11 +72,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
         KeyDocument technoKey = new KeyDocument(event.getTechnoKey());
-        removeReferences(technoKey);
+        removeReferencesAndUpdateProperties(technoKey);
         technoRepository.deleteByKey(technoKey);
     }
 
-    private void removeReferences(KeyDocument technoKey) {
+    private void removeReferencesAndUpdateProperties(KeyDocument technoKey) {
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosKey(technoKey);
         moduleDocuments.forEach(moduleDocument -> {
             moduleDocument.setTechnos(
@@ -90,33 +90,33 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
-        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
+        KeyDocument technoKey = new KeyDocument(event.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(technoKey);
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
-        updateModelUsingTechno(keyDocument);
+        updateModelUsingTechno(technoKey);
     }
 
     @EventHandler
     @Override
     public void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
-        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
+        KeyDocument technoKey = new KeyDocument(event.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(technoKey);
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
-        updateModelUsingTechno(keyDocument);
+        updateModelUsingTechno(technoKey);
     }
 
     @EventHandler
     @Override
     public void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getTechnoKey());
-        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
+        KeyDocument technoKey = new KeyDocument(event.getTechnoKey());
+        TechnoDocument technoDocument = technoRepository.findByKey(technoKey);
         technoDocument.removeTemplate(event.getTemplateName());
         technoDocument.extractPropertiesAndSave(technoRepository);
-        updateModelUsingTechno(keyDocument);
+        updateModelUsingTechno(technoKey);
     }
 
     /**
@@ -148,8 +148,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public Boolean onTechnoAlreadyExistsQuery(TechnoAlreadyExistsQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
-        Optional<TechnoDocument> technoDocument = technoRepository.findOptionalByKey(keyDocument);
-        return technoDocument.isPresent();
+        return technoRepository.countByKey(keyDocument) > 0;
     }
 
     @QueryHandler

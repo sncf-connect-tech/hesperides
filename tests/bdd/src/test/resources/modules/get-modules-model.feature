@@ -34,7 +34,7 @@ Feature: Get module model
     Given an existing module with properties
     And the module template properties are modified
     When I get the model of this module
-    Then the model of this module contains the properties
+    Then the model of this module contains the updated properties
 
   Scenario: get the model of a module with properties with the same name and comment, but different default values, in two templates
     Given an existing module with properties with the same name and comment, but different default values, in two templates
@@ -46,9 +46,9 @@ Feature: Get module model
     When I get the model of this module
     Then the model of this module contains the properties
 
-  Scenario: get the model of a module after its techno has deleted
-#    Given an existing techno with properties
-#    And an existing module with properties and this techno
-#    And I delete this techno
-#    When I get the model of this module
-#    Then the model of this module contains the properties
+  Scenario: get the model of a module after its techno has been deleted
+    Given an existing techno with properties
+    And an existing module with properties and this techno
+    And I delete this techno
+    When I get the model of this module
+    Then the model of this module contains the updated properties

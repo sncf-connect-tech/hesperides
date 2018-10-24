@@ -19,7 +19,6 @@ data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val 
 
 // Event
 data class PlatformCreatedEvent(val platform: Platform, override val user: User) : UserEvent(user)
-
 data class PlatformCopiedEvent(val newPlatform: Platform, val existingPlatformKey: Platform.Key, override val user: User) : UserEvent(user)
 data class PlatformDeletedEvent(val platformKey: Platform.Key, override val user: User) : UserEvent(user)
 data class PlatformUpdatedEvent(val platformKey: Platform.Key, val platform: Platform, override val user: User) : UserEvent(user)
