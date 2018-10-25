@@ -42,21 +42,27 @@ public class PlatformUseCases {
         this.moduleQueries = moduleQueries;
     }
 
-    public Platform.Key createPlatform(Platform platform, User user) {
+    public String createPlatform(Platform platform, User user) {
         if (queries.platformExists(platform.getKey())) {
             throw new DuplicatePlatformException(platform.getKey());
         }
         return commands.createPlatform(platform, user);
     }
 
-    public Platform.Key copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
-        if (!queries.platformExists(existingPlatformKey)) {
-            throw new PlatformNotFoundException(newPlatform.getKey());
+    public String copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
+        Optional<String> existingPlatformId = queries.getOptionalPlatformId(existingPlatformKey);
+        if (!existingPlatformId.isPresent()) {
+            throw new PlatformNotFoundException(existingPlatformKey);
         }
         if (queries.platformExists(newPlatform.getKey())) {
             throw new DuplicatePlatformException(newPlatform.getKey());
         }
-        return commands.copyPlatform(newPlatform, existingPlatformKey, user);
+        return commands.copyPlatform(existingPlatformId.get(), newPlatform, user);
+    }
+
+    public PlatformView getPlatform(String platformId) {
+        return queries.getOptionalPlatform(platformId)
+                .orElseThrow(() -> new PlatformNotFoundException(platformId));
     }
 
     public PlatformView getPlatform(Platform.Key platformKey) {
@@ -65,17 +71,19 @@ public class PlatformUseCases {
     }
 
     public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
-        if (!queries.platformExists(platformKey)) {
-            throw new PlatformNotFoundException(platform.getKey());
+        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
+        if (!platformId.isPresent()) {
+            throw new PlatformNotFoundException(platformKey);
         }
-        commands.updatePlatform(platformKey, platform, copyProperties, user);
+        commands.updatePlatform(platformId.get(), platform, copyProperties, user);
     }
 
     public void deletePlatform(Platform.Key platformKey, User user) {
-        if (!queries.platformExists(platformKey)) {
+        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
+        if (!platformId.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
         }
-        commands.deletePlatform(platformKey, user);
+        commands.deletePlatform(platformId.get(), user);
     }
 
     public ApplicationView getApplication(String applicationName) {
@@ -149,7 +157,8 @@ public class PlatformUseCases {
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final User user) {
-        if (!queries.platformExists(platformKey)) {
+        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
+        if (!platformId.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
         }
         if (ROOT_PATH.equals(path)) {
@@ -158,13 +167,13 @@ public class PlatformUseCases {
             if (valuedProperties.size() != abstractValuedProperties.size()) {
                 throw new IllegalArgumentException("Global properties should always be valued properties");
             }
-            commands.savePlatformProperties(platformKey, platformVersionId, valuedProperties, user);
+            commands.savePlatformProperties(platformId.get(), platformVersionId, valuedProperties, user);
         } else {
             final Module.Key moduleKey = Module.Key.fromPath(path);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            commands.saveModulePropertiesInPlatform(platformKey, path, platformVersionId, abstractValuedProperties, user);
+            commands.saveModulePropertiesInPlatform(platformId.get(), path, platformVersionId, abstractValuedProperties, user);
         }
 
         return getProperties(platformKey, path, user);

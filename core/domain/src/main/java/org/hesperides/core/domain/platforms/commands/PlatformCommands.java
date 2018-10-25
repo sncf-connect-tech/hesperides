@@ -41,34 +41,34 @@ public class PlatformCommands {
         this.commandGateway = commandGateway;
     }
 
-    public Platform.Key createPlatform(Platform platform, User user) {
+    public String createPlatform(Platform platform, User user) {
         return commandGateway.sendAndWait(new CreatePlatformCommand(platform, user));
     }
 
-    public Platform.Key copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
-        return commandGateway.sendAndWait(new CopyPlatformCommand(newPlatform, existingPlatformKey, user));
+    public String copyPlatform(String existingPlatformId, Platform newPlatform, User user) {
+        return commandGateway.sendAndWait(new CopyPlatformCommand(existingPlatformId, newPlatform, user));
     }
 
-    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
-        commandGateway.sendAndWait(new UpdatePlatformCommand(platformKey, platform, copyProperties, user));
+    public void updatePlatform(String platformId, Platform platform, boolean copyProperties, User user) {
+        commandGateway.sendAndWait(new UpdatePlatformCommand(platformId, platform, copyProperties, user));
     }
 
-    public void deletePlatform(Platform.Key platformKey, User user) {
-        commandGateway.sendAndWait(new DeletePlatformCommand(platformKey, user));
+    public void deletePlatform(String platformId, User user) {
+        commandGateway.sendAndWait(new DeletePlatformCommand(platformId, user));
     }
 
-    public void saveModulePropertiesInPlatform(final Platform.Key platformKey,
+    public void saveModulePropertiesInPlatform(final String platformId,
                                                final String modulePath,
                                                final Long platformVersionId,
                                                final List<AbstractValuedProperty> valuedProperties,
                                                final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformKey, modulePath, platformVersionId, valuedProperties, user));
+        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, modulePath, platformVersionId, valuedProperties, user));
     }
 
-    public void savePlatformProperties(final Platform.Key platformKey,
+    public void savePlatformProperties(final String platformId,
                                        final Long platformVersionId,
                                        final List<ValuedProperty> valuedProperties,
                                        final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformKey, platformVersionId, valuedProperties, user));
+        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformId, platformVersionId, valuedProperties, user));
     }
 }

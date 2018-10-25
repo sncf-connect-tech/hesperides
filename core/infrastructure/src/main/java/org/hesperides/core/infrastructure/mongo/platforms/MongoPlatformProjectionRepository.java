@@ -7,7 +7,6 @@ import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -15,7 +14,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -33,12 +31,10 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
 
     private final MongoPlatformRepository platformRepository;
-    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, final MongoTemplate mongoTemplate) {
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository) {
         this.platformRepository = platformRepository;
-        this.mongoTemplate = mongoTemplate;
     }
 
     /*** EVENT HANDLERS ***/
@@ -46,15 +42,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
+        PlatformDocument platformDocument = new PlatformDocument(event.getId(), event.getPlatform());
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
 
     @EventHandler
     @Override
     public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
-        PlatformDocument existingPlatform = platformRepository.findByKey(new PlatformKeyDocument(event.getExistingPlatformKey()));
-        PlatformDocument newPlatform = new PlatformDocument(event.getNewPlatform());
+        PlatformDocument existingPlatform = platformRepository.findOne(event.getExistingPlatformId());
+        PlatformDocument newPlatform = new PlatformDocument(event.getNewPlatformId(), event.getNewPlatform());
         newPlatform.setDeployedModules(existingPlatform.getDeployedModules());
         newPlatform.setValuedProperties(existingPlatform.getValuedProperties());
         platformRepository.save(newPlatform);
@@ -63,20 +59,21 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        platformRepository.deleteByKey(new PlatformKeyDocument(event.getPlatformKey()));
+        platformRepository.delete(event.getId());
     }
 
     @EventHandler
     @Override
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getPlatform());
+        PlatformDocument platformDocument = new PlatformDocument(event.getId(), event.getPlatform());
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
 
     @EventHandler
     @Override
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
-        final PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(event.getPlatformKey());
+
+        //TODO Peut-on faire ces traitements dans le domaine ?
 
         // Tranformation des propriétés du domaine en documents
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = new ArrayList<>();
@@ -85,9 +82,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         List<IterableValuedProperty> iterableValuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(event.getValuedProperties(), IterableValuedProperty.class);
         abstractValuedPropertyDocuments.addAll(IterableValuedPropertyDocument.fromDomainInstances(iterableValuedProperties));
 
-        // Récupération de la plateforme et contrôle de la version
-        PlatformDocument platformDocument = platformRepository.findOptionalByKey(platformKeyDocument)
-                .orElseThrow(() -> new PlatformNotFoundException(event.getPlatformKey()));
+        // Récupération de la plateforme et mise à jour de la version
+        PlatformDocument platformDocument = platformRepository.findOne(event.getId());
         platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
@@ -102,7 +98,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event) {
-        final PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(event.getPlatformKey());
 
         // Transform the properties into documents
         List<ValuedPropertyDocument> valuedProperties = event.getValuedProperties()
@@ -110,9 +105,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(ValuedPropertyDocument::new)
                 .collect(Collectors.toList());
 
-        // Retrieve platform and check its version id
-        PlatformDocument platformDocument = platformRepository.findOptionalByKey(platformKeyDocument)
-                .orElseThrow(() -> new PlatformNotFoundException(event.getPlatformKey()));
+        // Retrieve platform
+        PlatformDocument platformDocument = platformRepository.findOne(event.getId());
 
         // Update platform information
         platformDocument.setVersionId(event.getPlatformVersionId());
@@ -125,9 +119,18 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        return platformRepository.countByKey(platformKeyDocument) > 0;
+    public Optional<String> onGetPlatformIdFromKeyQuery(GetPlatformIdFromKeyQuery query) {
+        PlatformKeyDocument keyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        return platformRepository
+                .findOptionalIdByKey(keyDocument)
+                .map(PlatformDocument::getId);
+    }
+
+    @QueryHandler
+    @Override
+    public Optional<PlatformView> onGetPlatformByIdQuery(GetPlatformByIdQuery query) {
+        return Optional.ofNullable(platformRepository.findOne(query.getPlatformId()))
+                .map(PlatformDocument::toPlatformView);
     }
 
     @QueryHandler
@@ -136,6 +139,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.findOptionalByKey(platformKeyDocument)
                 .map(PlatformDocument::toPlatformView);
+    }
+
+    @QueryHandler
+    @Override
+    public Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        return platformRepository.countByKey(platformKeyDocument) > 0;
     }
 
     @QueryHandler

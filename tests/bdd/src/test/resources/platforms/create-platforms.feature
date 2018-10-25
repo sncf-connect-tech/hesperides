@@ -37,3 +37,9 @@ Feature: Create platform
     Given an existing platform
     When I try to copy this platform using the same key
     Then the platform copy fails with an already exist error
+
+  Scenario: create a platform after it has been deleted
+    Given an existing platform
+    When I delete this platform
+    And I create this platform
+    Then the platform is successfully created

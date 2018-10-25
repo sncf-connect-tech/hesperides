@@ -34,10 +34,16 @@ public interface PlatformProjectionRepository {
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query);
+    Optional<String> onGetPlatformIdFromKeyQuery(GetPlatformIdFromKeyQuery query);
+
+    @QueryHandler
+    Optional<PlatformView> onGetPlatformByIdQuery(GetPlatformByIdQuery query);
 
     @QueryHandler
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);
+
+    @QueryHandler
+    Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query);
 
     @QueryHandler
     Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query);

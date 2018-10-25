@@ -17,6 +17,9 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public interface MongoPlatformRepository extends MongoRepository<PlatformDocument, String> {
 
+    @Query(value = "{ 'key' : ?0 }", fields = "{ '_id' : 1 }")
+    Optional<PlatformDocument> findOptionalIdByKey(PlatformKeyDocument key);
+
     Long countByKey(PlatformKeyDocument platformKeyDocument);
 
     PlatformDocument findByKey(PlatformKeyDocument platformKeyDocument);
@@ -34,6 +37,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
-    @Query(value = "{'_id': ?0}", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1}}}")
+    @Query(value = "{'key': ?0}", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1}}}")
     PlatformDocument findByKeyAndFilterDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);
 }
