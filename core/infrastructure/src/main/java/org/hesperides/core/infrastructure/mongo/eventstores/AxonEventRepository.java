@@ -20,7 +20,6 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public class AxonEventRepository implements EventRepository {
 
-
     EventStore eventStore;
 
     @Autowired
@@ -41,7 +40,9 @@ public class AxonEventRepository implements EventRepository {
     }
 
     private List<EventView> getEventViews(final String aggragateIdentifier) {
-        return eventStore.readEvents(aggragateIdentifier).asStream()
-                .map(EventView::new).collect(Collectors.toList());
+        return eventStore.readEvents(aggragateIdentifier)
+                .asStream()
+                .map(EventView::new)
+                .collect(Collectors.toList());
     }
 }

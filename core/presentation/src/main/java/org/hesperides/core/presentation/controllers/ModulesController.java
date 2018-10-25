@@ -39,6 +39,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -69,17 +70,13 @@ public class ModulesController extends AbstractController {
 
         log.info("createWorkingCopy {}", moduleInput.toString());
 
-        ResponseEntity response;
+        String moduleId;
         User currentUser = fromAuthentication(authentication);
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
                 && isFromWorkingCopy == null) {
 
-            TemplateContainer.Key createdModuleKey = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), currentUser);
-            ModuleIO moduleOutput = moduleUseCases.getModule(createdModuleKey)
-                    .map(ModuleIO::new)
-                    .orElseThrow(() -> new ModuleNotFoundException(createdModuleKey));
-            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
+            moduleId = moduleUseCases.createWorkingCopy(moduleInput.toDomainInstance(), currentUser);
 
         } else {
             checkQueryParameterNotEmpty("from_module_name", fromModuleName);
@@ -87,12 +84,13 @@ public class ModulesController extends AbstractController {
             checkQueryParameterNotEmpty("from_is_working_copy", isFromWorkingCopy);
 
             TemplateContainer.Key existingModuleKey = new Module.Key(fromModuleName, fromModuleVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
-            ModuleView moduleView = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), currentUser);
-            TemplateContainer.Key createdModuleKey = moduleView.toDomainInstance().getKey();
-            ModuleIO moduleOutput = new ModuleIO(moduleView);
-            response = ResponseEntity.created(createdModuleKey.getURI()).body(moduleOutput);
+            moduleId = moduleUseCases.createWorkingCopyFrom(existingModuleKey, moduleInput.toDomainInstance().getKey(), currentUser);
         }
-        return response;
+
+        ModuleView moduleView = moduleUseCases.getModule(moduleId).get();
+        ModuleIO moduleOutput = new ModuleIO(moduleView);
+        URI moduleUri = moduleView.toDomainInstance().getKey().getURI();
+        return ResponseEntity.created(moduleUri).body(moduleOutput);
     }
 
     @ApiOperation("Update a module working copy")

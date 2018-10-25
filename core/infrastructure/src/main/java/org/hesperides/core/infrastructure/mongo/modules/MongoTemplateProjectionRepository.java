@@ -55,8 +55,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @EventHandler
     @Override
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
-        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        ModuleDocument moduleDocument = moduleRepository.findOne(event.getId());
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.addTemplate(templateDocument);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
@@ -65,8 +64,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @EventHandler
     @Override
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
-        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        ModuleDocument moduleDocument = moduleRepository.findOne(event.getId());
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
@@ -75,8 +73,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @EventHandler
     @Override
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
-        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        ModuleDocument moduleDocument = moduleRepository.findOne(event.getId());
         moduleDocument.removeTemplate(event.getTemplateName());
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }

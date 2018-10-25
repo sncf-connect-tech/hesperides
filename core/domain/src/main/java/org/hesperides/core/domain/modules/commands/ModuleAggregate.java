@@ -16,6 +16,7 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
@@ -35,6 +36,7 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 class ModuleAggregate implements Serializable {
 
     @AggregateIdentifier
+    private String id;
     private TemplateContainer.Key key;
     @AggregateMember
     private Map<String, Template> templates = new HashMap<>();
@@ -47,7 +49,7 @@ class ModuleAggregate implements Serializable {
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
         Module module = command.getModule().initializeVersionId();
-        apply(new ModuleCreatedEvent(module, command.getUser()));
+        apply(new ModuleCreatedEvent(UUID.randomUUID().toString(), module, command.getUser()));
     }
 
     @CommandHandler
@@ -60,14 +62,14 @@ class ModuleAggregate implements Serializable {
                 .validateVersionId(versionId)
                 .incrementVersiondId();
 
-        apply(new ModuleTechnosUpdatedEvent(command.getModuleKey(), module.getTechnos(), module.getVersionId(), command.getUser()));
+        apply(new ModuleTechnosUpdatedEvent(command.getId(), module.getTechnos(), module.getVersionId(), command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteModuleCommand(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
-        apply(new ModuleDeletedEvent(command.getModuleKey(), command.getUser()));
+        apply(new ModuleDeletedEvent(command.getId(), command.getUser()));
     }
 
     @CommandHandler
@@ -80,7 +82,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .initializeVersionId();
 
-        apply(new TemplateCreatedEvent(key, template, command.getUser()));
+        apply(new TemplateCreatedEvent(command.getId(), template, command.getUser()));
     }
 
     @CommandHandler
@@ -94,7 +96,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .incrementVersionId();
 
-        apply(new TemplateUpdatedEvent(key, template, command.getUser()));
+        apply(new TemplateUpdatedEvent(command.getId(), template, command.getUser()));
     }
 
     private Long getExpectedVersionId(UpdateTemplateCommand command) {
@@ -108,7 +110,7 @@ class ModuleAggregate implements Serializable {
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
         }
-        apply(new TemplateDeletedEvent(key, command.getTemplateName(), command.getUser()));
+        apply(new TemplateDeletedEvent(command.getId(), command.getTemplateName(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
@@ -116,6 +118,7 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
+        this.id = event.getId();
         this.key = event.getModule().getKey();
         this.versionId = event.getModule().getVersionId();
         log.debug("module créé. (aggregate is live ? {})", isLive());

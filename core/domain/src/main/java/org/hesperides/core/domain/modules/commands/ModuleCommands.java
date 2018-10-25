@@ -5,7 +5,6 @@ import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,27 +21,27 @@ public class ModuleCommands {
         this.commandGateway = commandGateway;
     }
 
-    public TemplateContainer.Key createModule(Module module, User user) {
+    public String createModule(Module module, User user) {
         return commandGateway.sendAndWait(new CreateModuleCommand(module, user));
     }
 
-    public void updateModuleTechnos(Module module, User user) {
-        commandGateway.sendAndWait(new UpdateModuleTechnosCommand(module.getKey(), module, user));
+    public void updateModuleTechnos(String id, Module module, User user) {
+        commandGateway.sendAndWait(new UpdateModuleTechnosCommand(id, module, user));
     }
 
-    public void deleteModule(TemplateContainer.Key moduleKey, User user) {
-        commandGateway.sendAndWait(new DeleteModuleCommand(moduleKey, user));
+    public void deleteModule(String id, User user) {
+        commandGateway.sendAndWait(new DeleteModuleCommand(id, user));
     }
 
-    public void createTemplateInWorkingCopy(TemplateContainer.Key key, Template template, User user) {
-        commandGateway.sendAndWait(new CreateTemplateCommand(key, template, user));
+    public void createTemplateInWorkingCopy(String id, Template template, User user) {
+        commandGateway.sendAndWait(new CreateTemplateCommand(id, template, user));
     }
 
-    public void updateTemplateInWorkingCopy(TemplateContainer.Key key, Template template, User user) {
-        commandGateway.sendAndWait(new UpdateTemplateCommand(key, template, user));
+    public void updateTemplateInWorkingCopy(String id, Template template, User user) {
+        commandGateway.sendAndWait(new UpdateTemplateCommand(id, template, user));
     }
 
-    public void deleteTemplate(TemplateContainer.Key key, String templateName, User user) {
-        commandGateway.sendAndWait(new DeleteTemplateCommand(key, templateName, user));
+    public void deleteTemplate(String id, String templateName, User user) {
+        commandGateway.sendAndWait(new DeleteTemplateCommand(id, templateName, user));
     }
 }

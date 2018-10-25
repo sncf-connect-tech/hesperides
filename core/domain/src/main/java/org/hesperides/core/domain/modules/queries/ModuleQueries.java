@@ -21,12 +21,20 @@ public class ModuleQueries extends AxonQueries {
         super(queryGateway);
     }
 
-    public boolean moduleExists(TemplateContainer.Key moduleKey) {
-        return querySync(new ModuleAlreadyExistsQuery(moduleKey), Boolean.class);
+    public Optional<String> getOptionalModuleId(TemplateContainer.Key moduleKey) {
+        return querySyncOptional(new GetModuleIdFromKeyQuery(moduleKey), String.class);
+    }
+
+    public Optional<ModuleView> getOptionalModule(String moduleId) {
+        return querySyncOptional(new GetModuleByIdQuery(moduleId), ModuleView.class);
     }
 
     public Optional<ModuleView> getOptionalModule(TemplateContainer.Key moduleKey) {
         return querySyncOptional(new GetModuleByKeyQuery(moduleKey), ModuleView.class);
+    }
+
+    public boolean moduleExists(TemplateContainer.Key moduleKey) {
+        return querySync(new ModuleAlreadyExistsQuery(moduleKey), Boolean.class);
     }
 
     public List<String> getModulesName() {

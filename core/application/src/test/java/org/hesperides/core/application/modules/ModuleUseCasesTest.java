@@ -45,7 +45,7 @@ public class ModuleUseCasesTest {
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
         given(moduleQueries.moduleExists(any())).willReturn(true);
-        given(moduleCommands.createModule(any(), any())).willReturn(key);
+        given(moduleCommands.createModule(any(), any())).willReturn(any());
 
         useCases.createWorkingCopy(module, new User("robert", true, true));
     }
@@ -57,7 +57,7 @@ public class ModuleUseCasesTest {
         Module module = new Module(key, Collections.emptyList(), Collections.emptyList(), 1L);
 
         given(moduleQueries.moduleExists(any())).willReturn(false);
-        given(moduleCommands.createModule(any(), any())).willReturn(key);
+        given(moduleCommands.createModule(any(), any())).willReturn(any());
 
         useCases.createWorkingCopy(module, new User("robert", true, true));
     }

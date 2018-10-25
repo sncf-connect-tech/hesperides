@@ -24,7 +24,16 @@ public interface ModuleProjectionRepository {
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
+    Optional<String> onGetModuleIdFromKeyQuery(GetModuleIdFromKeyQuery query);
+
+    @QueryHandler
+    Optional<ModuleView> onGetModuleByIdQuery(GetModuleByIdQuery query);
+
+    @QueryHandler
     Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query);
+
+    @QueryHandler
+    Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query);
 
     @QueryHandler
     List<String> onGetModulesNameQuery(GetModulesNameQuery query);
@@ -34,9 +43,6 @@ public interface ModuleProjectionRepository {
 
     @QueryHandler
     List<String> onGetModuleVersionsQuery(GetModuleVersionsQuery query);
-
-    @QueryHandler
-    Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query);
 
     @QueryHandler
     List<ModuleView> onSearchModulesQuery(SearchModulesQuery query);
