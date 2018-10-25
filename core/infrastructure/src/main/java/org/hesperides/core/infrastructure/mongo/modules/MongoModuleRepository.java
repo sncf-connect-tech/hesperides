@@ -35,7 +35,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
     @Query(value = "{'technos.$id': ?0}")
-    List<ModuleDocument> findAllByTechnosKey(KeyDocument technoKey);
+    List<ModuleDocument> findAllByTechnoId(String technoId);
 
     Long countByKey(KeyDocument keyDocument);
 }

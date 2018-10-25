@@ -74,9 +74,9 @@ public class CreateModules implements En {
 
         Then("^the module is successfully created$", () -> {
             assertCreated(responseEntity);
-            ModuleIO excpectedModule = moduleBuilder.withVersionId(1).build();
+            ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
-            assertEquals(excpectedModule, actualModule);
+            assertEquals(expectedModule, actualModule);
         });
 
         Then("^the module creation is rejected with a conflict error$", () -> {

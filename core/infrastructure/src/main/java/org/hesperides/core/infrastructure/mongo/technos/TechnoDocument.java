@@ -31,6 +31,7 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -44,11 +45,14 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class TechnoDocument {
     @Id
+    private String id;
+    @Indexed
     private KeyDocument key;
     private List<TemplateDocument> templates;
     private List<AbstractPropertyDocument> properties;
 
-    public TechnoDocument(Techno techno) {
+    public TechnoDocument(String id, Techno techno) {
+        this.id = id;
         this.key = new KeyDocument(techno.getKey());
         this.templates = TemplateDocument.fromDomainInstances(techno.getTemplates());
     }

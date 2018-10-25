@@ -17,6 +17,10 @@ public class TechnoQueries extends AxonQueries {
         super(queryGateway);
     }
 
+    public Optional<String> getOptionalTechnoId(TemplateContainer.Key technoKey) {
+        return querySyncOptional(new GetTechnoIdFromKeyQuery(technoKey), String.class);
+    }
+
     public Boolean technoExists(TemplateContainer.Key technoKey) {
         return querySync(new TechnoAlreadyExistsQuery(technoKey), Boolean.class);
     }

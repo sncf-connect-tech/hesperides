@@ -51,10 +51,13 @@ public interface TechnoProjectionRepository {
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query);
+    Optional<String> onGetTechnoIdFromKeyQuery(GetTechnoIdFromKeyQuery query);
 
     @QueryHandler
     Boolean onTechnoAlreadyExistsQuery(TechnoAlreadyExistsQuery query);
+
+    @QueryHandler
+    Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query);
 
     @QueryHandler
     List<TemplateView> onGetTemplatesQuery(GetTemplatesQuery query);

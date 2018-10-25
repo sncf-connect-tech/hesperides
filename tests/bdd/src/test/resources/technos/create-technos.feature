@@ -15,7 +15,7 @@ Feature: Create technos
     Then the techno creation is rejected with a conflict error
 
   Scenario: create a techno after it has been deleted
-#    Given an existing techno
-#    When I delete this techno
-#    And I create this techno
-#    Then the techno is successfully created
+    Given an existing techno
+    When I delete this techno
+    And I create this techno
+    Then the techno is successfully created

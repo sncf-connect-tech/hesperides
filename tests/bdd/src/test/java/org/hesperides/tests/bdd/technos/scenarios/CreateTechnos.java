@@ -54,9 +54,9 @@ public class CreateTechnos implements En {
         Then("^the techno is successfully created$", () -> {
             assertCreated(responseEntity);
             String expectedNamespace = technoBuilder.getNamespace();
-            TemplateIO excpectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(1).build();
+            TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(1).build();
             TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
-            assertEquals(excpectedTemplate, actualTemplate);
+            assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the techno creation is rejected with a conflict error$", () -> {

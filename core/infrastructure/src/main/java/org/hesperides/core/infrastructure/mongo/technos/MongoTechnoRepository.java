@@ -4,6 +4,7 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +16,9 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Profile({MONGO, FAKE_MONGO})
 @Repository
 public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, String> {
+
+    @Query(value = "{ 'key' : ?0 }", fields = "{ '_id' : 1 }")
+    Optional<TechnoDocument> findOptionalIdByKey(KeyDocument key);
 
     Optional<TechnoDocument> findOptionalByKey(KeyDocument key);
 
