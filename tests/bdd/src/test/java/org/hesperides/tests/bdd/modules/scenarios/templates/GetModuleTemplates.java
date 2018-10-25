@@ -70,6 +70,10 @@ public class GetModuleTemplates implements En {
             templateBuilder.withName("nope");
         });
 
+        Given("^a template with \"/\" within the title$", () -> {
+            templateBuilder.withName("conf/agencies/domains.json");
+        });
+
         When("^I( try to)? get the list of templates of this module$", (String tryTo) -> {
             responseEntity = moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
         });
