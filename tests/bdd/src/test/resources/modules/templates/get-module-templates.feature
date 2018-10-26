@@ -36,3 +36,15 @@ Feature: Get module templates
     Given a module that doesn't exist
     When I try to get this template in this module
     Then the template module is not found
+
+  Scenario: get a template with "/" within the title
+    Given a template with "/" within the title
+    And an existing module with this template
+    When I get this template in this module
+    Then the module template is successfully returned
+
+  Scenario: get a template with "%" within the title
+    Given a template with "%" within the title
+    And an existing module with this template
+    When I get this template in this module
+    Then the module template is successfully returned

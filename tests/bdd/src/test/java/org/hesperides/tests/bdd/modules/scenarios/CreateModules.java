@@ -34,10 +34,12 @@ public class CreateModules implements En {
 
     public CreateModules() {
 
-        Given("^an existing module( with a template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
-                String withATemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
+        Given("^an existing module( with a template)?( with this template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
+                String withATemplate, String withThisTemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
 
-            templateBuilder.reset();
+            if (StringUtils.isEmpty(withThisTemplate)) {
+                templateBuilder.reset();
+            }
 
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
@@ -55,8 +57,7 @@ public class CreateModules implements En {
                 addPropertyToBuilders("global-module-foo");
                 addPropertyToBuilders("global-module-bar");
             }
-
-            if (StringUtils.isNotEmpty(withATemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
+            if (StringUtils.isNotEmpty(withATemplate) || StringUtils.isNotEmpty(withThisTemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
         });

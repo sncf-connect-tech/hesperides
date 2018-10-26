@@ -21,6 +21,7 @@
 package org.hesperides.tests.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
@@ -68,6 +69,13 @@ public class GetModuleTemplates implements En {
 
         Given("^a template that doesn't exist in this module$", () -> {
             templateBuilder.withName("nope");
+        });
+
+        Given("^a template with \"(.)\" within the title$", (String specialCaracter) -> {
+            if (StringUtils.isNotEmpty(specialCaracter)) {
+                templateBuilder.withName("conf" + specialCaracter + "domains.json");
+            }
+            //templateBuilder.withName("conf/agencies/domains.json");
         });
 
         When("^I( try to)? get the list of templates of this module$", (String tryTo) -> {
