@@ -13,8 +13,11 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.HandlerMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
@@ -52,19 +55,34 @@ public class ModuleTemplatesController extends AbstractController {
         return ResponseEntity.ok(partialTemplateOutputs);
     }
 
-    @GetMapping("/{module_type}/templates/{template_name:.+}")
+    @GetMapping("/{module_type}/templates/**")
     @ApiOperation("Get template bundled in a module for a version workingcopy")
     public ResponseEntity<TemplateIO> getTemplateInWorkingCopy(@PathVariable("module_name") final String moduleName,
                                                                @PathVariable("module_version") final String moduleVersion,
                                                                @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
-                                                               @PathVariable("template_name") final String templateName) {
-
+                                                               HttpServletRequest request
+    ) {
+        String templateName = extractFilePath(request);
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, templateName)
                 .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
 
         return ResponseEntity.ok(templateOutput);
+    }
+
+    /**
+     * permet d'extraire la PathVariable "templateName", qui contient des slashes, à partir de l'URI de service : "getTemplateInWorkingCopy"
+     *
+     * @param request requête envoyée au service "getTemplateInWorkingCopy"
+     * @return le nom du template comportant des slashs
+     */
+    private String extractFilePath(HttpServletRequest request) {
+        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        AntPathMatcher apm = new AntPathMatcher();
+        path = apm.extractPathWithinPattern(bestMatchPattern, path);
+        return path;
     }
 
     @PostMapping("/workingcopy/templates")
