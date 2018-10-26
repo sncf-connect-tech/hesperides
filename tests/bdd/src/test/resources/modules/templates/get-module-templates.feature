@@ -42,3 +42,9 @@ Feature: Get module templates
     And an existing module with this template
     When I get this template in this module
     Then the module template is successfully returned
+
+  Scenario: get a template with "%" within the title
+    Given a template with "%" within the title
+    And an existing module with this template
+    When I get this template in this module
+    Then the module template is successfully returned
