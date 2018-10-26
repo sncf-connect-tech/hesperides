@@ -17,7 +17,12 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public interface MongoModuleRepository extends MongoRepository<ModuleDocument, String> {
 
+    @Query(value = "{ 'key' : ?0 }", fields = "{ '_id' : 1 }")
+    Optional<ModuleDocument> findOptionalIdByKey(KeyDocument key);
+
     ModuleDocument findByKey(KeyDocument key);
+
+    Optional<ModuleDocument> findOptionalById(String id);
 
     Optional<ModuleDocument> findOptionalByKey(KeyDocument key);
 
@@ -25,14 +30,12 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     List<ModuleDocument> findByKeyName(String name);
 
-    void deleteByKey(KeyDocument key);
-
     Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
     @Query(value = "{'technos.$id': ?0}")
-    List<ModuleDocument> findAllByTechnosKey(KeyDocument technoKey);
+    List<ModuleDocument> findAllByTechnoId(String technoId);
 
     Long countByKey(KeyDocument keyDocument);
 }

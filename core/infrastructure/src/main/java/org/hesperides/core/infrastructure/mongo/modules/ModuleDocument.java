@@ -12,6 +12,7 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,6 +25,8 @@ import java.util.List;
 public class ModuleDocument {
 
     @Id
+    private String id;
+    @Indexed
     private KeyDocument key;
     private List<TemplateDocument> templates;
     @DBRef
@@ -31,7 +34,8 @@ public class ModuleDocument {
     private List<AbstractPropertyDocument> properties;
     private Long versionId;
 
-    public ModuleDocument(Module module, List<TechnoDocument> technoDocuments) {
+    public ModuleDocument(String id, Module module, List<TechnoDocument> technoDocuments) {
+        this.id = id;
         this.key = new KeyDocument(module.getKey());
         this.templates = TemplateDocument.fromDomainInstances(module.getTemplates());
         this.technos = technoDocuments;

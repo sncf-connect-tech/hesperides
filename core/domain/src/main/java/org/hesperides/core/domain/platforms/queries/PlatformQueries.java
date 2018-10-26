@@ -41,12 +41,20 @@ public class PlatformQueries extends AxonQueries {
         super(queryGateway);
     }
 
-    public boolean platformExists(Platform.Key platformKey) {
-        return querySync(new PlatformExistsByKeyQuery(platformKey), Boolean.class);
+    public Optional<String> getOptionalPlatformId(Platform.Key platformKey) {
+        return querySyncOptional(new GetPlatformIdFromKeyQuery(platformKey), String.class);
+    }
+
+    public Optional<PlatformView> getOptionalPlatform(String platformId) {
+        return querySyncOptional(new GetPlatformByIdQuery(platformId), PlatformView.class);
     }
 
     public Optional<PlatformView> getOptionalPlatform(Platform.Key platformKey) {
         return querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
+    }
+
+    public boolean platformExists(Platform.Key platformKey) {
+        return querySync(new PlatformExistsByKeyQuery(platformKey), Boolean.class);
     }
 
     public Optional<ApplicationView> getApplication(String applicationName) {

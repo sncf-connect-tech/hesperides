@@ -36,33 +36,45 @@ public class TechnoUseCases {
     }
 
     /**
-     * Crée la techno si elle n'existe pas
-     * Ajoute un template à cette techno
-     *
+     * Crée la techno si elle n'existe pas.
+     * Ajoute le template à cette techno.
+     * 
      * @param technoKey
      * @param template
      * @param user
      */
     public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
-        if (!queries.technoExists(technoKey)) {
-            Techno techno = new Techno(technoKey, Collections.emptyList());
-            commands.createTechno(techno, user);
+
+        String technoId = queries.getOptionalTechnoId(technoKey)
+                .orElseGet(() -> {
+                    Techno techno = new Techno(technoKey, Collections.emptyList());
+                    return commands.createTechno(techno, user);
+                });
+        commands.addTemplate(technoId, template, user);
+    }
+
+    public void deleteTechno(TemplateContainer.Key technoKey, User user) {
+        Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
+        if (!technoId.isPresent()) {
+            throw new TechnoNotFoundException(technoKey);
         }
-        commands.addTemplate(technoKey, template, user);
+        commands.deleteTechno(technoId.get(), user);
     }
 
     public void updateTemplateInWorkingCopy(TemplateContainer.Key technoKey, Template template, User user) {
-        if (!queries.technoExists(technoKey)) {
+        Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
+        if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
         }
-        commands.updateTemplate(technoKey, template, user);
+        commands.updateTemplate(technoId.get(), template, user);
     }
 
     public void deleteTemplate(TemplateContainer.Key technoKey, String templateName, User user) {
-        if (!queries.technoExists(technoKey)) {
+        Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
+        if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
         }
-        commands.deleteTemplate(technoKey, templateName, user);
+        commands.deleteTemplate(technoId.get(), templateName, user);
     }
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
@@ -70,13 +82,6 @@ public class TechnoUseCases {
             throw new TechnoNotFoundException(technoKey);
         }
         return queries.getTemplate(technoKey, templateName);
-    }
-
-    public void deleteTechno(TemplateContainer.Key technoKey, User user) {
-        if (!queries.technoExists(technoKey)) {
-            throw new TechnoNotFoundException(technoKey);
-        }
-        commands.deleteTechno(technoKey, user);
     }
 
     public List<TemplateView> getTemplates(TemplateContainer.Key technoKey) {

@@ -47,15 +47,14 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
-        ModuleDocument moduleDocument = new ModuleDocument(event.getModule(), technoDocuments);
+        ModuleDocument moduleDocument = new ModuleDocument(event.getModuleId(), event.getModule(), technoDocuments);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventHandler
     @Override
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
-        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        ModuleDocument moduleDocument = moduleRepository.findOne(event.getModuleId());
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
@@ -65,11 +64,26 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventHandler
     @Override
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
-        KeyDocument keyDocument = new KeyDocument(event.getModuleKey());
-        moduleRepository.deleteByKey(keyDocument);
+        moduleRepository.delete(event.getModuleId());
     }
 
     /*** QUERY HANDLERS ***/
+
+    @QueryHandler
+    @Override
+    public Optional<String> onGetModuleIdFromKeyQuery(GetModuleIdFromKeyQuery query) {
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        return moduleRepository
+                .findOptionalIdByKey(keyDocument)
+                .map(ModuleDocument::getId);
+    }
+
+    @QueryHandler
+    @Override
+    public Optional<ModuleView> onGetModuleByIdQuery(GetModuleByIdQuery query) {
+        return moduleRepository.findOptionalById(query.getModuleId())
+                .map(ModuleDocument::toModuleView);
+    }
 
     @QueryHandler
     @Override
@@ -81,8 +95,15 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    public Boolean onModuleExistsQuery(ModuleExistsQuery query) {
+        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        return moduleRepository.countByKey(keyDocument) > 0;
+    }
+
+    @QueryHandler
+    @Override
     public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
-        return mongoTemplate.getCollection("module").distinct("_id.name");
+        return mongoTemplate.getCollection("module").distinct("key.name");
     }
 
     @QueryHandler
@@ -104,13 +125,6 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .map(ModuleDocument::getKey)
                 .map(KeyDocument::getVersion)
                 .collect(Collectors.toList());
-    }
-
-    @QueryHandler
-    @Override
-    public Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query) {
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        return moduleRepository.countByKey(keyDocument) > 0;
     }
 
     @QueryHandler

@@ -5,7 +5,6 @@ import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,23 +21,23 @@ public class TechnoCommands {
         this.commandGateway = commandGateway;
     }
 
-    public TemplateContainer.Key createTechno(Techno techno, User user) {
+    public String createTechno(Techno techno, User user) {
         return commandGateway.sendAndWait(new CreateTechnoCommand(techno, user));
     }
 
-    public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
-        commandGateway.sendAndWait(new AddTemplateToTechnoCommand(technoKey, template, user));
+    public void addTemplate(String technoId, Template template, User user) {
+        commandGateway.sendAndWait(new AddTemplateToTechnoCommand(technoId, template, user));
     }
 
-    public void updateTemplate(TemplateContainer.Key key, Template template, User user) {
-        commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(key, template, user));
+    public void updateTemplate(String technoId, Template template, User user) {
+        commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(technoId, template, user));
     }
 
-    public void deleteTechno(TemplateContainer.Key technoKey, User user) {
-        commandGateway.sendAndWait(new DeleteTechnoCommand(technoKey, user));
+    public void deleteTechno(String technoId, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoCommand(technoId, user));
     }
 
-    public void deleteTemplate(TemplateContainer.Key key, String templateName, User user) {
-        commandGateway.sendAndWait(new DeleteTechnoTemplateCommand(key, templateName, user));
+    public void deleteTemplate(String technoId, String templateName, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoTemplateCommand(technoId, templateName, user));
     }
 }

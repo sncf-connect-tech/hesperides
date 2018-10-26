@@ -7,4 +7,8 @@ public class PlatformNotFoundException extends NotFoundException {
     public PlatformNotFoundException(Platform.Key platformKey) {
         super("Could not find platform info for " + platformKey);
     }
+
+    public PlatformNotFoundException(String platformId) {
+        super("Could not find platform info for " + platformId);
+    }
 }

@@ -48,20 +48,39 @@ public class ModuleUseCases {
      * @param user
      * @return
      */
-    public TemplateContainer.Key createWorkingCopy(Module module, User user) {
+    public String createWorkingCopy(Module module, User user) {
         if (queries.moduleExists(module.getKey())) {
             throw new DuplicateModuleException(module.getKey());
         }
         verifyTechnosExistence(module.getTechnos());
         return commands.createModule(module, user);
+
+    }
+
+    public String createWorkingCopyFrom(TemplateContainer.Key existingModuleKey, TemplateContainer.Key newModuleKey, User user) {
+
+        if (queries.moduleExists(newModuleKey)) {
+            throw new DuplicateModuleException(newModuleKey);
+        }
+
+        Optional<ModuleView> optionalModuleView = queries.getOptionalModule(existingModuleKey);
+        if (!optionalModuleView.isPresent()) {
+            throw new ModuleNotFoundException(existingModuleKey);
+        }
+
+        Module existingModule = optionalModuleView.get().toDomainInstance();
+        Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
+
+        return commands.createModule(newModule, user);
     }
 
     public void updateModuleTechnos(Module module, User user) {
-        if (!queries.moduleExists(module.getKey())) {
+        Optional<String> optionalModuleId = queries.getOptionalModuleId(module.getKey());
+        if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(module.getKey());
         }
         verifyTechnosExistence(module.getTechnos());
-        commands.updateModuleTechnos(module, user);
+        commands.updateModuleTechnos(optionalModuleId.get(), module, user);
     }
 
     private void verifyTechnosExistence(List<Techno> technos) {
@@ -75,10 +94,11 @@ public class ModuleUseCases {
     }
 
     public void deleteModule(TemplateContainer.Key moduleKey, User user) {
-        if (!queries.moduleExists(moduleKey)) {
+        Optional<String> optionalModuleId = queries.getOptionalModuleId(moduleKey);
+        if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.deleteModule(moduleKey, user);
+        commands.deleteModule(optionalModuleId.get(), user);
     }
 
     /**
@@ -93,28 +113,35 @@ public class ModuleUseCases {
      * @param user
      */
     public void createTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
-        if (!queries.moduleExists(moduleKey)) {
+        Optional<String> optionalModuleId = queries.getOptionalModuleId(moduleKey);
+        if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.createTemplateInWorkingCopy(moduleKey, template, user);
+        commands.createTemplateInWorkingCopy(optionalModuleId.get(), template, user);
     }
 
     public void updateTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
-        if (!queries.moduleExists(moduleKey)) {
+        Optional<String> optionalModuleId = queries.getOptionalModuleId(moduleKey);
+        if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.updateTemplateInWorkingCopy(moduleKey, template, user);
+        commands.updateTemplateInWorkingCopy(optionalModuleId.get(), template, user);
     }
 
     public void deleteTemplate(TemplateContainer.Key moduleKey, String templateName, User user) {
-        if (!queries.moduleExists(moduleKey)) {
+        Optional<String> optionalModuleId = queries.getOptionalModuleId(moduleKey);
+        if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.deleteTemplate(moduleKey, templateName, user);
+        commands.deleteTemplate(optionalModuleId.get(), templateName, user);
     }
 
     public Optional<ModuleView> getModule(TemplateContainer.Key moduleKey) {
         return queries.getOptionalModule(moduleKey);
+    }
+
+    public Optional<ModuleView> getModule(String moduleId) {
+        return queries.getOptionalModule(moduleId);
     }
 
     public List<String> getModulesName() {
@@ -131,24 +158,6 @@ public class ModuleUseCases {
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key moduleKey, String templateName) {
         return queries.getTemplate(moduleKey, templateName);
-    }
-
-    public ModuleView createWorkingCopyFrom(TemplateContainer.Key existingModuleKey, TemplateContainer.Key newModuleKey, User user) {
-
-        if (queries.moduleExists(newModuleKey)) {
-            throw new DuplicateModuleException(newModuleKey);
-        }
-
-        Optional<ModuleView> optionalModuleView = queries.getOptionalModule(existingModuleKey);
-        if (!optionalModuleView.isPresent()) {
-            throw new ModuleNotFoundException(existingModuleKey);
-        }
-
-        Module existingModule = optionalModuleView.get().toDomainInstance();
-        Module newModule = new Module(newModuleKey, existingModule.getTemplates(), existingModule.getTechnos(), -1L);
-
-        commands.createModule(newModule, user);
-        return queries.getOptionalModule(newModuleKey).get();
     }
 
     public List<ModuleView> search(String input) {

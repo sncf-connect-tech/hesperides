@@ -31,6 +31,7 @@ import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
@@ -40,6 +41,7 @@ import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 public class PlatformAggregate implements Serializable {
 
     @AggregateIdentifier
+    private String id;
     private Platform.Key key;
     private Long versionId;
 
@@ -53,14 +55,15 @@ public class PlatformAggregate implements Serializable {
                 .initializeVersionId()
                 .updateDeployedModules();
 
-        apply(new PlatformCreatedEvent(platform, command.getUser()));
+        apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser()));
     }
 
     @CommandHandler
     public PlatformAggregate(CopyPlatformCommand command) {
-        Platform newPlatform = command.getNewPlatform()
+        Platform newPlatform = command
+                .getNewPlatform()
                 .initializeVersionId();
-        apply(new PlatformCopiedEvent(newPlatform, command.getExistingPlatformKey(), command.getUser()));
+        apply(new PlatformCopiedEvent(command.getExistingPlatformId(), UUID.randomUUID().toString(), newPlatform, command.getUser()));
     }
 
 
@@ -74,12 +77,12 @@ public class PlatformAggregate implements Serializable {
                 .incrementVersionId()
                 .updateDeployedModules();
 
-        apply(new PlatformUpdatedEvent(command.getPlatformKey(), platform, command.getUser()));
+        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getUser()));
     }
 
     @CommandHandler
     public void onDeletePlatformCommand(DeletePlatformCommand command) {
-        apply(new PlatformDeletedEvent(command.getPlatformKey(), command.getUser()));
+        apply(new PlatformDeletedEvent(command.getPlatformId(), command.getUser()));
     }
 
     @CommandHandler
@@ -87,7 +90,12 @@ public class PlatformAggregate implements Serializable {
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
-        apply(new PlatformModulePropertiesUpdatedEvent(command.getPlatformKey(), command.getModulePath(), command.getPlatformVersionId() + 1, command.getValuedProperties(), command.getUser()));
+        apply(new PlatformModulePropertiesUpdatedEvent(
+                command.getPlatformId(),
+                command.getModulePath(),
+                (command.getPlatformVersionId() + 1),
+                command.getValuedProperties(),
+                command.getUser()));
     }
 
     @CommandHandler
@@ -95,13 +103,18 @@ public class PlatformAggregate implements Serializable {
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
-        apply(new PlatformPropertiesUpdatedEvent(command.getPlatformKey(), command.getPlatformVersionId() + 1, command.getValuedProperties(), command.getUser()));
+        apply(new PlatformPropertiesUpdatedEvent(
+                command.getPlatformId(),
+                (command.getPlatformVersionId() + 1),
+                command.getValuedProperties(),
+                command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
 
     @EventSourcingHandler
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
+        this.id = event.getPlatformId();
         this.key = event.getPlatform().getKey();
         this.versionId = event.getPlatform().getVersionId();
         log.debug("Plateform created");
@@ -109,6 +122,7 @@ public class PlatformAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
+        this.id = event.getNewPlatformId();
         this.key = event.getNewPlatform().getKey();
         this.versionId = event.getNewPlatform().getVersionId();
         log.debug("Plateform copied");
@@ -127,14 +141,12 @@ public class PlatformAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
-        this.key = event.getPlatformKey();
         this.versionId = event.getPlatformVersionId();
         log.debug("Plaform module {} updated with properties {}", event.getModulePath(), event.getValuedProperties());
     }
 
     @EventSourcingHandler
     public void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event) {
-        this.key = event.getPlatformKey();
         this.versionId = event.getPlatformVersionId();
         log.debug("Plaform updated with properties {}", event.getValuedProperties());
     }

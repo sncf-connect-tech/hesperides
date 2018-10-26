@@ -38,9 +38,9 @@ public class UpdateModules implements En {
 
         Then("^the module is successfully updated$", () -> {
             assertOK(responseEntity);
-            ModuleIO excpectedModule = moduleBuilder.withVersionId(2).build();
+            ModuleIO expectedModule = moduleBuilder.withVersionId(2).build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
-            assertEquals(excpectedModule, actualModule);
+            assertEquals(expectedModule, actualModule);
         });
 
         Then("^the module update is rejected with a not found error$", () -> {

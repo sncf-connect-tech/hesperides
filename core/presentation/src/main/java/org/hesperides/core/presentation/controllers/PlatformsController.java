@@ -50,17 +50,17 @@ public class PlatformsController extends AbstractController {
 
         Platform newPlatform = platformInput.toDomainInstance();
 
-        Platform.Key createdPlatformKey;
+        String platformId;
         if (StringUtils.isBlank(fromApplication) && StringUtils.isBlank(fromPlatform)) {
-            createdPlatformKey = platformUseCases.createPlatform(newPlatform, fromAuthentication(authentication));
+            platformId = platformUseCases.createPlatform(newPlatform, fromAuthentication(authentication));
         } else {
             checkQueryParameterNotEmpty("from_application", fromApplication);
             checkQueryParameterNotEmpty("from_platform", fromPlatform);
             Platform.Key existingPlatformKey = new Platform.Key(fromApplication, fromPlatform);
-            createdPlatformKey = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, fromAuthentication(authentication));
+            platformId = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, fromAuthentication(authentication));
         }
 
-        PlatformView platformView = platformUseCases.getPlatform(createdPlatformKey);
+        PlatformView platformView = platformUseCases.getPlatform(platformId);
         PlatformIO platformOutput = new PlatformIO(platformView);
 
         return ResponseEntity.ok(platformOutput);
