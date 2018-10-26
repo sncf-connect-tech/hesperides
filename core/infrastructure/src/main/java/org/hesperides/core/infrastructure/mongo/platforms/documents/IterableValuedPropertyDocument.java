@@ -51,14 +51,6 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
                 IterablePropertyItemDocument.toDomainInstances(iterableValuedPropertyDocument.iterablePropertyItems));
     }
 
-    public static List<IterableValuedPropertyDocument> fromDomainInstances(List<IterableValuedProperty> iterableValuedProperties) {
-        return Optional.ofNullable(iterableValuedProperties)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(IterableValuedPropertyDocument::new)
-                .collect(Collectors.toList());
-    }
-
     public IterableValuedPropertyView toIterableValuedPropertyView() {
         return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemViews(iterablePropertyItems));
     }
