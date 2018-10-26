@@ -12,19 +12,19 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer
 data class CreatePlatformCommand(val platform: Platform, val user: User)
 
 data class CopyPlatformCommand(val existingPlatformId: String, val newPlatform: Platform, val user: User)
-data class DeletePlatformCommand(@TargetAggregateIdentifier val id: String, val user: User)
-data class UpdatePlatformCommand(@TargetAggregateIdentifier val id: String, val platform: Platform, val copyProperties: Boolean, val user: User)
-data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val id: String, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
-data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val id: String, val modulePath: String, val platformVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val user: User)
+data class DeletePlatformCommand(@TargetAggregateIdentifier val platformId: String, val user: User)
+data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformId: String, val platform: Platform, val copyProperties: Boolean, val user: User)
+data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val platformId: String, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
+data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val platformId: String, val modulePath: String, val platformVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val user: User)
 
 // Event
-data class PlatformCreatedEvent(val id: String, val platform: Platform, override val user: User) : UserEvent(user)
+data class PlatformCreatedEvent(val platformId: String, val platform: Platform, override val user: User) : UserEvent(user)
 
 data class PlatformCopiedEvent(val existingPlatformId: String, val newPlatformId: String, val newPlatform: Platform, override val user: User) : UserEvent(user)
-data class PlatformDeletedEvent(val id: String, override val user: User) : UserEvent(user)
-data class PlatformUpdatedEvent(val id: String, val platform: Platform, override val user: User) : UserEvent(user)
-data class PlatformPropertiesUpdatedEvent(val id: String, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, override val user: User) : UserEvent(user)
-data class PlatformModulePropertiesUpdatedEvent(val id: String, val modulePath: String, val platformVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, override val user: User) : UserEvent(user)
+data class PlatformDeletedEvent(val platformId: String, override val user: User) : UserEvent(user)
+data class PlatformUpdatedEvent(val platformId: String, val platform: Platform, override val user: User) : UserEvent(user)
+data class PlatformPropertiesUpdatedEvent(val platformId: String, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, override val user: User) : UserEvent(user)
+data class PlatformModulePropertiesUpdatedEvent(val platformId: String, val modulePath: String, val platformVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, override val user: User) : UserEvent(user)
 
 // Query
 data class GetPlatformIdFromKeyQuery(val platformKey: Platform.Key)

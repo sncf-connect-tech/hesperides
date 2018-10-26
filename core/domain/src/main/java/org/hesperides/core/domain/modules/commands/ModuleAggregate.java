@@ -62,14 +62,14 @@ class ModuleAggregate implements Serializable {
                 .validateVersionId(versionId)
                 .incrementVersiondId();
 
-        apply(new ModuleTechnosUpdatedEvent(command.getId(), module.getTechnos(), module.getVersionId(), command.getUser()));
+        apply(new ModuleTechnosUpdatedEvent(command.getModuleId(), module.getTechnos(), module.getVersionId(), command.getUser()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteModuleCommand(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
-        apply(new ModuleDeletedEvent(command.getId(), command.getUser()));
+        apply(new ModuleDeletedEvent(command.getModuleId(), command.getUser()));
     }
 
     @CommandHandler
@@ -82,7 +82,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .initializeVersionId();
 
-        apply(new TemplateCreatedEvent(command.getId(), template, command.getUser()));
+        apply(new TemplateCreatedEvent(command.getModuleId(), template, command.getUser()));
     }
 
     @CommandHandler
@@ -96,7 +96,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .incrementVersionId();
 
-        apply(new TemplateUpdatedEvent(command.getId(), template, command.getUser()));
+        apply(new TemplateUpdatedEvent(command.getModuleId(), template, command.getUser()));
     }
 
     private Long getExpectedVersionId(UpdateTemplateCommand command) {
@@ -110,7 +110,7 @@ class ModuleAggregate implements Serializable {
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
         }
-        apply(new TemplateDeletedEvent(command.getId(), command.getTemplateName(), command.getUser()));
+        apply(new TemplateDeletedEvent(command.getModuleId(), command.getTemplateName(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
@@ -118,7 +118,7 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
-        this.id = event.getId();
+        this.id = event.getModuleId();
         this.key = event.getModule().getKey();
         this.versionId = event.getModule().getVersionId();
         log.debug("module créé. (aggregate is live ? {})", isLive());

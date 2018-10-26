@@ -22,7 +22,7 @@ public class TechnoQueries extends AxonQueries {
     }
 
     public Boolean technoExists(TemplateContainer.Key technoKey) {
-        return querySync(new TechnoAlreadyExistsQuery(technoKey), Boolean.class);
+        return querySync(new TechnoExistsQuery(technoKey), Boolean.class);
     }
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {

@@ -33,7 +33,7 @@ public interface ModuleProjectionRepository {
     Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query);
 
     @QueryHandler
-    Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query);
+    Boolean onModuleExistsQuery(ModuleExistsQuery query);
 
     @QueryHandler
     List<String> onGetModulesNameQuery(GetModulesNameQuery query);

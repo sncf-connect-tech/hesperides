@@ -10,21 +10,21 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer
 // Command
 data class CreateModuleCommand(val module: Module, val user: User)
 
-data class UpdateModuleTechnosCommand(@TargetAggregateIdentifier val id: String, val module: Module, val user: User)
-data class DeleteModuleCommand(@TargetAggregateIdentifier val id: String, val user: User)
+data class UpdateModuleTechnosCommand(@TargetAggregateIdentifier val moduleId: String, val module: Module, val user: User)
+data class DeleteModuleCommand(@TargetAggregateIdentifier val moduleId: String, val user: User)
 
 // Event
-data class ModuleCreatedEvent(val id: String, val module: Module, override val user: User) : UserEvent(user)
+data class ModuleCreatedEvent(val moduleId: String, val module: Module, override val user: User) : UserEvent(user)
 
-data class ModuleTechnosUpdatedEvent(val id: String, val technos: List<Techno>, val versionId: Long, override val user: User) : UserEvent(user)
-data class ModuleDeletedEvent(val id: String, override val user: User) : UserEvent(user)
+data class ModuleTechnosUpdatedEvent(val moduleId: String, val technos: List<Techno>, val versionId: Long, override val user: User) : UserEvent(user)
+data class ModuleDeletedEvent(val moduleId: String, override val user: User) : UserEvent(user)
 
 // Query
 data class GetModuleIdFromKeyQuery(val moduleKey: TemplateContainer.Key)
 
 data class GetModuleByIdQuery(val moduleId: String)
 data class GetModuleByKeyQuery(val moduleKey: TemplateContainer.Key)
-data class ModuleAlreadyExistsQuery(val moduleKey: TemplateContainer.Key)
+data class ModuleExistsQuery(val moduleKey: TemplateContainer.Key)
 class GetModulesNameQuery
 data class GetModuleVersionTypesQuery(val moduleName: String, val moduleVersion: String)
 data class GetModuleVersionsQuery(val moduleName: String)

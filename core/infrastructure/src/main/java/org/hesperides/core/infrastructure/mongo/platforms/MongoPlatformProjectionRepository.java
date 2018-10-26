@@ -42,7 +42,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getId(), event.getPlatform());
+        PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
 
@@ -59,13 +59,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        platformRepository.delete(event.getId());
+        platformRepository.delete(event.getPlatformId());
     }
 
     @EventHandler
     @Override
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getId(), event.getPlatform());
+        PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
 
@@ -83,7 +83,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         abstractValuedPropertyDocuments.addAll(IterableValuedPropertyDocument.fromDomainInstances(iterableValuedProperties));
 
         // Récupération de la plateforme et mise à jour de la version
-        PlatformDocument platformDocument = platformRepository.findOne(event.getId());
+        PlatformDocument platformDocument = platformRepository.findOne(event.getPlatformId());
         platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
@@ -106,7 +106,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .collect(Collectors.toList());
 
         // Retrieve platform
-        PlatformDocument platformDocument = platformRepository.findOne(event.getId());
+        PlatformDocument platformDocument = platformRepository.findOne(event.getPlatformId());
 
         // Update platform information
         platformDocument.setVersionId(event.getPlatformVersionId());

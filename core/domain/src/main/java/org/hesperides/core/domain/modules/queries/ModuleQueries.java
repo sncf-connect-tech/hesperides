@@ -34,7 +34,7 @@ public class ModuleQueries extends AxonQueries {
     }
 
     public boolean moduleExists(TemplateContainer.Key moduleKey) {
-        return querySync(new ModuleAlreadyExistsQuery(moduleKey), Boolean.class);
+        return querySync(new ModuleExistsQuery(moduleKey), Boolean.class);
     }
 
     public List<String> getModulesName() {

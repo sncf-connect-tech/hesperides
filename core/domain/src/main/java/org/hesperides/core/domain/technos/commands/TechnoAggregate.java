@@ -44,7 +44,7 @@ class TechnoAggregate implements Serializable {
     @SuppressWarnings("unused")
     public void onDeleteTechnoCommand(DeleteTechnoCommand command) {
         log.debug("Applying delete techno command...");
-        apply(new TechnoDeletedEvent(command.getId(), command.getUser()));
+        apply(new TechnoDeletedEvent(command.getTechnoId(), command.getUser()));
     }
 
     @CommandHandler
@@ -57,7 +57,7 @@ class TechnoAggregate implements Serializable {
                 .validateProperties()
                 .initializeVersionId();
 
-        apply(new TemplateAddedToTechnoEvent(command.getId(), template, command.getUser()));
+        apply(new TemplateAddedToTechnoEvent(command.getTechnoId(), template, command.getUser()));
     }
 
     @CommandHandler
@@ -71,7 +71,7 @@ class TechnoAggregate implements Serializable {
                 .validateProperties()
                 .incrementVersionId();
 
-        apply(new TechnoTemplateUpdatedEvent(command.getId(), template, command.getUser()));
+        apply(new TechnoTemplateUpdatedEvent(command.getTechnoId(), template, command.getUser()));
     }
 
     private Long getExpectedVersionId(UpdateTechnoTemplateCommand command) {
@@ -84,7 +84,7 @@ class TechnoAggregate implements Serializable {
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
         }
-        apply(new TechnoTemplateDeletedEvent(command.getId(), command.getTemplateName(), command.getUser()));
+        apply(new TechnoTemplateDeletedEvent(command.getTechnoId(), command.getTemplateName(), command.getUser()));
     }
 
     /*** EVENT HANDLERS ***/
@@ -93,7 +93,7 @@ class TechnoAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
-        this.id = event.getId();
+        this.id = event.getTechnoId();
         this.key = event.getTechno().getKey();
         event.getTechno().getTemplates().forEach(template -> templates.put(template.getName(), template));
         log.debug("Techno created (aggregate is live ? {})", isLive());

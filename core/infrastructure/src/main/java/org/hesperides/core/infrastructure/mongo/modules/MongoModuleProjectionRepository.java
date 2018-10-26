@@ -47,14 +47,14 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
-        ModuleDocument moduleDocument = new ModuleDocument(event.getId(), event.getModule(), technoDocuments);
+        ModuleDocument moduleDocument = new ModuleDocument(event.getModuleId(), event.getModule(), technoDocuments);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventHandler
     @Override
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findOne(event.getId());
+        ModuleDocument moduleDocument = moduleRepository.findOne(event.getModuleId());
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
@@ -64,7 +64,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventHandler
     @Override
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
-        moduleRepository.delete(event.getId());
+        moduleRepository.delete(event.getModuleId());
     }
 
     /*** QUERY HANDLERS ***/
@@ -95,7 +95,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
-    public Boolean onModuleAlreadyExistsQuery(ModuleAlreadyExistsQuery query) {
+    public Boolean onModuleExistsQuery(ModuleExistsQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
         return moduleRepository.countByKey(keyDocument) > 0;
     }

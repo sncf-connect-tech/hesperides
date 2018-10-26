@@ -77,12 +77,12 @@ public class PlatformAggregate implements Serializable {
                 .incrementVersionId()
                 .updateDeployedModules();
 
-        apply(new PlatformUpdatedEvent(command.getId(), platform, command.getUser()));
+        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getUser()));
     }
 
     @CommandHandler
     public void onDeletePlatformCommand(DeletePlatformCommand command) {
-        apply(new PlatformDeletedEvent(command.getId(), command.getUser()));
+        apply(new PlatformDeletedEvent(command.getPlatformId(), command.getUser()));
     }
 
     @CommandHandler
@@ -91,7 +91,7 @@ public class PlatformAggregate implements Serializable {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
         apply(new PlatformModulePropertiesUpdatedEvent(
-                command.getId(),
+                command.getPlatformId(),
                 command.getModulePath(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
@@ -104,7 +104,7 @@ public class PlatformAggregate implements Serializable {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
         apply(new PlatformPropertiesUpdatedEvent(
-                command.getId(),
+                command.getPlatformId(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
                 command.getUser()));
@@ -114,7 +114,7 @@ public class PlatformAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
-        this.id = event.getId();
+        this.id = event.getPlatformId();
         this.key = event.getPlatform().getKey();
         this.versionId = event.getPlatform().getVersionId();
         log.debug("Plateform created");

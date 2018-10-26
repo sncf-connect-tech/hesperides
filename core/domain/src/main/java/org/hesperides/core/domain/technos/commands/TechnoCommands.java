@@ -25,19 +25,19 @@ public class TechnoCommands {
         return commandGateway.sendAndWait(new CreateTechnoCommand(techno, user));
     }
 
-    public void addTemplate(String id, Template template, User user) {
-        commandGateway.sendAndWait(new AddTemplateToTechnoCommand(id, template, user));
+    public void addTemplate(String technoId, Template template, User user) {
+        commandGateway.sendAndWait(new AddTemplateToTechnoCommand(technoId, template, user));
     }
 
-    public void updateTemplate(String id, Template template, User user) {
-        commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(id, template, user));
+    public void updateTemplate(String technoId, Template template, User user) {
+        commandGateway.sendAndWait(new UpdateTechnoTemplateCommand(technoId, template, user));
     }
 
-    public void deleteTechno(String id, User user) {
-        commandGateway.sendAndWait(new DeleteTechnoCommand(id, user));
+    public void deleteTechno(String technoId, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoCommand(technoId, user));
     }
 
-    public void deleteTemplate(String id, String templateName, User user) {
-        commandGateway.sendAndWait(new DeleteTechnoTemplateCommand(id, templateName, user));
+    public void deleteTemplate(String technoId, String templateName, User user) {
+        commandGateway.sendAndWait(new DeleteTechnoTemplateCommand(technoId, templateName, user));
     }
 }

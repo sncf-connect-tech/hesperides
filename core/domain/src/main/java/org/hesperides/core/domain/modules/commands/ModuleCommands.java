@@ -25,23 +25,23 @@ public class ModuleCommands {
         return commandGateway.sendAndWait(new CreateModuleCommand(module, user));
     }
 
-    public void updateModuleTechnos(String id, Module module, User user) {
-        commandGateway.sendAndWait(new UpdateModuleTechnosCommand(id, module, user));
+    public void updateModuleTechnos(String moduleId, Module module, User user) {
+        commandGateway.sendAndWait(new UpdateModuleTechnosCommand(moduleId, module, user));
     }
 
-    public void deleteModule(String id, User user) {
-        commandGateway.sendAndWait(new DeleteModuleCommand(id, user));
+    public void deleteModule(String moduleId, User user) {
+        commandGateway.sendAndWait(new DeleteModuleCommand(moduleId, user));
     }
 
-    public void createTemplateInWorkingCopy(String id, Template template, User user) {
-        commandGateway.sendAndWait(new CreateTemplateCommand(id, template, user));
+    public void createTemplateInWorkingCopy(String moduleId, Template template, User user) {
+        commandGateway.sendAndWait(new CreateTemplateCommand(moduleId, template, user));
     }
 
-    public void updateTemplateInWorkingCopy(String id, Template template, User user) {
-        commandGateway.sendAndWait(new UpdateTemplateCommand(id, template, user));
+    public void updateTemplateInWorkingCopy(String moduleId, Template template, User user) {
+        commandGateway.sendAndWait(new UpdateTemplateCommand(moduleId, template, user));
     }
 
-    public void deleteTemplate(String id, String templateName, User user) {
-        commandGateway.sendAndWait(new DeleteTemplateCommand(id, templateName, user));
+    public void deleteTemplate(String moduleId, String templateName, User user) {
+        commandGateway.sendAndWait(new DeleteTemplateCommand(moduleId, templateName, user));
     }
 }

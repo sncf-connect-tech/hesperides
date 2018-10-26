@@ -54,7 +54,7 @@ public interface TechnoProjectionRepository {
     Optional<String> onGetTechnoIdFromKeyQuery(GetTechnoIdFromKeyQuery query);
 
     @QueryHandler
-    Boolean onTechnoAlreadyExistsQuery(TechnoAlreadyExistsQuery query);
+    Boolean onTechnoExistsQuery(TechnoExistsQuery query);
 
     @QueryHandler
     Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query);
