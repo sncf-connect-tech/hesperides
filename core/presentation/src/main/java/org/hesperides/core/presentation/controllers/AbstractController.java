@@ -58,7 +58,7 @@ abstract class AbstractController {
         }
     }
 
-    final protected void checkQueryParameterNotEmpty(final String paramName, final Object param) {
+    final protected void checkQueryParameterNotEmpty(final String paramName, final Boolean param) {
         if (param == null) {
             throw new IllegalArgumentException("Query parameter " + paramName + " is missing");
         }

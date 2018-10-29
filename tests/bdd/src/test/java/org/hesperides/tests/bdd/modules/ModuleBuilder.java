@@ -32,7 +32,7 @@ public class ModuleBuilder {
 
     private String name;
     private String version;
-    private boolean isWorkingCopy;
+    private Boolean isWorkingCopy;
     private List<TechnoIO> technos;
     private long versionId;
 
@@ -60,7 +60,7 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder withIsWorkingCopy(boolean isWorkingCopy) {
+    public ModuleBuilder withIsWorkingCopy(Boolean isWorkingCopy) {
         this.isWorkingCopy = isWorkingCopy;
         return this;
     }
@@ -76,7 +76,7 @@ public class ModuleBuilder {
     }
 
     public ModuleIO build() {
-        return new ModuleIO(name, version, isWorkingCopy, technos, versionId);
+        return new ModuleIO(name, version, isWorkingCopy != null ? isWorkingCopy : false, technos, versionId);
     }
 
     public String getNamespace() {
@@ -91,5 +91,9 @@ public class ModuleBuilder {
 
     public String getPropertiesPath() {
         return "GROUP#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+    }
+
+    public Boolean isWorkingCopy() {
+        return isWorkingCopy;
     }
 }
