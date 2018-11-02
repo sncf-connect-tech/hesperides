@@ -208,7 +208,7 @@ Code 200
     
 Diagramme des classes d'output :
 
-![Diagramme de classe des propriétés valorisées](schémas/valorised-properties.png)
+![Diagramme de classe des propriétés valorisées](schemas/valorised-properties.png)
 
 ### POST /applications/{application_name}/platforms/{platform_name}/properties
 
