@@ -29,7 +29,7 @@ public class DeleteModules implements En {
 
         Then("^the module is successfully deleted$", () -> {
             assertOK(responseEntity);
-            responseEntity = moduleClient.get(moduleBuilder.build(), String.class);
+            responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), String.class);
             assertNotFound(responseEntity);
         });
 

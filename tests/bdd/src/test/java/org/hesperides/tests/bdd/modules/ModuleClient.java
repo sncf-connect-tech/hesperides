@@ -51,12 +51,12 @@ public class ModuleClient {
         return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, ModuleIO[].class);
     }
 
-    public ResponseEntity get(ModuleIO moduleInput, Class responseType) {
+    public ResponseEntity get(ModuleIO moduleInput, String versionType, Class responseType) {
         return restTemplate.getForEntity("/modules/{name}/{version}/{type}",
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.isWorkingCopy()));
+                versionType);
     }
 
     public ResponseEntity release(ModuleIO moduleInput) {
