@@ -110,7 +110,7 @@ Attention, l'output n'est pas un tableau...
 
 Diagramme des classes d'output :
 
-![Diagramme de classe des propriétés valorisées](schémas/valorised-properties.png)
+![Diagramme de classe des propriétés valorisées](schemas/valorised-properties.png)
 
 ## Propriétés d'instances
 
