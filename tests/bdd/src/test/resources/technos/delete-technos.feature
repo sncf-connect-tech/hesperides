@@ -18,7 +18,7 @@ Feature: Delete technos
     When I try to delete this techno
     Then the techno deletion is rejected with a not found error
 
-  Scenario: delete a techno with its tempaltes
+  Scenario: delete a techno with its templates
     Given an existing techno
     When I delete this techno
     Then this techno templates are also deleted
