@@ -38,14 +38,14 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
-            responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+            testContext.responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno is successfully released$", () -> {
             assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withIsWorkingCopy(false);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.responseEntity.getBody();
             assertEquals(expectedTechno, actualTechno);
 
             // Compare les templates de la techno d'origine avec ceux de la techno en mode release

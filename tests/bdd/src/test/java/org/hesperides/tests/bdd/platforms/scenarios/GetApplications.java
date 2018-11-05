@@ -45,7 +45,7 @@ public class GetApplications extends HesperidesScenario implements En {
 
         When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (String tryTo, String withHidePlatform) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
-            responseEntity = platformClient.getApplication(
+            testContext.responseEntity = platformClient.getApplication(
                     platformBuilder.buildInput(),
                     hidePlatform,
                     getResponseType(tryTo, ApplicationOutput.class));
@@ -54,7 +54,7 @@ public class GetApplications extends HesperidesScenario implements En {
         Then("^the application is successfully retrieved", () -> {
             assertOK();
             ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
-            ApplicationOutput actualApplication = (ApplicationOutput) responseEntity.getBody();
+            ApplicationOutput actualApplication = (ApplicationOutput) testContext.responseEntity.getBody();
             Assert.assertEquals(expectedApplication, actualApplication);
         });
 

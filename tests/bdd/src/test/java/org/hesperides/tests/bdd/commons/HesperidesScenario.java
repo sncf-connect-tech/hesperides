@@ -21,6 +21,7 @@
 package org.hesperides.tests.bdd.commons;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -30,13 +31,14 @@ import static org.junit.Assert.assertEquals;
 
 public class HesperidesScenario {
 
-    protected ResponseEntity responseEntity;
+    @Autowired
+    protected TestContext testContext;
 
     protected <T> T[] getBodyAsArray() {
-        return ((ResponseEntity<T[]>)responseEntity).getBody();
+        return ((ResponseEntity<T[]>)testContext.responseEntity).getBody();
     }
     protected Map getBodyAsMap() {
-        return ((ResponseEntity<Map>)responseEntity).getBody();
+        return ((ResponseEntity<Map>)testContext.responseEntity).getBody();
     }
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
@@ -44,30 +46,30 @@ public class HesperidesScenario {
     }
 
     public void assertOK() {
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
     }
 
     public void assertCreated() {
-        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CREATED, testContext.responseEntity.getStatusCode());
     }
 
     public void assertNotFound() {
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, testContext.responseEntity.getStatusCode());
     }
 
     public void assertConflict() {
-        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, testContext.responseEntity.getStatusCode());
     }
 
     public void assertMethodNotAllowed() {
-        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, testContext.responseEntity.getStatusCode());
     }
 
     public void assertBadRequest() {
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, testContext.responseEntity.getStatusCode());
     }
 
     public void assertNoContent() {
-        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, testContext.responseEntity.getStatusCode());
     }
 }

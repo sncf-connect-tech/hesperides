@@ -138,7 +138,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? create this platform$", (String tryTo) -> {
-            responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 
         When("^I( try to)? copy this platform( using the same key)?$", (String tryTo, String usingTheSameKey) -> {
@@ -148,7 +148,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     .withApplicationName(existingPlatform.getApplicationName())
                     .withPlatformName(newName)
                     .buildInput();
-            responseEntity = platformClient.copy(existingPlatform, newPlatform, getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.copy(existingPlatform, newPlatform, getResponseType(tryTo, PlatformIO.class));
             platformBuilder.withPlatformName(newName);
             platformBuilder.withVersionId(1);
         });
@@ -156,13 +156,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform is successfully created$", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
+            PlatformIO actualPlatform = (PlatformIO) testContext.responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
-            assertEquals(HttpStatus.valueOf(httpCode), responseEntity.getStatusCode());
-            assertThat((String) responseEntity.getBody(), containsString(message));
+            assertEquals(HttpStatus.valueOf(httpCode), testContext.responseEntity.getStatusCode());
+            assertThat((String) testContext.responseEntity.getBody(), containsString(message));
         });
 
         Then("^the platform creation fails with an already exist error$", () -> {

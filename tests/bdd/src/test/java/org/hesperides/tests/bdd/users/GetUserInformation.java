@@ -19,11 +19,11 @@ public class GetUserInformation extends HesperidesScenario implements En {
     public GetUserInformation() {
 
         When("^I get the current user information$", () -> {
-            responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
+            testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
         });
 
         Then("^the user information is provided$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+            assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
             Map map = getBodyAsMap();
             assertEquals("user", map.get("username"));
             assertEquals(false, map.get("prodUser"));

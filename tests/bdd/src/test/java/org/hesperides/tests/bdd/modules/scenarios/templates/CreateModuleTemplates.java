@@ -44,13 +44,13 @@ public class CreateModuleTemplates extends HesperidesScenario implements En {
     public CreateModuleTemplates() {
 
         When("^I( try to)? add this template to the module$", (String tryTo) -> {
-            responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the template is successfully added to the module$", () -> {
             assertCreated();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            TemplateIO actualTemplate = (TemplateIO) testContext.responseEntity.getBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

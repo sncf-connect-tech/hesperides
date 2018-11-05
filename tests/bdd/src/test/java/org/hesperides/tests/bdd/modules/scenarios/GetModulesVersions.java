@@ -26,7 +26,7 @@ public class GetModulesVersions extends HesperidesScenario implements En {
         });
 
         When("^I get the module versions$", () -> {
-            responseEntity = moduleClient.getVersions("new-module");
+            testContext.responseEntity = moduleClient.getVersions("new-module");
         });
 
         Then("^a list of (\\d+) versions is returned$", (Integer nbVersions) -> {

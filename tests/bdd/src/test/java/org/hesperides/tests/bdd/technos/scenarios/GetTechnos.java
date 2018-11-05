@@ -25,13 +25,13 @@ public class GetTechnos extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the techno detail$", (String tryTo) -> {
-            responseEntity = technoClient.get(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+            testContext.responseEntity = technoClient.get(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno detail is successfully retrieved$", () -> {
             assertOK();
             TechnoIO expectedTechno = technoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.responseEntity.getBody();
             assertEquals(expectedTechno, actualTechno);
         });
 

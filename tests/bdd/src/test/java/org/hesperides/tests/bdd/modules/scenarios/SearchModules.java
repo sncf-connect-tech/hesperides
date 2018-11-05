@@ -32,19 +32,19 @@ public class SearchModules extends HesperidesScenario implements En {
         });
 
         When("^I search for one specific module$", () -> {
-            responseEntity = moduleClient.search("new-module 0.0.3");
+            testContext.responseEntity = moduleClient.search("new-module 0.0.3");
         });
 
         When("^I search for some of those modules$", () -> {
-            responseEntity = moduleClient.search("new-module");
+            testContext.responseEntity = moduleClient.search("new-module");
         });
 
         When("^I search for a module that does not exist$", () -> {
-            responseEntity = moduleClient.search("nope");
+            testContext.responseEntity = moduleClient.search("nope");
         });
 
         When("^I try to search for a module with no search terms$", () -> {
-            responseEntity = moduleClient.search("", String.class);
+            testContext.responseEntity = moduleClient.search("", String.class);
         });
 
         Then("^the module is found$", () -> {

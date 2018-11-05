@@ -23,12 +23,12 @@ public class DeleteModules extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? delete this module$", (String tryTo) -> {
-            responseEntity = moduleClient.delete(moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+            testContext.responseEntity = moduleClient.delete(moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
         });
 
         Then("^the module is successfully deleted$", () -> {
             assertOK();
-            responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), String.class);
+            testContext.responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), String.class);
             assertNotFound();
         });
 

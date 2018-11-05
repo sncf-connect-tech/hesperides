@@ -45,13 +45,13 @@ public class GetPlatforms extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 //TODO
             }
-            responseEntity = platformClient.get(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.get(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 
         Then("^the platform detail is successfully retrieved", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
+            PlatformIO actualPlatform = (PlatformIO) testContext.responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 

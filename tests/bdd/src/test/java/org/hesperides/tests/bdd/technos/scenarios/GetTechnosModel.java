@@ -89,13 +89,13 @@ public class GetTechnosModel extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the model of this techno$", (String tryTo) -> {
-            responseEntity = technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
+            testContext.responseEntity = technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
         Then("^the model of this techno contains the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
 
@@ -106,7 +106,7 @@ public class GetTechnosModel extends HesperidesScenario implements En {
         Then("^the model of this techno doesn't contain the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
     }

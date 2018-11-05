@@ -69,13 +69,13 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? create this module$", (String tryTo) -> {
-            responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully created$", () -> {
             assertCreated();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.responseEntity.getBody();
             assertEquals(expectedModule, actualModule);
         });
 

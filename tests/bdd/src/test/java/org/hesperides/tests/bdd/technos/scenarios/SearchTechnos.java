@@ -28,15 +28,15 @@ public class SearchTechnos extends HesperidesScenario implements En {
         });
 
         When("^I search for one specific techno$", () -> {
-            responseEntity = technoClient.search("a-techno 0.0.3");
+            testContext.responseEntity = technoClient.search("a-techno 0.0.3");
         });
 
         When("^I search for some of those technos$", () -> {
-            responseEntity = technoClient.search("a-techno");
+            testContext.responseEntity = technoClient.search("a-techno");
         });
 
         When("^I search for a techno that does not exist$", () -> {
-            responseEntity = technoClient.search("nope");
+            testContext.responseEntity = technoClient.search("nope");
         });
 
         Then("^the techno is found$", () -> {

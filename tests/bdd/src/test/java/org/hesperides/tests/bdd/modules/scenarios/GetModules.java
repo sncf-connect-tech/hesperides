@@ -29,13 +29,13 @@ public class GetModules extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(moduleType)) {
                 moduleBuilder.withModuleType(moduleType);
             }
-            responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module detail is successfully retrieved$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.responseEntity.getBody();
             assertEquals(expectedModule, actualModule);
         });
 

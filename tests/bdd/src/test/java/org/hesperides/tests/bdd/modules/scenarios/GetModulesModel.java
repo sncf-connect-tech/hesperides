@@ -98,13 +98,13 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the model of this module$", (String tryTo) -> {
-            responseEntity = moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class));
+            testContext.responseEntity = moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
         Then("^the model of this module contains the(?: updated)? properties$", () -> {
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
 
@@ -115,7 +115,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         Then("^the model of this module doesn't contain the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
     }

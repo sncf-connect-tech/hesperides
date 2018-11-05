@@ -45,18 +45,18 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     public UpdatePlatforms() {
 
         When("^updating this platform(, requiring properties copy)?$", (String withCopy) -> {
-            responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy));
+            testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy));
         });
 
         Then("^the platform is successfully updated(?:, but system warns about \"([^\"]+)\")?", (String warning) -> {
             assertOK();
             if (StringUtils.isNotEmpty(warning)) {
-                List<String> warnings = responseEntity.getHeaders().get("x-hesperides-warning");
+                List<String> warnings = testContext.responseEntity.getHeaders().get("x-hesperides-warning");
                 assertTrue("expected at least 1 custom warning", !CollectionUtils.isEmpty(warnings));
                 assertThat(warnings, hasItem(containsString(warning)));
             }
             PlatformIO expectedPlatform = platformBuilder.withVersionId(2).buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
+            PlatformIO actualPlatform = (PlatformIO) testContext.responseEntity.getBody();
             assertEquals(expectedPlatform, actualPlatform);
         });
     }

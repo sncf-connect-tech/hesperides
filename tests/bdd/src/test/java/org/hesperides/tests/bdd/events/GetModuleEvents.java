@@ -25,17 +25,17 @@ public class GetModuleEvents extends HesperidesScenario implements En {
     public GetModuleEvents() {
 
         When("^I( try to)? get the events of this module$", (String tryTo) -> {
-            responseEntity = getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class));
+            testContext.responseEntity = getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class));
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {
             assertOK();
-            EventOutput[] events = (EventOutput[]) responseEntity.getBody();
+            EventOutput[] events = (EventOutput[]) testContext.responseEntity.getBody();
             assertEquals(nbEvents.intValue(), events.length);
         });
 
         Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
-            EventOutput[] events = (EventOutput[]) responseEntity.getBody();
+            EventOutput[] events = (EventOutput[]) testContext.responseEntity.getBody();
             assertThat(events[index], hasProperty("type", endsWith(eventType)));
         });
     }

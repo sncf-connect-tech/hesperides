@@ -30,18 +30,18 @@ public class CopyTechnos extends HesperidesScenario implements En {
     public CopyTechnos() {
 
         When("^I( try to)? create a copy of this techno$", (String tryTo) -> {
-            responseEntity = copy("1.0.1", getResponseType(tryTo, TechnoIO.class));
+            testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, TechnoIO.class));
         });
 
         When("^I try to create a copy of this techno, using the same key$", () -> {
-            responseEntity = copy(technoBuilder.build().getVersion(), String.class);
+            testContext.responseEntity = copy(technoBuilder.build().getVersion(), String.class);
         });
 
         Then("^the techno is successfully duplicated$", () -> {
             assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.responseEntity.getBody();
             assertEquals(expectedTechno, actualTechno);
 
             // Vérifie la liste des templates
@@ -56,15 +56,15 @@ public class CopyTechnos extends HesperidesScenario implements En {
         });
 
         Then("^the model of the techno is the same$", () -> {
-            responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
+            testContext.responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the version type of the duplicated techno is working copy$", () -> {
-            TechnoIO techoOutput = (TechnoIO) responseEntity.getBody();
+            TechnoIO techoOutput = (TechnoIO) testContext.responseEntity.getBody();
             assertTrue(techoOutput.isWorkingCopy());
         });
 

@@ -40,18 +40,18 @@ public class CopyModules extends HesperidesScenario implements En {
             if (!isBlank(unknownSrcVersion)) {
                 moduleBuilder.withVersion(null);
             }
-            responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
         });
 
         When("^I try to create a copy of this module, using the same key$", () -> {
-            responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
+            testContext.responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
         });
 
         Then("^the module is successfully duplicated$", () -> {
             assertCreated();
             ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersion("1.0.1");
             ModuleIO expectedModule = expectedModuleBuilder.build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.responseEntity.getBody();
             assertEquals(expectedModule, actualModule);
 
             // Vérifie la liste des templates
@@ -66,15 +66,15 @@ public class CopyModules extends HesperidesScenario implements En {
         });
 
         Then("^the version type of the duplicated module is working copy$", () -> {
-            ModuleIO techoOutput = (ModuleIO) responseEntity.getBody();
+            ModuleIO techoOutput = (ModuleIO) testContext.responseEntity.getBody();
             assertTrue(techoOutput.isWorkingCopy());
         });
 
         Then("^the model of the module is the same$", () -> {
-            responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
+            testContext.responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
 

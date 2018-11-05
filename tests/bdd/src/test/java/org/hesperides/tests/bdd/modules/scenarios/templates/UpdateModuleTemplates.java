@@ -44,14 +44,14 @@ public class UpdateModuleTemplates extends HesperidesScenario implements En {
     public UpdateModuleTemplates() {
 
         When("^I( try to)? update this module template$", (String tryTo) -> {
-            responseEntity = moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.responseEntity = moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the module template is successfully updated$", () -> {
             assertOK();
             String expectedNamespace = moduleBuilder.getNamespace();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
-            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            TemplateIO actualTemplate = (TemplateIO) testContext.responseEntity.getBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

@@ -25,14 +25,14 @@ public class DeleteTechnos extends HesperidesScenario implements En {
     public DeleteTechnos() {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
-            responseEntity = technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+            testContext.responseEntity = technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
             moduleBuilder.removeTechno(technoBuilder.build());
             modelBuilder.removeProperties(technoBuilder.getProperties());
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            responseEntity = technoClient.get(technoBuilder.build(), String.class);
+            testContext.responseEntity = technoClient.get(technoBuilder.build(), String.class);
             assertNotFound();
         });
 

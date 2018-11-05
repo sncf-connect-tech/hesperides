@@ -1,17 +1,19 @@
 package org.hesperides.tests.bdd.commons;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.tests.bdd.modules.ModuleBuilder;
-import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 import static org.junit.Assert.assertEquals;
 
 public class CommonSteps extends HesperidesScenario implements En {
+    @Autowired
+    private RestTemplate restTemplate;
 
     public CommonSteps() {
+        Given("^an authenticated user$", () -> {
+            restTemplate.getInterceptors().add(TestContext.BASIC_AUTH_INTERCEPTOR);
+        });
 
         Then("^the request is rejected with a bad request error$", () -> {
             assertBadRequest();

@@ -44,17 +44,17 @@ public class GetProperties extends HesperidesScenario implements En {
     public GetProperties() {
 
         When("^I get the platform properties for this module$", () -> {
-            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
         });
 
         When("^I get the global properties of this platform$", () -> {
-            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
+            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
         });
 
         Then("^the platform( global)? properties are successfully retrieved$", (String global) -> {
             assertOK();
             PropertiesIO expectedProperties = platformBuilder.getProperties(StringUtils.isNotEmpty(global));
-            PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)responseEntity).getBody();
+            PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)testContext.responseEntity).getBody();
             assertEquals(expectedProperties, actualProperties);
         });
     }
