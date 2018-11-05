@@ -9,6 +9,12 @@ Feature: Release modules
     When I release this module
     Then the module is successfully released
 
+  Scenario: release an already released module with the same version
+    Given an existing techno
+    And a released module with this techno
+    When I try to release this module
+    Then the module release is rejected with a conflict error
+
   Scenario: release an existing module with a different version
     Given an existing techno
     And an existing module with this techno

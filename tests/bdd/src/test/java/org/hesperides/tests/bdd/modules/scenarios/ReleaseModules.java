@@ -97,11 +97,14 @@ public class ReleaseModules implements En {
 
         Then("^the module release is rejected with a not found error$", () -> {
             assertNotFound(responseEntity);
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
 
         Then("^the module release is rejected with a bad request error$", () -> {
             assertBadRequest(responseEntity);
+        });
+
+        Then("^the module release is rejected with a conflict error$", () -> {
+            assertConflict(responseEntity);
         });
     }
 }
