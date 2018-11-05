@@ -66,5 +66,9 @@ public class CreateModuleTemplates implements En {
         Then("^the module template creation is rejected with a not found error$", () -> {
             assertNotFound(responseEntity);
         });
+
+        Then("^the module template creation is rejected with a conflict error$", () -> {
+            assertConflict(responseEntity);
+        });
     }
 }

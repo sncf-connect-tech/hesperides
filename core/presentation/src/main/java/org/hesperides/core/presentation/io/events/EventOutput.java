@@ -45,10 +45,6 @@ public class EventOutput {
             moduleCreated.put("version", e.getModule().getKey().getVersion());
             moduleCreated.put("working_copy", e.getModule().getKey().getVersionType() == workingcopy);
             eventData.put("moduleCreated", moduleCreated);
-        } else if (userEvent instanceof ModuleTechnosUpdatedEvent) {
-            ModuleTechnosUpdatedEvent e = (ModuleTechnosUpdatedEvent) userEvent;
-        } else if (userEvent instanceof ModuleDeletedEvent) {
-            ModuleDeletedEvent e = (ModuleDeletedEvent) userEvent;
         } else if (userEvent instanceof TemplateCreatedEvent) {
             TemplateCreatedEvent e = (TemplateCreatedEvent) userEvent;
             eventData.put("created", singletonMap("name", e.getTemplate().getName()));
@@ -58,30 +54,6 @@ public class EventOutput {
         } else if (userEvent instanceof TemplateDeletedEvent) {
             TemplateDeletedEvent e = (TemplateDeletedEvent) userEvent;
             eventData.put("templateName", e.getTemplateName());
-        } else if (userEvent instanceof PlatformCreatedEvent) {
-            // Nothing to do here
-            PlatformCreatedEvent e = (PlatformCreatedEvent) userEvent;
-        } else if (userEvent instanceof PlatformUpdatedEvent) {
-            // Nothing to do here
-            PlatformUpdatedEvent e = (PlatformUpdatedEvent) userEvent;
-        } else if (userEvent instanceof PlatformDeletedEvent) {
-            // Nothing to do here
-            PlatformDeletedEvent e = (PlatformDeletedEvent) userEvent;
-        } else if (userEvent instanceof TechnoCreatedEvent) {
-            // Nothing to do here
-            TechnoCreatedEvent e = (TechnoCreatedEvent) userEvent;
-        } else if (userEvent instanceof TechnoDeletedEvent) {
-            // Nothing to do here
-            TechnoDeletedEvent e = (TechnoDeletedEvent) userEvent;
-        } else if (userEvent instanceof TemplateAddedToTechnoEvent) {
-            // Nothing to do here
-            TemplateAddedToTechnoEvent e = (TemplateAddedToTechnoEvent) userEvent;
-        } else if (userEvent instanceof TechnoTemplateUpdatedEvent) {
-            // Nothing to do here
-            TechnoTemplateUpdatedEvent e = (TechnoTemplateUpdatedEvent) userEvent;
-        } else if (userEvent instanceof TechnoTemplateDeletedEvent) {
-            // Nothing to do here
-            TechnoTemplateDeletedEvent e = (TechnoTemplateDeletedEvent) userEvent;
         }
         return eventData;
     }
