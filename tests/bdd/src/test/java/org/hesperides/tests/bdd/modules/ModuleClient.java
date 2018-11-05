@@ -59,16 +59,17 @@ public class ModuleClient {
                 versionType);
     }
 
-    public ResponseEntity release(ModuleIO moduleInput) {
-        return release(moduleInput, ModuleIO.class);
+    public ResponseEntity release(ModuleIO moduleInput, Class responseType) {
+        return this.release(moduleInput, "", responseType);
     }
 
-    public ResponseEntity release(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
+    public ResponseEntity release(ModuleIO moduleInput, String releasedModuleVersion, Class responseType) {
+        return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={module_version}&release_version={release_version}",
                 null,
                 responseType,
                 moduleInput.getName(),
-                moduleInput.getVersion());
+                moduleInput.getVersion(),
+                releasedModuleVersion);
     }
 
     public ResponseEntity delete(ModuleIO moduleInput) {

@@ -67,13 +67,19 @@ public class ReleaseModules implements En {
             moduleBuilder.withVersionId(1).withIsWorkingCopy(false);
         });
 
-        When("^I( try to)? release this module$", (String tryTo) -> {
-            responseEntity = moduleClient.release(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
+        When("^I( try to)? release this module(?: in version \"(.*)\")?( without specifying its version)?$", (String tryTo, String releasedModuleVersion, String withoutVersion) -> {
+            if (StringUtils.isNotEmpty(withoutVersion)) {
+                moduleBuilder.withVersion("");
+            }
+            responseEntity = moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class));
         });
 
-        Then("^the module is successfully released$", () -> {
+        Then("^the module is successfully released(?: in version \"(.*)\")?$", (String releasedModuleVersion) -> {
             assertOK(responseEntity);
             ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withIsWorkingCopy(false);
+            if (StringUtils.isNotEmpty(releasedModuleVersion)) {
+                expectedModuleBuilder.withVersion(releasedModuleVersion);
+            }
             ModuleIO expectedModule = expectedModuleBuilder.build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
             assertEquals(expectedModule, actualModule);
@@ -92,6 +98,10 @@ public class ReleaseModules implements En {
         Then("^the module release is rejected with a not found error$", () -> {
             assertNotFound(responseEntity);
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
+        });
+
+        Then("^the module release is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 }

@@ -184,6 +184,9 @@ public class ModulesController extends AbstractController {
 
         log.info("createRelease {} {} => {}", moduleName, moduleVersion, releaseVersion);
 
+        checkQueryParameterNotEmpty("module_name", moduleName);
+        checkQueryParameterNotEmpty("module_version", moduleVersion);
+
         ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromAuthentication(authentication));
         ModuleIO moduleOutput = new ModuleIO(moduleView);
 
