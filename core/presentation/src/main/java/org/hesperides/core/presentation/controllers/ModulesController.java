@@ -184,6 +184,9 @@ public class ModulesController extends AbstractController {
 
         log.info("createRelease {} {} => {}", moduleName, moduleVersion, releaseVersion);
 
+        checkQueryParameterNotEmpty("module_name", moduleName);
+        checkQueryParameterNotEmpty("module_version", moduleVersion);
+
         ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromAuthentication(authentication));
         ModuleIO moduleOutput = new ModuleIO(moduleView);
 
@@ -195,6 +198,8 @@ public class ModulesController extends AbstractController {
     public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
 
         log.debug("search module {}", input);
+
+        checkQueryParameterNotEmpty("terms", input);
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
         List<ModuleIO> moduleOutputs = Optional.ofNullable(moduleViews)

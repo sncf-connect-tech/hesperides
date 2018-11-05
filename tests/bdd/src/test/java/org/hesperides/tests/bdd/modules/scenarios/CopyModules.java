@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.tests.bdd.commons.StepHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +34,13 @@ public class CopyModules implements En {
 
     public CopyModules() {
 
-        When("^I( try to)? create a copy of this module$", (String tryTo) -> {
+        When("^I( try to)? create a copy of this module( without specifying the version of the source module)?( without specifying whether it is a workingcopy)?$", (String tryTo, String unknownSrcVersion, String unknownSrcWorkingCopy) -> {
+            if (!isBlank(unknownSrcWorkingCopy)) {
+                moduleBuilder.withModuleType(null);
+            }
+            if (!isBlank(unknownSrcVersion)) {
+                moduleBuilder.withVersion(null);
+            }
             responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
         });
 
@@ -74,17 +81,20 @@ public class CopyModules implements En {
 
         Then("^the module copy is rejected with a not found error$", () -> {
             assertNotFound(responseEntity);
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
 
         Then("^the module copy is rejected with a conflict error$", () -> {
             assertConflict(responseEntity);
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
+        });
+
+        Then("^the module copy is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 
     private ResponseEntity copy(String newVersion, Class responseType) {
         ModuleIO newModuleInput = new ModuleBuilder().withVersion(newVersion).build();
-        return moduleClient.copy(moduleBuilder.build(), newModuleInput, responseType);
+        return moduleClient.copy(moduleBuilder.build(), moduleBuilder.isWorkingCopy(), newModuleInput, responseType);
     }
+
 }

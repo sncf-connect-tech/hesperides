@@ -39,7 +39,7 @@ public class GetModulesTypes implements En {
             assertEquals("workingcopy", responseEntity.getBody()[0]);
         });
 
-        Then("^a list containing nothing is returned$", () -> {
+        Then("^an empty list is returned$", () -> {
             assertOK(responseEntity);
             assertEquals(0, responseEntity.getBody().length);
         });

@@ -48,27 +48,32 @@ public class ModuleClient {
     }
 
     public ResponseEntity search(String terms) {
-        return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, ModuleIO[].class);
+        return this.search(terms, ModuleIO[].class);
     }
 
-    public ResponseEntity get(ModuleIO moduleInput, Class responseType) {
+    public ResponseEntity search(String terms, Class responseType) {
+        return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, responseType);
+    }
+
+    public ResponseEntity get(ModuleIO moduleInput, String versionType, Class responseType) {
         return restTemplate.getForEntity("/modules/{name}/{version}/{type}",
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.isWorkingCopy()));
-    }
-
-    public ResponseEntity release(ModuleIO moduleInput) {
-        return release(moduleInput, ModuleIO.class);
+                versionType.toLowerCase());
     }
 
     public ResponseEntity release(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
+        return this.release(moduleInput, "", responseType);
+    }
+
+    public ResponseEntity release(ModuleIO moduleInput, String releasedModuleVersion, Class responseType) {
+        return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={module_version}&release_version={release_version}",
                 null,
                 responseType,
                 moduleInput.getName(),
-                moduleInput.getVersion());
+                moduleInput.getVersion(),
+                releasedModuleVersion);
     }
 
     public ResponseEntity delete(ModuleIO moduleInput) {
@@ -85,13 +90,14 @@ public class ModuleClient {
                 getVersionType(moduleInput.isWorkingCopy()));
     }
 
-    public ResponseEntity copy(ModuleIO existingModuleInput, ModuleIO newModuleInput, Class responseType) {
+    public ResponseEntity copy(ModuleIO existingModuleInput, Boolean isWorkingCopy, ModuleIO newModuleInput, Class responseType) {
+        // We need to tret isWorkingCopy separately here as it can be null in the tests, whereas ModuleIO.isWorkingCopy can never be null (and it is a GOOD thing)
         return restTemplate.postForEntity("/modules?from_module_name={name}&from_module_version={version}&from_is_working_copy={isWorkingCopy}",
                 newModuleInput,
                 responseType,
                 existingModuleInput.getName(),
                 existingModuleInput.getVersion(),
-                existingModuleInput.isWorkingCopy());
+                isWorkingCopy);
     }
 
     public ResponseEntity getModel(ModuleIO moduleInput, Class responseType) {

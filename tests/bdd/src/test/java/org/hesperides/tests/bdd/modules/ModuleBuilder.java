@@ -30,9 +30,11 @@ import java.util.List;
 @Component
 public class ModuleBuilder {
 
+    public final static String WORKINGCOPY = "WORKINGCOPY";
+    public final static String RELEASE = "RELEASE";
     private String name;
     private String version;
-    private boolean isWorkingCopy;
+    private String versionType;
     private List<TechnoIO> technos;
     private long versionId;
 
@@ -44,7 +46,7 @@ public class ModuleBuilder {
         // Valeurs par défaut
         name = "test-module";
         version = "1.0.0";
-        isWorkingCopy = true;
+        versionType = WORKINGCOPY;
         technos = new ArrayList<>();
         versionId = 0;
         return this;
@@ -60,8 +62,8 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder withIsWorkingCopy(boolean isWorkingCopy) {
-        this.isWorkingCopy = isWorkingCopy;
+    public ModuleBuilder withModuleType(String versionType) {
+        this.versionType = versionType;
         return this;
     }
 
@@ -76,11 +78,11 @@ public class ModuleBuilder {
     }
 
     public ModuleIO build() {
-        return new ModuleIO(name, version, isWorkingCopy, technos, versionId);
+        return new ModuleIO(name, version, isWorkingCopy(), technos, versionId);
     }
 
     public String getNamespace() {
-        return "modules#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+        return "modules#" + name + "#" + version + "#" + versionType;
     }
 
     public void removeTechno(TechnoIO techno) {
@@ -90,6 +92,14 @@ public class ModuleBuilder {
     }
 
     public String getPropertiesPath() {
-        return "GROUP#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+        return "GROUP#" + name + "#" + version + "#" + versionType;
+    }
+
+    public String getVersionType() {
+        return versionType;
+    }
+
+    public Boolean isWorkingCopy() {
+        return versionType == WORKINGCOPY;
     }
 }

@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
@@ -25,8 +26,11 @@ public class GetModules implements En {
             moduleBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the module detail$", (String tryTo) -> {
-            responseEntity = moduleClient.get(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
+        When("^I( try to)? get the module detail(?: for a module version \"(.*)\")?$", (String tryTo, String moduleType) -> {
+            if (StringUtils.isNotEmpty(moduleType)) {
+                moduleBuilder.withModuleType(moduleType);
+            }
+            responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module detail is successfully retrieved$", () -> {
@@ -38,7 +42,10 @@ public class GetModules implements En {
 
         Then("^the module is not found$", () -> {
             assertNotFound(responseEntity);
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
+        });
+
+        Then("^the request is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 }
