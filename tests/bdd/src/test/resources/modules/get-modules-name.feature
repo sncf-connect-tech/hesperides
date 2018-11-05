@@ -3,7 +3,7 @@ Feature: Get modules name
   Background:
     Given an authenticated user
 
-  Scenario: get a list of all the modules name
+  Scenario: get a list of all the modules names
     Given a list of 12 modules with different names
     When I get the modules name
     Then a list of 12 names is returned

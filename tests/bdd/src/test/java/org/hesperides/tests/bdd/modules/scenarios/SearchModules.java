@@ -23,8 +23,9 @@ public class SearchModules implements En {
 
     public SearchModules() {
 
-        Given("^a list of modules( with different names)?(?: with the same name)?$", (String withDifferentNames) -> {
-            for (int i = 0; i < 12; i++) {
+        Given("^a list of( \\d+)? modules( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
+            Integer modulesToCreateCount = StringUtils.isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
+            for (int i = 0; i < modulesToCreateCount; i++) {
                 if (StringUtils.isNotEmpty(withDifferentNames)) {
                     moduleBuilder.withName("new-module-" + i);
                 } else {
