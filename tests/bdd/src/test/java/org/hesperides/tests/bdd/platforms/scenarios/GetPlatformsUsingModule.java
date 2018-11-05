@@ -22,19 +22,17 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
-
-public class GetPlatformsUsingModule implements En {
+public class GetPlatformsUsingModule extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
@@ -43,8 +41,6 @@ public class GetPlatformsUsingModule implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private ResponseEntity<ModulePlatformsOutput[]> responseEntity;
-
     public GetPlatformsUsingModule() {
 
         When("^I get the platforms using this module$", () -> {
@@ -52,9 +48,9 @@ public class GetPlatformsUsingModule implements En {
         });
 
         Then("^the platforms using this module are successfully retrieved", () -> {
-            assertOK(responseEntity);
+            assertOK();
             List<ModulePlatformsOutput> expectedPlatforms = platformBuilder.buildModulePlatforms();
-            List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(responseEntity.getBody());
+            List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(getBodyAsArray());
             Assert.assertEquals(expectedPlatforms, actualPlatforms);
         });
     }

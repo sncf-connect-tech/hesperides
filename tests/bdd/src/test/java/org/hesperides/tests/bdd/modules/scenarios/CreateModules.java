@@ -3,6 +3,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
@@ -12,10 +13,10 @@ import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class CreateModules implements En {
+public class CreateModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -29,8 +30,6 @@ public class CreateModules implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public CreateModules() {
 
@@ -74,18 +73,18 @@ public class CreateModules implements En {
         });
 
         Then("^the module is successfully created$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
             assertEquals(expectedModule, actualModule);
         });
 
         Then("^the module creation is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
 
         Then("^the module creation is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 

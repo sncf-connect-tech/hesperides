@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
@@ -13,11 +14,11 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class CopyTechnos implements En {
+public class CopyTechnos extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -25,8 +26,6 @@ public class CopyTechnos implements En {
     private TechnoBuilder technoBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public CopyTechnos() {
 
@@ -39,7 +38,7 @@ public class CopyTechnos implements En {
         });
 
         Then("^the techno is successfully duplicated$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
             TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
@@ -58,7 +57,7 @@ public class CopyTechnos implements En {
 
         Then("^the model of the techno is the same$", () -> {
             responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
-            assertOK(responseEntity);
+            assertOK();
             ModelOutput expectedModel = modelBuilder.build();
             ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
@@ -70,12 +69,12 @@ public class CopyTechnos implements En {
         });
 
         Then("^the techno copy is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
 
         Then("^the techno copy is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
     }

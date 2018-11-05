@@ -24,39 +24,50 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
-public class StepHelper {
+public class HesperidesScenario {
+
+    protected ResponseEntity responseEntity;
+
+    protected <T> T[] getBodyAsArray() {
+        return ((ResponseEntity<T[]>)responseEntity).getBody();
+    }
+    protected Map getBodyAsMap() {
+        return ((ResponseEntity<Map>)responseEntity).getBody();
+    }
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
         return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
     }
 
-    public static void assertOK(ResponseEntity responseEntity) {
+    public void assertOK() {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
-    public static void assertCreated(ResponseEntity responseEntity) {
+    public void assertCreated() {
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
     }
 
-    public static void assertNotFound(ResponseEntity responseEntity) {
+    public void assertNotFound() {
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 
-    public static void assertConflict(ResponseEntity responseEntity) {
+    public void assertConflict() {
         assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
     }
 
-    public static void assertMethodNotAllowed(ResponseEntity responseEntity) {
+    public void assertMethodNotAllowed() {
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
     }
 
-    public static void assertBadRequest(ResponseEntity responseEntity) {
+    public void assertBadRequest() {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
-    public static void assertNoContent(ResponseEntity responseEntity) {
+    public void assertNoContent() {
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
 }

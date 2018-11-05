@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
@@ -15,11 +16,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class CopyModules implements En {
+public class CopyModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -29,8 +30,6 @@ public class CopyModules implements En {
     private ModelBuilder modelBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-
-    private ResponseEntity responseEntity;
 
     public CopyModules() {
 
@@ -49,7 +48,7 @@ public class CopyModules implements En {
         });
 
         Then("^the module is successfully duplicated$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersion("1.0.1");
             ModuleIO expectedModule = expectedModuleBuilder.build();
             ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
@@ -73,22 +72,22 @@ public class CopyModules implements En {
 
         Then("^the model of the module is the same$", () -> {
             responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
-            assertOK(responseEntity);
+            assertOK();
             ModelOutput expectedModel = modelBuilder.build();
             ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the module copy is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the module copy is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
 
         Then("^the module copy is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
         });
     }
 

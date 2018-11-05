@@ -23,22 +23,21 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 
-public class GetPlatforms implements En {
+public class GetPlatforms extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
-
-    private ResponseEntity responseEntity;
 
     public GetPlatforms() {
 
@@ -50,14 +49,14 @@ public class GetPlatforms implements En {
         });
 
         Then("^the platform detail is successfully retrieved", () -> {
-            assertOK(responseEntity);
+            assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^the platform is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 }

@@ -21,21 +21,20 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 
-public class DeletePlatforms implements En {
+public class DeletePlatforms extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
-
-    private ResponseEntity responseEntity;
 
     public DeletePlatforms() {
 
@@ -48,11 +47,11 @@ public class DeletePlatforms implements En {
         });
 
         Then("^the platform is successfully deleted", () -> {
-            assertOK(responseEntity);
+            assertOK();
         });
 
         Then("^the platform deletion is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 }

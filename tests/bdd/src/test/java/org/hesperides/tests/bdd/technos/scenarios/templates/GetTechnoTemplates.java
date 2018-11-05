@@ -23,6 +23,7 @@ package org.hesperides.tests.bdd.technos.scenarios.templates;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
@@ -34,10 +35,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class GetTechnoTemplates implements En {
+public class GetTechnoTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -46,7 +47,6 @@ public class GetTechnoTemplates implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
 
-    private ResponseEntity responseEntity;
     private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
 
     private static int nbTemplates = 12;
@@ -79,7 +79,7 @@ public class GetTechnoTemplates implements En {
         });
 
         Then("^a list of all the templates of the techno is returned$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) responseEntity.getBody());
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()
@@ -88,22 +88,22 @@ public class GetTechnoTemplates implements En {
         });
 
         Then("^the techno template is successfully returned$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
             TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the techno template is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the templates techno is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the template techno is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 }

@@ -2,22 +2,19 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
-public class GetModulesTypes implements En {
+public class GetModulesTypes extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
     @Autowired
     private ModuleBuilder moduleBuilder;
-
-    private ResponseEntity<String[]> responseEntity;
 
     public GetModulesTypes() {
 
@@ -27,21 +24,18 @@ public class GetModulesTypes implements En {
         });
 
         Then("^a list containing workingcopy and release is returned$", () -> {
-            assertOK(responseEntity);
-            assertEquals(2, responseEntity.getBody().length);
-            assertEquals("workingcopy", responseEntity.getBody()[0]);
-            assertEquals("release", responseEntity.getBody()[1]);
+            assertOK();
+            String[] body = getBodyAsArray();
+            assertEquals(2, body.length);
+            assertEquals("workingcopy", body[0]);
+            assertEquals("release", body[1]);
         });
 
         Then("^a list containing workingcopy is returned$", () -> {
-            assertOK(responseEntity);
-            assertEquals(1, responseEntity.getBody().length);
-            assertEquals("workingcopy", responseEntity.getBody()[0]);
-        });
-
-        Then("^an empty list is returned$", () -> {
-            assertOK(responseEntity);
-            assertEquals(0, responseEntity.getBody().length);
+            assertOK();
+            String[] body = getBodyAsArray();
+            assertEquals(1, body.length);
+            assertEquals("workingcopy", body[0]);
         });
     }
 }

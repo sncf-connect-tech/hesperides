@@ -1,17 +1,15 @@
 package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
-public class SearchTechnos implements En {
+public class SearchTechnos extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -19,8 +17,6 @@ public class SearchTechnos implements En {
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-
-    private ResponseEntity<TechnoIO[]> responseEntity;
 
     public SearchTechnos() {
 
@@ -44,18 +40,18 @@ public class SearchTechnos implements En {
         });
 
         Then("^the techno is found$", () -> {
-            assertOK(responseEntity);
-            assertEquals(1, responseEntity.getBody().length);
+            assertOK();
+            assertEquals(1, getBodyAsArray().length);
         });
 
         Then("^the list of techno results is limited to (\\d+) items$", (Integer limit) -> {
-            assertOK(responseEntity);
-            assertEquals(limit.intValue(), responseEntity.getBody().length);
+            assertOK();
+            assertEquals(limit.intValue(), getBodyAsArray().length);
         });
 
         Then("^the list of techno results is empty$", () -> {
-            assertOK(responseEntity);
-            assertEquals(0, responseEntity.getBody().length);
+            assertOK();
+            assertEquals(0, getBodyAsArray().length);
         });
     }
 }

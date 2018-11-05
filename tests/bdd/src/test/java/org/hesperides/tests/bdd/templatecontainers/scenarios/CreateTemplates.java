@@ -23,15 +23,13 @@ package org.hesperides.tests.bdd.templatecontainers.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertCreated;
-
-public class CreateTemplates implements En {
+public class CreateTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -43,8 +41,8 @@ public class CreateTemplates implements En {
     public CreateTemplates() {
 
         Given("^an existing template$", () -> {
-            ResponseEntity responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
-            assertCreated(responseEntity);
+            responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            assertCreated();
         });
 
         Given("^a template to create( with the same name as the existing one)?$", (String withTheSameName) -> {

@@ -21,15 +21,16 @@
 package org.hesperides.tests.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 
-public class DeleteModuleTemplates implements En {
+public class DeleteModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -38,8 +39,6 @@ public class DeleteModuleTemplates implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private ResponseEntity responseEntity;
-
     public DeleteModuleTemplates() {
 
         When("^I( try to)? delete this module template$", (String tryTo) -> {
@@ -47,17 +46,17 @@ public class DeleteModuleTemplates implements En {
         });
 
         Then("^the module template is successfully deleted$", () -> {
-            assertNoContent(responseEntity);
+            assertNoContent();
             responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), String.class);
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the module template delete is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed(responseEntity);
+            assertMethodNotAllowed();
         });
 
         Then("^the module template delete is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 }

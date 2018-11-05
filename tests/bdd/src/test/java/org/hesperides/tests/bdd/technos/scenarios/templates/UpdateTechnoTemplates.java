@@ -22,16 +22,17 @@ package org.hesperides.tests.bdd.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class UpdateTechnoTemplates implements En {
+public class UpdateTechnoTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -40,8 +41,6 @@ public class UpdateTechnoTemplates implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
 
-    private ResponseEntity responseEntity;
-
     public UpdateTechnoTemplates() {
 
         When("^I( try to)? update this techno template$", (String tryTo) -> {
@@ -49,7 +48,7 @@ public class UpdateTechnoTemplates implements En {
         });
 
         Then("^the techno template is successfully updated$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             String expectedNamespace = technoBuilder.getNamespace();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
             TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
@@ -57,15 +56,15 @@ public class UpdateTechnoTemplates implements En {
         });
 
         Then("^the techno template update is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed(responseEntity);
+            assertMethodNotAllowed();
         });
 
         Then("^the techno template update is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the techno template update is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
     }
 }

@@ -3,6 +3,7 @@ package org.hesperides.tests.bdd.technos.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
@@ -11,10 +12,10 @@ import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class CreateTechnos implements En {
+public class CreateTechnos extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -26,8 +27,6 @@ public class CreateTechnos implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public CreateTechnos() {
 
@@ -52,7 +51,7 @@ public class CreateTechnos implements En {
         });
 
         Then("^the techno is successfully created$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             String expectedNamespace = technoBuilder.getNamespace();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(1).build();
             TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
@@ -60,7 +59,7 @@ public class CreateTechnos implements En {
         });
 
         Then("^the techno creation is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
     }
 

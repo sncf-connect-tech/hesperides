@@ -24,6 +24,7 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
@@ -35,10 +36,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class GetModuleTemplates implements En {
+public class GetModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -47,7 +48,6 @@ public class GetModuleTemplates implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private ResponseEntity responseEntity;
     private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
 
     private static int nbTemplates = 12;
@@ -87,7 +87,7 @@ public class GetModuleTemplates implements En {
         });
 
         Then("^a list of all the templates of the module is returned$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) responseEntity.getBody());
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()
@@ -96,23 +96,23 @@ public class GetModuleTemplates implements En {
         });
 
         Then("^the module template is successfully returned$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
             TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the module template is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the module templates is empty$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             assertEquals(0, ((PartialTemplateIO[]) responseEntity.getBody()).length);
         });
 
         Then("^the template module is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 }

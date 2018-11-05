@@ -21,15 +21,16 @@
 package org.hesperides.tests.bdd.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 
-public class DeleteTechnoTemplates implements En {
+public class DeleteTechnoTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -38,8 +39,6 @@ public class DeleteTechnoTemplates implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
 
-    private ResponseEntity responseEntity;
-
     public DeleteTechnoTemplates() {
 
         When("^I( try to)? delete this techno template$", (String tryTo) -> {
@@ -47,17 +46,17 @@ public class DeleteTechnoTemplates implements En {
         });
 
         Then("^the techno template is successfully deleted$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the techno template delete is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed(responseEntity);
+            assertMethodNotAllowed();
         });
 
         Then("^the techno template delete is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
     }
 }

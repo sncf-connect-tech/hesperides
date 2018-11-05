@@ -22,16 +22,17 @@ package org.hesperides.tests.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class UpdateModuleTemplates implements En {
+public class UpdateModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -40,8 +41,6 @@ public class UpdateModuleTemplates implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private ResponseEntity responseEntity;
-
     public UpdateModuleTemplates() {
 
         When("^I( try to)? update this module template$", (String tryTo) -> {
@@ -49,7 +48,7 @@ public class UpdateModuleTemplates implements En {
         });
 
         Then("^the module template is successfully updated$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             String expectedNamespace = moduleBuilder.getNamespace();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
             TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
@@ -57,15 +56,15 @@ public class UpdateModuleTemplates implements En {
         });
 
         Then("^the module template update is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed(responseEntity);
+            assertMethodNotAllowed();
         });
 
         Then("^the module template update is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the module template update is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
     }
 }

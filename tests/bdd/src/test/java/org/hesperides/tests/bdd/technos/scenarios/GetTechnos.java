@@ -2,22 +2,21 @@ package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class GetTechnos implements En {
+public class GetTechnos extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
     @Autowired
     private TechnoBuilder technoBuilder;
-
-    private ResponseEntity responseEntity;
 
     public GetTechnos() {
 
@@ -30,14 +29,14 @@ public class GetTechnos implements En {
         });
 
         Then("^the techno detail is successfully retrieved$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             TechnoIO expectedTechno = technoBuilder.build();
             TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
             assertEquals(expectedTechno, actualTechno);
         });
 
         Then("^the techno is not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
     }

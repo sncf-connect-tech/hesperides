@@ -1,19 +1,16 @@
 package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
-public class GetModulesName implements En {
+public class GetModulesName extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
-
-    private ResponseEntity<String[]> responseEntity;
 
     public GetModulesName() {
 
@@ -22,8 +19,8 @@ public class GetModulesName implements En {
         });
 
         Then("^a list of (\\d+) names? is returned$", (Integer nbModulesName) -> {
-            assertOK(responseEntity);
-            assertEquals(nbModulesName.intValue(), responseEntity.getBody().length);
+            assertOK();
+            assertEquals(nbModulesName.intValue(), getBodyAsArray().length);
         });
     }
 }

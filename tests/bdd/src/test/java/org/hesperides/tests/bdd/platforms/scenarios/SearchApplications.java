@@ -3,6 +3,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,17 +12,15 @@ import org.springframework.http.ResponseEntity;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class SearchApplications implements En {
+public class SearchApplications extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
-
-    private ResponseEntity responseEntity;
 
     public SearchApplications() {
 
@@ -47,19 +46,19 @@ public class SearchApplications implements En {
         });
 
         Then("^the application search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
-            assertOK(responseEntity);
+            assertOK();
             List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) responseEntity.getBody());
             assertEquals(nbEntries.intValue(), result.size());
         });
 
         Then("^the application \"(.*?)\" is found$", (String applicationName) -> {
-            assertOK(responseEntity);
+            assertOK();
             List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) responseEntity.getBody());
             assertEquals(applicationName, result.get(0).getName());
         });
 
         Then("^the application search is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
         });
     }
 }

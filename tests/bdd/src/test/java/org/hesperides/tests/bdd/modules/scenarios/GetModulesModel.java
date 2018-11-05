@@ -3,6 +3,7 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
@@ -11,10 +12,10 @@ import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class GetModulesModel implements En {
+public class GetModulesModel extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -26,8 +27,6 @@ public class GetModulesModel implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public GetModulesModel() {
 
@@ -103,18 +102,18 @@ public class GetModulesModel implements En {
         });
 
         Then("^the model of this module contains the(?: updated)? properties$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             ModelOutput expectedModel = modelBuilder.build();
             ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the module model if not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the model of this module doesn't contain the properties$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
             ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
             assertEquals(expectedModel, actualModel);
