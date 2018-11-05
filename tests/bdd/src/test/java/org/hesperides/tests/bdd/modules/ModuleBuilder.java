@@ -30,8 +30,8 @@ import java.util.List;
 @Component
 public class ModuleBuilder {
 
-    private final static String WORKINGCOPY = "WORKINGCOPY";
-    private final static String RELEASE = "RELEASE";
+    public final static String WORKINGCOPY = "WORKINGCOPY";
+    public final static String RELEASE = "RELEASE";
     private String name;
     private String version;
     private String versionType;
@@ -64,11 +64,6 @@ public class ModuleBuilder {
 
     public ModuleBuilder withModuleType(String versionType) {
         this.versionType = versionType;
-        return this;
-    }
-
-    public ModuleBuilder withIsWorkingCopy(Boolean isWorkingCopy) {
-        this.versionType = isWorkingCopy ? WORKINGCOPY : RELEASE;
         return this;
     }
 

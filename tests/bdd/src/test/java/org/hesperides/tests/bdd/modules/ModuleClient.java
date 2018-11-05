@@ -60,7 +60,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                versionType);
+                versionType.toLowerCase());
     }
 
     public ResponseEntity release(ModuleIO moduleInput, Class responseType) {
