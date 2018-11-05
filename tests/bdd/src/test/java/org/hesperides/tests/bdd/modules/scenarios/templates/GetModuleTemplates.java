@@ -88,7 +88,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
 
         Then("^a list of all the templates of the module is returned$", () -> {
             assertOK();
-            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) testContext.responseEntity.getBody());
+            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) testContext.getResponseBody());
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()
                             .filter(t -> !TemplateBuilder.DEFAULT_NAME.equals(t.getName()))
@@ -98,21 +98,8 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
         Then("^the module template is successfully returned$", () -> {
             assertOK();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) testContext.responseEntity.getBody();
+            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
-        });
-
-        Then("^the module template is not found$", () -> {
-            assertNotFound();
-        });
-
-        Then("^the module templates is empty$", () -> {
-            assertOK();
-            assertEquals(0, ((PartialTemplateIO[]) testContext.responseEntity.getBody()).length);
-        });
-
-        Then("^the template module is not found$", () -> {
-            assertNotFound();
         });
     }
 }

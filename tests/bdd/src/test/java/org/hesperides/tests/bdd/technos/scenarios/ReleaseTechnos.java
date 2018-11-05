@@ -45,7 +45,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
             assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withIsWorkingCopy(false);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) testContext.responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
 
             // Compare les templates de la techno d'origine avec ceux de la techno en mode release

@@ -56,7 +56,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 assertThat(warnings, hasItem(containsString(warning)));
             }
             PlatformIO expectedPlatform = platformBuilder.withVersionId(2).buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.responseEntity.getBody();
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             assertEquals(expectedPlatform, actualPlatform);
         });
     }

@@ -79,7 +79,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
                 expectedModuleBuilder.withVersion(releasedModuleVersion);
             }
             ModuleIO expectedModule = expectedModuleBuilder.build();
-            ModuleIO actualModule = (ModuleIO) testContext.responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
 
             // Compare les templates de la module d'origine avec ceux de la module en mode release

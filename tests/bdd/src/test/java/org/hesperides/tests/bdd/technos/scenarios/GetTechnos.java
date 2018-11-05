@@ -31,13 +31,8 @@ public class GetTechnos extends HesperidesScenario implements En {
         Then("^the techno detail is successfully retrieved$", () -> {
             assertOK();
             TechnoIO expectedTechno = technoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) testContext.responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
-        });
-
-        Then("^the techno is not found$", () -> {
-            assertNotFound();
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
     }
 }

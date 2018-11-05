@@ -11,4 +11,8 @@ public class TestContext {
     public static BasicAuthorizationInterceptor BASIC_AUTH_INTERCEPTOR = new BasicAuthorizationInterceptor("user", "password");
 
     public ResponseEntity responseEntity;
+
+    public Object getResponseBody() {
+        return responseEntity.getBody();
+    }
 }

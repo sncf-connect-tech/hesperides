@@ -51,7 +51,7 @@ public class CopyModules extends HesperidesScenario implements En {
             assertCreated();
             ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersion("1.0.1");
             ModuleIO expectedModule = expectedModuleBuilder.build();
-            ModuleIO actualModule = (ModuleIO) testContext.responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
 
             // Vérifie la liste des templates
@@ -66,7 +66,7 @@ public class CopyModules extends HesperidesScenario implements En {
         });
 
         Then("^the version type of the duplicated module is working copy$", () -> {
-            ModuleIO techoOutput = (ModuleIO) testContext.responseEntity.getBody();
+            ModuleIO techoOutput = (ModuleIO) testContext.getResponseBody();
             assertTrue(techoOutput.isWorkingCopy());
         });
 
@@ -74,7 +74,7 @@ public class CopyModules extends HesperidesScenario implements En {
             testContext.responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 

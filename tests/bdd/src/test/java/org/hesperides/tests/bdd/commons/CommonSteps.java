@@ -15,6 +15,10 @@ public class CommonSteps extends HesperidesScenario implements En {
             restTemplate.getInterceptors().add(TestContext.BASIC_AUTH_INTERCEPTOR);
         });
 
+        Then("^the resource is not found$", () -> {
+            assertNotFound();
+        });
+
         Then("^the request is rejected with a bad request error$", () -> {
             assertBadRequest();
         });

@@ -156,13 +156,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform is successfully created$", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.responseEntity.getBody();
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
             assertEquals(HttpStatus.valueOf(httpCode), testContext.responseEntity.getStatusCode());
-            assertThat((String) testContext.responseEntity.getBody(), containsString(message));
+            assertThat((String) testContext.getResponseBody(), containsString(message));
         });
 
         Then("^the platform creation fails with an already exist error$", () -> {

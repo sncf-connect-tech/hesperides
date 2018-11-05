@@ -30,12 +30,12 @@ public class GetModuleEvents extends HesperidesScenario implements En {
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {
             assertOK();
-            EventOutput[] events = (EventOutput[]) testContext.responseEntity.getBody();
+            EventOutput[] events = (EventOutput[]) testContext.getResponseBody();
             assertEquals(nbEvents.intValue(), events.length);
         });
 
         Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
-            EventOutput[] events = (EventOutput[]) testContext.responseEntity.getBody();
+            EventOutput[] events = (EventOutput[]) testContext.getResponseBody();
             assertThat(events[index], hasProperty("type", endsWith(eventType)));
         });
     }

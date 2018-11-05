@@ -57,11 +57,6 @@ public class SearchModules extends HesperidesScenario implements En {
             assertEquals(limit.intValue(), getBodyAsArray().length);
         });
 
-        Then("^the list of module results is empty$", () -> {
-            assertOK();
-            assertEquals(0, getBodyAsArray().length);
-        });
-
         Then("^the search request is rejected with a bad request error$", () -> {
             assertBadRequest();
         });

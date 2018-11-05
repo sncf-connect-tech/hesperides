@@ -41,7 +41,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
             assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) testContext.responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
 
             // Vérifie la liste des templates
@@ -59,12 +59,12 @@ public class CopyTechnos extends HesperidesScenario implements En {
             testContext.responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) testContext.responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the version type of the duplicated techno is working copy$", () -> {
-            TechnoIO techoOutput = (TechnoIO) testContext.responseEntity.getBody();
+            TechnoIO techoOutput = (TechnoIO) testContext.getResponseBody();
             assertTrue(techoOutput.isWorkingCopy());
         });
 

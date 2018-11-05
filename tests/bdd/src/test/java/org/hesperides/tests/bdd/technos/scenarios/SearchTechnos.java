@@ -48,10 +48,5 @@ public class SearchTechnos extends HesperidesScenario implements En {
             assertOK();
             assertEquals(limit.intValue(), getBodyAsArray().length);
         });
-
-        Then("^the list of techno results is empty$", () -> {
-            assertOK();
-            assertEquals(0, getBodyAsArray().length);
-        });
     }
 }

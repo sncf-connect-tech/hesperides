@@ -16,4 +16,4 @@ Feature: Search technos
   Scenario: search for a techno that does not exist
     Given a list of 12 technos
     When I search for a techno that does not exist
-    Then the list of techno results is empty
+    Then an empty list is returned

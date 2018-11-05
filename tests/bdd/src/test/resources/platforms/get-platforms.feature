@@ -18,4 +18,4 @@ Feature: Get platforms
   Scenario: get a platform that doesn't exist
     Given a platform that doesn't exist
     When I try to get the platform detail
-    Then the platform is not found
+    Then the resource is not found
