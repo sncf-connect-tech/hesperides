@@ -48,7 +48,11 @@ public class ModuleClient {
     }
 
     public ResponseEntity search(String terms) {
-        return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, ModuleIO[].class);
+        return this.search(terms, ModuleIO[].class);
+    }
+
+    public ResponseEntity search(String terms, Class responseType) {
+        return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, responseType);
     }
 
     public ResponseEntity get(ModuleIO moduleInput, String versionType, Class responseType) {

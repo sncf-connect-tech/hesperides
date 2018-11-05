@@ -199,6 +199,8 @@ public class ModulesController extends AbstractController {
 
         log.debug("search module {}", input);
 
+        checkQueryParameterNotEmpty("terms", input);
+
         List<ModuleView> moduleViews = moduleUseCases.search(input);
         List<ModuleIO> moduleOutputs = Optional.ofNullable(moduleViews)
                 .orElse(Collections.emptyList())

@@ -8,6 +8,7 @@ import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import static org.hesperides.tests.bdd.commons.StepHelper.assertBadRequest;
 import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
@@ -22,10 +23,8 @@ public class SearchModules implements En {
 
     public SearchModules() {
 
-        Given("^a list of (\\d+) modules( with different names)?(?: with the same name)?$", (
-                Integer nbModules, String withDifferentNames) -> {
-
-            for (int i = 0; i < nbModules; i++) {
+        Given("^a list of modules( with different names)?(?: with the same name)?$", (String withDifferentNames) -> {
+            for (int i = 0; i < 12; i++) {
                 if (StringUtils.isNotEmpty(withDifferentNames)) {
                     moduleBuilder.withName("new-module-" + i);
                 } else {
@@ -48,6 +47,10 @@ public class SearchModules implements En {
             responseEntity = moduleClient.search("nope");
         });
 
+        When("^I try to search for a module with no search terms$", () -> {
+            responseEntity = moduleClient.search("", String.class);
+        });
+
         Then("^the module is found$", () -> {
             assertOK(responseEntity);
             assertEquals(1, responseEntity.getBody().length);
@@ -61,6 +64,10 @@ public class SearchModules implements En {
         Then("^the list of module results is empty$", () -> {
             assertOK(responseEntity);
             assertEquals(0, responseEntity.getBody().length);
+        });
+
+        Then("^the search request is rejected with a bad request error$", () -> {
+            assertBadRequest(responseEntity);
         });
     }
 }
