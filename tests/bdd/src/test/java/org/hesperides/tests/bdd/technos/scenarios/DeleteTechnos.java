@@ -40,5 +40,15 @@ public class DeleteTechnos implements En {
         Then("^the techno deletion is rejected with a not found error$", () -> {
             assertNotFound(responseEntity);
         });
+
+        Then("^this techno templates are also deleted$", () -> {
+            //s'assurer que la techno à été bien supprimé dans le 1er step => Given
+            assertOK(responseEntity);
+            responseEntity = technoClient.getTemplates(technoBuilder.build(), String.class);
+            assertNotFound(responseEntity);
+            responseEntity = technoClient.getTemplate(technoBuilder.build().getName(), technoBuilder.build(), String.class);
+            assertNotFound(responseEntity);
+        });
+
     }
 }
