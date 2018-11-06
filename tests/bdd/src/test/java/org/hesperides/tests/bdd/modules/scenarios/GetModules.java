@@ -3,22 +3,21 @@ package org.hesperides.tests.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class GetModules implements En {
+public class GetModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
     @Autowired
     private ModuleBuilder moduleBuilder;
-
-    private ResponseEntity responseEntity;
 
     public GetModules() {
 
@@ -30,22 +29,14 @@ public class GetModules implements En {
             if (StringUtils.isNotEmpty(moduleType)) {
                 moduleBuilder.withModuleType(moduleType);
             }
-            responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module detail is successfully retrieved$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
-        });
-
-        Then("^the module is not found$", () -> {
-            assertNotFound(responseEntity);
-        });
-
-        Then("^the request is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
         });
     }
 }

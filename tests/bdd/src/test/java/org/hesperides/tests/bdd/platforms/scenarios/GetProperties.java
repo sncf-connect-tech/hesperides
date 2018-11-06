@@ -23,16 +23,16 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
-public class GetProperties implements En {
+public class GetProperties extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
@@ -41,22 +41,20 @@ public class GetProperties implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private ResponseEntity<PropertiesIO> responseEntity;
-
     public GetProperties() {
 
         When("^I get the platform properties for this module$", () -> {
-            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
         });
 
         When("^I get the global properties of this platform$", () -> {
-            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
+            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
         });
 
         Then("^the platform( global)? properties are successfully retrieved$", (String global) -> {
-            assertOK(responseEntity);
+            assertOK();
             PropertiesIO expectedProperties = platformBuilder.getProperties(StringUtils.isNotEmpty(global));
-            PropertiesIO actualProperties = responseEntity.getBody();
+            PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)testContext.responseEntity).getBody();
             assertEquals(expectedProperties, actualProperties);
         });
     }

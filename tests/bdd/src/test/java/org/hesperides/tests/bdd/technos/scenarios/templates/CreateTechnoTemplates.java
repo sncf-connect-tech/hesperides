@@ -22,16 +22,17 @@ package org.hesperides.tests.bdd.technos.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class CreateTechnoTemplates implements En {
+public class CreateTechnoTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -40,27 +41,25 @@ public class CreateTechnoTemplates implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
 
-    private ResponseEntity responseEntity;
-
     public CreateTechnoTemplates() {
 
         When("^I( try to)? add this template to the techno$", (String tryTo) -> {
-            responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the template is successfully added to the techno$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the techno template creation is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed(responseEntity);
+            assertMethodNotAllowed();
         });
 
         Then("^the techno template creation is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
         });
     }
 }

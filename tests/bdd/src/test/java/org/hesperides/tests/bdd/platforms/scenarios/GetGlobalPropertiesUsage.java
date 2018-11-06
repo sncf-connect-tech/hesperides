@@ -22,6 +22,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
@@ -36,9 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
-
-public class GetGlobalPropertiesUsage implements En {
+public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
@@ -50,8 +49,6 @@ public class GetGlobalPropertiesUsage implements En {
     private ModuleClient moduleClient;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> responseEntity;
 
     public GetGlobalPropertiesUsage() {
 
@@ -71,11 +68,11 @@ public class GetGlobalPropertiesUsage implements En {
         });
 
         When("^I get this platform global properties usage$", () -> {
-            responseEntity = platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput());
+            testContext.responseEntity = platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput());
         });
 
         Then("^the platform global properties usage is successfully retrieved$", () -> {
-            assertOK(responseEntity);
+            assertOK();
 
             Map<String, Set<GlobalPropertyUsageOutput>> expectedProperties = new HashMap<>();
             platformBuilder.getProperties().forEach(property -> {
@@ -88,7 +85,7 @@ public class GetGlobalPropertiesUsage implements En {
                 }
             });
 
-            Map<String, Set<GlobalPropertyUsageOutput>> actualProperties = responseEntity.getBody();
+            Map<String, Set<GlobalPropertyUsageOutput>> actualProperties = ((ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>>)testContext.responseEntity).getBody();
             Assert.assertEquals(expectedProperties, actualProperties);
         });
     }

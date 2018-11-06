@@ -1,6 +1,7 @@
 package org.hesperides.tests.bdd.users;
 
 import cucumber.api.java8.En;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,22 +11,20 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetUserInformation implements En {
+public class GetUserInformation extends HesperidesScenario implements En {
 
     @Autowired
     private RestTemplate restTemplate;
 
-    private ResponseEntity<Map> responseEntity;
-
     public GetUserInformation() {
 
         When("^I get the current user information$", () -> {
-            responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
+            testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
         });
 
         Then("^the user information is provided$", () -> {
-            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-            Map map = responseEntity.getBody();
+            assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
+            Map map = getBodyAsMap();
             assertEquals("user", map.get("username"));
             assertEquals(false, map.get("prodUser"));
             assertEquals(false, map.get("techUser"));

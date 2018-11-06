@@ -22,16 +22,17 @@ package org.hesperides.tests.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class CreateModuleTemplates implements En {
+public class CreateModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -40,31 +41,33 @@ public class CreateModuleTemplates implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private ResponseEntity responseEntity;
-
     public CreateModuleTemplates() {
 
         When("^I( try to)? add this template to the module$", (String tryTo) -> {
-            responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 
         Then("^the template is successfully added to the module$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) responseEntity.getBody();
+            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 
         Then("^the module template creation is rejected with a method not allowed error$", () -> {
-            assertMethodNotAllowed(responseEntity);
+            assertMethodNotAllowed();
         });
 
         Then("^the module template creation is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
         });
 
         Then("^the module template creation is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
+        });
+
+        Then("^the module template creation is rejected with a conflict error$", () -> {
+            assertConflict();
         });
     }
 }

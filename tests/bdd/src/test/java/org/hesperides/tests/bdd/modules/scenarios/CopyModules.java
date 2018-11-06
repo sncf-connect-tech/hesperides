@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
@@ -15,11 +16,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class CopyModules implements En {
+public class CopyModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -30,8 +31,6 @@ public class CopyModules implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
 
-    private ResponseEntity responseEntity;
-
     public CopyModules() {
 
         When("^I( try to)? create a copy of this module( without specifying the version of the source module)?( without specifying whether it is a workingcopy)?$", (String tryTo, String unknownSrcVersion, String unknownSrcWorkingCopy) -> {
@@ -41,18 +40,18 @@ public class CopyModules implements En {
             if (!isBlank(unknownSrcVersion)) {
                 moduleBuilder.withVersion(null);
             }
-            responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
         });
 
         When("^I try to create a copy of this module, using the same key$", () -> {
-            responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
+            testContext.responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
         });
 
         Then("^the module is successfully duplicated$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersion("1.0.1");
             ModuleIO expectedModule = expectedModuleBuilder.build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
 
             // Vérifie la liste des templates
@@ -67,28 +66,28 @@ public class CopyModules implements En {
         });
 
         Then("^the version type of the duplicated module is working copy$", () -> {
-            ModuleIO techoOutput = (ModuleIO) responseEntity.getBody();
+            ModuleIO techoOutput = (ModuleIO) testContext.getResponseBody();
             assertTrue(techoOutput.isWorkingCopy());
         });
 
         Then("^the model of the module is the same$", () -> {
-            responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
-            assertOK(responseEntity);
+            testContext.responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
+            assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the module copy is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the module copy is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
 
         Then("^the module copy is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
         });
     }
 

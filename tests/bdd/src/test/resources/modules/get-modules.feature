@@ -18,13 +18,13 @@ Feature: Get modules detail
   Scenario: get the detail of the working copy of a module that doesn't exist
     Given a module that doesn't exist
     When I try to get the module detail
-    Then the module is not found
+    Then the resource is not found
 
   Scenario: get the detail of a released module that only exist as working copy
     Given an existing techno
     And an existing module with this techno
     When I try to get the module detail for a module version "release"
-    Then the module is not found
+    Then the resource is not found
 
   Scenario: get the detail of a module after its techno has been deleted
     Given an existing techno

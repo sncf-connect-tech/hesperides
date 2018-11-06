@@ -16,4 +16,4 @@ Feature: Get technos detail
   Scenario: get the detail of a techno that doesn't exist
     Given a techno that doesn't exist
     When I try to get the techno detail
-    Then the techno is not found
+    Then the resource is not found

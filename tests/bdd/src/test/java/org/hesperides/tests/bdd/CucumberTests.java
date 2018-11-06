@@ -6,7 +6,7 @@ import cucumber.api.java.After;
 import cucumber.api.junit.Cucumber;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.hesperides.HesperidesSpringApplication;
-import org.hesperides.tests.bdd.commons.UserContext;
+import org.hesperides.tests.bdd.commons.TestContext;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
@@ -73,8 +73,8 @@ public class CucumberTests {
         }
 
         private void resetRestTemplateAuthHeader() {
-            if (restTemplate.getInterceptors().contains(UserContext.BASIC_AUTH_INTERCEPTOR)) {
-                restTemplate.getInterceptors().remove(UserContext.BASIC_AUTH_INTERCEPTOR);
+            if (restTemplate.getInterceptors().contains(TestContext.BASIC_AUTH_INTERCEPTOR)) {
+                restTemplate.getInterceptors().remove(TestContext.BASIC_AUTH_INTERCEPTOR);
             }
         }
 

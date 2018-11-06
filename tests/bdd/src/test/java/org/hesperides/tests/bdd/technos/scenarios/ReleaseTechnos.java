@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
@@ -13,10 +14,10 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class ReleaseTechnos implements En {
+public class ReleaseTechnos extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -24,8 +25,6 @@ public class ReleaseTechnos implements En {
     private TechnoBuilder technoBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-
-    private ResponseEntity responseEntity;
 
     public ReleaseTechnos() {
 
@@ -39,14 +38,14 @@ public class ReleaseTechnos implements En {
         });
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
-            responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+            testContext.responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno is successfully released$", () -> {
-            assertCreated(responseEntity);
+            assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withIsWorkingCopy(false);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) responseEntity.getBody();
+            TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
 
             // Compare les templates de la techno d'origine avec ceux de la techno en mode release
@@ -61,7 +60,7 @@ public class ReleaseTechnos implements En {
         });
 
         Then("^the techno release is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
             //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
     }
