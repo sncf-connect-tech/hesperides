@@ -16,7 +16,7 @@ Feature: Search modules
   Scenario: search for a module that does not exist
     Given a list of modules
     When I search for a module that does not exist
-    Then the list of module results is empty
+    Then an empty list is returned
 
   Scenario: search for a module without search terms
     Given a list of modules

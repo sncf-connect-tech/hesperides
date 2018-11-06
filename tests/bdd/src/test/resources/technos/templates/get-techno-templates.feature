@@ -26,14 +26,14 @@ Feature: Get techno templates
     Given an existing techno
     And a template that doesn't exist in this techno
     When I try to get this template in this techno
-    Then the techno template is not found
+    Then the resource is not found
 
   Scenario: get the list of templates of a techno that doesn't exist
     Given a techno that doesn't exist
     When I try to get the list of templates of this techno
-    Then the templates techno is not found
+    Then the resource is not found
 
   Scenario: get a template of a techno that doesn't exist
     Given a techno that doesn't exist
     When I try to get this template in this techno
-    Then the template techno is not found
+    Then the resource is not found

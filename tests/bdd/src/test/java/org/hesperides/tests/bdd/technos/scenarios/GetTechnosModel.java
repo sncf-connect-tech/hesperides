@@ -2,6 +2,7 @@ package org.hesperides.tests.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
@@ -10,10 +11,10 @@ import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class GetTechnosModel implements En {
+public class GetTechnosModel extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
@@ -25,8 +26,6 @@ public class GetTechnosModel implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public GetTechnosModel() {
 
@@ -90,24 +89,24 @@ public class GetTechnosModel implements En {
         });
 
         When("^I( try to)? get the model of this techno$", (String tryTo) -> {
-            responseEntity = technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
+            testContext.responseEntity = technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
         Then("^the model of this techno contains the properties$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the techno model if not found$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the model of this techno doesn't contain the properties$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = (ModelOutput) responseEntity.getBody();
+            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
     }

@@ -27,6 +27,7 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableProperty
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
@@ -42,11 +43,11 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class CreatePlatforms implements En {
+public class CreatePlatforms extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
@@ -56,8 +57,6 @@ public class CreatePlatforms implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public CreatePlatforms() {
 
@@ -139,7 +138,7 @@ public class CreatePlatforms implements En {
         });
 
         When("^I( try to)? create this platform$", (String tryTo) -> {
-            responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 
         When("^I( try to)? copy this platform( using the same key)?$", (String tryTo, String usingTheSameKey) -> {
@@ -149,49 +148,49 @@ public class CreatePlatforms implements En {
                     .withApplicationName(existingPlatform.getApplicationName())
                     .withPlatformName(newName)
                     .buildInput();
-            responseEntity = platformClient.copy(existingPlatform, newPlatform, getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.copy(existingPlatform, newPlatform, getResponseType(tryTo, PlatformIO.class));
             platformBuilder.withPlatformName(newName);
             platformBuilder.withVersionId(1);
         });
 
         Then("^the platform is successfully created$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) responseEntity.getBody();
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
-            assertEquals(HttpStatus.valueOf(httpCode), responseEntity.getStatusCode());
-            assertThat((String) responseEntity.getBody(), containsString(message));
+            assertEquals(HttpStatus.valueOf(httpCode), testContext.responseEntity.getStatusCode());
+            assertThat((String) testContext.getResponseBody(), containsString(message));
         });
 
         Then("^the platform creation fails with an already exist error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
 
         Then("^the platform property values are also copied$", () -> {
             // Propriétés valorisées
             ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
-            assertOK(responseEntity);
+            assertOK();
             PropertiesIO expectedProperties = platformBuilder.getProperties(false);
             PropertiesIO actualProperties = responseEntity.getBody();
             assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
             responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
-            assertOK(responseEntity);
+            assertOK();
             PropertiesIO expectedGlobalProperties = platformBuilder.getProperties(true);
             PropertiesIO actualGlobalProperties = responseEntity.getBody();
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });
 
         Then("^the platform copy fails with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the platform copy fails with an already exist error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
     }
 }

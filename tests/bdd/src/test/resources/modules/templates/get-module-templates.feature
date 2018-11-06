@@ -25,17 +25,17 @@ Feature: Get module templates
     Given an existing module
     And a template that doesn't exist in this module
     When I try to get this template in this module
-    Then the module template is not found
+    Then the resource is not found
 
   Scenario: get the list of templates of a module that doesn't exist
     Given a module that doesn't exist
     When I get the list of templates of this module
-    Then the module templates is empty
+    Then an empty list is returned
 
   Scenario: get a template of a module that doesn't exist
     Given a module that doesn't exist
     When I try to get this template in this module
-    Then the template module is not found
+    Then the resource is not found
 
   Scenario: get a template with "/" within the title
     Given a template with "/" within the title

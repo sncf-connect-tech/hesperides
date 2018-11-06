@@ -4,6 +4,7 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
@@ -11,15 +12,14 @@ import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class ReleaseModules implements En {
+public class ReleaseModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -33,8 +33,6 @@ public class ReleaseModules implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-
-    private ResponseEntity responseEntity;
 
     public ReleaseModules() {
 
@@ -71,17 +69,17 @@ public class ReleaseModules implements En {
             if (StringUtils.isNotEmpty(withoutVersion)) {
                 moduleBuilder.withVersion("");
             }
-            responseEntity = moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully released(?: in version \"(.*)\")?$", (String releasedModuleVersion) -> {
-            assertOK(responseEntity);
+            assertOK();
             ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withModuleType(ModuleBuilder.RELEASE);
             if (StringUtils.isNotEmpty(releasedModuleVersion)) {
                 expectedModuleBuilder.withVersion(releasedModuleVersion);
             }
             ModuleIO expectedModule = expectedModuleBuilder.build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
 
             // Compare les templates de la module d'origine avec ceux de la module en mode release
@@ -96,12 +94,15 @@ public class ReleaseModules implements En {
         });
 
         Then("^the module release is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
+            assertNotFound();
         });
 
         Then("^the module release is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
+        });
+
+        Then("^the module release is rejected with a conflict error$", () -> {
+            assertConflict();
         });
     }
 }

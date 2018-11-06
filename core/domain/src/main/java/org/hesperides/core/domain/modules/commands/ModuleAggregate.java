@@ -134,7 +134,6 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
-        //TODO Est-ce qu'on met à jour le versionId ?
         log.debug("module supprimé. (aggregate is live ? {})", isLive());
     }
 

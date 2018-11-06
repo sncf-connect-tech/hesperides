@@ -2,16 +2,17 @@ package org.hesperides.tests.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.*;
+import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
-public class UpdateModules implements En {
+public class UpdateModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
@@ -19,8 +20,6 @@ public class UpdateModules implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-
-    private ResponseEntity responseEntity;
 
     public UpdateModules() {
 
@@ -33,26 +32,26 @@ public class UpdateModules implements En {
         });
 
         When("^I( try to)? update this module$", (String tryTo) -> {
-            responseEntity = moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
+            testContext.responseEntity = moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module is successfully updated$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             ModuleIO expectedModule = moduleBuilder.withVersionId(2).build();
-            ModuleIO actualModule = (ModuleIO) responseEntity.getBody();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 
         Then("^the module update is rejected with a not found error$", () -> {
-            assertNotFound(responseEntity);
+            assertNotFound();
         });
 
         Then("^the module update is rejected with a conflict error$", () -> {
-            assertConflict(responseEntity);
+            assertConflict();
         });
 
         Then("^the module update is rejected with a bad request error$", () -> {
-            assertBadRequest(responseEntity);
+            assertBadRequest();
         });
     }
 }
