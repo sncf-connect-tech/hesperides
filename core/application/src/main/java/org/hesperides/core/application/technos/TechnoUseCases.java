@@ -85,10 +85,11 @@ public class TechnoUseCases {
     }
 
     public List<TemplateView> getTemplates(TemplateContainer.Key technoKey) {
-        if (!queries.technoExists(technoKey)) {
-            throw new TechnoNotFoundException(technoKey);
+        List<TemplateView> templates = Collections.emptyList();
+        if (queries.technoExists(technoKey)) {
+            templates = queries.getTemplates(technoKey);
         }
-        return queries.getTemplates(technoKey);
+        return templates;
     }
 
     public TechnoView releaseTechno(TemplateContainer.Key existingTechnoKey, User user) {
@@ -135,9 +136,10 @@ public class TechnoUseCases {
     }
 
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key technoKey) {
-        if (!queries.technoExists(technoKey)) {
-            throw new TechnoNotFoundException(technoKey);
+        List<AbstractPropertyView> properties = Collections.emptyList();
+        if (queries.technoExists(technoKey)) {
+            properties = queries.getProperties(technoKey);
         }
-        return queries.getProperties(technoKey);
+        return properties;
     }
 }
