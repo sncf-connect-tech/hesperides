@@ -31,7 +31,7 @@ Feature: Get techno templates
   Scenario: get the list of templates of a techno that doesn't exist
     Given a techno that doesn't exist
     When I get the list of templates of this techno
-    Then the list of techno templates is empty
+    Then an empty list is returned
 
   Scenario: get a template of a techno that doesn't exist
     Given a techno that doesn't exist
