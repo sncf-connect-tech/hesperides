@@ -34,3 +34,16 @@ Feature: Update techno templates
     Then the techno template update is rejected with a not found error
 
     #TODO Différencier outdated version et ?
+
+  Scenario: Update a template with a non valide content
+    Given an existing techno
+    And the template has a non valid content
+    When I try to update this techno template
+    Then the techno template update is rejected with an internal server error
+
+   Scenario: update an existing template in a techno and check the new versionID
+     Given an existing techno
+     And a template to update
+     When I update this techno template
+     Then the version Id of the updated techno is incremented by one
+

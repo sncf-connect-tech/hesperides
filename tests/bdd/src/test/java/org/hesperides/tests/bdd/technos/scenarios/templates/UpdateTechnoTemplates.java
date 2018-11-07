@@ -66,5 +66,16 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
         Then("^the techno template update is rejected with a conflict error$", () -> {
             assertConflict();
         });
+
+        Then("^the techno template update is rejected with an internal server error$", () -> {
+            assertInternalServerErreur();
+        });
+
+        Then("^the version Id of the updated techno is incremented by one$", () -> {
+                    assertOK();
+                    TemplateIO updatedTemplate = (TemplateIO) testContext.getResponseBody();
+                    assertEquals(updatedTemplate.getVersionId(), Long.valueOf(2));
+                }
+        );
     }
 }

@@ -39,5 +39,12 @@ public class UpdateTemplates implements En {
         Given("^the template is outdated", () -> {
             templateBuilder.withVersionId(0);
         });
+
+        Given("^the template has a non valid content$", () -> {
+                    //mettre le bon version ID pour que le contrôle sur le version id passe
+                    templateBuilder.withVersionId(1);
+                    templateBuilder.withContent("username = {{{ mysql.user.name }}");
+                }
+        );
     }
 }
