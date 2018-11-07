@@ -27,9 +27,7 @@ import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class UpdateTechnoTemplates extends HesperidesScenario implements En {
@@ -71,10 +69,12 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
             assertInternalServerErreur();
         });
 
-        Then("^the version Id of the updated techno is incremented by one$", () -> {
+        Then("^the techno template is updated$", () -> {
                     assertOK();
-                    TemplateIO updatedTemplate = (TemplateIO) testContext.getResponseBody();
-                    assertEquals(updatedTemplate.getVersionId(), Long.valueOf(2));
+            String expectedNamespace = technoBuilder.getNamespace();
+            TemplateIO expectedTemplate = templateBuilder.withVersionId(2).build();
+            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
+            assertEquals(expectedTemplate, actualTemplate);
                 }
         );
     }

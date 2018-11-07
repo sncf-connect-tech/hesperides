@@ -25,7 +25,7 @@ Feature: Copy technos
     When I try to create a copy of this techno, using the same key
     Then the techno copy is rejected with a conflict error
 
-  Scenario:
+  Scenario: copy a released techno with the same key
     Given a released techno
     When I try to create a copy of this techno, using the same key
     Then the techno copy is rejected with a conflict error

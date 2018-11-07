@@ -21,7 +21,6 @@
 package org.hesperides.tests.bdd.templatecontainers.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,7 +39,7 @@ public class UpdateTemplates implements En {
             templateBuilder.withVersionId(0);
         });
 
-        Given("^the template has a non valid content$", () -> {
+        Given("^the template has an invalid property", () -> {
                     //mettre le bon version ID pour que le contrôle sur le version id passe
                     templateBuilder.withVersionId(1);
                     templateBuilder.withContent("username = {{{ mysql.user.name }}");

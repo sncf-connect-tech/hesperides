@@ -35,9 +35,9 @@ Feature: Update techno templates
 
     #TODO Différencier outdated version et ?
 
-  Scenario: Update a template with a non valide content
+  Scenario: Update a template with an invalid content
     Given an existing techno
-    And the template has a non valid content
+    And the template has an invalid property
     When I try to update this techno template
     Then the techno template update is rejected with an internal server error
 
@@ -45,5 +45,5 @@ Feature: Update techno templates
      Given an existing techno
      And a template to update
      When I update this techno template
-     Then the version Id of the updated techno is incremented by one
+     Then the techno template is successfully updated
 
