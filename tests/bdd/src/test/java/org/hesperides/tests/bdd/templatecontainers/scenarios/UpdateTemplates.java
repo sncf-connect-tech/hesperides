@@ -40,10 +40,8 @@ public class UpdateTemplates implements En {
         });
 
         Given("^the template has an invalid property", () -> {
-                    //mettre le bon version ID pour que le contrôle sur le version id passe
-                    templateBuilder.withVersionId(1);
-                    templateBuilder.withContent("username = {{{ mysql.user.name }}");
-                }
-        );
+            templateBuilder.withVersionId(1);
+            templateBuilder.withContent("username = {{{ mysql.user.name }}");
+        });
     }
 }

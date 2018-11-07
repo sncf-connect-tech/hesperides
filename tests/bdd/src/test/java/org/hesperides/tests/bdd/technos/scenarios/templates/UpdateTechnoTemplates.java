@@ -70,12 +70,11 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
         });
 
         Then("^the techno template is updated$", () -> {
-                    assertOK();
+            assertOK();
             String expectedNamespace = technoBuilder.getNamespace();
             TemplateIO expectedTemplate = templateBuilder.withVersionId(2).build();
             TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
-                }
-        );
+        });
     }
 }
