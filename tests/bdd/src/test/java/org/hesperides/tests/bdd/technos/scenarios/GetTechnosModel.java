@@ -9,9 +9,9 @@ import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 public class GetTechnosModel extends HesperidesScenario implements En {
@@ -99,8 +99,9 @@ public class GetTechnosModel extends HesperidesScenario implements En {
             assertEquals(expectedModel, actualModel);
         });
 
-        Then("^the techno model if not found$", () -> {
-            assertNotFound();
+        Then("^the techno model is empty$", () -> {
+            ModelOutput expectedModel = new ModelOutput(Collections.emptySet(), Collections.emptySet());
+            assertEquals(expectedModel, testContext.getResponseBody());
         });
 
         Then("^the model of this techno doesn't contain the properties$", () -> {

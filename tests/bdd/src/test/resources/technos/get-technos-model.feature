@@ -20,8 +20,8 @@ Feature: Get techno model
 
   Scenario: get the model of a techno that doesn't exist
     Given a techno that doesn't exist
-    When I try to get the model of this techno
-    Then the techno model if not found
+    When I get the model of this techno
+    Then the techno model is empty
 
   Scenario: get the model of a techno with a deleted template
     Given an existing techno with properties

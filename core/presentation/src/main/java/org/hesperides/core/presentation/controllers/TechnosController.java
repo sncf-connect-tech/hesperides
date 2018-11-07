@@ -231,9 +231,6 @@ public class TechnosController extends AbstractController {
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, versionType);
         List<AbstractPropertyView> abstractPropertyViews = technoUseCases.getProperties(technoKey);
         ModelOutput modelOutput = new ModelOutput(abstractPropertyViews);
-
-        //TODO Gérer l'ordre des propriétés ?
-
         return ResponseEntity.ok(modelOutput);
     }
 }

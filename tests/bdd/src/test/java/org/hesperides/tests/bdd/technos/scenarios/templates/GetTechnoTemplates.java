@@ -28,14 +28,12 @@ import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class GetTechnoTemplates extends HesperidesScenario implements En {
@@ -100,6 +98,10 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
 
         Then("^the templates techno is not found$", () -> {
             assertNotFound();
+        });
+
+        Then("^the list of techno templates is empty$", () -> {
+            assertEquals(0, getBodyAsArray().length);
         });
     }
 }
