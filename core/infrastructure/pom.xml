@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.hesperides</groupId>
         <artifactId>core</artifactId>
-        <version>v4.0.0</version>
+        <version>4.0.0</version>
     </parent>
 
     <artifactId>infrastructure</artifactId>
