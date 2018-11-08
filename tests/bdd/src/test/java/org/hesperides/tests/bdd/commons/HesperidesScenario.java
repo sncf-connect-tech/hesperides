@@ -35,10 +35,11 @@ public class HesperidesScenario {
     protected TestContext testContext;
 
     protected <T> T[] getBodyAsArray() {
-        return ((ResponseEntity<T[]>)testContext.responseEntity).getBody();
+        return ((ResponseEntity<T[]>) testContext.responseEntity).getBody();
     }
+
     protected Map getBodyAsMap() {
-        return ((ResponseEntity<Map>)testContext.responseEntity).getBody();
+        return ((ResponseEntity<Map>) testContext.responseEntity).getBody();
     }
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
@@ -71,5 +72,9 @@ public class HesperidesScenario {
 
     public void assertNoContent() {
         assertEquals(HttpStatus.NO_CONTENT, testContext.responseEntity.getStatusCode());
+    }
+
+    public void assertInternalServerErreur() {
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.responseEntity.getStatusCode());
     }
 }
