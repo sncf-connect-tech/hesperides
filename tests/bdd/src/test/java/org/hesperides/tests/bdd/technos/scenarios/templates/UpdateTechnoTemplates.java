@@ -27,9 +27,7 @@ import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class UpdateTechnoTemplates extends HesperidesScenario implements En {
@@ -65,6 +63,18 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
 
         Then("^the techno template update is rejected with a conflict error$", () -> {
             assertConflict();
+        });
+
+        Then("^the techno template update is rejected with an internal server error$", () -> {
+            assertInternalServerErreur();
+        });
+
+        Then("^the techno template is updated$", () -> {
+            assertOK();
+            String expectedNamespace = technoBuilder.getNamespace();
+            TemplateIO expectedTemplate = templateBuilder.withVersionId(2).build();
+            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
+            assertEquals(expectedTemplate, actualTemplate);
         });
     }
 }
