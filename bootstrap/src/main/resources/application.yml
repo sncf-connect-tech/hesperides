@@ -35,5 +35,6 @@ logging:
 #    org.hesperides: INFO
 management:
   add-application-context-header: false
+  context-path: /manage
   security:
     enabled: false
