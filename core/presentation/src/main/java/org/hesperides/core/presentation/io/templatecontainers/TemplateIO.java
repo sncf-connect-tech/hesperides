@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.io.templatecontainers;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -28,6 +29,7 @@ public class TemplateIO {
     RightsIO rights;
     @NotNull
     @SerializedName("version_id")
+    @JsonProperty("version_id")  // required for Swagger to use the correct property name
     Long versionId;
 
     public TemplateIO(TemplateView templateView) {

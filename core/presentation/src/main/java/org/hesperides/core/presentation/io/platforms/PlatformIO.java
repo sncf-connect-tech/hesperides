@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -27,6 +28,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,17 +41,23 @@ public class PlatformIO {
 
     @OnlyPrintableCharacters(subject = "platform_name")
     @SerializedName("platform_name")
+    @JsonProperty("platform_name")  // required for Swagger to use the correct property name
     String platformName;
     @OnlyPrintableCharacters(subject = "application_name")
     @SerializedName("application_name")
+    @JsonProperty("application_name")  // required for Swagger to use the correct property name
     String applicationName;
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("production")
+    @JsonProperty("production")  // required for Swagger to use the correct property name
     boolean isProductionPlatform;
     @SerializedName("modules")
+    @JsonProperty("modules")  // required for Swagger to use the correct property name
     List<DeployedModuleIO> deployedModules;
+    @NotNull
     @SerializedName("version_id")
+    @JsonProperty("version_id")  // required for Swagger to use the correct property name
     Long versionId;
 
     public PlatformIO(PlatformView platformView) {

@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.io;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -8,6 +9,7 @@ import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,8 +24,15 @@ public final class ModuleIO {
     @SerializedName("working_copy")
     boolean isWorkingCopy;
     List<TechnoIO> technos;
+    @NotNull
     @SerializedName("version_id")
+    @JsonProperty("version_id")  // required for Swagger to use the correct property name
     Long versionId;
+
+    @JsonProperty("working_copy")  // required for Swagger to use the correct property name
+    public boolean isWorkingCopy() {
+        return isWorkingCopy;
+    }
 
     public ModuleIO(ModuleView moduleView) {
         this.name = moduleView.getName();
