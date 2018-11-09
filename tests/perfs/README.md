@@ -11,7 +11,7 @@
     -Dduration=1second                              Durée de la simulation
     -Dverbose=true                                  Activation des io sur certains appels
     -DpercentOkMin=99                               % d'appels qui doivent être OK pour que le test soit un succès
-    -DmeanResponseTimeMax=500                       temps de réponse attendu max
+    -D99thPercentileResponseTimeMax=500             temps de réponse max acceptable pour l'ensemble des 1% des requêtes les plus lentes
 
 ## Trace
 Pour avoir les log des requests, modifier le `resources/logback.xml`

@@ -13,7 +13,7 @@ object Config {
   val defaultUserPerSeconds = Integer.getInteger("usersPerSecond", 10).toInt
   val duration = Duration.create(getProperty("duration", "30 second")).asInstanceOf[FiniteDuration]
   val percentOkMin = Integer.getInteger("percentOkMin", 99).toInt
-  val meanResponseTimeMax = Integer.getInteger("meanResponseTimeMax", 100).toInt
+  val 99thPercentileResponseTimeMax = Integer.getInteger("99thPercentileResponseTimeMax", 500).toInt
   val auth = getProperty("auth", "tech:password").split(":")
 
   val httpConf = http
