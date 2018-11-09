@@ -6,7 +6,7 @@
 
 ## Options
 
-    -DbaseUrl=http://localhost:8080                 URL du serveur à tester
+    -DbaseUrl=http://localhost:8080/rest            URL du serveur à tester
     -DusersPerSecond=1                              Nombre d'utilisateurs à injecter par seconde
     -Dduration=1second                              Durée de la simulation
     -Dverbose=true                                  Activation des io sur certains appels
