@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms.properties;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -40,10 +41,12 @@ public class PropertiesIO {
 
     @NotNull
     @SerializedName("key_value_properties")
+    @JsonProperty("key_value_properties")  // required for Swagger to use the correct property name
     List<ValuedPropertyIO> valuedProperties;
 
     @NotNull
     @SerializedName("iterable_properties")
+    @JsonProperty("iterable_properties")  // required for Swagger to use the correct property name
     List<IterableValuedPropertyIO> iterableValuedProperties;
 
     public List<AbstractValuedProperty> toDomainInstances() {

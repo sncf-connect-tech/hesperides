@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -42,6 +43,11 @@ public class TechnoIO {
     String version;
     @SerializedName("working_copy")
     boolean isWorkingCopy;
+
+    @JsonProperty("working_copy")  // required for Swagger to use the correct property name
+    public boolean isWorkingCopy() {
+        return isWorkingCopy;
+    }
 
     public TechnoIO(TechnoView technoView) {
         this.name = technoView.getName();
