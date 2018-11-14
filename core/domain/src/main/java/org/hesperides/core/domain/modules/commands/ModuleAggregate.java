@@ -49,7 +49,7 @@ class ModuleAggregate implements Serializable {
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
         Module module = command.getModule().initializeVersionId();
-        apply(new ModuleCreatedEvent(UUID.randomUUID().toString(), module, command.getUser()));
+        apply(new ModuleCreatedEvent(UUID.randomUUID().toString(), module, command.getUser().getName()));
     }
 
     @CommandHandler
@@ -62,14 +62,14 @@ class ModuleAggregate implements Serializable {
                 .validateVersionId(versionId)
                 .incrementVersiondId();
 
-        apply(new ModuleTechnosUpdatedEvent(command.getModuleId(), module.getTechnos(), module.getVersionId(), command.getUser()));
+        apply(new ModuleTechnosUpdatedEvent(command.getModuleId(), module.getTechnos(), module.getVersionId(), command.getUser().getName()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteModuleCommand(DeleteModuleCommand command) {
         log.debug("Applying delete module command...");
-        apply(new ModuleDeletedEvent(command.getModuleId(), command.getUser()));
+        apply(new ModuleDeletedEvent(command.getModuleId(), command.getUser().getName()));
     }
 
     @CommandHandler
@@ -82,7 +82,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .initializeVersionId();
 
-        apply(new TemplateCreatedEvent(command.getModuleId(), template, command.getUser()));
+        apply(new TemplateCreatedEvent(command.getModuleId(), template, command.getUser().getName()));
     }
 
     @CommandHandler
@@ -96,7 +96,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .incrementVersionId();
 
-        apply(new TemplateUpdatedEvent(command.getModuleId(), template, command.getUser()));
+        apply(new TemplateUpdatedEvent(command.getModuleId(), template, command.getUser().getName()));
     }
 
     private Long getExpectedVersionId(UpdateTemplateCommand command) {
@@ -110,7 +110,7 @@ class ModuleAggregate implements Serializable {
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
         }
-        apply(new TemplateDeletedEvent(command.getModuleId(), command.getTemplateName(), command.getUser()));
+        apply(new TemplateDeletedEvent(command.getModuleId(), command.getTemplateName(), command.getUser().getName()));
     }
 
     /*** EVENT HANDLERS ***/

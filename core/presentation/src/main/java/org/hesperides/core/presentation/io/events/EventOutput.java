@@ -2,12 +2,11 @@ package org.hesperides.core.presentation.io.events;
 
 import lombok.Value;
 import org.hesperides.core.domain.events.queries.EventView;
-import org.hesperides.core.domain.modules.*;
-import org.hesperides.core.domain.platforms.PlatformCreatedEvent;
-import org.hesperides.core.domain.platforms.PlatformDeletedEvent;
-import org.hesperides.core.domain.platforms.PlatformUpdatedEvent;
+import org.hesperides.core.domain.modules.ModuleCreatedEvent;
+import org.hesperides.core.domain.modules.TemplateCreatedEvent;
+import org.hesperides.core.domain.modules.TemplateDeletedEvent;
+import org.hesperides.core.domain.modules.TemplateUpdatedEvent;
 import org.hesperides.core.domain.security.UserEvent;
-import org.hesperides.core.domain.technos.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class EventOutput {
     public EventOutput(EventView view) {
         this.type = view.getType();
         this.timestamp = view.getTimestamp().toEpochMilli();
-        this.user = view.getData().getUser().getName();
+        this.user = view.getData().getUser();
         this.data = getEventData(view.getData());
     }
 
