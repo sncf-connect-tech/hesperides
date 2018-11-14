@@ -37,14 +37,14 @@ class TechnoAggregate implements Serializable {
     @SuppressWarnings("unused")
     public TechnoAggregate(CreateTechnoCommand command) {
         log.debug("Applying CreateTechnoCommand...");
-        apply(new TechnoCreatedEvent(UUID.randomUUID().toString(), command.getTechno(), command.getUser()));
+        apply(new TechnoCreatedEvent(UUID.randomUUID().toString(), command.getTechno(), command.getUser().getName()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteTechnoCommand(DeleteTechnoCommand command) {
         log.debug("Applying delete techno command...");
-        apply(new TechnoDeletedEvent(command.getTechnoId(), command.getUser()));
+        apply(new TechnoDeletedEvent(command.getTechnoId(), command.getUser().getName()));
     }
 
     @CommandHandler
@@ -57,7 +57,7 @@ class TechnoAggregate implements Serializable {
                 .validateProperties()
                 .initializeVersionId();
 
-        apply(new TemplateAddedToTechnoEvent(command.getTechnoId(), template, command.getUser()));
+        apply(new TemplateAddedToTechnoEvent(command.getTechnoId(), template, command.getUser().getName()));
     }
 
     @CommandHandler
@@ -71,7 +71,7 @@ class TechnoAggregate implements Serializable {
                 .validateProperties()
                 .incrementVersionId();
 
-        apply(new TechnoTemplateUpdatedEvent(command.getTechnoId(), template, command.getUser()));
+        apply(new TechnoTemplateUpdatedEvent(command.getTechnoId(), template, command.getUser().getName()));
     }
 
     private Long getExpectedVersionId(UpdateTechnoTemplateCommand command) {
@@ -84,7 +84,7 @@ class TechnoAggregate implements Serializable {
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
         }
-        apply(new TechnoTemplateDeletedEvent(command.getTechnoId(), command.getTemplateName(), command.getUser()));
+        apply(new TechnoTemplateDeletedEvent(command.getTechnoId(), command.getTemplateName(), command.getUser().getName()));
     }
 
     /*** EVENT HANDLERS ***/

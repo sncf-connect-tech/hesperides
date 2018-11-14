@@ -55,7 +55,7 @@ public class PlatformAggregate implements Serializable {
                 .initializeVersionId()
                 .updateDeployedModules();
 
-        apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser()));
+        apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser().getName()));
     }
 
     @CommandHandler
@@ -63,7 +63,7 @@ public class PlatformAggregate implements Serializable {
         Platform newPlatform = command
                 .getNewPlatform()
                 .initializeVersionId();
-        apply(new PlatformCopiedEvent(command.getExistingPlatformId(), UUID.randomUUID().toString(), newPlatform, command.getUser()));
+        apply(new PlatformCopiedEvent(command.getExistingPlatformId(), UUID.randomUUID().toString(), newPlatform, command.getUser().getName()));
     }
 
 
@@ -77,12 +77,12 @@ public class PlatformAggregate implements Serializable {
                 .incrementVersionId()
                 .updateDeployedModules();
 
-        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getUser()));
+        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getUser().getName()));
     }
 
     @CommandHandler
     public void onDeletePlatformCommand(DeletePlatformCommand command) {
-        apply(new PlatformDeletedEvent(command.getPlatformId(), command.getUser()));
+        apply(new PlatformDeletedEvent(command.getPlatformId(), command.getUser().getName()));
     }
 
     @CommandHandler
@@ -95,7 +95,7 @@ public class PlatformAggregate implements Serializable {
                 command.getModulePath(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
-                command.getUser()));
+                command.getUser().getName()));
     }
 
     @CommandHandler
@@ -107,7 +107,7 @@ public class PlatformAggregate implements Serializable {
                 command.getPlatformId(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
-                command.getUser()));
+                command.getUser().getName()));
     }
 
     /*** EVENT HANDLERS ***/
