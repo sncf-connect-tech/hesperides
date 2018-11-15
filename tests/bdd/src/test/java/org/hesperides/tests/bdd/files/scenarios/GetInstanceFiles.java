@@ -27,20 +27,19 @@ import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstanceIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.files.FileClient;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hesperides.tests.bdd.commons.StepHelper.assertOK;
 import static org.junit.Assert.assertEquals;
 
-public class GetInstanceFiles implements En {
+public class GetInstanceFiles extends HesperidesScenario implements En {
 
     @Autowired
     private FileClient fileClient;
@@ -53,8 +52,6 @@ public class GetInstanceFiles implements En {
 
     private List<InstanceFileOutput> instanceFiles;
 
-    private ResponseEntity<InstanceFileOutput[]> responseEntity;
-
     public GetInstanceFiles() {
 
         When("^I get the instance files$", () -> {
@@ -65,7 +62,7 @@ public class GetInstanceFiles implements En {
             DeployedModuleIO deployedModule = platform.getDeployedModules().get(0);
             InstanceIO instance = deployedModule.getInstances().get(0);
 
-            responseEntity = fileClient.getInstanceFiles(
+            testContext.responseEntity = fileClient.getInstanceFiles(
                     platform.getApplicationName(),
                     platform.getPlatformName(),
                     deployedModule.getPath(),
@@ -95,9 +92,9 @@ public class GetInstanceFiles implements En {
         });
 
         Then("^the instance files are successfully retrieved$", () -> {
-            assertOK(responseEntity);
+            assertOK();
             List<InstanceFileOutput> expectedOutput = instanceFiles;
-            List<InstanceFileOutput> actualOutput = Arrays.asList(responseEntity.getBody());
+            List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
             assertEquals(expectedOutput, actualOutput);
         });
     }
