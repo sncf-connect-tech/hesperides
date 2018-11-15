@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -66,8 +65,8 @@ public class CopyModules extends HesperidesScenario implements En {
         });
 
         Then("^the version type of the duplicated module is working copy$", () -> {
-            ModuleIO techoOutput = (ModuleIO) testContext.getResponseBody();
-            assertTrue(techoOutput.isWorkingCopy());
+            ModuleIO moduleOutput = (ModuleIO) testContext.getResponseBody();
+            assertTrue(moduleOutput.getIsWorkingCopy());
         });
 
         Then("^the model of the module is the same$", () -> {

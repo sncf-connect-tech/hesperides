@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.templatecontainers;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -36,8 +37,10 @@ import java.util.Set;
 public class ModelOutput {
 
     @SerializedName("key_value_properties")
+    @JsonProperty("key_value_properties")
     Set<PropertyOutput> properties;
     @SerializedName("iterable_properties")
+    @JsonProperty("iterable_properties")
     Set<PropertyOutput> iterableProperties;
 
     /**

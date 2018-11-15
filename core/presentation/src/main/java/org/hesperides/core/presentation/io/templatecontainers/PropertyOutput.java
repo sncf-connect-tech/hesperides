@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.io.templatecontainers;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
@@ -21,13 +22,16 @@ public class PropertyOutput {
 
     String name;
     @SerializedName("required")
+    @JsonProperty("required")
     boolean isRequired;
     String comment;
     String defaultValue;
     String pattern;
     @SerializedName("password")
+    @JsonProperty("password")
     boolean isPassword;
     @SerializedName("fields")
+    @JsonProperty("fields")
     Set<PropertyOutput> properties;
 
 

@@ -45,6 +45,6 @@ public class GetModuleEvents extends HesperidesScenario implements En {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                moduleInput.isWorkingCopy() ? "workingcopy" : "release");
+                moduleInput.getIsWorkingCopy() ? "workingcopy" : "release");
     }
 }
