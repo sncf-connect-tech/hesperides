@@ -45,7 +45,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
-        PlatformDocument existingPlatform = platformRepository.findOne(event.getExistingPlatformId());
+        PlatformDocument existingPlatform = platformRepository.findById(event.getExistingPlatformId()).get();
         PlatformDocument newPlatform = new PlatformDocument(event.getNewPlatformId(), event.getNewPlatform());
         newPlatform.setDeployedModules(existingPlatform.getDeployedModules());
         newPlatform.setValuedProperties(existingPlatform.getValuedProperties());
@@ -55,7 +55,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        platformRepository.delete(event.getPlatformId());
+        platformRepository.deleteById(event.getPlatformId());
     }
 
     @EventHandler
@@ -73,7 +73,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
 
         // Récupération de la plateforme et mise à jour de la version
-        PlatformDocument platformDocument = platformRepository.findOne(event.getPlatformId());
+        PlatformDocument platformDocument = platformRepository.findById(event.getPlatformId()).get();
         platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
@@ -96,7 +96,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .collect(Collectors.toList());
 
         // Retrieve platform
-        PlatformDocument platformDocument = platformRepository.findOne(event.getPlatformId());
+        PlatformDocument platformDocument = platformRepository.findById(event.getPlatformId()).get();
 
         // Update platform information
         platformDocument.setVersionId(event.getPlatformVersionId());
@@ -119,8 +119,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     public Optional<PlatformView> onGetPlatformByIdQuery(GetPlatformByIdQuery query) {
-        return Optional.ofNullable(platformRepository.findOne(query.getPlatformId()))
-                .map(PlatformDocument::toPlatformView);
+        return platformRepository.findById(query.getPlatformId()).map(PlatformDocument::toPlatformView);
     }
 
     @QueryHandler

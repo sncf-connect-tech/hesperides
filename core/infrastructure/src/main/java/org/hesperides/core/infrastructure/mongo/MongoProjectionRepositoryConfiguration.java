@@ -1,6 +1,5 @@
 package org.hesperides.core.infrastructure.mongo;
 
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import lombok.Getter;
@@ -36,7 +35,7 @@ public class MongoProjectionRepositoryConfiguration {
     }
 
     @Bean
-    public Mongo mongo(MongoClientURI projectionMongoClientUri) {
+    public MongoClient mongo(MongoClientURI projectionMongoClientUri) {
         return new MongoClient(projectionMongoClientUri);
     }
 
