@@ -72,7 +72,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
         removeReferencesAndUpdateProperties(event.getTechnoId());
-        technoRepository.delete(event.getTechnoId());
+        technoRepository.deleteById(event.getTechnoId());
     }
 
     private void removeReferencesAndUpdateProperties(String technoId) {
@@ -89,7 +89,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
-        TechnoDocument technoDocument = technoRepository.findOne(event.getTechnoId());
+        TechnoDocument technoDocument = technoRepository.findById(event.getTechnoId()).get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
@@ -99,7 +99,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findOne(event.getTechnoId());
+        TechnoDocument technoDocument = technoRepository.findById(event.getTechnoId()).get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
@@ -109,7 +109,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findOne(event.getTechnoId());
+        TechnoDocument technoDocument = technoRepository.findById(event.getTechnoId()).get();
         technoDocument.removeTemplate(event.getTemplateName());
         technoDocument.extractPropertiesAndSave(technoRepository);
         updateModelUsingTechno(event.getTechnoId());

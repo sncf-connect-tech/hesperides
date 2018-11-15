@@ -68,7 +68,7 @@ public class CucumberTests {
         }
 
         private void resetDatabases() {
-            mongoTemplate.getDb().dropDatabase();
+            mongoTemplate.getDb().drop();
             new DefaultMongoTemplate(client).eventCollection().drop();
         }
 

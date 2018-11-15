@@ -56,11 +56,11 @@ public class ModuleTemplatesController extends AbstractController {
     }
 
     @GetMapping("/{module_type}/templates/**")
-    @ApiOperation("Get template bundled in a module for a version workingcopy")
-    public ResponseEntity<TemplateIO> getTemplateInWorkingCopy(@PathVariable("module_name") final String moduleName,
-                                                               @PathVariable("module_version") final String moduleVersion,
-                                                               @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
-                                                               HttpServletRequest request
+    @ApiOperation("Get template bundled in a module")
+    public ResponseEntity<TemplateIO> getTemplate(@PathVariable("module_name") final String moduleName,
+                                                  @PathVariable("module_version") final String moduleVersion,
+                                                  @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
+                                                  HttpServletRequest request
     ) {
         String templateName = extractFilePath(request);
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);

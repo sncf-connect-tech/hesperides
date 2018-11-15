@@ -166,23 +166,4 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         }
         return commonName;
     }
-
-//    private static final String LDAP_MATCHING_RULE_IN_CHAIN_OID = "1.2.840.113556.1.4.1941";
-//
-//    private List<String> searchForUserGroups(DirContext ctx, DirContextOperations userData) throws NamingException {
-//        List<String> groupsDN = new ArrayList<>();
-//
-//        SearchControls searchCtls = new SearchControls();
-//        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-//        String searchFilter = MessageFormat.format(LDAP_MATCHING_RULE_IN_CHAIN_OID, userData.getDn());
-//        Name searchBase = userData.getDn().getPrefix(2); // returns domain name like: DC=my_domain,DC=com
-//
-//        NamingEnumeration<SearchResult> answer = ctx.search(searchBase, searchFilter, searchCtls);
-//        while (answer.hasMoreElements()) {
-//            SearchResult sr = (SearchResult) answer.next();
-//            groupsDN.add(sr.getNameInNamespace());
-//        }
-//
-//        return groupsDN;
-//    }
 }

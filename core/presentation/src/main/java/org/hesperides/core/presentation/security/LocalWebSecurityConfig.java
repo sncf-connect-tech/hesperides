@@ -13,6 +13,7 @@ import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
 public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] AUTH_WHITELIST = {
+            "/manage/**",
             // -- swagger ui
             "/swagger-resources/**",
             "/swagger-ui.html",
@@ -32,8 +33,8 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("tech").password("password").roles("TECH")
-                .and().withUser("prod").password("password").roles("PROD")
-                .and().withUser("user").password("password").roles("USER");
+                .withUser("tech").password("{noop}password").roles("TECH")
+                .and().withUser("prod").password("{noop}password").roles("PROD")
+                .and().withUser("user").password("{noop}password").roles("USER");
     }
 }

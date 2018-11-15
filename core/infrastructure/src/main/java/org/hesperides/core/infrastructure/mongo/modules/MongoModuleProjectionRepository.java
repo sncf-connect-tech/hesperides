@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.mongo.modules;
 
+import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.modules.*;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
@@ -54,7 +56,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventHandler
     @Override
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findOne(event.getModuleId());
+        ModuleDocument moduleDocument = moduleRepository.findById(event.getModuleId()).get();
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
@@ -64,7 +66,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventHandler
     @Override
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
-        moduleRepository.delete(event.getModuleId());
+        moduleRepository.deleteById(event.getModuleId());
     }
 
     /*** QUERY HANDLERS ***/
@@ -103,7 +105,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
-        return mongoTemplate.getCollection("module").distinct("key.name");
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection("module").distinct("key.name", String.class);
+        return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 
     @QueryHandler

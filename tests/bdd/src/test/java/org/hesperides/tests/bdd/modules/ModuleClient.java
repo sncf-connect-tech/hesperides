@@ -147,12 +147,11 @@ public class ModuleClient {
     }
 
     public ResponseEntity getTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
+        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/" + templateName,
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.isWorkingCopy()),
-                templateName);
+                getVersionType(moduleInput.isWorkingCopy()));
     }
 
     private String getVersionType(boolean isWorkingCopy) {
@@ -160,14 +159,13 @@ public class ModuleClient {
     }
 
     public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return restTemplate.exchange("/modules/{name}/{version}/{type}/templates/{template_name}",
+        return restTemplate.exchange("/modules/{name}/{version}/{type}/templates/" + templateName,
                 HttpMethod.DELETE,
                 null,
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.isWorkingCopy()),
-                templateName);
+                getVersionType(moduleInput.isWorkingCopy()));
     }
 
     public ResponseEntity<String[]> getNames() {

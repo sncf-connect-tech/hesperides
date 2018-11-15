@@ -13,7 +13,8 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
-  contextPath: /rest
+  servlet:
+    context-path: /rest
   compression:
     enabled: true
     mime-types: application/json
@@ -26,15 +27,14 @@ ldap:
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:5000}
   readTimeout: ${LDAP_READ_TIMEOUT:5000}
 
-liquibase.enabled: false
-
 logging:
   file: /var/log/hesperides.log
   level:
     root: INFO
-#    org.hesperides: INFO
+
 management:
-  add-application-context-header: false
-  context-path: /manage
-  security:
-    enabled: false
+  endpoints:
+    web:
+      base-path: /manage
+      exposure:
+        include: '*'
