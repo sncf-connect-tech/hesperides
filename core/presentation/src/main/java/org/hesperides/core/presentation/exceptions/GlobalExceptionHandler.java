@@ -58,6 +58,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
         }
-        return new ResponseEntity<Object>(body != null ? body : ex.getMessage(), headers, status);
+        return new ResponseEntity<>(body != null ? body : ex.getMessage(), headers, status);
     }
 }
