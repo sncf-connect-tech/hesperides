@@ -69,7 +69,7 @@ public class GetInstanceFiles extends HesperidesScenario implements En {
                     module.getName(),
                     module.getVersion(),
                     instance.getName(),
-                    module.isWorkingCopy(),
+                    module.getIsWorkingCopy(),
                     true);
 
             instanceFiles = Arrays.asList(
@@ -83,7 +83,7 @@ public class GetInstanceFiles extends HesperidesScenario implements En {
                                     + "/" + module.getVersion()
                                     + "/instances/" + instance.getName()
                                     + "/" + template.getName()
-                                    + "?isWorkingCopy=" + module.isWorkingCopy()
+                                    + "?isWorkingCopy=" + module.getIsWorkingCopy()
                                     + "&template_namespace=" + moduleBuilder.getNamespace()
                                     + "&simulate=true",
                             new InstanceFileOutput.Rights("   ", "   ", "   ")
