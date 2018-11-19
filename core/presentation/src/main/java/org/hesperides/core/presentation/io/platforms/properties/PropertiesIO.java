@@ -41,12 +41,12 @@ public class PropertiesIO {
 
     @NotNull
     @SerializedName("key_value_properties")
-    @JsonProperty("key_value_properties")  // required for Swagger to use the correct property name
+    @JsonProperty("key_value_properties")
     List<ValuedPropertyIO> valuedProperties;
 
     @NotNull
     @SerializedName("iterable_properties")
-    @JsonProperty("iterable_properties")  // required for Swagger to use the correct property name
+    @JsonProperty("iterable_properties")
     List<IterableValuedPropertyIO> iterableValuedProperties;
 
     public List<AbstractValuedProperty> toDomainInstances() {

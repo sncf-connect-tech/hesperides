@@ -42,12 +42,8 @@ public class TechnoIO {
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("working_copy")
-    boolean isWorkingCopy;
-
-    @JsonProperty("working_copy")  // required for Swagger to use the correct property name
-    public boolean isWorkingCopy() {
-        return isWorkingCopy;
-    }
+    @JsonProperty("working_copy")
+    Boolean isWorkingCopy;
 
     public TechnoIO(TechnoView technoView) {
         this.name = technoView.getName();

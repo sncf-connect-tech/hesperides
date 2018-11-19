@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -42,6 +43,7 @@ public class InstanceIO {
     String name;
     @NotNull
     @SerializedName("key_values")
+    @JsonProperty("key_values")
     List<ValuedPropertyIO> valuedProperties;
 
     public InstanceIO(InstanceView instanceView) {

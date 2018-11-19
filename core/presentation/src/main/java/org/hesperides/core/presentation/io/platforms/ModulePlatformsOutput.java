@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -35,8 +36,10 @@ import java.util.stream.Collectors;
 public class ModulePlatformsOutput {
 
     @SerializedName("application_name")
+    @JsonProperty("application_name")
     String applicationName;
     @SerializedName("platform_name")
+    @JsonProperty("platform_name")
     String platformName;
 
     public ModulePlatformsOutput(ModulePlatformView modulePlatformView) {

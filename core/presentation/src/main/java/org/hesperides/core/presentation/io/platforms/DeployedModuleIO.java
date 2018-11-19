@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -42,7 +43,8 @@ public class DeployedModuleIO {
     @OnlyPrintableCharacters(subject = "deployedModules.version")
     String version;
     @SerializedName("working_copy")
-    boolean isWorkingCopy;
+    @JsonProperty("working_copy")
+    Boolean isWorkingCopy;
     @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
     @SerializedName("properties_path")

@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 @Value
 @NonFinal
 public abstract class AbstractValuedPropertyIO {
+
     String name;
 
     public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(List<AbstractValuedPropertyIO> properties, Class<T> clazz) {

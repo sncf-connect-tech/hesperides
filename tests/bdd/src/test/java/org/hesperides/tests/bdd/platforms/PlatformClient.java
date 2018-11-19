@@ -172,6 +172,6 @@ public class PlatformClient {
                 ModulePlatformsOutput[].class,
                 module.getName(),
                 module.getVersion(),
-                module.isWorkingCopy() ? "workingcopy" : "release");
+                module.getIsWorkingCopy() ? "workingcopy" : "release");
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -65,7 +64,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
 
         Then("^the version type of the duplicated techno is working copy$", () -> {
             TechnoIO techoOutput = (TechnoIO) testContext.getResponseBody();
-            assertTrue(techoOutput.isWorkingCopy());
+            assertTrue(techoOutput.getIsWorkingCopy());
         });
 
         Then("^the techno copy is rejected with a not found error$", () -> {
