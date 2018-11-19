@@ -41,23 +41,23 @@ public class PlatformIO {
 
     @OnlyPrintableCharacters(subject = "platform_name")
     @SerializedName("platform_name")
-    @JsonProperty("platform_name")  // required for Swagger to use the correct property name
+    @JsonProperty("platform_name")
     String platformName;
     @OnlyPrintableCharacters(subject = "application_name")
     @SerializedName("application_name")
-    @JsonProperty("application_name")  // required for Swagger to use the correct property name
+    @JsonProperty("application_name")
     String applicationName;
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("production")
-    @JsonProperty("production")  // required for Swagger to use the correct property name
-    boolean isProductionPlatform;
+    @JsonProperty("production")
+    Boolean isProductionPlatform;
     @SerializedName("modules")
-    @JsonProperty("modules")  // required for Swagger to use the correct property name
+    @JsonProperty("modules")
     List<DeployedModuleIO> deployedModules;
     @NotNull
     @SerializedName("version_id")
-    @JsonProperty("version_id")  // required for Swagger to use the correct property name
+    @JsonProperty("version_id")
     Long versionId;
 
     public PlatformIO(PlatformView platformView) {

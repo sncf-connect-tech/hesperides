@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 public class InstanceModelOutput {
 
     @SerializedName("keys")
+    @JsonProperty("keys")
     List<InstancePropertyOutput> instanceProperties;
 
     public static InstanceModelOutput fromInstancePropertyViews(List<InstancePropertyView> instancePropertyViews) {
@@ -52,11 +54,13 @@ public class InstanceModelOutput {
         String name;
         String comment;
         @SerializedName("required")
-        boolean isRequired;
+        @JsonProperty("required")
+        Boolean isRequired;
         String defaultValue;
         String pattern;
         @SerializedName("password")
-        boolean isPassword;
+        @JsonProperty("password")
+        Boolean isPassword;
 
         public InstancePropertyOutput(InstancePropertyView instancePropertyView) {
             name = instancePropertyView.getName();

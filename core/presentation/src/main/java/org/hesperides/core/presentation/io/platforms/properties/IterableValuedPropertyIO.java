@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.io.platforms.properties;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
     @SerializedName("iterable_valorisation_items")
+    @JsonProperty("iterable_valorisation_items")
     List<IterablePropertyItemIO> iterablePropertyItems;
 
     public IterableValuedPropertyIO(String name, List<IterablePropertyItemIO> iterablePropertyItems) {

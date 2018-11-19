@@ -22,17 +22,13 @@ public final class ModuleIO {
     @OnlyPrintableCharacters(subject = "version")
     String version;
     @SerializedName("working_copy")
-    boolean isWorkingCopy;
+    @JsonProperty("working_copy")
+    Boolean isWorkingCopy;
     List<TechnoIO> technos;
     @NotNull
     @SerializedName("version_id")
-    @JsonProperty("version_id")  // required for Swagger to use the correct property name
+    @JsonProperty("version_id")
     Long versionId;
-
-    @JsonProperty("working_copy")  // required for Swagger to use the correct property name
-    public boolean isWorkingCopy() {
-        return isWorkingCopy;
-    }
 
     public ModuleIO(ModuleView moduleView) {
         this.name = moduleView.getName();

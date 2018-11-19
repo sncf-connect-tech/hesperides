@@ -7,7 +7,6 @@ import lombok.Value;
  */
 @Value
 public class GlobalPropertyUsageOutput {
-
     boolean inModel;
     String path;
 }

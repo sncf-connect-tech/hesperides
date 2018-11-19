@@ -25,17 +25,14 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Value
 @AllArgsConstructor
 public class ApplicationOutput {
 
-    @NotNull
     @NotEmpty
     String name;
-    @NotNull
     @NotEmpty
     List<PlatformIO> platforms;
 
