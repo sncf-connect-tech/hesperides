@@ -11,9 +11,7 @@ import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateModules extends HesperidesScenario implements En {
@@ -57,6 +55,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 addPropertyToBuilders("global-module-bar");
             }
             if (StringUtils.isNotEmpty(withATemplate) || StringUtils.isNotEmpty(withThisTemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
+                moduleBuilder.withTemplate(templateBuilder.build());
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
         });

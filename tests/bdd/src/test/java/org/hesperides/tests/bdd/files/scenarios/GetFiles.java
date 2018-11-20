@@ -30,10 +30,11 @@ import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.files.FileClient;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
-import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
+import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,18 +47,17 @@ public class GetFiles extends HesperidesScenario implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private TechnoBuilder technoBuilder;
     @Autowired
-    private TemplateBuilder templateBuilder;
+    private ModuleBuilder moduleBuilder;
 
-    private List<InstanceFileOutput> instanceFiles;
+    private List<InstanceFileOutput> expectedFiles;
 
     public GetFiles() {
 
         When("^I( try to)? get the (instance|module)? files$", (String tryTo, String instanceOrModuleFiles) -> {
             PlatformIO platform = platformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
-            TemplateIO template = templateBuilder.build();
 
             DeployedModuleIO deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules()) ? null : platform.getDeployedModules().get(0);
             String modulePath = deployedModule != null ? deployedModule.getPath() : "anything";
@@ -75,35 +75,42 @@ public class GetFiles extends HesperidesScenario implements En {
                     simulate,
                     HesperidesScenario.getResponseType(tryTo, InstanceFileOutput[].class));
 
-            instanceFiles = Arrays.asList(
-                    new InstanceFileOutput(
-                            template.getLocation() + "/" + template.getFilename(),
-                            "/rest/files"
-                                    + "/applications/" + platform.getApplicationName()
-                                    + "/platforms/" + platform.getPlatformName()
-                                    + "/" + modulePath
-                                    + "/" + module.getName()
-                                    + "/" + module.getVersion()
-                                    + "/instances/" + instanceName
-                                    + "/" + template.getName()
-                                    + "?isWorkingCopy=" + module.getIsWorkingCopy()
-                                    + "&template_namespace=" + moduleBuilder.getNamespace()
-                                    + "&simulate=" + simulate,
-                            new InstanceFileOutput.Rights("   ", "   ", "   ")
-                    )
-            );
+            expectedFiles = new ArrayList<>();
+            technoBuilder.getTemplates().forEach(template -> {
+                expectedFiles.add(buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, technoBuilder.getNamespace()));
+            });
+            moduleBuilder.getTemplates().forEach(template -> {
+                expectedFiles.add(buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, moduleBuilder.getNamespace()));
+            });
         });
 
         Then("^the files are successfully retrieved$", () -> {
             assertOK();
-            List<InstanceFileOutput> expectedOutput = instanceFiles;
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
-            assertEquals(expectedOutput, actualOutput);
+            assertEquals(expectedFiles, actualOutput);
             //TODO Vérifier qu'on obtient un code 200 lorsqu'on tente de récupérer chaque fichier listé dans le résultat précédent
         });
     }
 
     private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {
         return deployedModule == null || CollectionUtils.isEmpty(deployedModule.getInstances()) || simulate ? "anything" : deployedModule.getInstances().get(0).getName();
+    }
+
+    private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String temlateNamespace) {
+        return new InstanceFileOutput(
+                template.getLocation() + "/" + template.getFilename(),
+                "/rest/files"
+                        + "/applications/" + platform.getApplicationName()
+                        + "/platforms/" + platform.getPlatformName()
+                        + "/" + modulePath
+                        + "/" + module.getName()
+                        + "/" + module.getVersion()
+                        + "/instances/" + instanceName
+                        + "/" + template.getName()
+                        + "?isWorkingCopy=" + module.getIsWorkingCopy()
+                        + "&template_namespace=" + temlateNamespace
+                        + "&simulate=" + simulate,
+                new InstanceFileOutput.Rights("   ", "   ", "   ")
+        );
     }
 }

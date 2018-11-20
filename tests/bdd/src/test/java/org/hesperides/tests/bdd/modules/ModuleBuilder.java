@@ -22,6 +22,7 @@ package org.hesperides.tests.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class ModuleBuilder {
     private List<TechnoIO> technos;
     private long versionId;
 
+    private List<TemplateIO> templates;
+
     public ModuleBuilder() {
         reset();
     }
@@ -48,6 +51,7 @@ public class ModuleBuilder {
         version = "1.0.0";
         versionType = WORKINGCOPY;
         technos = new ArrayList<>();
+        templates = new ArrayList<>();
         versionId = 0;
         return this;
     }
@@ -101,5 +105,14 @@ public class ModuleBuilder {
 
     public Boolean isWorkingCopy() {
         return versionType == WORKINGCOPY;
+    }
+
+    public ModuleBuilder withTemplate(TemplateIO template) {
+        templates.add(template);
+        return this;
+    }
+
+    public List<TemplateIO> getTemplates() {
+        return templates;
     }
 }

@@ -27,9 +27,7 @@ import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.technos.TechnoClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateTechnoTemplates extends HesperidesScenario implements En {
@@ -42,6 +40,13 @@ public class CreateTechnoTemplates extends HesperidesScenario implements En {
     private TechnoBuilder technoBuilder;
 
     public CreateTechnoTemplates() {
+
+        Given("^a techno template to create$", () -> {
+            templateBuilder
+                    .withName("techno-template")
+                    .withFilename("techno.js")
+                    .withLocation("/etc");
+        });
 
         When("^I( try to)? add this template to the techno$", (String tryTo) -> {
             testContext.responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));

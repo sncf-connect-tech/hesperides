@@ -43,7 +43,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -116,10 +115,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
 
         Given("^a platform to create(?:, named \"([^\"]*)\")?( with this module)?( with an instance( with properties)?)?$", (
-                String name, String withThisModule, String withAnInstance, String withProperties) -> {
+                String platformName, String withThisModule, String withAnInstance, String withProperties) -> {
 
-            if (StringUtils.isNotEmpty(name)) {
-                platformBuilder.withPlatformName(name);
+            if (StringUtils.isNotEmpty(platformName)) {
+                platformBuilder.withPlatformName(platformName);
             }
 
             if (StringUtils.isNotEmpty(withThisModule)) {

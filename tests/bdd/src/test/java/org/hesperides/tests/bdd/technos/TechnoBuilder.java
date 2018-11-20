@@ -22,6 +22,7 @@ package org.hesperides.tests.bdd.technos;
 
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
+import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class TechnoBuilder {
     private boolean isWorkingCopy;
     private List<PropertyOutput> properties;
 
+    private List<TemplateIO> templates;
+
     public TechnoBuilder() {
         reset();
     }
@@ -45,6 +48,7 @@ public class TechnoBuilder {
         version = "1.0.0";
         isWorkingCopy = true;
         properties = new ArrayList<>();
+        templates = new ArrayList<>();
     }
 
     public TechnoBuilder withName(String name) {
@@ -76,5 +80,14 @@ public class TechnoBuilder {
 
     public List<PropertyOutput> getProperties() {
         return properties;
+    }
+
+    public TechnoBuilder withTemplate(TemplateIO template) {
+        templates.add(template);
+        return this;
+    }
+
+    public List<TemplateIO> getTemplates() {
+        return templates;
     }
 }

@@ -4,23 +4,26 @@ Feature: Get instance or module files
     Given an authenticated user
 
   Scenario: get files of an instance
-    Given an existing techno with properties
-    And an existing module with properties and this techno
-    And an existing platform with this module and an instance and valued properties
+    Given a techno template to create
+    And an existing techno with this template
+    And a module template to create
+    And an existing module with this template and this techno
+    And an existing platform with this module and an instance
     When I get the instance files
     Then the files are successfully retrieved
 
   Scenario: get files of a deployed module
-    Given an existing techno with properties
-    And an existing module with properties and this techno
-    And an existing platform with this module and an instance and valued properties
+    Given a techno template to create
+    And an existing techno with this template
+    And a module template to create
+    And an existing module with this template and this techno
+    And an existing platform with this module
     When I get the module files
     Then the files are successfully retrieved
 
   Scenario: get files of an instance that doesn't exist
-    Given an existing techno with properties
-    And an existing module with properties and this techno
-    And an existing platform with this module and valued properties
+    Given an existing module
+    And an existing platform with this module
     When I try to get the instance files
     Then the resource is not found
 

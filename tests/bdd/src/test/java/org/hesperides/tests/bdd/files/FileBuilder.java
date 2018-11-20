@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.tests.bdd.files.scenarios;
+package org.hesperides.tests.bdd.files;
 
 import lombok.Getter;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;

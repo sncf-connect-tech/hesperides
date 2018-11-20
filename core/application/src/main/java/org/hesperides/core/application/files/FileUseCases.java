@@ -24,6 +24,7 @@ import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
+import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
@@ -80,9 +81,11 @@ public class FileUseCases {
             throw new InstanceNotFoundException(platformKey, moduleKey, modulePath, instanceName);
         }
 
-        moduleQueries.getTemplates(moduleKey).forEach(template ->
-                instanceFiles.add(new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate))
-        );
+        ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
+        module.getTechnos().forEach(techno -> techno.getTemplates().forEach(template -> instanceFiles.add(
+                new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate))));
+        module.getTemplates().forEach(template -> instanceFiles.add(
+                new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate)));
 
         return instanceFiles;
     }
