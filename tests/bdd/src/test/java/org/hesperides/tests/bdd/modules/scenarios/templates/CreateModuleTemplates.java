@@ -49,6 +49,7 @@ public class CreateModuleTemplates extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? add this template to the module$", (String tryTo) -> {
+            moduleBuilder.withTemplate(templateBuilder.build());
             testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

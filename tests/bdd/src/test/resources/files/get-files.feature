@@ -21,6 +21,16 @@ Feature: Get instance or module files
     When I get the module files
     Then the files are successfully retrieved
 
+  Scenario: get files of a deployed module that has multiple templates
+    Given an existing module
+    And a template to create with name "template-1" with filename "template-1.json" with location "/etc-1"
+    And I add this template to the module
+    And a template to create with name "template-2" with filename "template-2.json" with location "/etc-2"
+    And I add this template to the module
+    And an existing platform with this module
+    When I get the module files
+    Then the files are successfully retrieved
+
   Scenario: get files of an instance that doesn't exist
     Given an existing module
     And an existing platform with this module

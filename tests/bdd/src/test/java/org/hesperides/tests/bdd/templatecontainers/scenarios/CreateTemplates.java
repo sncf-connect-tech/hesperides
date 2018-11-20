@@ -59,10 +59,7 @@ public class CreateTemplates extends HesperidesScenario implements En {
             assertCreated();
         });
 
-        Given("^a template to create( with the same name as the existing one)?$", (String withTheSameName) -> {
-            if (StringUtils.isEmpty(withTheSameName)) {
-                templateBuilder.withName("new-template");
-            }
+        Given("^a template to create with the same name as the existing one$", () -> {
         });
 
         Given("^a template to create without a name$", () -> {
