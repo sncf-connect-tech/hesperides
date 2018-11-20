@@ -28,23 +28,24 @@ public class FilesController extends AbstractController {
 
     @ApiOperation("Get files list for given application, version, platefome, unit and context")
     @GetMapping("/applications/{application_name}/platforms/{platform_name}/{path}/{module_name}/{module_version}/instances/{instance_name}")
-    public ResponseEntity<List<InstanceFileOutput>> getEvents(@PathVariable("application_name") final String applicationName,
-                                                              @PathVariable("platform_name") final String platformName,
-                                                              @PathVariable("path") final String path,
-                                                              @PathVariable("module_name") final String moduleName,
-                                                              @PathVariable("module_version") final String moduleVersion,
-                                                              @PathVariable("instance_name") final String instanceName,
-                                                              @RequestParam("isWorkingCopy") final boolean isWorkingCopy,
-                                                              @RequestParam("simulate") final boolean simulate) {
+    public ResponseEntity<List<InstanceFileOutput>> getInstanceFiles(@PathVariable("application_name") final String applicationName,
+                                                                     @PathVariable("platform_name") final String platformName,
+                                                                     @PathVariable("path") final String path,
+                                                                     @PathVariable("module_name") final String moduleName,
+                                                                     @PathVariable("module_version") final String moduleVersion,
+                                                                     @PathVariable("instance_name") final String instanceName,
+                                                                     @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
+                                                                     @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
-        List<InstanceFileOutput> files = filesUseCases.getInstanceFiles(applicationName,
+        List<InstanceFileOutput> files = filesUseCases.getInstanceFiles(
+                applicationName,
                 platformName,
                 path,
                 moduleName,
                 moduleVersion,
                 instanceName,
                 isWorkingCopy,
-                simulate)
+                Boolean.TRUE.equals(simulate))
                 .stream()
                 .map(InstanceFileOutput::new)
                 .collect(Collectors.toList());

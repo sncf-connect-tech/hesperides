@@ -100,7 +100,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public Boolean onModuleExistsQuery(ModuleExistsQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        return moduleRepository.countByKey(keyDocument) > 0;
+        return moduleRepository.existsByKey(keyDocument);
     }
 
     @QueryHandler

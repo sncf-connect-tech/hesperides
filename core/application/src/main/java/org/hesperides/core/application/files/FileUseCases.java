@@ -25,17 +25,16 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
+import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
-import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
-import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class FileUseCases {
@@ -52,7 +51,7 @@ public class FileUseCases {
     public List<InstanceFileView> getInstanceFiles(
             String applicationName,
             String platformName,
-            String path,
+            String modulePath,
             String moduleName,
             String moduleVersion,
             String instanceName,
@@ -71,23 +70,19 @@ public class FileUseCases {
             throw new ModuleNotFoundException(moduleKey);
         }
 
-        //TODO Vérifier l'instance ?
-
-        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
-        Optional<DeployedModuleView> optionalDeployedModule = platform.getDeployedModules()
-                .stream()
-                .filter(deployedModule -> deployedModule.getModuleKey().equals(moduleKey))
-                .findFirst();
-
-        if (optionalDeployedModule.isPresent()) {
-            moduleQueries
-                    .getOptionalModule(moduleKey)
-                    .get()
-                    .getTemplates()
-                    .forEach(template ->
-                            instanceFiles.add(new InstanceFileView(platformKey, path, moduleKey, instanceName, template, simulate))
-                    );
+        if (!platformQueries.deployedModuleExists(platformKey, moduleKey, modulePath)) {
+            throw new DeployedModuleNotFoundException(platformKey, moduleKey, modulePath);
         }
+
+        // Le paramètre simulate doit être à false pour récupérer les fichiers d'instance
+        // et à true pour les fichiers de module
+        if (!simulate && !platformQueries.instanceExists(platformKey, moduleKey, modulePath, instanceName)) {
+            throw new InstanceNotFoundException(platformKey, moduleKey, modulePath, instanceName);
+        }
+
+        moduleQueries.getTemplates(moduleKey).forEach(template ->
+                instanceFiles.add(new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate))
+        );
 
         return instanceFiles;
     }

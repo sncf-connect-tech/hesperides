@@ -24,7 +24,6 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
-import org.hesperides.core.presentation.io.platforms.InstanceIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.commons.HesperidesScenario;
@@ -33,13 +32,14 @@ import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetInstanceFiles extends HesperidesScenario implements En {
+public class GetFiles extends HesperidesScenario implements En {
 
     @Autowired
     private FileClient fileClient;
@@ -52,25 +52,28 @@ public class GetInstanceFiles extends HesperidesScenario implements En {
 
     private List<InstanceFileOutput> instanceFiles;
 
-    public GetInstanceFiles() {
+    public GetFiles() {
 
-        When("^I get the instance files$", () -> {
+        When("^I( try to)? get the (instance|module)? files$", (String tryTo, String instanceOrModuleFiles) -> {
             PlatformIO platform = platformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
             TemplateIO template = templateBuilder.build();
 
-            DeployedModuleIO deployedModule = platform.getDeployedModules().get(0);
-            InstanceIO instance = deployedModule.getInstances().get(0);
+            DeployedModuleIO deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules()) ? null : platform.getDeployedModules().get(0);
+            String modulePath = deployedModule != null ? deployedModule.getPath() : "anything";
+            boolean simulate = "module".equals(instanceOrModuleFiles);
+            String instanceName = getInstanceName(deployedModule, simulate);
 
             testContext.responseEntity = fileClient.getInstanceFiles(
                     platform.getApplicationName(),
                     platform.getPlatformName(),
-                    deployedModule.getPath(),
+                    modulePath,
                     module.getName(),
                     module.getVersion(),
-                    instance.getName(),
+                    instanceName,
                     module.getIsWorkingCopy(),
-                    true);
+                    simulate,
+                    HesperidesScenario.getResponseType(tryTo, InstanceFileOutput[].class));
 
             instanceFiles = Arrays.asList(
                     new InstanceFileOutput(
@@ -78,24 +81,29 @@ public class GetInstanceFiles extends HesperidesScenario implements En {
                             "/rest/files"
                                     + "/applications/" + platform.getApplicationName()
                                     + "/platforms/" + platform.getPlatformName()
-                                    + "/" + deployedModule.getPath()
+                                    + "/" + modulePath
                                     + "/" + module.getName()
                                     + "/" + module.getVersion()
-                                    + "/instances/" + instance.getName()
+                                    + "/instances/" + instanceName
                                     + "/" + template.getName()
                                     + "?isWorkingCopy=" + module.getIsWorkingCopy()
                                     + "&template_namespace=" + moduleBuilder.getNamespace()
-                                    + "&simulate=true",
+                                    + "&simulate=" + simulate,
                             new InstanceFileOutput.Rights("   ", "   ", "   ")
                     )
             );
         });
 
-        Then("^the instance files are successfully retrieved$", () -> {
+        Then("^the files are successfully retrieved$", () -> {
             assertOK();
             List<InstanceFileOutput> expectedOutput = instanceFiles;
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
             assertEquals(expectedOutput, actualOutput);
+            //TODO Vérifier qu'on obtient un code 200 lorsqu'on tente de récupérer chaque fichier listé dans le résultat précédent
         });
+    }
+
+    private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {
+        return deployedModule == null || CollectionUtils.isEmpty(deployedModule.getInstances()) || simulate ? "anything" : deployedModule.getInstances().get(0).getName();
     }
 }

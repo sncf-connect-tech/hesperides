@@ -20,7 +20,6 @@
  */
 package org.hesperides.tests.bdd.files;
 
-import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,7 @@ public class FileClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    public ResponseEntity<InstanceFileOutput[]> getInstanceFiles(
+    public ResponseEntity getInstanceFiles(
             String applicationName,
             String platformName,
             String path,
@@ -40,12 +39,13 @@ public class FileClient {
             String moduleVersion,
             String instanceName,
             boolean isWorkingCopy,
-            boolean simulate) {
+            boolean simulate,
+            Class responseType) {
 
         return restTemplate.getForEntity("/files/applications/{application_name}/platforms/{platform_name}" +
                         "/{path}/{module_name}/{module_version}/instances/{instance_name}" +
                         "?isWorkingCopy={is_working_copy}&simulate={simulate}",
-                InstanceFileOutput[].class,
+                responseType,
                 applicationName,
                 platformName,
                 path,

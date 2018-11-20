@@ -1,12 +1,12 @@
 package org.hesperides.core.domain.platforms
 
 import org.axonframework.commandhandling.TargetAggregateIdentifier
+import org.hesperides.core.domain.modules.entities.Module
 import org.hesperides.core.domain.platforms.entities.Platform
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty
 import org.hesperides.core.domain.security.User
 import org.hesperides.core.domain.security.UserEvent
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer
 
 // Command
 
@@ -33,9 +33,11 @@ data class GetPlatformByIdQuery(val platformId: String)
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
 data class PlatformExistsByKeyQuery(val platformKey: Platform.Key)
 data class GetApplicationByNameQuery(val applicationName: String)
-data class GetPlatformsUsingModuleQuery(val moduleKey: TemplateContainer.Key)
+data class GetPlatformsUsingModuleQuery(val moduleKey: Module.Key)
 data class SearchPlatformsQuery(val applicationName: String, val platformName: String? = null)
 data class SearchApplicationsQuery(val applicationName: String)
-data class GetDeployedModulesPropertiesQuery(val platformKey: Platform.Key, val path: String, val user: User)
-data class GetGlobalPropertiesQuery(val platformKey: Platform.Key, val user: User)
-data class GetInstanceModelQuery(val platformKey: Platform.Key, val path: String, val user: User)
+data class GetDeployedModulesPropertiesQuery(val platformKey: Platform.Key, val path: String)
+data class GetGlobalPropertiesQuery(val platformKey: Platform.Key)
+data class GetInstanceModelQuery(val platformKey: Platform.Key, val path: String)
+data class DeployedModuleExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String)
+data class InstanceExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String, val instanceName: String)
