@@ -22,7 +22,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Getter
 @Setter
 @Validated
-@ConfigurationProperties("event_store")
+@ConfigurationProperties("event-store")
 public class AxonMongoEventStoreConfiguration {
 
     @NotNull

@@ -23,7 +23,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Getter
 @Setter
 @Validated
-@ConfigurationProperties("projection_repository")
+@ConfigurationProperties("projection-repository")
 public class MongoProjectionRepositoryConfiguration {
 
     @NotNull
