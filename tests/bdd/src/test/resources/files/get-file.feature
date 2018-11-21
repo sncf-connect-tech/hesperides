@@ -4,7 +4,7 @@ Feature: Get file
     Given an authenticated user
 
   Scenario: get file
-    Given an existing module with a template with properties
-    And an existing platform with this module and valued properties
-    When I get the module template file
-    Then the file is successfully retrieved
+#    Given an existing module with a template with properties
+#    And an existing platform with this module and valued properties
+#    When I get the module template file
+#    Then the file is successfully retrieved
