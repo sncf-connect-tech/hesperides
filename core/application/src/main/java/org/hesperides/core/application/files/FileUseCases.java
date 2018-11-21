@@ -20,6 +20,9 @@
  */
 package org.hesperides.core.application.files;
 
+import com.github.mustachejava.Code;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.codes.ValueCode;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -30,12 +33,21 @@ import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundExc
 import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
+import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
+import org.hesperides.core.domain.platforms.queries.views.InstanceView;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Component
 public class FileUseCases {
@@ -88,5 +100,135 @@ public class FileUseCases {
                 new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate)));
 
         return instanceFiles;
+    }
+
+    public String getFile(
+            String applicationName,
+            String platformName,
+            String path,
+            String moduleName,
+            String moduleVersion,
+            String instanceName,
+            String fileName,
+            boolean isWorkingCopy,
+            String templateNamespace,
+            boolean simulate) {
+
+        Platform.Key plateformKey = new Platform.Key(applicationName, platformName);
+        if (!platformQueries.platformExists(plateformKey)) {
+            throw new PlatformNotFoundException(plateformKey);
+        }
+
+        Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
+        if (!moduleQueries.moduleExists(moduleKey)) {
+            throw new ModuleNotFoundException(moduleKey);
+        }
+
+        PlatformView platformView = platformQueries.getOptionalPlatform(plateformKey).get();
+
+        Optional<DeployedModuleView> optionalDeployedModule = platformView.getDeployedModule(moduleKey);
+
+        String templateContent = "";
+        if (optionalDeployedModule.isPresent()) {
+
+            //Récupérer le template dont le nameSpace est fourni à partir du module
+            Optional<TemplateView> template = moduleQueries
+                    .getOptionalModule(moduleKey)
+                    .get()
+                    .getTemplates()
+                    .stream()
+                    .filter(t -> templateNamespace.equals(t.getNamespace()))
+                    .findFirst();
+
+
+            //Récupérer l'instance dont le est fourni en entrée
+            Optional<InstanceView> instanceView = optionalDeployedModule.get()
+                    .getInstances()
+                    .stream()
+                    .filter(i -> instanceName.equals(i.getName()))
+                    .findFirst();
+
+            Map<String, String> propertiesKeyValueMap = new HashMap<>();
+            List<ValuedPropertyView> valuedProperties;
+
+            if (template.isPresent()) {
+
+                templateContent = template.get().getContent();
+
+                //Récupérer les propriétés du template
+                List<AbstractProperty> templateProperties = template.get()
+                        .toDomainInstance(optionalDeployedModule.get().getModuleKey()).extractProperties();
+
+                if (instanceView.isPresent()) {
+                    // valorisation du template à partir des valeurs de l'instance
+
+                    valuedProperties = instanceView.get().getValuedProperties();
+
+                    associerCleValeurProperty(templateProperties, propertiesKeyValueMap, valuedProperties);
+
+                    templateContent = getValuedTemplateContent(templateContent, propertiesKeyValueMap);
+                } else {
+                    //valorisation du template à partir des valeurs du module
+
+                    valuedProperties = AbstractValuedPropertyView.flattenValuedProperties(optionalDeployedModule.get().getValuedProperties())
+                            .stream()
+                            .map(ValuedPropertyView.class::cast)
+                            .collect(Collectors.toList());
+
+                    associerCleValeurProperty(templateProperties, propertiesKeyValueMap, valuedProperties);
+
+                    templateContent = getValuedTemplateContent(templateContent, propertiesKeyValueMap);
+
+                }
+            }
+        }
+
+        return templateContent;
+    }
+
+    protected String getValuedTemplateContent(String templateContent, Map<String, String> propertiesMap) {
+
+        Mustache mustacheTemplate = AbstractProperty.getMustacheInstanceFromStringContent(templateContent);
+        Map<String, String> mustachePropertiesMap = new HashMap<>(propertiesMap);
+
+        for (Code code : mustacheTemplate.getCodes()) {
+            if (code instanceof ValueCode) {
+                propertiesMap.forEach((key, value) ->
+                {
+                    if (!code.getName().equals(key) && code.getName().contains(key)) {
+                        //dans l'implémentation du Hashmap, le key modifier est final
+                        mustachePropertiesMap.put(code.getName(), mustachePropertiesMap.get(key));
+                        mustachePropertiesMap.remove(key);
+                    }
+                });
+            }
+        }
+
+        StringWriter esRequest = new StringWriter();
+        mustacheTemplate.execute(esRequest, mustachePropertiesMap);
+        esRequest.flush();
+        return esRequest.toString();
+
+
+        /*for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
+
+            int beginIndex = result.indexOf("{{" + entry.getKey()) < 0 ? result.indexOf("{{ " + entry.getKey()) : result.indexOf("{{" + entry.getKey());
+            int endIndex = result.indexOf("}}", beginIndex);
+            String prop = result.substring(beginIndex, endIndex + 2);
+
+
+            result = result
+                    .replace(prop, entry.getValue());
+        }*/
+    }
+
+    private void associerCleValeurProperty(List<AbstractProperty> templateProperties, Map<String, String> propertiesKeyValueMap, List<ValuedPropertyView> valuedProperties) {
+        templateProperties.forEach(property ->
+                propertiesKeyValueMap.put(
+                        property.getName(),
+                        valuedProperties.stream()
+                                .filter(value -> value.getName().equals(property.getName())).findFirst()
+                                .get().getValue())
+        );
     }
 }

@@ -7,6 +7,7 @@ import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,5 +52,22 @@ public class FilesController extends AbstractController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(files);
+    }
+
+    @ApiOperation("Get file for tempplate namespace and name, properties, context and name")
+    @GetMapping("/applications/{application_name}/platforms/{platform_name}/{path}/{module_name}/{module_version}/instances/{instance_name}/{filename}")
+    public String getFile(@PathVariable("application_name") final String applicationName,
+                          @PathVariable("platform_name") final String platformName,
+                          @PathVariable("path") final String path,
+                          @PathVariable("module_name") final String moduleName,
+                          @PathVariable("module_version") final String moduleVersion,
+                          @PathVariable("instance_name") final String instanceName,
+                          @PathVariable("filename") final String fileName,
+                          @RequestParam("isWorkingCopy") final boolean isWorkingCopy,
+                          @RequestParam("template_namespace") final String templateNamespace,
+                          @RequestParam("simulate") final boolean simulate) {
+
+        filesUseCases.getFile(applicationName, platformName, path, moduleName, moduleVersion, instanceName, fileName, isWorkingCopy, templateNamespace, simulate);
+        return null;
     }
 }
