@@ -1,6 +1,7 @@
 FROM openjdk:8-jre-alpine
 
 COPY bootstrap/target/hesperides-*.jar hesperides.jar
+RUN apk install curl
 
 ENTRYPOINT ["/usr/bin/java"]
 
