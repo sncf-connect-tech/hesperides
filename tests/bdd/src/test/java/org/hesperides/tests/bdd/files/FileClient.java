@@ -31,7 +31,7 @@ public class FileClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    public ResponseEntity getInstanceFiles(
+    public ResponseEntity getFiles(
             String applicationName,
             String platformName,
             String path,
@@ -53,6 +53,37 @@ public class FileClient {
                 moduleVersion,
                 instanceName,
                 isWorkingCopy,
+                simulate);
+    }
+
+    public ResponseEntity getFile(
+            String applicationName,
+            String platformName,
+            String path,
+            String moduleName,
+            String moduleVersion,
+            String instanceName,
+            String templateName,
+            boolean isWorkingCopy,
+            String templateNamespace,
+            boolean simulate,
+            Class responseType) {
+
+        //https://hesperides-dev:56789/rest/files/applications/TLH/platforms/DEV-XXX/%23ROOT_GROUP%23PARENT_GROUP%23CHILD_GROUP/module-tlh/2/instances/default/techno-template?isWorkingCopy=true&template_namespace=packages%23techno-tlh%231%23WORKINGCOPY&simulate=true
+
+        return restTemplate.getForEntity("/files/applications/{application_name}/platforms/{platform_name}" +
+                        "/{path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}" +
+                        "?isWorkingCopy={is_working_copy}&template_namespace={template_namespace}&simulate={simulate}",
+                responseType,
+                applicationName,
+                platformName,
+                path,
+                moduleName,
+                moduleVersion,
+                instanceName,
+                templateName,
+                isWorkingCopy,
+                templateNamespace,
                 simulate);
     }
 }
