@@ -1,11 +1,10 @@
 package org.hesperides.core.presentation.io;
 
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import javax.validation.ReportAsSingleViolation;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraintvalidation.SupportedValidationTarget;
 import javax.validation.constraintvalidation.ValidationTarget;
 import java.lang.annotation.Documented;
