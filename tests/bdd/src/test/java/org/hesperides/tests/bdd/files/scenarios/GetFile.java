@@ -77,10 +77,14 @@ public class GetFile extends HesperidesScenario implements En {
 
         Then("^the file is successfully retrieved$", () -> {
             assertOK();
-            String expectedOutput = "12\n12";
-            String actualOutput = (String) testContext.getResponseBody();
+            String expectedOutput = "content\n12\n";
+            String actualOutput = testContext.responseEntity.getBody().toString();
             assertEquals(expectedOutput, actualOutput);
         });
+
+        Then("^the content type is \"text/plain\" with UTF-8 encoding$", () -> {
+                    assertEquals(testContext.responseEntity.getHeaders().getContentType().toString(), "text/plain;charset=UTF-8");
+                });
     }
 
     private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {

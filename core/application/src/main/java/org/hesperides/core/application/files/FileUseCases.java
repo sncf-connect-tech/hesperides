@@ -196,7 +196,7 @@ public class FileUseCases {
                 propertiesMap.forEach((key, value) ->
                 {
                     if (!code.getName().equals(key) && code.getName().contains(key)) {
-                        //dans l'implémentation du Hashmap, le key modifier est final
+                        //la clé n'est pas modifiable (dans l'implémentation du Hashmap, le key modifier est final)
                         mustachePropertiesMap.put(code.getName(), mustachePropertiesMap.get(key));
                         mustachePropertiesMap.remove(key);
                     }
@@ -208,18 +208,6 @@ public class FileUseCases {
         mustacheTemplate.execute(esRequest, mustachePropertiesMap);
         esRequest.flush();
         return esRequest.toString();
-
-
-        /*for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
-
-            int beginIndex = result.indexOf("{{" + entry.getKey()) < 0 ? result.indexOf("{{ " + entry.getKey()) : result.indexOf("{{" + entry.getKey());
-            int endIndex = result.indexOf("}}", beginIndex);
-            String prop = result.substring(beginIndex, endIndex + 2);
-
-
-            result = result
-                    .replace(prop, entry.getValue());
-        }*/
     }
 
     private void associerCleValeurProperty(List<AbstractProperty> templateProperties, Map<String, String> propertiesKeyValueMap, List<ValuedPropertyView> valuedProperties) {
@@ -227,8 +215,11 @@ public class FileUseCases {
                 propertiesKeyValueMap.put(
                         property.getName(),
                         valuedProperties.stream()
-                                .filter(value -> value.getName().equals(property.getName())).findFirst()
-                                .get().getValue())
+                                .filter(value -> value.getName().equals(property.getName()))
+                                .findFirst()
+                                .orElse(new ValuedPropertyView(property.getName(), ""))
+                                .getValue()
+                )
         );
     }
 }
