@@ -113,7 +113,7 @@ public class GetFiles extends HesperidesScenario implements En {
                         + "?isWorkingCopy=" + module.getIsWorkingCopy()
                         + "&template_namespace=" + temlateNamespace
                         + "&simulate=" + simulate,
-                new InstanceFileOutput.Rights("   ", "   ", "   ")
+                new InstanceFileOutput.Rights("rwx", "---", "   ")
         );
     }
 }
