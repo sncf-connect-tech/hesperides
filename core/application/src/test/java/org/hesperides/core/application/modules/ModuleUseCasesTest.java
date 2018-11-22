@@ -18,8 +18,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ModuleUseCasesTest.Config.class)
