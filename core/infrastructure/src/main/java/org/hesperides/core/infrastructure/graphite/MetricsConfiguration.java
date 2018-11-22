@@ -5,7 +5,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -35,9 +34,8 @@ public class MetricsConfiguration {
 
     private final MetricRegistry registry;
 
-    @Autowired
-    public MetricsConfiguration(MetricRegistry registry) {
-        this.registry = registry;
+    public MetricsConfiguration() {
+        this.registry = new MetricRegistry();
     }
 
     @PostConstruct
@@ -52,5 +50,4 @@ public class MetricsConfiguration {
                 .build(graphite);
         graphiteReporter.start(graphitePeriod, TimeUnit.SECONDS);
     }
-
 }
