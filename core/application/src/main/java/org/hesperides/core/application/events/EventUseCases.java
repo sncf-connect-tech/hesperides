@@ -19,13 +19,13 @@ import java.util.regex.Pattern;
 import static org.apache.commons.lang3.StringUtils.contains;
 
 @Component
-public class EventsUseCases {
+public class EventUseCases {
 
     private final EventQueries eventQueries;
     private final ModuleQueries moduleQueries;
 
     @Autowired
-    public EventsUseCases(EventQueries eventQueries, ModuleQueries moduleQueries) {
+    public EventUseCases(EventQueries eventQueries, ModuleQueries moduleQueries) {
         this.eventQueries = eventQueries;
         this.moduleQueries = moduleQueries;
     }

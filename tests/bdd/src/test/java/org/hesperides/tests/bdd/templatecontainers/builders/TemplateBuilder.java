@@ -49,9 +49,16 @@ public class TemplateBuilder {
         filename = "template.json";
         location = "/location";
         content = "content";
-        rights = new RightsBuilder().build();
+        rights = defaultRights();
         versionId = 0;
         return this;
+    }
+
+    private TemplateIO.RightsIO defaultRights() {
+        return new TemplateIO.RightsIO(
+                new TemplateIO.FileRightsIO(true, true, true),
+                new TemplateIO.FileRightsIO(false, false, false),
+                new TemplateIO.FileRightsIO(null, null, null));
     }
 
     public TemplateBuilder withName(String name) {
@@ -83,16 +90,6 @@ public class TemplateBuilder {
         return this;
     }
 
-    public TemplateBuilder withDefaultAndRequiredProperty() {
-        String property = "{{defaultAndRequired|@default 12 @required}}";
-        return withContent(property);
-    }
-
-    public TemplateBuilder withRights(TemplateIO.RightsIO rights) {
-        this.rights = rights;
-        return this;
-    }
-
     public TemplateBuilder withVersionId(long versionId) {
         this.versionId = versionId;
         return this;
@@ -104,57 +101,5 @@ public class TemplateBuilder {
 
     public PartialTemplateIO buildPartialTemplate(String namespace) {
         return new PartialTemplateIO(name, namespace, filename, location);
-    }
-
-    public static class RightsBuilder {
-
-        private TemplateIO.FileRightsIO user = new FileRightsBuilder().build();
-        private TemplateIO.FileRightsIO group = new FileRightsBuilder().build();
-        private TemplateIO.FileRightsIO other = new FileRightsBuilder().build();
-
-        public RightsBuilder withUser(TemplateIO.FileRightsIO user) {
-            this.user = user;
-            return this;
-        }
-
-        public RightsBuilder withGroup(TemplateIO.FileRightsIO group) {
-            this.group = group;
-            return this;
-        }
-
-        public RightsBuilder withOther(TemplateIO.FileRightsIO other) {
-            this.other = other;
-            return this;
-        }
-
-        public TemplateIO.RightsIO build() {
-            return new TemplateIO.RightsIO(user, group, other);
-        }
-    }
-
-    public static class FileRightsBuilder {
-
-        private Boolean read = null;
-        private Boolean write = null;
-        private Boolean execute = null;
-
-        public FileRightsBuilder withRead(Boolean read) {
-            this.read = read;
-            return this;
-        }
-
-        public FileRightsBuilder withWrite(Boolean write) {
-            this.write = write;
-            return this;
-        }
-
-        public FileRightsBuilder withExecute(Boolean execute) {
-            this.execute = execute;
-            return this;
-        }
-
-        public TemplateIO.FileRightsIO build() {
-            return new TemplateIO.FileRightsIO(read, write, execute);
-        }
     }
 }

@@ -140,7 +140,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public Boolean onTechnoExistsQuery(TechnoExistsQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
-        return technoRepository.countByKey(keyDocument) > 0;
+        return technoRepository.existsByKey(keyDocument);
     }
 
     @QueryHandler

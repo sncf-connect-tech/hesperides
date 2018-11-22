@@ -10,9 +10,7 @@ import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateTechnos extends HesperidesScenario implements En {
@@ -30,7 +28,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
 
     public CreateTechnos() {
 
-        Given("^an existing techno( with properties)?( (?:and|with) global properties)?$", (String withProperties, String withGlobalProperties) -> {
+        Given("^an existing techno(?: with this template)?( with properties)?( (?:and|with) global properties)?$", (String withProperties, String withGlobalProperties) -> {
             if (StringUtils.isNotEmpty(withProperties)) {
                 addPropertyToBuilders("techno-foo");
                 addPropertyToBuilders("techno-bar");
@@ -39,6 +37,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
                 addPropertyToBuilders("global-techno-foo");
                 addPropertyToBuilders("global-techno-bar");
             }
+            technoBuilder.withTemplate(templateBuilder.build());
             technoClient.create(templateBuilder.build(), technoBuilder.build());
         });
 

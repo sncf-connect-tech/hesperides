@@ -5,7 +5,7 @@ Feature: Get module model
 
   Scenario: get the model of a module with properties
     Given an existing techno with properties
-    Given an existing module with properties and this techno
+    And an existing module with properties and this techno
     When I get the model of this module
     Then the model of this module contains the properties
 

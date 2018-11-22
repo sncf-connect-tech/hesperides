@@ -136,7 +136,7 @@ public class PlatformsController extends AbstractController {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
 
-        List<InstancePropertyView> instancePropertyViews = platformUseCases.getInstanceModel(platformKey, path, fromAuthentication(authentication));
+        List<InstancePropertyView> instancePropertyViews = platformUseCases.getInstanceModel(platformKey, path);
         InstanceModelOutput instanceModelOutput = InstanceModelOutput.fromInstancePropertyViews(instancePropertyViews);
         return ResponseEntity.ok(instanceModelOutput);
     }
@@ -214,7 +214,7 @@ public class PlatformsController extends AbstractController {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         // TODO : gestion sécurité isProd pour cacher les propriétés de type @password
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, path, fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, path);
         return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
     }
 

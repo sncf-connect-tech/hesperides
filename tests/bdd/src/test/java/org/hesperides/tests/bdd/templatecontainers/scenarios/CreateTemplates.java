@@ -40,15 +40,26 @@ public class CreateTemplates extends HesperidesScenario implements En {
 
     public CreateTemplates() {
 
+        Given("^a template to create(?: with name \"([^\"]*)\")?(?: with filename \"([^\"]*)\")?(?: with location \"([^\"]*)\")?$", (
+                String name, String filename, String location) -> {
+            if (StringUtils.isNotEmpty(name)) {
+                templateBuilder.withName(name);
+            }
+            if (StringUtils.isNotEmpty(filename)) {
+                templateBuilder.withFilename(filename);
+            }
+            if (StringUtils.isNotEmpty(location)) {
+                templateBuilder.withLocation(location);
+            }
+        });
+
         Given("^an existing template$", () -> {
+            //TODO Générifier ou bouger dans module
             testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
             assertCreated();
         });
 
-        Given("^a template to create( with the same name as the existing one)?$", (String withTheSameName) -> {
-            if (StringUtils.isEmpty(withTheSameName)) {
-                templateBuilder.withName("new-template");
-            }
+        Given("^a template to create with the same name as the existing one$", () -> {
         });
 
         Given("^a template to create without a name$", () -> {

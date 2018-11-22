@@ -5,7 +5,7 @@ Feature: Create techno templates
 
   Scenario: add a template to an existing techno
     Given an existing techno
-    And a template to create
+    And a template to create with name "new-template"
     When I add this template to the techno
     Then the template is successfully added to the techno
 

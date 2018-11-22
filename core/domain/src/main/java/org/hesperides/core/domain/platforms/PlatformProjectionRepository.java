@@ -65,4 +65,10 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     List<ValuedPropertyView> onGetGlobalPropertiesQuery(GetGlobalPropertiesQuery query);
+
+    @QueryHandler
+    Boolean onDeployedModuleExistsQuery(DeployedModuleExistsQuery query);
+
+    @QueryHandler
+    Boolean onInstanceExistsQuery(InstanceExistsQuery query);
 }

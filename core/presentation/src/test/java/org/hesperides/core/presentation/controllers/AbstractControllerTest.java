@@ -20,7 +20,8 @@
  */
 package org.hesperides.core.presentation.controllers;
 
-import org.hesperides.core.application.events.EventsUseCases;
+import org.hesperides.core.application.events.EventUseCases;
+import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.application.technos.TechnoUseCases;
@@ -38,5 +39,7 @@ public abstract class AbstractControllerTest {
     @MockBean
     protected PlatformUseCases platformUseCases;
     @MockBean
-    protected EventsUseCases eventsUseCases;
+    protected EventUseCases eventUseCases;
+    @MockBean
+    protected FileUseCases fileUseCases;
 }

@@ -3,6 +3,7 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
@@ -134,7 +135,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        return platformRepository.countByKey(platformKeyDocument) > 0;
+        return platformRepository.existsByKey(platformKeyDocument);
     }
 
     @QueryHandler
@@ -180,8 +181,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query) {
 
         String platformName = StringUtils.defaultString(query.getPlatformName(), "");
-
-        List<PlatformDocument> pd = platformRepository.findAll();
 
         List<PlatformDocument> platformDocuments =
                 platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
@@ -232,5 +231,30 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(PlatformDocument::getValuedProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public Boolean onDeployedModuleExistsQuery(DeployedModuleExistsQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        Module.Key moduleKey = query.getModuleKey();
+        return platformRepository.existsByPlatformKeyAndModuleKeyAndPath(
+                platformKeyDocument,
+                moduleKey.getName(),
+                moduleKey.getVersion(),
+                moduleKey.isWorkingCopy(),
+                query.getModulePath());
+    }
+
+    @Override
+    public Boolean onInstanceExistsQuery(InstanceExistsQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        Module.Key moduleKey = query.getModuleKey();
+        return platformRepository.existsByPlatformKeyAndModuleKeyAndPathAndInstanceName(
+                platformKeyDocument,
+                moduleKey.getName(),
+                moduleKey.getVersion(),
+                moduleKey.isWorkingCopy(),
+                query.getModulePath(),
+                query.getInstanceName());
     }
 }

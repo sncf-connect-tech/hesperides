@@ -27,9 +27,7 @@ import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 import static org.junit.Assert.assertEquals;
 
 public class CreateModuleTemplates extends HesperidesScenario implements En {
@@ -43,7 +41,15 @@ public class CreateModuleTemplates extends HesperidesScenario implements En {
 
     public CreateModuleTemplates() {
 
+        Given("^a module template to create$", () -> {
+            templateBuilder
+                    .withName("module-template")
+                    .withFilename("module.js")
+                    .withLocation("/etc");
+        });
+
         When("^I( try to)? add this template to the module$", (String tryTo) -> {
+            moduleBuilder.withTemplate(templateBuilder.build());
             testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class));
         });
 

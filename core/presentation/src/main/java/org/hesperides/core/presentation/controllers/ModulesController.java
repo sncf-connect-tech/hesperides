@@ -95,7 +95,8 @@ public class ModulesController extends AbstractController {
 
     @ApiOperation("Update a module working copy")
     @PutMapping
-    public ResponseEntity<ModuleIO> updateWorkingCopy(Authentication authentication, @Valid @RequestBody final ModuleIO moduleInput) {
+    public ResponseEntity<ModuleIO> updateWorkingCopy(Authentication authentication,
+                                                      @Valid @RequestBody final ModuleIO moduleInput) {
 
         log.info("Updating module workingcopy {}", moduleInput.toString());
 

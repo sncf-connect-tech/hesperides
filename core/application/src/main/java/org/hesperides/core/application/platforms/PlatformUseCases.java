@@ -103,7 +103,7 @@ public class PlatformUseCases {
         return queries.searchApplications(applicationName);
     }
 
-    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path, final User user) {
+    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         if (!queries.platformExists(platformKey)) {
@@ -111,13 +111,13 @@ public class PlatformUseCases {
         }
 
         if (ROOT_PATH.equals(path)) {
-            properties.addAll(queries.getGlobalProperties(platformKey, user));
+            properties.addAll(queries.getGlobalProperties(platformKey));
         } else if (StringUtils.isNotEmpty(path)) {
             final Module.Key moduleKey = Module.Key.fromPath(path);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            properties.addAll(queries.getDeployedModuleProperties(platformKey, path, user));
+            properties.addAll(queries.getDeployedModuleProperties(platformKey, path));
             properties.addAll(getGlobalPropertiesUsedInModule(platformKey, moduleKey));
         }
         return properties;
@@ -145,11 +145,11 @@ public class PlatformUseCases {
         return globalPropertiesUsedInModule;
     }
 
-    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String modulePath, final User user) {
+    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String modulePath) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
-        return queries.getInstanceModel(platformKey, modulePath, user);
+        return queries.getInstanceModel(platformKey, modulePath);
     }
 
     public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
@@ -176,7 +176,7 @@ public class PlatformUseCases {
             commands.saveModulePropertiesInPlatform(platformId.get(), path, platformVersionId, abstractValuedProperties, user);
         }
 
-        return getProperties(platformKey, path, user);
+        return getProperties(platformKey, path);
     }
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
