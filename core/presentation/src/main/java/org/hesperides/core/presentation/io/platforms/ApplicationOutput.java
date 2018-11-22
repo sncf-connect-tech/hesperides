@@ -23,8 +23,8 @@ package org.hesperides.core.presentation.io.platforms;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
-import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Value
