@@ -37,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,13 +56,14 @@ public class GetFiles extends HesperidesScenario implements En {
 
     public GetFiles() {
 
-        When("^I( try to)? get the (instance|module)? files$", (String tryTo, String instanceOrModuleFiles) -> {
+        When("^I( try to)? get the (instance|module)? files$", (String tryTo, String instanceOrModule) -> {
             PlatformIO platform = platformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
 
-            DeployedModuleIO deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules()) ? null : platform.getDeployedModules().get(0);
-            String modulePath = deployedModule != null ? deployedModule.getPath() : "anything";
-            boolean simulate = "module".equals(instanceOrModuleFiles);
+            Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
+                    ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
+            String modulePath = deployedModule.map(DeployedModuleIO::getPath).orElse("anything");
+            boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
             testContext.responseEntity = fileClient.getFiles(
@@ -88,12 +90,13 @@ public class GetFiles extends HesperidesScenario implements En {
             assertOK();
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
             assertEquals(expectedFiles, actualOutput);
-            //TODO Vérifier qu'on obtient un code 200 lorsqu'on tente de récupérer chaque fichier listé dans le résultat précédent
         });
     }
 
-    private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {
-        return deployedModule == null || CollectionUtils.isEmpty(deployedModule.getInstances()) || simulate ? "anything" : deployedModule.getInstances().get(0).getName();
+    private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {
+        return deployedModule.isPresent() && !CollectionUtils.isEmpty(deployedModule.get().getInstances()) && !simulate
+                ? deployedModule.get().getInstances().get(0).getName()
+                : "anything";
     }
 
     private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String temlateNamespace) {
