@@ -122,8 +122,7 @@ public class DeployedModule {
                 extractInstanceProperties(valuedProperties, platformGlobalProperties));
     }
 
-    // Public for data-migration reuse
-    public static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleValuedProperties, List<ValuedProperty> platformGlobalProperties) {
+    private static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleValuedProperties, List<ValuedProperty> platformGlobalProperties) {
         return AbstractValuedProperty.flattenValuedProperties(moduleValuedProperties)
                 .stream()
                 .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(platformGlobalProperties))
