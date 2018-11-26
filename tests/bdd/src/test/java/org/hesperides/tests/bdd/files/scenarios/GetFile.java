@@ -29,6 +29,7 @@ import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.files.FileClient;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
+import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,14 +78,13 @@ public class GetFile extends HesperidesScenario implements En {
 
         Then("^the file is successfully retrieved$", () -> {
             assertOK();
-            String expectedOutput = "content\n12\n";
             String actualOutput = testContext.responseEntity.getBody().toString();
-            assertEquals(expectedOutput, actualOutput);
+            assertEquals("content\nmodule-bar\n", actualOutput);
         });
 
         Then("^the content type is \"text/plain\" with UTF-8 encoding$", () -> {
-                    assertEquals(testContext.responseEntity.getHeaders().getContentType().toString(), "text/plain;charset=UTF-8");
-                });
+            assertEquals(testContext.responseEntity.getHeaders().getContentType().toString(), "text/plain;charset=UTF-8");
+        });
     }
 
     private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {

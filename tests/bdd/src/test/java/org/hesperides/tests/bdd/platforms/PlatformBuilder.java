@@ -27,6 +27,7 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPr
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -159,6 +160,19 @@ public class PlatformBuilder {
     public void withInstanceProperty(String propertyName, String instancePropertyName) {
         withProperty(propertyName, "{{" + instancePropertyName + "}}");
         instanceProperties.put(propertyName, instancePropertyName);
+    }
+
+    public void withInstanceValue(String instanceName, String instancePropertyName, String instancePropertyValue) {
+        Optional<InstanceIO> instance = instances.stream()
+                .filter(instanceIo -> instanceIo.getName().equals(instanceName))
+                .findFirst();
+        if (instance.isPresent()) {
+
+            List<ValuedPropertyIO> valuedProperties = new ArrayList<ValuedPropertyIO>(instance.get().getValuedProperties());
+            valuedProperties.add(new ValuedPropertyIO(instancePropertyName, instancePropertyValue));
+            instances.add(new InstanceIO(instanceName, valuedProperties));
+            instances.remove(instance.get());
+        }
     }
 
     public void incrementVersionId() {

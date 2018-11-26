@@ -59,8 +59,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
-                String platformName, String withThisModule, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties) -> {
+        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?( (?:and|with) valued instance properties)?$", (
+                String platformName, String withThisModule, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties, String withValuedInstanceProperties) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
@@ -75,8 +75,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformClient.create(platformBuilder.buildInput());
 
             if (StringUtils.isNotEmpty(withValuedProperties)) {
-                platformBuilder.withProperty("module-foo", "12");
-                platformBuilder.withProperty("techno-foo", "12");
+                platformBuilder.withProperty("module-foo", "module-bar");
+                platformBuilder.withProperty("techno-foo", "techno-bar");
                 platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
@@ -109,6 +109,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
                 platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
+            }
+
+            if (StringUtils.isNotEmpty(withValuedInstanceProperties)) {
+                platformBuilder.withInstanceValue("instance-foo-1", "module-foo", "module-bar");
+                platformBuilder.withInstanceValue("instance-foo-1", "techno-foo", "techno-bar");
+                platformClient.update(platformBuilder.buildInput(), false);
+                // platformBuilder.incrementVersionId();
             }
 
             platformBuilder.addPlatform(platformBuilder.buildInput());

@@ -124,6 +124,14 @@ public class FileUseCases {
             throw new ModuleNotFoundException(moduleKey);
         }
 
+        if (!platformQueries.deployedModuleExists(plateformKey, moduleKey, path)) {
+            throw new DeployedModuleNotFoundException(plateformKey, moduleKey, path);
+        }
+
+        if (!simulate && !platformQueries.instanceExists(plateformKey, moduleKey, path, instanceName)) {
+            throw new InstanceNotFoundException(plateformKey, moduleKey, path, instanceName);
+        }
+
         PlatformView platformView = platformQueries.getOptionalPlatform(plateformKey).get();
 
         Optional<DeployedModuleView> optionalDeployedModule = platformView.getDeployedModule(moduleKey);
@@ -141,7 +149,7 @@ public class FileUseCases {
                     .findFirst();
 
 
-            //Récupérer l'instance dont le est fourni en entrée
+            //Récupérer l'instance dont le nom est fourni en entrée
             Optional<InstanceView> instanceView = optionalDeployedModule.get()
                     .getInstances()
                     .stream()
