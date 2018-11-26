@@ -30,7 +30,7 @@ public class InstanceFileView {
 
     String location;
     String url;
-    Rights rights;
+    TemplateView.RightsView rights;
 
     public InstanceFileView(Platform.Key platformKey, String path, Module.Key moduleKey, String instanceName, TemplateView template, boolean simulate) {
         location = buildFileLocation(template.getLocation(), template.getFilename());
@@ -44,7 +44,7 @@ public class InstanceFileView {
                 + "?isWorkingCopy=" + moduleKey.isWorkingCopy()
                 + "&template_namespace=" + template.getNamespace()
                 + "&simulate=" + simulate;
-        rights = new Rights(template.getRights());
+        rights = template.getRights();
     }
 
     private String buildFileLocation(String location, String filename) {
@@ -57,23 +57,5 @@ public class InstanceFileView {
         }
         fileLocation.append(filename);
         return fileLocation.toString();
-    }
-
-    @Value
-    public static class Rights {
-
-        String user;
-        String group;
-        String other;
-
-        public Rights(TemplateView.RightsView rights) {
-            user = printFileRights(rights.getUser());
-            group = printFileRights(rights.getGroup());
-            other = printFileRights(rights.getOther());
-        }
-
-        private String printFileRights(TemplateView.FileRightsView fileRights) {
-            return fileRights != null ? fileRights.toString() : "";
-        }
     }
 }

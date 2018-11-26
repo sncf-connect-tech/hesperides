@@ -48,6 +48,12 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class FileUseCases {

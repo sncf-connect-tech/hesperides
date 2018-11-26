@@ -63,6 +63,11 @@ public class DeployedModuleIO {
     }
 
     public DeployedModule toDomainInstance() {
+        // Cette classe servant à modéliser le "body" de requêtes entrantes POST & PUT /applications/{app}/platforms,
+        // elle ne porte JAMAIS d'information lié aux `valuedProperties` & `instanceProperties`.
+        // En effet les `valuedProperties` & `instanceProperties` dépendent des moustaches de templates,
+        // et leur valorisation est portée par la resource /applications/{app}/platforms/{platform}/properties.
+        // On crée donc une instance de DeployedModule avec ces champs `null`.
         return new DeployedModule(
                 id,
                 name,

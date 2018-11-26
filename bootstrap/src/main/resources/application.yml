@@ -33,6 +33,7 @@ logging:
     root: INFO
 
 management:
+  health.ldap.enabled: false
   endpoints:
     web:
       base-path: /manage

@@ -26,9 +26,3 @@ Feature: Get file
     Given an existing platform
     When I try to get the module template file
     Then the resource is not found
-
-
-
-
-
-

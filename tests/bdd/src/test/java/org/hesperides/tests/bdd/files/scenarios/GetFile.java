@@ -35,6 +35,8 @@ import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 
 public class GetFile extends HesperidesScenario implements En {
@@ -59,6 +61,9 @@ public class GetFile extends HesperidesScenario implements En {
 
             DeployedModuleIO deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules()) ? null : platform.getDeployedModules().get(0);
             String modulePath = deployedModule != null ? deployedModule.getPath() : "anything";
+            Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
+                    ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
+            String modulePath = deployedModule.map(DeployedModuleIO::getPath).orElse("anything");
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
@@ -89,5 +94,15 @@ public class GetFile extends HesperidesScenario implements En {
 
     private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {
         return deployedModule == null || CollectionUtils.isEmpty(deployedModule.getInstances()) || simulate ? "anything" : deployedModule.getInstances().get(0).getName();
+            String expectedOutput = "12\n12";
+            String actualOutput = (String) testContext.getResponseBody();
+            assertEquals(expectedOutput, actualOutput);
+        });
+    }
+
+    private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {
+        return deployedModule.isPresent() && !CollectionUtils.isEmpty(deployedModule.get().getInstances()) && !simulate
+                ? deployedModule.get().getInstances().get(0).getName()
+                : "anything";
     }
 }

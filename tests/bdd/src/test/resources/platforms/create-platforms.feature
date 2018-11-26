@@ -3,7 +3,7 @@ Feature: Create platform
   Background:
     Given an authenticated user
 
-  Scenario: create a platform
+  Scenario: create a platform with initial instance properties
     Given an existing module
     And a platform to create with this module with an instance with properties
     When I create this platform

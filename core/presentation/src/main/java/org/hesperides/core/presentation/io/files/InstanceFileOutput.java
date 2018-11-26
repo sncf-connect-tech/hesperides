@@ -23,6 +23,7 @@ package org.hesperides.core.presentation.io.files;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.files.InstanceFileView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 
 @Value
 @AllArgsConstructor
@@ -46,10 +47,30 @@ public class InstanceFileOutput {
         String group;
         String other;
 
-        public Rights(InstanceFileView.Rights rights) {
-            user = rights.getUser();
-            group = rights.getGroup();
-            other = rights.getOther();
+        public Rights(TemplateView.RightsView rights) {
+            user = fileRightsToString(rights.getUser());
+            group = fileRightsToString(rights.getGroup());
+            other = fileRightsToString(rights.getOther());
+        }
+
+        public String fileRightsToString(TemplateView.FileRightsView fileRights) {
+            return new StringBuilder()
+                    .append(booleanToString(fileRights.getRead(), "r"))
+                    .append(booleanToString(fileRights.getWrite(), "w"))
+                    .append(booleanToString(fileRights.getExecute(), "x"))
+                    .toString();
+        }
+
+        public String booleanToString(Boolean value, String valueIfTrue) {
+            String string = "";
+            if (value == null) {
+                string = " ";
+            } else if (value) {
+                string = valueIfTrue;
+            } else {
+                string = "-";
+            }
+            return string;
         }
     }
 }
