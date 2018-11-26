@@ -29,7 +29,6 @@ import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.files.FileClient;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
-import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +58,6 @@ public class GetFile extends HesperidesScenario implements En {
             ModuleIO module = moduleBuilder.build();
             TemplateIO template = templateBuilder.build();
 
-            DeployedModuleIO deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules()) ? null : platform.getDeployedModules().get(0);
-            String modulePath = deployedModule != null ? deployedModule.getPath() : "anything";
             Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
                     ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
             String modulePath = deployedModule.map(DeployedModuleIO::getPath).orElse("anything");
@@ -83,20 +80,12 @@ public class GetFile extends HesperidesScenario implements En {
 
         Then("^the file is successfully retrieved$", () -> {
             assertOK();
-            String actualOutput = testContext.responseEntity.getBody().toString();
+            String actualOutput = (String) testContext.getResponseBody();
             assertEquals("content\nmodule-bar\n", actualOutput);
         });
 
         Then("^the content type is \"text/plain\" with UTF-8 encoding$", () -> {
             assertEquals(testContext.responseEntity.getHeaders().getContentType().toString(), "text/plain;charset=UTF-8");
-        });
-    }
-
-    private String getInstanceName(DeployedModuleIO deployedModule, boolean simulate) {
-        return deployedModule == null || CollectionUtils.isEmpty(deployedModule.getInstances()) || simulate ? "anything" : deployedModule.getInstances().get(0).getName();
-            String expectedOutput = "12\n12";
-            String actualOutput = (String) testContext.getResponseBody();
-            assertEquals(expectedOutput, actualOutput);
         });
     }
 
