@@ -36,20 +36,23 @@ public class PropertyOutput {
 
 
     /**
-     * Permet d'exclure le champs properties de la sérialisation lorsque celui-ci est null.
-     * Ce sérialiseur est enregistré dans la classe PresentationConfiguration.
-     * PS : Ce serait tellement plus simple avec une annotation "ExcludeIfNull".
+     * Comme par défaut on sérialise les champs à null pour être iso-legacy
+     * mais que le legacy exclue le champ `fields` lorsqu'il n'est pas renseigné,
+     * on l'exclue ici manuellement.
+     *
+     * De plus, le serializer ne gère pas la récursivité nativement
+     * donc on la gère à la main.
      */
     public static class Serializer implements JsonSerializer<PropertyOutput> {
         @Override
         public JsonElement serialize(PropertyOutput src, Type typeOfSrc, JsonSerializationContext context) {
             Gson gson = new GsonBuilder().serializeNulls().create();
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(src);
-            // Le serializer ne gère pas la récursivité de lui-même, il faut la gérer à la main ici
             jsonObject.remove("fields");
             if (src.getProperties() != null) {
                 JsonArray jsonArray = new JsonArray();
                 for (PropertyOutput propertyOutput : src.getProperties()) {
+                    // Récursivité
                     jsonArray.add(context.serialize(propertyOutput, PropertyOutput.class));
                 }
                 jsonObject.add("fields", jsonArray);

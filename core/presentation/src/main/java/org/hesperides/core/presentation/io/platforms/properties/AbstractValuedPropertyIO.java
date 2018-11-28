@@ -45,6 +45,13 @@ public abstract class AbstractValuedPropertyIO {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Cet adapter permet à Gson de sérialiser et désérialiser les 2 classes qui
+     * étendent AbstractValuedPropertyIO : IterableValuedPropertyIO et ValuedPropertyIO.
+     * <p>
+     * La désérialisation se base sur le fait que l'instance contient
+     * ou non la propriété `iterable_valorisation_items`.
+     */
     public static class Adapter implements JsonDeserializer<AbstractValuedPropertyIO>, JsonSerializer<AbstractValuedPropertyIO> {
 
         @Override
