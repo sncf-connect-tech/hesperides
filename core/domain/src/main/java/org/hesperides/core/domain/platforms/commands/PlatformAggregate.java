@@ -63,14 +63,14 @@ public class PlatformAggregate implements Serializable {
         Platform newPlatform = command
                 .getNewPlatform()
                 .initializeVersionId();
-        apply(new PlatformCopiedEvent(command.getExistingPlatformId(), UUID.randomUUID().toString(), newPlatform, command.getUser().getName()));
+        apply(new PlatformCopiedEvent(command.getExistingPlatformKey(), UUID.randomUUID().toString(), newPlatform, command.getUser().getName()));
     }
 
 
     @CommandHandler
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
 
-        // TODO populate properties when `cmd.copyProps` flag is set (-> dedicated aggregate / command ?)
+        // TODO populate properties when `command.copyProperties` flag is set (-> dedicated aggregate / command ?)
 
         Platform platform = command.getPlatform()
                 .validateVersionId(versionId)
