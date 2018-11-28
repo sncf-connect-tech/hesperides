@@ -11,7 +11,7 @@ import org.hesperides.core.domain.security.UserEvent
 // Command
 
 data class CreatePlatformCommand(val platform: Platform, val user: User)
-data class CopyPlatformCommand(val existingPlatformId: String, val newPlatform: Platform, val user: User)
+data class CopyPlatformCommand(val existingPlatformKey: Platform.Key, val newPlatform: Platform, val user: User)
 data class DeletePlatformCommand(@TargetAggregateIdentifier val platformId: String, val user: User)
 data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformId: String, val platform: Platform, val copyProperties: Boolean, val user: User)
 data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val platformId: String, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
@@ -20,7 +20,7 @@ data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val 
 // Event
 
 data class PlatformCreatedEvent(val platformId: String, val platform: Platform, override val user: String) : UserEvent(user)
-data class PlatformCopiedEvent(val existingPlatformId: String, val newPlatformId: String, val newPlatform: Platform, override val user: String) : UserEvent(user)
+data class PlatformCopiedEvent(val existingPlatformKey: Platform.Key, val newPlatformId: String, val newPlatform: Platform, override val user: String) : UserEvent(user)
 data class PlatformDeletedEvent(val platformId: String, override val user: String) : UserEvent(user)
 data class PlatformUpdatedEvent(val platformId: String, val platform: Platform, override val user: String) : UserEvent(user)
 data class PlatformPropertiesUpdatedEvent(val platformId: String, val platformVersionId: Long, val valuedProperties: List<ValuedProperty>, override val user: String) : UserEvent(user)

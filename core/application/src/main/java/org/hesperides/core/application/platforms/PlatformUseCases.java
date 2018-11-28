@@ -50,14 +50,13 @@ public class PlatformUseCases {
     }
 
     public String copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
-        Optional<String> existingPlatformId = queries.getOptionalPlatformId(existingPlatformKey);
-        if (!existingPlatformId.isPresent()) {
+        if (!queries.platformExists(existingPlatformKey)) {
             throw new PlatformNotFoundException(existingPlatformKey);
         }
         if (queries.platformExists(newPlatform.getKey())) {
             throw new DuplicatePlatformException(newPlatform.getKey());
         }
-        return commands.copyPlatform(existingPlatformId.get(), newPlatform, user);
+        return commands.copyPlatform(existingPlatformKey, newPlatform, user);
     }
 
     public PlatformView getPlatform(String platformId) {
