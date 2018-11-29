@@ -17,9 +17,6 @@ public interface PlatformProjectionRepository {
     void onPlatformCreatedEvent(PlatformCreatedEvent event);
 
     @EventHandler
-    void onPlatformCopiedEvent(PlatformCopiedEvent event);
-
-    @EventHandler
     void onPlatformDeletedEvent(PlatformDeletedEvent event);
 
     @EventHandler

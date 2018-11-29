@@ -22,10 +22,14 @@ package org.hesperides.core.domain.platforms.queries.views;
 
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 public class DeployedModuleView {
@@ -41,5 +45,31 @@ public class DeployedModuleView {
 
     public TemplateContainer.Key getModuleKey() {
         return new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+    }
+
+    public DeployedModule toDomainDeployedModule() {
+        // Cette classe servant à modéliser une nouvelle plateforme crée via POST /applications/{app}/platforms?from_application=...&from_platform=...,
+        // elle ne porte JAMAIS d'information lié aux `valuedProperties` & `instanceProperties`.
+        // En effet les `valuedProperties` & `instanceProperties` dépendent des moustaches de templates,
+        // et leur valorisation est portée par la resource /applications/{app}/platforms/{platform}/properties.
+        // On crée donc une instance de DeployedModule avec ces champs `null`.
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                null,
+                InstanceView.toDomainInstances(instances),
+                null
+        );
+    }
+
+    public static List<DeployedModule> toDomainDeployedModules(List<DeployedModuleView> deployedModuleViews) {
+        return Optional.ofNullable(deployedModuleViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DeployedModuleView::toDomainDeployedModule)
+                .collect(Collectors.toList());
     }
 }

@@ -58,14 +58,6 @@ public class PlatformAggregate implements Serializable {
         apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser().getName()));
     }
 
-    @CommandHandler
-    public PlatformAggregate(CopyPlatformCommand command) {
-        Platform newPlatform = command
-                .getNewPlatform()
-                .initializeVersionId();
-        apply(new PlatformCopiedEvent(command.getExistingPlatformKey(), UUID.randomUUID().toString(), newPlatform, command.getUser().getName()));
-    }
-
 
     @CommandHandler
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
@@ -118,14 +110,6 @@ public class PlatformAggregate implements Serializable {
         this.key = event.getPlatform().getKey();
         this.versionId = event.getPlatform().getVersionId();
         log.debug("Plateform created");
-    }
-
-    @EventSourcingHandler
-    public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
-        this.id = event.getNewPlatformId();
-        this.key = event.getNewPlatform().getKey();
-        this.versionId = event.getNewPlatform().getVersionId();
-        log.debug("Plateform copied");
     }
 
     @EventSourcingHandler

@@ -22,6 +22,12 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -32,5 +38,17 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     public ValuedPropertyView(String name, String value) {
         super(name);
         this.value = value;
+    }
+
+    public ValuedProperty toDomainInstance() {
+        return new ValuedProperty(getName(), value);
+    }
+
+    public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyView> valuedProperties) {
+        return Optional.ofNullable(valuedProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ValuedPropertyView::toDomainInstance)
+                .collect(Collectors.toList());
     }
 }

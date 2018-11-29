@@ -46,17 +46,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
-    public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(event.getExistingPlatformKey());
-        PlatformDocument existingPlatform = platformRepository.findOptionalByKey(platformKeyDocument).get();
-        PlatformDocument newPlatform = new PlatformDocument(event.getNewPlatformId(), event.getNewPlatform());
-        newPlatform.setDeployedModules(existingPlatform.getDeployedModules());
-        newPlatform.setValuedProperties(existingPlatform.getValuedProperties());
-        platformRepository.save(newPlatform);
-    }
-
-    @EventHandler
-    @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         platformRepository.deleteById(event.getPlatformId());
     }
