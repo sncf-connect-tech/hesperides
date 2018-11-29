@@ -3,6 +3,7 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -76,7 +77,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Récupération de la plateforme et mise à jour de la version
         PlatformDocument platformDocument = platformRepository.findById(event.getPlatformId()).get();
-        platformDocument.setVersionId(event.getPlatformVersionId());
+        if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {
+            // Rustine temporaire pour le temps de la migration
+            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
+        } else {
+            platformDocument.setVersionId(event.getPlatformVersionId());
+        }
 
         // Modification des propriétés du module dans la plateforme
         platformDocument.getDeployedModules().stream()
@@ -98,10 +104,16 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .collect(Collectors.toList());
 
         // Retrieve platform
+
         PlatformDocument platformDocument = platformRepository.findById(event.getPlatformId()).get();
 
         // Update platform information
-        platformDocument.setVersionId(event.getPlatformVersionId());
+        if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {
+            // Rustine temporaire pour le temps de la migration
+            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
+        } else {
+            platformDocument.setVersionId(event.getPlatformVersionId());
+        }
         platformDocument.setValuedProperties(valuedProperties);
 
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
