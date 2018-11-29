@@ -26,7 +26,7 @@ data class GetModuleByIdQuery(val moduleId: String)
 data class GetModuleByKeyQuery(val moduleKey: TemplateContainer.Key)
 data class ModuleExistsQuery(val moduleKey: TemplateContainer.Key)
 class GetModulesNameQuery
-data class GetModuleVersionTypesQuery(val moduleName: String, val moduleVersion: String)
 data class GetModuleVersionsQuery(val moduleName: String)
+data class GetModuleVersionTypesQuery(val moduleName: String, val moduleVersion: String)
 data class SearchModulesQuery(val input: String)
 data class GetModulePropertiesQuery(val moduleKey: TemplateContainer.Key)

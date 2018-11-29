@@ -114,6 +114,18 @@ public class TechnoUseCases {
         return queries.getOptionalTechno(technoKey);
     }
 
+    public List<String> getTechnosName() {
+        return queries.getTechnosName();
+    }
+
+    public List<String> getTechnoVersions(String technoName) {
+        return queries.getTechnoVersions(technoName);
+    }
+
+    public List<String> getTechnoTypes(String technoName, String technoVersion) {
+        return queries.getTechnoTypes(technoName, technoVersion);
+    }
+
     public List<TechnoView> search(String input) {
         return queries.search(input);
     }

@@ -44,11 +44,11 @@ public class EventsController extends AbstractController {
 
     @ApiOperation("Get the events list of a module")
     @GetMapping("/modules/{module_name}/{module_version}/{module_type}")
-    public ResponseEntity<List<EventOutput>> getEvents(@PathVariable("module_name") final String moduleName,
-                                                       @PathVariable("module_version") final String moduleVersion,
-                                                       @PathVariable("module_type") final String moduleType,
-                                                       @RequestParam(value = "page", defaultValue = "1") final Integer page,
-                                                       @RequestParam(value = "size", defaultValue = "25") final Integer size) {
+    public ResponseEntity<List<EventOutput>> getModuleEvents(@PathVariable("module_name") final String moduleName,
+                                                             @PathVariable("module_version") final String moduleVersion,
+                                                             @PathVariable("module_type") final String moduleType,
+                                                             @RequestParam(value = "page", defaultValue = "1") final Integer page,
+                                                             @RequestParam(value = "size", defaultValue = "25") final Integer size) {
 
         Module.Key key = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.valueOf(moduleType));
         log.info("Get events from module {}", key);
@@ -62,10 +62,10 @@ public class EventsController extends AbstractController {
 
     @ApiOperation("Get the events list of a platform")
     @GetMapping("/platforms/{application_name}/{platform_name}")
-    public ResponseEntity<List<EventOutput>> getEvents(@PathVariable("application_name") final String applicationName,
-                                                       @PathVariable("platform_name") final String platformName,
-                                                       @RequestParam(value = "page", defaultValue = "1") final Integer page,
-                                                       @RequestParam(value = "size", defaultValue = "25") final Integer size) {
+    public ResponseEntity<List<EventOutput>> getPlatformEvents(@PathVariable("application_name") final String applicationName,
+                                                               @PathVariable("platform_name") final String platformName,
+                                                               @RequestParam(value = "page", defaultValue = "1") final Integer page,
+                                                               @RequestParam(value = "size", defaultValue = "25") final Integer size) {
 
         Platform.Key key = new Platform.Key(applicationName, platformName);
         log.info("Get events from module {}", key);

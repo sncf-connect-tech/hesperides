@@ -28,12 +28,14 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hesperides.core.presentation.io.TechnoIO.WORKINGCOPY;
+
 @Component
 public class TechnoBuilder {
 
     private String name;
     private String version;
-    private boolean isWorkingCopy;
+    private String versionType;
     private List<PropertyOutput> properties;
 
     private List<TemplateIO> templates;
@@ -46,7 +48,7 @@ public class TechnoBuilder {
         // Valeurs par défaut
         name = "test-techno";
         version = "1.0.0";
-        isWorkingCopy = true;
+        versionType = WORKINGCOPY;
         properties = new ArrayList<>();
         templates = new ArrayList<>();
     }
@@ -61,17 +63,17 @@ public class TechnoBuilder {
         return this;
     }
 
-    public TechnoBuilder withIsWorkingCopy(boolean isWorkingCopy) {
-        this.isWorkingCopy = isWorkingCopy;
+    public TechnoBuilder withModuleType(String versionType) {
+        this.versionType = versionType;
         return this;
     }
 
     public TechnoIO build() {
-        return new TechnoIO(name, version, isWorkingCopy);
+        return new TechnoIO(name, version, isWorkingCopy());
     }
 
     public String getNamespace() {
-        return "packages#" + name + "#" + version + "#" + (isWorkingCopy ? "WORKINGCOPY" : "RELEASE");
+        return "packages#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
     public void withProperty(PropertyOutput property) {
@@ -80,6 +82,14 @@ public class TechnoBuilder {
 
     public List<PropertyOutput> getProperties() {
         return properties;
+    }
+
+    public String getVersionType() {
+        return versionType;
+    }
+
+    public Boolean isWorkingCopy() {
+        return versionType == WORKINGCOPY;
     }
 
     public TechnoBuilder withTemplate(TemplateIO template) {

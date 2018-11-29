@@ -27,5 +27,10 @@ public class CommonSteps extends HesperidesScenario implements En {
             assertOK();
             assertEquals(0, getBodyAsArray().length);
         });
+
+        Then("^a list of (\\d+) elements? is returned$", (Integer expectedCount) -> {
+            assertOK();
+            assertEquals(expectedCount.intValue(), getBodyAsArray().length);
+        });
     }
 }

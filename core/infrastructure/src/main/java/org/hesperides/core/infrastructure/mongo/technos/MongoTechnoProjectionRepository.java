@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.infrastructure.mongo.technos;
 
+import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.technos.*;
@@ -37,12 +38,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
@@ -53,11 +56,13 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     private final MongoTechnoRepository technoRepository;
     private final MongoModuleRepository moduleRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository, MongoModuleRepository moduleRepository) {
+    public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository, MongoModuleRepository moduleRepository, MongoTemplate mongoTemplate) {
         this.technoRepository = technoRepository;
         this.moduleRepository = moduleRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     /*** EVENT HANDLERS ***/
@@ -141,6 +146,34 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public Boolean onTechnoExistsQuery(TechnoExistsQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         return technoRepository.existsByKey(keyDocument);
+    }
+
+    @QueryHandler
+    @Override
+    public List<String> onGetTechnosNameQuery(GetTechnosNameQuery query) {
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection("techno").distinct("key.name", String.class);
+        return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<String> onGetTechnoVersionTypesQuery(GetTechnoVersionTypesQuery query) {
+        return technoRepository.findByKeyNameAndKeyVersion(query.getTechnoName(), query.getTechnoVersion())
+                .stream()
+                .map(TechnoDocument::getKey)
+                .map(KeyDocument::isWorkingCopy)
+                .map(TemplateContainer.VersionType::toString)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<String> onGetTechnoVersionsQuery(GetTechnoVersionsQuery query) {
+        return technoRepository.findByKeyName(query.getTechnoName())
+                .stream()
+                .map(TechnoDocument::getKey)
+                .map(KeyDocument::getVersion)
+                .collect(Collectors.toList());
     }
 
     @QueryHandler

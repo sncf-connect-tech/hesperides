@@ -17,6 +17,9 @@ import java.util.List;
 @AllArgsConstructor
 public final class ModuleIO {
 
+    public final static String WORKINGCOPY = "workingcopy";
+    public final static String RELEASE = "release";
+
     @OnlyPrintableCharacters(subject = "name")
     String name;
     @OnlyPrintableCharacters(subject = "version")
@@ -45,5 +48,9 @@ public final class ModuleIO {
 
     public Module toDomainInstance() {
         return toDomainInstance(Collections.emptyList());
+    }
+
+    public String getVersionType() {
+        return isWorkingCopy ? WORKINGCOPY : RELEASE;
     }
 }

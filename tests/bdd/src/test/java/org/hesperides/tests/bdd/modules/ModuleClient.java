@@ -87,7 +87,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
+                moduleInput.getVersionType());
     }
 
     public ResponseEntity copy(ModuleIO existingModuleInput, Boolean isWorkingCopy, ModuleIO newModuleInput, Class responseType) {
@@ -105,7 +105,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
+                moduleInput.getVersionType());
 
     }
 
@@ -120,7 +120,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
+                moduleInput.getVersionType());
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
@@ -130,7 +130,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
+                moduleInput.getVersionType());
     }
 
     public ResponseEntity getTemplates(ModuleIO moduleInput, Class responseType) {
@@ -138,7 +138,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
+                moduleInput.getVersionType());
     }
 
     public List<PartialTemplateIO> getTemplates(ModuleIO moduleInput) {
@@ -151,11 +151,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
-    }
-
-    private String getVersionType(boolean isWorkingCopy) {
-        return isWorkingCopy ? "workingcopy" : "release";
+                moduleInput.getVersionType());
     }
 
     public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
@@ -165,7 +161,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                getVersionType(moduleInput.getIsWorkingCopy()));
+                moduleInput.getVersionType());
     }
 
     public ResponseEntity<String[]> getNames() {
