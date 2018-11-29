@@ -20,13 +20,6 @@ public class SearchTechnos extends HesperidesScenario implements En {
 
     public SearchTechnos() {
 
-        Given("^a list of (\\d+) technos$", (Integer nbTechnos) -> {
-            for (int i = 0; i < nbTechnos; i++) {
-                technoBuilder.withName("a-techno").withVersion("0.0." + i + 1);
-                technoClient.create(templateBuilder.build(), technoBuilder.build());
-            }
-        });
-
         When("^I search for one specific techno$", () -> {
             testContext.responseEntity = technoClient.search("a-techno 0.0.3");
         });

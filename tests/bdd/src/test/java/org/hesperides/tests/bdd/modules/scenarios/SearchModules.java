@@ -13,23 +13,8 @@ public class SearchModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
-    @Autowired
-    private ModuleBuilder moduleBuilder;
 
     public SearchModules() {
-
-        Given("^a list of( \\d+)? modules( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
-            Integer modulesToCreateCount = StringUtils.isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
-            for (int i = 0; i < modulesToCreateCount; i++) {
-                if (StringUtils.isNotEmpty(withDifferentNames)) {
-                    moduleBuilder.withName("new-module-" + i);
-                } else {
-                    moduleBuilder.withName("new-module");
-                }
-                moduleBuilder.withVersion("0.0." + i + 1);
-                moduleClient.create(moduleBuilder.build());
-            }
-        });
 
         When("^I search for one specific module$", () -> {
             testContext.responseEntity = moduleClient.search("new-module 0.0.3");

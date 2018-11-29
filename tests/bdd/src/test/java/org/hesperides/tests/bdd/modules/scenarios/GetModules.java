@@ -25,7 +25,7 @@ public class GetModules extends HesperidesScenario implements En {
             moduleBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the module detail(?: for a module version \"(.*)\")?$", (String tryTo, String moduleType) -> {
+        When("^I( try to)? get the module detail(?: for a module type \"(.*)\")?$", (String tryTo, String moduleType) -> {
             if (StringUtils.isNotEmpty(moduleType)) {
                 moduleBuilder.withModuleType(moduleType);
             }

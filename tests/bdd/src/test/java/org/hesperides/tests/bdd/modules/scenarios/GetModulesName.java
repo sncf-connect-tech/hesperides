@@ -17,10 +17,5 @@ public class GetModulesName extends HesperidesScenario implements En {
         When("^I get the modules name$", () -> {
             testContext.responseEntity = moduleClient.getNames();
         });
-
-        Then("^a list of (\\d+) names? is returned$", (Integer nbModulesName) -> {
-            assertOK();
-            assertEquals(nbModulesName.intValue(), getBodyAsArray().length);
-        });
     }
 }

@@ -60,6 +60,27 @@ public class CreateModules extends HesperidesScenario implements En {
             }
         });
 
+        Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {
+            moduleBuilder.withName("new-module");
+            for (int i = 0; i < nbVersions; i++) {
+                moduleBuilder.withVersion("1." + i);
+                moduleClient.create(moduleBuilder.build());
+            }
+        });
+
+        Given("^a list of( \\d+)? modules( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
+            Integer modulesToCreateCount = StringUtils.isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
+            for (int i = 0; i < modulesToCreateCount; i++) {
+                if (StringUtils.isNotEmpty(withDifferentNames)) {
+                    moduleBuilder.withName("new-module-" + i);
+                } else {
+                    moduleBuilder.withName("new-module");
+                }
+                moduleBuilder.withVersion("0.0." + i + 1);
+                moduleClient.create(moduleBuilder.build());
+            }
+        });
+
         Given("^a module to create(?: with the same name and version)?( with this techno)?$", (String withThisTechno) -> {
             moduleBuilder.reset();
             if (StringUtils.isNotEmpty(withThisTechno)) {

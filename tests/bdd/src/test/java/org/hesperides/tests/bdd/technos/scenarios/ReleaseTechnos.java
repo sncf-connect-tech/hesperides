@@ -34,7 +34,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build());
             technoClient.release(technoBuilder.build());
-            technoBuilder.withIsWorkingCopy(false);
+            technoBuilder.withModuleType(TechnoIO.RELEASE);
         });
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
@@ -43,7 +43,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
 
         Then("^the techno is successfully released$", () -> {
             assertCreated();
-            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withIsWorkingCopy(false);
+            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withModuleType(TechnoIO.RELEASE);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
             TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
@@ -65,8 +65,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
         });
 
         Then("^the techno release is rejected with a conflict error$", () -> {
-                    assertConflict();
-                }
-        );
+            assertConflict();
+        });
     }
 }

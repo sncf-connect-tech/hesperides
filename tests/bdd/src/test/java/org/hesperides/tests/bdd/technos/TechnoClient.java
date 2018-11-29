@@ -50,19 +50,19 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()));
+                technoInput.getVersionType());
     }
 
     public ResponseEntity search(String terms) {
         return restTemplate.postForEntity("/templates/packages/perform_search?terms=" + terms, null, TechnoIO[].class);
     }
 
-    public ResponseEntity get(TechnoIO technoInput, Class responseType) {
+    public ResponseEntity get(TechnoIO technoInput, String versionType, Class responseType) {
         return restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()));
+                versionType);
     }
 
     public ResponseEntity release(TechnoIO technoInput) {
@@ -84,7 +84,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()));
+                technoInput.getVersionType());
     }
 
     public ResponseEntity copy(TechnoIO existingTechnoInput, TechnoIO newTechnoInput, Class responseType) {
@@ -101,7 +101,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()));
+                technoInput.getVersionType());
 
     }
 
@@ -125,7 +125,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()));
+                technoInput.getVersionType());
     }
 
     public ResponseEntity getTemplates(TechnoIO technoInput, Class responseType) {
@@ -133,7 +133,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()));
+                technoInput.getVersionType());
     }
 
     public List<PartialTemplateIO> getTemplates(TechnoIO technoInput) {
@@ -146,12 +146,8 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()),
+                technoInput.getVersionType(),
                 templateName);
-    }
-
-    private String getVersionType(boolean isWorkingCopy) {
-        return isWorkingCopy ? "workingcopy" : "release";
     }
 
     public ResponseEntity deleteTemplate(String templateName, TechnoIO technoInput, Class responseType) {
@@ -161,7 +157,20 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                getVersionType(technoInput.getIsWorkingCopy()),
+                technoInput.getVersionType(),
                 templateName);
     }
+
+    public ResponseEntity<String[]> getNames() {
+        return restTemplate.getForEntity("/templates/packages", String[].class);
+    }
+
+    public ResponseEntity<String[]> getVersions(String name) {
+        return restTemplate.getForEntity("/templates/packages/{name}", String[].class, name);
+    }
+
+    public ResponseEntity<String[]> getTypes(String name, String version) {
+        return restTemplate.getForEntity("/templates/packages/{name}/{version}", String[].class, name, version);
+    }
+
 }

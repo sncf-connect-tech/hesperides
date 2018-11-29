@@ -33,7 +33,7 @@ public class DeleteTechnos extends HesperidesScenario implements En {
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            testContext.responseEntity = technoClient.get(technoBuilder.build(), String.class);
+            testContext.responseEntity = technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class);
             assertNotFound();
         });
 

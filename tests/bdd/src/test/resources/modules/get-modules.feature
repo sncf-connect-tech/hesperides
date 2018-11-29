@@ -23,7 +23,7 @@ Feature: Get modules detail
   Scenario: get the detail of a released module that only exist as working copy
     Given an existing techno
     And an existing module with this techno
-    When I try to get the module detail for a module version "release"
+    When I try to get the module detail for a module type "release"
     Then the resource is not found
 
   Scenario: get the detail of a module after its techno has been deleted
@@ -36,5 +36,5 @@ Feature: Get modules detail
   Scenario: get the detail of a module with an invalid module type
     Given an existing techno
     And an existing module with this techno
-    When I try to get the module detail for a module version "unknown"
+    When I try to get the module detail for a module type "unknown"
     Then the request is rejected with a bad request error

@@ -33,6 +33,18 @@ public class TechnoQueries extends AxonQueries {
         return querySyncList(new GetTemplatesQuery(technoKey), TemplateView.class);
     }
 
+    public List<String> getTechnosName() {
+        return querySyncList(new GetTechnosNameQuery(), String.class);
+    }
+
+    public List<String> getTechnoVersions(String technoName) {
+        return querySyncList(new GetTechnoVersionsQuery(technoName), String.class);
+    }
+
+    public List<String> getTechnoTypes(String technoName, String technoVersion) {
+        return querySyncList(new GetTechnoVersionTypesQuery(technoName, technoVersion), String.class);
+    }
+
     public Optional<TechnoView> getOptionalTechno(TemplateContainer.Key technoKey) {
         return querySyncOptional(new GetTechnoQuery(technoKey), TechnoView.class);
     }

@@ -81,6 +81,42 @@ public class TechnosController extends AbstractController {
         return ResponseEntity.created(technoKey.getURI()).body(templateOutput);
     }
 
+    @ApiOperation("Get all techno names")
+    @GetMapping
+    public ResponseEntity<List<String>> getTechnosName() {
+        log.debug("getTechnosName");
+
+        List<String> technosNames = technoUseCases.getTechnosName();
+        log.debug("return getTechnosName: {}", technosNames.toString());
+
+        return ResponseEntity.ok(technosNames);
+    }
+
+    @ApiOperation("Get all versions for a given techno")
+    @GetMapping("/{techno_name}")
+    public ResponseEntity<List<String>> getTechnoVersions(@PathVariable("techno_name") final String technoName) {
+
+        log.debug("getTechnoVersions technoName: {}", technoName);
+
+        List<String> technoVersions = technoUseCases.getTechnoVersions(technoName);
+        log.debug("return getTechnoVersions: {}", technoVersions.toString());
+
+        return ResponseEntity.ok(technoVersions);
+    }
+
+    @ApiOperation("Get all types for a given techno version")
+    @GetMapping("/{techno_name}/{techno_version:.+}")
+    public ResponseEntity<List<String>> getTechnoTypes(@PathVariable("techno_name") final String technoName,
+                                                       @PathVariable("techno_version") final String technoVersion) {
+
+        log.debug("getTechnoTypes technoName: {}, technoVersion: {}", technoName, technoVersion);
+
+        List<String> technoTypes = technoUseCases.getTechnoTypes(technoName, technoVersion);
+        log.debug("return getTechnoTypes: {}", technoTypes.toString());
+
+        return ResponseEntity.ok(technoTypes);
+    }
+
     @ApiOperation("Get info for a given techno release/working-copy")
     @GetMapping("/{techno_name}/{techno_version}/{techno_type}")
     public ResponseEntity<TechnoIO> getTechnoInfo(@PathVariable("techno_name") final String technoName,

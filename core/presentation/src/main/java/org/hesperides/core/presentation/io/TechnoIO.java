@@ -37,6 +37,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class TechnoIO {
 
+    public final static String WORKINGCOPY = "workingcopy";
+    public final static String RELEASE = "release";
+
     @OnlyPrintableCharacters(subject = "name")
     String name;
     @OnlyPrintableCharacters(subject = "version")
@@ -69,5 +72,9 @@ public class TechnoIO {
                 .stream()
                 .map(TechnoIO::new)
                 .collect(Collectors.toList());
+    }
+
+    public String getVersionType() {
+        return isWorkingCopy ? WORKINGCOPY : RELEASE;
     }
 }

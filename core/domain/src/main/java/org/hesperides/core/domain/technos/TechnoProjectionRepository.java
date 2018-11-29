@@ -54,6 +54,15 @@ public interface TechnoProjectionRepository {
     Optional<String> onGetTechnoIdFromKeyQuery(GetTechnoIdFromKeyQuery query);
 
     @QueryHandler
+    List<String> onGetTechnosNameQuery(GetTechnosNameQuery query);
+
+    @QueryHandler
+    List<String> onGetTechnoVersionTypesQuery(GetTechnoVersionTypesQuery query);
+
+    @QueryHandler
+    List<String> onGetTechnoVersionsQuery(GetTechnoVersionsQuery query);
+
+    @QueryHandler
     Boolean onTechnoExistsQuery(TechnoExistsQuery query);
 
     @QueryHandler

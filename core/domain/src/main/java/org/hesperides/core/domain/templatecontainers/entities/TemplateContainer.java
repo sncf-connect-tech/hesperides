@@ -64,7 +64,7 @@ public abstract class TemplateContainer {
         public static VersionType fromMinimizedForm(final String minimizedForm) {
             return Stream.of(VersionType.values()).filter(v -> v.minimizedForm.equals(minimizedForm))
                     .findFirst()
-                    .orElseThrow(() -> new InvalidParameterException(String.format("No minimized form of VersioType found for %s", minimizedForm)));
+                    .orElseThrow(() -> new InvalidParameterException(String.format("No minimized form of VersionType found for %s", minimizedForm)));
         }
 
         public static String toString(boolean isWorkingCopy) {

@@ -28,11 +28,11 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hesperides.core.presentation.io.ModuleIO.WORKINGCOPY;
+
 @Component
 public class ModuleBuilder {
 
-    public final static String WORKINGCOPY = "WORKINGCOPY";
-    public final static String RELEASE = "RELEASE";
     private String name;
     private String version;
     private String versionType;
@@ -86,7 +86,7 @@ public class ModuleBuilder {
     }
 
     public String getNamespace() {
-        return "modules#" + name + "#" + version + "#" + versionType;
+        return "modules#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
     public void removeTechno(TechnoIO techno) {
@@ -96,7 +96,7 @@ public class ModuleBuilder {
     }
 
     public String getPropertiesPath() {
-        return "GROUP#" + name + "#" + version + "#" + versionType;
+        return "GROUP#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
     public String getVersionType() {

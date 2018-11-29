@@ -24,6 +24,10 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     TechnoDocument findByKey(KeyDocument key);
 
+    List<TechnoDocument> findByKeyNameAndKeyVersion(String name, String version);
+
+    List<TechnoDocument> findByKeyName(String name);
+
     Optional<TechnoDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
 
     List<TechnoDocument> findAllByKeyIn(List<KeyDocument> keys);

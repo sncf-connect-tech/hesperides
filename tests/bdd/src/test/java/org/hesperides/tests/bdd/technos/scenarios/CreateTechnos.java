@@ -41,6 +41,27 @@ public class CreateTechnos extends HesperidesScenario implements En {
             technoClient.create(templateBuilder.build(), technoBuilder.build());
         });
 
+        Given("^a techno with (\\d+) versions$", (Integer nbVersions) -> {
+            technoBuilder.withName("new-techno");
+            for (int i = 0; i < nbVersions; i++) {
+                technoBuilder.withVersion("1." + i);
+                technoClient.create(templateBuilder.build(), technoBuilder.build());
+            }
+        });
+
+        Given("^a list of( \\d+)? technos( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
+            Integer modulesToCreateCount = StringUtils.isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
+            for (int i = 0; i < modulesToCreateCount; i++) {
+                if (StringUtils.isNotEmpty(withDifferentNames)) {
+                    technoBuilder.withName("a-techno-" + i);
+                } else {
+                    technoBuilder.withName("a-techno");
+                }
+                technoBuilder.withVersion("0.0." + i + 1);
+                technoClient.create(templateBuilder.build(), technoBuilder.build());
+            }
+        });
+
         Given("^a techno to create(?: with the same name and version)?$", () -> {
             technoBuilder.reset();
         });

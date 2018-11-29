@@ -62,7 +62,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
             }
 
             moduleClient.release(moduleBuilder.build(), ModuleIO.class);
-            moduleBuilder.withVersionId(1).withModuleType(ModuleBuilder.RELEASE);
+            moduleBuilder.withVersionId(1).withModuleType(ModuleIO.RELEASE);
         });
 
         When("^I( try to)? release this module(?: in version \"(.*)\")?( without specifying its version)?$", (String tryTo, String releasedModuleVersion, String withoutVersion) -> {
@@ -74,7 +74,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
 
         Then("^the module is successfully released(?: in version \"(.*)\")?$", (String releasedModuleVersion) -> {
             assertOK();
-            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withModuleType(ModuleBuilder.RELEASE);
+            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withModuleType(ModuleIO.RELEASE);
             if (StringUtils.isNotEmpty(releasedModuleVersion)) {
                 expectedModuleBuilder.withVersion(releasedModuleVersion);
             }
