@@ -22,6 +22,7 @@ package org.hesperides.core.domain.platforms.entities;
 
 import lombok.Value;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class Platform {
     boolean isProductionPlatform;
     Long versionId;
     List<DeployedModule> deployedModules;
+    private List<ValuedProperty> globalProperties;
 
     public Platform initializeVersionId() {
         return new Platform(
@@ -40,7 +42,8 @@ public class Platform {
                 version,
                 isProductionPlatform,
                 1L,
-                deployedModules
+                deployedModules,
+                globalProperties
         );
     }
 
@@ -57,7 +60,8 @@ public class Platform {
                 version,
                 isProductionPlatform,
                 versionId + 1,
-                deployedModules
+                deployedModules,
+                globalProperties
         );
     }
 
@@ -67,7 +71,8 @@ public class Platform {
                 version,
                 isProductionPlatform,
                 versionId,
-                DeployedModule.fillMissingIdentifiers(deployedModules)
+                DeployedModule.fillMissingIdentifiers(deployedModules),
+                globalProperties
         );
     }
 

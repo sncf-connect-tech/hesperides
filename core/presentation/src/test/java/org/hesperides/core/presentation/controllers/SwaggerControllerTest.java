@@ -38,7 +38,7 @@ public class SwaggerControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.definitions.PropertiesIO.properties.iterable_properties").exists())
                 .andExpect(jsonPath("$.definitions.PropertiesIO.properties.iterableValuedProperties").doesNotExist())
                 .andExpect(jsonPath("$.definitions.PropertiesIO.properties.key_value_properties").exists())
-                .andExpect(jsonPath("$.definitions.PropertiesIO.properties.valuedProperties").doesNotExist())
+                .andExpect(jsonPath("$.definitions.PropertiesIO.properties.globalProperties").doesNotExist())
                 .andExpect(jsonPath("$.definitions.TechnoIO.properties.working_copy").exists())
                 .andExpect(jsonPath("$.definitions.TechnoIO.properties.workingCopy").doesNotExist())
                 .andExpect(jsonPath("$.definitions.TemplateIO.properties.version_id").exists())

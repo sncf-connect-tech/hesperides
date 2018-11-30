@@ -35,7 +35,7 @@ public class InstanceView {
     List<ValuedPropertyView> valuedProperties;
 
     private Instance toDomainInstance() {
-        return new Instance(name, ValuedPropertyView.toDomainInstances(valuedProperties));
+        return new Instance(name, ValuedPropertyView.toDomainValuedProperties(valuedProperties));
     }
 
     public static List<Instance> toDomainInstances(List<InstanceView> instances) {

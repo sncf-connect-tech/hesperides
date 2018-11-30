@@ -103,7 +103,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         } else {
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
-        platformDocument.setValuedProperties(valuedProperties);
+        platformDocument.setGlobalProperties(valuedProperties);
 
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
@@ -230,7 +230,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.findOptionalByKey(platformKeyDocument)
-                .map(PlatformDocument::getValuedProperties)
+                .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElse(Collections.emptyList());
     }

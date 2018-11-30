@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.DeployedModuleView.toDomainDeployedModules;
+import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.toDomainValuedProperties;
 
 
 @Component
@@ -64,7 +65,8 @@ public class PlatformUseCases {
                 newPlatform.getVersion(),
                 newPlatform.isProductionPlatform(),
                 1L,
-                toDomainDeployedModules(existingPlatform.getDeployedModules())
+                toDomainDeployedModules(existingPlatform.getDeployedModules()),
+                toDomainValuedProperties(existingPlatform.getGlobalProperties())
         );
         return commands.createPlatform(newFullPlatform, user);
     }

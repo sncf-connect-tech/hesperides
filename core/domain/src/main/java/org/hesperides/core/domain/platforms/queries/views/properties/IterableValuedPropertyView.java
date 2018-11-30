@@ -22,8 +22,12 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 
 import java.util.List;
+
+import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -34,5 +38,10 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     public IterableValuedPropertyView(String name, List<IterablePropertyItemView> iterablePropertyItems) {
         super(name);
         this.iterablePropertyItems = iterablePropertyItems;
+    }
+
+    @Override
+    public IterableValuedProperty toDomainValuedProperty() {
+        return new IterableValuedProperty(getName(), toDomainIterablePropertyItems(iterablePropertyItems));
     }
 }

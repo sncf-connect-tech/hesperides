@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
+
 @Value
 public class DeployedModuleView {
 
@@ -48,18 +50,16 @@ public class DeployedModuleView {
     }
 
     public DeployedModule toDomainDeployedModule() {
-        // Cette classe servant à modéliser une nouvelle plateforme crée via POST /applications/{app}/platforms?from_application=...&from_platform=...,
-        // elle ne porte JAMAIS d'information lié aux `valuedProperties` & `instanceProperties`.
-        // En effet les `valuedProperties` & `instanceProperties` dépendent des moustaches de templates,
-        // et leur valorisation est portée par la resource /applications/{app}/platforms/{platform}/properties.
-        // On crée donc une instance de DeployedModule avec ces champs `null`.
+        // L'extraction des propriétés d'instance est systématiquement effectuée
+        // par platformDocument.extractInstancePropertiesAndSave dans la couche infratructure.
+        // On crée donc une instance de DeployedModule avec ce champ `null`.
         return new DeployedModule(
                 id,
                 name,
                 version,
                 isWorkingCopy,
                 path,
-                null,
+                toDomainAbstractValuedProperties(valuedProperties),
                 InstanceView.toDomainInstances(instances),
                 null
         );

@@ -40,15 +40,16 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
         this.value = value;
     }
 
-    public ValuedProperty toDomainInstance() {
+    @Override
+    public ValuedProperty toDomainValuedProperty() {
         return new ValuedProperty(getName(), value);
     }
 
-    public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyView> valuedProperties) {
+    public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(ValuedPropertyView::toDomainInstance)
+                .map(ValuedPropertyView::toDomainValuedProperty)
                 .collect(Collectors.toList());
     }
 }

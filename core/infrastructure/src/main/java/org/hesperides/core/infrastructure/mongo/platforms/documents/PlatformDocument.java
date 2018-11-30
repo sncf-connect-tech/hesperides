@@ -47,7 +47,7 @@ public class PlatformDocument {
     private boolean isProductionPlatform;
     private Long versionId;
     private List<DeployedModuleDocument> deployedModules;
-    private List<ValuedPropertyDocument> valuedProperties;
+    private List<ValuedPropertyDocument> globalProperties;
 
     public PlatformDocument(String id, Platform platform) {
         this.id = id;
@@ -56,6 +56,7 @@ public class PlatformDocument {
         this.isProductionPlatform = platform.isProductionPlatform();
         this.versionId = platform.getVersionId();
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
+        this.globalProperties = ValuedPropertyDocument.fromDomainInstances(platform.getGlobalProperties());
     }
 
     public PlatformView toPlatformView() {
@@ -66,7 +67,7 @@ public class PlatformDocument {
                 isProductionPlatform,
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
                 versionId,
-                ValuedPropertyDocument.toValuedPropertyViews(valuedProperties)
+                ValuedPropertyDocument.toValuedPropertyViews(globalProperties)
         );
     }
 
@@ -101,7 +102,7 @@ public class PlatformDocument {
                 .stream()
                 .map(deployedModule -> deployedModule.toDomainInstance())
                 .map(deployedModule -> deployedModule.extractAndSetInstanceProperties(
-                        ValuedPropertyDocument.toDomainInstances(valuedProperties)))
+                        ValuedPropertyDocument.toDomainInstances(globalProperties)))
                 .map(DeployedModuleDocument::new)
                 .collect(Collectors.toList());
 
