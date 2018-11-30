@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.mongo.platforms;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
+@Slf4j
 @Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
@@ -65,7 +67,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
 
         // Récupération de la plateforme et mise à jour de la version
-        PlatformDocument platformDocument = platformRepository.findById(event.getPlatformId()).get();
+        Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
+        if (!optPlatformDocument.isPresent() && HasProfile.dataMigration()) {
+            // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
+            // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
+            log.warn("PlatformModulePropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
+            return;
+        }
+        PlatformDocument platformDocument = optPlatformDocument.get();
         if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {
             // Rustine temporaire pour le temps de la migration
             platformDocument.setVersionId(platformDocument.getVersionId() + 1);
@@ -94,7 +103,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Retrieve platform
 
-        PlatformDocument platformDocument = platformRepository.findById(event.getPlatformId()).get();
+        Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
+        if (!optPlatformDocument.isPresent() && HasProfile.dataMigration()) {
+            // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
+            // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
+            log.warn("PlatformPropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
+            return;
+        }
+        PlatformDocument platformDocument = optPlatformDocument.get();
 
         // Update platform information
         if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {

@@ -31,6 +31,7 @@ logging:
   file: /var/log/hesperides.log
   level:
     root: INFO
+#    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
 management:
   health.ldap.enabled: false
