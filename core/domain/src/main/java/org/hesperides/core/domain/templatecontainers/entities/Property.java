@@ -3,14 +3,9 @@ package org.hesperides.core.domain.templatecontainers.entities;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.commons.spring.SpringProfiles;
+import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -401,31 +396,5 @@ public class Property extends AbstractProperty {
             result = value.trim().split("\\s")[0];
         }
         return result;
-    }
-
-    /**
-     * Bidouille permettant de détecter un profil dans un contexte statique.
-     * Utilisée pour éviter la validation des propriétés lors de la migration de données.
-     */
-    @Component
-    private static class HasProfile {
-
-        private static Environment staticEnvironment;
-
-        @Autowired
-        private Environment environment;
-
-        @PostConstruct
-        public void init() {
-            staticEnvironment = environment;
-        }
-
-        public static boolean dataMigration() {
-            boolean isDataMigration = false;
-            if (staticEnvironment != null && Arrays.asList(staticEnvironment.getActiveProfiles()).contains(SpringProfiles.DATA_MIGRATION)) {
-                isDataMigration = true;
-            }
-            return isDataMigration;
-        }
     }
 }
