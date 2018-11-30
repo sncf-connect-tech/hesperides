@@ -97,7 +97,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @Override
     public Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query) {
         String templateName = query.getTemplateName();
-        return moduleRepository.findOptionalByKeyAndTemplatesName(new KeyDocument(query.getModuleKey()), templateName)
+        return moduleRepository.findByKeyAndTemplateName(new KeyDocument(query.getModuleKey()), templateName)
                 .map(moduleDocument -> moduleDocument.getTemplates()
                         .stream()
                         .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName))
@@ -110,7 +110,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @Override
     public List<TemplateView> onGetModuleTemplatesQuery(GetModuleTemplatesQuery query) {
         TemplateContainer.Key moduleKey = query.getModuleKey();
-        return moduleRepository.findOptionalByKey(new KeyDocument(moduleKey))
+        return moduleRepository.findTemplatesByModuleKey(new KeyDocument(moduleKey))
                 .map(moduleDocument -> moduleDocument.getTemplates()
                         .stream()
                         .map(templateDocument -> templateDocument.toTemplateView(moduleKey))

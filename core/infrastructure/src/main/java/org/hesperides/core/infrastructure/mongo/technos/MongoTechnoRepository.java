@@ -24,11 +24,11 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     TechnoDocument findByKey(KeyDocument key);
 
-    List<TechnoDocument> findByKeyNameAndKeyVersion(String name, String version);
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : { $elemMatch : { 'name' : ?1 }}}")
+    Optional<TechnoDocument> findByKeyAndTemplateName(KeyDocument technoKey, String templateName);
 
-    List<TechnoDocument> findByKeyName(String name);
-
-    Optional<TechnoDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : 1 }")
+    Optional<TechnoDocument> findTemplatesByTechnoKey(KeyDocument technoKey);
 
     List<TechnoDocument> findAllByKeyIn(List<KeyDocument> keys);
 

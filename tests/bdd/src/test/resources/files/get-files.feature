@@ -38,6 +38,13 @@ Feature: Get instance or module files
     Then the resource is not found
 
   Scenario: get files of a deployed module that doesn't exist
-    And an existing platform
+    Given an existing platform
     When I try to get the module files
     Then the resource is not found
+
+  Scenario: get files with variables in filename and location
+    Given a template to create with filename "{{filename}}.json" with location "/{{location}}"
+    And an existing module with this template
+    And an existing platform with this module and valued
+
+    #Quid de la "propriétisation" du filename et du location

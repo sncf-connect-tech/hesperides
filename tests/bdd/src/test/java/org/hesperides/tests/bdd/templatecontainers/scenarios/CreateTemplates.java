@@ -29,6 +29,9 @@ import org.hesperides.tests.bdd.modules.ModuleClient;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CreateTemplates extends HesperidesScenario implements En {
 
     @Autowired
@@ -37,6 +40,8 @@ public class CreateTemplates extends HesperidesScenario implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
+
+    private static Pattern pattern = Pattern.compile("(.*?)\\{\\{(.*?)\\}\\}(.*?)");
 
     public CreateTemplates() {
 
@@ -47,6 +52,7 @@ public class CreateTemplates extends HesperidesScenario implements En {
             }
             if (StringUtils.isNotEmpty(filename)) {
                 templateBuilder.withFilename(filename);
+//                if (filename.st)
             }
             if (StringUtils.isNotEmpty(location)) {
                 templateBuilder.withLocation(location);
@@ -73,5 +79,17 @@ public class CreateTemplates extends HesperidesScenario implements En {
         Given("^a template to create without a location", () -> {
             templateBuilder.withName("new-template").withLocation("");
         });
+    }
+
+    /**
+     * Extrait la valeur qui se trouve entre moustaches, le cas échéant.
+     */
+    private String extractPropertyFrom(String input) {
+        String property = new String();
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.find()) {
+            property = matcher.group(2);
+        }
+        return property;
     }
 }

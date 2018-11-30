@@ -30,11 +30,15 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     List<ModuleDocument> findByKeyName(String name);
 
-    Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : { $elemMatch : { 'name' : ?1 }}}")
+    Optional<ModuleDocument> findByKeyAndTemplateName(KeyDocument moduleKey, String templateName);
+
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : 1 }")
+    Optional<ModuleDocument> findTemplatesByModuleKey(KeyDocument moduleKey);
 
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
-    @Query(value = "{'technos.$id': ?0}")
+    @Query(value = "{ 'technos.$id' : ?0 }")
     List<ModuleDocument> findAllByTechnoId(String technoId);
 
     boolean existsByKey(KeyDocument keyDocument);

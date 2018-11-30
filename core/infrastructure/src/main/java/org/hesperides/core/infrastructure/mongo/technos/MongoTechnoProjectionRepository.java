@@ -193,7 +193,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query) {
         TemplateContainer.Key technoKey = query.getTechnoKey();
-        return technoRepository.findOptionalByKeyAndTemplatesName(new KeyDocument(technoKey), query.getTemplateName())
+        return technoRepository.findByKeyAndTemplateName(new KeyDocument(technoKey), query.getTemplateName())
                 .map(technoDocument -> technoDocument.getTemplates()
                         .stream()
                         .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(query.getTemplateName()))
@@ -206,7 +206,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public List<TemplateView> onGetTemplatesQuery(GetTemplatesQuery query) {
         TemplateContainer.Key technoKey = query.getTechnoKey();
-        return technoRepository.findOptionalByKey(new KeyDocument(technoKey))
+        return technoRepository.findTemplatesByTechnoKey(new KeyDocument(technoKey))
                 .map(technoDocument -> technoDocument.getTemplates()
                         .stream()
                         .map(templateDocument -> templateDocument.toTemplateView(technoKey))

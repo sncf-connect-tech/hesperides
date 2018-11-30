@@ -80,7 +80,7 @@ public class GetFile extends HesperidesScenario implements En {
 
         Then("^the file is successfully retrieved$", () -> {
             assertOK();
-            String expectedOutput = "12\n12";
+            String expectedOutput = "content\n12\n";
             String actualOutput = (String) testContext.getResponseBody();
             assertEquals(expectedOutput, actualOutput);
         });
