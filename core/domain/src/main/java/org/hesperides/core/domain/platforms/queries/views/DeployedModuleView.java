@@ -22,10 +22,16 @@ package org.hesperides.core.domain.platforms.queries.views;
 
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
 
 @Value
 public class DeployedModuleView {
@@ -41,5 +47,29 @@ public class DeployedModuleView {
 
     public TemplateContainer.Key getModuleKey() {
         return new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+    }
+
+    public DeployedModule toDomainDeployedModule() {
+        // L'extraction des propriétés d'instance est systématiquement effectuée
+        // par platformDocument.extractInstancePropertiesAndSave dans la couche infratructure.
+        // On crée donc une instance de DeployedModule avec ce champ `null`.
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                toDomainAbstractValuedProperties(valuedProperties),
+                InstanceView.toDomainInstances(instances),
+                null
+        );
+    }
+
+    public static List<DeployedModule> toDomainDeployedModules(List<DeployedModuleView> deployedModuleViews) {
+        return Optional.ofNullable(deployedModuleViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DeployedModuleView::toDomainDeployedModule)
+                .collect(Collectors.toList());
     }
 }

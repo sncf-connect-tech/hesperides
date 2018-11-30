@@ -5,6 +5,7 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
@@ -25,6 +26,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.hesperides.core.domain.platforms.queries.views.DeployedModuleView.toDomainDeployedModules;
+import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.toDomainValuedProperties;
 
 
 @Component
@@ -50,13 +54,21 @@ public class PlatformUseCases {
     }
 
     public String copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
-        if (!queries.platformExists(existingPlatformKey)) {
-            throw new PlatformNotFoundException(existingPlatformKey);
-        }
         if (queries.platformExists(newPlatform.getKey())) {
             throw new DuplicatePlatformException(newPlatform.getKey());
         }
-        return commands.copyPlatform(existingPlatformKey, newPlatform, user);
+        PlatformView existingPlatform = queries.getOptionalPlatform(existingPlatformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(existingPlatformKey));
+        // cf. createPlatformFromExistingPlatform in https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/AbstractApplicationsAggregate.java#L156
+        Platform newFullPlatform = new Platform(
+                newPlatform.getKey(),
+                newPlatform.getVersion(),
+                newPlatform.isProductionPlatform(),
+                1L,
+                toDomainDeployedModules(existingPlatform.getDeployedModules()),
+                toDomainValuedProperties(existingPlatform.getGlobalProperties())
+        );
+        return commands.createPlatform(newFullPlatform, user);
     }
 
     public PlatformView getPlatform(String platformId) {

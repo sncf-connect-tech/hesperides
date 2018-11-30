@@ -22,6 +22,7 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,17 @@ import java.util.stream.Stream;
 @NonFinal
 public abstract class AbstractValuedPropertyView {
     String name;
+
+    abstract public <T extends AbstractValuedProperty> T toDomainValuedProperty();
+
+    public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
+        return Optional.ofNullable(valuedProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractValuedPropertyView::toDomainValuedProperty)
+                .map(AbstractValuedProperty.class::cast)
+                .collect(Collectors.toList());
+    }
 
     public static <T extends AbstractValuedPropertyView> List<T> getAbstractValuedPropertyViewWithType(final List<AbstractValuedPropertyView> abstractValuedPropertyViews, Class<T> clazz) {
         return Optional.ofNullable(abstractValuedPropertyViews)

@@ -67,7 +67,7 @@ public class IterablePropertyItemIO {
     public IterablePropertyItem toDomainInstance() {
         List<AbstractValuedProperty> abstractValuedProperties = new ArrayList<>();
 
-        // Récupération des valuedPropertyIOS dans la liste d'abstact et transformation en valuedProperties du domaine
+        // Récupération des valuedPropertyIOS dans la liste d'abstact et transformation en globalProperties du domaine
         List<ValuedPropertyIO> propertyIOS = AbstractValuedPropertyIO.getPropertyWithType(this.abstractValuedProperties, ValuedPropertyIO.class);
         abstractValuedProperties.addAll(ValuedPropertyIO.toDomainInstances(propertyIOS));
 

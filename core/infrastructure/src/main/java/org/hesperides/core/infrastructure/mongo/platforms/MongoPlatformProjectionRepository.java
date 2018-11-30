@@ -46,17 +46,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
-    public void onPlatformCopiedEvent(PlatformCopiedEvent event) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(event.getExistingPlatformKey());
-        PlatformDocument existingPlatform = platformRepository.findOptionalByKey(platformKeyDocument).get();
-        PlatformDocument newPlatform = new PlatformDocument(event.getNewPlatformId(), event.getNewPlatform());
-        newPlatform.setDeployedModules(existingPlatform.getDeployedModules());
-        newPlatform.setValuedProperties(existingPlatform.getValuedProperties());
-        platformRepository.save(newPlatform);
-    }
-
-    @EventHandler
-    @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         platformRepository.deleteById(event.getPlatformId());
     }
@@ -114,7 +103,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         } else {
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
-        platformDocument.setValuedProperties(valuedProperties);
+        platformDocument.setGlobalProperties(valuedProperties);
 
         platformDocument.extractInstancePropertiesAndSave(platformRepository);
     }
@@ -241,7 +230,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.findOptionalByKey(platformKeyDocument)
-                .map(PlatformDocument::getValuedProperties)
+                .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElse(Collections.emptyList());
     }

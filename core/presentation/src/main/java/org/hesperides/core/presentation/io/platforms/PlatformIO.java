@@ -79,7 +79,8 @@ public class PlatformIO {
                 version,
                 isProductionPlatform,
                 versionId,
-                DeployedModuleIO.toDomainInstances(deployedModules)
+                DeployedModuleIO.toDomainInstances(deployedModules),
+                Collections.emptyList()
         );
     }
 

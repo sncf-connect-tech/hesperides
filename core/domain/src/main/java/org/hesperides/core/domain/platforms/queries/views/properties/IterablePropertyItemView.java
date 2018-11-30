@@ -21,12 +21,30 @@
 package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
 
 @Value
 public class IterablePropertyItemView {
 
     String title;
     List<AbstractValuedPropertyView> abstractValuedPropertyViews;
+
+    public IterablePropertyItem toDomainIterablePropertyItem() {
+        return new IterablePropertyItem(title, toDomainAbstractValuedProperties(abstractValuedPropertyViews));
+    }
+
+    public static List<IterablePropertyItem> toDomainIterablePropertyItems(List<IterablePropertyItemView> iterablePropertyItems) {
+        return Optional.ofNullable(iterablePropertyItems)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemView::toDomainIterablePropertyItem)
+                .collect(Collectors.toList());
+    }
 }

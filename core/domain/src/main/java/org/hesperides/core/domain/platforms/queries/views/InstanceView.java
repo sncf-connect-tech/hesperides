@@ -21,12 +21,28 @@
 package org.hesperides.core.domain.platforms.queries.views;
 
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.Instance;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 public class InstanceView {
     String name;
     List<ValuedPropertyView> valuedProperties;
+
+    private Instance toDomainInstance() {
+        return new Instance(name, ValuedPropertyView.toDomainValuedProperties(valuedProperties));
+    }
+
+    public static List<Instance> toDomainInstances(List<InstanceView> instances) {
+        return Optional.ofNullable(instances)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(InstanceView::toDomainInstance)
+                .collect(Collectors.toList());
+    }
 }
