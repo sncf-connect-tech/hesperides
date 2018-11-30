@@ -46,7 +46,7 @@ jobs:
     - openssl aes-256-cbc -K $encrypted_2ec9da69c070_key -iv $encrypted_2ec9da69c070_iv
       -in ./.travis/codesigning.asc.enc -out ./.travis/codesigning.asc -d
     - gpg --import ./.travis/codesigning.asc
-    script: "./mvnw deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml"
+    script: "./mvnw deploy -Dmaven.javadoc.skip=true -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml"
 notifications:
   webhooks: https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
 notifications:
