@@ -45,6 +45,8 @@ Feature: Get instance or module files
   Scenario: get files with variables in filename and location
     Given a template to create with filename "{{filename}}.json" with location "/{{location}}"
     And an existing module with this template
-    And an existing platform with this module and valued
+    And an existing platform with this module and filename and location values
+    When I get the module files
+    Then the files are successfully retrieved
 
     #Quid de la "propriétisation" du filename et du location

@@ -31,9 +31,6 @@ import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class CreateTemplates extends HesperidesScenario implements En {
 
     @Autowired
@@ -46,8 +43,6 @@ public class CreateTemplates extends HesperidesScenario implements En {
     private ModelBuilder modelBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
-
-    private static Pattern pattern = Pattern.compile("(.*?)\\{\\{(.*?)\\}\\}(.*?)");
 
     public CreateTemplates() {
 
@@ -89,22 +84,10 @@ public class CreateTemplates extends HesperidesScenario implements En {
     }
 
     private void addToModelIfProperty(String input) {
-        String property = extractPropertyFrom(input);
+        String property = propertyBuilder.extractPropertyFrom(input);
         if (StringUtils.isNotEmpty(property)) {
             propertyBuilder.reset().withName(property);
             modelBuilder.withProperty(propertyBuilder.build());
         }
-    }
-
-    /**
-     * Extrait la valeur qui se trouve entre moustaches, le cas échéant.
-     */
-    private String extractPropertyFrom(String input) {
-        String property = new String();
-        Matcher matcher = pattern.matcher(input);
-        if (matcher.find()) {
-            property = matcher.group(2);
-        }
-        return property;
     }
 }

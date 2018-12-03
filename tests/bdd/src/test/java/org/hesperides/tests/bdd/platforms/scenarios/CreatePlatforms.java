@@ -59,8 +59,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
-                String platformName, String withThisModule, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties) -> {
+        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?( and filename and location values)?$", (
+                String platformName, String withThisModule, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties, String withFilenameLocationValues) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
@@ -107,6 +107,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withInstanceProperties)) {
                 platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
                 platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+                platformBuilder.incrementVersionId();
+            }
+
+            if (StringUtils.isNotEmpty(withFilenameLocationValues)) {
+                platformBuilder.withProperty("filename", "conf");
+                platformBuilder.withProperty("location", "etc");
                 platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }

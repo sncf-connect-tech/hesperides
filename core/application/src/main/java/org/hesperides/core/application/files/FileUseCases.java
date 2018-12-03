@@ -75,15 +75,26 @@ public class FileUseCases {
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
         validateExistingData(modulePath, instanceName, simulate, platformKey, moduleKey);
 
+        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
+        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(moduleKey, platform);
+
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
-        // D'accord les templates des technos
-        module.getTechnos().forEach(techno -> techno.getTemplates().forEach(template -> instanceFiles.add(
-                new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate))));
+        // D'abord les templates des technos
+        module.getTechnos().forEach(techno -> techno.getTemplates().forEach(template -> {
+            setLocationAndFilenameAndAddInstance(modulePath, instanceName, simulate, instanceFiles, platformKey, moduleKey, globalAndModuleProperties, template);
+        }));
         // Puis ceux des modules
-        module.getTemplates().forEach(template -> instanceFiles.add(
-                new InstanceFileView(platformKey, modulePath, moduleKey, instanceName, template, simulate)));
+        module.getTemplates().forEach(template -> {
+            setLocationAndFilenameAndAddInstance(modulePath, instanceName, simulate, instanceFiles, platformKey, moduleKey, globalAndModuleProperties, template);
+        });
 
         return instanceFiles;
+    }
+
+    private void setLocationAndFilenameAndAddInstance(String modulePath, String instanceName, boolean simulate, List<InstanceFileView> instanceFiles, Platform.Key platformKey, Module.Key moduleKey, Map<String, String> globalAndModuleProperties, TemplateView template) {
+        String location = replacePropertiesWithValues(template.getLocation(), globalAndModuleProperties);
+        String filename = replacePropertiesWithValues(template.getFilename(), globalAndModuleProperties);
+        instanceFiles.add(new InstanceFileView(location, filename, platformKey, modulePath, moduleKey, instanceName, template, simulate));
     }
 
     private void validateExistingData(String modulePath, String instanceName, boolean simulate, Platform.Key platformKey, Module.Key moduleKey) {

@@ -212,6 +212,15 @@ public class PlatformBuilder {
                 .collect(Collectors.toList());
     }
 
+    public String getPropertyValue(String propertName) {
+        return properties
+                .stream()
+                .filter(property -> property.getName().equalsIgnoreCase(propertName))
+                .findFirst()
+                .map(Property::getValue)
+                .orElse("");
+    }
+
     @Value
     public static class Property {
         String name;

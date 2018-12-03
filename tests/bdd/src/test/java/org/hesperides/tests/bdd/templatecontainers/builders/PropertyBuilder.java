@@ -28,11 +28,14 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
 public class PropertyBuilder {
 
+    private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("(.*?)\\{\\{(.*?)\\}\\}(.*?)");
 
     private String name;
     private boolean isRequired;
@@ -141,5 +144,17 @@ public class PropertyBuilder {
             property.append("}}");
         }
         return property.toString();
+    }
+
+    /**
+     * Extrait la valeur qui se trouve entre moustaches, le cas échéant.
+     */
+    public String extractPropertyFrom(String input) {
+        String property = new String();
+        Matcher matcher = anythingBetweenMustachesPattern.matcher(input);
+        if (matcher.find()) {
+            property = matcher.group(2);
+        }
+        return property;
     }
 }
