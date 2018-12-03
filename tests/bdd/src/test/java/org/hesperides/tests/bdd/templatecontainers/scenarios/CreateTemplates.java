@@ -53,11 +53,11 @@ public class CreateTemplates extends HesperidesScenario implements En {
             }
             if (StringUtils.isNotEmpty(filename)) {
                 templateBuilder.withFilename(filename);
-                addToModelIfProperty(filename);
+                addPropertiesToModel(filename);
             }
             if (StringUtils.isNotEmpty(location)) {
                 templateBuilder.withLocation(location);
-                addToModelIfProperty(location);
+                addPropertiesToModel(location);
             }
         });
 
@@ -83,11 +83,10 @@ public class CreateTemplates extends HesperidesScenario implements En {
         });
     }
 
-    private void addToModelIfProperty(String input) {
-        String property = propertyBuilder.extractPropertyFrom(input);
-        if (StringUtils.isNotEmpty(property)) {
+    private void addPropertiesToModel(String input) {
+        propertyBuilder.extractProperties(input).forEach(property -> {
             propertyBuilder.reset().withName(property);
             modelBuilder.withProperty(propertyBuilder.build());
-        }
+        });
     }
 }

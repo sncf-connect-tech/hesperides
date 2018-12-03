@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Component
 public class PropertyBuilder {
 
-    private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("(.*?)\\{\\{(.*?)\\}\\}(.*?)");
+    private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
 
     private String name;
     private boolean isRequired;
@@ -147,14 +147,14 @@ public class PropertyBuilder {
     }
 
     /**
-     * Extrait la valeur qui se trouve entre moustaches, le cas échéant.
+     * Extrait la liste des propriétés qu se trouvent entre moustaches.
      */
-    public String extractPropertyFrom(String input) {
-        String property = new String();
+    public List<String> extractProperties(String input) {
+        List<String> properties = new ArrayList<>();
         Matcher matcher = anythingBetweenMustachesPattern.matcher(input);
-        if (matcher.find()) {
-            property = matcher.group(2);
+        while (matcher.find()) {
+            properties.add(matcher.group(1));
         }
-        return property;
+        return properties;
     }
 }

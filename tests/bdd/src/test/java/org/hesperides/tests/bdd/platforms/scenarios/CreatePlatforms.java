@@ -99,6 +99,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withGlobalProperties)) {
                 platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
                 platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
+                platformBuilder.withGlobalProperty("global-filename", "abc", modelBuilder);
+                platformBuilder.withGlobalProperty("global-location", "def", modelBuilder);
                 platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
                 platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
                 platformBuilder.incrementVersionId();

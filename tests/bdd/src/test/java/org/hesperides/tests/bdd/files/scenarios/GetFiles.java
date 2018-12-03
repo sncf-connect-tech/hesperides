@@ -21,7 +21,6 @@
 package org.hesperides.tests.bdd.files.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
@@ -104,8 +103,8 @@ public class GetFiles extends HesperidesScenario implements En {
     }
 
     private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
-        String location = replacePropertyWithValue(template.getLocation());
-        String filename = replacePropertyWithValue(template.getFilename());
+        String location = replacePropertiesWithValues(template.getLocation());
+        String filename = replacePropertiesWithValues(template.getFilename());
         return new InstanceFileOutput(
                 location + "/" + filename,
                 "/rest/files"
@@ -123,14 +122,14 @@ public class GetFiles extends HesperidesScenario implements En {
         );
     }
 
-    private String replacePropertyWithValue(String input) {
-        String result;
-        String property = propertyBuilder.extractPropertyFrom(input);
-        if (StringUtils.isNotEmpty(property)) {
+    /**
+     * Remplace toutes les propriétés entre moustaches par leur valeur respective.
+     */
+    private String replacePropertiesWithValues(String input) {
+        String result = input;
+        for (String property : propertyBuilder.extractProperties(input)) {
             String propertyValue = platformBuilder.getPropertyValue(property);
-            result = input.replace("{{" + property + "}}", propertyValue);
-        } else {
-            result = input;
+            result = result.replace("{{" + property + "}}", propertyValue);
         }
         return result;
     }
