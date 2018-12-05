@@ -60,8 +60,8 @@ public class ModuleTemplatesController extends AbstractController {
     public ResponseEntity<TemplateIO> getTemplate(@PathVariable("module_name") final String moduleName,
                                                   @PathVariable("module_version") final String moduleVersion,
                                                   @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
-                                                  HttpServletRequest request
-    ) {
+                                                  HttpServletRequest request) {
+
         String templateName = extractFilePath(request);
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, templateName)

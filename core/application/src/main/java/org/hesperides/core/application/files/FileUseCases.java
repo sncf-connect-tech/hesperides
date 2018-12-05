@@ -22,6 +22,7 @@ package org.hesperides.core.application.files;
 
 import com.github.mustachejava.Code;
 import com.github.mustachejava.Mustache;
+import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
@@ -35,6 +36,8 @@ import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
+import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -76,7 +79,8 @@ public class FileUseCases {
         validateExistingData(modulePath, instanceName, simulate, platformKey, moduleKey);
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
-        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(moduleKey, platform);
+        List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
+        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(platform.getGlobalProperties(), moduleValuedProperties);
 
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
         // D'abord les templates des technos
@@ -148,7 +152,18 @@ public class FileUseCases {
         String templateContent = template.orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName)).getContent();
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
-        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(moduleKey, platform);
+        List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
+        //TODO Valeurs par défaut => test
+        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(platform.getGlobalProperties(), moduleValuedProperties);
+
+        Map<String, Object> scopes = propertiesToScopes(moduleValuedProperties);
+
+        Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(templateContent);
+        StringWriter stringWriter = new StringWriter();
+        mustache.execute(stringWriter, scopes);
+        stringWriter.flush();
+
+        return stringWriter.toString();
 
 
         // Propriétés itérables ?
@@ -157,7 +172,42 @@ public class FileUseCases {
         // soit par la valeur d'une propriété globale
         // soit par la valeur d'une propriété d'instance (si on est au niveau de l'instance)
 
-        return replacePropertiesWithValues(templateContent, globalAndModuleProperties);
+//        return replacePropertiesWithValues(templateContent, globalAndModuleProperties);
+    }
+
+    private Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> properties) {
+        Map<String, Object> scopes = new HashMap<>();
+        properties.forEach(property -> {
+            if (property instanceof ValuedPropertyView) {
+                ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
+                scopes.put(valuedProperty.getRawName(), valuedProperty.getValue());
+            } else if (property instanceof IterableValuedPropertyView) {
+                IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
+
+                List<Map<String, Object>> items = iterableValuedProperty.getIterablePropertyItems()
+                        .stream()
+                        .map(item -> propertiesToScopes(item.getAbstractValuedPropertyViews()))
+                        .collect(Collectors.toList());
+
+                scopes.put(iterableValuedProperty.getName(), items);
+            }
+        });
+        return scopes;
+    }
+
+    /**
+     * Récupère la liste des propriétés globales
+     * et des propriétés simples de module
+     * sous forme de clé-valeur.
+     */
+    private Map<String, String> getGlobalAndModuleProperties(List<ValuedPropertyView> globalProperties, List<AbstractValuedPropertyView> moduleValuedProperties) {
+        Stream<ValuedPropertyView> moduleSimpleProperties = moduleValuedProperties
+                .stream()
+                .filter(ValuedPropertyView.class::isInstance)
+                .map(ValuedPropertyView.class::cast);
+
+        return Stream.concat(globalProperties.stream(), moduleSimpleProperties)
+                .collect(Collectors.toMap(ValuedPropertyView::getName, ValuedPropertyView::getValue));
     }
 
     /**
@@ -174,21 +224,6 @@ public class FileUseCases {
                 .findFirst();
     }
 
-    /**
-     * Récupère la liste des propriétés globales
-     * et des propriétés simples de module
-     * sous forme de clé-valeur.
-     */
-    private Map<String, String> getGlobalAndModuleProperties(Module.Key moduleKey, PlatformView platform) {
-        Stream<ValuedPropertyView> moduleSimpleProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties()
-                .stream()
-                .filter(ValuedPropertyView.class::isInstance)
-                .map(ValuedPropertyView.class::cast);
-
-        return Stream.concat(platform.getGlobalProperties().stream(), moduleSimpleProperties)
-                .collect(Collectors.toMap(ValuedPropertyView::getName, ValuedPropertyView::getValue));
-    }
-
 
     private String replacePropertiesWithValues(String templateContent, Map<String, String> valuedProperties) {
 
@@ -202,6 +237,8 @@ public class FileUseCases {
                         mustacheValuedProperties.put(code.getName(), valuedProperties.get(propertyName));
                     }
                 });
+            } else if (code instanceof IterableCode) {
+
             }
         }
 
@@ -211,4 +248,5 @@ public class FileUseCases {
 
         return stringWriter.toString();
     }
+
 }

@@ -12,12 +12,19 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
+import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.IterablePropertyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +39,12 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
 
     private final MongoPlatformRepository platformRepository;
+    private final MongoModuleRepository mongoModuleRepository;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository) {
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository) {
         this.platformRepository = platformRepository;
+        this.mongoModuleRepository = mongoModuleRepository;
     }
 
     /*** EVENT HANDLERS ***/
@@ -63,7 +72,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
-
         // Tranformation des propriétés du domaine en documents
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
 
@@ -89,11 +97,66 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Modification des propriétés du module dans la plateforme
         platformDocument.getDeployedModules().stream()
-                .filter(moduleDocument -> moduleDocument.getPropertiesPath().equals(event.getModulePath()))
-                .findAny().ifPresent(module -> {
-            module.setValuedProperties(abstractValuedPropertyDocuments);
+                .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getModulePath()))
+                .findAny().ifPresent(deployedModuleDocument -> {
+            // Récupérer le model du module afin d'attribuer à chaque
+            // propriété valorisée la définition initiale de la propriété
+            // (ex: {{prop | @required}} => "prop | @required")
+            Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
+            ModuleDocument moduleDocument = mongoModuleRepository.findByKey(new KeyDocument(moduleKey));
+            List<AbstractPropertyDocument> moduleProperties = moduleDocument.getProperties();
+            final List<AbstractValuedPropertyDocument> valuedPropertiesWithPropertyDefinition = completePropertiesWithRawDefinition(abstractValuedPropertyDocuments, moduleProperties);
+            deployedModuleDocument.setValuedProperties(valuedPropertiesWithPropertyDefinition);
+
             platformDocument.extractInstancePropertiesAndSave(platformRepository);
         });
+    }
+
+    private List<AbstractValuedPropertyDocument> completePropertiesWithRawDefinition(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments, List<AbstractPropertyDocument> moduleProperties) {
+
+        return abstractValuedPropertyDocuments.stream().map(abstractPropertyDocument -> {
+            AbstractValuedPropertyDocument property;
+            if (abstractPropertyDocument instanceof IterableValuedPropertyDocument) {
+                IterableValuedPropertyDocument iterableValuedProperty = (IterableValuedPropertyDocument) abstractPropertyDocument;
+
+                List<AbstractPropertyDocument> iterablePropertyChildren = moduleProperties.stream()
+                        .filter(IterablePropertyDocument.class::isInstance)
+                        .map(IterablePropertyDocument.class::cast)
+                        .filter(iterablePropertyDocument -> iterablePropertyDocument.getName().equalsIgnoreCase(iterableValuedProperty.getName()))
+                        .findFirst()
+                        .map(IterablePropertyDocument::getProperties)
+                        .orElse(Collections.emptyList());
+
+                List<IterablePropertyItemDocument> items = new ArrayList<>();
+                iterableValuedProperty.getItems().forEach(item -> {
+                    IterablePropertyItemDocument newItem = new IterablePropertyItemDocument();
+                    newItem.setTitle(item.getTitle());
+                    newItem.setAbstractValuedProperties(completePropertiesWithRawDefinition(item.getAbstractValuedProperties(), iterablePropertyChildren));
+                    items.add(newItem);
+                });
+                iterableValuedProperty.setItems(items);
+                property = iterableValuedProperty;
+
+            } else if (abstractPropertyDocument instanceof ValuedPropertyDocument) {
+                ValuedPropertyDocument valuedProperty = (ValuedPropertyDocument) abstractPropertyDocument;
+                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), moduleProperties);
+                valuedProperty.setRawName(propertyRawName);
+                property = valuedProperty;
+            } else {
+                property = abstractPropertyDocument;
+            }
+            return property;
+        }).collect(Collectors.toList());
+
+    }
+
+    private String getSimplePropertyRawName(String name, List<AbstractPropertyDocument> moduleProperties) {
+        return moduleProperties.stream()
+                .filter(abstractPropertyDocument -> abstractPropertyDocument.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .map(PropertyDocument.class::cast)
+                .map(PropertyDocument::getRawName)
+                .orElse(null);
     }
 
     @EventHandler
@@ -177,7 +240,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<InstancePropertyView> onGetInstanceModelQuery(GetInstanceModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
+        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         return Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
@@ -237,12 +300,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPath());
+        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = Optional.ofNullable(platformDocument.getDeployedModules())
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(deployedModuleDocument -> query.getPath().equals(deployedModuleDocument.getPropertiesPath()))
+                .filter(deployedModuleDocument -> query.getPropertiesPath().equals(deployedModuleDocument.getPropertiesPath()))
                 .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getValuedProperties())
                         .orElse(Collections.emptyList())
                         .stream())

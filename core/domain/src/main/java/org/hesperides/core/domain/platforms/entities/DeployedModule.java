@@ -39,18 +39,18 @@ public class DeployedModule {
     String name;
     String version;
     boolean isWorkingCopy;
-    String path;
+    String modulePath;
     String propertiesPath;
     List<AbstractValuedProperty> valuedProperties;
     List<Instance> instances;
     List<InstanceProperty> instancesProperties;
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<InstanceProperty> instanceProperties) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<InstanceProperty> instanceProperties) {
         this.id = id;
         this.name = name;
         this.version = version;
         this.isWorkingCopy = isWorkingCopy;
-        this.path = path;
+        this.modulePath = modulePath;
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;
@@ -59,7 +59,7 @@ public class DeployedModule {
 
     private String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
-        return path + "#" + moduleKey.getNamespaceWithoutPrefix();
+        return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 
     private DeployedModule(Long newId, DeployedModule other) {
@@ -67,7 +67,7 @@ public class DeployedModule {
         name = other.name;
         version = other.version;
         isWorkingCopy = other.isWorkingCopy;
-        path = other.path;
+        modulePath = other.modulePath;
         propertiesPath = other.propertiesPath; // because id has no bearing on this
         valuedProperties = other.valuedProperties;
         instances = other.instances;
@@ -116,7 +116,7 @@ public class DeployedModule {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 valuedProperties,
                 instances,
                 extractInstanceProperties(valuedProperties, platformGlobalProperties));

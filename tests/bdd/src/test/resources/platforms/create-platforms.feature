@@ -43,3 +43,6 @@ Feature: Create platform
     When I delete this platform
     And I create this platform
     Then the platform is successfully created
+
+
+    #TODO Tester la sauvegarde de propriétés avec pattern, required, etc.

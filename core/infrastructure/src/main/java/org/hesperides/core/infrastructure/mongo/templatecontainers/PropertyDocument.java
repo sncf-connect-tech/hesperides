@@ -33,6 +33,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PropertyDocument extends AbstractPropertyDocument {
 
+    private String rawName;
     private boolean isRequired;
     private String comment;
     private String defaultValue;
@@ -40,6 +41,7 @@ public class PropertyDocument extends AbstractPropertyDocument {
     private boolean isPassword;
 
     public PropertyDocument(Property property) {
+        this.rawName = property.getRawName();
         this.name = property.getName();
         this.isRequired = property.isRequired();
         this.comment = property.getComment();

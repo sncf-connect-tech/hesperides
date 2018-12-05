@@ -103,8 +103,8 @@ public class GetFiles extends HesperidesScenario implements En {
     }
 
     private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
-        String location = replacePropertiesWithValues(template.getLocation());
-        String filename = replacePropertiesWithValues(template.getFilename());
+        String location = propertyBuilder.replacePropertiesWithValues(template.getLocation(), platformBuilder);
+        String filename = propertyBuilder.replacePropertiesWithValues(template.getFilename(), platformBuilder);
         return new InstanceFileOutput(
                 location + "/" + filename,
                 "/rest/files"
@@ -120,17 +120,5 @@ public class GetFiles extends HesperidesScenario implements En {
                         + "&simulate=" + simulate,
                 new InstanceFileOutput.Rights("rwx", "---", "   ")
         );
-    }
-
-    /**
-     * Remplace toutes les propriétés entre moustaches par leur valeur respective.
-     */
-    private String replacePropertiesWithValues(String input) {
-        String result = input;
-        for (String property : propertyBuilder.extractProperties(input)) {
-            String propertyValue = platformBuilder.getPropertyValue(property);
-            result = result.replace("{{" + property + "}}", propertyValue);
-        }
-        return result;
     }
 }

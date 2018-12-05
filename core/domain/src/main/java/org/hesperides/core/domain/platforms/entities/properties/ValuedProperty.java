@@ -33,10 +33,12 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class ValuedProperty extends AbstractValuedProperty {
 
+    String rawName;
     String value;
 
-    public ValuedProperty(String name, String value) {
+    public ValuedProperty(String rawName, String name, String value) {
         super(name);
+        this.rawName = rawName;
         this.value = value;
     }
 

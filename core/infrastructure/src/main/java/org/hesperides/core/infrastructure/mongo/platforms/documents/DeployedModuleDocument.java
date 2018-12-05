@@ -51,7 +51,7 @@ public class DeployedModuleDocument {
         name = deployedModule.getName();
         version = deployedModule.getVersion();
         isWorkingCopy = deployedModule.isWorkingCopy();
-        path = deployedModule.getPath();
+        path = deployedModule.getModulePath();
         propertiesPath = deployedModule.getPropertiesPath();
         valuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(deployedModule.getValuedProperties());
         instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());

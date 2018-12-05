@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 public class IterablePropertyItemDocument {
 
     String title;
-    private List<AbstractValuedPropertyDocument> iterableValuedProperties;
+    private List<AbstractValuedPropertyDocument> abstractValuedProperties;
 
     public IterablePropertyItemDocument(final IterablePropertyItem iterablePropertyItem) {
         title = iterablePropertyItem.getTitle();
-        iterableValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(iterablePropertyItem.getAbstractValuedProperties());
+        abstractValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(iterablePropertyItem.getAbstractValuedProperties());
     }
 
     public static List<IterablePropertyItemView> toIterablePropertyItemViews(final List<IterablePropertyItemDocument> iterablePropertyItems) {
@@ -34,7 +34,7 @@ public class IterablePropertyItemDocument {
 
     public static IterablePropertyItemView toIterablePropertyItemView(final IterablePropertyItemDocument iterablePropertyItemDocument) {
         return new IterablePropertyItemView(iterablePropertyItemDocument.getTitle(),
-                AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(iterablePropertyItemDocument.getIterableValuedProperties()));
+                AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(iterablePropertyItemDocument.getAbstractValuedProperties()));
     }
 
     public static List<IterablePropertyItem> toDomainInstances(List<IterablePropertyItemDocument> iterablePropertyItemDocuments) {
@@ -48,7 +48,7 @@ public class IterablePropertyItemDocument {
     public static IterablePropertyItem toDomainInstance(IterablePropertyItemDocument iterablePropertyItemDocument) {
         return new IterablePropertyItem(
                 iterablePropertyItemDocument.title,
-                AbstractValuedPropertyDocument.toAbstractDomainInstances(iterablePropertyItemDocument.iterableValuedProperties)
+                AbstractValuedPropertyDocument.toAbstractDomainInstances(iterablePropertyItemDocument.abstractValuedProperties)
         );
     }
 
