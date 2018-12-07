@@ -87,7 +87,7 @@ public class GetFile extends HesperidesScenario implements En {
         });
 
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
-            String expectedOutput = fileContent.replaceAll("\r\n", "\n");
+            String expectedOutput = fileContent;
             assertFile(expectedOutput);
         });
     }

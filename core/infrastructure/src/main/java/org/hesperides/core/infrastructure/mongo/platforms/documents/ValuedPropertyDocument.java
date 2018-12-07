@@ -38,17 +38,17 @@ import java.util.stream.Collectors;
 @Document
 public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
-    private String rawName;
+    private String mustacheContent;
     private String value;
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
-        rawName = valuedProperty.getRawName();
+        mustacheContent = valuedProperty.getMustacheContent();
         name = valuedProperty.getName();
         value = valuedProperty.getValue();
     }
 
     public static ValuedProperty toDomainInstance(ValuedPropertyDocument valuedPropertyDocument) {
-        return new ValuedProperty(valuedPropertyDocument.rawName, valuedPropertyDocument.name, valuedPropertyDocument.value);
+        return new ValuedProperty(valuedPropertyDocument.getMustacheContent(), valuedPropertyDocument.getName(), valuedPropertyDocument.getValue());
     }
 
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
@@ -60,7 +60,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toValuedPropertyView() {
-        return new ValuedPropertyView(rawName, getName(), value);
+        return new ValuedPropertyView(mustacheContent, getName(), value);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {

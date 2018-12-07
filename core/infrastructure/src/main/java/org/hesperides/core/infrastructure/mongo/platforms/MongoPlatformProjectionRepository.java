@@ -73,7 +73,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
         // Tranformation des propriétés du domaine en documents
-        final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
+        final List<AbstractValuedPropertyDocument> abstractValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
 
         // Récupération de la plateforme et mise à jour de la version
         Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
@@ -105,21 +105,86 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
             ModuleDocument moduleDocument = mongoModuleRepository.findByKey(new KeyDocument(moduleKey));
             List<AbstractPropertyDocument> moduleProperties = moduleDocument.getProperties();
-            final List<AbstractValuedPropertyDocument> valuedPropertiesWithPropertyDefinition = completePropertiesWithRawDefinition(abstractValuedPropertyDocuments, moduleProperties);
-            deployedModuleDocument.setValuedProperties(valuedPropertiesWithPropertyDefinition);
+
+            List<AbstractValuedPropertyDocument> valuedProperties = new ArrayList<>();
+            valuedProperties.addAll(completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties));
+            valuedProperties.addAll(completePropertiesWithDefaultValues(moduleProperties, abstractValuedProperties));
+            deployedModuleDocument.setValuedProperties(valuedProperties);
+
 
             platformDocument.extractInstancePropertiesAndSave(platformRepository);
         });
     }
 
-    private List<AbstractValuedPropertyDocument> completePropertiesWithRawDefinition(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments, List<AbstractPropertyDocument> moduleProperties) {
+    /**
+     * Liste les propriétés déclarée avec une valeur par défaut
+     * mais n'ayant pas été valorisées
+     */
+    private List<AbstractValuedPropertyDocument> completePropertiesWithDefaultValues(List<AbstractPropertyDocument> abstractModuleProperties, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
+        List<AbstractValuedPropertyDocument> unsetPropertiesWithDefaultValues = new ArrayList<>();
+        abstractModuleProperties.forEach(abstractProperty -> {
 
-        return abstractValuedPropertyDocuments.stream().map(abstractPropertyDocument -> {
+            if (abstractProperty instanceof PropertyDocument) {
+                PropertyDocument property = (PropertyDocument) abstractProperty;
+                if (StringUtils.isNotEmpty(property.getDefaultValue()) &&
+                        !propertyHasValue(property.getName(), abstractValuedProperties)) {
+                    ValuedPropertyDocument defaultValuedProperty = buildDefaultValuedProperty(property);
+                    unsetPropertiesWithDefaultValues.add(defaultValuedProperty);
+                }
+
+            } else if (abstractProperty instanceof IterablePropertyDocument) {
+                IterablePropertyDocument iterableProperty = (IterablePropertyDocument) abstractProperty;
+                // Dans le cas d'une propriété itérable, il faut que le bloc existe (qu'il ait un nom)
+                // pour que la valeur par défaut de ses éléments soit prise en compte
+                abstractValuedProperties.stream()
+                        .filter(IterableValuedPropertyDocument.class::isInstance)
+                        .map(IterableValuedPropertyDocument.class::cast)
+                        .map(IterableValuedPropertyDocument::getItems)
+                        .forEach(iterablePropertyItems -> {
+                            iterablePropertyItems.forEach(iterablePropertyItem -> {
+                                // Récursivité
+                                List<AbstractValuedPropertyDocument> iterablePropertiesWithDefaultValues =
+                                        completePropertiesWithDefaultValues(
+                                                iterableProperty.getProperties(),
+                                                iterablePropertyItem.getAbstractValuedProperties()
+                                        );
+                                unsetPropertiesWithDefaultValues.addAll(iterablePropertiesWithDefaultValues);
+                            });
+                        });
+            }
+        });
+
+        return unsetPropertiesWithDefaultValues;
+    }
+
+    private boolean propertyHasValue(String propertyName, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
+        return abstractValuedProperties.stream()
+                .filter(ValuedPropertyDocument.class::isInstance)
+                .map(ValuedPropertyDocument.class::cast)
+                .anyMatch(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName) &&
+                        StringUtils.isNotEmpty(valuedProperty.getValue()));
+    }
+
+    private ValuedPropertyDocument buildDefaultValuedProperty(PropertyDocument property) {
+        ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
+        defaultValuedProperty.setMustacheContent(property.getMustacheContent());
+        defaultValuedProperty.setName(property.getName());
+        defaultValuedProperty.setValue(property.getDefaultValue());
+        return defaultValuedProperty;
+    }
+
+    private List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties, List<AbstractPropertyDocument> abstractModuleProperties) {
+
+        /**
+         * Pour chaque propriété valorisée, on lui attribue la valeur entre moustache pour faciliter le remplacement lors du getFile
+         */
+
+        return abstractValuedProperties.stream().map(abstractProperty -> {
             AbstractValuedPropertyDocument property;
-            if (abstractPropertyDocument instanceof IterableValuedPropertyDocument) {
-                IterableValuedPropertyDocument iterableValuedProperty = (IterableValuedPropertyDocument) abstractPropertyDocument;
+            if (abstractProperty instanceof IterableValuedPropertyDocument) {
+                IterableValuedPropertyDocument iterableValuedProperty = (IterableValuedPropertyDocument) abstractProperty;
 
-                List<AbstractPropertyDocument> iterablePropertyChildren = moduleProperties.stream()
+                List<AbstractPropertyDocument> iterablePropertyChildren = abstractModuleProperties.stream()
                         .filter(IterablePropertyDocument.class::isInstance)
                         .map(IterablePropertyDocument.class::cast)
                         .filter(iterablePropertyDocument -> iterablePropertyDocument.getName().equalsIgnoreCase(iterableValuedProperty.getName()))
@@ -131,19 +196,19 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 iterableValuedProperty.getItems().forEach(item -> {
                     IterablePropertyItemDocument newItem = new IterablePropertyItemDocument();
                     newItem.setTitle(item.getTitle());
-                    newItem.setAbstractValuedProperties(completePropertiesWithRawDefinition(item.getAbstractValuedProperties(), iterablePropertyChildren));
+                    newItem.setAbstractValuedProperties(completePropertiesWithMustacheContent(item.getAbstractValuedProperties(), iterablePropertyChildren));
                     items.add(newItem);
                 });
                 iterableValuedProperty.setItems(items);
                 property = iterableValuedProperty;
 
-            } else if (abstractPropertyDocument instanceof ValuedPropertyDocument) {
-                ValuedPropertyDocument valuedProperty = (ValuedPropertyDocument) abstractPropertyDocument;
-                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), moduleProperties);
-                valuedProperty.setRawName(propertyRawName);
+            } else if (abstractProperty instanceof ValuedPropertyDocument) {
+                ValuedPropertyDocument valuedProperty = (ValuedPropertyDocument) abstractProperty;
+                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), abstractModuleProperties);
+                valuedProperty.setMustacheContent(propertyRawName);
                 property = valuedProperty;
             } else {
-                property = abstractPropertyDocument;
+                property = abstractProperty;
             }
             return property;
         }).collect(Collectors.toList());
@@ -155,7 +220,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .filter(abstractPropertyDocument -> abstractPropertyDocument.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .map(PropertyDocument.class::cast)
-                .map(PropertyDocument::getRawName)
+                .map(PropertyDocument::getMustacheContent)
                 .orElse(null);
     }
 

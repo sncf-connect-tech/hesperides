@@ -33,12 +33,12 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class ValuedPropertyView extends AbstractValuedPropertyView {
 
-    String rawName;
+    String mustacheContent;
     String value;
 
-    public ValuedPropertyView(String rawName, String name, String value) {
+    public ValuedPropertyView(String mustacheContent, String name, String value) {
         super(name);
-        this.rawName = rawName;
+        this.mustacheContent = mustacheContent;
         this.value = value;
     }
 

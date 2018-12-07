@@ -20,10 +20,8 @@
  */
 package org.hesperides.core.application.files;
 
-import com.github.mustachejava.Code;
 import com.github.mustachejava.Mustache;
-import com.github.mustachejava.codes.IterableCode;
-import com.github.mustachejava.codes.ValueCode;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -80,7 +78,7 @@ public class FileUseCases {
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
         List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
-        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(platform.getGlobalProperties(), moduleValuedProperties);
+        List<AbstractValuedPropertyView> globalAndModuleProperties = Stream.concat(platform.getGlobalProperties().stream(), moduleValuedProperties.stream()).collect(Collectors.toList());
 
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
         // D'abord les templates des technos
@@ -95,9 +93,9 @@ public class FileUseCases {
         return instanceFiles;
     }
 
-    private void setLocationAndFilenameAndAddInstance(String modulePath, String instanceName, boolean simulate, List<InstanceFileView> instanceFiles, Platform.Key platformKey, Module.Key moduleKey, Map<String, String> globalAndModuleProperties, TemplateView template) {
-        String location = replacePropertiesWithValues(template.getLocation(), globalAndModuleProperties);
-        String filename = replacePropertiesWithValues(template.getFilename(), globalAndModuleProperties);
+    private void setLocationAndFilenameAndAddInstance(String modulePath, String instanceName, boolean simulate, List<InstanceFileView> instanceFiles, Platform.Key platformKey, Module.Key moduleKey, List<AbstractValuedPropertyView> globalAndModuleProperties, TemplateView template) {
+        String location = valueTemplateProperties(template.getLocation(), globalAndModuleProperties);
+        String filename = valueTemplateProperties(template.getFilename(), globalAndModuleProperties);
         instanceFiles.add(new InstanceFileView(location, filename, platformKey, modulePath, moduleKey, instanceName, template, simulate));
     }
 
@@ -153,17 +151,8 @@ public class FileUseCases {
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
         List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
-        //TODO Valeurs par défaut => test
-        Map<String, String> globalAndModuleProperties = getGlobalAndModuleProperties(platform.getGlobalProperties(), moduleValuedProperties);
 
-        Map<String, Object> scopes = propertiesToScopes(moduleValuedProperties);
-
-        Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(templateContent);
-        StringWriter stringWriter = new StringWriter();
-        mustache.execute(stringWriter, scopes);
-        stringWriter.flush();
-
-        return stringWriter.toString();
+        return valueTemplateProperties(templateContent, moduleValuedProperties);
 
 
         // Propriétés itérables ?
@@ -175,12 +164,26 @@ public class FileUseCases {
 //        return replacePropertiesWithValues(templateContent, globalAndModuleProperties);
     }
 
+    private String valueTemplateProperties(String templateContent, List<AbstractValuedPropertyView> valuedProperties) {
+        Map<String, Object> scopes = propertiesToScopes(valuedProperties);
+
+        Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(templateContent);
+        StringWriter stringWriter = new StringWriter();
+        mustache.execute(stringWriter, scopes);
+        stringWriter.flush();
+
+        return stringWriter.toString();
+    }
+
     private Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> properties) {
         Map<String, Object> scopes = new HashMap<>();
         properties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
+
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
-                scopes.put(valuedProperty.getRawName(), valuedProperty.getValue());
+                String propertyToReplace = StringUtils.defaultString(valuedProperty.getMustacheContent(), valuedProperty.getName()).trim();
+                scopes.put(propertyToReplace, valuedProperty.getValue().trim());
+
             } else if (property instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
 
@@ -196,21 +199,6 @@ public class FileUseCases {
     }
 
     /**
-     * Récupère la liste des propriétés globales
-     * et des propriétés simples de module
-     * sous forme de clé-valeur.
-     */
-    private Map<String, String> getGlobalAndModuleProperties(List<ValuedPropertyView> globalProperties, List<AbstractValuedPropertyView> moduleValuedProperties) {
-        Stream<ValuedPropertyView> moduleSimpleProperties = moduleValuedProperties
-                .stream()
-                .filter(ValuedPropertyView.class::isInstance)
-                .map(ValuedPropertyView.class::cast);
-
-        return Stream.concat(globalProperties.stream(), moduleSimpleProperties)
-                .collect(Collectors.toMap(ValuedPropertyView::getName, ValuedPropertyView::getValue));
-    }
-
-    /**
      * Renvoie un template s'il existe dans les templates du module
      * ou dans les templates des technos du module.
      * On vérifie son existence à partir de son nom et son namespace.
@@ -223,30 +211,4 @@ public class FileUseCases {
                 templateView.getName().equalsIgnoreCase(templateName) && templateView.getNamespace().equalsIgnoreCase(templateNamespace))
                 .findFirst();
     }
-
-
-    private String replacePropertiesWithValues(String templateContent, Map<String, String> valuedProperties) {
-
-        Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(templateContent);
-        Map<String, String> mustacheValuedProperties = new HashMap<>();
-
-        for (Code code : mustache.getCodes()) {
-            if (code instanceof ValueCode) {
-                valuedProperties.forEach((propertyName, propertyValue) -> {
-                    if (code.getName().startsWith(propertyName)) {
-                        mustacheValuedProperties.put(code.getName(), valuedProperties.get(propertyName));
-                    }
-                });
-            } else if (code instanceof IterableCode) {
-
-            }
-        }
-
-        StringWriter stringWriter = new StringWriter();
-        mustache.execute(stringWriter, mustacheValuedProperties);
-        stringWriter.flush();
-
-        return stringWriter.toString();
-    }
-
 }

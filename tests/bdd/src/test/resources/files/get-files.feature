@@ -43,7 +43,7 @@ Feature: Get instance or module files
     Then the resource is not found
 
   Scenario: get files with variables in filename and location
-    Given a template to create with filename "{{filename}}-{{global-filename}}.json" with location "/{{location}}-{{global-location}}"
+    Given a template to create with filename "{{ filename }}-{{ global-filename }}.json" with location "/{{ location }}-{{ global-location }}"
     And an existing module with this template
     And an existing platform with this module and global properties and filename and location values
     When I get the module files
