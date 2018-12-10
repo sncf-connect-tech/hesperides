@@ -39,8 +39,7 @@ public class PlatformBuilder {
     private String applicationName;
     private String version;
     private boolean isProductionPlatform;
-    private List<DeployedModuleIO> deployedModuleInputs;
-    private List<DeployedModuleIO> deployedModuleOutputs;
+    private List<DeployedModuleIO> deployedModules;
     private long versionId;
 
     private List<Property> properties;
@@ -54,13 +53,18 @@ public class PlatformBuilder {
         reset();
     }
 
+    public PlatformBuilder virginWithSameVersionId() {
+        PlatformBuilder pb = new PlatformBuilder();
+        pb.versionId = this.versionId;
+        return pb;
+    }
+
     public PlatformBuilder reset() {
         platformName = "test-platform";
         applicationName = "test-application";
         version = "1.0";
         isProductionPlatform = false;
-        deployedModuleInputs = new ArrayList<>();
-        deployedModuleOutputs = new ArrayList<>();
+        deployedModules = new ArrayList<>();
         versionId = 1;
         properties = new ArrayList<>();
         iterableProperties = new ArrayList<>();
@@ -102,8 +106,12 @@ public class PlatformBuilder {
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        deployedModuleInputs.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), "GROUP", propertiesPath, instances));
-        deployedModuleOutputs.add(new DeployedModuleIO(1L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), "GROUP", propertiesPath, instances));
+        deployedModules.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), "GROUP", propertiesPath, instances));
+        return this;
+    }
+
+    public PlatformBuilder withNoModule() {
+        deployedModules = new ArrayList<>();
         return this;
     }
 
@@ -113,20 +121,36 @@ public class PlatformBuilder {
     }
 
     public PlatformIO buildInput() {
-        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, deployedModuleInputs, versionId);
+        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, deployedModules, versionId);
     }
 
     public PlatformIO buildOutput() {
-        return buildOutput(false);
+        return buildOutput(true, true);
     }
 
-    public PlatformIO buildOutput(boolean hidePlatform) {
-        List<DeployedModuleIO> modules = hidePlatform ? Collections.emptyList() : deployedModuleOutputs;
+    public PlatformIO buildOutputWithoutModules() {
+        return buildOutput(false, false);
+    }
+
+    public PlatformIO buildOutputWithoutIncrementingModuleIds() {
+        return buildOutput(true, false);
+    }
+
+    private PlatformIO buildOutput(boolean includeModules, boolean incrementModuleIds) {
+        List<DeployedModuleIO> modules = deployedModules;
+        if (!includeModules) {
+            modules = Collections.emptyList();
+        } else if (incrementModuleIds) {
+            modules = deployedModules.stream().map(module ->
+                    new DeployedModuleIO(module.getId() + 1, module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getPath(), module.getPropertiesPath(), module.getInstances())
+            ).collect(Collectors.toList());
+        }
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
     }
 
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
-        return new ApplicationOutput(applicationName, Arrays.asList(buildOutput(hidePlatform)));
+        PlatformIO platform = hidePlatform ? buildOutputWithoutModules() : buildOutputWithoutIncrementingModuleIds();
+        return new ApplicationOutput(applicationName, Arrays.asList(platform));
     }
 
     public PropertiesIO buildPropertiesInput(boolean isGlobal) {
@@ -159,6 +183,23 @@ public class PlatformBuilder {
     public void withInstanceProperty(String propertyName, String instancePropertyName) {
         withProperty(propertyName, "{{" + instancePropertyName + "}}");
         instanceProperties.put(propertyName, instancePropertyName);
+    }
+
+    public void withModuleVersion(String newVersion) {
+        withModuleVersion(newVersion, false);
+    }
+
+    public void withModuleVersion(String newVersion, boolean updatePropertiesPath) {
+        if (deployedModules.size() != 1) {
+            throw new RuntimeException("This method can only be used on a PlatformBuilder containing a single module");
+        }
+        DeployedModuleIO module = deployedModules.get(0);
+        DeployedModuleIO newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getPath(), module.getPropertiesPath(), module.getInstances());
+        if (updatePropertiesPath) {
+            String propertiesPath = newModule.toDomainInstance().generatePropertiesPath();
+            newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getPath(), propertiesPath, module.getInstances());
+        }
+        deployedModules = Collections.singletonList(newModule);
     }
 
     public void incrementVersionId() {

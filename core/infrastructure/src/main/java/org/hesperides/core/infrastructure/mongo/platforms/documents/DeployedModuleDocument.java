@@ -26,6 +26,7 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public class DeployedModuleDocument {
     }
 
     public DeployedModuleView toDeployedModuleView() {
+        // Note that instanceProperties are not included in the returned view
         return new DeployedModuleView(
                 id,
                 name,
@@ -92,5 +94,15 @@ public class DeployedModuleDocument {
                 AbstractValuedPropertyDocument.toAbstractDomainInstances(valuedProperties),
                 InstanceDocument.toDomainInstances(instances),
                 InstancePropertyDocument.toDomainInstances(instanceProperties));
+    }
+
+    public static List<DeployedModule> toDomainInstances(List<DeployedModuleDocument> modules) {
+        return modules.stream().map(DeployedModuleDocument::toDomainInstance).collect(Collectors.toList());
+    }
+
+    public DeployedModuleDocument extractInstanceProperties(List<ValuedPropertyDocument> globalProperties) {
+        // Calling domain logic:
+        return new DeployedModuleDocument(this.toDomainInstance().extractAndSetInstanceProperties(
+                ValuedPropertyDocument.toDomainInstances(globalProperties)));
     }
 }

@@ -52,8 +52,7 @@ public class PlatformAggregate implements Serializable {
         //TODO Logs
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
         Platform platform = command.getPlatform()
-                .initializeVersionId()
-                .updateDeployedModules();
+                .initializeVersionId();
 
         apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser().getName()));
     }
@@ -62,14 +61,11 @@ public class PlatformAggregate implements Serializable {
     @CommandHandler
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
 
-        // TODO populate properties when `command.copyProperties` flag is set (-> dedicated aggregate / command ?)
-
         Platform platform = command.getPlatform()
                 .validateVersionId(versionId)
-                .incrementVersionId()
-                .updateDeployedModules();
+                .incrementVersionId();
 
-        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getUser().getName()));
+        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getCopyPropertiesForUpgradedModules(), command.getUser().getName()));
     }
 
     @CommandHandler

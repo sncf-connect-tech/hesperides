@@ -22,12 +22,14 @@ package org.hesperides.tests.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hesperides.core.presentation.io.ModuleIO.RELEASE;
 import static org.hesperides.core.presentation.io.ModuleIO.WORKINGCOPY;
 
 @Component
@@ -74,6 +76,10 @@ public class ModuleBuilder {
     public ModuleBuilder withTechno(TechnoIO techno) {
         technos.add(techno);
         return this;
+    }
+
+    public boolean hasTechno() {
+        return technos.size() > 0;
     }
 
     public ModuleBuilder withVersionId(long versionId) {

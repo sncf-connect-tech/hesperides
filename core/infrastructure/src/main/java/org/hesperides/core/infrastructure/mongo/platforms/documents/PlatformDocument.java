@@ -24,15 +24,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static org.hesperides.core.infrastructure.mongo.platforms.documents.DeployedModuleDocument.fromDomainInstances;
 
 @Data
 @Document(collection = "platform")
@@ -55,7 +60,7 @@ public class PlatformDocument {
         this.version = platform.getVersion();
         this.isProductionPlatform = platform.isProductionPlatform();
         this.versionId = platform.getVersionId();
-        this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
+        this.deployedModules = fromDomainInstances(platform.getDeployedModules());
         this.globalProperties = ValuedPropertyDocument.fromDomainInstances(platform.getGlobalProperties());
     }
 
@@ -78,6 +83,17 @@ public class PlatformDocument {
         );
     }
 
+    public Platform toDomainPlatform() {
+        return new Platform(
+                key.toDomainPlatformKey(),
+                version,
+                isProductionPlatform,
+                1L,
+                DeployedModuleDocument.toDomainInstances(deployedModules),
+                ValuedPropertyDocument.toDomainInstances(globalProperties)
+        );
+    }
+
     public SearchApplicationResultView toSearchApplicationResultView() {
         return new SearchApplicationResultView(key.getApplicationName());
     }
@@ -96,16 +112,15 @@ public class PlatformDocument {
         );
     }
 
-    public void extractInstancePropertiesAndSave(MongoPlatformRepository platformRepository) {
+    public void extractInstanceProperties() {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(deployedModule -> deployedModule.toDomainInstance())
-                .map(deployedModule -> deployedModule.extractAndSetInstanceProperties(
-                        ValuedPropertyDocument.toDomainInstances(globalProperties)))
-                .map(DeployedModuleDocument::new)
+                .map(m -> m.extractInstanceProperties(globalProperties))
                 .collect(Collectors.toList());
+    }
 
-        platformRepository.save(this);
+    public void updateDeployedModules(List<DeployedModuleDocument> deployedModulesProvided, boolean copyPropertiesForUpgradedModules) {
+        deployedModules = fromDomainInstances(toDomainPlatform().updateModules(DeployedModuleDocument.toDomainInstances(deployedModulesProvided), copyPropertiesForUpgradedModules));
     }
 }

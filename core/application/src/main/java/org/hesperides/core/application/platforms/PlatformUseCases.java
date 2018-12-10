@@ -5,7 +5,6 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
@@ -81,12 +80,12 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
+    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyPropertiesForUpgradedModules, User user) {
         Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
         if (!platformId.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
         }
-        commands.updatePlatform(platformId.get(), platform, copyProperties, user);
+        commands.updatePlatform(platformId.get(), platform, copyPropertiesForUpgradedModules, user);
     }
 
     public void deletePlatform(Platform.Key platformKey, User user) {

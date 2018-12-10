@@ -82,24 +82,18 @@ public class PlatformsController extends AbstractController {
     @PutMapping("/{application_name}/platforms")
     public ResponseEntity<PlatformIO> updatePlatform(Authentication authentication,
                                                      @PathVariable("application_name") final String applicationName,
-                                                     @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyProperties,
+                                                     @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyPropertiesForUpgradedModules,
                                                      @Valid @RequestBody final PlatformIO platformInput) {
 
-        final boolean copyRequested = Boolean.TRUE.equals(copyProperties); // no null anymore
         Platform.Key platformKey = new Platform.Key(applicationName, platformInput.getPlatformName());
 
         platformUseCases.updatePlatform(platformKey,
                 platformInput.toDomainInstance(),
-                copyRequested,
+                Boolean.TRUE.equals(copyPropertiesForUpgradedModules), // on traite le cas `null`
                 fromAuthentication(authentication)
         );
 
         final ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.OK);
-        if (copyRequested) {
-            // TODO remove as soon as properties are handled
-            response.header("x-hesperides-warning", "no property copied! (not implemented yet)");
-        }
-
         PlatformView platformView = platformUseCases.getPlatform(platformKey);
         return response.body(new PlatformIO(platformView));
     }

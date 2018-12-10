@@ -42,6 +42,10 @@ public class CopyModules extends HesperidesScenario implements En {
             testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
         });
 
+        Given("^a copy of this module in version (.+)$", (String version) -> {
+            copy(version, ModuleIO.class);
+        });
+
         When("^I try to create a copy of this module, using the same key$", () -> {
             testContext.responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
         });

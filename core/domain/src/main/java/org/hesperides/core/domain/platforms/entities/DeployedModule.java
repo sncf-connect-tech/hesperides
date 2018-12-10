@@ -27,7 +27,6 @@ import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -57,41 +56,36 @@ public class DeployedModule {
         this.instancesProperties = instanceProperties;
     }
 
-    private String generatePropertiesPath() {
+    // public for testing
+    public String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return path + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 
-    private DeployedModule(Long newId, DeployedModule other) {
-        id = newId;
-        name = other.name;
-        version = other.version;
-        isWorkingCopy = other.isWorkingCopy;
-        path = other.path;
-        propertiesPath = other.propertiesPath; // because id has no bearing on this
-        valuedProperties = other.valuedProperties;
-        instances = other.instances;
-        instancesProperties = other.instancesProperties;
+    public DeployedModule copyWithInstances(List<Instance> instances) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                new ArrayList<>(valuedProperties),
+                new ArrayList<>(instances),
+                new ArrayList<>(instancesProperties)
+        );
     }
 
-    static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
-        List<DeployedModule> deployedModulesWithId = Collections.emptyList();
-        if (deployedModules != null) {
-            deployedModulesWithId = new ArrayList<>();
-
-            long sequence = maxId(deployedModules);
-            for (DeployedModule deployedModule : deployedModules) {
-                final DeployedModule identifiedModule;
-                if (deployedModule.getId() == null || deployedModule.getId() < 1) {
-                    // Si l'identifiant n'est pas défini, on l'initialise à la valeur maximale + 1
-                    identifiedModule = new DeployedModule(++sequence, deployedModule);
-                } else {
-                    identifiedModule = deployedModule;
-                }
-                deployedModulesWithId.add(identifiedModule);
-            }
-        }
-        return deployedModulesWithId;
+    public DeployedModule copyWithVersionAndInstances(String version, List<Instance> instances) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                new ArrayList<>(valuedProperties),
+                new ArrayList<>(instances),
+                new ArrayList<>(instancesProperties)
+        );
     }
 
     /**
