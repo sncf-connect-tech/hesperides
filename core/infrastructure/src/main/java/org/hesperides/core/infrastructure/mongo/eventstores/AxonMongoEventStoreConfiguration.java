@@ -65,7 +65,7 @@ public class AxonMongoEventStoreConfiguration {
 
     @Bean
     public EventCountSnapshotTriggerDefinition snapshotTrigger(SpringAggregateSnapshotter snapshotter) {
-        return new EventCountSnapshotTriggerDefinition(snapshotter, snapshotThreshold);
+        return new EventCountSnapshotTriggerDefinition(snapshotter, eventsCountToTriggerSnapshot);
     }
 }
 
