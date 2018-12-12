@@ -33,7 +33,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class AxonMongoEventStoreConfiguration {
 
     private String uri;
-    private Integer snapshotThreshold;
+    private Integer eventsCountToTriggerSnapshot;
 
     @Bean
     public MongoClient axonMongoClient(MongoClientURI axonMongoClientUri) {

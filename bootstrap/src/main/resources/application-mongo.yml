@@ -1,6 +1,6 @@
 ---
 event-store:
   uri: ${EVENT_STORE_MONGO_URI:mongodb://localhost:27017/event_store}
-  snapshot-threshold: ${EVENT_STORE_SNAPSHOT_THRESHOLD:1000}
+  events-count-to-trigger-snapshot: ${EVENT_STORE_EVENTS_COUNT_TO_TRIGGER_SNAPSHOT:1000}
 projection-repository:
   uri: ${PROJECTION_REPOSITORY_MONGO_URI:mongodb://localhost:27017/projection_repository}
