@@ -12,7 +12,6 @@ import org.axonframework.messaging.annotation.ParameterResolverFactory;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
 import org.axonframework.spring.eventsourcing.SpringAggregateSnapshotter;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,16 +24,16 @@ import java.util.concurrent.Executors;
 
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
-@Configuration
 @Profile({MONGO})
+@Configuration
 @Getter
 @Setter
 @Validated
 @ConfigurationProperties("event-store")
 public class AxonMongoEventStoreConfiguration {
 
-    @NotNull
     private String uri;
+    private Integer snapshotThreshold;
 
     @Bean
     public MongoClient axonMongoClient(MongoClientURI axonMongoClientUri) {
@@ -52,4 +51,21 @@ public class AxonMongoEventStoreConfiguration {
         DefaultMongoTemplate mongoTemplate = new DefaultMongoTemplate(axonMongoClient(axonMongoClientUri), axonMongoClientUri.getDatabase());
         return new MongoEventStorageEngine(mongoTemplate);
     }
+
+    @Bean
+    public SpringAggregateSnapshotter snapshotter(ParameterResolverFactory parameterResolverFactory,
+                                                  EventStore eventStore,
+                                                  TransactionManager transactionManager) {
+
+        // https://docs.axoniq.io/reference-guide/v/3.3/part-iii-infrastructure-components/repository-and-event-store#creating-a-snapshot
+        // (...) Therefore, it is recommended to run the snapshotter in a different thread (...)
+        Executor executor = Executors.newSingleThreadExecutor();
+        return new SpringAggregateSnapshotter(eventStore, parameterResolverFactory, executor, transactionManager);
+    }
+
+    @Bean
+    public EventCountSnapshotTriggerDefinition snapshotTrigger(SpringAggregateSnapshotter snapshotter) {
+        return new EventCountSnapshotTriggerDefinition(snapshotter, snapshotThreshold);
+    }
 }
+

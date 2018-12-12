@@ -36,8 +36,8 @@ import java.util.UUID;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 
 @Slf4j
-@Aggregate
 @NoArgsConstructor
+@Aggregate(snapshotTriggerDefinition = "snapshotTrigger")
 public class PlatformAggregate implements Serializable {
 
     @AggregateIdentifier
