@@ -7,6 +7,11 @@ import lombok.Setter;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
+import org.axonframework.mongo.eventsourcing.eventstore.documentperevent.DocumentPerEventStorageStrategy;
+import org.axonframework.serialization.Serializer;
+import org.axonframework.serialization.json.JacksonSerializer;
+import org.axonframework.serialization.upcasting.event.EventUpcaster;
+import org.axonframework.serialization.xml.XStreamSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +46,11 @@ public class AxonMongoEventStoreConfiguration {
     @Bean
     @Primary
     public EventStorageEngine eventStore(MongoClientURI axonMongoClientUri) {
-        return new MongoEventStorageEngine(new DefaultMongoTemplate(axonMongoClient(axonMongoClientUri), axonMongoClientUri.getDatabase()));
+        Serializer snapshotSerializer = new XStreamSerializer();
+        EventUpcaster upcasterChain = null;
+        JacksonSerializer eventSerializer = new JacksonSerializer();
+        DefaultMongoTemplate mongoTemplate = new DefaultMongoTemplate(axonMongoClient(axonMongoClientUri), axonMongoClientUri.getDatabase());
+        DocumentPerEventStorageStrategy storageStrategy = new DocumentPerEventStorageStrategy();
+        return new MongoEventStorageEngine(snapshotSerializer, upcasterChain, eventSerializer, mongoTemplate, storageStrategy);
     }
 }

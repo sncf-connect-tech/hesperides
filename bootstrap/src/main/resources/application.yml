@@ -41,7 +41,3 @@ management:
       base-path: /manage
       exposure:
         include: '*'
-
-axon:
-  serializer:
-    events: jackson # Possible values: `xstream`, `java` and `jackson`
