@@ -10,7 +10,6 @@ spring:
   boot.admin.client.enabled: false
   profiles.active: ${SPRING_PROFILES_ACTIVE:default}
 
-
 server:
   port: ${SERVER_PORT:8080}
   servlet:
@@ -34,9 +33,15 @@ logging:
 #    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
 management:
-  health.ldap.enabled: false
+  health:
+    ldap:
+      enabled: false
   endpoints:
     web:
       base-path: /manage
       exposure:
         include: '*'
+
+axon:
+  serializer:
+    events: jackson # Possible values: `xstream`, `java` and `jackson`
