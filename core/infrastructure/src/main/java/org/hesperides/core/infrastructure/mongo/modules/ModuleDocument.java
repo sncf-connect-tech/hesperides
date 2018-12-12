@@ -7,6 +7,7 @@ import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -92,7 +94,12 @@ public class ModuleDocument {
 
     private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos() {
         List<Template> allTemplates = getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments();
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates);
+        List<AbstractProperty> abstractProperties;
+        try {
+            abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates);
+        } catch (InvalidTemplateException invalidTemplateException) {
+            throw new InvalidTemplateException(key.toString(), invalidTemplateException);
+        }
         List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
         return abstractPropertyDocuments;
     }

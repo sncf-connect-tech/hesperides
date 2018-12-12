@@ -3,6 +3,7 @@ package org.hesperides.core.infrastructure.mongo.modules;
 import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -56,7 +57,11 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventHandler
     @Override
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findById(event.getModuleId()).get();
+        Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
+        if (!optModuleDocument.isPresent()) {
+            throw new NotFoundException("Module not found - update impossible - module ID: " + event.getModuleId());
+        }
+        ModuleDocument moduleDocument = optModuleDocument.get();
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
