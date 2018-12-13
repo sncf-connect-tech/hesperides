@@ -11,8 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-
 import javax.validation.constraints.NotNull;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.validation.annotation.Validated;
 
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
@@ -21,9 +22,19 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @ConfigurationProperties("event-store")
 public class AxonMongoEventStoreConfiguration {
 
+    // On expose les noms des méthodes sous formes de strings pour pouvoir les utiliser comme "bean qualifiers"
+    public final static String MONGO_CLIENT_URI_BEAN_NAME = "axonMongoClientUri";
+    public final static String MONGO_CLIENT_BEAN_NAME = "axonMongoClient";
+    public final static String MONGO_TEMPLATE_BEAN_NAME = "axonMongoTemplate";
+
     @Setter
     @NotNull
     private String uri;
+
+    @Bean
+    public MongoClientURI axonMongoClientUri() {
+        return new MongoClientURI(uri);
+    }
 
     @Bean
     public MongoClient axonMongoClient(MongoClientURI axonMongoClientUri) {
@@ -31,8 +42,8 @@ public class AxonMongoEventStoreConfiguration {
     }
 
     @Bean
-    public MongoClientURI axonMongoClientUri() {
-        return new MongoClientURI(uri);
+    public MongoTemplate axonMongoTemplate(MongoClient axonMongoClient, MongoClientURI axonMongoClientUri) {
+        return new MongoTemplate(axonMongoClient, axonMongoClientUri.getDatabase());
     }
 
     @Bean
