@@ -37,8 +37,8 @@ public class AxonMongoEventStoreConfiguration {
 
     @Bean
     @Primary
-    public EventStorageEngine eventStore(MongoClientURI axonMongoClientUri) {
-        DefaultMongoTemplate mongoTemplate = new DefaultMongoTemplate(axonMongoClient(axonMongoClientUri), axonMongoClientUri.getDatabase());
+    public EventStorageEngine eventStore(MongoClient axonMongoClient, MongoClientURI axonMongoClientUri) {
+        DefaultMongoTemplate mongoTemplate = new DefaultMongoTemplate(axonMongoClient, axonMongoClientUri.getDatabase());
         return new MongoEventStorageEngine(mongoTemplate);
     }
 }
