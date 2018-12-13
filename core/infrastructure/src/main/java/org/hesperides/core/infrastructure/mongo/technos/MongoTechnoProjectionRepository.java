@@ -23,6 +23,7 @@ package org.hesperides.core.infrastructure.mongo.technos;
 import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoView;
@@ -94,7 +95,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
-        TechnoDocument technoDocument = technoRepository.findById(event.getTechnoId()).get();
+        Optional<TechnoDocument> optTechnoDocument = technoRepository.findById(event.getTechnoId());
+        if (!optTechnoDocument.isPresent()) {
+            throw new NotFoundException("Techno not found - template addition impossible - techno ID: " + event.getTechnoId());
+        }
+        TechnoDocument technoDocument = optTechnoDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
@@ -104,7 +109,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findById(event.getTechnoId()).get();
+        Optional<TechnoDocument> optTechnoDocument = technoRepository.findById(event.getTechnoId());
+        if (!optTechnoDocument.isPresent()) {
+            throw new NotFoundException("Techno not found - template update impossible - techno ID: " + event.getTechnoId());
+        }
+        TechnoDocument technoDocument = optTechnoDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
         technoDocument.extractPropertiesAndSave(technoRepository);
@@ -114,7 +123,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @EventHandler
     @Override
     public void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
-        TechnoDocument technoDocument = technoRepository.findById(event.getTechnoId()).get();
+        Optional<TechnoDocument> optTechnoDocument = technoRepository.findById(event.getTechnoId());
+        if (!optTechnoDocument.isPresent()) {
+            throw new NotFoundException("Techno not found - template deletion impossible - techno ID: " + event.getTechnoId());
+        }
+        TechnoDocument technoDocument = optTechnoDocument.get();
         technoDocument.removeTemplate(event.getTemplateName());
         technoDocument.extractPropertiesAndSave(technoRepository);
         updateModelUsingTechno(event.getTechnoId());

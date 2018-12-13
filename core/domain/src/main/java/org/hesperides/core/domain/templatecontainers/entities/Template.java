@@ -1,9 +1,11 @@
 package org.hesperides.core.domain.templatecontainers.entities;
 
+import com.github.mustachejava.MustacheException;
 import lombok.Value;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +28,18 @@ public class Template {
 
     public List<AbstractProperty> extractProperties() {
         List<AbstractProperty> properties = new ArrayList<>();
-        properties.addAll(AbstractProperty.extractPropertiesFromStringContent(filename));
-        properties.addAll(AbstractProperty.extractPropertiesFromStringContent(location));
-        properties.addAll(AbstractProperty.extractPropertiesFromStringContent(content));
+        properties.addAll(extractPropertiesFromStringContent("filename", filename));
+        properties.addAll(extractPropertiesFromStringContent("location", location));
+        properties.addAll(extractPropertiesFromStringContent("content", content));
         return properties;
+    }
+
+    private List<AbstractProperty> extractPropertiesFromStringContent(String fieldName, String string) {
+        try {
+            return AbstractProperty.extractPropertiesFromStringContent(string);
+        } catch (MustacheException mustacheException) {
+            throw new InvalidTemplateException(templateContainerKey.toString(), fieldName, mustacheException);
+        }
     }
 
     public Template validateNameNotTaken(Map<String, Template> templates, TemplateContainer.Key key) {
