@@ -22,6 +22,7 @@ package org.hesperides.core.infrastructure.mongo.modules;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
@@ -55,7 +56,11 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @EventHandler
     @Override
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findById(event.getModuleId()).get();
+        Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
+        if (!optModuleDocument.isPresent()) {
+            throw new NotFoundException("Module not found - template creation impossible - module ID: " + event.getModuleId());
+        }
+        ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.addTemplate(templateDocument);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
@@ -64,7 +69,11 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @EventHandler
     @Override
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findById(event.getModuleId()).get();
+        Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
+        if (!optModuleDocument.isPresent()) {
+            throw new NotFoundException("Module not found - template update impossible - module ID: " + event.getModuleId());
+        }
+        ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
         moduleDocument.extractPropertiesAndSave(moduleRepository);
@@ -73,7 +82,11 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     @EventHandler
     @Override
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
-        ModuleDocument moduleDocument = moduleRepository.findById(event.getModuleId()).get();
+        Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
+        if (!optModuleDocument.isPresent()) {
+            throw new NotFoundException("Module not found - template deletion impossible - module ID: " + event.getModuleId());
+        }
+        ModuleDocument moduleDocument = optModuleDocument.get();
         moduleDocument.removeTemplate(event.getTemplateName());
         moduleDocument.extractPropertiesAndSave(moduleRepository);
     }

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.commons.spring.HasProfile;
+import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -68,11 +69,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Récupération de la plateforme et mise à jour de la version
         Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
-        if (!optPlatformDocument.isPresent() && HasProfile.dataMigration()) {
-            // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
-            // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
-            log.warn("PlatformModulePropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
-            return;
+        if (!optPlatformDocument.isPresent()) {
+            if (HasProfile.dataMigration()) {
+                // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
+                // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
+                log.warn("PlatformModulePropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
+                return;
+            } else {
+                throw new NotFoundException("Platform not found - module properties update impossible - platform ID: " + event.getPlatformId());
+            }
         }
         PlatformDocument platformDocument = optPlatformDocument.get();
         if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {
@@ -104,11 +109,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // Retrieve platform
 
         Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
-        if (!optPlatformDocument.isPresent() && HasProfile.dataMigration()) {
-            // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
-            // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
-            log.warn("PlatformPropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
-            return;
+        if (!optPlatformDocument.isPresent()) {
+            if (HasProfile.dataMigration()) {
+                // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
+                // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
+                log.warn("PlatformPropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
+                return;
+            } else {
+                throw new NotFoundException("Platform not found - platform properties update impossible - platform ID: " + event.getPlatformId());
+            }
         }
         PlatformDocument platformDocument = optPlatformDocument.get();
 
