@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.validation.constraints.NotNull;
+
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Configuration
@@ -21,6 +23,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class MongoProjectionRepositoryConfiguration {
 
     @Setter
+    @NotNull
     private String uri;
 
     @Bean

@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
+import javax.validation.constraints.NotNull;
+
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Profile(MONGO)
@@ -20,6 +22,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class AxonMongoEventStoreConfiguration {
 
     @Setter
+    @NotNull
     private String uri;
 
     @Bean
