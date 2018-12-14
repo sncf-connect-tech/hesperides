@@ -17,7 +17,7 @@ import java.net.InetSocketAddress;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 
 @Configuration
-@Profile({FAKE_MONGO})
+@Profile(FAKE_MONGO)
 public class FakeAxonMongoEventStoreConfiguration {
 
     @Bean

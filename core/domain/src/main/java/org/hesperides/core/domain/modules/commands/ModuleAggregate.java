@@ -21,18 +21,9 @@ import java.util.UUID;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 
-/**
- * Un agrégat est l'entité racine d'un groupe d'entités.
- * Cette classe n'est utilisée que par des Commands.
- * Les Queries utilisent des Views (représentation de données).
- */
 @Slf4j
-@Aggregate
-/*
-  Axon utilise le constructeur vide pour créer une instance vide
-  avant de l'initialiser à partir des évènements passés.
- */
 @NoArgsConstructor
+@Aggregate(snapshotTriggerDefinition = "snapshotTrigger")
 class ModuleAggregate implements Serializable {
 
     @AggregateIdentifier

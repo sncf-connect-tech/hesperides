@@ -2,27 +2,23 @@ package org.hesperides.core.infrastructure.mongo.eventstores;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import lombok.Getter;
 import lombok.Setter;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.axonframework.mongo.eventsourcing.eventstore.MongoEventStorageEngine;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import javax.validation.constraints.NotNull;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
 
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
+@Profile(MONGO)
 @Configuration
-@Profile({MONGO})
-@Getter
-@Setter
-@Validated
 @ConfigurationProperties("event-store")
 public class AxonMongoEventStoreConfiguration {
 
@@ -31,6 +27,7 @@ public class AxonMongoEventStoreConfiguration {
     public final static String MONGO_CLIENT_BEAN_NAME = "axonMongoClient";
     public final static String MONGO_TEMPLATE_BEAN_NAME = "axonMongoTemplate";
 
+    @Setter
     @NotNull
     private String uri;
 
@@ -52,6 +49,8 @@ public class AxonMongoEventStoreConfiguration {
     @Bean
     @Primary
     public EventStorageEngine eventStore(MongoClient axonMongoClient, MongoClientURI axonMongoClientUri) {
-        return new MongoEventStorageEngine(new DefaultMongoTemplate(axonMongoClient, axonMongoClientUri.getDatabase()));
+        DefaultMongoTemplate mongoTemplate = new DefaultMongoTemplate(axonMongoClient, axonMongoClientUri.getDatabase());
+        return new MongoEventStorageEngine(mongoTemplate);
     }
 }
+

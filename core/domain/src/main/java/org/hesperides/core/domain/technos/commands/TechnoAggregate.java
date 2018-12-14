@@ -20,9 +20,9 @@ import java.util.UUID;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
 import static org.axonframework.commandhandling.model.AggregateLifecycle.isLive;
 
-@NoArgsConstructor
 @Slf4j
-@Aggregate
+@NoArgsConstructor
+@Aggregate(snapshotTriggerDefinition = "snapshotTrigger")
 class TechnoAggregate implements Serializable {
 
     @AggregateIdentifier
@@ -126,3 +126,4 @@ class TechnoAggregate implements Serializable {
         log.debug("Template supprimé. ");
     }
 }
+
