@@ -12,7 +12,6 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -103,8 +102,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             // propriété valorisée la définition initiale de la propriété
             // (ex: {{prop | @required}} => "prop | @required")
             Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
-            ModuleDocument moduleDocument = mongoModuleRepository.findByKey(new KeyDocument(moduleKey));
-            List<AbstractPropertyDocument> moduleProperties = moduleDocument.getProperties();
+            KeyDocument keyDocument = new KeyDocument(moduleKey);
+            List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
+                    .findPropertiesByModuleKey(keyDocument)
+                    .getProperties();
 
             List<AbstractValuedPropertyDocument> valuedProperties = new ArrayList<>();
             valuedProperties.addAll(completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties));
@@ -382,7 +383,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        return platformRepository.findOptionalByKey(platformKeyDocument)
+        return platformRepository.findGlobalPropertiesByPlatformKey(platformKeyDocument)
                 .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElse(Collections.emptyList());

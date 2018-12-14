@@ -171,7 +171,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetTechnoVersionTypesQuery(GetTechnoVersionTypesQuery query) {
-        return technoRepository.findByKeyNameAndKeyVersion(query.getTechnoName(), query.getTechnoVersion())
+        return technoRepository.findKeysByNameAndVersion(query.getTechnoName(), query.getTechnoVersion())
                 .stream()
                 .map(TechnoDocument::getKey)
                 .map(KeyDocument::isWorkingCopy)
@@ -182,7 +182,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetTechnoVersionsQuery(GetTechnoVersionsQuery query) {
-        return technoRepository.findByKeyName(query.getTechnoName())
+        return technoRepository.findVersionsByKeyName(query.getTechnoName())
                 .stream()
                 .map(TechnoDocument::getKey)
                 .map(KeyDocument::getVersion)
@@ -193,7 +193,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query) {
         TemplateContainer.Key technoKey = query.getTechnoKey();
-        return technoRepository.findByKeyAndTemplateName(new KeyDocument(technoKey), query.getTemplateName())
+        return technoRepository.findTemplateByTechnoKeyAndTemplateName(new KeyDocument(technoKey), query.getTemplateName())
                 .map(technoDocument -> technoDocument.getTemplates()
                         .stream()
                         .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(query.getTemplateName()))
@@ -218,7 +218,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public Optional<TechnoView> onGetTechnoQuery(GetTechnoQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
-        return technoRepository.findOptionalByKey(keyDocument)
+        return technoRepository.findOptionalTechnoByKey(keyDocument)
                 .map(TechnoDocument::toTechnoView);
     }
 
@@ -240,7 +240,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
-        TechnoDocument technoDocument = technoRepository.findByKey(keyDocument);
+        TechnoDocument technoDocument = technoRepository.findPropertiesByTechnoKey(keyDocument);
         return AbstractPropertyDocument.toAbstractPropertyViews(technoDocument.getProperties());
     }
 

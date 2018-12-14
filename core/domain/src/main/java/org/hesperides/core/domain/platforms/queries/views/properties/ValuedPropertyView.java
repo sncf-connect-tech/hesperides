@@ -44,7 +44,7 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     @Override
     public ValuedProperty toDomainValuedProperty() {
-        return new ValuedProperty(getName(), value);
+        return new ValuedProperty(mustacheContent, getName(), value);
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {

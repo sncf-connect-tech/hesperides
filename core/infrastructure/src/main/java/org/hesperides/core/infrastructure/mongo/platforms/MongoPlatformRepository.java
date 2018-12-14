@@ -42,4 +42,7 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     @ExistsQuery(value = "{ 'key' : ?0, 'deployedModules.name' : ?1, 'deployedModules.version' : ?2, 'deployedModules.isWorkingCopy' : ?3, 'deployedModules.path' : ?4, 'deployedModules.instances.name' : ?5}")
     boolean existsByPlatformKeyAndModuleKeyAndPathAndInstanceName(PlatformKeyDocument platformKeyDocument, String moduleName, String moduleVersion, boolean isWorkingCopy, String modulePath, String instanceName);
+
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalProperties' : 1 }")
+    Optional<PlatformDocument> findGlobalPropertiesByPlatformKey(PlatformKeyDocument platformKeyDocument);
 }

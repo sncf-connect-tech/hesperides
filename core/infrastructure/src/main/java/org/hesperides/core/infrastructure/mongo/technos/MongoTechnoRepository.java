@@ -20,12 +20,13 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
     @Query(value = "{ 'key' : ?0 }", fields = "{ '_id' : 1 }")
     Optional<TechnoDocument> findOptionalIdByKey(KeyDocument key);
 
-    Optional<TechnoDocument> findOptionalByKey(KeyDocument key);
+    Optional<TechnoDocument> findOptionalTechnoByKey(KeyDocument key);
 
-    TechnoDocument findByKey(KeyDocument key);
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'properties' : 1 }")
+    TechnoDocument findPropertiesByTechnoKey(KeyDocument key);
 
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : { $elemMatch : { 'name' : ?1 }}}")
-    Optional<TechnoDocument> findByKeyAndTemplateName(KeyDocument technoKey, String templateName);
+    Optional<TechnoDocument> findTemplateByTechnoKeyAndTemplateName(KeyDocument technoKey, String templateName);
 
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : 1 }")
     Optional<TechnoDocument> findTemplatesByTechnoKey(KeyDocument technoKey);
@@ -35,4 +36,10 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
     List<TechnoDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
     boolean existsByKey(KeyDocument keyDocument);
+
+    @Query(value = "{ 'key.name' : ?0, 'key.version' : ?1 }", fields = "{ 'key' : 1 }")
+    List<TechnoDocument> findKeysByNameAndVersion(String technoName, String technoVersion);
+
+    @Query(value = "{ 'key.name' : ?0 }", fields = "{ 'key.version' : 1 }")
+    List<TechnoDocument> findVersionsByKeyName(String technoName);
 }

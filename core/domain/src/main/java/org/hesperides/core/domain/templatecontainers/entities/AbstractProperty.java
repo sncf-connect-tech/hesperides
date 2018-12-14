@@ -20,7 +20,10 @@
  */
 package org.hesperides.core.domain.templatecontainers.entities;
 
-import com.github.mustachejava.*;
+import com.github.mustachejava.Code;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
 import lombok.Value;
@@ -65,7 +68,7 @@ public abstract class AbstractProperty {
         return properties;
     }
 
-    private static Mustache getMustacheInstanceFromStringContent(String content) {
+    public static Mustache getMustacheInstanceFromStringContent(String content) {
         MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         return mustacheFactory.compile(new StringReader(content), "anything");
     }
