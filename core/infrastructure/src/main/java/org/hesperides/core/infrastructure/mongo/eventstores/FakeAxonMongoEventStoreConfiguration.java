@@ -22,7 +22,7 @@ public class FakeAxonMongoEventStoreConfiguration {
 
     @Bean
     @Primary
-    MongoClient mongoClient() {
+    MongoClient axonMongoClient() {
         final MongoServer server = new MongoServer(new MemoryBackend());
 
         // bind on a random local port

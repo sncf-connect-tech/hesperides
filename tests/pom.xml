@@ -10,6 +10,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.hesperides.test</groupId>
     <artifactId>tests</artifactId>
     <packaging>pom</packaging>
 

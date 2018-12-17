@@ -22,6 +22,7 @@ package org.hesperides.core.infrastructure.security;
 
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.UserRole;
+import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.support.LdapUtils;
@@ -48,6 +49,9 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 
+import static org.hesperides.commons.spring.SpringProfiles.LDAP;
+
+@Profile(LDAP)
 @Component
 public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider {
     private LdapConfiguration ldapConfiguration;

@@ -23,7 +23,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @ConfigurationProperties("projection-repository")
 public class MongoProjectionRepositoryConfiguration {
 
-    // On expose les noms des méthodes sous formes de strings pour pouvoir les utiliser comme "bean qualifiers"
+    // On expose les noms des méthodes sous formes de strings pour pouvoir les utiliser comme "bean qualifiers" dans datamigration
     public final static String MONGO_CLIENT_URI_BEAN_NAME = "projectionMongoClientUri";
     public final static String MONGO_CLIENT_BEAN_NAME = "projectionMongoClient";
     public final static String MONGO_TEMPLATE_BEAN_NAME = "projectionMongoTemplate";

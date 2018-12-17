@@ -50,6 +50,7 @@ import java.util.stream.StreamSupport;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAME;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -164,7 +165,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetTechnosNameQuery(GetTechnosNameQuery query) {
-        final DistinctIterable<String> iterable = mongoTemplate.getCollection("techno").distinct("key.name", String.class);
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection(TECHNO_COLLECTION_NAME).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 
@@ -194,12 +195,11 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query) {
         TemplateContainer.Key technoKey = query.getTechnoKey();
         return technoRepository.findTemplateByTechnoKeyAndTemplateName(new KeyDocument(technoKey), query.getTemplateName())
-                .map(technoDocument -> technoDocument.getTemplates()
-                        .stream()
-                        .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(query.getTemplateName()))
-                        .findFirst()
-                        .map(templateDocument -> templateDocument.toTemplateView(technoKey)))
-                .orElse(Optional.empty());
+                .flatMap(technoDocument -> Optional.ofNullable(technoDocument.getTemplates())
+                        .flatMap(templates -> templates.stream()
+                                .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(query.getTemplateName()))
+                                .findFirst()
+                                .map(templateDocument -> templateDocument.toTemplateView(technoKey))));
     }
 
     @QueryHandler

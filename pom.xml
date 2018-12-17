@@ -85,6 +85,13 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- Commons -->
+            <dependency>
+                <groupId>org.hesperides</groupId>
+                <artifactId>commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Dépendances DDD -->
             <dependency>
                 <groupId>org.hesperides</groupId>
@@ -107,22 +114,10 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Commons -->
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <!-- Tests -->
             <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>tests-bdd</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hesperides</groupId>
-                <artifactId>test-tech</artifactId>
+                <groupId>org.hesperides.test</groupId>
+                <artifactId>bdd</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -227,50 +222,43 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit-jupiter-api.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-core</artifactId>
                 <version>${hamcrest.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <version>${spring-security-test.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>info.cukes</groupId>
                 <artifactId>cucumber-junit</artifactId>
                 <version>${cucumber.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>info.cukes</groupId>
                 <artifactId>cucumber-java8</artifactId>
                 <version>${cucumber.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>info.cukes</groupId>
                 <artifactId>cucumber-spring</artifactId>
                 <version>${cucumber.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
-                <scope>test</scope>
             </dependency>
+
             <dependency>
                 <groupId>de.codecentric</groupId>
                 <artifactId>spring-boot-admin-dependencies</artifactId>
