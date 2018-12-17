@@ -18,11 +18,12 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
+
 @Data
-@Document(collection = "module")
+@Document(collection = MODULE_COLLECTION_NAME)
 @NoArgsConstructor
 public class ModuleDocument {
 

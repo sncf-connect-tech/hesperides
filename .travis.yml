@@ -1,9 +1,9 @@
 language: java
-jdk:
-- oraclejdk8
+jdk: oraclejdk8
 sudo: required
 service:
 - docker
+- mongodb
 cache:
   directories:
   - "$HOME/.m2"
@@ -33,10 +33,16 @@ jobs:
     before_script:
     - sudo touch /var/log/hesperides.log
     - sudo chown travis /var/log/hesperides.log
-    script: "./mvnw test -Dmaven.javadoc.skip=true"
+    script: "./mvnw test -pl '!tests/integration' -Dmaven.javadoc.skip=true"
   - stage: test
     env: INTEGRATION TESTS
-    script: "./mvnw -pl tests/integration verify -Dmaven.javadoc.skip=true -P integration-test"
+    before_script:
+    - sudo service mongod start
+    - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
+    script:
+    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap || exit 1 &
+    - sleep 20  # waiting for both MongoDB and SpringBoot app
+    - ./mvnw -pl tests/integration verify -Dmaven.javadoc.skip=true -P integration-test
   - stage: docker
     env: DEPLOY TO DOCKER HUB
     script: "./.travis/docker_build_push.sh"

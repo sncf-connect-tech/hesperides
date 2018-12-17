@@ -26,6 +26,7 @@ import java.util.stream.StreamSupport;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -111,7 +112,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
-        final DistinctIterable<String> iterable = mongoTemplate.getCollection("module").distinct("key.name", String.class);
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection(MODULE_COLLECTION_NAME).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 

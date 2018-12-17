@@ -98,12 +98,11 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     public Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query) {
         String templateName = query.getTemplateName();
         return moduleRepository.findByKeyAndTemplateName(new KeyDocument(query.getModuleKey()), templateName)
-                .map(moduleDocument -> moduleDocument.getTemplates()
-                        .stream()
-                        .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName))
-                        .findFirst()
-                        .map(templateDocument -> templateDocument.toTemplateView(query.getModuleKey())))
-                .orElse(Optional.empty());
+                .flatMap(moduleDocument -> Optional.ofNullable(moduleDocument.getTemplates())
+                        .flatMap(templates -> templates.stream()
+                                .filter(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName))
+                                .findFirst()
+                                .map(templateDocument -> templateDocument.toTemplateView(query.getModuleKey()))));
     }
 
     @QueryHandler

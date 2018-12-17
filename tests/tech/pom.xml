@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.hesperides</groupId>
+        <groupId>org.hesperides.test</groupId>
         <artifactId>tests</artifactId>
         <version>4.1.9-SNAPSHOT</version>
     </parent>

@@ -35,9 +35,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
+
 
 @Data
-@Document(collection = "platform")
+@Document(collection = PLATFORM_COLLECTION_NAME)
 @NoArgsConstructor
 public class PlatformDocument {
 

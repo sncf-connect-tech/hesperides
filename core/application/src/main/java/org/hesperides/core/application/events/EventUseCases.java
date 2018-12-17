@@ -21,6 +21,9 @@ import static org.apache.commons.lang3.StringUtils.contains;
 @Component
 public class EventUseCases {
 
+    private static final String MODULE_EVENTSTREAM_TYPE = "module";
+    private static final String PLATFORM_EVENTSTREAM_TYPE = "platform";
+
     private final EventQueries eventQueries;
     private final ModuleQueries moduleQueries;
 
@@ -35,7 +38,7 @@ public class EventUseCases {
         String streamType = split[0];
         String streamName = split[1];
         switch (streamType) {
-            case "module":
+            case MODULE_EVENTSTREAM_TYPE:
                 return moduleQueries.getModulesName()
                         .stream()
                         .filter(m -> contains(streamName, m))
@@ -43,7 +46,7 @@ public class EventUseCases {
                         .flatMap(moduleKey -> parseModuleKey(streamName, moduleKey))
                         .map(key -> getEvents(key, page, size))
                         .orElse(Collections.emptyList());
-            case "platform":
+            case PLATFORM_EVENTSTREAM_TYPE:
                 String[] streamNameSplited = streamName.split("-", 2);
                 final Platform.Key platformKey = new Platform.Key(streamNameSplited[0], streamNameSplited[1]);
                 return getEvents(platformKey, page, size);

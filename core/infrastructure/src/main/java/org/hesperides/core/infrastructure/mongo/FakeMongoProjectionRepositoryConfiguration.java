@@ -32,6 +32,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import java.net.InetSocketAddress;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration.MONGO_TEMPLATE_BEAN_NAME;
 
 @Configuration
 @Profile(FAKE_MONGO)
@@ -40,7 +41,7 @@ public class FakeMongoProjectionRepositoryConfiguration {
     private static final String MONGO_DB_NAME = "fake_database";
 
     @Bean(destroyMethod = "close")
-    public MongoClient mongo() {
+    public MongoClient projectionMongoClient() {
         final MongoServer server = new MongoServer(new MemoryBackend());
 
         // bind on a random local port
@@ -49,9 +50,9 @@ public class FakeMongoProjectionRepositoryConfiguration {
         return new MongoClient(new ServerAddress(serverAddress));
     }
 
-    @Bean
-    public MongoTemplate mongoTemplate() {
-        return new MongoTemplate(mongo(), MONGO_DB_NAME);
+    @Bean({MONGO_TEMPLATE_BEAN_NAME, "mongoTemplate"}) // un Bean nommé mongoTemplate est requis pour les repos SpringData
+    public MongoTemplate projectionMongoTemplate(MongoClient projectionMongoClient) {
+        return new MongoTemplate(projectionMongoClient, MONGO_DB_NAME);
     }
 
 }

@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -24,15 +25,22 @@ import java.util.List;
 @EnableWebMvc
 public class PresentationConfiguration implements WebMvcConfigurer {
 
+    @Autowired
+    Gson gson;
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        configureMessageConverters(converters, gson);
+    }
+
+    public static void configureMessageConverters(List<HttpMessageConverter<?>> converters, Gson gson) {
         // Rend possible la production de texte (getFile)
         StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
         stringHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(MediaType.TEXT_PLAIN));
         converters.add(stringHttpMessageConverter);
         // Rend possible l'utilisation de Gson pour la sérialisation/désérialisation
         GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
-        gsonHttpMessageConverter.setGson(gson());
+        gsonHttpMessageConverter.setGson(gson);
         converters.add(gsonHttpMessageConverter);
     }
 
@@ -42,7 +50,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public Gson gson() {
+    public static Gson gson() {
         return new GsonBuilder()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité

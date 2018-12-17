@@ -14,7 +14,7 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] AUTH_WHITELIST = {
             "/manage/**",
-            // -- swagger ui
+            // -- swagger ui:
             "/swagger-resources/**",
             "/swagger-ui.html",
             "/v2/api-docs",

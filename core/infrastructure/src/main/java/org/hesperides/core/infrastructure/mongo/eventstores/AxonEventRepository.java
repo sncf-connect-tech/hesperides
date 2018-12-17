@@ -30,7 +30,7 @@ public class AxonEventRepository implements EventRepository {
     @QueryHandler
     @Override
     public List<EventView> onGetEventsStream(final GenericEventsByStreamQuery query) {
-        return getEventViews(query.getEventStream().toString());
+        return getEventViews(query.getEventStream());
     }
 
     @QueryHandler
