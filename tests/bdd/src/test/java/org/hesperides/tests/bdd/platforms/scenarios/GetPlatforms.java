@@ -50,7 +50,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
         Then("^the platform detail is successfully retrieved", () -> {
             assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
+            PlatformIO expectedPlatform = platformBuilder.buildOutputWithoutIncrementingModuleIds();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });

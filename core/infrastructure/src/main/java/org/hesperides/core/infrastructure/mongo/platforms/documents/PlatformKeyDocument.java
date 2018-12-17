@@ -39,4 +39,8 @@ public class PlatformKeyDocument implements Serializable {
         this.applicationName = platformKey.getApplicationName();
         this.platformName = platformKey.getPlatformName();
     }
+
+    public Platform.Key toDomainPlatformKey() {
+        return new Platform.Key(applicationName, platformName);
+    }
 }

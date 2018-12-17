@@ -8,6 +8,7 @@ import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
+import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -44,7 +45,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.extractInstancePropertiesAndSave(platformRepository);
+        platformDocument.extractInstanceProperties();
+        platformRepository.save(platformDocument);
     }
 
     @EventHandler
@@ -56,8 +58,29 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.extractInstancePropertiesAndSave(platformRepository);
+        /*
+         * Architecturalement parlant, ce code est placé ici à cause de la nécessité de rejouer
+         * la logique métier des évènements issus du batch de migration.
+         *
+         * A noter qu'une payload vide va écraser d'éventuels modules, instances
+         * et valorisations de propriétés d'instances précédement présents dans la plateforme.
+         * Par contre, les valorisations de propriétés globales ou de modules sont préservées.
+         */
+        PlatformDocument newPlatformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+        Optional<PlatformDocument> existingPlatformDocument = platformRepository.findById(event.getPlatformId());
+        if (!existingPlatformDocument.isPresent()) {
+            throw new PlatformNotFoundException("Platform not found - update impossible - platformId: " + event.getPlatformId());
+        }
+        PlatformDocument platformDocument = existingPlatformDocument.get();
+        platformDocument.updateDeployedModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
+        platformDocument.extractInstanceProperties();
+        if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
+            // Rustine temporaire pour le temps de la migration
+            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
+        } else {
+            platformDocument.setVersionId(newPlatformDocument.getVersionId());
+        }
+        platformRepository.save(platformDocument);
     }
 
     @EventHandler
@@ -92,8 +115,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .filter(moduleDocument -> moduleDocument.getPropertiesPath().equals(event.getModulePath()))
                 .findAny().ifPresent(module -> {
             module.setValuedProperties(abstractValuedPropertyDocuments);
-            platformDocument.extractInstancePropertiesAndSave(platformRepository);
         });
+        platformDocument.extractInstanceProperties();
+        platformRepository.save(platformDocument);
     }
 
     @EventHandler
@@ -130,7 +154,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         }
         platformDocument.setGlobalProperties(valuedProperties);
 
-        platformDocument.extractInstancePropertiesAndSave(platformRepository);
+        platformDocument.extractInstanceProperties();
+        platformRepository.save(platformDocument);
     }
 
     /*** QUERY HANDLERS ***/

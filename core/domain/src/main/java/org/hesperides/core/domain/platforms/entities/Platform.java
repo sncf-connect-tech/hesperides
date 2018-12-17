@@ -24,7 +24,14 @@ import lombok.Value;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 @Value
 public class Platform {
@@ -65,20 +72,49 @@ public class Platform {
         );
     }
 
-    public Platform updateDeployedModules() {
-        return new Platform(
-                key,
-                version,
-                isProductionPlatform,
-                versionId,
-                DeployedModule.fillMissingIdentifiers(deployedModules),
-                globalProperties
-        );
-    }
-
     @Value
     public static class Key {
         String applicationName;
         String platformName;
     }
+
+    public List<DeployedModule> updateModules(List<DeployedModule> deployedModulesProvided, boolean copyPropertiesForUpgradedModules) {
+        // cf. https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/event/PlatformUpdatedCommand.java
+        Map<String, DeployedModule> existingDeployedModulesPerPath = deployedModules.stream()
+                .collect(toMap(DeployedModule::getPropertiesPath, identity()));
+
+        return deployedModulesProvided.stream()
+                .map(newModule -> {
+                    if (existingDeployedModulesPerPath.containsKey(newModule.getPropertiesPath())) {
+                        DeployedModule existingModuleWithSameId = existingDeployedModulesPerPath.get(newModule.getPropertiesPath());
+                        return existingModuleWithSameId.copyWithInstances(newModule.getInstances())
+                                .extractAndSetInstanceProperties(globalProperties);
+                    }
+                    if (!copyPropertiesForUpgradedModules) {
+                        return newModule;
+                    }
+                    return deployedModules.stream()
+                            .filter(existingModule -> newModuleMatchOldVersion(existingModule, newModule) && !newModule.getVersion().equals(existingModule.getVersion()))
+                            .findAny().map(existingModule -> existingModule.copyWithVersionAndInstances(
+                                    newModule.getVersion(),
+                                    newModule.getInstances()
+                            ).extractAndSetInstanceProperties(globalProperties))
+                            .orElse(newModule);
+                }).collect(Collectors.toList());
+    }
+
+    static private boolean newModuleMatchOldVersion(DeployedModule existingModule, DeployedModule newModule) {
+        if (!newModule.getId().equals(existingModule.getId())) {
+            return false;
+        }
+        // Cette comparaison permet de gérer 2 cas possible, tous les 2 valides:
+        // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à la NOUVELLE version de module
+        // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à l'ANCIENNE version de module
+        // À noter qu'à ce stade nous n'avons pas accès au "vrai" `propertiesPath` fourni en entrée du controller REST.
+        // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
+        // Ici `newModule.getPropertiesPath()` provient de DeployedModule.generatePropertiesPath() où il est reconstruit de zéro.
+        String newModulePropertiesPathWithOldVersion = newModule.getPropertiesPath().replace("#" + newModule.getVersion() + "#", "#" + existingModule.getVersion() + "#");
+        return newModulePropertiesPathWithOldVersion.equals(existingModule.getPropertiesPath());
+    }
+
 }
