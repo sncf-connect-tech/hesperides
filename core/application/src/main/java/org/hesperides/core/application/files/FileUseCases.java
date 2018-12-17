@@ -33,6 +33,8 @@ import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundExc
 import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
+import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
+import org.hesperides.core.domain.platforms.queries.views.InstanceView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
@@ -74,7 +76,7 @@ public class FileUseCases {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
-        validateExistingData(modulePath, instanceName, simulate, platformKey, moduleKey);
+        validateExistingData(platformKey, moduleKey, modulePath, simulate, instanceName);
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
         List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
@@ -99,7 +101,7 @@ public class FileUseCases {
         instanceFiles.add(new InstanceFileView(location, filename, platformKey, modulePath, moduleKey, instanceName, template, simulate));
     }
 
-    private void validateExistingData(String modulePath, String instanceName, boolean simulate, Platform.Key platformKey, Module.Key moduleKey) {
+    private void validateExistingData(Platform.Key platformKey, Module.Key moduleKey, String modulePath, boolean simulate, String instanceName) {
 
         if (!platformQueries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
@@ -132,38 +134,71 @@ public class FileUseCases {
             String templateNamespace,
             boolean simulate) {
 
-        // Contrôler l'existence des données
-        // Récupérer le template
-        // Valoriser (globales, modules et instances)
-
-        // On va avoir besoin du template, donc on vérifie que le module ou la techno et le template existent bien.
-        // Ensuite on a besoin de la valorisation au niveau de la plateforme, du module et de l'instance
-        // donc on vérifie l'existence de la plateforme, du module et de l'instance.
-
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
-        validateExistingData(modulePath, instanceName, simulate, platformKey, moduleKey);
+        validateExistingData(platformKey, moduleKey, modulePath, simulate, instanceName);
 
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
         Optional<TemplateView> template = getTemplate(module, templateName, templateNamespace);
-        // Récupère le contenu du template après avoir vérifié que le template existe bien
         String templateContent = template.orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName)).getContent();
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
-        List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
+        List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
+        DeployedModuleView deployedModule = platform.getDeployedModule(moduleKey).get();
 
-        return valueTemplateProperties(templateContent, moduleValuedProperties);
-
-
-        // Propriétés itérables ?
-
-        // Remplacer les valorisation entre moustaches
-        // soit par la valeur d'une propriété globale
-        // soit par la valeur d'une propriété d'instance (si on est au niveau de l'instance)
-
-//        return replacePropertiesWithValues(templateContent, globalAndModuleProperties);
+        // On remplace d'abord les propriétés déclarées dans le template
+        List<AbstractValuedPropertyView> globalAndModuleProperties = getGlobalAndModuleProperties(globalProperties, deployedModule.getValuedProperties());
+        String templateContentBeforeInstanceProperties = valueTemplateProperties(templateContent, globalAndModuleProperties);
+        // Puis les propriétés déclarées lors de la valorisation (propriétés globales et propriétés d'instance)
+        List<AbstractValuedPropertyView> globalAndInstanceProperties = getGlobalAndInstanceProperties(globalProperties, deployedModule.getInstances(), instanceName);
+        return valueTemplateProperties(templateContentBeforeInstanceProperties, globalAndInstanceProperties);
     }
 
+    /**
+     * Renvoie un template s'il existe dans le module ou les technos du module.
+     * On vérifie son existence à partir de son nom et son namespace.
+     */
+    private Optional<TemplateView> getTemplate(ModuleView module, String templateName, String templateNamespace) {
+        Stream<TemplateView> moduleTechnosTemplates = module.getTechnos().stream().flatMap(technoView -> technoView.getTemplates().stream());
+        Stream<TemplateView> allTemplates = Stream.concat(module.getTemplates().stream(), moduleTechnosTemplates);
+
+        return allTemplates.filter(templateView ->
+                templateView.getName().equalsIgnoreCase(templateName) && templateView.getNamespace().equalsIgnoreCase(templateNamespace))
+                .findFirst();
+    }
+
+    /**
+     * Concatène les propriétés globales et de module.
+     */
+    private List<AbstractValuedPropertyView> getGlobalAndModuleProperties(List<ValuedPropertyView> globalProperties,
+                                                                          List<AbstractValuedPropertyView> moduleProperties) {
+        List<AbstractValuedPropertyView> globalAndModuleProperties = new ArrayList<>(globalProperties);
+        globalAndModuleProperties.addAll(moduleProperties);
+        return globalAndModuleProperties;
+    }
+
+    /**
+     * Concatène les propriétés globales et d'instance.
+     */
+    private List<AbstractValuedPropertyView> getGlobalAndInstanceProperties(List<ValuedPropertyView> globalProperties,
+                                                                            List<InstanceView> instances,
+                                                                            String instanceName) {
+        List<ValuedPropertyView> instanceProperties = instances.stream()
+                .filter(instance -> instance.getName().equalsIgnoreCase(instanceName))
+                .findFirst()
+                .map(instance -> instance.getValuedProperties())
+                .orElse(Collections.emptyList());
+
+        List<AbstractValuedPropertyView> globalAndInstanceProperties = new ArrayList<>(globalProperties);
+        globalAndInstanceProperties.addAll(instanceProperties);
+
+        return globalAndInstanceProperties;
+    }
+
+    /**
+     * Remplace les propriétés entre moustaches par leur valorisation
+     * à l'aide du framework Mustache.
+     */
     private String valueTemplateProperties(String templateContent, List<AbstractValuedPropertyView> valuedProperties) {
         Map<String, Object> scopes = propertiesToScopes(valuedProperties);
 
@@ -175,12 +210,20 @@ public class FileUseCases {
         return stringWriter.toString();
     }
 
+    /**
+     * Transforme une liste de propriétés `AbstractValuedPropertyView` pouvant contenir des propriétés simples
+     * et des propriétés itérables en map de ce type :
+     * - nom-propriété-simple => valeur-propriété-simple
+     * - nom-propriété-itérable => map (...)
+     */
     private Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> properties) {
         Map<String, Object> scopes = new HashMap<>();
         properties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
 
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
+                // Si on n'a pas la valeur entre moustaches, c'est le cas pour les propriétés globales
+                // et les propriétés d'instance, on prend le nom de la propriété
                 String propertyToReplace = StringUtils.defaultString(valuedProperty.getMustacheContent(), valuedProperty.getName()).trim();
                 scopes.put(propertyToReplace, valuedProperty.getValue().trim());
 
@@ -196,19 +239,5 @@ public class FileUseCases {
             }
         });
         return scopes;
-    }
-
-    /**
-     * Renvoie un template s'il existe dans les templates du module
-     * ou dans les templates des technos du module.
-     * On vérifie son existence à partir de son nom et son namespace.
-     */
-    private Optional<TemplateView> getTemplate(ModuleView module, String templateName, String templateNamespace) {
-        Stream<TemplateView> moduleTechnosTemplates = module.getTechnos().stream().flatMap(technoView -> technoView.getTemplates().stream());
-        Stream<TemplateView> allTemplates = Stream.concat(module.getTemplates().stream(), moduleTechnosTemplates);
-
-        return allTemplates.filter(templateView ->
-                templateView.getName().equalsIgnoreCase(templateName) && templateView.getNamespace().equalsIgnoreCase(templateNamespace))
-                .findFirst();
     }
 }

@@ -158,18 +158,29 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
         });
 
-        Given("^an existing platform with these valued properties$", (DataTable data) -> {
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
-            platformClient.create(platformBuilder.buildInput());
+        Given("^the platform has these valued properties$", (DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(valuedProperties, Collections.emptyList()), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
         });
 
-        Given("^an existing platform with these iterable valued properties$", (DataTable data) -> {
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
-            platformClient.create(platformBuilder.buildInput());
+        Given("^the platform has these iterable properties$", (DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
             platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(Collections.emptyList(), iterableProperties), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has these global properties$", (DataTable data) -> {
+            List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(globalProperties, Collections.emptyList()));
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has these instance properties$", (DataTable data) -> {
+            List<ValuedPropertyIO> instanceProperties = data.asList(ValuedPropertyIO.class);
+            platformBuilder.withInstance("some-instance", instanceProperties);
+            platformClient.update(platformBuilder.buildInput(), false);
+            platformBuilder.incrementVersionId();
         });
 
         When("^I( try to)? create this platform$", (String tryTo) -> {
