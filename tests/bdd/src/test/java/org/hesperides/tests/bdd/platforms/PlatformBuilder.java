@@ -54,9 +54,7 @@ public class PlatformBuilder {
     }
 
     public PlatformBuilder virginWithSameVersionId() {
-        PlatformBuilder pb = new PlatformBuilder();
-        pb.versionId = this.versionId;
-        return pb;
+        return new PlatformBuilder().withVersionId(versionId);
     }
 
     public PlatformBuilder reset() {

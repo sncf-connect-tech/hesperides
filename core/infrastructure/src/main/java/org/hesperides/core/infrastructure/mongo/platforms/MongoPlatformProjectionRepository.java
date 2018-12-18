@@ -45,8 +45,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.extractInstanceProperties();
-        platformRepository.save(platformDocument);
+        platformDocument.setInstancePropertiesAndSave(platformRepository);
     }
 
     @EventHandler
@@ -73,14 +72,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         }
         PlatformDocument platformDocument = existingPlatformDocument.get();
         platformDocument.updateDeployedModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
-        platformDocument.extractInstanceProperties();
         if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
             // Rustine temporaire pour le temps de la migration
             platformDocument.setVersionId(platformDocument.getVersionId() + 1);
         } else {
             platformDocument.setVersionId(newPlatformDocument.getVersionId());
         }
-        platformRepository.save(platformDocument);
+        platformDocument.setInstancePropertiesAndSave(platformRepository);
     }
 
     @EventHandler
@@ -116,8 +114,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .findAny().ifPresent(module -> {
             module.setValuedProperties(abstractValuedPropertyDocuments);
         });
-        platformDocument.extractInstanceProperties();
-        platformRepository.save(platformDocument);
+        platformDocument.setInstancePropertiesAndSave(platformRepository);
     }
 
     @EventHandler
@@ -153,9 +150,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
         platformDocument.setGlobalProperties(valuedProperties);
-
-        platformDocument.extractInstanceProperties();
-        platformRepository.save(platformDocument);
+        platformDocument.setInstancePropertiesAndSave(platformRepository);
     }
 
     /*** QUERY HANDLERS ***/

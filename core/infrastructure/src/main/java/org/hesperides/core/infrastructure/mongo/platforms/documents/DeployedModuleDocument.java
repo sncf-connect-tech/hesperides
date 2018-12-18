@@ -23,10 +23,10 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +60,7 @@ public class DeployedModuleDocument {
     }
 
     public DeployedModuleView toDeployedModuleView() {
-        // Note that instanceProperties are not included in the returned view
+        // Attention, les propriétés d'instance ne sont pas incluses dans cette vue
         return new DeployedModuleView(
                 id,
                 name,
@@ -97,12 +97,15 @@ public class DeployedModuleDocument {
     }
 
     public static List<DeployedModule> toDomainInstances(List<DeployedModuleDocument> modules) {
-        return modules.stream().map(DeployedModuleDocument::toDomainInstance).collect(Collectors.toList());
+        return modules
+                .stream()
+                .map(DeployedModuleDocument::toDomainInstance)
+                .collect(Collectors.toList());
     }
 
-    public DeployedModuleDocument extractInstanceProperties(List<ValuedPropertyDocument> globalProperties) {
-        // Calling domain logic:
-        return new DeployedModuleDocument(this.toDomainInstance().extractAndSetInstanceProperties(
-                ValuedPropertyDocument.toDomainInstances(globalProperties)));
+    public DeployedModuleDocument setInstanceProperties(List<ValuedPropertyDocument> globalPropertyDocuments) {
+        List<ValuedProperty> globalProperties = ValuedPropertyDocument.toDomainInstances(globalPropertyDocuments);
+        DeployedModule deployedModuleWithInstanceProperties = this.toDomainInstance().setInstanceProperties(globalProperties);
+        return new DeployedModuleDocument(deployedModuleWithInstanceProperties);
     }
 }

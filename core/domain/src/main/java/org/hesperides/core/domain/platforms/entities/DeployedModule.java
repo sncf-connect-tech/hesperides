@@ -104,7 +104,7 @@ public class DeployedModule {
                 .orElse(0L);
     }
 
-    public DeployedModule extractAndSetInstanceProperties(List<ValuedProperty> platformGlobalProperties) {
+    public DeployedModule setInstanceProperties(List<ValuedProperty> globalProperties) {
         return new DeployedModule(
                 id,
                 name,
@@ -113,13 +113,13 @@ public class DeployedModule {
                 path,
                 valuedProperties,
                 instances,
-                extractInstanceProperties(valuedProperties, platformGlobalProperties));
+                extractInstanceProperties(valuedProperties, globalProperties));
     }
 
-    private static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleValuedProperties, List<ValuedProperty> platformGlobalProperties) {
-        return AbstractValuedProperty.flattenValuedProperties(moduleValuedProperties)
+    private static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
+        return AbstractValuedProperty.flattenValuedProperties(moduleProperties)
                 .stream()
-                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(platformGlobalProperties))
+                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(globalProperties))
                 .map(valuedProperty -> valuedProperty.extractInstancePropertyNameFromValue())
                 .collect(Collectors.toList());
     }
