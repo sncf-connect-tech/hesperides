@@ -113,21 +113,21 @@ public class PlatformUseCases {
         return queries.searchApplications(applicationName);
     }
 
-    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path) {
+    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String propertiesPath) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
 
-        if (ROOT_PATH.equals(path)) {
+        if (ROOT_PATH.equals(propertiesPath)) {
             properties.addAll(queries.getGlobalProperties(platformKey));
-        } else if (StringUtils.isNotEmpty(path)) {
-            final Module.Key moduleKey = Module.Key.fromPath(path);
+        } else if (StringUtils.isNotEmpty(propertiesPath)) {
+            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            properties.addAll(queries.getDeployedModuleProperties(platformKey, path));
+            properties.addAll(queries.getDeployedModuleProperties(platformKey, propertiesPath));
             properties.addAll(getGlobalPropertiesUsedInModule(platformKey, moduleKey));
         }
         return properties;
@@ -155,15 +155,15 @@ public class PlatformUseCases {
         return globalPropertiesUsedInModule;
     }
 
-    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String modulePath) {
+    public List<String> getInstanceModel(final Platform.Key platformKey, final String propertiesPath) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
-        return queries.getInstanceModel(platformKey, modulePath);
+        return queries.getInstanceModel(platformKey, propertiesPath);
     }
 
     public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
-                                                           final String path,
+                                                           final String propertiesPath,
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final User user) {
@@ -171,7 +171,7 @@ public class PlatformUseCases {
         if (!platformId.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
         }
-        if (ROOT_PATH.equals(path)) {
+        if (ROOT_PATH.equals(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
             // Platform properties are global and should always be of type ValuedProperty
             if (valuedProperties.size() != abstractValuedProperties.size()) {
@@ -179,14 +179,14 @@ public class PlatformUseCases {
             }
             commands.savePlatformProperties(platformId.get(), platformVersionId, valuedProperties, user);
         } else {
-            final Module.Key moduleKey = Module.Key.fromPath(path);
+            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            commands.saveModulePropertiesInPlatform(platformId.get(), path, platformVersionId, abstractValuedProperties, user);
+            commands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
-        return getProperties(platformKey, path);
+        return getProperties(platformKey, propertiesPath);
     }
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {

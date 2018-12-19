@@ -80,7 +80,7 @@ public class PlatformAggregate implements Serializable {
         }
         apply(new PlatformModulePropertiesUpdatedEvent(
                 command.getPlatformId(),
-                command.getModulePath(),
+                command.getPropertiesPath(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
                 command.getUser().getName()));
@@ -122,7 +122,7 @@ public class PlatformAggregate implements Serializable {
     @EventSourcingHandler
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
         this.versionId = event.getPlatformVersionId();
-        log.debug("Plaform module {} updated with properties {}", event.getModulePath(), event.getValuedProperties());
+        log.debug("Plaform module {} updated with properties {}", event.getPropertiesPath(), event.getValuedProperties());
     }
 
     @EventSourcingHandler

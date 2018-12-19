@@ -109,18 +109,18 @@ public class PlatformDocument {
         );
     }
 
-    public void setInstancePropertiesAndSave(MongoPlatformRepository platformRepository) {
+    public void buildInstanceModelAndSave(MongoPlatformRepository platformRepository) {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(deployedModule -> deployedModule.setInstanceProperties(globalProperties))
+                .map(deployedModule -> deployedModule.buildInstanceModel(globalProperties))
                 .collect(Collectors.toList());
         platformRepository.save(this);
     }
 
     public void updateDeployedModules(List<DeployedModuleDocument> deployedModuleProvidedDocuments, boolean copyPropertiesForUpgradedModules) {
         List<DeployedModule> deployedModulesProvided = DeployedModuleDocument.toDomainInstances(deployedModuleProvidedDocuments);
-        List<DeployedModule> deployedModules = toDomainPlatform().updateModules(deployedModulesProvided, copyPropertiesForUpgradedModules);
+        List<DeployedModule> deployedModules = toDomainPlatform().updateModulesOnPlatformUpdate(deployedModulesProvided, copyPropertiesForUpgradedModules);
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
     }
 }

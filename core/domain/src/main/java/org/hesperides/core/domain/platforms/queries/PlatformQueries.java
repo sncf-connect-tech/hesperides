@@ -60,8 +60,8 @@ public class PlatformQueries extends AxonQueries {
         return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
     }
 
-    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String path) {
-        return querySyncList(new GetInstanceModelQuery(platformKey, path), InstancePropertyView.class);
+    public List<String> getInstanceModel(final Platform.Key platformKey, final String propertiesPath) {
+        return querySyncList(new GetInstanceModelQuery(platformKey, propertiesPath), String.class);
     }
 
     public List<ModulePlatformView> getPlatformsUsingModule(Module.Key moduleKey) {
@@ -76,8 +76,8 @@ public class PlatformQueries extends AxonQueries {
         return querySyncList(new SearchApplicationsQuery(applicationName), SearchApplicationResultView.class);
     }
 
-    public List<AbstractValuedPropertyView> getDeployedModuleProperties(final Platform.Key platformKey, final String path) {
-        return querySyncList(new GetDeployedModulesPropertiesQuery(platformKey, path), AbstractValuedPropertyView.class);
+    public List<AbstractValuedPropertyView> getDeployedModuleProperties(final Platform.Key platformKey, final String propertiesPath) {
+        return querySyncList(new GetDeployedModulesPropertiesQuery(platformKey, propertiesPath), AbstractValuedPropertyView.class);
     }
 
     public List<ValuedPropertyView> getGlobalProperties(final Platform.Key platformKey) {

@@ -75,62 +75,67 @@ public class Platform {
     }
 
     /**
-     * TODO Expliquer ce que fait cette méthode et comment elle le fait
-     * Cas : mettre à jour la version des modules déployés en conservant les valorisations
+     * Gère les modules déployés d'une plateforme lors de la mise à jour de cette plateforme.
+     *
+     * Lorsqu'on met à jour une plateforme, le valorisation au niveau de chaque module déployé n'est pas fournie.
+     * Il faut donc rapatrier cette valorisation lorsqu'il s'agit d'un module existant.
+     *
+     * Il est possible de copier les propriétés des modules déployés dont la version a été modifiée.
+     *
+     * 3 cas possibles :
+     * - module existant
+     * - nouvelle version de module avec copie de propriétés
+     * - nouveau module
      */
-    public List<DeployedModule> updateModules(List<DeployedModule> deployedModulesProvided, boolean copyPropertiesForUpgradedModules) {
+    public List<DeployedModule> updateModulesOnPlatformUpdate(List<DeployedModule> providedModules, boolean copyPropertiesForUpgradedModules) {
         // cf. https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/event/PlatformUpdatedCommand.java
 
-        // Map permettant de retrouver plus facilement un module existant à partir de son propertiesPath
-        Map<String, DeployedModule> existingDeployedModulesPerPath = deployedModules.stream()
+        // Map permettant de retrouver plus facilement un module existant à partir de son `propertiesPath`.
+        // Le `propertiesPath` permet d'identifier un module dans un groupe logique.
+        Map<String, DeployedModule> existingModulesPerPath = deployedModules.stream()
                 .collect(Collectors.toMap(DeployedModule::getPropertiesPath, Function.identity()));
 
-        // Pour chaque module fourni
-        return deployedModulesProvided.stream()
+        return providedModules.stream()
                 .map(providedModule -> {
-                    DeployedModule updatedModule;
+                    DeployedModule deployedModule;
 
-                    if (existingDeployedModulesPerPath.containsKey(providedModule.getPropertiesPath())) {
-                        // Si le module existe déjà, on va chercher à récupérer les instances
-                        // et on regénère les propriétés d'instance de ce module
-                        DeployedModule existingModule = existingDeployedModulesPerPath.get(providedModule.getPropertiesPath());
-                        updatedModule = existingModule
-                                .copyWithInstances(providedModule.getInstances())
-                                .setInstanceProperties(globalProperties);
+                    if (existingModulesPerPath.containsKey(providedModule.getPropertiesPath())) {
+                        // Module existant
+                        DeployedModule existingModule = existingModulesPerPath.get(providedModule.getPropertiesPath());
+                        deployedModule = providedModule.setValuedProperties(existingModule.getValuedProperties());
 
                     } else if (copyPropertiesForUpgradedModules) {
-                        // Si le module n'existe pas déjà mais que `copyPropertiesForUpgradedModules` est à `true`,
-                        // on ne récupère que les instances des modules qui ont été upgradés
-                        updatedModule = deployedModules.stream()
-                                .filter(existingModule -> isModuleUpgraded(existingModule, providedModule))
+                        // Copie de propriété pour les modules dont la version a été mise à jour
+                        deployedModule = deployedModules.stream()
+                                .filter(existingModule -> isModuleVersionUpdated(existingModule, providedModule))
                                 .findAny()
-                                .map(existingModule -> existingModule.copyWithVersionAndInstances(
-                                        providedModule.getVersion(),
-                                        providedModule.getInstances()
-                                ).setInstanceProperties(globalProperties))
-                                .orElse(providedModule);
+                                .map(existingModule -> providedModule.setValuedProperties(existingModule.getValuedProperties()))
+                                .orElse(providedModule); // Si une autre propriété que la version est mise à jour, on considère que c'est un nouveau module
                     } else {
-                        // Sinon,
-                        updatedModule = providedModule;
+                        // Nouveau module
+                        deployedModule = providedModule;
                     }
-                    return updatedModule;
+                    // Il n'est pas nécessaire de régénérer le model d'instances
+                    // puisque c'est fait juste avant l'enregistrement en base
+                    return deployedModule;
 
                 }).collect(Collectors.toList());
     }
 
-    static private boolean isModuleUpgraded(DeployedModule existingModule, DeployedModule newModule) {
-        boolean matches = false;
-        if (newModule.getId().equals(existingModule.getId())) {
+    private static boolean isModuleVersionUpdated(DeployedModule existingModule, DeployedModule providedModule) {
+        boolean isModuleVersionUpdated = false;
+        if (providedModule.getId().equals(existingModule.getId())) {
             // Cette comparaison permet de gérer 2 cas possible, tous les 2 valides :
             // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à la NOUVELLE version de module
             // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à l'ANCIENNE version de module
             // À noter qu'à ce stade nous n'avons pas accès au "vrai" `propertiesPath` fourni en entrée du controller REST.
             // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
             // Ici `newModule.getPropertiesPath()` provient de DeployedModule.generatePropertiesPath() où il est reconstruit de zéro.
-            String newModulePropertiesPathWithOldVersion = newModule.getPropertiesPath().replace("#" + newModule.getVersion() + "#", "#" + existingModule.getVersion() + "#");
-            matches = newModulePropertiesPathWithOldVersion.equals(existingModule.getPropertiesPath());
+
+            String newModulePropertiesPathWithOldVersion = providedModule.getPropertiesPath().replace("#" + providedModule.getVersion() + "#", "#" + existingModule.getVersion() + "#");
+            isModuleVersionUpdated = newModulePropertiesPathWithOldVersion.equals(existingModule.getPropertiesPath());
         }
-        return matches;
+        return isModuleVersionUpdated;
     }
 
 }

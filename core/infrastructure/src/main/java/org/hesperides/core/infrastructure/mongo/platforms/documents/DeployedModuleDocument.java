@@ -45,7 +45,7 @@ public class DeployedModuleDocument {
     private String propertiesPath;
     private List<AbstractValuedPropertyDocument> valuedProperties;
     private List<InstanceDocument> instances;
-    private List<InstancePropertyDocument> instanceProperties;
+    private List<String> instanceModel; // Noms des propriétés des instances
 
     public DeployedModuleDocument(DeployedModule deployedModule) {
         id = deployedModule.getId();
@@ -56,7 +56,7 @@ public class DeployedModuleDocument {
         propertiesPath = deployedModule.getPropertiesPath();
         valuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(deployedModule.getValuedProperties());
         instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
-        instanceProperties = InstancePropertyDocument.fromDomainInstances(deployedModule.getInstancesProperties());
+        instanceModel = deployedModule.getInstanceModel();
     }
 
     public DeployedModuleView toDeployedModuleView() {
@@ -93,7 +93,7 @@ public class DeployedModuleDocument {
         return new DeployedModule(id, name, version, isWorkingCopy, path,
                 AbstractValuedPropertyDocument.toAbstractDomainInstances(valuedProperties),
                 InstanceDocument.toDomainInstances(instances),
-                InstancePropertyDocument.toDomainInstances(instanceProperties));
+                instanceModel);
     }
 
     public static List<DeployedModule> toDomainInstances(List<DeployedModuleDocument> modules) {
@@ -103,9 +103,9 @@ public class DeployedModuleDocument {
                 .collect(Collectors.toList());
     }
 
-    public DeployedModuleDocument setInstanceProperties(List<ValuedPropertyDocument> globalPropertyDocuments) {
+    public DeployedModuleDocument buildInstanceModel(List<ValuedPropertyDocument> globalPropertyDocuments) {
         List<ValuedProperty> globalProperties = ValuedPropertyDocument.toDomainInstances(globalPropertyDocuments);
-        DeployedModule deployedModuleWithInstanceProperties = this.toDomainInstance().setInstanceProperties(globalProperties);
+        DeployedModule deployedModuleWithInstanceProperties = this.toDomainInstance().buildInstanceModel(globalProperties);
         return new DeployedModuleDocument(deployedModuleWithInstanceProperties);
     }
 }

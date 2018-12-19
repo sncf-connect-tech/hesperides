@@ -123,15 +123,14 @@ public class PlatformsController extends AbstractController {
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
     @ApiOperation("Get properties with the given path in a platform")
-    public ResponseEntity<InstanceModelOutput> getInstanceModel(Authentication authentication,
-                                                                @PathVariable("application_name") final String applicationName,
+    public ResponseEntity<InstanceModelOutput> getInstanceModel(@PathVariable("application_name") final String applicationName,
                                                                 @PathVariable(value = "platform_name") final String platform_name,
-                                                                @RequestParam(value = "path") final String path) {
+                                                                @RequestParam(value = "path") final String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
 
-        List<InstancePropertyView> instancePropertyViews = platformUseCases.getInstanceModel(platformKey, path);
-        InstanceModelOutput instanceModelOutput = InstanceModelOutput.fromInstancePropertyViews(instancePropertyViews);
+        List<String> instanceModelView = platformUseCases.getInstanceModel(platformKey, propertiesPath);
+        InstanceModelOutput instanceModelOutput = InstanceModelOutput.fromInstanceModelView(instanceModelView);
         return ResponseEntity.ok(instanceModelOutput);
     }
 
@@ -201,28 +200,27 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Get properties with the given path in a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties")
-    public ResponseEntity<PropertiesIO> getProperties(Authentication authentication,
-                                                      @PathVariable("application_name") final String applicationName,
+    public ResponseEntity<PropertiesIO> getProperties(@PathVariable("application_name") final String applicationName,
                                                       @PathVariable("platform_name") final String platformName,
-                                                      @RequestParam(value = "path", required = false) final String path) {
+                                                      @RequestParam("path") final String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         // TODO : gestion sécurité isProd pour cacher les propriétés de type @password
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, path);
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, propertiesPath);
         return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
     }
 
-    @ApiOperation("Save properties in a platform with the given module path")
+    @ApiOperation("Save properties in a platform with the given path")
     @PostMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> saveProperties(Authentication authentication,
                                                        @PathVariable("application_name") final String applicationName,
                                                        @PathVariable("platform_name") final String platformName,
-                                                       @RequestParam("path") final String modulePath,
+                                                       @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
                                                        @Valid @RequestBody final PropertiesIO properties) {
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, modulePath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
 
         return ResponseEntity.ok(new PropertiesIO(propertyViews));
 

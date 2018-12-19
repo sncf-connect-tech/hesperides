@@ -26,7 +26,6 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -42,9 +41,9 @@ public class DeployedModule {
     String propertiesPath;
     List<AbstractValuedProperty> valuedProperties;
     List<Instance> instances;
-    List<InstanceProperty> instancesProperties;
+    List<String> instanceModel; // Liste des noms des propriétés des instances
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<InstanceProperty> instanceProperties) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instanceModel) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -53,39 +52,13 @@ public class DeployedModule {
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;
-        this.instancesProperties = instanceProperties;
+        this.instanceModel = instanceModel;
     }
 
     // public for testing
     public String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return path + "#" + moduleKey.getNamespaceWithoutPrefix();
-    }
-
-    public DeployedModule copyWithInstances(List<Instance> instances) {
-        return new DeployedModule(
-                id,
-                name,
-                version,
-                isWorkingCopy,
-                path,
-                new ArrayList<>(valuedProperties),
-                new ArrayList<>(instances),
-                new ArrayList<>(instancesProperties)
-        );
-    }
-
-    public DeployedModule copyWithVersionAndInstances(String version, List<Instance> instances) {
-        return new DeployedModule(
-                id,
-                name,
-                version,
-                isWorkingCopy,
-                path,
-                new ArrayList<>(valuedProperties),
-                new ArrayList<>(instances),
-                new ArrayList<>(instancesProperties)
-        );
     }
 
     /**
@@ -104,7 +77,7 @@ public class DeployedModule {
                 .orElse(0L);
     }
 
-    public DeployedModule setInstanceProperties(List<ValuedProperty> globalProperties) {
+    public DeployedModule buildInstanceModel(List<ValuedProperty> globalProperties) {
         return new DeployedModule(
                 id,
                 name,
@@ -113,14 +86,26 @@ public class DeployedModule {
                 path,
                 valuedProperties,
                 instances,
-                extractInstanceProperties(valuedProperties, globalProperties));
+                extractInstanceModel(valuedProperties, globalProperties));
     }
 
-    private static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
+    private static List<String> extractInstanceModel(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
         return AbstractValuedProperty.flattenValuedProperties(moduleProperties)
                 .stream()
                 .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(globalProperties))
                 .map(valuedProperty -> valuedProperty.extractInstancePropertyNameFromValue())
                 .collect(Collectors.toList());
+    }
+
+    public DeployedModule setValuedProperties(List<AbstractValuedProperty> valuedProperties) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                valuedProperties,
+                instances,
+                instanceModel);
     }
 }
