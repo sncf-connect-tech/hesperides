@@ -43,9 +43,9 @@ public class DeployedModule {
     String propertiesPath;
     List<AbstractValuedProperty> valuedProperties;
     List<Instance> instances;
-    List<InstanceProperty> instancesProperties;
+    List<String> instanceModel; // Liste des noms des propriétés des instances
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<InstanceProperty> instanceProperties) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instanceModel) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -54,12 +54,7 @@ public class DeployedModule {
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;
-        this.instancesProperties = instanceProperties;
-    }
-
-    private String generatePropertiesPath() {
-        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
-        return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
+        this.instanceProperties = instanceProperties;
     }
 
     private DeployedModule(Long newId, DeployedModule other) {
@@ -68,10 +63,15 @@ public class DeployedModule {
         version = other.version;
         isWorkingCopy = other.isWorkingCopy;
         modulePath = other.modulePath;
-        propertiesPath = other.propertiesPath; // because id has no bearing on this
+        propertiesPath = other.propertiesPath;
         valuedProperties = other.valuedProperties;
         instances = other.instances;
-        instancesProperties = other.instancesProperties;
+        instanceModel = other.instanceModel;
+    }
+
+    private String generatePropertiesPath() {
+        final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
@@ -110,7 +110,7 @@ public class DeployedModule {
                 .orElse(0L);
     }
 
-    public DeployedModule extractAndSetInstanceProperties(List<ValuedProperty> platformGlobalProperties) {
+    public DeployedModule buildInstanceModel(List<ValuedProperty> globalProperties) {
         return new DeployedModule(
                 id,
                 name,
@@ -119,14 +119,26 @@ public class DeployedModule {
                 modulePath,
                 valuedProperties,
                 instances,
-                extractInstanceProperties(valuedProperties, platformGlobalProperties));
+                extractInstanceModel(valuedProperties, globalProperties));
     }
 
-    private static List<InstanceProperty> extractInstanceProperties(List<AbstractValuedProperty> moduleValuedProperties, List<ValuedProperty> platformGlobalProperties) {
-        return AbstractValuedProperty.flattenValuedProperties(moduleValuedProperties)
+    private static List<String> extractInstanceModel(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
+        return AbstractValuedProperty.flattenValuedProperties(moduleProperties)
                 .stream()
-                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(platformGlobalProperties))
+                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(globalProperties))
                 .map(valuedProperty -> valuedProperty.extractInstancePropertyNameFromValue())
                 .collect(Collectors.toList());
+    }
+
+    public DeployedModule setValuedProperties(List<AbstractValuedProperty> valuedProperties) {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                path,
+                valuedProperties,
+                instances,
+                instanceModel);
     }
 }

@@ -45,8 +45,8 @@ public class PlatformCommands {
         return commandGateway.sendAndWait(new CreatePlatformCommand(platform, user));
     }
 
-    public void updatePlatform(String platformId, Platform platform, boolean copyProperties, User user) {
-        commandGateway.sendAndWait(new UpdatePlatformCommand(platformId, platform, copyProperties, user));
+    public void updatePlatform(String platformId, Platform platform, boolean copyPropertiesForUpgradedModules, User user) {
+        commandGateway.sendAndWait(new UpdatePlatformCommand(platformId, platform, copyPropertiesForUpgradedModules, user));
     }
 
     public void deletePlatform(String platformId, User user) {
@@ -54,11 +54,11 @@ public class PlatformCommands {
     }
 
     public void saveModulePropertiesInPlatform(final String platformId,
-                                               final String modulePath,
+                                               final String propertiesPath,
                                                final Long platformVersionId,
                                                final List<AbstractValuedProperty> valuedProperties,
                                                final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, modulePath, platformVersionId, valuedProperties, user));
+        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, propertiesPath, platformVersionId, valuedProperties, user));
     }
 
     public void savePlatformProperties(final String platformId,

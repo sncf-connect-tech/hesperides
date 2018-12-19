@@ -74,8 +74,8 @@ public class Module extends TemplateContainer {
             return TOSTRING_PREFIX + super.toString();
         }
 
-        public static Key fromPath(final String path) {
-            String[] parts = path.split("#");
+        public static Key fromPropertiesPath(final String propertiesPath) {
+            String[] parts = propertiesPath.split("#");
             VersionType versionType = parts[parts.length - 1].toUpperCase().equals("RELEASE") ? VersionType.release : VersionType.workingcopy;
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
         }

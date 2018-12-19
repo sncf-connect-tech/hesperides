@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.platforms.queries.views.InstancePropertyView;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,8 +38,8 @@ public class InstanceModelOutput {
     @JsonProperty("keys")
     List<InstancePropertyOutput> instanceProperties;
 
-    public static InstanceModelOutput fromInstancePropertyViews(List<InstancePropertyView> instancePropertyViews) {
-        return new InstanceModelOutput(Optional.ofNullable(instancePropertyViews)
+    public static InstanceModelOutput fromInstanceModelView(List<String> instanceModelView) {
+        return new InstanceModelOutput(Optional.ofNullable(instanceModelView)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(InstancePropertyOutput::new)
@@ -62,8 +61,8 @@ public class InstanceModelOutput {
         @JsonProperty("password")
         Boolean isPassword;
 
-        public InstancePropertyOutput(InstancePropertyView instancePropertyView) {
-            name = instancePropertyView.getName();
+        public InstancePropertyOutput(String instancePropertyName) {
+            name = instancePropertyName;
             comment = "";
             isRequired = false;
             defaultValue = "";

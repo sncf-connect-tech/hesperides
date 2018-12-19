@@ -56,8 +56,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) iterable-ception)?( (?:and|with) global properties)?( (?:and|with) instance properties)?( and filename and location values)?$", (
-                String platformName, String withThisModule, String withAnInstance, String withValuedProperties, String withIterableProperties, String withIterableCeption, String withGlobalProperties, String withInstanceProperties, String withFilenameLocationValues) -> {
+        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?(?: in logical group \"([^\"]*)\")?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) iterable-ception)?( (?:and|with) global properties)?( (?:and|with) instance properties)?( and filename and location values)?$", (
+                String platformName, String withThisModule, String logicalGroup, String withAnInstance, String withValuedProperties, String withIterableProperties, String withIterableCeption, String withGlobalProperties, String withInstanceProperties, String withFilenameLocationValues) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
@@ -67,14 +67,16 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (StringUtils.isNotEmpty(withAnInstance)) {
                     platformBuilder.withInstance("instance-foo-1");
                 }
-                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
+                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
             }
             platformClient.create(platformBuilder.buildInput());
 
             if (StringUtils.isNotEmpty(withValuedProperties)) {
                 platformBuilder.withProperty("module-foo", "12");
-                platformBuilder.withProperty("techno-foo", "12");
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+                if (moduleBuilder.hasTechno()) {
+                    platformBuilder.withProperty("techno-foo", "12");
+                }
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath(logicalGroup));
                 platformBuilder.incrementVersionId();
             }
 
@@ -111,7 +113,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
             if (StringUtils.isNotEmpty(withGlobalProperties)) {
                 platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
-                platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
+                if (moduleBuilder.hasTechno()) {
+                    platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
+                }
                 platformBuilder.withGlobalProperty("global-filename", "abc", modelBuilder);
                 platformBuilder.withGlobalProperty("global-location", "def", modelBuilder);
                 platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
@@ -121,7 +125,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
             if (StringUtils.isNotEmpty(withInstanceProperties)) {
                 platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
-                platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
+                if (moduleBuilder.hasTechno()) {
+                    platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
+                }
                 platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
@@ -215,10 +221,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             assertConflict();
         });
 
-        Then("^the platform property values are also copied$", () -> {
+        Then("^the platform property values are(?: also)? copied$", () -> {
             // Propriétés valorisées
             ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
-            assertOK();
             PropertiesIO expectedProperties = platformBuilder.getProperties(false);
             PropertiesIO actualProperties = responseEntity.getBody();
             assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));

@@ -8,6 +8,7 @@ import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
+import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -18,6 +19,10 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.IterablePropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -52,7 +57,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.extractInstancePropertiesAndSave(platformRepository);
+        platformDocument.buildInstanceModelAndSave(platformRepository);
     }
 
     @EventHandler
@@ -64,8 +69,28 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.extractInstancePropertiesAndSave(platformRepository);
+        /*
+         * Architecturalement parlant, ce code est placé ici à cause de la nécessité de rejouer
+         * la logique métier des évènements issus du batch de migration.
+         *
+         * A noter qu'une payload vide va écraser d'éventuels modules, instances
+         * et valorisations de propriétés d'instances précédement présents dans la plateforme.
+         * Par contre, les valorisations de propriétés globales ou de modules sont préservées.
+         */
+        PlatformDocument newPlatformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+        Optional<PlatformDocument> existingPlatformDocument = platformRepository.findById(event.getPlatformId());
+        if (!existingPlatformDocument.isPresent()) {
+            throw new PlatformNotFoundException("Platform not found - update impossible - platformId: " + event.getPlatformId());
+        }
+        PlatformDocument platformDocument = existingPlatformDocument.get();
+        platformDocument.fillExistingAndUpgradedModulesWithProperties(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
+        if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
+            // Rustine temporaire pour le temps de la migration
+            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
+        } else {
+            platformDocument.setVersionId(newPlatformDocument.getVersionId());
+        }
+        platformDocument.buildInstanceModelAndSave(platformRepository);
     }
 
     @EventHandler
@@ -96,7 +121,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Modification des propriétés du module dans la plateforme
         platformDocument.getDeployedModules().stream()
-                .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getModulePath()))
+                .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
                 .findAny().ifPresent(deployedModuleDocument -> {
             // Récupérer le model du module afin d'attribuer à chaque
             // propriété valorisée la définition initiale de la propriété
@@ -115,6 +140,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
             platformDocument.extractInstancePropertiesAndSave(platformRepository);
         });
+        platformDocument.buildInstanceModelAndSave(platformRepository);
     }
 
     /**
@@ -258,8 +284,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
         platformDocument.setGlobalProperties(valuedProperties);
-
-        platformDocument.extractInstancePropertiesAndSave(platformRepository);
+        platformDocument.buildInstanceModelAndSave(platformRepository);
     }
 
     /*** QUERY HANDLERS ***/
@@ -300,21 +325,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query.getApplicationName());
         return Optional.ofNullable(CollectionUtils.isEmpty(platformDocuments) ? null
                 : PlatformDocument.toApplicationView(query.getApplicationName(), platformDocuments));
-    }
-
-    @QueryHandler
-    @Override
-    public List<InstancePropertyView> onGetInstanceModelQuery(GetInstanceModelQuery query) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
-
-        return Optional.ofNullable(platformDocument.getDeployedModules())
-                .orElse(Collections.emptyList())
-                .stream()
-                .flatMap(deployedModule -> deployedModule.getInstanceProperties()
-                        .stream()
-                        .map(InstancePropertyDocument::toInstancePropertyView))
-                .collect(Collectors.toList());
     }
 
     @QueryHandler
@@ -366,9 +376,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final PlatformDocument platformDocument = platformRepository.findByKeyAndFilterDeployedModulesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository.findModulePropertiesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
-        final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = Optional.ofNullable(platformDocument.getDeployedModules())
+        final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
+                .map(PlatformDocument::getDeployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(deployedModuleDocument -> query.getPropertiesPath().equals(deployedModuleDocument.getPropertiesPath()))
@@ -376,7 +387,25 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         .orElse(Collections.emptyList())
                         .stream())
                 .collect(Collectors.toList());
+
         return AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(abstractValuedPropertyDocuments);
+    }
+
+    @QueryHandler
+    @Override
+    public List<String> onGetInstanceModelQuery(GetInstanceModelQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        final Optional<PlatformDocument> platformDocument = platformRepository.findModuleInstanceModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+
+        return platformDocument
+                .map(PlatformDocument::getDeployedModules)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(deployedModuleDocument -> query.getPropertiesPath().equals(deployedModuleDocument.getPropertiesPath()))
+                .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getInstanceModel())
+                        .orElse(Collections.emptyList())
+                        .stream())
+                .collect(Collectors.toList());
     }
 
     @QueryHandler

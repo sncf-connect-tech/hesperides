@@ -23,7 +23,6 @@ package org.hesperides.core.domain.platforms.entities.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.domain.platforms.entities.InstanceProperty;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +57,7 @@ public class ValuedProperty extends AbstractValuedProperty {
         return StringUtils.substringBetween(value, "{{", "}}");
     }
 
-    public InstanceProperty extractInstancePropertyNameFromValue() {
-        return new InstanceProperty(extractValueBetweenMustaches(value));
+    public String extractInstancePropertyNameFromValue() {
+        return extractValueBetweenMustaches(value);
     }
 }

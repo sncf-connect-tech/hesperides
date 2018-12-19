@@ -34,8 +34,14 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
-    @Query(value = "{ 'key' : ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1 }}}")
-    PlatformDocument findByKeyAndFilterDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);
+    @Query(value = "{ 'key': ?0, 'deployedModules.propertiesPath': ?1 }", fields = "{ 'deployedModules' : 1, 'deployedModules.valuedProperties' : 1 }")
+    Optional<PlatformDocument> findModulePropertiesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
+
+//    @Query(value = "{ 'key': ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1 }}}")
+//    PlatformDocument findDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);
+
+    @Query(value = "{ 'key': ?0, 'deployedModules.propertiesPath': ?1 }", fields = "{ 'deployedModules' : 1, 'deployedModules.instanceModel' : 1 }")
+    Optional<PlatformDocument> findModuleInstanceModelByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
 
     @ExistsQuery("{ 'key' : ?0, 'deployedModules.name' : ?1, 'deployedModules.version' : ?2, 'deployedModules.isWorkingCopy' : ?3, 'deployedModules.path' : ?4}")
     boolean existsByPlatformKeyAndModuleKeyAndPath(PlatformKeyDocument platformKeyDocument, String moduleName, String moduleVersion, boolean isWorkingCopy, String modulePath);

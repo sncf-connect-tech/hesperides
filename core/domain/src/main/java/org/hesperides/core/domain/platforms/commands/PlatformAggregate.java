@@ -53,7 +53,7 @@ public class PlatformAggregate implements Serializable {
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
         Platform platform = command.getPlatform()
                 .initializeVersionId()
-                .updateDeployedModules();
+                .fillDeployedModulesMissingIds();
 
         apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser().getName()));
     }
@@ -62,14 +62,12 @@ public class PlatformAggregate implements Serializable {
     @CommandHandler
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
 
-        // TODO populate properties when `command.copyProperties` flag is set (-> dedicated aggregate / command ?)
-
         Platform platform = command.getPlatform()
                 .validateVersionId(versionId)
                 .incrementVersionId()
-                .updateDeployedModules();
+                .fillDeployedModulesMissingIds();
 
-        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getUser().getName()));
+        apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getCopyPropertiesForUpgradedModules(), command.getUser().getName()));
     }
 
     @CommandHandler
@@ -84,7 +82,7 @@ public class PlatformAggregate implements Serializable {
         }
         apply(new PlatformModulePropertiesUpdatedEvent(
                 command.getPlatformId(),
-                command.getModulePath(),
+                command.getPropertiesPath(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
                 command.getUser().getName()));
@@ -126,7 +124,7 @@ public class PlatformAggregate implements Serializable {
     @EventSourcingHandler
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
         this.versionId = event.getPlatformVersionId();
-        log.debug("Plaform module {} updated with properties {}", event.getModulePath(), event.getValuedProperties());
+        log.debug("Plaform module {} updated with properties {}", event.getPropertiesPath(), event.getValuedProperties());
     }
 
     @EventSourcingHandler
