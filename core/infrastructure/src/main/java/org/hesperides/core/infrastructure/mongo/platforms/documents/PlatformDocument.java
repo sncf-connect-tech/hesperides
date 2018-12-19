@@ -118,9 +118,9 @@ public class PlatformDocument {
         platformRepository.save(this);
     }
 
-    public void updateDeployedModules(List<DeployedModuleDocument> deployedModuleProvidedDocuments, boolean copyPropertiesForUpgradedModules) {
-        List<DeployedModule> deployedModulesProvided = DeployedModuleDocument.toDomainInstances(deployedModuleProvidedDocuments);
-        List<DeployedModule> deployedModules = toDomainPlatform().updateModulesOnPlatformUpdate(deployedModulesProvided, copyPropertiesForUpgradedModules);
+    public void fillExistingAndUpgradedModulesWithProperties(List<DeployedModuleDocument> providedDeployedModules, boolean copyPropertiesForUpgradedModules) {
+        List<DeployedModule> deployedModulesProvided = DeployedModuleDocument.toDomainInstances(providedDeployedModules);
+        List<DeployedModule> deployedModules = toDomainPlatform().fillExistingAndUpgradedModulesWithProperties(deployedModulesProvided, copyPropertiesForUpgradedModules);
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
     }
 }

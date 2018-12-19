@@ -52,7 +52,8 @@ public class PlatformAggregate implements Serializable {
         //TODO Logs
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
         Platform platform = command.getPlatform()
-                .initializeVersionId();
+                .initializeVersionId()
+                .fillDeployedModulesMissingIds();
 
         apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser().getName()));
     }
@@ -63,7 +64,8 @@ public class PlatformAggregate implements Serializable {
 
         Platform platform = command.getPlatform()
                 .validateVersionId(versionId)
-                .incrementVersionId();
+                .incrementVersionId()
+                .fillDeployedModulesMissingIds();
 
         apply(new PlatformUpdatedEvent(command.getPlatformId(), platform, command.getCopyPropertiesForUpgradedModules(), command.getUser().getName()));
     }

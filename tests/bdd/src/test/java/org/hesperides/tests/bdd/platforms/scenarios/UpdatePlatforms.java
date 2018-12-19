@@ -55,11 +55,12 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
-        When("^updating this platform(, (?:adding|removing) this module)?(, using the released version of this module)?(, adding an instance and an instance property)?(?:, upgrading its module to version ([^,]+))?(, and requiring the copy of properties)?(, with an empty payload)?$",
-                (String addingOrRemovingModule, String useReleasedModule, String addingInstanceAndInstanceProperty, String upgradedModuleVersion, String withCopy, String withAnEmptyPayload) -> {
+        When("^I update this platform(, (?:adding|removing) this module)?(?: in logical group \"([^\"]*)\")?(, using the released version of this module)?(, adding an instance and an instance property)?(?:, upgrading its module to version ([^,]+))?(, and requiring the copy of properties)?(, with an empty payload)?$",
+                (String addingOrRemovingModule, String logicalGroup, String useReleasedModule, String addingInstanceAndInstanceProperty, String upgradedModuleVersion, String withCopy, String withAnEmptyPayload) -> {
+
                     if (StringUtils.isNotEmpty(addingOrRemovingModule)) {
                         if (addingOrRemovingModule.contains("adding")) {
-                            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
+                            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
                         } else {
                             platformBuilder.withNoModule();
                         }
@@ -96,7 +97,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             if (this.upgradedModuleVersion != null) {
                 platformBuilder.withModuleVersion(upgradedModuleVersion, true);  // we need to update the propertiesPath so that it is reflected in `expectedPlatform`:
             }
-            PlatformIO expectedPlatform = platformBuilder.buildOutputWithoutIncrementingModuleIds();
+            PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             assertEquals(expectedPlatform, actualPlatform);
         });

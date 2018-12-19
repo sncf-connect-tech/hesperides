@@ -31,8 +31,12 @@ public class CreateModules extends HesperidesScenario implements En {
 
     public CreateModules() {
 
-        Given("^an existing module( with a template)?( with this template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
-                String withATemplate, String withThisTemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
+        Given("^an existing module(?: named \"([^\"]*)\")?( with a template)?( with this template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
+                String moduleName, String withATemplate, String withThisTemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
+
+            if (StringUtils.isNotEmpty(moduleName)) {
+                moduleBuilder.withName(moduleName);
+            }
 
             if (StringUtils.isEmpty(withThisTemplate)) {
                 templateBuilder.reset();

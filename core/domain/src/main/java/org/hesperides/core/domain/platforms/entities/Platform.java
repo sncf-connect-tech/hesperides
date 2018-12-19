@@ -68,6 +68,17 @@ public class Platform {
         );
     }
 
+
+    public Platform fillDeployedModulesMissingIds() {
+        return new Platform(
+                key,
+                version,
+                isProductionPlatform,
+                versionId,
+                DeployedModule.fillMissingIdentifiers(deployedModules),
+                globalProperties
+        );
+    }
     @Value
     public static class Key {
         String applicationName;
@@ -75,19 +86,17 @@ public class Platform {
     }
 
     /**
-     * Gère les modules déployés d'une plateforme lors de la mise à jour de cette plateforme.
-     *
      * Lorsqu'on met à jour une plateforme, le valorisation au niveau de chaque module déployé n'est pas fournie.
      * Il faut donc rapatrier cette valorisation lorsqu'il s'agit d'un module existant.
      *
      * Il est possible de copier les propriétés des modules déployés dont la version a été modifiée.
      *
-     * 3 cas possibles :
-     * - module existant
-     * - nouvelle version de module avec copie de propriétés
-     * - nouveau module
+     * Il y a donc 3 cas possibles :
+     * - Module existant
+     * - Nouvelle version de module avec copie de propriétés
+     * - Nouveau module
      */
-    public List<DeployedModule> updateModulesOnPlatformUpdate(List<DeployedModule> providedModules, boolean copyPropertiesForUpgradedModules) {
+    public List<DeployedModule> fillExistingAndUpgradedModulesWithProperties(List<DeployedModule> providedModules, boolean copyPropertiesForUpgradedModules) {
         // cf. https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/event/PlatformUpdatedCommand.java
 
         // Map permettant de retrouver plus facilement un module existant à partir de son `propertiesPath`.
@@ -132,10 +141,11 @@ public class Platform {
             // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
             // Ici `newModule.getPropertiesPath()` provient de DeployedModule.generatePropertiesPath() où il est reconstruit de zéro.
 
-            String newModulePropertiesPathWithOldVersion = providedModule.getPropertiesPath().replace("#" + providedModule.getVersion() + "#", "#" + existingModule.getVersion() + "#");
-            isModuleVersionUpdated = newModulePropertiesPathWithOldVersion.equals(existingModule.getPropertiesPath());
+            isModuleVersionUpdated = providedModule.getPath().equals(existingModule.getPath())
+                    && providedModule.getName().equals(existingModule.getName())
+                    && providedModule.isWorkingCopy() == existingModule.isWorkingCopy()
+                    && !providedModule.getVersion().equals(existingModule.getVersion());
         }
         return isModuleVersionUpdated;
     }
-
 }

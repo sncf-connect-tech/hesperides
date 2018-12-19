@@ -20,16 +20,15 @@
  */
 package org.hesperides.tests.bdd.modules;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hesperides.core.presentation.io.ModuleIO.RELEASE;
 import static org.hesperides.core.presentation.io.ModuleIO.WORKINGCOPY;
 
 @Component
@@ -102,7 +101,11 @@ public class ModuleBuilder {
     }
 
     public String getPropertiesPath() {
-        return "GROUP#" + name + "#" + version + "#" + versionType.toUpperCase();
+        return getPropertiesPath(null);
+    }
+
+    public String getPropertiesPath(String logicalGroup) {
+        return "#" + StringUtils.defaultString(logicalGroup, "GROUP") + "#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
     public String getVersionType() {

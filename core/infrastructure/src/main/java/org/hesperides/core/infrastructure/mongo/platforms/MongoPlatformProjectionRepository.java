@@ -74,7 +74,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             throw new PlatformNotFoundException("Platform not found - update impossible - platformId: " + event.getPlatformId());
         }
         PlatformDocument platformDocument = existingPlatformDocument.get();
-        platformDocument.updateDeployedModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
+        platformDocument.fillExistingAndUpgradedModulesWithProperties(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
         if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
             // Rustine temporaire pour le temps de la migration
             platformDocument.setVersionId(platformDocument.getVersionId() + 1);

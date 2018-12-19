@@ -59,8 +59,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
-                String platformName, String withThisModule, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties) -> {
+        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?(?: in logical group \"([^\"]*)\")?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
+                String platformName, String withThisModule, String logicalGroup, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
@@ -70,7 +70,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (StringUtils.isNotEmpty(withAnInstance)) {
                     platformBuilder.withInstance("instance-foo-1");
                 }
-                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
+                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
             }
             platformClient.create(platformBuilder.buildInput());
 
@@ -79,7 +79,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (moduleBuilder.hasTechno()) {
                     platformBuilder.withProperty("techno-foo", "12");
                 }
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath(logicalGroup));
                 platformBuilder.incrementVersionId();
             }
 
@@ -160,7 +160,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Then("^the platform is successfully created$", () -> {
             assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutputWithoutIncrementingModuleIds();
+            PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });

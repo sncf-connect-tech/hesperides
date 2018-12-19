@@ -21,6 +21,7 @@
 package org.hesperides.tests.bdd.platforms;
 
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
@@ -30,6 +31,7 @@ import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Component
@@ -104,7 +106,12 @@ public class PlatformBuilder {
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        deployedModules.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), "GROUP", propertiesPath, instances));
+        return withModule(module, propertiesPath, null);
+    }
+
+    public PlatformBuilder withModule(ModuleIO module, String propertiesPath, String logicalGroup) {
+        String modulePath = "#" + StringUtils.defaultString(logicalGroup, "GROUP");
+        deployedModules.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
         return this;
     }
 
@@ -123,31 +130,28 @@ public class PlatformBuilder {
     }
 
     public PlatformIO buildOutput() {
-        return buildOutput(true, true);
+        return buildOutput(true);
     }
 
     public PlatformIO buildOutputWithoutModules() {
-        return buildOutput(false, false);
+        return buildOutput(false);
     }
 
-    public PlatformIO buildOutputWithoutIncrementingModuleIds() {
-        return buildOutput(true, false);
-    }
-
-    private PlatformIO buildOutput(boolean includeModules, boolean incrementModuleIds) {
-        List<DeployedModuleIO> modules = deployedModules;
+    private PlatformIO buildOutput(boolean includeModules) {
+        List<DeployedModuleIO> modules;
         if (!includeModules) {
             modules = Collections.emptyList();
-        } else if (incrementModuleIds) {
+        } else {
+            AtomicLong moduleId = new AtomicLong();
             modules = deployedModules.stream().map(module ->
-                    new DeployedModuleIO(module.getId() + 1, module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getPath(), module.getPropertiesPath(), module.getInstances())
+                    new DeployedModuleIO(moduleId.incrementAndGet(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getPath(), module.getPropertiesPath(), module.getInstances())
             ).collect(Collectors.toList());
         }
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
     }
 
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
-        PlatformIO platform = hidePlatform ? buildOutputWithoutModules() : buildOutputWithoutIncrementingModuleIds();
+        PlatformIO platform = hidePlatform ? buildOutputWithoutModules() : buildOutput();
         return new ApplicationOutput(applicationName, Arrays.asList(platform));
     }
 
