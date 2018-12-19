@@ -56,8 +56,25 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?(?: in logical group \"([^\"]*)\")?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) iterable-ception)?( (?:and|with) global properties)?( (?:and|with) instance properties)?( and filename and location values)?$", (
-                String platformName, String withThisModule, String logicalGroup, String withAnInstance, String withValuedProperties, String withIterableProperties, String withIterableCeption, String withGlobalProperties, String withInstanceProperties, String withFilenameLocationValues) -> {
+        Given("^an existing platform" +
+                "(?: named \"([^\"]*)\")?" +
+                "( with this module)?" +
+                "(?: in logical group \"([^\"]*)\")?" +
+                "( (?:and|with) an instance)?" +
+                "( (?:and|with) valued properties)?" +
+                "( (?:and|with) iterable properties)?" +
+                "( (?:and|with) global properties)?" +
+                "( (?:and|with) instance properties)?" +
+                "( and filename and location values)?$", (
+                String platformName,
+                String withThisModule,
+                String logicalGroup,
+                String withAnInstance,
+                String withValuedProperties,
+                String withIterableProperties,
+                String withGlobalProperties,
+                String withInstanceProperties,
+                String withFilenameLocationValues) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
@@ -95,21 +112,21 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.incrementVersionId();
             }
 
-            if (StringUtils.isNotEmpty(withIterableCeption)) {
-                platformBuilder.withIterableProperties(Arrays.asList(
-                        new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                                new IterablePropertyItemIO("bloc-module-foo-1", Arrays.asList(
-                                        new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                                new IterablePropertyItemIO("bloc-module-bar-1", Arrays.asList(
-                                                        new ValuedPropertyIO("module-foobar", "module-foobar-val-1")
-                                                ))
-                                        ))
-                                ))
-                        ))
-                ));
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
-                platformBuilder.incrementVersionId();
-            }
+//            if (StringUtils.isNotEmpty(withIterableCeption)) {
+//                platformBuilder.withIterableProperties(Arrays.asList(
+//                        new IterableValuedPropertyIO("module-foo", Arrays.asList(
+//                                new IterablePropertyItemIO("bloc-module-foo-1", Arrays.asList(
+//                                        new IterableValuedPropertyIO("module-bar", Arrays.asList(
+//                                                new IterablePropertyItemIO("bloc-module-bar-1", Arrays.asList(
+//                                                        new ValuedPropertyIO("module-foobar", "module-foobar-val-1")
+//                                                ))
+//                                        ))
+//                                ))
+//                        ))
+//                ));
+//                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+//                platformBuilder.incrementVersionId();
+//            }
 
             if (StringUtils.isNotEmpty(withGlobalProperties)) {
                 platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);

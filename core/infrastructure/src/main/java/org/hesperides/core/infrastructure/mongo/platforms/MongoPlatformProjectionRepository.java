@@ -19,10 +19,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.IterablePropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -137,8 +133,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             valuedProperties.addAll(completePropertiesWithDefaultValues(moduleProperties, abstractValuedProperties));
             deployedModuleDocument.setValuedProperties(valuedProperties);
 
-
-            platformDocument.extractInstancePropertiesAndSave(platformRepository);
+            platformDocument.buildInstanceModelAndSave(platformRepository);
         });
         platformDocument.buildInstanceModelAndSave(platformRepository);
     }

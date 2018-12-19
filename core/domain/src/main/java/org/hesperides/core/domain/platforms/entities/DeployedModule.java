@@ -54,7 +54,7 @@ public class DeployedModule {
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;
-        this.instanceProperties = instanceProperties;
+        this.instanceModel = instanceModel;
     }
 
     private DeployedModule(Long newId, DeployedModule other) {
@@ -69,7 +69,7 @@ public class DeployedModule {
         instanceModel = other.instanceModel;
     }
 
-    private String generatePropertiesPath() {
+    public String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
@@ -136,7 +136,7 @@ public class DeployedModule {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 valuedProperties,
                 instances,
                 instanceModel);

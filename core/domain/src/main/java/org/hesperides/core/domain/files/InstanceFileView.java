@@ -32,11 +32,11 @@ public class InstanceFileView {
     String url;
     TemplateView.RightsView rights;
 
-    public InstanceFileView(String templateLocation, String templateFilename, Platform.Key platformKey, String path, Module.Key moduleKey, String instanceName, TemplateView template, boolean simulate) {
+    public InstanceFileView(String templateLocation, String templateFilename, Platform.Key platformKey, String modulePath, Module.Key moduleKey, String instanceName, TemplateView template, boolean simulate) {
         location = buildFileLocation(templateLocation, templateFilename);
         url = "/rest/files/applications/" + platformKey.getApplicationName() +
                 "/platforms/" + platformKey.getPlatformName()
-                + "/" + path
+                + "/" + modulePath
                 + "/" + moduleKey.getName()
                 + "/" + moduleKey.getVersion()
                 + "/instances/" + instanceName

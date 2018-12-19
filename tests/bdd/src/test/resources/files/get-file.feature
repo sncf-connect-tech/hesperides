@@ -163,10 +163,10 @@ Feature: Get file
     And the platform has these instance properties
       | name              | value        |
       | instance-property | global-value |
-    When I get the module template file
+    When I get the instance template file
     Then the file is successfully retrieved and contains
       """
-        global-value
+      global-value
       """
 
     # technos, iterable-ception

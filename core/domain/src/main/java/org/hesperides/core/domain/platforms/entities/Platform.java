@@ -141,7 +141,7 @@ public class Platform {
             // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
             // Ici `newModule.getPropertiesPath()` provient de DeployedModule.generatePropertiesPath() où il est reconstruit de zéro.
 
-            isModuleVersionUpdated = providedModule.getPath().equals(existingModule.getPath())
+            isModuleVersionUpdated = providedModule.getModulePath().equals(existingModule.getModulePath())
                     && providedModule.getName().equals(existingModule.getName())
                     && providedModule.isWorkingCopy() == existingModule.isWorkingCopy()
                     && !providedModule.getVersion().equals(existingModule.getVersion());

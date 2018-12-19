@@ -134,15 +134,15 @@ public class PlatformClient {
         return saveProperties(platform, propertiesInput, "#");
     }
 
-    public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String path) {
+    public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {
         return restTemplate.postForEntity(
-                "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={path}&comment={comment}",
+                "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={properties_path}&comment={comment}",
                 propertiesInput,
                 PropertiesIO.class,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName(),
                 platformInput.getVersionId(),
-                path,
+                propertiesPath,
                 "this is a comment");
     }
 
@@ -157,13 +157,13 @@ public class PlatformClient {
                 platform.getPlatformName());
     }
 
-    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String path) {
+    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath) {
         return restTemplate.getForEntity(
-                "/applications/{application_name}/platforms/{platform_name}/properties?path={path}",
+                "/applications/{application_name}/platforms/{platform_name}/properties?path={properties_path}",
                 PropertiesIO.class,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
-                path);
+                propertiesPath);
     }
 
     public ResponseEntity<ModulePlatformsOutput[]> getPlatformsUsingModule(ModuleIO module) {

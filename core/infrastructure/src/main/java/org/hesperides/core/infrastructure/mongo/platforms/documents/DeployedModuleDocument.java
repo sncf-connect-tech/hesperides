@@ -41,7 +41,7 @@ public class DeployedModuleDocument {
     private String name;
     private String version;
     private boolean isWorkingCopy;
-    private String path;
+    private String modulePath;
     private String propertiesPath;
     private List<AbstractValuedPropertyDocument> valuedProperties;
     private List<InstanceDocument> instances;
@@ -52,7 +52,7 @@ public class DeployedModuleDocument {
         name = deployedModule.getName();
         version = deployedModule.getVersion();
         isWorkingCopy = deployedModule.isWorkingCopy();
-        path = deployedModule.getModulePath();
+        modulePath = deployedModule.getModulePath();
         propertiesPath = deployedModule.getPropertiesPath();
         valuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(deployedModule.getValuedProperties());
         instances = InstanceDocument.fromDomainInstances(deployedModule.getInstances());
@@ -66,7 +66,7 @@ public class DeployedModuleDocument {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 propertiesPath,
                 InstanceDocument.toInstanceViews(instances),
                 AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(valuedProperties)
@@ -90,7 +90,7 @@ public class DeployedModuleDocument {
     }
 
     public DeployedModule toDomainInstance() {
-        return new DeployedModule(id, name, version, isWorkingCopy, path,
+        return new DeployedModule(id, name, version, isWorkingCopy, modulePath,
                 AbstractValuedPropertyDocument.toAbstractDomainInstances(valuedProperties),
                 InstanceDocument.toDomainInstances(instances),
                 instanceModel);

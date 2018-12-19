@@ -144,7 +144,7 @@ public class PlatformBuilder {
         } else {
             AtomicLong moduleId = new AtomicLong();
             modules = deployedModules.stream().map(module ->
-                    new DeployedModuleIO(moduleId.incrementAndGet(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getPath(), module.getPropertiesPath(), module.getInstances())
+                    new DeployedModuleIO(moduleId.incrementAndGet(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
             ).collect(Collectors.toList());
         }
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
@@ -196,10 +196,10 @@ public class PlatformBuilder {
             throw new RuntimeException("This method can only be used on a PlatformBuilder containing a single module");
         }
         DeployedModuleIO module = deployedModules.get(0);
-        DeployedModuleIO newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getPath(), module.getPropertiesPath(), module.getInstances());
+        DeployedModuleIO newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances());
         if (updatePropertiesPath) {
             String propertiesPath = newModule.toDomainInstance().generatePropertiesPath();
-            newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getPath(), propertiesPath, module.getInstances());
+            newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), propertiesPath, module.getInstances());
         }
         deployedModules = Collections.singletonList(newModule);
     }

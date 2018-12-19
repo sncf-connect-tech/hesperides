@@ -194,7 +194,7 @@ public class PlatformsController extends AbstractController {
 
         return ResponseEntity.ok(globalPropertyUsageView.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
-                        .map(globalPropertyUsage -> new GlobalPropertyUsageOutput(globalPropertyUsage.isInModel(), globalPropertyUsage.getPath()))
+                        .map(globalPropertyUsage -> new GlobalPropertyUsageOutput(globalPropertyUsage.isInModel(), globalPropertyUsage.getPropertiesPath()))
                         .collect(Collectors.toSet()))));
     }
 

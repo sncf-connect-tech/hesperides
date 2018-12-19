@@ -65,7 +65,7 @@ public class GetFiles extends HesperidesScenario implements En {
 
             Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
                     ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
-            String modulePath = deployedModule.map(DeployedModuleIO::getPath).orElse("anything");
+            String modulePath = deployedModule.map(DeployedModuleIO::getModulePath).orElse("anything");
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
