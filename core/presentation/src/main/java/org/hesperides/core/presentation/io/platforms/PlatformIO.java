@@ -47,7 +47,9 @@ public class PlatformIO {
     @SerializedName("application_name")
     @JsonProperty("application_name")
     String applicationName;
-    @OnlyPrintableCharacters(subject = "version")
+    @OnlyPrintableCharacters(subject = "application_version")
+    @SerializedName("application_version")
+    @JsonProperty("application_version")
     String version;
     @SerializedName("production")
     @JsonProperty("production")
