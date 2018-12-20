@@ -28,9 +28,6 @@ import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformClient;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-
-import static org.hesperides.tests.bdd.commons.HesperidesScenario.*;
 
 public class GetPlatforms extends HesperidesScenario implements En {
 

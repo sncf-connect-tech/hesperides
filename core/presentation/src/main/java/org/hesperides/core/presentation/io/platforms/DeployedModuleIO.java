@@ -48,7 +48,7 @@ public class DeployedModuleIO {
     @OnlyPrintableCharacters(subject = "deployedModules.path")
     String path;
     @SerializedName("properties_path")
-    String propertiesPath;
+    String propertiesPath;  // en tant qu'input : facultatif, inutile et toujours ignoré
 
     List<InstanceIO> instances;
 

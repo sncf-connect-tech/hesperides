@@ -22,6 +22,7 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Data
 @Document(collection = "platform")
@@ -78,6 +80,17 @@ public class PlatformDocument {
         );
     }
 
+    public Platform toDomainPlatform() {
+        return new Platform(
+                key.toDomainPlatformKey(),
+                version,
+                isProductionPlatform,
+                versionId,
+                DeployedModuleDocument.toDomainInstances(deployedModules),
+                ValuedPropertyDocument.toDomainInstances(globalProperties)
+        );
+    }
+
     public SearchApplicationResultView toSearchApplicationResultView() {
         return new SearchApplicationResultView(key.getApplicationName());
     }
@@ -96,16 +109,18 @@ public class PlatformDocument {
         );
     }
 
-    public void extractInstancePropertiesAndSave(MongoPlatformRepository platformRepository) {
+    public void buildInstancesModelAndSave(MongoPlatformRepository platformRepository) {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(deployedModule -> deployedModule.toDomainInstance())
-                .map(deployedModule -> deployedModule.extractAndSetInstanceProperties(
-                        ValuedPropertyDocument.toDomainInstances(globalProperties)))
-                .map(DeployedModuleDocument::new)
+                .map(deployedModule -> deployedModule.buildInstancesModel(globalProperties))
                 .collect(Collectors.toList());
-
         platformRepository.save(this);
+    }
+
+    public void fillExistingAndUpgradedModulesWithProperties(List<DeployedModuleDocument> providedDeployedModules, boolean copyPropertiesForUpgradedModules) {
+        List<DeployedModule> deployedModulesProvided = DeployedModuleDocument.toDomainInstances(providedDeployedModules);
+        List<DeployedModule> deployedModules = toDomainPlatform().fillExistingAndUpgradedModulesWithProperties(deployedModulesProvided, copyPropertiesForUpgradedModules);
+        this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
     }
 }

@@ -28,4 +28,5 @@ public final class SpringProfiles {
     public static final String NOLDAP = "noldap";
     public static final String SPRING_BOOT_ADMIN = "sba";
     public static final String DATA_MIGRATION = "data_migration";
+    public static final String INTEGRATION_TESTS = "integration_tests";
 }

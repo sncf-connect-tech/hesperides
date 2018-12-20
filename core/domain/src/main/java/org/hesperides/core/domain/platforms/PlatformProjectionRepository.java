@@ -46,7 +46,7 @@ public interface PlatformProjectionRepository {
     Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query);
 
     @QueryHandler
-    List<InstancePropertyView> onGetInstanceModelQuery(GetInstanceModelQuery query);
+    List<String> onGetInstancesModelQuery(GetInstancesModelQuery query);
 
     @QueryHandler
     List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query);

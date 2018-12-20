@@ -6,6 +6,8 @@ import cucumber.api.java.After;
 import cucumber.api.junit.Cucumber;
 import org.axonframework.mongo.DefaultMongoTemplate;
 import org.hesperides.HesperidesSpringApplication;
+import org.hesperides.commons.spring.HasProfile;
+import org.hesperides.tests.bdd.commons.AppliCleaner;
 import org.hesperides.tests.bdd.commons.TestContext;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
@@ -18,12 +20,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 
+import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.spring.SpringProfiles.INTEGRATION_TESTS;
 import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -33,61 +38,31 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         glue = {"classpath:org.hesperides.tests.bdd"})
 public class CucumberTests {
 
-    @Configuration
+    @Profile("!"+INTEGRATION_TESTS)
     @SpringBootTest(classes = HesperidesSpringApplication.class, webEnvironment = RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
+    @Configuration
     @ContextConfiguration
-    public static class CucumberSpringBean {
-
+    public static class CucumberSpringBeanUnitTests {
         @Autowired
-        private MongoTemplate mongoTemplate;
-        @Autowired
-        private MongoClient client;
-
-        @Autowired
-        private RestTemplate restTemplate;
-
-        @Autowired
-        private TechnoBuilder technoBuilder;
-        @Autowired
-        private TemplateBuilder templateBuilder;
-        @Autowired
-        private PropertyBuilder propertyBuilder;
-        @Autowired
-        private ModelBuilder modelBuilder;
-        @Autowired
-        private ModuleBuilder moduleBuilder;
-        @Autowired
-        private PlatformBuilder platformBuilder;
-
+        private AppliCleaner appliCleaner;
         @After
         public void tearDown() {
-            resetDatabases();
-            resetRestTemplateAuthHeader();
-            resetBuilders();
-        }
-
-        private void resetDatabases() {
-            mongoTemplate.getDb().drop();
-            new DefaultMongoTemplate(client).eventCollection().drop();
-        }
-
-        private void resetRestTemplateAuthHeader() {
-            if (restTemplate.getInterceptors().contains(TestContext.BASIC_AUTH_INTERCEPTOR)) {
-                restTemplate.getInterceptors().remove(TestContext.BASIC_AUTH_INTERCEPTOR);
-            }
-        }
-
-        private void resetBuilders() {
-            templateBuilder.reset();
-            technoBuilder.reset();
-            propertyBuilder.reset();
-            modelBuilder.reset();
-            moduleBuilder.reset();
-            platformBuilder.reset();
-            platformBuilder.resetPlatforms();
+            appliCleaner.tearDown();
         }
     }
+
+//    @Profile(INTEGRATION_TESTS)
+//    @Configuration
+//    @ContextConfiguration
+//    public static class CucumberSpringBeanIntegTests {
+//        @Autowired
+//        private AppliCleaner appliCleaner;
+//        @After
+//        public void tearDown() {
+//            appliCleaner.tearDown();
+//        }
+//    }
 
     public static void main(String[] args) {
         JUnitCore.main("CucumberTests");

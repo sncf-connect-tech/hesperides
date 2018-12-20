@@ -30,7 +30,7 @@ public class FilesController extends AbstractController {
     @GetMapping("/applications/{application_name}/platforms/{platform_name}/{path}/{module_name}/{module_version}/instances/{instance_name}")
     public ResponseEntity<List<InstanceFileOutput>> getInstanceFiles(@PathVariable("application_name") final String applicationName,
                                                                      @PathVariable("platform_name") final String platformName,
-                                                                     @PathVariable("path") final String path,
+                                                                     @PathVariable("path") final String modulePath,
                                                                      @PathVariable("module_name") final String moduleName,
                                                                      @PathVariable("module_version") final String moduleVersion,
                                                                      @PathVariable("instance_name") final String instanceName,
@@ -40,7 +40,7 @@ public class FilesController extends AbstractController {
         List<InstanceFileOutput> files = filesUseCases.getInstanceFiles(
                 applicationName,
                 platformName,
-                path,
+                modulePath,
                 moduleName,
                 moduleVersion,
                 instanceName,

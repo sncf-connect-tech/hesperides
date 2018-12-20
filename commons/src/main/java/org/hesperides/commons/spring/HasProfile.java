@@ -25,10 +25,10 @@ public class HasProfile {
     }
 
     public static boolean dataMigration() {
-        boolean isDataMigration = false;
-        if (staticEnvironment != null && Arrays.asList(staticEnvironment.getActiveProfiles()).contains(SpringProfiles.DATA_MIGRATION)) {
-            isDataMigration = true;
-        }
-        return isDataMigration;
+        return isProfileActive(SpringProfiles.DATA_MIGRATION);
+    }
+
+    public static boolean isProfileActive(String profile) {
+        return staticEnvironment != null && Arrays.asList(staticEnvironment.getActiveProfiles()).contains(profile);
     }
 }

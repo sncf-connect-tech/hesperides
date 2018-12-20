@@ -5,7 +5,6 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
@@ -81,12 +80,12 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyProperties, User user) {
+    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyPropertiesForUpgradedModules, User user) {
         Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
         if (!platformId.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
         }
-        commands.updatePlatform(platformId.get(), platform, copyProperties, user);
+        commands.updatePlatform(platformId.get(), platform, copyPropertiesForUpgradedModules, user);
     }
 
     public void deletePlatform(Platform.Key platformKey, User user) {
@@ -114,21 +113,21 @@ public class PlatformUseCases {
         return queries.searchApplications(applicationName);
     }
 
-    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String path) {
+    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String propertiesPath) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
 
-        if (ROOT_PATH.equals(path)) {
+        if (ROOT_PATH.equals(propertiesPath)) {
             properties.addAll(queries.getGlobalProperties(platformKey));
-        } else if (StringUtils.isNotEmpty(path)) {
-            final Module.Key moduleKey = Module.Key.fromPath(path);
+        } else if (StringUtils.isNotEmpty(propertiesPath)) {
+            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            properties.addAll(queries.getDeployedModuleProperties(platformKey, path));
+            properties.addAll(queries.getDeployedModuleProperties(platformKey, propertiesPath));
             properties.addAll(getGlobalPropertiesUsedInModule(platformKey, moduleKey));
         }
         return properties;
@@ -156,15 +155,15 @@ public class PlatformUseCases {
         return globalPropertiesUsedInModule;
     }
 
-    public List<InstancePropertyView> getInstanceModel(final Platform.Key platformKey, final String modulePath) {
+    public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
-        return queries.getInstanceModel(platformKey, modulePath);
+        return queries.getInstancesModel(platformKey, propertiesPath);
     }
 
     public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
-                                                           final String path,
+                                                           final String propertiesPath,
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final User user) {
@@ -172,7 +171,7 @@ public class PlatformUseCases {
         if (!platformId.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
         }
-        if (ROOT_PATH.equals(path)) {
+        if (ROOT_PATH.equals(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
             // Platform properties are global and should always be of type ValuedProperty
             if (valuedProperties.size() != abstractValuedProperties.size()) {
@@ -180,14 +179,14 @@ public class PlatformUseCases {
             }
             commands.savePlatformProperties(platformId.get(), platformVersionId, valuedProperties, user);
         } else {
-            final Module.Key moduleKey = Module.Key.fromPath(path);
+            final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            commands.saveModulePropertiesInPlatform(platformId.get(), path, platformVersionId, abstractValuedProperties, user);
+            commands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
-        return getProperties(platformKey, path);
+        return getProperties(platformKey, propertiesPath);
     }
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
