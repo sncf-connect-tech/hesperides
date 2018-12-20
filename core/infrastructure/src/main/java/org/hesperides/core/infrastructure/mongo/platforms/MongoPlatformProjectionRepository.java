@@ -42,7 +42,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     private final MongoModuleRepository mongoModuleRepository;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository) {
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository,
+                                             MongoModuleRepository mongoModuleRepository) {
         this.platformRepository = platformRepository;
         this.mongoModuleRepository = mongoModuleRepository;
     }
@@ -137,19 +138,19 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     }
 
     /**
-     * Liste les propriétés déclarée avec une valeur par défaut
-     * mais n'ayant pas été valorisées
+     * Complète les propriétés non valorisées avec leur valeur par défaut lorsqu'elle est définie.
      */
-    private List<AbstractValuedPropertyDocument> completePropertiesWithDefaultValues(List<AbstractPropertyDocument> abstractModuleProperties, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
-        List<AbstractValuedPropertyDocument> unsetPropertiesWithDefaultValues = new ArrayList<>();
+    private List<AbstractValuedPropertyDocument> completePropertiesWithDefaultValues(List<AbstractPropertyDocument> abstractModuleProperties,
+                                                                                     List<AbstractValuedPropertyDocument> abstractValuedProperties) {
+        List<AbstractValuedPropertyDocument> propertiesWithDefaultValues = new ArrayList<>();
         abstractModuleProperties.forEach(abstractProperty -> {
 
             if (abstractProperty instanceof PropertyDocument) {
                 PropertyDocument property = (PropertyDocument) abstractProperty;
                 if (StringUtils.isNotEmpty(property.getDefaultValue()) &&
                         !propertyHasValue(property.getName(), abstractValuedProperties)) {
-                    ValuedPropertyDocument defaultValuedProperty = buildDefaultValuedProperty(property);
-                    unsetPropertiesWithDefaultValues.add(defaultValuedProperty);
+                    ValuedPropertyDocument defaultValuedProperty = ValuedPropertyDocument.buildDefaultValuedProperty(property);
+                    propertiesWithDefaultValues.add(defaultValuedProperty);
                 }
 
             } else if (abstractProperty instanceof IterablePropertyDocument) {
@@ -162,19 +163,19 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         .map(IterableValuedPropertyDocument::getItems)
                         .forEach(iterablePropertyItems -> {
                             iterablePropertyItems.forEach(iterablePropertyItem -> {
-                                // Récursivité
                                 List<AbstractValuedPropertyDocument> iterablePropertiesWithDefaultValues =
+                                        // Récursivité
                                         completePropertiesWithDefaultValues(
                                                 iterableProperty.getProperties(),
                                                 iterablePropertyItem.getAbstractValuedProperties()
                                         );
-                                unsetPropertiesWithDefaultValues.addAll(iterablePropertiesWithDefaultValues);
+                                propertiesWithDefaultValues.addAll(iterablePropertiesWithDefaultValues);
                             });
                         });
             }
         });
 
-        return unsetPropertiesWithDefaultValues;
+        return propertiesWithDefaultValues;
     }
 
     private boolean propertyHasValue(String propertyName, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
@@ -185,20 +186,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         StringUtils.isNotEmpty(valuedProperty.getValue()));
     }
 
-    private ValuedPropertyDocument buildDefaultValuedProperty(PropertyDocument property) {
-        ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
-        defaultValuedProperty.setMustacheContent(property.getMustacheContent());
-        defaultValuedProperty.setName(property.getName());
-        defaultValuedProperty.setValue(property.getDefaultValue());
-        return defaultValuedProperty;
-    }
-
-    private List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties, List<AbstractPropertyDocument> abstractModuleProperties) {
-
-        /**
-         * Pour chaque propriété valorisée, on lui attribue la valeur entre moustache pour faciliter le remplacement lors du getFile
-         */
-
+    /**
+     * Complète les propriétés avec la valeur définie entre moustaches dans le template.
+     * Cela permet d'utiliser le framework Mustache lors de la valorisation des templates.
+     *
+     * @see org.hesperides.core.application.files.FileUseCases#valorizeTemplateWithProperties
+     */
+    private List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
+                                                                                       List<AbstractPropertyDocument> abstractModuleProperties) {
         return abstractValuedProperties.stream().map(abstractProperty -> {
             AbstractValuedPropertyDocument property;
             if (abstractProperty instanceof IterableValuedPropertyDocument) {
@@ -216,6 +211,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 iterableValuedProperty.getItems().forEach(item -> {
                     IterablePropertyItemDocument newItem = new IterablePropertyItemDocument();
                     newItem.setTitle(item.getTitle());
+                    // Récursivité
                     newItem.setAbstractValuedProperties(completePropertiesWithMustacheContent(item.getAbstractValuedProperties(), iterablePropertyChildren));
                     items.add(newItem);
                 });
@@ -224,7 +220,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
             } else if (abstractProperty instanceof ValuedPropertyDocument) {
                 ValuedPropertyDocument valuedProperty = (ValuedPropertyDocument) abstractProperty;
-                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), abstractModuleProperties);
+                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), abstractModuleProperties).orElse(null);
                 valuedProperty.setMustacheContent(propertyRawName);
                 property = valuedProperty;
             } else {
@@ -232,16 +228,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             }
             return property;
         }).collect(Collectors.toList());
-
     }
 
-    private String getSimplePropertyRawName(String name, List<AbstractPropertyDocument> moduleProperties) {
+    private Optional<String> getSimplePropertyRawName(String name, List<AbstractPropertyDocument> moduleProperties) {
         return moduleProperties.stream()
                 .filter(abstractPropertyDocument -> abstractPropertyDocument.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .map(PropertyDocument.class::cast)
-                .map(PropertyDocument::getMustacheContent)
-                .orElse(null);
+                .flatMap(PropertyDocument::getMustacheContent);
     }
 
     @EventHandler
@@ -369,7 +363,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository.findModulePropertiesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository
+                .findModulePropertiesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
                 .map(PlatformDocument::getDeployedModules)
@@ -388,7 +383,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository.findModuleInstancesModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository
+                .findModuleInstancesModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         return platformDocument
                 .map(PlatformDocument::getDeployedModules)

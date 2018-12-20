@@ -38,14 +38,14 @@ public class FilesController extends AbstractController {
                                                                      @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
                                                                      @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
-        List<InstanceFileOutput> files = filesUseCases.getInstanceFiles(
+        List<InstanceFileOutput> files = filesUseCases.getFiles(
                 applicationName,
                 platformName,
                 modulePath,
                 moduleName,
                 moduleVersion,
                 instanceName,
-                isWorkingCopy,
+                Boolean.TRUE.equals(isWorkingCopy),
                 Boolean.TRUE.equals(simulate))
                 .stream()
                 .map(InstanceFileOutput::new)
@@ -54,11 +54,9 @@ public class FilesController extends AbstractController {
         return ResponseEntity.ok(files);
     }
 
-    //            applications/TLH/platforms/TEST/%23root/module-tlh/1/instances/instance-tlh-1/template-a?isWorkingCopy=true&template_namespace=modules%23module-tlh%231%23WORKINGCOPY&simulate=false
-
     @ApiOperation("Get a valued template file")
-    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE,
-            path = "/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
+    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE, path =
+            "/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
     public ResponseEntity<String> getFile(@PathVariable("application_name") final String applicationName,
                                           @PathVariable("platform_name") final String platformName,
                                           @PathVariable("module_path") final String modulePath,
@@ -78,7 +76,7 @@ public class FilesController extends AbstractController {
                 moduleVersion,
                 instanceName,
                 templateName,
-                isWorkingCopy,
+                Boolean.TRUE.equals(isWorkingCopy),
                 templateNamespace,
                 Boolean.TRUE.equals(simulate));
 

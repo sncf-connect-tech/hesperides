@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
@@ -77,5 +78,13 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
                 .stream()
                 .map(ValuedPropertyDocument::toValuedPropertyView)
                 .collect(Collectors.toList());
+    }
+
+    public static ValuedPropertyDocument buildDefaultValuedProperty(PropertyDocument property) {
+        ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
+        defaultValuedProperty.setMustacheContent(property.getMustacheContent().orElse(null));
+        defaultValuedProperty.setName(property.getName());
+        defaultValuedProperty.setValue(property.getDefaultValue());
+        return defaultValuedProperty;
     }
 }

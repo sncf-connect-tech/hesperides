@@ -27,6 +27,8 @@ import org.hesperides.core.domain.templatecontainers.entities.Property;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Optional;
+
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -52,5 +54,9 @@ public class PropertyDocument extends AbstractPropertyDocument {
 
     public PropertyView toPropertyView() {
         return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
+    }
+
+    public Optional<String> getMustacheContent() {
+        return Optional.ofNullable(mustacheContent);
     }
 }

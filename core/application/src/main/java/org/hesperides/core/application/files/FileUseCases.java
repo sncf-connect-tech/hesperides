@@ -62,7 +62,7 @@ public class FileUseCases {
         this.moduleQueries = moduleQueries;
     }
 
-    public List<InstanceFileView> getInstanceFiles(
+    public List<InstanceFileView> getFiles(
             String applicationName,
             String platformName,
             String modulePath,
@@ -70,13 +70,13 @@ public class FileUseCases {
             String moduleVersion,
             String instanceName,
             boolean isWorkingCopy,
-            boolean simulate) {
+            boolean getModuleValuesIfInstanceDoesntExist) {
 
         List<InstanceFileView> instanceFiles = new ArrayList<>();
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
-        validateExistingData(platformKey, moduleKey, modulePath, simulate, instanceName);
+        validateRequiredEntitiesExist(platformKey, moduleKey, modulePath, getModuleValuesIfInstanceDoesntExist, instanceName);
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
         List<AbstractValuedPropertyView> moduleValuedProperties = platform.getDeployedModule(moduleKey).get().getValuedProperties();
@@ -85,23 +85,23 @@ public class FileUseCases {
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
         // D'abord les templates des technos
         module.getTechnos().forEach(techno -> techno.getTemplates().forEach(template -> {
-            setLocationAndFilenameAndAddInstance(modulePath, instanceName, simulate, instanceFiles, platformKey, moduleKey, globalAndModuleProperties, template);
+            setLocationAndFilenameAndAddInstance(modulePath, instanceName, getModuleValuesIfInstanceDoesntExist, instanceFiles, platformKey, moduleKey, globalAndModuleProperties, template);
         }));
         // Puis ceux des modules
         module.getTemplates().forEach(template -> {
-            setLocationAndFilenameAndAddInstance(modulePath, instanceName, simulate, instanceFiles, platformKey, moduleKey, globalAndModuleProperties, template);
+            setLocationAndFilenameAndAddInstance(modulePath, instanceName, getModuleValuesIfInstanceDoesntExist, instanceFiles, platformKey, moduleKey, globalAndModuleProperties, template);
         });
 
         return instanceFiles;
     }
 
-    private void setLocationAndFilenameAndAddInstance(String modulePath, String instanceName, boolean simulate, List<InstanceFileView> instanceFiles, Platform.Key platformKey, Module.Key moduleKey, List<AbstractValuedPropertyView> globalAndModuleProperties, TemplateView template) {
-        String location = valueTemplateProperties(template.getLocation(), globalAndModuleProperties);
-        String filename = valueTemplateProperties(template.getFilename(), globalAndModuleProperties);
-        instanceFiles.add(new InstanceFileView(location, filename, platformKey, modulePath, moduleKey, instanceName, template, simulate));
+    private static void setLocationAndFilenameAndAddInstance(String modulePath, String instanceName, boolean getModuleValuesIfInstanceDoesntExist, List<InstanceFileView> instanceFiles, Platform.Key platformKey, Module.Key moduleKey, List<AbstractValuedPropertyView> globalAndModuleProperties, TemplateView template) {
+        String location = valorizeTemplateWithProperties(template.getLocation(), globalAndModuleProperties);
+        String filename = valorizeTemplateWithProperties(template.getFilename(), globalAndModuleProperties);
+        instanceFiles.add(new InstanceFileView(location, filename, platformKey, modulePath, moduleKey, instanceName, template, getModuleValuesIfInstanceDoesntExist));
     }
 
-    private void validateExistingData(Platform.Key platformKey, Module.Key moduleKey, String modulePath, boolean simulate, String instanceName) {
+    private void validateRequiredEntitiesExist(Platform.Key platformKey, Module.Key moduleKey, String modulePath, boolean getModuleValuesIfInstanceDoesntExist, String instanceName) {
 
         if (!platformQueries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
@@ -115,9 +115,7 @@ public class FileUseCases {
             throw new DeployedModuleNotFoundException(platformKey, moduleKey, modulePath);
         }
 
-        // Le paramètre `simulate` doit être à `false` pour récupérer
-        // les fichiers d'instance et à `true` pour les fichiers de module.
-        if (!simulate && !platformQueries.instanceExists(platformKey, moduleKey, modulePath, instanceName)) {
+        if (!getModuleValuesIfInstanceDoesntExist && !platformQueries.instanceExists(platformKey, moduleKey, modulePath, instanceName)) {
             throw new InstanceNotFoundException(platformKey, moduleKey, modulePath, instanceName);
         }
     }
@@ -130,13 +128,13 @@ public class FileUseCases {
             String moduleVersion,
             String instanceName,
             String templateName,
-            Boolean isWorkingCopy,
+            boolean isWorkingCopy,
             String templateNamespace,
-            boolean simulate) {
+            boolean getModuleValuesIfInstanceDoesntExist) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
-        validateExistingData(platformKey, moduleKey, modulePath, simulate, instanceName);
+        validateRequiredEntitiesExist(platformKey, moduleKey, modulePath, getModuleValuesIfInstanceDoesntExist, instanceName);
 
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
         Optional<TemplateView> template = getTemplate(module, templateName, templateNamespace);
@@ -148,10 +146,10 @@ public class FileUseCases {
 
         // On remplace d'abord les propriétés déclarées dans le template
         List<AbstractValuedPropertyView> globalAndModuleProperties = getGlobalAndModuleProperties(globalProperties, deployedModule.getValuedProperties());
-        String templateContentBeforeInstanceProperties = valueTemplateProperties(templateContent, globalAndModuleProperties);
+        String templateContentBeforeInstanceProperties = valorizeTemplateWithProperties(templateContent, globalAndModuleProperties);
         // Puis les propriétés déclarées lors de la valorisation (propriétés globales et propriétés d'instance)
         List<AbstractValuedPropertyView> globalAndInstanceProperties = getGlobalAndInstanceProperties(globalProperties, deployedModule.getInstances(), instanceName);
-        return valueTemplateProperties(templateContentBeforeInstanceProperties, globalAndInstanceProperties);
+        return valorizeTemplateWithProperties(templateContentBeforeInstanceProperties, globalAndInstanceProperties);
     }
 
     /**
@@ -199,7 +197,7 @@ public class FileUseCases {
      * Remplace les propriétés entre moustaches par leur valorisation
      * à l'aide du framework Mustache.
      */
-    private String valueTemplateProperties(String templateContent, List<AbstractValuedPropertyView> valuedProperties) {
+    private static String valorizeTemplateWithProperties(String templateContent, List<AbstractValuedPropertyView> valuedProperties) {
         Map<String, Object> scopes = propertiesToScopes(valuedProperties);
 
         Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(templateContent);
@@ -216,7 +214,7 @@ public class FileUseCases {
      * - nom-propriété-simple => valeur-propriété-simple
      * - nom-propriété-itérable => map (...)
      */
-    private Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> properties) {
+    private static Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> properties) {
         Map<String, Object> scopes = new HashMap<>();
         properties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
