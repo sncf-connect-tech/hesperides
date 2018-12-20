@@ -32,14 +32,14 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
-public class InstanceModelOutput {
+public class InstancesModelOutput {
 
     @SerializedName("keys")
     @JsonProperty("keys")
     List<InstancePropertyOutput> instanceProperties;
 
-    public static InstanceModelOutput fromInstanceModelView(List<String> instanceModelView) {
-        return new InstanceModelOutput(Optional.ofNullable(instanceModelView)
+    public static InstancesModelOutput fromInstancesModelView(List<String> instancesModelView) {
+        return new InstancesModelOutput(Optional.ofNullable(instancesModelView)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(InstancePropertyOutput::new)

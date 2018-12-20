@@ -123,15 +123,15 @@ public class PlatformsController extends AbstractController {
 
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
     @ApiOperation("Get properties with the given path in a platform")
-    public ResponseEntity<InstanceModelOutput> getInstanceModel(@PathVariable("application_name") final String applicationName,
-                                                                @PathVariable(value = "platform_name") final String platform_name,
-                                                                @RequestParam(value = "path") final String propertiesPath) {
+    public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") final String applicationName,
+                                                                  @PathVariable(value = "platform_name") final String platform_name,
+                                                                  @RequestParam(value = "path") final String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
 
-        List<String> instanceModelView = platformUseCases.getInstanceModel(platformKey, propertiesPath);
-        InstanceModelOutput instanceModelOutput = InstanceModelOutput.fromInstanceModelView(instanceModelView);
-        return ResponseEntity.ok(instanceModelOutput);
+        List<String> instancesModelView = platformUseCases.getInstancesModel(platformKey, propertiesPath);
+        InstancesModelOutput instancesModelOutput = InstancesModelOutput.fromInstancesModelView(instancesModelView);
+        return ResponseEntity.ok(instancesModelOutput);
     }
 
     @ApiOperation("Retrieve platforms using module")

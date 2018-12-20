@@ -43,9 +43,9 @@ public class DeployedModule {
     String propertiesPath;
     List<AbstractValuedProperty> valuedProperties;
     List<Instance> instances;
-    List<String> instanceModel; // Liste des noms des propriétés des instances
+    List<String> instancesModel; // Liste des noms des propriétés des instances
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instanceModel) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -54,7 +54,7 @@ public class DeployedModule {
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;
-        this.instanceModel = instanceModel;
+        this.instancesModel = instancesModel;
     }
 
     private DeployedModule(Long newId, DeployedModule other) {
@@ -66,7 +66,7 @@ public class DeployedModule {
         propertiesPath = other.propertiesPath;
         valuedProperties = other.valuedProperties;
         instances = other.instances;
-        instanceModel = other.instanceModel;
+        instancesModel = other.instancesModel;
     }
 
     // public for testing
@@ -111,7 +111,7 @@ public class DeployedModule {
                 .orElse(0L);
     }
 
-    public DeployedModule buildInstanceModel(List<ValuedProperty> globalProperties) {
+    public DeployedModule buildInstancesModel(List<ValuedProperty> globalProperties) {
         return new DeployedModule(
                 id,
                 name,
@@ -120,10 +120,10 @@ public class DeployedModule {
                 path,
                 valuedProperties,
                 instances,
-                extractInstanceModel(valuedProperties, globalProperties));
+                extractInstancesModel(valuedProperties, globalProperties));
     }
 
-    private static List<String> extractInstanceModel(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
+    private static List<String> extractInstancesModel(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
         return AbstractValuedProperty.flattenValuedProperties(moduleProperties)
                 .stream()
                 .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(globalProperties))
@@ -140,6 +140,6 @@ public class DeployedModule {
                 path,
                 valuedProperties,
                 instances,
-                instanceModel);
+                instancesModel);
     }
 }

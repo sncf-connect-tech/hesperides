@@ -23,7 +23,7 @@ package org.hesperides.tests.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.tests.bdd.commons.HesperidesScenario;
@@ -103,10 +103,10 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform property model includes this instance property$", () -> {
-            InstanceModelOutput model = platformClient.getInstanceModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            InstancesModelOutput model = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             List<String> actualPropertyNames = model.getInstanceProperties()
                     .stream()
-                    .map(InstanceModelOutput.InstancePropertyOutput::getName)
+                    .map(InstancesModelOutput.InstancePropertyOutput::getName)
                     .collect(Collectors.toList());
             assertThat(actualPropertyNames, contains("instance-module-foo"));
         });

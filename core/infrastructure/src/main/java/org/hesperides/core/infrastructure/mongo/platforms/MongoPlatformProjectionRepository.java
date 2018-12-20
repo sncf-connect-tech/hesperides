@@ -48,7 +48,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.buildInstanceModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
     @EventHandler
@@ -81,7 +81,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         } else {
             platformDocument.setVersionId(newPlatformDocument.getVersionId());
         }
-        platformDocument.buildInstanceModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
     @EventHandler
@@ -117,7 +117,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .findAny().ifPresent(module -> {
             module.setValuedProperties(abstractValuedPropertyDocuments);
         });
-        platformDocument.buildInstanceModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
     @EventHandler
@@ -153,7 +153,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
         platformDocument.setGlobalProperties(valuedProperties);
-        platformDocument.buildInstanceModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
     /*** QUERY HANDLERS ***/
@@ -262,16 +262,16 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public List<String> onGetInstanceModelQuery(GetInstanceModelQuery query) {
+    public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository.findModuleInstanceModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository.findModuleInstancesModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         return platformDocument
                 .map(PlatformDocument::getDeployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(deployedModuleDocument -> query.getPropertiesPath().equals(deployedModuleDocument.getPropertiesPath()))
-                .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getInstanceModel())
+                .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getInstancesModel())
                         .orElse(Collections.emptyList())
                         .stream())
                 .collect(Collectors.toList());

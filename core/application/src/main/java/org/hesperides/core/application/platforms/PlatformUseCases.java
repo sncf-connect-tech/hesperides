@@ -155,11 +155,11 @@ public class PlatformUseCases {
         return globalPropertiesUsedInModule;
     }
 
-    public List<String> getInstanceModel(final Platform.Key platformKey, final String propertiesPath) {
+    public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {
         if (!queries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
         }
-        return queries.getInstanceModel(platformKey, propertiesPath);
+        return queries.getInstancesModel(platformKey, propertiesPath);
     }
 
     public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
