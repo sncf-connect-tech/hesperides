@@ -39,7 +39,7 @@ Feature: Update platforms
     When I update this platform, with an empty payload
     Then the platform is successfully updated
     And the platform has no more modules
-    And the platform still has 2 global properties
+    And the platform still has 4 global properties
 
   @data-migration-issue-27
   Scenario: remove then restore a module with valued properties from a platform

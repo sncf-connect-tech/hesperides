@@ -92,6 +92,12 @@ public class CreateModules extends HesperidesScenario implements En {
             }
         });
 
+        Given("^an existing module with this template content?$", (String templateContent) -> {
+            moduleClient.create(moduleBuilder.build());
+            templateBuilder.setContent(templateContent);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+        });
+
         When("^I( try to)? create this module$", (String tryTo) -> {
             testContext.responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
         });

@@ -39,18 +39,18 @@ public class DeployedModule {
     String name;
     String version;
     boolean isWorkingCopy;
-    String path;
+    String modulePath;
     String propertiesPath;
     List<AbstractValuedProperty> valuedProperties;
     List<Instance> instances;
     List<String> instancesModel; // Liste des noms des propriétés des instances
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String path, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
+    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
         this.id = id;
         this.name = name;
         this.version = version;
         this.isWorkingCopy = isWorkingCopy;
-        this.path = path;
+        this.modulePath = modulePath;
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;
@@ -62,7 +62,7 @@ public class DeployedModule {
         name = other.name;
         version = other.version;
         isWorkingCopy = other.isWorkingCopy;
-        path = other.path;
+        modulePath = other.modulePath;
         propertiesPath = other.propertiesPath;
         valuedProperties = other.valuedProperties;
         instances = other.instances;
@@ -72,7 +72,7 @@ public class DeployedModule {
     // public for testing
     public String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
-        return path + "#" + moduleKey.getNamespaceWithoutPrefix();
+        return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
     }
 
     static List<DeployedModule> fillMissingIdentifiers(List<DeployedModule> deployedModules) {
@@ -117,7 +117,7 @@ public class DeployedModule {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 valuedProperties,
                 instances,
                 extractInstancesModel(valuedProperties, globalProperties));
@@ -137,7 +137,7 @@ public class DeployedModule {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 valuedProperties,
                 instances,
                 instancesModel);

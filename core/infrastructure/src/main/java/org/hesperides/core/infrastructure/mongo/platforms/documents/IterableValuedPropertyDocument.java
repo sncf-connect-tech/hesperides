@@ -38,21 +38,21 @@ import java.util.stream.Collectors;
 @Document
 public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
-    private List<IterablePropertyItemDocument> iterablePropertyItems;
+    private List<IterablePropertyItemDocument> items;
 
     public IterableValuedPropertyDocument(final IterableValuedProperty iterableValuedProperty) {
         name = iterableValuedProperty.getName();
-        iterablePropertyItems = IterablePropertyItemDocument.fromDomainInstances(iterableValuedProperty.getItems());
+        items = IterablePropertyItemDocument.fromDomainInstances(iterableValuedProperty.getItems());
     }
 
     public static IterableValuedProperty toDomainInstance(IterableValuedPropertyDocument iterableValuedPropertyDocument) {
         return new IterableValuedProperty(
                 iterableValuedPropertyDocument.name,
-                IterablePropertyItemDocument.toDomainInstances(iterableValuedPropertyDocument.iterablePropertyItems));
+                IterablePropertyItemDocument.toDomainInstances(iterableValuedPropertyDocument.items));
     }
 
     public IterableValuedPropertyView toIterableValuedPropertyView() {
-        return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemViews(iterablePropertyItems));
+        return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemViews(items));
     }
 
     public static List<IterableValuedPropertyView> toIterableValuedPropertyViews(final List<IterableValuedPropertyDocument> iterableValuedPropertyDocuments) {

@@ -13,14 +13,16 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode(callSuper = true)
 public class Property extends AbstractProperty {
 
+    String mustacheContent;
     boolean isRequired;
     String comment;
     String defaultValue;
     String pattern;
     boolean isPassword;
 
-    public Property(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
+    public Property(String mustacheContent, String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
         super(name);
+        this.mustacheContent = mustacheContent;
         this.isRequired = isRequired;
         this.comment = comment;
         this.defaultValue = defaultValue;
@@ -125,7 +127,7 @@ public class Property extends AbstractProperty {
 
             validateRequiredOrDefaultValue(name, isRequired, defaultValue);
 
-            property = new Property(name, isRequired, comment, defaultValue, pattern, isPassword);
+            property = new Property(propertyDefinition, name, isRequired, comment, defaultValue, pattern, isPassword);
         }
         return property;
     }

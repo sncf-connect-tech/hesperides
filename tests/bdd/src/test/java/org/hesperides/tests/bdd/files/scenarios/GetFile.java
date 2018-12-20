@@ -30,6 +30,7 @@ import org.hesperides.tests.bdd.files.FileClient;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -50,6 +51,8 @@ public class GetFile extends HesperidesScenario implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
+    @Autowired
+    private PropertyBuilder propertyBuilder;
 
     public GetFile() {
 
@@ -60,7 +63,7 @@ public class GetFile extends HesperidesScenario implements En {
 
             Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
                     ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
-            String modulePath = deployedModule.map(DeployedModuleIO::getPath).orElse("anything");
+            String modulePath = deployedModule.map(DeployedModuleIO::getModulePath).orElse("anything");
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
@@ -79,16 +82,30 @@ public class GetFile extends HesperidesScenario implements En {
         });
 
         Then("^the file is successfully retrieved$", () -> {
-            assertOK();
-            String expectedOutput = "12\n12";
-            String actualOutput = (String) testContext.getResponseBody();
-            assertEquals(expectedOutput, actualOutput);
+            String expectedOutput = buildExpectedOutput();
+            assertFile(expectedOutput);
         });
+
+        Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
+            String expectedOutput = fileContent;
+            assertFile(expectedOutput);
+        });
+    }
+
+    private void assertFile(String expectedOutput) {
+        assertOK();
+        String actualOutput = (String) testContext.getResponseBody();
+        assertEquals(expectedOutput, actualOutput);
     }
 
     private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {
         return deployedModule.isPresent() && !CollectionUtils.isEmpty(deployedModule.get().getInstances()) && !simulate
                 ? deployedModule.get().getInstances().get(0).getName()
                 : "anything";
+    }
+
+    private String buildExpectedOutput() {
+        String templateContent = templateBuilder.build().getContent();
+        return propertyBuilder.replacePropertiesWithValues(templateContent, platformBuilder);
     }
 }

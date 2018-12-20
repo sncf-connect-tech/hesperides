@@ -22,17 +22,21 @@ package org.hesperides.tests.bdd.templatecontainers.builders;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
+import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
 public class PropertyBuilder {
 
+    private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
 
     private String name;
     private boolean isRequired;
@@ -141,5 +145,29 @@ public class PropertyBuilder {
             property.append("}}");
         }
         return property.toString();
+    }
+
+    /**
+     * Extrait la liste des propriétés qu se trouvent entre moustaches.
+     */
+    public List<String> extractProperties(String input) {
+        List<String> properties = new ArrayList<>();
+        Matcher matcher = anythingBetweenMustachesPattern.matcher(input);
+        while (matcher.find()) {
+            properties.add(matcher.group(1));
+        }
+        return properties;
+    }
+
+    /**
+     * Remplace toutes les propriétés entre moustaches par leur valeur respective.
+     */
+    public String replacePropertiesWithValues(String input, PlatformBuilder platformBuilder) {
+        String result = input;
+        for (String property : extractProperties(input)) {
+            String propertyValue = platformBuilder.getPropertyValue(property);
+            result = result.replace("{{" + property + "}}", propertyValue);
+        }
+        return result;
     }
 }

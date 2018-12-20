@@ -26,6 +26,8 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.modules.ModuleClient;
+import org.hesperides.tests.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.tests.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,6 +39,10 @@ public class CreateTemplates extends HesperidesScenario implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
+    @Autowired
+    private ModelBuilder modelBuilder;
+    @Autowired
+    private PropertyBuilder propertyBuilder;
 
     public CreateTemplates() {
 
@@ -47,9 +53,11 @@ public class CreateTemplates extends HesperidesScenario implements En {
             }
             if (StringUtils.isNotEmpty(filename)) {
                 templateBuilder.withFilename(filename);
+                addPropertiesToModel(filename);
             }
             if (StringUtils.isNotEmpty(location)) {
                 templateBuilder.withLocation(location);
+                addPropertiesToModel(location);
             }
         });
 
@@ -72,6 +80,13 @@ public class CreateTemplates extends HesperidesScenario implements En {
 
         Given("^a template to create without a location", () -> {
             templateBuilder.withName("new-template").withLocation("");
+        });
+    }
+
+    private void addPropertiesToModel(String input) {
+        propertyBuilder.extractProperties(input).forEach(property -> {
+            propertyBuilder.reset().withName(property);
+            modelBuilder.withProperty(propertyBuilder.build());
         });
     }
 }

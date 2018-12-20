@@ -118,7 +118,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetModuleVersionTypesQuery(GetModuleVersionTypesQuery query) {
-        return moduleRepository.findByKeyNameAndKeyVersion(query.getModuleName(), query.getModuleVersion())
+        return moduleRepository.findKeysByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
                 .map(ModuleDocument::getKey)
                 .map(KeyDocument::isWorkingCopy)
@@ -129,7 +129,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetModuleVersionsQuery(GetModuleVersionsQuery query) {
-        return moduleRepository.findByKeyName(query.getModuleName())
+        return moduleRepository.findVersionsByKeyName(query.getModuleName())
                 .stream()
                 .map(ModuleDocument::getKey)
                 .map(KeyDocument::getVersion)
@@ -152,7 +152,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        ModuleDocument moduleDocument = moduleRepository.findByKey(keyDocument);
+        ModuleDocument moduleDocument = moduleRepository.findPropertiesByModuleKey(keyDocument);
         return AbstractPropertyDocument.toAbstractPropertyViews(moduleDocument.getProperties());
     }
 }

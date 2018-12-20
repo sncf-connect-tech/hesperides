@@ -46,7 +46,7 @@ public class DeployedModuleIO {
     @JsonProperty("working_copy")
     Boolean isWorkingCopy;
     @OnlyPrintableCharacters(subject = "deployedModules.path")
-    String path;
+    String modulePath;
     @SerializedName("properties_path")
     String propertiesPath;  // en tant qu'input : facultatif, inutile et toujours ignoré
 
@@ -57,7 +57,7 @@ public class DeployedModuleIO {
         name = deployedModuleView.getName();
         version = deployedModuleView.getVersion();
         isWorkingCopy = deployedModuleView.isWorkingCopy();
-        path = deployedModuleView.getPath();
+        modulePath = deployedModuleView.getModulePath();
         propertiesPath = deployedModuleView.getPropertiesPath();
         instances = InstanceIO.fromInstanceViews(deployedModuleView.getInstances());
     }
@@ -73,7 +73,7 @@ public class DeployedModuleIO {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 null,
                 InstanceIO.toDomainInstances(instances),
                 null

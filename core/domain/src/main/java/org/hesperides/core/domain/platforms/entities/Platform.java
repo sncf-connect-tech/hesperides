@@ -140,7 +140,7 @@ public class Platform {
             // À noter qu'à ce stade nous n'avons pas accès au "vrai" `propertiesPath` fourni en entrée du controller REST.
             // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
 
-            isModuleVersionUpdated = providedModule.getPath().equals(existingModule.getPath())
+            isModuleVersionUpdated = providedModule.getModulePath().equals(existingModule.getModulePath())
                     && providedModule.getName().equals(existingModule.getName())
                     && providedModule.isWorkingCopy() == existingModule.isWorkingCopy()
                     && !providedModule.getVersion().equals(existingModule.getVersion());

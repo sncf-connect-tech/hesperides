@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
@@ -38,15 +39,17 @@ import java.util.stream.Collectors;
 @Document
 public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
+    private String mustacheContent;
     private String value;
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
-        this.name = valuedProperty.getName();
-        this.value = valuedProperty.getValue();
+        mustacheContent = valuedProperty.getMustacheContent();
+        name = valuedProperty.getName();
+        value = valuedProperty.getValue();
     }
 
     public static ValuedProperty toDomainInstance(ValuedPropertyDocument valuedPropertyDocument) {
-        return new ValuedProperty(valuedPropertyDocument.name, valuedPropertyDocument.value);
+        return new ValuedProperty(valuedPropertyDocument.getMustacheContent(), valuedPropertyDocument.getName(), valuedPropertyDocument.getValue());
     }
 
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
@@ -58,7 +61,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toValuedPropertyView() {
-        return new ValuedPropertyView(getName(), value);
+        return new ValuedPropertyView(mustacheContent, getName(), value);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -75,5 +78,13 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
                 .stream()
                 .map(ValuedPropertyDocument::toValuedPropertyView)
                 .collect(Collectors.toList());
+    }
+
+    public static ValuedPropertyDocument buildDefaultValuedProperty(PropertyDocument property) {
+        ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
+        defaultValuedProperty.setMustacheContent(property.getMustacheContent().orElse(null));
+        defaultValuedProperty.setName(property.getName());
+        defaultValuedProperty.setValue(property.getDefaultValue());
+        return defaultValuedProperty;
     }
 }

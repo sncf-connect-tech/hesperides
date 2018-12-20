@@ -90,6 +90,10 @@ public class TemplateBuilder {
         return this;
     }
 
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public TemplateBuilder withVersionId(long versionId) {
         this.versionId = versionId;
         return this;

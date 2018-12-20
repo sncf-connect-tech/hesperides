@@ -13,15 +13,18 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.IterablePropertyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +39,13 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
 
     private final MongoPlatformRepository platformRepository;
+    private final MongoModuleRepository mongoModuleRepository;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository) {
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository,
+                                             MongoModuleRepository mongoModuleRepository) {
         this.platformRepository = platformRepository;
+        this.mongoModuleRepository = mongoModuleRepository;
     }
 
     /*** EVENT HANDLERS ***/
@@ -87,9 +93,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
-
         // Tranformation des propriétés du domaine en documents
-        final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
+        final List<AbstractValuedPropertyDocument> abstractValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
 
         // Récupération de la plateforme et mise à jour de la version
         Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
@@ -113,11 +118,124 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Modification des propriétés du module dans la plateforme
         platformDocument.getDeployedModules().stream()
-                .filter(moduleDocument -> moduleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
-                .findAny().ifPresent(module -> {
-            module.setValuedProperties(abstractValuedPropertyDocuments);
+                .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
+                .findAny().ifPresent(deployedModuleDocument -> {
+            // Récupérer le model du module afin d'attribuer à chaque
+            // propriété valorisée la définition initiale de la propriété
+            // (ex: {{prop | @required}} => "prop | @required")
+            Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
+            KeyDocument keyDocument = new KeyDocument(moduleKey);
+            List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
+                    .findPropertiesByModuleKey(keyDocument)
+                    .getProperties();
+
+            List<AbstractValuedPropertyDocument> valuedProperties = new ArrayList<>();
+            valuedProperties.addAll(completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties));
+            valuedProperties.addAll(completePropertiesWithDefaultValues(moduleProperties, abstractValuedProperties));
+            deployedModuleDocument.setValuedProperties(valuedProperties);
         });
         platformDocument.buildInstancesModelAndSave(platformRepository);
+    }
+
+    /**
+     * Complète les propriétés non valorisées avec leur valeur par défaut lorsqu'elle est définie.
+     */
+    private List<AbstractValuedPropertyDocument> completePropertiesWithDefaultValues(List<AbstractPropertyDocument> abstractModuleProperties,
+                                                                                     List<AbstractValuedPropertyDocument> abstractValuedProperties) {
+        List<AbstractValuedPropertyDocument> propertiesWithDefaultValues = new ArrayList<>();
+        abstractModuleProperties.forEach(abstractProperty -> {
+
+            if (abstractProperty instanceof PropertyDocument) {
+                PropertyDocument property = (PropertyDocument) abstractProperty;
+                if (StringUtils.isNotEmpty(property.getDefaultValue()) &&
+                        !propertyHasValue(property.getName(), abstractValuedProperties)) {
+                    ValuedPropertyDocument defaultValuedProperty = ValuedPropertyDocument.buildDefaultValuedProperty(property);
+                    propertiesWithDefaultValues.add(defaultValuedProperty);
+                }
+
+            } else if (abstractProperty instanceof IterablePropertyDocument) {
+                IterablePropertyDocument iterableProperty = (IterablePropertyDocument) abstractProperty;
+                // Dans le cas d'une propriété itérable, il faut que le bloc existe (qu'il ait un nom)
+                // pour que la valeur par défaut de ses éléments soit prise en compte
+                abstractValuedProperties.stream()
+                        .filter(IterableValuedPropertyDocument.class::isInstance)
+                        .map(IterableValuedPropertyDocument.class::cast)
+                        .map(IterableValuedPropertyDocument::getItems)
+                        .forEach(iterablePropertyItems -> {
+                            iterablePropertyItems.forEach(iterablePropertyItem -> {
+                                List<AbstractValuedPropertyDocument> iterablePropertiesWithDefaultValues =
+                                        // Récursivité
+                                        completePropertiesWithDefaultValues(
+                                                iterableProperty.getProperties(),
+                                                iterablePropertyItem.getAbstractValuedProperties()
+                                        );
+                                propertiesWithDefaultValues.addAll(iterablePropertiesWithDefaultValues);
+                            });
+                        });
+            }
+        });
+
+        return propertiesWithDefaultValues;
+    }
+
+    private boolean propertyHasValue(String propertyName, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
+        return abstractValuedProperties.stream()
+                .filter(ValuedPropertyDocument.class::isInstance)
+                .map(ValuedPropertyDocument.class::cast)
+                .anyMatch(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName) &&
+                        StringUtils.isNotEmpty(valuedProperty.getValue()));
+    }
+
+    /**
+     * Complète les propriétés avec la valeur définie entre moustaches dans le template.
+     * Cela permet d'utiliser le framework Mustache lors de la valorisation des templates.
+     *
+     * @see org.hesperides.core.application.files.FileUseCases#valorizeTemplateWithProperties
+     */
+    private List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
+                                                                                       List<AbstractPropertyDocument> abstractModuleProperties) {
+        return abstractValuedProperties.stream().map(abstractProperty -> {
+            AbstractValuedPropertyDocument property;
+            if (abstractProperty instanceof IterableValuedPropertyDocument) {
+                IterableValuedPropertyDocument iterableValuedProperty = (IterableValuedPropertyDocument) abstractProperty;
+
+                List<AbstractPropertyDocument> iterablePropertyChildren = abstractModuleProperties.stream()
+                        .filter(IterablePropertyDocument.class::isInstance)
+                        .map(IterablePropertyDocument.class::cast)
+                        .filter(iterablePropertyDocument -> iterablePropertyDocument.getName().equalsIgnoreCase(iterableValuedProperty.getName()))
+                        .findFirst()
+                        .map(IterablePropertyDocument::getProperties)
+                        .orElse(Collections.emptyList());
+
+                List<IterablePropertyItemDocument> items = new ArrayList<>();
+                iterableValuedProperty.getItems().forEach(item -> {
+                    IterablePropertyItemDocument newItem = new IterablePropertyItemDocument();
+                    newItem.setTitle(item.getTitle());
+                    // Récursivité
+                    newItem.setAbstractValuedProperties(completePropertiesWithMustacheContent(item.getAbstractValuedProperties(), iterablePropertyChildren));
+                    items.add(newItem);
+                });
+                iterableValuedProperty.setItems(items);
+                property = iterableValuedProperty;
+
+            } else if (abstractProperty instanceof ValuedPropertyDocument) {
+                ValuedPropertyDocument valuedProperty = (ValuedPropertyDocument) abstractProperty;
+                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), abstractModuleProperties).orElse(null);
+                valuedProperty.setMustacheContent(propertyRawName);
+                property = valuedProperty;
+            } else {
+                property = abstractProperty;
+            }
+            return property;
+        }).collect(Collectors.toList());
+    }
+
+    private Optional<String> getSimplePropertyRawName(String name, List<AbstractPropertyDocument> moduleProperties) {
+        return moduleProperties.stream()
+                .filter(abstractPropertyDocument -> abstractPropertyDocument.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .map(PropertyDocument.class::cast)
+                .flatMap(PropertyDocument::getMustacheContent);
     }
 
     @EventHandler
@@ -245,7 +363,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository.findModulePropertiesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository
+                .findModulePropertiesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
                 .map(PlatformDocument::getDeployedModules)
@@ -264,7 +383,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository.findModuleInstancesModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        final Optional<PlatformDocument> platformDocument = platformRepository
+                .findModuleInstancesModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         return platformDocument
                 .map(PlatformDocument::getDeployedModules)
@@ -281,7 +401,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        return platformRepository.findOptionalByKey(platformKeyDocument)
+        return platformRepository.findGlobalPropertiesByPlatformKey(platformKeyDocument)
                 .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElse(Collections.emptyList());

@@ -40,7 +40,7 @@ public class DeployedModuleView {
     String name;
     String version;
     boolean isWorkingCopy;
-    String path;
+    String modulePath;
     String propertiesPath;
     List<InstanceView> instances;
     List<AbstractValuedPropertyView> valuedProperties;
@@ -58,7 +58,7 @@ public class DeployedModuleView {
                 name,
                 version,
                 isWorkingCopy,
-                path,
+                modulePath,
                 toDomainAbstractValuedProperties(valuedProperties),
                 InstanceView.toDomainInstances(instances),
                 null

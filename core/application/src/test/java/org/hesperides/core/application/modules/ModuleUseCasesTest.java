@@ -61,5 +61,4 @@ public class ModuleUseCasesTest {
 
         useCases.createWorkingCopy(module, new User("robert", true, true));
     }
-
 }

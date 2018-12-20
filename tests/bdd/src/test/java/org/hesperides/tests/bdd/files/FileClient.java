@@ -34,7 +34,7 @@ public class FileClient {
     public ResponseEntity getFiles(
             String applicationName,
             String platformName,
-            String path,
+            String modulePath,
             String moduleName,
             String moduleVersion,
             String instanceName,
@@ -43,12 +43,12 @@ public class FileClient {
             Class responseType) {
 
         return restTemplate.getForEntity("/files/applications/{application_name}/platforms/{platform_name}" +
-                        "/{path}/{module_name}/{module_version}/instances/{instance_name}" +
+                        "/{module_path}/{module_name}/{module_version}/instances/{instance_name}" +
                         "?isWorkingCopy={is_working_copy}&simulate={simulate}",
                 responseType,
                 applicationName,
                 platformName,
-                path,
+                modulePath,
                 moduleName,
                 moduleVersion,
                 instanceName,
@@ -59,7 +59,7 @@ public class FileClient {
     public ResponseEntity getFile(
             String applicationName,
             String platformName,
-            String path,
+            String modulePath,
             String moduleName,
             String moduleVersion,
             String instanceName,
@@ -72,12 +72,12 @@ public class FileClient {
         //https://hesperides-dev:56789/rest/files/applications/TLH/platforms/DEV-XXX/%23ROOT_GROUP%23PARENT_GROUP%23CHILD_GROUP/module-tlh/2/instances/default/techno-template?isWorkingCopy=true&template_namespace=packages%23techno-tlh%231%23WORKINGCOPY&simulate=true
 
         return restTemplate.getForEntity("/files/applications/{application_name}/platforms/{platform_name}" +
-                        "/{path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}" +
+                        "/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}" +
                         "?isWorkingCopy={is_working_copy}&template_namespace={template_namespace}&simulate={simulate}",
                 responseType,
                 applicationName,
                 platformName,
-                path,
+                modulePath,
                 moduleName,
                 moduleVersion,
                 instanceName,

@@ -31,6 +31,7 @@ import org.hesperides.tests.bdd.files.FileClient;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
 import org.hesperides.tests.bdd.technos.TechnoBuilder;
+import org.hesperides.tests.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -51,6 +52,8 @@ public class GetFiles extends HesperidesScenario implements En {
     private TechnoBuilder technoBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private PropertyBuilder propertyBuilder;
 
     private List<InstanceFileOutput> expectedFiles;
 
@@ -62,7 +65,7 @@ public class GetFiles extends HesperidesScenario implements En {
 
             Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
                     ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
-            String modulePath = deployedModule.map(DeployedModuleIO::getPath).orElse("anything");
+            String modulePath = deployedModule.map(DeployedModuleIO::getModulePath).orElse("anything");
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
@@ -99,9 +102,11 @@ public class GetFiles extends HesperidesScenario implements En {
                 : "anything";
     }
 
-    private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String temlateNamespace) {
+    private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
+        String location = propertyBuilder.replacePropertiesWithValues(template.getLocation(), platformBuilder);
+        String filename = propertyBuilder.replacePropertiesWithValues(template.getFilename(), platformBuilder);
         return new InstanceFileOutput(
-                template.getLocation() + "/" + template.getFilename(),
+                location + "/" + filename,
                 "/rest/files"
                         + "/applications/" + platform.getApplicationName()
                         + "/platforms/" + platform.getPlatformName()
@@ -111,7 +116,7 @@ public class GetFiles extends HesperidesScenario implements En {
                         + "/instances/" + instanceName
                         + "/" + template.getName()
                         + "?isWorkingCopy=" + module.getIsWorkingCopy()
-                        + "&template_namespace=" + temlateNamespace
+                        + "&template_namespace=" + templateNamespace
                         + "&simulate=" + simulate,
                 new InstanceFileOutput.Rights("rwx", "---", "   ")
         );

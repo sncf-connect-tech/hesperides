@@ -20,13 +20,12 @@
  */
 package org.hesperides.tests.bdd.platforms.scenarios;
 
+import cucumber.api.DataTable;
 import cucumber.api.java8.En;
+import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
-import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
@@ -37,9 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -59,8 +56,25 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"([^\"]*)\")?( with this module)?(?: in logical group \"([^\"]*)\")?( (?:and|with) an instance)?( (?:and|with) valued properties)?( (?:and|with) iterable properties)?( (?:and|with) global properties)?( (?:and|with) instance properties)?$", (
-                String platformName, String withThisModule, String logicalGroup, String withAnInstance, String withValuedProperties, String withIterableProperties, String withGlobalProperties, String withInstanceProperties) -> {
+        Given("^an existing platform" +
+                "(?: named \"([^\"]*)\")?" +
+                "( with this module)?" +
+                "(?: in logical group \"([^\"]*)\")?" +
+                "( (?:and|with) an instance)?" +
+                "( (?:and|with) valued properties)?" +
+                "( (?:and|with) iterable properties)?" +
+                "( (?:and|with) global properties)?" +
+                "( (?:and|with) instance properties)?" +
+                "( and filename and location values)?$", (
+                String platformName,
+                String withThisModule,
+                String logicalGroup,
+                String withAnInstance,
+                String withValuedProperties,
+                String withIterableProperties,
+                String withGlobalProperties,
+                String withInstanceProperties,
+                String withFilenameLocationValues) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
@@ -98,11 +112,29 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.incrementVersionId();
             }
 
+//            if (StringUtils.isNotEmpty(withIterableCeption)) {
+//                platformBuilder.withIterableProperties(Arrays.asList(
+//                        new IterableValuedPropertyIO("module-foo", Arrays.asList(
+//                                new IterablePropertyItemIO("bloc-module-foo-1", Arrays.asList(
+//                                        new IterableValuedPropertyIO("module-bar", Arrays.asList(
+//                                                new IterablePropertyItemIO("bloc-module-bar-1", Arrays.asList(
+//                                                        new ValuedPropertyIO("module-foobar", "module-foobar-val-1")
+//                                                ))
+//                                        ))
+//                                ))
+//                        ))
+//                ));
+//                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+//                platformBuilder.incrementVersionId();
+//            }
+
             if (StringUtils.isNotEmpty(withGlobalProperties)) {
                 platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
                 if (moduleBuilder.hasTechno()) {
                     platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
                 }
+                platformBuilder.withGlobalProperty("global-filename", "abc", modelBuilder);
+                platformBuilder.withGlobalProperty("global-location", "def", modelBuilder);
                 platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
                 platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
                 platformBuilder.incrementVersionId();
@@ -113,6 +145,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (moduleBuilder.hasTechno()) {
                     platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
                 }
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+                platformBuilder.incrementVersionId();
+            }
+
+            if (StringUtils.isNotEmpty(withFilenameLocationValues)) {
+                platformBuilder.withProperty("filename", "conf");
+                platformBuilder.withProperty("location", "etc");
                 platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
                 platformBuilder.incrementVersionId();
             }
@@ -140,6 +179,31 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 }
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
             }
+        });
+
+        Given("^the platform has these valued properties$", (DataTable data) -> {
+            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(valuedProperties, Collections.emptyList()), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has these iterable properties$", (DataTable data) -> {
+            List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
+            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(Collections.emptyList(), iterableProperties), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has these global properties$", (DataTable data) -> {
+            List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(globalProperties, Collections.emptyList()));
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has these instance properties$", (DataTable data) -> {
+            List<ValuedPropertyIO> instanceProperties = data.asList(ValuedPropertyIO.class);
+            platformBuilder.withInstance("some-instance", instanceProperties);
+            platformClient.update(platformBuilder.buildInput(), false);
+            platformBuilder.incrementVersionId();
         });
 
         When("^I( try to)? create this platform$", (String tryTo) -> {
@@ -196,5 +260,46 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with an already exist error$", () -> {
             assertConflict();
         });
+    }
+
+    /**
+     * Cette méthode transforme une matrice à deux dimensions
+     * contenant les colonnes "iterable", "bloc", "name", "value"
+     * en une liste de IterableValuedPropertyIO.
+     */
+    private List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
+        Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
+        // Première étape : transformer la datatable en map
+        // pour mutualiser les données
+        valuedProperties.forEach(iterableProperty -> {
+            Map<String, Map<String, String>> itemMap = iterableMap.getOrDefault(iterableProperty.getIterable(), new HashMap<>());
+            Map<String, String> propertyMap = itemMap.getOrDefault(iterableProperty.getBloc(), new HashMap<>());
+            propertyMap.put(iterableProperty.getName(), iterableProperty.getValue());
+            itemMap.put(iterableProperty.getBloc(), propertyMap);
+            iterableMap.put(iterableProperty.getIterable(), itemMap);
+        });
+        // Deuxième étape : recréer l'arbre des données
+        // attendues en input à l'aide des maps
+        List<IterableValuedPropertyIO> iterableProperties = new ArrayList<>();
+        iterableMap.entrySet().forEach(iterable -> {
+            List<IterablePropertyItemIO> items = new ArrayList<>();
+            iterable.getValue().entrySet().forEach(bloc -> {
+                List<AbstractValuedPropertyIO> properties = new ArrayList<>();
+                bloc.getValue().entrySet().forEach(property -> {
+                    properties.add(new ValuedPropertyIO(property.getKey(), property.getValue()));
+                });
+                items.add(new IterablePropertyItemIO(bloc.getKey(), properties));
+            });
+            iterableProperties.add(new IterableValuedPropertyIO(iterable.getKey(), items));
+        });
+        return iterableProperties;
+    }
+
+    @Value
+    private class IterableProperty {
+        String iterable;
+        String bloc;
+        String name;
+        String value;
     }
 }

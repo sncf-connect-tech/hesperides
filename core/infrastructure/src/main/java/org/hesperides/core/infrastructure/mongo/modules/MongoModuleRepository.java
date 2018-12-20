@@ -20,22 +20,29 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(value = "{ 'key' : ?0 }", fields = "{ '_id' : 1 }")
     Optional<ModuleDocument> findOptionalIdByKey(KeyDocument key);
 
-    ModuleDocument findByKey(KeyDocument key);
-
     Optional<ModuleDocument> findOptionalById(String id);
 
     Optional<ModuleDocument> findOptionalByKey(KeyDocument key);
 
-    List<ModuleDocument> findByKeyNameAndKeyVersion(String name, String version);
+    @Query(value = "{ 'key.name' : ?0, 'key.version' : ?1 }", fields = "{ 'key' : 1 }")
+    List<ModuleDocument> findKeysByNameAndVersion(String technoName, String technoVersion);
 
-    List<ModuleDocument> findByKeyName(String name);
+    @Query(value = "{ 'key.name' : ?0 }", fields = "{ 'key.version' : 1 }")
+    List<ModuleDocument> findVersionsByKeyName(String technoName);
 
-    Optional<ModuleDocument> findOptionalByKeyAndTemplatesName(KeyDocument key, String templateName);
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : { $elemMatch : { 'name' : ?1 }}}")
+    Optional<ModuleDocument> findByKeyAndTemplateName(KeyDocument moduleKey, String templateName);
+
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : 1 }")
+    Optional<ModuleDocument> findTemplatesByModuleKey(KeyDocument moduleKey);
 
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
-    @Query(value = "{'technos.$id': ?0}")
+    @Query(value = "{ 'technos.$id' : ?0 }")
     List<ModuleDocument> findAllByTechnoId(String technoId);
 
     boolean existsByKey(KeyDocument keyDocument);
+
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'properties' : 1 }")
+    ModuleDocument findPropertiesByModuleKey(KeyDocument keyDocument);
 }
