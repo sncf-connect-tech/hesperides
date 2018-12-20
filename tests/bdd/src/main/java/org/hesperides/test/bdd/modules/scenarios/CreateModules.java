@@ -85,8 +85,11 @@ public class CreateModules extends HesperidesScenario implements En {
             }
         });
 
-        Given("^a module to create(?: with the same name and version)?( with this techno)?$", (String withThisTechno) -> {
+        Given("^a module to create(?: with the same name and version)?( with this techno)?( but different letter case)?$", (String withThisTechno, String withDifferentCase) -> {
             moduleBuilder.reset();
+            if (StringUtils.isNotEmpty(withDifferentCase)) {
+                moduleBuilder.withName(moduleBuilder.getName().toUpperCase());
+            }
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
             }

@@ -77,6 +77,10 @@ public class PlatformBuilder {
         platforms = new ArrayList<>();
     }
 
+    public String getPlatformName() {
+        return platformName;
+    }
+
     public PlatformBuilder withPlatformName(String platformName) {
         this.platformName = platformName;
         return this;

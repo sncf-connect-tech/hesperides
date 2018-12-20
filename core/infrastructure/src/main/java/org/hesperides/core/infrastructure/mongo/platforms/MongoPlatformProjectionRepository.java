@@ -21,17 +21,23 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensureCaseInsensitivity;
 
 @Slf4j
 @Profile({MONGO, FAKE_MONGO})
@@ -40,12 +46,23 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     private final MongoPlatformRepository platformRepository;
     private final MongoModuleRepository mongoModuleRepository;
+    private final MongoTemplate mongoTemplate;
+    private final Environment environment;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository,
-                                             MongoModuleRepository mongoModuleRepository) {
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
+                                             MongoTemplate mongoTemplate, Environment environment) {
         this.platformRepository = platformRepository;
         this.mongoModuleRepository = mongoModuleRepository;
+        this.mongoTemplate = mongoTemplate;
+        this.environment = environment;
+    }
+
+    @PostConstruct
+    private void ensureIndexCaseInsensitivity() {
+        if (isProfileActive(environment, MONGO)) {
+            ensureCaseInsensitivity(mongoTemplate, PLATFORM_COLLECTION_NAME);
+        }
     }
 
     /*** EVENT HANDLERS ***/

@@ -8,6 +8,12 @@ Feature: Get technos details
     When I get the techno detail
     Then the techno detail is successfully retrieved
 
+  @integ-test-only
+  Scenario: get the detail of an existing techno with the wrong letter case
+    Given an existing techno
+    When I get the techno detail with the wrong letter case
+    Then the techno detail is successfully retrieved
+
   Scenario: get the detail of a released techno
     Given a released techno
     When I get the techno detail

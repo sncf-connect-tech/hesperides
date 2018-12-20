@@ -3,6 +3,7 @@ package org.hesperides.core.infrastructure.mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +12,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.validation.constraints.NotNull;
+import org.springframework.validation.annotation.Validated;
 
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
@@ -20,6 +20,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Profile(MONGO)
 @EnableTransactionManagement
 @EnableMongoRepositories(basePackages = "org.hesperides.core.infrastructure.mongo")
+@Validated
 @ConfigurationProperties("projection-repository")
 public class MongoProjectionRepositoryConfiguration {
 

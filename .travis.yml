@@ -27,21 +27,25 @@ jobs:
   include:
   - stage: build
     env: BUILD WITHOUT TEST
-    script: "./mvnw clean package -Dmaven.javadoc.skip=true -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml"
+    install: echo Not performing default install step
+    script: ./mvnw clean package -Dmaven.javadoc.skip=true -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
   - stage: test
     env: CUCUMBER TESTS
     before_script:
     - sudo touch /var/log/hesperides.log
     - sudo chown travis /var/log/hesperides.log
-    script: "./mvnw test -pl '!tests/integration' -Dmaven.javadoc.skip=true"
+    script: ./mvnw test -pl '!tests/integration' -Dmaven.javadoc.skip=true -Dcucumber.options='--tags ~@integ-test-only'
   - stage: test
     env: INTEGRATION TESTS
     before_script:
     - sudo service mongod start
     - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
     script:
-    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap || exit 1 &
-    - sleep 20  # waiting for both MongoDB and SpringBoot app
+    - sleep 15  # waiting for MongoDB to start up
+    # On crée les collections MongoDB avec leurs collations:
+    - mongo projection_repository mongo_create_collections.js
+    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
+    - sleep 20  # waiting for the SpringBoot app to start up
     - ./mvnw -pl tests/integration verify -Dmaven.javadoc.skip=true -P integration-test
   - stage: docker
     env: DEPLOY TO DOCKER HUB

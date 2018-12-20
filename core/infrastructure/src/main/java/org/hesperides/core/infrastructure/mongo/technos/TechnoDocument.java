@@ -31,7 +31,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -48,7 +47,6 @@ import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAM
 public class TechnoDocument {
     @Id
     private String id;
-    @Indexed
     private KeyDocument key;
     private List<TemplateDocument> templates;
     private List<AbstractPropertyDocument> properties;

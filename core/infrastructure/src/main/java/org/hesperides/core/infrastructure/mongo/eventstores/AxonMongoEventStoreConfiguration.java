@@ -11,15 +11,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import javax.validation.constraints.NotNull;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotNull;
 
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Profile(MONGO)
 @Configuration
 @ConfigurationProperties("event-store")
+@Validated
 public class AxonMongoEventStoreConfiguration {
 
     // On expose les noms des méthodes sous formes de strings pour pouvoir les utiliser comme "bean qualifiers"

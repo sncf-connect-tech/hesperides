@@ -13,7 +13,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -29,7 +28,6 @@ public class ModuleDocument {
 
     @Id
     private String id;
-    @Indexed
     private KeyDocument key;
     private List<TemplateDocument> templates;
     @DBRef
