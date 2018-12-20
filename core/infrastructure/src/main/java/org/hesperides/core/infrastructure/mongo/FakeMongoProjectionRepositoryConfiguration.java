@@ -42,7 +42,9 @@ public class FakeMongoProjectionRepositoryConfiguration {
 
     @Bean(destroyMethod = "close")
     public MongoClient projectionMongoClient() {
-        final MongoServer server = new MongoServer(new MemoryBackend());
+        final MemoryBackend backend = new MemoryBackend();
+        backend.setVersion(3, 4, 0);
+        final MongoServer server = new MongoServer(backend);
 
         // bind on a random local port
         final InetSocketAddress serverAddress = server.bind();

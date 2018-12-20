@@ -53,6 +53,10 @@ public class TechnoBuilder {
         templates = new ArrayList<>();
     }
 
+    public String getName() {
+        return name;
+    }
+
     public TechnoBuilder withName(String name) {
         this.name = name;
         return this;

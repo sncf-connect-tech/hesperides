@@ -57,6 +57,10 @@ public class ModuleBuilder {
         return this;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public ModuleBuilder withName(String name) {
         this.name = name;
         return this;

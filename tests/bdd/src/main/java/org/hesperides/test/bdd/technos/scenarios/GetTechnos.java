@@ -23,11 +23,15 @@ public class GetTechnos extends HesperidesScenario implements En {
             technoBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the techno detail(?: for a techno type \"(.*)\")?$", (String tryTo, String technoType) -> {
+        When("^I( try to)? get the techno detail(?: for a techno type \"(.*)\")?( with the wrong letter case)?$", (String tryTo, String technoType, String withWrongLetterCase) -> {
             if (StringUtils.isNotEmpty(technoType)) {
                 technoBuilder.withModuleType(technoType);
             }
-            testContext.responseEntity = technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), getResponseType(tryTo, TechnoIO.class));
+            TechnoIO technoInput = technoBuilder.build();
+            if (StringUtils.isNotEmpty(withWrongLetterCase)) {
+                technoInput = new TechnoBuilder().withName(technoBuilder.getName().toUpperCase()).build();
+            }
+            testContext.responseEntity = technoClient.get(technoInput, technoBuilder.getVersionType(), getResponseType(tryTo, TechnoIO.class));
         });
 
         Then("^the techno detail is successfully retrieved$", () -> {

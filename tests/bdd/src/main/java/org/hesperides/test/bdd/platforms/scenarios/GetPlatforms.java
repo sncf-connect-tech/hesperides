@@ -38,11 +38,15 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
     public GetPlatforms() {
 
-        When("^I( try to)? get the platform detail( at a specific time in the past)?$", (String tryTo, String withTimestamp) -> {
+        When("^I( try to)? get the platform detail( at a specific time in the past)?( with the wrong letter case)?$", (String tryTo, String withTimestamp, String withWrongLetterCase) -> {
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 //TODO
             }
-            testContext.responseEntity = platformClient.get(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
+            PlatformIO platformInput = platformBuilder.buildInput();
+            if (StringUtils.isNotEmpty(withWrongLetterCase)) {
+                platformInput = new PlatformBuilder().withPlatformName(platformBuilder.getPlatformName().toUpperCase()).buildInput();
+            }
+            testContext.responseEntity = platformClient.get(platformInput, getResponseType(tryTo, PlatformIO.class));
         });
 
         Then("^the platform detail is successfully retrieved", () -> {

@@ -159,11 +159,13 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.addPlatform(platformBuilder.buildInput());
         });
 
-        Given("^a platform to create(?:, named \"([^\"]*)\")?( with this module)?( with an instance( with properties)?)?$", (
-                String platformName, String withThisModule, String withAnInstance, String withProperties) -> {
+        Given("^a platform to create(?:, named \"([^\"]*)\")?( with this module)?( with an instance( with properties)?)?( with the same name but different letter case)?$", (
+                String platformName, String withThisModule, String withAnInstance, String withProperties, String sameNameDifferentLetterCase) -> {
 
             if (StringUtils.isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
+            } else if (StringUtils.isNotEmpty(sameNameDifferentLetterCase)) {
+                platformBuilder.withPlatformName(platformBuilder.getPlatformName().toUpperCase());
             }
 
             if (StringUtils.isNotEmpty(withThisModule)) {

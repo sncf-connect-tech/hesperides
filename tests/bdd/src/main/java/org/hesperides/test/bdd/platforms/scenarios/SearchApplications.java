@@ -39,6 +39,14 @@ public class SearchApplications extends HesperidesScenario implements En {
             }
         });
 
+        Given("^an application named ([^ ]+)(?: with a platform named (.+))?$", (String applicationName, String platformName) -> {
+            platformBuilder.withApplicationName(applicationName);
+            if (StringUtils.isNotEmpty(platformName)) {
+                platformBuilder.withPlatformName(platformName);
+            }
+            platformClient.create(platformBuilder.buildInput());
+        });
+
         When("^I( try to)? search for the application \"(.*?)\"", (String tryTo, String applicationName) -> {
             testContext.responseEntity = platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class));
         });

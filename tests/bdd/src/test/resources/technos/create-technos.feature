@@ -14,6 +14,13 @@ Feature: Create technos
     When I try to create this techno
     Then the techno creation is rejected with a conflict error
 
+  @integ-test-only
+  Scenario: forbid creation of a techno with a same name but different letter case
+    Given an existing techno
+    And a techno to create with the same name and version but different letter case
+    When I try to create this techno
+    Then the techno creation is rejected with a conflict error
+
   Scenario: create a techno after it has been deleted
     Given an existing techno
     When I delete this techno

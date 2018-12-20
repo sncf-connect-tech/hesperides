@@ -28,3 +28,9 @@ Feature: Search applications
     Given a list of 12 applications prefixed by "app"
     When I search for the application ""
     Then the application search result contains 12 entries
+
+  @integ-test-only
+  Scenario: search for applications is case-insensitive
+    Given an application named AVG
+    When I search for the application "avg"
+    Then the application search result contains 1 entry

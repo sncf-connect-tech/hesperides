@@ -28,3 +28,9 @@ Feature: Search platforms
     Given a list of 12 applications prefixed by "app" with 4 platforms prefixed by "plf" in each application
     When I try to search for the platform "plf-4" in the application ""
     Then the platform search is rejected with a bad request error
+
+  @integ-test-only
+  Scenario: search for platforms is case-insensitive
+    Given an application named AVG with a platform named PRD1
+    When I search for the platform "prd1" in the application "avg"
+    Then the platform search result contains 1 entry

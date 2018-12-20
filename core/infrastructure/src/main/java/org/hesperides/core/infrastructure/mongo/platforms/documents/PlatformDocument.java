@@ -27,7 +27,6 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
@@ -45,7 +44,6 @@ public class PlatformDocument {
 
     @Id
     private String id;
-    @Indexed
     private PlatformKeyDocument key;
     private String version;
     private boolean isProductionPlatform;

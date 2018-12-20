@@ -23,11 +23,15 @@ public class GetModules extends HesperidesScenario implements En {
             moduleBuilder.withName("nope");
         });
 
-        When("^I( try to)? get the module detail(?: for a module type \"(.*)\")?$", (String tryTo, String moduleType) -> {
+        When("^I( try to)? get the module detail(?: for a module type \"(.*)\")?( with the wrong letter case)?$", (String tryTo, String moduleType, String withWrongLetterCase) -> {
             if (StringUtils.isNotEmpty(moduleType)) {
                 moduleBuilder.withModuleType(moduleType);
             }
-            testContext.responseEntity = moduleClient.get(moduleBuilder.build(), moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
+            ModuleIO moduleInput = moduleBuilder.build();
+            if (StringUtils.isNotEmpty(withWrongLetterCase)) {
+                moduleInput = new ModuleBuilder().withName(moduleBuilder.getName().toUpperCase()).build();
+            }
+            testContext.responseEntity = moduleClient.get(moduleInput, moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
         });
 
         Then("^the module detail is successfully retrieved$", () -> {

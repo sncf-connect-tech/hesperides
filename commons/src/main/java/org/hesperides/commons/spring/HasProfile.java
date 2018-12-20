@@ -25,10 +25,14 @@ public class HasProfile {
     }
 
     public static boolean dataMigration() {
-        return isProfileActive(SpringProfiles.DATA_MIGRATION);
+        if (staticEnvironment == null) {
+            // Nécessaire pour que des tests comme domain.templatecontainers.entities.PropertyTest puissent s'exécuter
+            return false;
+        }
+        return isProfileActive(staticEnvironment, SpringProfiles.DATA_MIGRATION);
     }
 
-    public static boolean isProfileActive(String profile) {
-        return staticEnvironment != null && Arrays.asList(staticEnvironment.getActiveProfiles()).contains(profile);
+    public static boolean isProfileActive(Environment environment, String profile) {
+        return Arrays.asList(environment.getActiveProfiles()).contains(profile);
     }
 }

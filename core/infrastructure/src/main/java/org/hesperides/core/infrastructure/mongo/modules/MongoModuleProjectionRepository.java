@@ -8,25 +8,30 @@ import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensureCaseInsensitivity;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -35,14 +40,25 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     private final MongoModuleRepository moduleRepository;
     private final MongoTechnoProjectionRepository technoProjectionRepository;
     private final MongoTemplate mongoTemplate;
+    private final MongoSearchOptions searchOptions;
+    private final Environment environment;
 
     @Autowired
-    public MongoModuleProjectionRepository(MongoModuleRepository moduleRepository,
-                                           MongoTechnoProjectionRepository technoProjectionRepository,
-                                           MongoTemplate mongoTemplate) {
+    public MongoModuleProjectionRepository(MongoModuleRepository moduleRepository, MongoTechnoProjectionRepository technoProjectionRepository,
+                                           MongoTemplate mongoTemplate, MongoSearchOptions searchOptions,
+                                           Environment environment) {
         this.moduleRepository = moduleRepository;
         this.technoProjectionRepository = technoProjectionRepository;
         this.mongoTemplate = mongoTemplate;
+        this.searchOptions = searchOptions;
+        this.environment = environment;
+    }
+
+    @PostConstruct
+    private void ensureIndexCaseInsensitivity() {
+        if (isProfileActive(environment, MONGO)) {
+            ensureCaseInsensitivity(mongoTemplate, MODULE_COLLECTION_NAME);
+        }
     }
 
     /*** EVENT HANDLERS ***/
@@ -144,7 +160,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         String name = values.length >= 1 ? values[0] : "";
         String version = values.length >= 2 ? values[1] : "";
 
-        Pageable pageable = PageRequest.of(0, 10); //TODO Sortir cette valeur dans le fichier de configuration
+        Pageable pageable = PageRequest.of(0, searchOptions.getModuleSearchMaxResults());
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable);
         return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
     }

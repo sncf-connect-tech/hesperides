@@ -1,11 +1,16 @@
 FROM openjdk:8-jre-alpine
 
+RUN apk add curl mongodb
+# We only need the MongoDB shell:
+RUN rm /etc/init.d/mongo* /etc/conf.d/mongo* /usr/bin/mongod /usr/bin/mongos /etc/logrotate.d/mongodb /usr/bin/install_compass
+
 COPY bootstrap/target/hesperides-*.jar hesperides.jar
-RUN apk add curl
+COPY mongo_create_collections.js /
+COPY docker_entrypoint.sh /
 
-ENTRYPOINT ["/usr/bin/java"]
+ENTRYPOINT ["/docker_entrypoint.sh"]
 
-CMD ["-jar","/hesperides.jar"]
+CMD ["/usr/bin/java", "-jar","/hesperides.jar"]
 
 EXPOSE 8080
 

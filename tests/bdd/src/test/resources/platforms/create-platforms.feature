@@ -20,6 +20,13 @@ Feature: Create platform
     When I try to create this platform
     Then the platform creation fails with an already exist error
 
+  @integ-test-only
+  Scenario: forbid creation of a platform with a same name but different letter case
+    Given an existing platform
+    And a platform to create with the same name but different letter case
+    When I try to create this platform
+    Then the platform creation fails with an already exist error
+
   Scenario: copy of a platform with its modules and properties
     Given an existing techno with properties and global properties
     And an existing module with properties and global properties and this techno
