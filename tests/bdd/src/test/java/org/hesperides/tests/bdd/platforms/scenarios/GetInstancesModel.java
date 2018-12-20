@@ -1,7 +1,7 @@
 package org.hesperides.tests.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.tests.bdd.commons.HesperidesScenario;
 import org.hesperides.tests.bdd.modules.ModuleBuilder;
 import org.hesperides.tests.bdd.platforms.PlatformBuilder;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetInstanceModel extends HesperidesScenario implements En {
+public class GetInstancesModel extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
@@ -20,17 +20,17 @@ public class GetInstanceModel extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    public GetInstanceModel() {
+    public GetInstancesModel() {
 
         When("^I get the instance model$", () -> {
-            testContext.responseEntity = platformClient.getInstanceModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.responseEntity = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
         });
 
         Then("^the instance model is successfully retrieved$", () -> {
             assertOK();
-            InstanceModelOutput expectedInstanceModel = platformBuilder.buildInstanceModel();
-            InstanceModelOutput actualInstanceModel = ((ResponseEntity<InstanceModelOutput>)testContext.responseEntity).getBody();
-            assertEquals(expectedInstanceModel, actualInstanceModel);
+            InstancesModelOutput expectedInstancesModel = platformBuilder.buildInstancesModel();
+            InstancesModelOutput actualInstancesModel = ((ResponseEntity<InstancesModelOutput>) testContext.responseEntity).getBody();
+            assertEquals(expectedInstancesModel, actualInstancesModel);
         });
     }
 }

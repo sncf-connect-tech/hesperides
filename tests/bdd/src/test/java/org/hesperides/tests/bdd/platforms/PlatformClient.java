@@ -22,7 +22,7 @@ package org.hesperides.tests.bdd.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.InstanceModelOutput;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
@@ -121,10 +121,10 @@ public class PlatformClient {
                 responseType);
     }
 
-    public ResponseEntity<InstanceModelOutput> getInstanceModel(PlatformIO platform, String propertiesPath) {
+    public ResponseEntity<InstancesModelOutput> getInstancesModel(PlatformIO platform, String propertiesPath) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties/instance_model?path={path}",
-                InstanceModelOutput.class,
+                InstancesModelOutput.class,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);

@@ -139,7 +139,6 @@ public class Platform {
             // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à l'ANCIENNE version de module
             // À noter qu'à ce stade nous n'avons pas accès au "vrai" `propertiesPath` fourni en entrée du controller REST.
             // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
-            // Ici `newModule.getPropertiesPath()` provient de DeployedModule.generatePropertiesPath() où il est reconstruit de zéro.
 
             isModuleVersionUpdated = providedModule.getModulePath().equals(existingModule.getModulePath())
                     && providedModule.getName().equals(existingModule.getName())

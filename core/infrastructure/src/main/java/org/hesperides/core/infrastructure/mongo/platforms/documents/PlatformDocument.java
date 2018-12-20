@@ -109,11 +109,11 @@ public class PlatformDocument {
         );
     }
 
-    public void buildInstanceModelAndSave(MongoPlatformRepository platformRepository) {
+    public void buildInstancesModelAndSave(MongoPlatformRepository platformRepository) {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(deployedModule -> deployedModule.buildInstanceModel(globalProperties))
+                .map(deployedModule -> deployedModule.buildInstancesModel(globalProperties))
                 .collect(Collectors.toList());
         platformRepository.save(this);
     }

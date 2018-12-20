@@ -234,11 +234,11 @@ public class PlatformBuilder {
         this.iterableProperties.addAll(iterableProperties);
     }
 
-    public InstanceModelOutput buildInstanceModel() {
-        return new InstanceModelOutput(
+    public InstancesModelOutput buildInstancesModel() {
+        return new InstancesModelOutput(
                 instanceProperties.entrySet()
                         .stream()
-                        .map(entry -> new InstanceModelOutput.InstancePropertyOutput(
+                        .map(entry -> new InstancesModelOutput.InstancePropertyOutput(
                                 entry.getValue(), "", false, "", "", false))
                         .collect(Collectors.toList()));
     }
