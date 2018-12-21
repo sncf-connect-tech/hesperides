@@ -26,5 +26,5 @@ Feature: Search applications
 
   Scenario: search for an application without specifying the name
     Given a list of 12 applications prefixed by "app"
-    When I try to search for the application ""
-    Then the application search is rejected with a bad request error
+    When I search for the application ""
+    Then the application search result contains 12 entries
