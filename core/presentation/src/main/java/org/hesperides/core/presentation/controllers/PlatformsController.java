@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
@@ -170,11 +171,9 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Search applications")
     @PostMapping("/perform_search")
-    public ResponseEntity<List<SearchResultOutput>> searchApplications(@RequestParam("name") final String applicationName) {
+    public ResponseEntity<List<SearchResultOutput>> searchApplications(@RequestParam("name") String applicationName) {
 
-        checkQueryParameterNotEmpty("name", applicationName);
-
-        List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(applicationName);
+        List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(defaultString(applicationName, ""));
 
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchApplicationResultViews)
                 .orElse(Collections.emptyList())
