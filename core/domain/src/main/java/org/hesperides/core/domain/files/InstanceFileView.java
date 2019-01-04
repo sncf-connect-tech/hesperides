@@ -25,6 +25,9 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 @Value
 public class InstanceFileView {
 
@@ -34,16 +37,16 @@ public class InstanceFileView {
 
     public InstanceFileView(String templateLocation, String templateFilename, Platform.Key platformKey, String modulePath, Module.Key moduleKey, String instanceName, TemplateView template, boolean simulate) {
         location = buildFileLocation(templateLocation, templateFilename);
-        url = "/rest/files/applications/" + platformKey.getApplicationName() +
-                "/platforms/" + platformKey.getPlatformName()
-                + "/" + modulePath
-                + "/" + moduleKey.getName()
-                + "/" + moduleKey.getVersion()
-                + "/instances/" + instanceName
-                + "/" + template.getName()
-                + "?isWorkingCopy=" + moduleKey.isWorkingCopy()
-                + "&template_namespace=" + template.getNamespace()
-                + "&simulate=" + simulate;
+        url = buildUrl(platformKey.getApplicationName(),
+                platformKey.getPlatformName(),
+                modulePath,
+                moduleKey.getName(),
+                moduleKey.getVersion(),
+                moduleKey.isWorkingCopy(),
+                instanceName,
+                template.getName(),
+                template.getNamespace(),
+                simulate);
         rights = template.getRights();
     }
 
@@ -51,11 +54,39 @@ public class InstanceFileView {
         StringBuilder fileLocation = new StringBuilder();
         if (location != null) {
             fileLocation.append(location);
-            if (!location.endsWith("/")) {
+//            if (!location.endsWith("/")) {
                 fileLocation.append("/");
-            }
+//            }
         }
         fileLocation.append(filename);
         return fileLocation.toString();
+    }
+
+    private String buildUrl(final String applicationName,
+                            final String platformName,
+                            final String path,
+                            final String moduleName,
+                            final String moduleVersion,
+                            final boolean isWorkingCopy,
+                            final String instanceName,
+                            final String fileName,
+                            final String templateNamespace,
+                            final boolean simulate) {
+        try {
+            return String.format("/rest/files/applications/%1$s/platforms/%2$s/%3$s/%4$s/%5$s/instances/%6$s/%7$s?isWorkingCopy=%8$s&template_namespace=%9$s&simulate=%10$s",
+                    URLEncoder.encode(applicationName, "UTF-8").replace("+", "%20"),
+                    URLEncoder.encode(platformName, "UTF-8").replace("+", "%20"),
+                    URLEncoder.encode(path, "UTF-8").replace("+", "%20"),
+                    URLEncoder.encode(moduleName, "UTF-8").replace("+", "%20"),
+                    URLEncoder.encode(moduleVersion, "UTF-8").replace("+", "%20"),
+                    URLEncoder.encode(instanceName, "UTF-8").replace("+", "%20"),
+                    URLEncoder.encode(fileName, "UTF-8").replace("+", "%20"),
+                    isWorkingCopy,
+                    URLEncoder.encode(templateNamespace, "UTF-8").replace("+", "%20"),
+                    simulate
+            );
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

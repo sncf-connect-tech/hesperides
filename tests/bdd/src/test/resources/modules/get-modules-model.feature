@@ -36,10 +36,10 @@ Feature: Get module model
     When I get the model of this module
     Then the model of this module contains the updated properties
 
-  Scenario: get the model of a module with properties with the same name and comment, but different default values, in two templates
-    Given an existing module with properties with the same name and comment, but different default values, in two templates
+  Scenario: get the model of a module with properties with the same name and comment but different default values in multiple templates
+    Given an existing module with properties with the same name and comment but different default values in multiple templates
     When I get the model of this module
-    Then the model of this module contains the properties
+    Then the model of this module contains the property with the same name and comment
 
   Scenario: get the model of a module with properties with the same name but different comments in two templates
     Given an existing module with properties with the same name but different comments in two templates

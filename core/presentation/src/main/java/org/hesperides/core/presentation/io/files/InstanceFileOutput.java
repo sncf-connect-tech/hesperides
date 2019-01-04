@@ -25,6 +25,8 @@ import lombok.Value;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 
+import java.util.Optional;
+
 @Value
 @AllArgsConstructor
 public class InstanceFileOutput {
@@ -36,7 +38,7 @@ public class InstanceFileOutput {
     public InstanceFileOutput(InstanceFileView instanceFileView) {
         location = instanceFileView.getLocation();
         url = instanceFileView.getUrl();
-        rights = new Rights(instanceFileView.getRights());
+        rights = Optional.ofNullable(instanceFileView.getRights()).map(Rights::new).orElse(null);
     }
 
     @Value
@@ -48,12 +50,12 @@ public class InstanceFileOutput {
         String other;
 
         public Rights(TemplateView.RightsView rights) {
-            user = fileRightsToString(rights.getUser());
-            group = fileRightsToString(rights.getGroup());
-            other = fileRightsToString(rights.getOther());
+            user = Optional.ofNullable(rights).map(TemplateView.RightsView::getUser).map(Rights::fileRightsToString).orElse("");
+            group = Optional.ofNullable(rights).map(TemplateView.RightsView::getGroup).map(Rights::fileRightsToString).orElse("");
+            other = Optional.ofNullable(rights).map(TemplateView.RightsView::getOther).map(Rights::fileRightsToString).orElse("");
         }
 
-        public String fileRightsToString(TemplateView.FileRightsView fileRights) {
+        private static String fileRightsToString(TemplateView.FileRightsView fileRights) {
             return new StringBuilder()
                     .append(booleanToString(fileRights.getRead(), "r"))
                     .append(booleanToString(fileRights.getWrite(), "w"))
@@ -61,7 +63,7 @@ public class InstanceFileOutput {
                     .toString();
         }
 
-        public String booleanToString(Boolean value, String valueIfTrue) {
+        private static String booleanToString(Boolean value, String valueIfTrue) {
             String string = "";
             if (value == null) {
                 string = " ";

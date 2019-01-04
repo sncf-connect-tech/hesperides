@@ -5,7 +5,10 @@ import lombok.Value;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -13,6 +16,15 @@ public class Techno extends TemplateContainer {
 
     public Techno(TemplateContainer.Key key, List<Template> templates) {
         super(key, templates);
+    }
+
+    public static List<String> getTemplatesName(List<Techno> technos) {
+        return Optional.ofNullable(technos)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(TemplateContainer::getTemplatesName)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     public static class Key extends TemplateContainer.Key {

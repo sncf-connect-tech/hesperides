@@ -28,6 +28,7 @@ import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.hesperides.commons.spring.HasProfile;
 
 import java.io.StringReader;
 import java.util.*;
@@ -39,13 +40,42 @@ public abstract class AbstractProperty {
 
     String name;
 
-    public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates) {
-        return Optional.ofNullable(templates)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(Template::extractProperties)
-                .flatMap(List::stream) // Fusionne les listes
-                .collect(Collectors.toList());
+    public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates, List<String> updatedTemplatesName, boolean isFirstEvent) {
+        Set<AbstractProperty> properties = new HashSet<>();
+
+        if (HasProfile.dataMigration()) {
+
+            Set<AbstractProperty> updatedTemplatesProperties = Optional.ofNullable(templates)
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .sorted((template1, template2) -> isFirstEvent ? template2.getName().compareTo(template1.getName()) : template1.getName().compareTo(template2.getName()))
+                    .filter(template -> updatedTemplatesName.stream().anyMatch(updatedTemplateName -> updatedTemplateName.equalsIgnoreCase(template.getName())))
+                    .map(Template::extractProperties)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet());
+
+            Set<AbstractProperty> otherTemplatesProperties = Optional.ofNullable(templates)
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .sorted((template1, template2) -> template2.getName().compareTo(template1.getName()))
+                    .filter(template -> updatedTemplatesName.stream().noneMatch(updatedTemplate -> updatedTemplate.equalsIgnoreCase(template.getName())))
+                    .map(Template::extractProperties)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet());
+
+            properties.addAll(updatedTemplatesProperties);
+            properties.addAll(otherTemplatesProperties);
+
+        } else {
+            properties.addAll(Optional.ofNullable(templates)
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(Template::extractProperties)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toSet()));
+        }
+
+        return new ArrayList<>(properties);
     }
 
     public static List<AbstractProperty> extractPropertiesFromStringContent(String content) {
@@ -60,9 +90,7 @@ public abstract class AbstractProperty {
                 }
             } else if (code instanceof IterableCode) {
                 IterableProperty iterableProperty = IterableProperty.extractIterablePropertyFromMustacheCode((IterableCode) code);
-                if (iterableProperty != null) {
-                    properties.add(iterableProperty);
-                }
+                properties.add(iterableProperty);
             }
         }
         return properties;

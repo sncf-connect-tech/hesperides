@@ -9,6 +9,8 @@ import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -48,6 +50,16 @@ public class Module extends TemplateContainer {
                 technos,
                 versionId + 1
         );
+    }
+
+    /**
+     * Liste les noms des templates du module et des technos du module.
+     */
+    public List<String> getTemplatesName() {
+        return Stream.concat(
+                super.getTemplatesName().stream(),
+                Techno.getTemplatesName(technos).stream())
+                .collect(Collectors.toList());
     }
 
     public static class Key extends TemplateContainer.Key {

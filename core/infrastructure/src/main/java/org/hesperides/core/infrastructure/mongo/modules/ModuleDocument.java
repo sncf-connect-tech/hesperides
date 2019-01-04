@@ -81,21 +81,20 @@ public class ModuleDocument {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
     }
 
-    /**
-     * Génère la liste des propriétés avant de persister
-     *
-     * @param moduleRepository
-     */
-    public void extractPropertiesAndSave(MongoModuleRepository moduleRepository) {
-        this.setProperties(extractPropertiesFromTemplatesAndTechnos());
+    public void extractPropertiesAndSave(MongoModuleRepository moduleRepository, List<String> updatedTemplatesName) {
+        extractPropertiesAndSave(moduleRepository, updatedTemplatesName, false);
+    }
+
+    public void extractPropertiesAndSave(MongoModuleRepository moduleRepository, List<String> updatedTemplatesName, boolean isFirstEvent) {
+        this.setProperties(extractPropertiesFromTemplatesAndTechnos(updatedTemplatesName, isFirstEvent));
         moduleRepository.save(this);
     }
 
-    private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos() {
+    private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos(List<String> updatedTemplatesName, boolean isFirstEvent) {
         List<Template> allTemplates = getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments();
         List<AbstractProperty> abstractProperties;
         try {
-            abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates);
+            abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, updatedTemplatesName, isFirstEvent);
         } catch (InvalidTemplateException invalidTemplateException) {
             throw new InvalidTemplateException(key.toString(), invalidTemplateException);
         }

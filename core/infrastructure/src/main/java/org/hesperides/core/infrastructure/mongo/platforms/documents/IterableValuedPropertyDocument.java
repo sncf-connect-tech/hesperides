@@ -27,10 +27,7 @@ import org.hesperides.core.domain.platforms.entities.properties.IterableValuedPr
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -45,21 +42,12 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
         items = IterablePropertyItemDocument.fromDomainInstances(iterableValuedProperty.getItems());
     }
 
-    public static IterableValuedProperty toDomainInstance(IterableValuedPropertyDocument iterableValuedPropertyDocument) {
-        return new IterableValuedProperty(
-                iterableValuedPropertyDocument.name,
-                IterablePropertyItemDocument.toDomainInstances(iterableValuedPropertyDocument.items));
-    }
-
-    public IterableValuedPropertyView toIterableValuedPropertyView() {
+    public IterableValuedPropertyView toView() {
         return new IterableValuedPropertyView(getName(), IterablePropertyItemDocument.toIterablePropertyItemViews(items));
     }
 
-    public static List<IterableValuedPropertyView> toIterableValuedPropertyViews(final List<IterableValuedPropertyDocument> iterableValuedPropertyDocuments) {
-        return Optional.ofNullable(iterableValuedPropertyDocuments)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(IterableValuedPropertyDocument::toIterableValuedPropertyView)
-                .collect(Collectors.toList());
+    @Override
+    protected IterableValuedProperty toDomainInstance() {
+        return new IterableValuedProperty(name, IterablePropertyItemDocument.toDomainInstances(items));
     }
 }

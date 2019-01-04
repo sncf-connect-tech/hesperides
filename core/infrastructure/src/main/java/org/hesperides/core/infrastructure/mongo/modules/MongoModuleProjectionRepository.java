@@ -3,12 +3,15 @@ package org.hesperides.core.infrastructure.mongo.modules;
 import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
+import org.hesperides.core.infrastructure.mongo.eventstores.AxonEventRepository;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -22,6 +25,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,16 +46,21 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     private final MongoTemplate mongoTemplate;
     private final MongoSearchOptions searchOptions;
     private final Environment environment;
+    private final AxonEventRepository axonEventRepository;
 
     @Autowired
-    public MongoModuleProjectionRepository(MongoModuleRepository moduleRepository, MongoTechnoProjectionRepository technoProjectionRepository,
-                                           MongoTemplate mongoTemplate, MongoSearchOptions searchOptions,
-                                           Environment environment) {
+    public MongoModuleProjectionRepository(MongoModuleRepository moduleRepository,
+                                           MongoTechnoProjectionRepository technoProjectionRepository,
+                                           MongoTemplate mongoTemplate,
+                                           MongoSearchOptions searchOptions,
+                                           Environment environment,
+                                           AxonEventRepository axonEventRepository) {
         this.moduleRepository = moduleRepository;
         this.technoProjectionRepository = technoProjectionRepository;
         this.mongoTemplate = mongoTemplate;
         this.searchOptions = searchOptions;
         this.environment = environment;
+        this.axonEventRepository = axonEventRepository;
     }
 
     @PostConstruct
@@ -68,7 +77,14 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
         ModuleDocument moduleDocument = new ModuleDocument(event.getModuleId(), event.getModule(), technoDocuments);
-        moduleDocument.extractPropertiesAndSave(moduleRepository);
+
+        if (HasProfile.dataMigration()) {
+            List<String> updatedTemplatesName = event.getModule().getTemplatesName();
+            boolean isFirstEvent = axonEventRepository.hasOneEvent(event.getModuleId());
+            moduleDocument.extractPropertiesAndSave(moduleRepository, updatedTemplatesName, isFirstEvent);
+        } else {
+            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+        }
     }
 
     @EventHandler
@@ -82,7 +98,13 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
-        moduleDocument.extractPropertiesAndSave(moduleRepository);
+
+        if (HasProfile.dataMigration()) {
+            List<String> updatedTemplatesName = Techno.getTemplatesName(event.getTechnos());
+            moduleDocument.extractPropertiesAndSave(moduleRepository, updatedTemplatesName);
+        } else {
+            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+        }
     }
 
     @EventHandler
@@ -96,9 +118,9 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public Optional<String> onGetModuleIdFromKeyQuery(GetModuleIdFromKeyQuery query) {
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
         return moduleRepository
-                .findOptionalIdByKey(keyDocument)
+                .findOptionalIdByKey(moduleKey)
                 .map(ModuleDocument::getId);
     }
 
@@ -112,17 +134,17 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query) {
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
+        KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
 
-        return moduleRepository.findOptionalByKey(keyDocument)
+        return moduleRepository.findOptionalByKey(moduleKey)
                 .map(ModuleDocument::toModuleView);
     }
 
     @QueryHandler
     @Override
     public Boolean onModuleExistsQuery(ModuleExistsQuery query) {
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        return moduleRepository.existsByKey(keyDocument);
+        KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
+        return moduleRepository.existsByKey(moduleKey);
     }
 
     @QueryHandler
@@ -168,8 +190,10 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query) {
-        KeyDocument keyDocument = new KeyDocument(query.getModuleKey());
-        ModuleDocument moduleDocument = moduleRepository.findPropertiesByModuleKey(keyDocument);
-        return AbstractPropertyDocument.toAbstractPropertyViews(moduleDocument.getProperties());
+        KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
+        return moduleRepository.findPropertiesByModuleKey(moduleKey)
+                .map(ModuleDocument::getProperties)
+                .map(AbstractPropertyDocument::toAbstractPropertyViews)
+                .orElse(Collections.emptyList());
     }
 }

@@ -48,10 +48,6 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         value = valuedProperty.getValue();
     }
 
-    public static ValuedProperty toDomainInstance(ValuedPropertyDocument valuedPropertyDocument) {
-        return new ValuedProperty(valuedPropertyDocument.getMustacheContent(), valuedPropertyDocument.getName(), valuedPropertyDocument.getValue());
-    }
-
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
         return Optional.ofNullable(valuedPropertyDocuments)
                 .orElse(Collections.emptyList())
@@ -60,7 +56,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
                 .collect(Collectors.toList());
     }
 
-    public ValuedPropertyView toValuedPropertyView() {
+    public ValuedPropertyView toView() {
         return new ValuedPropertyView(mustacheContent, getName(), value);
     }
 
@@ -76,7 +72,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         return Optional.ofNullable(valuedPropertyDocuments)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(ValuedPropertyDocument::toValuedPropertyView)
+                .map(ValuedPropertyDocument::toView)
                 .collect(Collectors.toList());
     }
 
@@ -86,5 +82,10 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         defaultValuedProperty.setName(property.getName());
         defaultValuedProperty.setValue(property.getDefaultValue());
         return defaultValuedProperty;
+    }
+
+    @Override
+    protected ValuedProperty toDomainInstance() {
+        return new ValuedProperty(mustacheContent, name, value);
     }
 }

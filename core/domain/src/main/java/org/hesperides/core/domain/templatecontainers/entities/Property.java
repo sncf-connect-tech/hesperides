@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -398,5 +399,25 @@ public class Property extends AbstractProperty {
             result = value.trim().split("\\s")[0];
         }
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getComment(), this.getName());
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        boolean equals;
+        if (this == object) {
+            equals = true;
+        } else if (object == null || getClass() != object.getClass()) {
+            equals = false;
+        } else {
+            final Property otherProperty = (Property) object;
+            equals = Objects.equals(this.getComment(), otherProperty.getComment()) &&
+                    Objects.equals(this.getName(), otherProperty.getName());
+        }
+        return equals;
     }
 }

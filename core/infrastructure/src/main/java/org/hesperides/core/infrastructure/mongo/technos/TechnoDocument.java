@@ -103,15 +103,19 @@ public class TechnoDocument {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
     }
 
-    public void extractPropertiesAndSave(MongoTechnoRepository technoRepository) {
-        this.setProperties(extractPropertiesFromTemplates());
+    public void extractPropertiesAndSave(MongoTechnoRepository technoRepository, List<String> updatedTemplatesName) {
+        extractPropertiesAndSave(technoRepository, updatedTemplatesName, false);
+    }
+
+    public void extractPropertiesAndSave(MongoTechnoRepository technoRepository, List<String> updatedTemplatesName, boolean isFirstEvent) {
+        this.setProperties(extractPropertiesFromTemplates(updatedTemplatesName, isFirstEvent));
         technoRepository.save(this);
     }
 
-    private List<AbstractPropertyDocument> extractPropertiesFromTemplates() {
+    private List<AbstractPropertyDocument> extractPropertiesFromTemplates(List<String> updatedTemplatesName, boolean isFirstEvent) {
         TemplateContainer.Key technoKey = getDomainKey();
         List<Template> templates = TemplateDocument.toDomainInstances(this.templates, technoKey);
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates, updatedTemplatesName, isFirstEvent);
         List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
         return abstractPropertyDocuments;
     }

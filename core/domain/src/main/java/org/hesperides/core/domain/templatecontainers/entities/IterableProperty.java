@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -28,7 +30,7 @@ public class IterableProperty extends AbstractProperty {
      */
     public static IterableProperty extractIterablePropertyFromMustacheCode(IterableCode code) {
         String name = code.getName();
-        List<AbstractProperty> properties = new ArrayList<>();
+        Set<AbstractProperty> properties = new HashSet<>();
 
         for (Code childCode : code.getCodes()) {
             if (childCode instanceof ValueCode) {
@@ -37,6 +39,6 @@ public class IterableProperty extends AbstractProperty {
                 properties.add(extractIterablePropertyFromMustacheCode((IterableCode) childCode));
             }
         }
-        return new IterableProperty(name, properties);
+        return new IterableProperty(name, new ArrayList<>(properties));
     }
 }

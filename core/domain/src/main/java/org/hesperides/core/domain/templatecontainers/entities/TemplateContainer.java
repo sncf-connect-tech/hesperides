@@ -5,7 +5,10 @@ import lombok.experimental.NonFinal;
 
 import java.net.URI;
 import java.security.InvalidParameterException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value
@@ -17,6 +20,14 @@ public abstract class TemplateContainer {
     public TemplateContainer(Key key, List<Template> templates) {
         this.key = key;
         this.templates = templates;
+    }
+
+    public List<String> getTemplatesName() {
+        return Optional.ofNullable(templates)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(Template::getName)
+                .collect(Collectors.toList());
     }
 
     @Value

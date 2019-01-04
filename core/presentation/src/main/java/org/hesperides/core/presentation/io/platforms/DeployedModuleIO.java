@@ -46,6 +46,8 @@ public class DeployedModuleIO {
     @JsonProperty("working_copy")
     Boolean isWorkingCopy;
     @OnlyPrintableCharacters(subject = "deployedModules.path")
+    @SerializedName("path")
+    @JsonProperty("path")
     String modulePath;
     @SerializedName("properties_path")
     String propertiesPath;  // en tant qu'input : facultatif, inutile et toujours ignoré

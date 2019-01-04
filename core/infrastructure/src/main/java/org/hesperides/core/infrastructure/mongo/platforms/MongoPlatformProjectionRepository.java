@@ -13,6 +13,7 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -97,6 +98,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             throw new PlatformNotFoundException("Platform not found - update impossible - platformId: " + event.getPlatformId());
         }
         PlatformDocument platformDocument = existingPlatformDocument.get();
+        platformDocument.setVersion(newPlatformDocument.getVersion());
+        platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
         platformDocument.fillExistingAndUpgradedModulesWithProperties(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
         if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
             // Rustine temporaire pour le temps de la migration
@@ -141,10 +144,11 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             // propriété valorisée la définition initiale de la propriété
             // (ex: {{prop | @required}} => "prop | @required")
             Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
-            KeyDocument keyDocument = new KeyDocument(moduleKey);
+            KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
             List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
-                    .findPropertiesByModuleKey(keyDocument)
-                    .getProperties();
+                    .findPropertiesByModuleKey(moduleKeyDocument)
+                    .map(ModuleDocument::getProperties)
+                    .orElse(Collections.emptyList());
 
             List<AbstractValuedPropertyDocument> valuedProperties = new ArrayList<>();
             valuedProperties.addAll(completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties));
@@ -392,7 +396,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         .stream())
                 .collect(Collectors.toList());
 
-        return AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(abstractValuedPropertyDocuments);
+        return AbstractValuedPropertyDocument.toViews(abstractValuedPropertyDocuments);
     }
 
     @QueryHandler

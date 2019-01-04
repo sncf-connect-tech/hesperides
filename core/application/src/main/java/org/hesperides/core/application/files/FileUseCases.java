@@ -97,7 +97,9 @@ public class FileUseCases {
 
     private static void setLocationAndFilenameAndAddInstance(String modulePath, String instanceName, boolean getModuleValuesIfInstanceDoesntExist, List<InstanceFileView> instanceFiles, Platform.Key platformKey, Module.Key moduleKey, List<AbstractValuedPropertyView> globalAndModuleProperties, TemplateView template) {
         String location = valorizeTemplateWithProperties(template.getLocation(), globalAndModuleProperties);
+        location = valorizeTemplateWithProperties(location, globalAndModuleProperties);
         String filename = valorizeTemplateWithProperties(template.getFilename(), globalAndModuleProperties);
+        filename = valorizeTemplateWithProperties(filename, globalAndModuleProperties);
         instanceFiles.add(new InstanceFileView(location, filename, platformKey, modulePath, moduleKey, instanceName, template, getModuleValuesIfInstanceDoesntExist));
     }
 

@@ -34,7 +34,7 @@ public class IterablePropertyItemDocument {
 
     public static IterablePropertyItemView toIterablePropertyItemView(final IterablePropertyItemDocument iterablePropertyItemDocument) {
         return new IterablePropertyItemView(iterablePropertyItemDocument.getTitle(),
-                AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(iterablePropertyItemDocument.getAbstractValuedProperties()));
+                AbstractValuedPropertyDocument.toViews(iterablePropertyItemDocument.getAbstractValuedProperties()));
     }
 
     public static List<IterablePropertyItem> toDomainInstances(List<IterablePropertyItemDocument> iterablePropertyItemDocuments) {

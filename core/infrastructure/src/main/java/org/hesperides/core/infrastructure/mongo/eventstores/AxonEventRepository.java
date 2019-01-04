@@ -39,10 +39,14 @@ public class AxonEventRepository implements EventRepository {
         return getEventViews(query.getEventStream().toString());
     }
 
-    private List<EventView> getEventViews(final String aggragateIdentifier) {
-        return eventStore.readEvents(aggragateIdentifier)
+    private List<EventView> getEventViews(final String aggregateIdentifier) {
+        return eventStore.readEvents(aggregateIdentifier)
                 .asStream()
                 .map(EventView::new)
                 .collect(Collectors.toList());
+    }
+
+    public boolean hasOneEvent(final String aggregateIdentifier) {
+        return getEventViews(aggregateIdentifier).size() == 1;
     }
 }

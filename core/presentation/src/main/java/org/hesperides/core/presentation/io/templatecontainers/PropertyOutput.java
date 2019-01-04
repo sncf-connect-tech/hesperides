@@ -11,7 +11,6 @@ import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,25 +94,5 @@ public class PropertyOutput {
                 .stream()
                 .map(PropertyOutput::new)
                 .collect(Collectors.toSet());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.getComment(), this.getName());
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        boolean equals;
-        if (this == object) {
-            equals = true;
-        } else if (object == null || getClass() != object.getClass()) {
-            equals = false;
-        } else {
-            final PropertyOutput otherProperty = (PropertyOutput) object;
-            equals = Objects.equals(this.getComment(), otherProperty.getComment()) &&
-                    Objects.equals(this.getName(), otherProperty.getName());
-        }
-        return equals;
     }
 }

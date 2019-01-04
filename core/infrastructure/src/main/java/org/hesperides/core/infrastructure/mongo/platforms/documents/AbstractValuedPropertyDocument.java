@@ -36,15 +36,12 @@ public abstract class AbstractValuedPropertyDocument {
 
     protected String name;
 
-    public static List<AbstractValuedPropertyView> toAbstractValuedPropertyViews(final List<AbstractValuedPropertyDocument> properties) {
-
+    public static List<AbstractValuedPropertyView> toViews(final List<AbstractValuedPropertyDocument> properties) {
         return Optional.ofNullable(properties)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(property -> property instanceof ValuedPropertyDocument
-                        ? ((ValuedPropertyDocument) property).toValuedPropertyView()
-                        : ((IterableValuedPropertyDocument) property).toIterableValuedPropertyView()
-                ).collect(Collectors.toList());
+                .map(AbstractValuedPropertyDocument::toView)
+                .collect(Collectors.toList());
     }
 
     public static List<AbstractValuedPropertyDocument> fromAbstractDomainInstances(final List<AbstractValuedProperty> abstractValuedProperties) {
@@ -61,9 +58,11 @@ public abstract class AbstractValuedPropertyDocument {
         return Optional.ofNullable(abstractValuedPropertyDocuments)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(document -> document instanceof ValuedPropertyDocument
-                        ? ValuedPropertyDocument.toDomainInstance((ValuedPropertyDocument) document)
-                        : IterableValuedPropertyDocument.toDomainInstance((IterableValuedPropertyDocument) document)
-                ).collect(Collectors.toList());
+                .map(AbstractValuedPropertyDocument::toDomainInstance)
+                .collect(Collectors.toList());
     }
+
+    protected abstract AbstractValuedProperty toDomainInstance();
+
+    protected abstract AbstractValuedPropertyView toView();
 }

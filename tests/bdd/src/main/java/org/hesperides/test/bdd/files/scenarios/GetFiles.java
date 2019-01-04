@@ -35,6 +35,8 @@ import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,20 +107,24 @@ public class GetFiles extends HesperidesScenario implements En {
     private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
         String location = propertyBuilder.replacePropertiesWithValues(template.getLocation(), platformBuilder);
         String filename = propertyBuilder.replacePropertiesWithValues(template.getFilename(), platformBuilder);
-        return new InstanceFileOutput(
-                location + "/" + filename,
-                "/rest/files"
-                        + "/applications/" + platform.getApplicationName()
-                        + "/platforms/" + platform.getPlatformName()
-                        + "/" + modulePath
-                        + "/" + module.getName()
-                        + "/" + module.getVersion()
-                        + "/instances/" + instanceName
-                        + "/" + template.getName()
-                        + "?isWorkingCopy=" + module.getIsWorkingCopy()
-                        + "&template_namespace=" + templateNamespace
-                        + "&simulate=" + simulate,
-                new InstanceFileOutput.Rights("rwx", "---", "   ")
-        );
+        try {
+            return new InstanceFileOutput(
+                    location + "/" + filename,
+                    "/rest/files"
+                            + "/applications/" + platform.getApplicationName()
+                            + "/platforms/" + platform.getPlatformName()
+                            + "/" + URLEncoder.encode(modulePath, "UTF-8")
+                            + "/" + module.getName()
+                            + "/" + module.getVersion()
+                            + "/instances/" + instanceName
+                            + "/" + template.getName()
+                            + "?isWorkingCopy=" + module.getIsWorkingCopy()
+                            + "&template_namespace=" + URLEncoder.encode(templateNamespace, "UTF-8")
+                            + "&simulate=" + simulate,
+                    new InstanceFileOutput.Rights("rwx", "---", "   ")
+            );
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

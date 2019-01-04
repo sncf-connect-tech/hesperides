@@ -69,7 +69,7 @@ public class DeployedModuleDocument {
                 modulePath,
                 propertiesPath,
                 InstanceDocument.toInstanceViews(instances),
-                AbstractValuedPropertyDocument.toAbstractValuedPropertyViews(valuedProperties)
+                AbstractValuedPropertyDocument.toViews(valuedProperties)
         );
     }
 

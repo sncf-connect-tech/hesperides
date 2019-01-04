@@ -22,6 +22,7 @@ package org.hesperides.core.infrastructure.mongo.modules;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +65,11 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.addTemplate(templateDocument);
-        moduleDocument.extractPropertiesAndSave(moduleRepository);
+        if (HasProfile.dataMigration()) {
+            moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
+        } else {
+            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+        }
     }
 
     @EventHandler
@@ -76,7 +82,11 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
-        moduleDocument.extractPropertiesAndSave(moduleRepository);
+        if (HasProfile.dataMigration()) {
+            moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
+        } else {
+            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+        }
     }
 
     @EventHandler
@@ -88,7 +98,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         moduleDocument.removeTemplate(event.getTemplateName());
-        moduleDocument.extractPropertiesAndSave(moduleRepository);
+        moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
     }
 
     /*** QUERY HANDLERS ***/
