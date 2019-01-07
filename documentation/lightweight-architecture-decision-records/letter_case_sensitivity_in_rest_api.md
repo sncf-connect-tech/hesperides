@@ -16,6 +16,8 @@ dans un script d'[_entrypoint_ Docker](/docker_entrypoint.sh).
 
 ## Tests
 
-Comme les tests BDD validant ce fonctionnement dépendent de l'utilisation d'un serveur MongoDB (
-nous avons tagué ces tests en `@integ-test-only`, et ils ne sont pas exécuté avec les autres tests Cucumber
+Comme les tests BDD validant ce fonctionnement dépendent de l'utilisation d'un serveur MongoDB,
+nous avons tagué ces tests en `@integ-test-only`, et ils ne sont pas exécutés avec les autres tests Cucumber
 en mode "bouchonné" (avec `mongo-java-server`), uniquement en mode "tests d'intégration".
+
+Pour ne lancer que les tests bouchonnés dans IntelliJ, il suffit d'ajouter ceci dans `Edit configurations > Program arguments:  --tags ~@integ-test-only`
