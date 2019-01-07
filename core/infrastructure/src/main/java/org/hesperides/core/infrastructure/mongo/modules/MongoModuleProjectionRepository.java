@@ -193,7 +193,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
         return moduleRepository.findPropertiesByModuleKey(moduleKey)
                 .map(ModuleDocument::getProperties)
-                .map(AbstractPropertyDocument::toAbstractPropertyViews)
+                .map(AbstractPropertyDocument::toViews)
                 .orElse(Collections.emptyList());
     }
 }

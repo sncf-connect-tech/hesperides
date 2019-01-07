@@ -42,7 +42,7 @@ public class IterablePropertyDocument extends AbstractPropertyDocument {
         this.properties = AbstractPropertyDocument.fromDomainInstances(iterableProperty.getProperties());
     }
 
-    public IterablePropertyView toIterableProperyView() {
-        return new IterablePropertyView(getName(), AbstractPropertyDocument.toAbstractPropertyViews(properties));
+    public IterablePropertyView toView() {
+        return new IterablePropertyView(getName(), AbstractPropertyDocument.toViews(properties));
     }
 }

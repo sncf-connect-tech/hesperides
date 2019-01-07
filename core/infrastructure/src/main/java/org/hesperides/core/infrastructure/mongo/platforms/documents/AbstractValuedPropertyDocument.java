@@ -36,14 +36,6 @@ public abstract class AbstractValuedPropertyDocument {
 
     protected String name;
 
-    public static List<AbstractValuedPropertyView> toViews(final List<AbstractValuedPropertyDocument> properties) {
-        return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(AbstractValuedPropertyDocument::toView)
-                .collect(Collectors.toList());
-    }
-
     public static List<AbstractValuedPropertyDocument> fromAbstractDomainInstances(final List<AbstractValuedProperty> abstractValuedProperties) {
         return Optional.ofNullable(abstractValuedProperties)
                 .orElse(Collections.emptyList())
@@ -63,6 +55,14 @@ public abstract class AbstractValuedPropertyDocument {
     }
 
     protected abstract AbstractValuedProperty toDomainInstance();
+
+    public static List<AbstractValuedPropertyView> toViews(final List<AbstractValuedPropertyDocument> properties) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractValuedPropertyDocument::toView)
+                .collect(Collectors.toList());
+    }
 
     protected abstract AbstractValuedPropertyView toView();
 }

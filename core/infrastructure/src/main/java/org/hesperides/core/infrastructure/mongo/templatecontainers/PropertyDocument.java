@@ -52,7 +52,7 @@ public class PropertyDocument extends AbstractPropertyDocument {
         this.isPassword = property.isPassword();
     }
 
-    public PropertyView toPropertyView() {
+    public PropertyView toView() {
         return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
     }
 
