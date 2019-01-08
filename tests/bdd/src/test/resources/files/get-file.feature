@@ -148,6 +148,7 @@ Feature: Get file
 
       """
 
+  #issue-453
   Scenario: get file with global properties used in instance property values
     Given an existing module with this template content
       """
@@ -161,8 +162,8 @@ Feature: Get file
       | name          | value                   |
       | some-property | {{ instance-property }} |
     And the platform has these instance properties
-      | name              | value        |
-      | instance-property | global-value |
+      | name              | value                 |
+      | instance-property | {{ global-property }} |
     When I get the instance template file
     Then the file is successfully retrieved and contains
       """

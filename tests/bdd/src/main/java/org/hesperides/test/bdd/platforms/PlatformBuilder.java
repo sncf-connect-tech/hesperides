@@ -48,15 +48,12 @@ public class PlatformBuilder {
     private List<IterableValuedPropertyIO> iterableProperties;
     private Map<String, String> instanceProperties;
     private List<InstanceIO> instances;
+    private List<ValuedPropertyIO> instancePropertyValues;
 
     private List<PlatformIO> platforms = new ArrayList<>();
 
     public PlatformBuilder() {
         reset();
-    }
-
-    public PlatformBuilder virginWithSameVersionId() {
-        return new PlatformBuilder().withVersionId(versionId);
     }
 
     public PlatformBuilder reset() {
@@ -70,6 +67,7 @@ public class PlatformBuilder {
         iterableProperties = new ArrayList<>();
         instanceProperties = new HashMap<>();
         instances = new ArrayList<>();
+        instancePropertyValues = new ArrayList<>();
         return this;
     }
 
@@ -106,7 +104,7 @@ public class PlatformBuilder {
     }
 
     public void withInstance(String name) {
-        withInstance(name, Collections.emptyList());
+        withInstance(name, getInstancePropertyValues());
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
@@ -218,15 +216,15 @@ public class PlatformBuilder {
                 iterableProperties);
     }
 
-    private List<ValuedPropertyIO> getAllGlobalProperties() {
+    public List<ValuedPropertyIO> getAllGlobalProperties() {
         return properties
                 .stream()
-                .filter(property -> property.isGlobal())
+                .filter(Property::isGlobal)
                 .map(property -> new ValuedPropertyIO(property.name, property.value))
                 .collect(Collectors.toList());
     }
 
-    private List<ValuedPropertyIO> getModulePropertiesAndUsedGlobalProperties() {
+    public List<ValuedPropertyIO> getModulePropertiesAndUsedGlobalProperties() {
         return properties
                 .stream()
                 .filter(property -> !property.isGlobal() || property.isUsed())
@@ -234,8 +232,19 @@ public class PlatformBuilder {
                 .collect(Collectors.toList());
     }
 
+    public List<ValuedPropertyIO> getModuleAndGlobalProperties() {
+        return properties
+                .stream()
+                .map(property -> new ValuedPropertyIO(property.name, property.value))
+                .collect(Collectors.toList());
+    }
+
     public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
         this.iterableProperties.addAll(iterableProperties);
+    }
+
+    public void withInstancePropertyValue(String name, String value) {
+        instancePropertyValues.add(new ValuedPropertyIO(name, value));
     }
 
     public InstancesModelOutput buildInstancesModel() {
@@ -266,6 +275,10 @@ public class PlatformBuilder {
                 .findFirst()
                 .map(Property::getValue)
                 .orElse("");
+    }
+
+    public List<ValuedPropertyIO> getInstancePropertyValues() {
+        return instancePropertyValues;
     }
 
     @Value

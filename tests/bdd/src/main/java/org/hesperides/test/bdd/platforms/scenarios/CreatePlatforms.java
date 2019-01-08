@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
+import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
@@ -54,63 +55,68 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModelBuilder modelBuilder;
 
-    public CreatePlatforms() {
+    @Given("^an existing platform" +
+            "(?: named \"([^\"]*)\")?" +
+            "( with this module)?" +
+            "(?: in logical group \"([^\"]*)\")?" +
+            "( (?:and|with) an instance)?" +
+            "( (?:and|with) valued properties)?" +
+            "( (?:and|with) iterable properties)?" +
+            "( (?:and|with) global properties)?" +
+            "( (?:and|with) instance properties)?" +
+            "( (?:and|with) (global properties as )?instance values)?" +
+            "( and filename and location values)?$")
+    public void givenAnExistingPlatform(String platformName,
+                                        String withThisModule,
+                                        String logicalGroup,
+                                        String withAnInstance,
+                                        String withValuedProperties,
+                                        String withIterableProperties,
+                                        String withGlobalProperties,
+                                        String withInstanceProperties,
+                                        String withInstanceValues,
+                                        String withGlobalPropertiesAsInstanceValues,
+                                        String withFilenameLocationValues) {
 
-        Given("^an existing platform" +
-                "(?: named \"([^\"]*)\")?" +
-                "( with this module)?" +
-                "(?: in logical group \"([^\"]*)\")?" +
-                "( (?:and|with) an instance)?" +
-                "( (?:and|with) valued properties)?" +
-                "( (?:and|with) iterable properties)?" +
-                "( (?:and|with) global properties)?" +
-                "( (?:and|with) instance properties)?" +
-                "( and filename and location values)?$", (
-                String platformName,
-                String withThisModule,
-                String logicalGroup,
-                String withAnInstance,
-                String withValuedProperties,
-                String withIterableProperties,
-                String withGlobalProperties,
-                String withInstanceProperties,
-                String withFilenameLocationValues) -> {
+        if (StringUtils.isNotEmpty(platformName)) {
+            platformBuilder.withPlatformName(platformName);
+        }
 
-            if (StringUtils.isNotEmpty(platformName)) {
-                platformBuilder.withPlatformName(platformName);
-            }
-
-            if (StringUtils.isNotEmpty(withThisModule)) {
-                if (StringUtils.isNotEmpty(withAnInstance)) {
-                    platformBuilder.withInstance("instance-foo-1");
+        if (StringUtils.isNotEmpty(withThisModule)) {
+            if (StringUtils.isNotEmpty(withAnInstance)) {
+                if (StringUtils.isNotEmpty(withInstanceValues)) {
+                    String instancePropertyValue = StringUtils.isNotEmpty(withGlobalPropertiesAsInstanceValues) ? "global-module-foo" : "instance-module-foo-value";
+                    platformBuilder.withInstancePropertyValue("instance-module-foo", instancePropertyValue);
                 }
-                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
+                platformBuilder.withInstance("instance-foo-1");
             }
-            platformClient.create(platformBuilder.buildInput());
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
+        }
+        platformClient.create(platformBuilder.buildInput());
 
-            if (StringUtils.isNotEmpty(withValuedProperties)) {
-                platformBuilder.withProperty("module-foo", "12");
-                if (moduleBuilder.hasTechno()) {
-                    platformBuilder.withProperty("techno-foo", "12");
-                }
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath(logicalGroup));
-                platformBuilder.incrementVersionId();
+        if (StringUtils.isNotEmpty(withValuedProperties)) {
+            platformBuilder.withProperty("module-foo", "12");
+            if (moduleBuilder.hasTechno()) {
+                platformBuilder.withProperty("techno-foo", "12");
             }
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath(logicalGroup));
+            platformBuilder.incrementVersionId();
+        }
 
-            if (StringUtils.isNotEmpty(withIterableProperties)) {
-                platformBuilder.withIterableProperties(Arrays.asList(
-                        new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                                new IterablePropertyItemIO("bloc-module-1", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1"))),
-                                new IterablePropertyItemIO("bloc-module-2", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2")))
-                        )),
-                        new IterableValuedPropertyIO("techno-foo", Arrays.asList(
-                                new IterablePropertyItemIO("bloc-techno-1", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1"))),
-                                new IterablePropertyItemIO("bloc-techno-2", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2")))
-                        ))
-                ));
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
-                platformBuilder.incrementVersionId();
-            }
+        if (StringUtils.isNotEmpty(withIterableProperties)) {
+            platformBuilder.withIterableProperties(Arrays.asList(
+                    new IterableValuedPropertyIO("module-foo", Arrays.asList(
+                            new IterablePropertyItemIO("bloc-module-1", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1"))),
+                            new IterablePropertyItemIO("bloc-module-2", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2")))
+                    )),
+                    new IterableValuedPropertyIO("techno-foo", Arrays.asList(
+                            new IterablePropertyItemIO("bloc-techno-1", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1"))),
+                            new IterablePropertyItemIO("bloc-techno-2", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2")))
+                    ))
+            ));
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        }
 
 //            if (StringUtils.isNotEmpty(withIterableCeption)) {
 //                platformBuilder.withIterableProperties(Arrays.asList(
@@ -128,36 +134,38 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 //                platformBuilder.incrementVersionId();
 //            }
 
-            if (StringUtils.isNotEmpty(withGlobalProperties)) {
-                platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
-                if (moduleBuilder.hasTechno()) {
-                    platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
-                }
-                platformBuilder.withGlobalProperty("global-filename", "abc", modelBuilder);
-                platformBuilder.withGlobalProperty("global-location", "def", modelBuilder);
-                platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
-                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
-                platformBuilder.incrementVersionId();
+        if (StringUtils.isNotEmpty(withGlobalProperties)) {
+            platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
+            if (moduleBuilder.hasTechno()) {
+                platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
             }
+            platformBuilder.withGlobalProperty("global-filename", "abc", modelBuilder);
+            platformBuilder.withGlobalProperty("global-location", "def", modelBuilder);
+            platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
+            platformBuilder.incrementVersionId();
+        }
 
-            if (StringUtils.isNotEmpty(withInstanceProperties)) {
-                platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
-                if (moduleBuilder.hasTechno()) {
-                    platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
-                }
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
-                platformBuilder.incrementVersionId();
+        if (StringUtils.isNotEmpty(withInstanceProperties)) {
+            platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
+            if (moduleBuilder.hasTechno()) {
+                platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
             }
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        }
 
-            if (StringUtils.isNotEmpty(withFilenameLocationValues)) {
-                platformBuilder.withProperty("filename", "conf");
-                platformBuilder.withProperty("location", "etc");
-                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
-                platformBuilder.incrementVersionId();
-            }
+        if (StringUtils.isNotEmpty(withFilenameLocationValues)) {
+            platformBuilder.withProperty("filename", "conf");
+            platformBuilder.withProperty("location", "etc");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        }
 
-            platformBuilder.addPlatform(platformBuilder.buildInput());
-        });
+        platformBuilder.addPlatform(platformBuilder.buildInput());
+    }
+
+    public CreatePlatforms() {
 
         Given("^a platform to create(?:, named \"([^\"]*)\")?( with this module)?( with an instance( with properties)?)?( with the same name but different letter case)?$", (
                 String platformName, String withThisModule, String withAnInstance, String withProperties, String sameNameDifferentLetterCase) -> {

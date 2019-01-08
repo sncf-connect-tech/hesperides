@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
@@ -105,8 +106,8 @@ public class GetFiles extends HesperidesScenario implements En {
     }
 
     private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
-        String location = propertyBuilder.replacePropertiesWithValues(template.getLocation(), platformBuilder);
-        String filename = propertyBuilder.replacePropertiesWithValues(template.getFilename(), platformBuilder);
+        String location = replacePropertiesWithValues(template.getLocation());
+        String filename = replacePropertiesWithValues(template.getFilename());
         try {
             return new InstanceFileOutput(
                     location + "/" + filename,
@@ -126,5 +127,15 @@ public class GetFiles extends HesperidesScenario implements En {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String replacePropertiesWithValues(String input) {
+        List<ValuedPropertyIO> moduleAndGlobalProperties = platformBuilder.getModuleAndGlobalProperties();
+        input = propertyBuilder.replacePropertiesWithValues(input, moduleAndGlobalProperties);
+        List<ValuedPropertyIO> globalProperties = platformBuilder.getAllGlobalProperties();
+        List<ValuedPropertyIO> globalAndInstanceProperties = new ArrayList<>(globalProperties);
+        globalAndInstanceProperties.addAll(platformBuilder.getInstancePropertyValues());
+        input = propertyBuilder.replacePropertiesWithValues(input, globalAndInstanceProperties);
+        return propertyBuilder.replacePropertiesWithValues(input, globalProperties);
     }
 }

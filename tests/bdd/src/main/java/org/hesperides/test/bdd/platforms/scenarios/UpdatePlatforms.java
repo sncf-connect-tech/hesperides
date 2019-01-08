@@ -98,7 +98,6 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.incrementVersionId();
             }
             if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
-                platformBuilder.virginWithSameVersionId();
                 // So that "Then the platform is successfully updated" step validate there is no more modules:
                 platformBuilder.withNoModule();
             }

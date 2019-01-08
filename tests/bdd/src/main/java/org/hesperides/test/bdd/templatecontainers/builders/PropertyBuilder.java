@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.templatecontainers.builders;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.springframework.stereotype.Component;
@@ -167,6 +168,15 @@ public class PropertyBuilder {
         for (String property : extractProperties(input)) {
             String propertyValue = platformBuilder.getPropertyValue(property);
             result = result.replace("{{" + property + "}}", propertyValue);
+        }
+        return result;
+    }
+
+    public String replacePropertiesWithValues(String input, List<ValuedPropertyIO> properties) {
+        String result = input;
+        for (String propertyName : extractProperties(input)) {
+            String propertyValue = properties.stream().filter(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName.trim())).map(ValuedPropertyIO::getValue).findFirst().orElse("");
+            result = result.replace("{{" + propertyName + "}}", propertyValue);
         }
         return result;
     }
