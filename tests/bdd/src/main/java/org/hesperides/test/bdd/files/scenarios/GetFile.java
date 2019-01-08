@@ -81,31 +81,17 @@ public class GetFile extends HesperidesScenario implements En {
                     HesperidesScenario.getResponseType(tryTo, String.class));
         });
 
-        Then("^the file is successfully retrieved$", () -> {
-            String expectedOutput = buildExpectedOutput();
-            assertFile(expectedOutput);
-        });
-
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
+            assertOK();
             String expectedOutput = fileContent;
-            assertFile(expectedOutput);
+            String actualOutput = (String) testContext.getResponseBody();
+            assertEquals(expectedOutput, actualOutput);
         });
-    }
-
-    private void assertFile(String expectedOutput) {
-        assertOK();
-        String actualOutput = (String) testContext.getResponseBody();
-        assertEquals(expectedOutput, actualOutput);
     }
 
     private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {
         return deployedModule.isPresent() && !CollectionUtils.isEmpty(deployedModule.get().getInstances()) && !simulate
                 ? deployedModule.get().getInstances().get(0).getName()
                 : "anything";
-    }
-
-    private String buildExpectedOutput() {
-        String templateContent = templateBuilder.build().getContent();
-        return propertyBuilder.replacePropertiesWithValues(templateContent, platformBuilder);
     }
 }

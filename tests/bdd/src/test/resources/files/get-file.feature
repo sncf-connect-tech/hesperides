@@ -3,14 +3,6 @@ Feature: Get file
   Background:
     Given an authenticated user
 
-  Scenario: get file
-    Given an existing module with a template with properties
-    And an existing platform with this module and valued properties
-    When I get the module template file
-    Then the file is successfully retrieved
-
-  Scenario: get file with iterable-ception properties
-
   Scenario: get file with valued properties
     Given an existing module with this template content
       """
@@ -170,4 +162,14 @@ Feature: Get file
       global-value
       """
 
-    # technos, iterable-ception
+  Scenario: get file with iterable-ception properties
+    Given an existing module with this template content
+      """
+      {{#module-foo}}{{#module-bar}}{{module-foobar}}{{/module-bar}}{{/module-foo}}
+      """
+    And an existing platform with this module and iterable-ception
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+    module-foobar-val-1module-foobar-val-2module-foobar-val-3module-foobar-val-4
+    """
