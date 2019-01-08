@@ -1,6 +1,6 @@
 package org.hesperides.core.infrastructure.mongo.eventstores;
 
-import org.axonframework.eventsourcing.eventstore.EventStore;
+import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.events.EventRepository;
 import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
@@ -20,10 +20,10 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public class AxonEventRepository implements EventRepository {
 
-    EventStore eventStore;
+    private EventStorageEngine eventStore;
 
     @Autowired
-    public AxonEventRepository(EventStore eventStore) {
+    public AxonEventRepository(EventStorageEngine eventStore) {
         this.eventStore = eventStore;
     }
 
