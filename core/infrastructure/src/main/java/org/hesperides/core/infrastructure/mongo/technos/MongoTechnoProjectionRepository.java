@@ -287,7 +287,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     public List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         TechnoDocument technoDocument = technoRepository.findPropertiesByTechnoKey(keyDocument);
-        return AbstractPropertyDocument.toAbstractPropertyViews(technoDocument.getProperties());
+        return AbstractPropertyDocument.toViews(technoDocument.getProperties());
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {

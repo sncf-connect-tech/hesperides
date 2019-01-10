@@ -42,9 +42,41 @@ Feature: Get instance or module files
     When I try to get the module files
     Then the resource is not found
 
-  Scenario: get files with variables in filename and location
+  Scenario: get files with properties and global properties in filename and location
     Given a template to create with filename "{{ filename }}-{{ global-filename }}.json" with location "/{{ location }}-{{ global-location }}"
     And an existing module with this template
     And an existing platform with this module and global properties and filename and location values
     When I get the module files
+    Then the files are successfully retrieved
+
+  #issue-452
+  Scenario: get files with global property used in filename and location's valued property
+    Given a template to create with filename "{{ filename }}.json" with location "/{{ location }}"
+    And an existing module with this template
+    And an existing platform with this module and global properties and filename and location values
+    When I get the module files
+    Then the files are successfully retrieved
+
+  #issue-452
+  Scenario: get files with instance property used in filename and location
+    Given a template to create with filename "{{ module-foo }}.json" with location "/{{ module-foo }}"
+    And an existing module with this template
+    And an existing platform with this module and an instance and instance properties and instance values
+    When I get the instance files
+    Then the files are successfully retrieved
+
+  #issue-452
+  Scenario: get files with global property used in instance property used in filename and location
+    Given a template to create with filename "{{ module-foo }}.json" with location "/{{ module-foo }}"
+    And an existing module with this template
+    And an existing platform with this module and an instance and instance properties and global properties as instance values
+    When I get the instance files
+    Then the files are successfully retrieved
+
+  #issue-457
+  Scenario: get files with predefined properties used in filename and location
+    Given a template to create with filename "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}" with location "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}"
+    And an existing module with this template
+    And an existing platform with this module and an instance
+    When I get the instance files
     Then the files are successfully retrieved

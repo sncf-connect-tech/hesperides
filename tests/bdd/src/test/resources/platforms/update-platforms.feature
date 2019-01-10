@@ -41,7 +41,7 @@ Feature: Update platforms
     And the platform has no more modules
     And the platform still has 4 global properties
 
-  @data-migration-issue-27
+  #data-migration-issue-27
   Scenario: remove then restore a module with valued properties from a platform
     Given an existing module with properties
     And an existing platform with this module and valued properties
@@ -49,3 +49,9 @@ Feature: Update platforms
     And I update this platform, adding this module
     Then the platform is successfully updated
     And the platform has no module valued properties
+
+  #issue-451
+  Scenario: update an existing platform, changing the application version and isProd
+    Given an existing platform
+    When I update this platform, changing the application version and isProd
+    Then the platform is successfully updated

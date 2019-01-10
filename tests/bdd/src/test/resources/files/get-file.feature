@@ -3,14 +3,6 @@ Feature: Get file
   Background:
     Given an authenticated user
 
-  Scenario: get file
-    Given an existing module with a template with properties
-    And an existing platform with this module and valued properties
-    When I get the module template file
-    Then the file is successfully retrieved
-
-  Scenario: get file with iterable-ception properties
-
   Scenario: get file with valued properties
     Given an existing module with this template content
       """
@@ -148,6 +140,7 @@ Feature: Get file
 
       """
 
+  #issue-453
   Scenario: get file with global properties used in instance property values
     Given an existing module with this template content
       """
@@ -161,12 +154,74 @@ Feature: Get file
       | name          | value                   |
       | some-property | {{ instance-property }} |
     And the platform has these instance properties
-      | name              | value        |
-      | instance-property | global-value |
+      | name              | value                 |
+      | instance-property | {{ global-property }} |
     When I get the instance template file
     Then the file is successfully retrieved and contains
       """
       global-value
       """
 
-    # technos, iterable-ception
+  Scenario: get file with iterable-ception properties
+    Given an existing module with this template content
+      """
+      {{#module-foo}}{{#module-bar}}{{module-foobar}}{{/module-bar}}{{/module-foo}}
+      """
+    And an existing platform with this module and iterable-ception
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+    module-foobar-val-1module-foobar-val-2module-foobar-val-3module-foobar-val-4
+    """
+
+    #issue-457
+  Scenario: get file with predefined properties
+    Given an existing module with this template content
+      """
+      hesperides.application.name={{hesperides.application.name}}
+      hesperides.application.version={{hesperides.application.version}}
+      hesperides.platform.name={{hesperides.platform.name}}
+
+      hesperides.module.name={{hesperides.module.name}}
+      hesperides.module.version={{hesperides.module.version}}
+      hesperides.module.path={{hesperides.module.path}}
+      hesperides.module.path.full={{hesperides.module.path.full}}
+      hesperides.module.path.0={{hesperides.module.path.0}}
+      hesperides.module.path.1={{hesperides.module.path.1}}
+      hesperides.module.path.2={{hesperides.module.path.2}}
+      hesperides.module.path.3={{hesperides.module.path.3}}
+
+      hesperides.instance.name={{hesperides.instance.name}}
+      """
+    And an existing platform with this module in logical group "a#b#c" and an instance
+    When I get the instance template file
+    Then the file is successfully retrieved and contains
+      """
+      hesperides.application.name=test-application
+      hesperides.application.version=1.0
+      hesperides.platform.name=test-platform
+
+      hesperides.module.name=test-module
+      hesperides.module.version=1.0.0
+      hesperides.module.path=
+      hesperides.module.path.full=/a/b/c
+      hesperides.module.path.0=a
+      hesperides.module.path.1=b
+      hesperides.module.path.2=c
+      hesperides.module.path.3=
+
+      hesperides.instance.name=instance-foo-1
+      """
+
+  #issue-457
+  Scenario: get file with predefined properties without instance
+    Given an existing module with this template content
+      """
+      hesperides.instance.name={{hesperides.instance.name}}
+      """
+    And an existing platform with this module
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      hesperides.instance.name=anything
+      """

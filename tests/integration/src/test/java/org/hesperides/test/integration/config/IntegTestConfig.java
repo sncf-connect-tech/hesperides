@@ -1,6 +1,5 @@
 package org.hesperides.test.integration.config;
 
-import org.hesperides.core.infrastructure.mongo.eventstores.AxonEventRepository;
 import org.hesperides.core.infrastructure.mongo.eventstores.SnapshotConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +12,6 @@ import static org.springframework.context.annotation.ComponentScan.Filter;
 @PropertySource("application-test.properties")
 @ComponentScan(basePackages = {"org.hesperides.test.bdd"})
 @ComponentScan(basePackages = {"org.hesperides.core.infrastructure.mongo"},
-        excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {AxonEventRepository.class, SnapshotConfiguration.class})})
+        excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SnapshotConfiguration.class})})
 public class IntegTestConfig {
 }

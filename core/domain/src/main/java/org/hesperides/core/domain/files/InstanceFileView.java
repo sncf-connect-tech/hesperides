@@ -22,7 +22,7 @@ package org.hesperides.core.domain.files;
 
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 
 import java.io.UnsupportedEncodingException;
@@ -35,10 +35,18 @@ public class InstanceFileView {
     String url;
     TemplateView.RightsView rights;
 
-    public InstanceFileView(String templateLocation, String templateFilename, Platform.Key platformKey, String modulePath, Module.Key moduleKey, String instanceName, TemplateView template, boolean simulate) {
+    public InstanceFileView(String templateLocation,
+                            String templateFilename,
+                            PlatformView platform,
+                            String modulePath,
+                            Module.Key moduleKey,
+                            String instanceName,
+                            TemplateView template,
+                            boolean simulate) {
+
         location = buildFileLocation(templateLocation, templateFilename);
-        url = buildUrl(platformKey.getApplicationName(),
-                platformKey.getPlatformName(),
+        url = buildUrl(platform.getApplicationName(),
+                platform.getPlatformName(),
                 modulePath,
                 moduleKey.getName(),
                 moduleKey.getVersion(),
@@ -50,13 +58,15 @@ public class InstanceFileView {
         rights = template.getRights();
     }
 
-    private String buildFileLocation(String location, String filename) {
+    static String buildFileLocation(String location, String filename) {
         StringBuilder fileLocation = new StringBuilder();
         if (location != null) {
             fileLocation.append(location);
-//            if (!location.endsWith("/")) {
+            if (!location.endsWith("/") && !filename.startsWith("/")) {
                 fileLocation.append("/");
-//            }
+            } else if (location.endsWith("/") && filename.startsWith("/")) {
+                filename = filename.substring(1);
+            }
         }
         fileLocation.append(filename);
         return fileLocation.toString();

@@ -55,42 +55,60 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
-        When("^I update this platform(, (?:adding|removing) this module)?(?: in logical group \"([^\"]*)\")?(, using the released version of this module)?(, adding an instance and an instance property)?(?:, upgrading its module to version ([^,]+))?(, and requiring the copy of properties)?(, with an empty payload)?$",
-                (String addingOrRemovingModule, String logicalGroup, String useReleasedModule, String addingInstanceAndInstanceProperty, String upgradedModuleVersion, String withCopy, String withAnEmptyPayload) -> {
+        When("^I update this platform" +
+                "(, (?:adding|removing) this module)?" +
+                "(?: in logical group \"([^\"]*)\")?" +
+                "(, using the released version of this module)?" +
+                "(, adding an instance and an instance property)?" +
+                "(?:, upgrading its module to version ([^,]+))?" +
+                "(, and requiring the copy of properties)?" +
+                "(, with an empty payload)?" +
+                "(, changing the application version and isProd)?$", (
+                String addingOrRemovingModule,
+                String logicalGroup,
+                String useReleasedModule,
+                String addingInstanceAndInstanceProperty,
+                String upgradedModuleVersion,
+                String withCopy,
+                String withAnEmptyPayload,
+                String changeApplicationVersionAndIsProd) -> {
 
-                    if (StringUtils.isNotEmpty(addingOrRemovingModule)) {
-                        if (addingOrRemovingModule.contains("adding")) {
-                            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
-                        } else {
-                            platformBuilder.withNoModule();
-                        }
-                    }
-                    if (StringUtils.isNotEmpty(useReleasedModule)) {
-                        moduleClient.release(moduleBuilder.build(), String.class);
-                        moduleBuilder.withModuleType(ModuleIO.RELEASE);
-                    }
-                    if (StringUtils.isNotEmpty(upgradedModuleVersion)) {
-                        this.upgradedModuleVersion = upgradedModuleVersion;
-                        moduleBuilder.withVersion(upgradedModuleVersion); // nécessaire pour que lorsqu'on requête les propriétés,
-                        // durant l'étape "the platform property values are also copied",
-                        // le `path` de la requête inclue bien la bonne version.
-                        platformBuilder.withModuleVersion(upgradedModuleVersion);
-                    }
-                    if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
-                        platformBuilder.withInstance("instance-foo-1");
-                        platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
-                        platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
-                        platformBuilder.incrementVersionId();
-                    }
-                    PlatformIO platformInput = platformBuilder.buildInput();
-                    if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
-                        platformInput = platformBuilder.virginWithSameVersionId().buildInput();
-                        // So that "Then the platform is successfully updated" step validate there is no more modules:
-                        platformBuilder.withNoModule();
-                    }
-                    testContext.responseEntity = platformClient.update(platformInput, StringUtils.isNotEmpty(withCopy));
-                    platformBuilder.incrementVersionId();
-                });
+            if (StringUtils.isNotEmpty(addingOrRemovingModule)) {
+                if (addingOrRemovingModule.contains("adding")) {
+                    platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
+                } else {
+                    platformBuilder.withNoModule();
+                }
+            }
+            if (StringUtils.isNotEmpty(useReleasedModule)) {
+                moduleClient.release(moduleBuilder.build(), String.class);
+                moduleBuilder.withModuleType(ModuleIO.RELEASE);
+            }
+            if (StringUtils.isNotEmpty(upgradedModuleVersion)) {
+                this.upgradedModuleVersion = upgradedModuleVersion;
+                moduleBuilder.withVersion(upgradedModuleVersion); // nécessaire pour que lorsqu'on requête les propriétés,
+                // durant l'étape "the platform property values are also copied",
+                // le `path` de la requête inclue bien la bonne version.
+                platformBuilder.withModuleVersion(upgradedModuleVersion);
+            }
+            if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
+                platformBuilder.withInstance("instance-foo-1");
+                platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
+                platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+                platformBuilder.incrementVersionId();
+            }
+            if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
+                // So that "Then the platform is successfully updated" step validate there is no more modules:
+                platformBuilder.withNoModule();
+            }
+            if (StringUtils.isNotEmpty(changeApplicationVersionAndIsProd)) {
+                platformBuilder
+                        .withVersion("12")
+                        .withIsProductionPlatform(true);
+            }
+            testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy));
+            platformBuilder.incrementVersionId();
+        });
 
         Then("^the platform is successfully updated$", () -> {
             assertOK();

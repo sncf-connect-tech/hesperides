@@ -21,8 +21,8 @@
 package org.hesperides.test.bdd.templatecontainers.builders;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -147,6 +147,16 @@ public class PropertyBuilder {
         return property.toString();
     }
 
+    public String replacePropertiesWithValues(String input, List<ValuedPropertyIO> predefinedProperties, List<ValuedPropertyIO> properties) {
+        String result = input;
+        properties.addAll(predefinedProperties);
+        for (String propertyName : extractProperties(input)) {
+            String propertyValue = properties.stream().filter(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName.trim())).map(ValuedPropertyIO::getValue).findFirst().orElse("");
+            result = result.replace("{{" + propertyName + "}}", propertyValue);
+        }
+        return result;
+    }
+
     /**
      * Extrait la liste des propriétés qu se trouvent entre moustaches.
      */
@@ -157,17 +167,5 @@ public class PropertyBuilder {
             properties.add(matcher.group(1));
         }
         return properties;
-    }
-
-    /**
-     * Remplace toutes les propriétés entre moustaches par leur valeur respective.
-     */
-    public String replacePropertiesWithValues(String input, PlatformBuilder platformBuilder) {
-        String result = input;
-        for (String property : extractProperties(input)) {
-            String propertyValue = platformBuilder.getPropertyValue(property);
-            result = result.replace("{{" + property + "}}", propertyValue);
-        }
-        return result;
     }
 }

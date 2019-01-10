@@ -26,11 +26,11 @@ import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.IterableProperty;
 import org.hesperides.core.domain.templatecontainers.entities.Property;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -38,39 +38,23 @@ public abstract class AbstractPropertyDocument {
 
     protected String name;
 
-    public static List<AbstractPropertyDocument> fromDomainInstances(List<AbstractProperty> abstractProperties) {
-        List<AbstractPropertyDocument> abstractPropertyDocuments = new ArrayList<>();
-        if (abstractProperties != null) {
-            for (AbstractProperty abstractProperty : abstractProperties) {
-                if (abstractProperty instanceof Property) {
-                    Property property = (Property) abstractProperty;
-                    PropertyDocument propertyDocument = new PropertyDocument(property);
-                    abstractPropertyDocuments.add(propertyDocument);
-                } else if (abstractProperty instanceof IterableProperty) {
-                    IterableProperty iterableProperty = (IterableProperty) abstractProperty;
-                    IterablePropertyDocument iterablePropertyDocument = new IterablePropertyDocument(iterableProperty);
-                    abstractPropertyDocuments.add(iterablePropertyDocument);
-                }
-            }
-        }
-        return abstractPropertyDocuments;
+    public static List<AbstractPropertyDocument> fromDomainInstances(List<AbstractProperty> properties) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(property -> property instanceof Property
+                        ? new PropertyDocument((Property) property)
+                        : new IterablePropertyDocument((IterableProperty) property)
+                ).collect(Collectors.toList());
     }
 
-    public static List<AbstractPropertyView> toAbstractPropertyViews(List<AbstractPropertyDocument> abstractPropertyDocuments) {
-        List<AbstractPropertyView> abstractPropertyViews = new ArrayList<>();
-        if (abstractPropertyDocuments != null) {
-            for (AbstractPropertyDocument abstractPropertyDocument : abstractPropertyDocuments) {
-                if (abstractPropertyDocument instanceof PropertyDocument) {
-                    PropertyDocument propertyDocument = (PropertyDocument) abstractPropertyDocument;
-                    PropertyView propertyView = propertyDocument.toPropertyView();
-                    abstractPropertyViews.add(propertyView);
-                } else if (abstractPropertyDocument instanceof IterablePropertyDocument) {
-                    IterablePropertyDocument iterablePropertyDocument = (IterablePropertyDocument) abstractPropertyDocument;
-                    IterablePropertyView iterablePropertyView = iterablePropertyDocument.toIterableProperyView();
-                    abstractPropertyViews.add(iterablePropertyView);
-                }
-            }
-        }
-        return abstractPropertyViews;
+    public static List<AbstractPropertyView> toViews(List<AbstractPropertyDocument> properties) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractPropertyDocument::toView)
+                .collect(Collectors.toList());
     }
+
+    protected abstract AbstractPropertyView toView();
 }
