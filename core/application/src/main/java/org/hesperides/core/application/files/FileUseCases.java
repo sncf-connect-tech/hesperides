@@ -160,17 +160,43 @@ public class FileUseCases {
         List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
         List<ValuedPropertyView> instanceProperties = getInstanceProperties(deployedModule.getInstances(), instanceName);
 
-        input = replaceMustachePropertiesWithValues(input, concat(moduleProperties, globalProperties)); // 1.*
-        input = replaceMustachePropertiesWithValues(input, concat(instanceProperties, globalProperties));// 2.*
-        return replaceMustachePropertiesWithValues(input, globalProperties); // 3.*
+        Map<String, String> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
+
+        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleProperties, globalProperties)); // 1.*
+        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(instanceProperties, globalProperties));// 2.*
+        return replaceMustachePropertiesWithValues(input, predefinedProperties, globalProperties); // 3.*
+    }
+
+    private static Map<String, String> getPredefinedProperties(PlatformView platform, DeployedModuleView deployedModule, String instanceName) {
+        Map<String, String> predefinedProperties = new HashMap<>();
+        predefinedProperties.put("hesperides.application.name", platform.getApplicationName());
+        predefinedProperties.put("hesperides.application.version", platform.getVersion());
+        predefinedProperties.put("hesperides.platform.name", platform.getPlatformName());
+        predefinedProperties.put("hesperides.module.name", deployedModule.getName());
+        predefinedProperties.put("hesperides.module.version", deployedModule.getVersion());
+        String modulePath = deployedModule.getModulePath();
+        predefinedProperties.put("hesperides.module.path.full", modulePath.replace('#', '/'));
+        predefinedProperties.putAll(getPathLogicalGroups(modulePath));
+        predefinedProperties.put("hesperides.instance.name", instanceName);
+        return predefinedProperties;
+    }
+
+    private static Map<String, String> getPathLogicalGroups(String modulePath) {
+        Map<String, String> pathLogicalGroups = new HashMap<>();
+        String[] groups = modulePath.split("#");
+        for (int index = 1; index < groups.length; index++) {
+            pathLogicalGroups.put("hesperides.module.path." + (index - 1), groups[index]);
+        }
+        return pathLogicalGroups;
     }
 
     /**
      * Remplace les propriétés entre moustaches par leur valorisation
      * à l'aide du framework Mustache.
      */
-    private static String replaceMustachePropertiesWithValues(String input, List<? extends AbstractValuedPropertyView> properties) {
+    private static String replaceMustachePropertiesWithValues(String input, Map<String, String> predefinedProperties, List<? extends AbstractValuedPropertyView> properties) {
         Map<String, Object> scopes = propertiesToScopes(properties);
+        scopes.putAll(predefinedProperties);
 
         Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(input);
         StringWriter stringWriter = new StringWriter();

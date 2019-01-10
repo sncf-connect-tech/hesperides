@@ -72,3 +72,11 @@ Feature: Get instance or module files
     And an existing platform with this module and an instance and instance properties and global properties as instance values
     When I get the instance files
     Then the files are successfully retrieved
+
+  #issue-457
+  Scenario: get files with predefined properties used in filename and location
+    Given a template to create with filename "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}" with location "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}"
+    And an existing module with this template
+    And an existing platform with this module and an instance
+    When I get the instance files
+    Then the files are successfully retrieved

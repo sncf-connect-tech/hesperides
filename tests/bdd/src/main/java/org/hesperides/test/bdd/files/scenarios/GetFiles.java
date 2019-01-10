@@ -106,8 +106,8 @@ public class GetFiles extends HesperidesScenario implements En {
     }
 
     private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
-        String location = replacePropertiesWithValues(template.getLocation());
-        String filename = replacePropertiesWithValues(template.getFilename());
+        String location = replacePropertiesWithValues(template.getLocation(), modulePath, instanceName);
+        String filename = replacePropertiesWithValues(template.getFilename(), modulePath, instanceName);
         try {
             return new InstanceFileOutput(
                     location + "/" + filename,
@@ -129,13 +129,40 @@ public class GetFiles extends HesperidesScenario implements En {
         }
     }
 
-    private String replacePropertiesWithValues(String input) {
+    /**
+     * Cf. org.hesperides.core.application.files.FileUseCases#valorizeWithModuleAndGlobalAndInstanceProperties
+     * <p>
+     * 1. Une propriété peut être valorisée au niveau de la platforme (propriété globale)
+     * et au niveau du module (valorisation classique).
+     * <p>
+     * 2. La valorisation d'une propriété au niveau du module peut faire référence
+     * à une propriété globale ou d'instance.
+     * <p>
+     * 3. La valorisation d'une propriété d'instance peut faire référence
+     * à une propriété globale.
+     */
+    private String replacePropertiesWithValues(String input, String modulePath, String instanceName) {
+        List<ValuedPropertyIO> predefinedProperties = getPredefinedProperties(modulePath, instanceName);
+
         List<ValuedPropertyIO> moduleAndGlobalProperties = platformBuilder.getModuleAndGlobalProperties();
-        input = propertyBuilder.replacePropertiesWithValues(input, moduleAndGlobalProperties);
+        input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
         List<ValuedPropertyIO> globalProperties = platformBuilder.getAllGlobalProperties();
         List<ValuedPropertyIO> globalAndInstanceProperties = new ArrayList<>(globalProperties);
         globalAndInstanceProperties.addAll(platformBuilder.getInstancePropertyValues());
-        input = propertyBuilder.replacePropertiesWithValues(input, globalAndInstanceProperties);
-        return propertyBuilder.replacePropertiesWithValues(input, globalProperties);
+        input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalAndInstanceProperties);
+        return propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalProperties);
+    }
+
+    private List<ValuedPropertyIO> getPredefinedProperties(String modulePath, String instanceName) {
+        PlatformIO platform = platformBuilder.buildInput();
+        ModuleIO module = moduleBuilder.build();
+        return Arrays.asList(
+                new ValuedPropertyIO("hesperides.application.name", platform.getApplicationName()),
+                new ValuedPropertyIO("hesperides.application.version", platform.getVersion()),
+                new ValuedPropertyIO("hesperides.platform.name", platform.getPlatformName()),
+                new ValuedPropertyIO("hesperides.module.name", module.getName()),
+                new ValuedPropertyIO("hesperides.module.version", module.getVersion()),
+                new ValuedPropertyIO("hesperides.module.path.full", modulePath.replace('#', '/')),
+                new ValuedPropertyIO("hesperides.instance.name", instanceName));
     }
 }
