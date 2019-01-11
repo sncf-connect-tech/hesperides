@@ -385,7 +385,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final Optional<PlatformDocument> platformDocument = platformRepository
-                .findModulePropertiesByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+                .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
                 .map(PlatformDocument::getDeployedModules)
@@ -404,7 +404,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final Optional<PlatformDocument> platformDocument = platformRepository
-                .findModuleInstancesModelByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+                .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         return platformDocument
                 .map(PlatformDocument::getDeployedModules)

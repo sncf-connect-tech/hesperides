@@ -64,4 +64,8 @@ public class ModuleQueries extends AxonQueries {
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key moduleKey) {
         return querySyncList(new GetModulePropertiesQuery(moduleKey), AbstractPropertyView.class);
     }
+
+    public List<ModuleSimplePropertiesView> getModulesSimpleProperties(List<TemplateContainer.Key> modulesKeys) {
+        return querySyncList(new GetModulesSimplePropertiesQuery(modulesKeys), ModuleSimplePropertiesView.class);
+    }
 }

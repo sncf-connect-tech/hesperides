@@ -56,5 +56,5 @@ public abstract class AbstractPropertyDocument {
                 .collect(Collectors.toList());
     }
 
-    protected abstract AbstractPropertyView toView();
+    public abstract AbstractPropertyView toView();
 }

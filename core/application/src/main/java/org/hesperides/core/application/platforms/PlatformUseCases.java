@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
+import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.DeployedModuleView.toDomainDeployedModules;
@@ -190,45 +192,17 @@ public class PlatformUseCases {
     }
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
+        PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
+        List<TemplateContainer.Key> modulesKeys = platform.getDeployedModules()
+                .stream()
+                .map(DeployedModuleView::getModuleKey)
+                .collect(Collectors.toList());
+        List<ModuleSimplePropertiesView> modulesSimpleProperties = moduleQueries.getModulesSimpleProperties(modulesKeys);
 
-        return queries.getOptionalPlatform(platformKey)
-                .map(platformView -> platformView.getGlobalProperties()
-                        .stream()
-                        .collect(Collectors.toMap(ValuedPropertyView::getName, globalProperty -> getGlobalPropertyUsage(platformView.getDeployedModules(), globalProperty))))
-                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
-    }
-
-    /**
-     * Pour chaque propriété globale, on regarde si elle est utilisée.
-     * Il existe 2 façons d'utiliser les propriétés globales :
-     * - En tant que propriété dans un template
-     * - En tant que valeur de propriété d'un module déployé
-     */
-    private Set<GlobalPropertyUsageView> getGlobalPropertyUsage(final List<DeployedModuleView> deployedModules, final ValuedPropertyView globalProperty) {
-        final Set<GlobalPropertyUsageView> globalPropertyUsage = new HashSet<>();
-
-        deployedModules.forEach(deployedModule -> {
-            TemplateContainer.Key moduleKey = deployedModule.getModuleKey();
-
-            final List<AbstractPropertyView> flatModuleProperties = new ArrayList<>();
-            final boolean moduleExists = moduleQueries.moduleExists(moduleKey);
-
-            if (moduleExists) {
-                // Si le module existe, on récupère toutes ses propriétés, y compris les itérables
-                // pouvant contenir elles-mêmes des propriétés, dans une liste "à plat".
-                List<AbstractPropertyView> moduleProperties = moduleQueries.getProperties(moduleKey);
-                flatModuleProperties.addAll(AbstractPropertyView.flattenProperties(moduleProperties));
-                // Puis détermine les propriétés globales utilisées parmis ces propriétés de modules
-                List<GlobalPropertyUsageView> moduleGlobalProperties = GlobalPropertyUsageView.getModuleGlobalProperties(
-                        flatModuleProperties, globalProperty.getName(), deployedModule.getPropertiesPath());
-                globalPropertyUsage.addAll(moduleGlobalProperties);
-            }
-
-            // Ici on extrait les proriétés globales utilisées lors de la valorisation des propriétés
-            List<GlobalPropertyUsageView> deployedModuleGlobalProperties = GlobalPropertyUsageView.getDeployedModuleGlobalProperties(
-                    deployedModule, globalProperty.getName(), flatModuleProperties, moduleExists);
-            globalPropertyUsage.addAll(deployedModuleGlobalProperties);
-        });
-        return globalPropertyUsage;
+        return globalProperties.stream()
+                .map(ValuedPropertyView::getName)
+                .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
+                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, platform.getDeployedModules(), modulesSimpleProperties)));
     }
 }
