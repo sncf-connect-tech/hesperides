@@ -45,4 +45,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'properties' : 1 }")
     Optional<ModuleDocument> findPropertiesByModuleKey(KeyDocument moduleKey);
+
+    @Query(value = "{ 'key' : { $in: ?0 } }", fields = "{ 'key' : 1, 'properties' : 1 }")
+    List<ModuleDocument> findPropertiesByKeyIn(List<KeyDocument> modulesKeys);
 }

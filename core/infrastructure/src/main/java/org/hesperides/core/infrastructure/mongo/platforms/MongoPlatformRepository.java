@@ -36,14 +36,14 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' }, 'key.platformName': { '$regex' : ?1, '$options' : 'i' } }") // case-insensitive
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
-    @Query(value = "{ 'key': ?0, 'deployedModules.propertiesPath': ?1 }", fields = "{ 'deployedModules' : 1, 'deployedModules.valuedProperties' : 1 }")
-    Optional<PlatformDocument> findModulePropertiesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
+    @Query(value = "{ 'key': ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1 }}}")
+    Optional<PlatformDocument> findModuleByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
 
-//    @Query(value = "{ 'key': ?0 }", fields = "{ 'deployedModules' : { $elemMatch : { 'propertiesPath' : ?1 }}}")
-//    PlatformDocument findDeployedModulesByPropertiesPath(PlatformKeyDocument platformKeyDocument, String path);
+//    @Query(value = "{ 'key': ?0, 'deployedModules.propertiesPath': ?1 }", fields = "{ 'deployedModules' : 1, 'deployedModules.valuedProperties' : 1 }")
+//    Optional<PlatformDocument> findModuleByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
 
-    @Query(value = "{ 'key': ?0, 'deployedModules.propertiesPath': ?1 }", fields = "{ 'deployedModules' : 1, 'deployedModules.instancesModel' : 1 }")
-    Optional<PlatformDocument> findModuleInstancesModelByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
+//    @Query(value = "{ 'key': ?0, 'deployedModules.propertiesPath': ?1 }", fields = "{ 'deployedModules' : 1, 'deployedModules.instancesModel' : 1 }")
+//    Optional<PlatformDocument> findModuleInstancesModelByPropertiesPath(PlatformKeyDocument platformKeyDocument, String propertiesPath);
 
     @ExistsQuery("{ 'key' : ?0, 'deployedModules.name' : ?1, 'deployedModules.version' : ?2, 'deployedModules.isWorkingCopy' : ?3, 'deployedModules.modulePath' : ?4}")
     boolean existsByPlatformKeyAndModuleKeyAndPath(PlatformKeyDocument platformKeyDocument, String moduleName, String moduleVersion, boolean isWorkingCopy, String modulePath);

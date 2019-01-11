@@ -3,6 +3,7 @@ package org.hesperides.core.infrastructure.mongo.modules;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
@@ -11,6 +12,7 @@ import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateE
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -18,6 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
 
@@ -130,5 +133,16 @@ public class ModuleDocument {
 
     private Module.Key getDomainKey() {
         return new Module.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
+    }
+
+    public ModuleSimplePropertiesView toModuleSimplePropertiesView() {
+        return new ModuleSimplePropertiesView(
+                getDomainKey(),
+                properties
+                        .stream()
+                        .filter(PropertyDocument.class::isInstance)
+                        .map(PropertyDocument.class::cast)
+                        .map(PropertyDocument::toView)
+                        .collect(Collectors.toList()));
     }
 }

@@ -6,6 +6,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
+import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -195,5 +196,18 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .map(ModuleDocument::getProperties)
                 .map(AbstractPropertyDocument::toViews)
                 .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query) {
+        List<KeyDocument> modulesKeys = query.getModulesKeys()
+                .stream()
+                .map(KeyDocument::new)
+                .collect(Collectors.toList());
+
+        return moduleRepository.findPropertiesByKeyIn(modulesKeys)
+                .stream()
+                .map(ModuleDocument::toModuleSimplePropertiesView)
+                .collect(Collectors.toList());
     }
 }
