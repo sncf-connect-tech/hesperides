@@ -2,8 +2,12 @@ package org.hesperides.test.bdd.commons;
 
 import cucumber.api.java8.En;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
+
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class CommonSteps extends HesperidesScenario implements En {
@@ -13,9 +17,7 @@ public class CommonSteps extends HesperidesScenario implements En {
     private TestContext testContext;
 
     public CommonSteps() {
-        Given("^an authenticated user$", () -> {
-            restTemplate.getInterceptors().add(testContext.getBasicAuthInterceptor());
-        });
+        Given("^an authenticated ?(.*)? user$", this::setAuthUserRole);
 
         Then("^the resource is not found$", () -> {
             assertNotFound();
@@ -34,5 +36,16 @@ public class CommonSteps extends HesperidesScenario implements En {
             assertOK();
             assertEquals(expectedCount.intValue(), getBodyAsArray().length);
         });
+    }
+
+    public void setAuthUserRole(String authRole) {
+        // Note: we erase ALL interceptors here by simplicity, because we know only the BasicAuth one is used in this app
+        restTemplate.setInterceptors(Collections.singletonList(testContext.getBasicAuthInterceptorForUser(defaultIfEmpty(authRole, "lambda"))));
+    }
+
+    public void ensureUserAuthIsSet() {
+        if (!restTemplate.getInterceptors().stream().anyMatch(i -> i instanceof BasicAuthenticationInterceptor)) {
+            setAuthUserRole(null);
+        }
     }
 }

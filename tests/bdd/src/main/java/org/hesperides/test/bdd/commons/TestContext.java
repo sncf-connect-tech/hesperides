@@ -14,12 +14,33 @@ import org.springframework.stereotype.Component;
 public class TestContext {
     @Setter
     @Getter
-    private String username = "tech";
+    private String lambdaUserName = "user";
     @Setter
-    private String password = "password";
+    private String lambdaUserPassword = "password";
 
-    public BasicAuthenticationInterceptor getBasicAuthInterceptor() {
-        return new BasicAuthenticationInterceptor(username, password);
+    @Setter
+    @Getter
+    private String techUserName = "tech";
+    @Setter
+    private String techUserPassword = "password";
+
+    @Setter
+    @Getter
+    private String prodUserName = "prod";
+    @Setter
+    private String prodUserPassword = "password";
+
+    public BasicAuthenticationInterceptor getBasicAuthInterceptorForUser(String username) {
+        if ("lambda".equals(username)) {
+            return new BasicAuthenticationInterceptor(lambdaUserName, lambdaUserPassword);
+        }
+        if ("tech".equals(username)) {
+            return new BasicAuthenticationInterceptor(techUserName, techUserPassword);
+        }
+        if ("prod".equals(username)) {
+            return new BasicAuthenticationInterceptor(prodUserName, prodUserPassword);
+        }
+        throw new IllegalArgumentException("Unknown user: " + username);
     }
 
     public ResponseEntity responseEntity;

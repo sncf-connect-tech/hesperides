@@ -30,6 +30,7 @@ import java.util.Optional;
 @Value
 public class PlatformView {
 
+    String id;
     String platformName;
     String applicationName;
     String version;

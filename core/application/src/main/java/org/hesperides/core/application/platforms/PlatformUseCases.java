@@ -1,6 +1,7 @@
 package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -48,6 +49,9 @@ public class PlatformUseCases {
     }
 
     public String createPlatform(Platform platform, User user) {
+        if (platform.isProductionPlatform() && !user.isProd()) {
+            throw new ForbiddenOperationException("Creating a production platform is reserved to production role");
+        }
         if (queries.platformExists(platform.getKey())) {
             throw new DuplicatePlatformException(platform.getKey());
         }
@@ -60,6 +64,9 @@ public class PlatformUseCases {
         }
         PlatformView existingPlatform = queries.getOptionalPlatform(existingPlatformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(existingPlatformKey));
+        if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.isProd()) {
+            throw new ForbiddenOperationException("Creating a platform from a production platform is reserved to production role");
+        }
         // cf. createPlatformFromExistingPlatform in https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/AbstractApplicationsAggregate.java#L156
         Platform newFullPlatform = new Platform(
                 newPlatform.getKey(),
@@ -82,20 +89,27 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyPropertiesForUpgradedModules, User user) {
-        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
-        if (!platformId.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
+    public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
+        PlatformView existingPlatform = queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        if (!user.isProd()) {
+            if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {
+                throw new ForbiddenOperationException("Updating a production platform is reserved to production role");
+            }
+            if (existingPlatform.isProductionPlatform() || newPlatform.isProductionPlatform()) {
+                throw new ForbiddenOperationException("Upgrading a platform to production is reserved to production role");
+            }
         }
-        commands.updatePlatform(platformId.get(), platform, copyPropertiesForUpgradedModules, user);
+        commands.updatePlatform(existingPlatform.getId(), newPlatform, copyPropertiesForUpgradedModules, user);
     }
 
     public void deletePlatform(Platform.Key platformKey, User user) {
-        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
-        if (!platformId.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
+        PlatformView platform = queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        if (platform.isProductionPlatform() && !user.isProd()) {
+            throw new ForbiddenOperationException("Deleting a production platform is reserved to production role");
         }
-        commands.deletePlatform(platformId.get(), user);
+        commands.deletePlatform(platform.getId(), user);
     }
 
     public ApplicationView getApplication(String applicationName) {

@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.DefaultResponseErrorHandler;
@@ -34,8 +33,22 @@ public class DebuggableRestTemplate extends RestTemplate {
     private Gson gson;
 
     public DebuggableRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler) {
+        this(gson, uriTemplateHandler, null);
+    }
+
+    public DebuggableRestTemplate(Gson gson, CloseableHttpClient httpClient, String baseUrl) {
+        this(gson, new DefaultUriBuilderFactory(baseUrl), httpClient);
+    }
+
+    public DebuggableRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler, CloseableHttpClient httpClient) {
         super();
         this.gson = gson;
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        if (httpClient != null) {
+            requestFactory.setHttpClient(httpClient);
+        }
+        requestFactory.setBufferRequestBody(false);
+        setRequestFactory(requestFactory);
         setUriTemplateHandler(uriTemplateHandler);
         setErrorHandler(new NoOpResponseErrorHandler());
         // On vire Jackson:
@@ -44,13 +57,6 @@ public class DebuggableRestTemplate extends RestTemplate {
                 .collect(Collectors.toList());
         configureMessageConverters(converters, gson);
         setMessageConverters(converters);
-    }
-
-    public DebuggableRestTemplate(Gson gson, CloseableHttpClient httpClient, String baseUrl) {
-        this(gson, new DefaultUriBuilderFactory(baseUrl));
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setHttpClient(httpClient);
-        setRequestFactory(requestFactory);
     }
 
     // Cette méthode affiche la réponse au format texte en cas d'exception, si l'étape de deserialization ne fonctionne pas, pour faciliter le debug.

@@ -63,8 +63,8 @@ public class CopyTechnos extends HesperidesScenario implements En {
         });
 
         Then("^the version type of the duplicated techno is working copy$", () -> {
-            TechnoIO techoOutput = (TechnoIO) testContext.getResponseBody();
-            assertTrue(techoOutput.getIsWorkingCopy());
+            TechnoIO technoOutput = (TechnoIO) testContext.getResponseBody();
+            assertTrue(technoOutput.getIsWorkingCopy());
         });
 
         Then("^the techno copy is rejected with a not found error$", () -> {

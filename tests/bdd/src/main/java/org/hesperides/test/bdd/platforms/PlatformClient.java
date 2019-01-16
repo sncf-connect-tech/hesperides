@@ -93,7 +93,7 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public ResponseEntity update(PlatformIO platformInput, boolean copyProperties) {
+    public ResponseEntity update(PlatformIO platformInput, boolean copyProperties, Class responseType) {
         String url = "/applications/{application_name}/platforms";
         if (copyProperties) {
             url += "?copyPropertiesForUpgradedModules=true";
@@ -102,7 +102,7 @@ public class PlatformClient {
                 url,
                 HttpMethod.PUT,
                 new HttpEntity<>(platformInput),
-                PlatformIO.class,
+                responseType,
                 platformInput.getApplicationName());
     }
 

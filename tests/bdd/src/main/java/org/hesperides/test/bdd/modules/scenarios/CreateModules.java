@@ -3,6 +3,7 @@ package org.hesperides.test.bdd.modules.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
@@ -28,11 +29,24 @@ public class CreateModules extends HesperidesScenario implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
+    @Autowired
+    private CommonSteps commonSteps;
 
     public CreateModules() {
 
-        Given("^an existing module(?: named \"([^\"]*)\")?( with a template)?( with this template)?( with properties)?( (?:and|with) global properties)?( (?:and|with) this techno)?$", (
-                String moduleName, String withATemplate, String withThisTemplate, String withProperties, String withGlobalProperties, String withThisTechno) -> {
+        Given("^an existing module" +
+                "(?: named \"([^\"]*)\")?" +
+                "( with a template)?" +
+                "( with this template)?" +
+                "( with(?: password)? properties)?" +
+                "( (?:and|with) global properties)?" +
+                "( (?:and|with) this techno)?$", (
+                String moduleName,
+                String withATemplate,
+                String withThisTemplate,
+                String withProperties,
+                String withGlobalProperties,
+                String withThisTechno) -> {
 
             if (StringUtils.isNotEmpty(moduleName)) {
                 moduleBuilder.withName(moduleName);
@@ -46,12 +60,14 @@ public class CreateModules extends HesperidesScenario implements En {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
 
-            moduleClient.create(moduleBuilder.build());
+            commonSteps.ensureUserAuthIsSet();
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            assertCreated();
             moduleBuilder.withVersionId(1);
 
             if (StringUtils.isNotEmpty(withProperties)) {
-                addPropertyToBuilders("module-foo");
-                addPropertyToBuilders("module-bar");
+                addPropertyToBuilders("module-foo", withProperties.contains("password"));
+                addPropertyToBuilders("module-bar", withProperties.contains("password"));
             }
 
             if (StringUtils.isNotEmpty(withGlobalProperties)) {
@@ -122,7 +138,14 @@ public class CreateModules extends HesperidesScenario implements En {
     }
 
     private void addPropertyToBuilders(String name) {
+        addPropertyToBuilders(name, false);
+    }
+
+    private void addPropertyToBuilders(String name, boolean isPassword) {
         propertyBuilder.reset().withName(name);
+        if (isPassword) {
+            propertyBuilder.withIsPassword();
+        }
         modelBuilder.withProperty(propertyBuilder.build());
         templateBuilder.withContent(propertyBuilder.toString());
     }
