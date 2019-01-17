@@ -172,12 +172,12 @@ public class PlatformBuilder {
     }
 
     public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
-        boolean isInModel = modelBuilder.containsProperty(name);
-        properties.add(new Property(name, value, true, isInModel, isInModel));
+        boolean isUsed = modelBuilder.containsProperty(name);
+        properties.add(new Property(name, value, true, isUsed, false));
     }
 
-    public void withGlobalProperty(String name, String value, boolean isInModel, boolean isUsed) {
-        properties.add(new Property(name, value, true, isInModel, isUsed));
+    public void withGlobalProperty(String name, String value, boolean isUsed, boolean isRemovedFromTemplate) {
+        properties.add(new Property(name, value, true, isUsed, isRemovedFromTemplate));
     }
 
     public void withProperty(String name, String value) {
@@ -286,7 +286,7 @@ public class PlatformBuilder {
         String name;
         String value;
         boolean isGlobal;
-        boolean isInModel;
         boolean isUsed;
+        boolean isRemovedFromTemplate;
     }
 }

@@ -33,4 +33,12 @@ public class InstanceFileViewTest {
         assertEquals("location/filename", InstanceFileView.buildFileLocation("location", "/filename"));
         assertEquals("location/filename", InstanceFileView.buildFileLocation("location/", "/filename"));
     }
+
+    @Test
+    public void testBuildLegacyFileLocation() {
+        assertEquals("location/filename", InstanceFileView.buildLegacyFileLocation("location", "filename"));
+        assertEquals("location//filename", InstanceFileView.buildLegacyFileLocation("location/", "filename"));
+        assertEquals("location//filename", InstanceFileView.buildLegacyFileLocation("location", "/filename"));
+        assertEquals("location///filename", InstanceFileView.buildLegacyFileLocation("location/", "/filename"));
+    }
 }

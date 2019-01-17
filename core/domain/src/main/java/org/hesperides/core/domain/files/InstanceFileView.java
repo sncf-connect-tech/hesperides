@@ -44,7 +44,7 @@ public class InstanceFileView {
                             TemplateView template,
                             boolean simulate) {
 
-        location = buildFileLocation(templateLocation, templateFilename);
+        location = buildLegacyFileLocation(templateLocation, templateFilename);
         url = buildUrl(platform.getApplicationName(),
                 platform.getPlatformName(),
                 modulePath,
@@ -56,6 +56,10 @@ public class InstanceFileView {
                 template.getNamespace(),
                 simulate);
         rights = template.getRights();
+    }
+
+    static String buildLegacyFileLocation(String location, String filename) {
+        return location + "/" + filename;
     }
 
     static String buildFileLocation(String location, String filename) {
