@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Value
 public class GlobalPropertyUsageView {
 
-    boolean inModel;
+    boolean isRemovedFromTemplate;
     String propertiesPath;
 
     /**
@@ -25,7 +25,7 @@ public class GlobalPropertyUsageView {
         return moduleProperties.stream()
                 // TODO Sensible à la casse ?
                 .filter(moduleProperty -> moduleProperty.getName().equals(globalPropertyName))
-                .map(moduleProperty -> new GlobalPropertyUsageView(true, propertiesPath))
+                .map(moduleProperty -> new GlobalPropertyUsageView(false, propertiesPath))
                 .collect(Collectors.toList());
     }
 
@@ -35,14 +35,15 @@ public class GlobalPropertyUsageView {
      * - En tant que propriété dans un template
      * - En tant que valeur de propriété d'un module déployé
      *
-     * Le critère inModel est déterminé comme ceci :
+     * Le critère isRemovedFromTemplate est déterminé comme ceci :
      *
-     * Si la propriété globale est utilisée en tant que valeur
-     * d'une propriété au niveau du module, et que cette propriété
-     * initialement déclarée dans le template ne fait plus partie
-     * de la liste des propriétés simples du model, inModel = false.
+     * Si la propriété globale existe dans les propriétés du module
+     * ou est utilisée en tant que valeur d'une propriété
+     * au niveau du module, et que cette propriété initialement déclarée dans le
+     * template ne fait plus partie de la liste des propriétés simples (par opposition
+     * aux propriétés itérables) du model, isRemovedFromTemplate = true.
      *
-     * Dans tous les autres cas, inModel = true;
+     * Dans tous les autres cas, isRemovedFromTemplate = false;
      */
     public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<ModuleSimplePropertiesView> modulesSimpleProperties) {
         Set<GlobalPropertyUsageView> globalPropertyUsages = new HashSet<>();
@@ -52,25 +53,26 @@ public class GlobalPropertyUsageView {
             String propertiesPath = deployedModule.getPropertiesPath();
 
             if (propertyNameIsInProperties(globalPropertyName, moduleSimpleProperties)) {
-                globalPropertyUsages.add(new GlobalPropertyUsageView(true, propertiesPath));
+                globalPropertyUsages.add(new GlobalPropertyUsageView(false, propertiesPath));
 
             } else {
-                Optional<String> valuedProperty = getValuedPropertyUsingGlobalPropertyAsValue(globalPropertyName, deployedModule.getValuedProperties());
+                Optional<String> valuedProperty = getValuedPropertyUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
                 if (valuedProperty.isPresent()) {
-                    boolean inModel = propertyNameIsInProperties(valuedProperty.get(), moduleSimpleProperties);
-                    globalPropertyUsages.add(new GlobalPropertyUsageView(inModel, propertiesPath));
+                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedProperty.get(), moduleSimpleProperties);
+                    globalPropertyUsages.add(new GlobalPropertyUsageView(isRemovedFromTemplate, propertiesPath));
                 }
             }
         });
         return globalPropertyUsages;
     }
 
-    private static Optional<String> getValuedPropertyUsingGlobalPropertyAsValue(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
+    private static Optional<String> getValuedPropertyUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
         return valuedProperties
                 .stream()
                 .filter(ValuedPropertyView.class::isInstance)
                 .map(ValuedPropertyView.class::cast)
-                .filter(simpleProperty -> simpleProperty.getValue().toLowerCase().contains("{{" + globalPropertyName.toLowerCase() + "}}"))
+                .filter(simpleProperty -> simpleProperty.getName().equalsIgnoreCase(globalPropertyName) ||
+                        simpleProperty.getValue().toLowerCase().contains("{{" + globalPropertyName.toLowerCase() + "}}"))
                 .findFirst()
                 .map(ValuedPropertyView::getName);
     }

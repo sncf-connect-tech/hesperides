@@ -220,8 +220,8 @@ public class FileUseCases {
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
                 // Si on n'a pas la valeur entre moustaches, c'est le cas pour les propriétés globales
                 // et les propriétés d'instance, on prend le nom de la propriété
-                String propertyToReplace = StringUtils.defaultString(valuedProperty.getMustacheContent(), valuedProperty.getName()).trim();
-                scopes.put(propertyToReplace, valuedProperty.getValue().trim());
+                String propertyToReplace = StringUtils.trim(StringUtils.defaultString(valuedProperty.getMustacheContent(), valuedProperty.getName()));
+                scopes.put(propertyToReplace, StringUtils.trim(valuedProperty.getValue()));
 
             } else if (property instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;

@@ -36,7 +36,7 @@ public class MongoSearchOptions {
         if (2 != getCollationStrength(indexPerName, "_id_", collectionName)) {
             throw new RuntimeException("Index \"_id\" in collection " + collectionName + " is not case-insensitive");
         }
-        if (2 != getCollationStrength(indexPerName,"key_1", collectionName)) {
+        if (2 != getCollationStrength(indexPerName, "key_1", collectionName)) {
             throw new RuntimeException("Index \"key\" in collection " + collectionName + " is not case-insensitive");
         }
     }

@@ -56,14 +56,14 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
             platformBuilder.withProperty("module-foo", "{{global-module-foo}}");
             platformBuilder.withProperty("techno-foo", "{{global-techno-foo}}");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
-            platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, true);
-            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, true);
+            platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, false);
+            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, false);
         });
 
         Given("^the properties are removed from the module$", () -> {
             moduleClient.delete(moduleBuilder.build());
-            platformBuilder.withGlobalProperty("global-module-foo", "whatever", false, true);
-            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", false, true);
+            platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, true);
+            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, true);
             platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
         });
 
@@ -79,7 +79,7 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
                 if (property.isGlobal()) {
                     Set<GlobalPropertyUsageOutput> usages = new HashSet<>();
                     if (property.isUsed()) {
-                        usages.add(new GlobalPropertyUsageOutput(property.isInModel(), moduleBuilder.getPropertiesPath()));
+                        usages.add(new GlobalPropertyUsageOutput(!property.isRemovedFromTemplate(), moduleBuilder.getPropertiesPath()));
                     }
                     expectedProperties.put(property.getName(), usages);
                 }
