@@ -72,7 +72,7 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
     public static List<ValuedProperty> flattenValuedProperties(List<IterableValuedPropertyIO> iterableValuedIOProperties) {
         List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
-                                       .map(ivpio -> ivpio.toDomainInstance())
+                                       .map(IterableValuedPropertyIO::toDomainInstance)
                                        .collect(Collectors.toList());
         return AbstractValuedProperty.flattenValuedProperties(iterableValuedProperties);
     }

@@ -31,6 +31,8 @@ ldap:
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:5000}
   readTimeout: ${LDAP_READ_TIMEOUT:5000}
+  prodGroupName: ${LDAP_PROD_GROUP_NAME}
+  techGroupName: ${LDAP_TECH_GROUP_NAME}
 
 logging:
   file: /var/log/hesperides.log

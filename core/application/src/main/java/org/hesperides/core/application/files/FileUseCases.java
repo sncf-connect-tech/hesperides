@@ -80,7 +80,7 @@ public class FileUseCases {
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
         validateRequiredEntities(platformKey, moduleKey, modulePath, getModuleValuesIfInstanceDoesntExist, instanceName);
 
-        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
+        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
         ModuleView module = moduleQueries.getOptionalModule(moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
 
         List<TemplateView> technosAndModuleTemplates = Stream.concat(
