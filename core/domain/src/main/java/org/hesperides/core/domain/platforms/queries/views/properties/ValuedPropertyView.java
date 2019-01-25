@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class ValuedPropertyView extends AbstractValuedPropertyView {
 
+    public final static String OBFUSCATED_PASSWORD_VALUE = "********";
+
     String mustacheContent;
     String value;
 
@@ -45,6 +47,11 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     @Override
     public ValuedProperty toDomainValuedProperty() {
         return new ValuedProperty(mustacheContent, getName(), value);
+    }
+
+    @Override
+    public AbstractValuedPropertyView withPasswordsHidden() {
+        return new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE);
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {

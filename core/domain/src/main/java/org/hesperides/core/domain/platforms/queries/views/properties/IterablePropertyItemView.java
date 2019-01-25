@@ -40,6 +40,12 @@ public class IterablePropertyItemView {
         return new IterablePropertyItem(title, toDomainAbstractValuedProperties(abstractValuedPropertyViews));
     }
 
+    public IterablePropertyItemView withPasswordsHidden() {
+        return new IterablePropertyItemView(title, abstractValuedPropertyViews.stream()
+                .map(AbstractValuedPropertyView::withPasswordsHidden)
+                .collect(Collectors.toList()));
+    }
+
     public static List<IterablePropertyItem> toDomainIterablePropertyItems(List<IterablePropertyItemView> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
                 .orElse(Collections.emptyList())

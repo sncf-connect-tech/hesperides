@@ -24,8 +24,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 
 import java.util.Collections;
@@ -66,6 +68,13 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
                 .map(IterablePropertyItemIO::toDomainInstance)
                 .collect(Collectors.toList());
         return new IterableValuedProperty(getName(), iterablePropertyItems);
+    }
+
+    public static List<ValuedProperty> flattenValuedProperties(List<IterableValuedPropertyIO> iterableValuedIOProperties) {
+        List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
+                                       .map(ivpio -> ivpio.toDomainInstance())
+                                       .collect(Collectors.toList());
+        return AbstractValuedProperty.flattenValuedProperties(iterableValuedProperties);
     }
 
     public static List<IterableValuedProperty> toDomainInstances(List<IterableValuedPropertyIO> iterableValuedPropertyIOS) {

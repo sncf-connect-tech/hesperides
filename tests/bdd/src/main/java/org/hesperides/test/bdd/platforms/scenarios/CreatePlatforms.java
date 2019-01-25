@@ -25,6 +25,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.test.bdd.commons.CommonSteps;
@@ -39,9 +40,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.function.Predicate.isEqual;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.core.Every.everyItem;
+import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
+import static org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO.flattenValuedProperties;
+import static org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO.toDomainInstances;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -297,10 +305,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the password property values are obfuscated$", () -> {
             ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
             PropertiesIO actualProperties = responseEntity.getBody();
-            // TODO:
-            //assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
-            //assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
-
+            assertThat(extractValues(toDomainInstances(actualProperties.getValuedProperties())), everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
+            List<String> actualIterablePropertiesEndValues = extractValues(flattenValuedProperties(actualProperties.getIterableValuedProperties()));
+            assertThat(actualIterablePropertiesEndValues, everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
         });
 
         Then("^the platform copy fails with a not found error$", () -> {
@@ -310,6 +317,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with an already exist error$", () -> {
             assertConflict();
         });
+    }
+
+    private static List<String> extractValues(List<ValuedProperty> valuedProperties) {
+        return valuedProperties.stream().map(ValuedProperty::getValue).collect(Collectors.toList());
     }
 
     /**
