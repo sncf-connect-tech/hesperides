@@ -47,10 +47,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -291,10 +288,18 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
-        return technoRepository.findAllByKeyIn(Optional.ofNullable(technos)
-                .orElse(Collections.emptyList())
-                .stream()
+        technos = Optional.ofNullable(technos).orElse(Collections.emptyList());
+        List<TechnoDocument> technoDocs = technoRepository.findAllByKeyIn(technos.stream()
                 .map(techno -> new KeyDocument(techno.getKey()))
                 .collect(Collectors.toList()));
+        // On vérifie en mode parano / programmation défensive qu'on récupère bien le bon nombre de documents.
+        // Cette vérification permet par exemple de détecter lors d'un ModuleCreatedEvent si les technos requises sont absentes.
+        if (technoDocs.size() != technos.size()) {
+            Set<TemplateContainer.Key> technoKeys = technos.stream().map(TemplateContainer::getKey).collect(Collectors.toSet());
+            Set<TemplateContainer.Key> retrievedTechnoKeys = technoDocs.stream().map(TechnoDocument::getDomainKey).collect(Collectors.toSet());
+            technoKeys.removeAll(retrievedTechnoKeys);
+            throw new NotFoundException("Techno not found among " + technos.size() + " requested, no techno was found in repository for the following keys: " + technoKeys);
+        }
+        return technoDocs;
     }
 }
