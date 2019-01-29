@@ -5,6 +5,12 @@ application:
   encoding: @project.build.sourceEncoding@
   java.version: @java.version@
 
+# /info actuator endpoint:
+info:
+  app:
+    name: @project.parent.artifactId@
+    version: @project.version@
+
 spring:
   application.name: HESPERIDES
   boot.admin.client.enabled: false
@@ -36,6 +42,9 @@ management:
   health:
     ldap:
       enabled: false
+  endpoint:
+    health:
+      show-details: always
   endpoints:
     web:
       base-path: /manage
