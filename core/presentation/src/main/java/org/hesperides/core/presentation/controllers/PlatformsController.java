@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -201,13 +202,13 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Get properties with the given path in a platform")
     @GetMapping("/{application_name}/platforms/{platform_name}/properties")
-    public ResponseEntity<PropertiesIO> getProperties(@PathVariable("application_name") final String applicationName,
+    public ResponseEntity<PropertiesIO> getProperties(Authentication authentication,
+                                                      @PathVariable("application_name") final String applicationName,
                                                       @PathVariable("platform_name") final String platformName,
                                                       @RequestParam("path") final String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        // TODO : gestion sécurité isProd pour cacher les propriétés de type @password
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, propertiesPath);
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getProperties(platformKey, propertiesPath, fromAuthentication(authentication));
         return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
     }
 

@@ -37,6 +37,8 @@ public abstract class AbstractValuedPropertyView {
 
     abstract public <T extends AbstractValuedProperty> T toDomainValuedProperty();
 
+    abstract public AbstractValuedPropertyView withPasswordsHidden();
+
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
                 .orElse(Collections.emptyList())
@@ -55,17 +57,8 @@ public abstract class AbstractValuedPropertyView {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Extrait la liste des propriétés valorisée, mises à plat
-     */
-    public static List<AbstractValuedPropertyView> flattenValuedProperties(final List<AbstractValuedPropertyView> valuedProperties) {
-        return valuedProperties
-                .stream()
-                .flatMap(propertyView -> propertyView instanceof ValuedPropertyView
-                        ? Stream.of(propertyView)
-                        : flattenValuedProperties(((IterableValuedPropertyView) propertyView).getIterablePropertyItems().stream()
-                        .flatMap(iterablePropertyItemView -> iterablePropertyItemView.getAbstractValuedPropertyViews().stream())
-                        .collect(Collectors.toList())).stream())
-                .collect(Collectors.toList());
+    public static List<AbstractValuedPropertyView> hidePasswordProperties(List<AbstractValuedPropertyView> moduleProperties) {
+        // Legacy reference implementation: https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/resources/PermissionAwareApplicationsProxy.java#L288
+        return moduleProperties.stream().map(AbstractValuedPropertyView::withPasswordsHidden).collect(Collectors.toList());
     }
 }

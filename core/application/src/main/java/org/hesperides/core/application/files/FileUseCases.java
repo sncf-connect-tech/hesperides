@@ -39,6 +39,7 @@ import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -50,6 +51,8 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
 @Component
 public class FileUseCases {
@@ -77,8 +80,8 @@ public class FileUseCases {
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
         validateRequiredEntities(platformKey, moduleKey, modulePath, getModuleValuesIfInstanceDoesntExist, instanceName);
 
-        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
-        ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
+        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        ModuleView module = moduleQueries.getOptionalModule(moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
 
         List<TemplateView> technosAndModuleTemplates = Stream.concat(
                 module.getTechnos().stream().map(TechnoView::getTemplates).flatMap(List::stream),
@@ -98,8 +101,8 @@ public class FileUseCases {
                                                              String modulePath,
                                                              boolean getModuleValuesIfInstanceDoesntExist) {
 
-        String location = valorizeWithModuleAndGlobalAndInstanceProperties(template.getLocation(), platform, moduleKey, instanceName);
-        String filename = valorizeWithModuleAndGlobalAndInstanceProperties(template.getFilename(), platform, moduleKey, instanceName);
+        String location = valorizeWithModuleAndGlobalAndInstanceProperties(template.getLocation(), platform, moduleKey, instanceName, false);
+        String filename = valorizeWithModuleAndGlobalAndInstanceProperties(template.getFilename(), platform, moduleKey, instanceName, false);
         return new InstanceFileView(location, filename, platform, modulePath, moduleKey, instanceName, template, getModuleValuesIfInstanceDoesntExist);
     }
 
@@ -113,18 +116,20 @@ public class FileUseCases {
             String templateName,
             boolean isWorkingCopy,
             String templateNamespace,
-            boolean getModuleValuesIfInstanceDoesntExist) {
+            boolean getModuleValuesIfInstanceDoesntExist,
+            User user) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
         validateRequiredEntities(platformKey, moduleKey, modulePath, getModuleValuesIfInstanceDoesntExist, instanceName);
 
-        ModuleView module = moduleQueries.getOptionalModule(moduleKey).get();
+        ModuleView module = moduleQueries.getOptionalModule(moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
         Optional<TemplateView> template = getTemplate(module, templateName, templateNamespace);
         String templateContent = template.orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName)).getContent();
 
-        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).get();
-        return valorizeWithModuleAndGlobalAndInstanceProperties(templateContent, platform, moduleKey, instanceName);
+        PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        boolean shouldHidePasswordProperties = platform.isProductionPlatform() && !user.isProd();
+        return valorizeWithModuleAndGlobalAndInstanceProperties(templateContent, platform, moduleKey, instanceName, shouldHidePasswordProperties);
     }
 
     private void validateRequiredEntities(Platform.Key platformKey, Module.Key moduleKey, String modulePath, boolean getModuleValuesIfInstanceDoesntExist, String instanceName) {
@@ -153,10 +158,13 @@ public class FileUseCases {
      * 3. La valorisation d'une propriété d'instance peut faire référence
      * à une propriété globale.
      */
-    private static String valorizeWithModuleAndGlobalAndInstanceProperties(String input, PlatformView platform, Module.Key moduleKey, String instanceName) {
-        DeployedModuleView deployedModule = platform.getDeployedModule(moduleKey).get();
+    private static String valorizeWithModuleAndGlobalAndInstanceProperties(String input, PlatformView platform, Module.Key moduleKey, String instanceName, boolean shouldHidePasswordProperties) {
+        DeployedModuleView deployedModule = platform.getDeployedModule(moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
 
         List<AbstractValuedPropertyView> moduleProperties = deployedModule.getValuedProperties();
+        if (shouldHidePasswordProperties) {
+            moduleProperties = hidePasswordProperties(moduleProperties);
+        }
         List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
         List<ValuedPropertyView> instanceProperties = getInstanceProperties(deployedModule.getInstances(), instanceName);
 

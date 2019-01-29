@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @RequestMapping("/security")
 @RestController
@@ -42,12 +43,9 @@ public class SecuritySamplesController extends AbstractController {
     }
 
     @GetMapping("/authentication")
-    public Collection<? extends GrantedAuthority> getAuthentication(Authentication authentication) {
+    public Collection<String> getAuthentication(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        for (GrantedAuthority authority : userDetails.getAuthorities()) {
-            System.out.println(authority.getAuthority());
-        }
-        return userDetails.getAuthorities();
+        return userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
 
     @GetMapping("/prod")

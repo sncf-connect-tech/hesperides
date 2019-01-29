@@ -1,6 +1,7 @@
 package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -29,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.DeployedModuleView.toDomainDeployedModules;
+import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.toDomainValuedProperties;
 
 
@@ -48,6 +50,9 @@ public class PlatformUseCases {
     }
 
     public String createPlatform(Platform platform, User user) {
+        if (platform.isProductionPlatform() && !user.isProd()) {
+            throw new ForbiddenOperationException("Creating a production platform is reserved to production role");
+        }
         if (queries.platformExists(platform.getKey())) {
             throw new DuplicatePlatformException(platform.getKey());
         }
@@ -60,6 +65,9 @@ public class PlatformUseCases {
         }
         PlatformView existingPlatform = queries.getOptionalPlatform(existingPlatformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(existingPlatformKey));
+        if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.isProd()) {
+            throw new ForbiddenOperationException("Creating a platform from a production platform is reserved to production role");
+        }
         // cf. createPlatformFromExistingPlatform in https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/AbstractApplicationsAggregate.java#L156
         Platform newFullPlatform = new Platform(
                 newPlatform.getKey(),
@@ -82,20 +90,27 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
-    public void updatePlatform(Platform.Key platformKey, Platform platform, boolean copyPropertiesForUpgradedModules, User user) {
-        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
-        if (!platformId.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
+    public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
+        PlatformView existingPlatform = queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        if (!user.isProd()) {
+            if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {
+                throw new ForbiddenOperationException("Updating a production platform is reserved to production role");
+            }
+            if (existingPlatform.isProductionPlatform() || newPlatform.isProductionPlatform()) {
+                throw new ForbiddenOperationException("Upgrading a platform to production is reserved to production role");
+            }
         }
-        commands.updatePlatform(platformId.get(), platform, copyPropertiesForUpgradedModules, user);
+        commands.updatePlatform(existingPlatform.getId(), newPlatform, copyPropertiesForUpgradedModules, user);
     }
 
     public void deletePlatform(Platform.Key platformKey, User user) {
-        Optional<String> platformId = queries.getOptionalPlatformId(platformKey);
-        if (!platformId.isPresent()) {
-            throw new PlatformNotFoundException(platformKey);
+        PlatformView platform = queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        if (platform.isProductionPlatform() && !user.isProd()) {
+            throw new ForbiddenOperationException("Deleting a production platform is reserved to production role");
         }
-        commands.deletePlatform(platformId.get(), user);
+        commands.deletePlatform(platform.getId(), user);
     }
 
     public ApplicationView getApplication(String applicationName) {
@@ -115,12 +130,11 @@ public class PlatformUseCases {
         return queries.searchApplications(applicationName);
     }
 
-    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String propertiesPath) {
+    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
-        if (!queries.platformExists(platformKey)) {
-            throw new PlatformNotFoundException(platformKey);
-        }
+        PlatformView platform = queries.getOptionalPlatform(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
         if (ROOT_PATH.equals(propertiesPath)) {
             properties.addAll(queries.getGlobalProperties(platformKey));
@@ -129,32 +143,39 @@ public class PlatformUseCases {
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            properties.addAll(queries.getDeployedModuleProperties(platformKey, propertiesPath));
-            properties.addAll(getGlobalPropertiesUsedInModule(platformKey, moduleKey));
+            List<AbstractValuedPropertyView> deployedModuleProperties = queries.getDeployedModuleProperties(platformKey, propertiesPath);
+            if (platform.isProductionPlatform() && !user.isProd()) {
+                deployedModuleProperties = hidePasswordProperties(deployedModuleProperties);
+            }
+            properties.addAll(deployedModuleProperties);
+            properties.addAll(getGlobalPropertiesUsedInModule(platform, moduleKey));
         }
         return properties;
     }
 
-    // TODO Cette méthode est à revoir car il y a peut-être moyen de factoriser ou de réutiliser le code du use case getGlobalPropertiesUsage
-    private List<AbstractValuedPropertyView> getGlobalPropertiesUsedInModule(Platform.Key platformKey, Module.Key moduleKey) {
-        List<AbstractValuedPropertyView> globalPropertiesUsedInModule = new ArrayList<>();
-
-        PlatformView platform = queries.getOptionalPlatform(platformKey).get();
-        Optional<DeployedModuleView> deployedModule = platform.getDeployedModule(moduleKey);
-        if (deployedModule.isPresent()) {
-            List<AbstractPropertyView> moduleProperties = moduleQueries.getProperties(moduleKey);
-            List<AbstractPropertyView> flatModuleProperties = AbstractPropertyView.flattenProperties(moduleProperties);
-
-            platform.getGlobalProperties().forEach(globalProperty -> {
+    private List<ValuedPropertyView> getGlobalPropertiesUsedInModule(PlatformView platform, Module.Key moduleKey) {
+        return platform.getDeployedModule(moduleKey).map(deployedModule -> {
+            List<AbstractPropertyView> flatModuleProperties = AbstractPropertyView.flattenProperties(moduleQueries.getProperties(moduleKey));
+            return platform.getGlobalProperties().stream().filter(globalProperty -> {
                 List<GlobalPropertyUsageView> moduleGlobalProperties = GlobalPropertyUsageView.getModuleGlobalProperties(
-                        flatModuleProperties, globalProperty.getName(), deployedModule.get().getPropertiesPath());
-                if (!CollectionUtils.isEmpty(moduleGlobalProperties)) {
-                    globalPropertiesUsedInModule.add(globalProperty);
-                }
-            });
-        }
+                        flatModuleProperties, globalProperty.getName(), deployedModule.getPropertiesPath());
+                return !CollectionUtils.isEmpty(moduleGlobalProperties);
+            }).collect(Collectors.toList());
+        }).orElse(Collections.emptyList());
+    }
 
-        return globalPropertiesUsedInModule;
+    public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
+        PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        List<TemplateContainer.Key> modulesKeys = platform.getDeployedModules()
+                .stream()
+                .map(DeployedModuleView::getModuleKey)
+                .collect(Collectors.toList());
+        List<ModuleSimplePropertiesView> modulesSimpleProperties = moduleQueries.getModulesSimpleProperties(modulesKeys);
+
+        return platform.getGlobalProperties().stream()
+                .map(ValuedPropertyView::getName)
+                .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
+                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, platform.getDeployedModules(), modulesSimpleProperties)));
     }
 
     public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {
@@ -188,21 +209,6 @@ public class PlatformUseCases {
             commands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
-        return getProperties(platformKey, propertiesPath);
-    }
-
-    public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
-        PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
-        List<TemplateContainer.Key> modulesKeys = platform.getDeployedModules()
-                .stream()
-                .map(DeployedModuleView::getModuleKey)
-                .collect(Collectors.toList());
-        List<ModuleSimplePropertiesView> modulesSimpleProperties = moduleQueries.getModulesSimpleProperties(modulesKeys);
-
-        return globalProperties.stream()
-                .map(ValuedPropertyView::getName)
-                .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
-                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, platform.getDeployedModules(), modulesSimpleProperties)));
+        return getProperties(platformKey, propertiesPath, user);
     }
 }

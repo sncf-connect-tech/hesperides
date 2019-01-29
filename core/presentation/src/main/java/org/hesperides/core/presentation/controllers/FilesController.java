@@ -8,10 +8,13 @@ import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 
 @Slf4j
@@ -57,7 +60,8 @@ public class FilesController extends AbstractController {
     @ApiOperation("Get a valued template file")
     @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE, path =
             "/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
-    public ResponseEntity<String> getFile(@PathVariable("application_name") final String applicationName,
+    public ResponseEntity<String> getFile(Authentication authentication,
+                                          @PathVariable("application_name") final String applicationName,
                                           @PathVariable("platform_name") final String platformName,
                                           @PathVariable("module_path") final String modulePath,
                                           @PathVariable("module_name") final String moduleName,
@@ -78,7 +82,8 @@ public class FilesController extends AbstractController {
                 templateName,
                 Boolean.TRUE.equals(isWorkingCopy),
                 templateNamespace,
-                Boolean.TRUE.equals(simulate));
+                Boolean.TRUE.equals(simulate),
+                fromAuthentication(authentication));
 
         return ResponseEntity.ok(file);
     }

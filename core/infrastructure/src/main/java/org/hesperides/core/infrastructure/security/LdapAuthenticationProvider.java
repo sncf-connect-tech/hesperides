@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.commons.spring.SpringProfiles.LDAP;
 
 @Profile(LDAP)
@@ -132,10 +133,10 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         String[] groups = userData.getStringAttributes("memberOf");
-        if (hasGroup(groups, ldapConfiguration.getProdGroupName())) {
+        if (!isBlank(ldapConfiguration.getProdGroupName()) && hasGroup(groups, ldapConfiguration.getProdGroupName())) {
             authorities.add(new SimpleGrantedAuthority(UserRole.PROD));
         }
-        if (hasGroup(groups, ldapConfiguration.getTechGroupName())) {
+        if (!isBlank(ldapConfiguration.getTechGroupName()) && hasGroup(groups, ldapConfiguration.getTechGroupName())) {
             authorities.add(new SimpleGrantedAuthority(UserRole.TECH));
         }
         return authorities;

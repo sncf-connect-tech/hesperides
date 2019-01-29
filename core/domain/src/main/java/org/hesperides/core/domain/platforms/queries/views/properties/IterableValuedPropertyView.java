@@ -26,6 +26,7 @@ import org.hesperides.core.domain.platforms.entities.properties.IterableProperty
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
@@ -38,6 +39,13 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     public IterableValuedPropertyView(String name, List<IterablePropertyItemView> iterablePropertyItems) {
         super(name);
         this.iterablePropertyItems = iterablePropertyItems;
+    }
+
+    @Override
+    public AbstractValuedPropertyView withPasswordsHidden() {
+        return new IterableValuedPropertyView(getName(), iterablePropertyItems.stream()
+                .map(IterablePropertyItemView::withPasswordsHidden)
+                .collect(Collectors.toList()));
     }
 
     @Override

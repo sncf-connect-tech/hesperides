@@ -19,6 +19,7 @@ import springfox.documentation.spring.web.json.Json;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -36,7 +37,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
     public static void configureMessageConverters(List<HttpMessageConverter<?>> converters, Gson gson) {
         // Rend possible la production de texte (getFile)
         StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
-        stringHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(MediaType.TEXT_PLAIN));
+        stringHttpMessageConverter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
         converters.add(stringHttpMessageConverter);
         // Rend possible l'utilisation de Gson pour la sérialisation/désérialisation
         GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();

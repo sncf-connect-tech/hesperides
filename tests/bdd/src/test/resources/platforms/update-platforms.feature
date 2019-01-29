@@ -51,7 +51,7 @@ Feature: Update platforms
     And the platform has no module valued properties
 
   #issue-451
-  Scenario: update an existing platform, changing the application version and isProd
+  Scenario: update an existing platform, changing the application version
     Given an existing platform
-    When I update this platform, changing the application version and isProd
+    When I update this platform, changing the application version
     Then the platform is successfully updated

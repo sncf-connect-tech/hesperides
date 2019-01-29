@@ -24,12 +24,12 @@ public class GetUserInformation extends HesperidesScenario implements En {
             testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
         });
 
-        Then("^the user information is provided$", () -> {
+        Then("^user information is returned, (with|without) tech role and (with|without) prod role$",
+                (String withTechRole, String withProdRole) -> {
             assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
             Map map = getBodyAsMap();
-            assertEquals(testContext.getUsername(), map.get("username"));
-            assertEquals(false, map.get("prodUser"));
-            assertEquals(true, map.get("techUser"));
+            assertEquals("with".equals(withTechRole), map.get("techUser"));
+            assertEquals("with".equals(withProdRole), map.get("prodUser"));
         });
     }
 }

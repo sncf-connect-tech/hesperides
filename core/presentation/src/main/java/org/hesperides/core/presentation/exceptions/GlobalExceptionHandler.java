@@ -2,6 +2,7 @@ package org.hesperides.core.presentation.exceptions;
 
 import org.axonframework.commandhandling.model.AggregateNotFoundException;
 import org.hesperides.core.domain.exceptions.DuplicateException;
+import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
@@ -40,6 +41,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class, RequiredPropertyWithDefaultValueException.class, UpdateReleaseException.class})
     public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler({ForbiddenOperationException.class})
+    public ResponseEntity handleUnauthorized(Exception ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
     /**

@@ -63,6 +63,7 @@ public class PlatformDocument {
 
     public PlatformView toPlatformView() {
         return new PlatformView(
+                id,
                 key.getPlatformName(),
                 key.getApplicationName(),
                 version,
