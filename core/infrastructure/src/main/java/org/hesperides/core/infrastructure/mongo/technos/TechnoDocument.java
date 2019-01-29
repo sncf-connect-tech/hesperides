@@ -120,7 +120,7 @@ public class TechnoDocument {
         return abstractPropertyDocuments;
     }
 
-    private TemplateContainer.Key getDomainKey() {
+    public TemplateContainer.Key getDomainKey() {
         return new Techno.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
     }
 }
