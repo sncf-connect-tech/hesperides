@@ -25,9 +25,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +81,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public static ValuedPropertyDocument buildDefaultValuedProperty(PropertyDocument property) {
         ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
-        defaultValuedProperty.setMustacheContent(property.getMustacheContent().orElse(null));
+        defaultValuedProperty.setMustacheContent(property.getMustacheContent());
         defaultValuedProperty.setName(property.getName());
         defaultValuedProperty.setValue(property.getDefaultValue());
         return defaultValuedProperty;
@@ -87,5 +90,42 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     @Override
     protected ValuedProperty toDomainInstance() {
         return new ValuedProperty(mustacheContent, name, value);
+    }
+
+    @Override
+    protected List<AbstractValuedPropertyDocument> completeWithMustacheContent(List<AbstractPropertyDocument> abstractModuleProperties) {
+        List<AbstractValuedPropertyDocument> completedProperties = new ArrayList<>();
+
+        List<AbstractPropertyDocument> matchingProperties = abstractModuleProperties.stream()
+                .filter(abstractModuleProperty -> name.equalsIgnoreCase(abstractModuleProperty.getName()))
+                .collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(matchingProperties)) {
+            // Si on ne la retrouve pas dans le module
+            // on la conserve telle quelle
+            completedProperties.add(this);
+        } else {
+            matchingProperties.stream()
+                    .map(PropertyDocument.class::cast)
+                    .map(PropertyDocument::getMustacheContent)
+                    .forEach(mustacheContent -> {
+                        // Il arrive qu'une propriété soit déclarée plusieurs fois avec le même nom
+                        // et un commentaire distinct. Dans ce cas on crée autant de propriétés valorisées
+                        // qu'il n'y a de propriétés déclarées afin de pouvoir les compléter avec les
+                        // différents mustacheContent
+                        AbstractValuedPropertyDocument newValuedProperty = cloneWithMustacheContent(mustacheContent);
+                        completedProperties.add(newValuedProperty);
+                    });
+        }
+
+        return completedProperties;
+    }
+
+    private ValuedPropertyDocument cloneWithMustacheContent(String mustacheContent) {
+        ValuedPropertyDocument newValuedPropertyDocument = new ValuedPropertyDocument();
+        newValuedPropertyDocument.setName(name);
+        newValuedPropertyDocument.setMustacheContent(mustacheContent);
+        newValuedPropertyDocument.setValue(value);
+        return newValuedPropertyDocument;
     }
 }

@@ -97,6 +97,12 @@ public class GetFiles extends HesperidesScenario implements En {
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
             assertEquals(expectedFiles, actualOutput);
         });
+
+        Then("^the file location is \"([^\"]*)\"$", (String expectedLocation) -> {
+            assertOK();
+            List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
+            assertEquals(expectedLocation, actualOutput.get(0).getLocation());
+        });
     }
 
     private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {

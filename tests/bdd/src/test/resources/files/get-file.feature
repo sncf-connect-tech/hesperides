@@ -174,7 +174,7 @@ Feature: Get file
     module-foobar-val-1module-foobar-val-2module-foobar-val-3module-foobar-val-4
     """
 
-    #issue-457
+  #issue-457
   Scenario: get file with predefined properties
     Given an existing module with this template content
       """
@@ -224,4 +224,22 @@ Feature: Get file
     Then the file is successfully retrieved and contains
       """
       hesperides.instance.name=anything
+      """
+
+  #issue-467
+  Scenario: get file with valued properties with the same name but a different comment
+    Given an existing module with this template content
+      """
+      {{ a-property | some-comment }}
+      {{ a-property | another-comment }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value   |
+      | a-property | a-value |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      a-value
+      a-value
       """

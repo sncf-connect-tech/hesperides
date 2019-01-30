@@ -77,6 +77,14 @@ Feature: Get instance or module files
   Scenario: get files with predefined properties used in filename and location
     Given a template to create with filename "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}" with location "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}"
     And an existing module with this template
-    And an existing platform with this module and an instance
-    When I get the instance files
+    And an existing platform with this module
+    When I get the module files
     Then the files are successfully retrieved
+
+  #issue-467
+  Scenario: get files with properties with the same name but a different comment used in filename and location
+    Given a template to create with filename "{{filename | some-comment}}{{filename | another-comment}}" with location "{{location | some-comment}}{{location | another-comment}}"
+    And an existing module with this template
+    And an existing platform with this module and filename and location values
+    When I get the module files
+    Then the file location is "etcetc/confconf"
