@@ -15,11 +15,12 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.templatecontainers.IterablePropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
-import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -150,113 +150,11 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                     .map(ModuleDocument::getProperties)
                     .orElse(Collections.emptyList());
 
-            List<AbstractValuedPropertyDocument> valuedProperties = new ArrayList<>();
-            valuedProperties.addAll(completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties));
-            valuedProperties.addAll(completePropertiesWithDefaultValues(moduleProperties, abstractValuedProperties));
+            List<AbstractValuedPropertyDocument> valuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties);
+            valuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(abstractValuedProperties, moduleProperties));
             deployedModuleDocument.setValuedProperties(valuedProperties);
         });
         platformDocument.buildInstancesModelAndSave(platformRepository);
-    }
-
-    /**
-     * Complète les propriétés non valorisées avec leur valeur par défaut lorsqu'elle est définie.
-     */
-    private List<AbstractValuedPropertyDocument> completePropertiesWithDefaultValues(List<AbstractPropertyDocument> abstractModuleProperties,
-                                                                                     List<AbstractValuedPropertyDocument> abstractValuedProperties) {
-        List<AbstractValuedPropertyDocument> propertiesWithDefaultValues = new ArrayList<>();
-        abstractModuleProperties.forEach(abstractProperty -> {
-
-            if (abstractProperty instanceof PropertyDocument) {
-                PropertyDocument property = (PropertyDocument) abstractProperty;
-                if (StringUtils.isNotEmpty(property.getDefaultValue()) &&
-                        !propertyHasValue(property.getName(), abstractValuedProperties)) {
-                    ValuedPropertyDocument defaultValuedProperty = ValuedPropertyDocument.buildDefaultValuedProperty(property);
-                    propertiesWithDefaultValues.add(defaultValuedProperty);
-                }
-
-            } else if (abstractProperty instanceof IterablePropertyDocument) {
-                IterablePropertyDocument iterableProperty = (IterablePropertyDocument) abstractProperty;
-                // Dans le cas d'une propriété itérable, il faut que le bloc existe (qu'il ait un nom)
-                // pour que la valeur par défaut de ses éléments soit prise en compte
-                abstractValuedProperties.stream()
-                        .filter(IterableValuedPropertyDocument.class::isInstance)
-                        .map(IterableValuedPropertyDocument.class::cast)
-                        .map(IterableValuedPropertyDocument::getItems)
-                        .forEach(iterablePropertyItems -> {
-                            iterablePropertyItems.forEach(iterablePropertyItem -> {
-                                List<AbstractValuedPropertyDocument> iterablePropertiesWithDefaultValues =
-                                        // Récursivité
-                                        completePropertiesWithDefaultValues(
-                                                iterableProperty.getProperties(),
-                                                iterablePropertyItem.getAbstractValuedProperties()
-                                        );
-                                propertiesWithDefaultValues.addAll(iterablePropertiesWithDefaultValues);
-                            });
-                        });
-            }
-        });
-
-        return propertiesWithDefaultValues;
-    }
-
-    private boolean propertyHasValue(String propertyName, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
-        return abstractValuedProperties.stream()
-                .filter(ValuedPropertyDocument.class::isInstance)
-                .map(ValuedPropertyDocument.class::cast)
-                .anyMatch(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName) &&
-                        StringUtils.isNotEmpty(valuedProperty.getValue()));
-    }
-
-    /**
-     * Complète les propriétés avec la valeur définie entre moustaches dans le template.
-     * Cela permet d'utiliser le framework Mustache lors de la valorisation des templates.
-     *
-     * @see org.hesperides.core.application.files.FileUseCases#valorizeTemplateWithProperties
-     */
-    private List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
-                                                                                       List<AbstractPropertyDocument> abstractModuleProperties) {
-        return abstractValuedProperties.stream().map(abstractProperty -> {
-            AbstractValuedPropertyDocument property;
-            if (abstractProperty instanceof IterableValuedPropertyDocument) {
-                IterableValuedPropertyDocument iterableValuedProperty = (IterableValuedPropertyDocument) abstractProperty;
-
-                List<AbstractPropertyDocument> iterablePropertyChildren = abstractModuleProperties.stream()
-                        .filter(IterablePropertyDocument.class::isInstance)
-                        .map(IterablePropertyDocument.class::cast)
-                        .filter(iterablePropertyDocument -> iterablePropertyDocument.getName().equalsIgnoreCase(iterableValuedProperty.getName()))
-                        .findFirst()
-                        .map(IterablePropertyDocument::getProperties)
-                        .orElse(Collections.emptyList());
-
-                List<IterablePropertyItemDocument> items = new ArrayList<>();
-                iterableValuedProperty.getItems().forEach(item -> {
-                    IterablePropertyItemDocument newItem = new IterablePropertyItemDocument();
-                    newItem.setTitle(item.getTitle());
-                    // Récursivité
-                    newItem.setAbstractValuedProperties(completePropertiesWithMustacheContent(item.getAbstractValuedProperties(), iterablePropertyChildren));
-                    items.add(newItem);
-                });
-                iterableValuedProperty.setItems(items);
-                property = iterableValuedProperty;
-
-            } else if (abstractProperty instanceof ValuedPropertyDocument) {
-                ValuedPropertyDocument valuedProperty = (ValuedPropertyDocument) abstractProperty;
-                String propertyRawName = getSimplePropertyRawName(valuedProperty.getName(), abstractModuleProperties).orElse(null);
-                valuedProperty.setMustacheContent(propertyRawName);
-                property = valuedProperty;
-            } else {
-                property = abstractProperty;
-            }
-            return property;
-        }).collect(Collectors.toList());
-    }
-
-    private Optional<String> getSimplePropertyRawName(String name, List<AbstractPropertyDocument> moduleProperties) {
-        return moduleProperties.stream()
-                .filter(abstractPropertyDocument -> abstractPropertyDocument.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .map(PropertyDocument.class::cast)
-                .flatMap(PropertyDocument::getMustacheContent);
     }
 
     @EventHandler
