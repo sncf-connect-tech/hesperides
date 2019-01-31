@@ -23,7 +23,6 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -84,8 +83,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             }
         }
         if (StringUtils.isNotEmpty(useReleasedModule)) {
-            moduleClient.release(moduleBuilder.build(), String.class);
-            moduleBuilder.withModuleType(ModuleIO.RELEASE);
+            platformBuilder.withNoModule();
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
         }
         if (StringUtils.isNotEmpty(upgradedModuleVersion)) {
             this.upgradedModuleVersion = upgradedModuleVersion;
