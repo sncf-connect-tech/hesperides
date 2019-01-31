@@ -310,6 +310,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             assertThat(actualIterablePropertiesEndValues, everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
         });
 
+        Then("^the passwords in the file are obfuscated$", () -> {
+            String actualOutput = (String) testContext.getResponseBody();
+            assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
+        });
+
         Then("^the platform copy fails with a not found error$", () -> {
             assertNotFound();
         });
