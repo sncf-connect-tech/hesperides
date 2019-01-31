@@ -36,14 +36,12 @@ public class CreateModules extends HesperidesScenario implements En {
 
         Given("^an existing module" +
                 "(?: named \"([^\"]*)\")?" +
-                "( with a template)?" +
-                "( with this template)?" +
-                "( with(?: password)? properties)?" +
+                "( (?:and|with) (?:a|this) template)?" +
+                "( (?:and|with) (?:password)? properties)?" +
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) this techno)?$", (
                 String moduleName,
-                String withATemplate,
-                String withThisTemplate,
+                String withTemplate,
                 String withProperties,
                 String withGlobalProperties,
                 String withThisTechno) -> {
@@ -52,7 +50,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 moduleBuilder.withName(moduleName);
             }
 
-            if (StringUtils.isEmpty(withThisTemplate)) {
+            if (StringUtils.isEmpty(withTemplate) || !withTemplate.contains("this")) {
                 templateBuilder.reset();
             }
 
@@ -74,7 +72,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 addPropertyToBuilders("global-module-foo");
                 addPropertyToBuilders("global-module-bar");
             }
-            if (StringUtils.isNotEmpty(withATemplate) || StringUtils.isNotEmpty(withThisTemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
+            if (StringUtils.isNotEmpty(withTemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
                 moduleBuilder.withTemplate(templateBuilder.build());
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }

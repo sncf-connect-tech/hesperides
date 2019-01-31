@@ -37,12 +37,19 @@ Feature: Restrict actions on prod platforms to prod users
     When I try to delete this platform
     Then a 403 error is returned, blaming "Deleting a production platform is reserved to production role"
 
-  Scenario: restrict access to password properties on prod platforms
+  Scenario: restrict access to password properties on prod platforms when requesting valuated properties
     Given an existing module with password properties
     And an existing prod platform with this module and valued properties
     And an authenticated lambda user
     When I get the platform properties for this module
     Then the password property values are obfuscated
+
+  Scenario: restrict access to password properties on prod platforms when requesting valuated files
+    Given an existing module with a template and password properties
+    And an existing prod platform with this module and valued properties
+    And an authenticated lambda user
+    When I get the module template file
+    Then the passwords in the file are obfuscated
 
   # TODO: https://github.com/voyages-sncf-technologies/hesperides/issues/356
   Scenario: restrict timestamp-based access to password properties on prod platforms
