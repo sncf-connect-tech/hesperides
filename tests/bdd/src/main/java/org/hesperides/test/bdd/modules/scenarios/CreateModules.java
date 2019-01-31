@@ -37,7 +37,7 @@ public class CreateModules extends HesperidesScenario implements En {
         Given("^an existing module" +
                 "(?: named \"([^\"]*)\")?" +
                 "( (?:and|with) (?:a|this) template)?" +
-                "( (?:and|with) (?:password)? properties)?" +
+                "( (?:and|with)(?: password)? properties)?" +
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) this techno)?$", (
                 String moduleName,

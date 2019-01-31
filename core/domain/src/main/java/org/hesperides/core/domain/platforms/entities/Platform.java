@@ -141,9 +141,9 @@ public class Platform {
             // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
 
             isModuleVersionUpdated = providedModule.getModulePath().equals(existingModule.getModulePath())
-                    && providedModule.getName().equals(existingModule.getName())
-                    && !providedModule.getVersion().equals(existingModule.getVersion())
-                    || providedModule.isWorkingCopy() != existingModule.isWorkingCopy();
+                    && (!providedModule.getName().equals(existingModule.getName())
+                    || !providedModule.getVersion().equals(existingModule.getVersion())
+                    || providedModule.isWorkingCopy() != existingModule.isWorkingCopy());
         }
         return isModuleVersionUpdated;
     }

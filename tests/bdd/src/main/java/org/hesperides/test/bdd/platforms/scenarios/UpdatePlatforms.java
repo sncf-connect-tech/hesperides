@@ -28,7 +28,6 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,20 +44,15 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private PlatformClient platformClient;
     @Autowired
-    private ModuleClient moduleClient;
-    @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
 
-    private String upgradedModuleVersion;
-
     @When("^I( try to)? update this platform" +
             "(, (?:adding|removing) this module)?" +
             "(?: in logical group \"([^\"]*)\")?" +
-            "(, using the released version of this module)?" +
             "(, adding an instance and an instance property)?" +
-            "(?:, upgrading its module to version ([^,]+))?" +
+            "(, upgrading its module)?" +
             "(, and requiring the copy of properties)?" +
             "(, with an empty payload)?" +
             "(, changing the application version)?" +
@@ -67,9 +61,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String tryTo,
             String addingOrRemovingModule,
             String logicalGroup,
-            String useReleasedModule,
             String addingInstanceAndInstanceProperty,
-            String upgradedModuleVersion,
+            String upgradeModule,
             String withCopy,
             String withAnEmptyPayload,
             String changeApplicationVersion,
@@ -82,16 +75,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withNoModule();
             }
         }
-        if (StringUtils.isNotEmpty(useReleasedModule)) {
+        if (StringUtils.isNotEmpty(upgradeModule)) {
             platformBuilder.withNoModule();
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
-        }
-        if (StringUtils.isNotEmpty(upgradedModuleVersion)) {
-            this.upgradedModuleVersion = upgradedModuleVersion;
-            moduleBuilder.withVersion(upgradedModuleVersion); // nécessaire pour que lorsqu'on requête les propriétés,
-            // durant l'étape "the platform property values are also copied",
-            // le `path` de la requête inclue bien la bonne version.
-            platformBuilder.withModuleVersion(upgradedModuleVersion);
         }
         if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
             platformBuilder.withInstance("instance-foo-1");
@@ -116,9 +102,6 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     public UpdatePlatforms() {
         Then("^the platform is successfully updated$", () -> {
             assertOK();
-            if (this.upgradedModuleVersion != null) {
-                platformBuilder.withModuleVersion(upgradedModuleVersion, true);  // we need to update the propertiesPath so that it is reflected in `expectedPlatform`:
-            }
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             assertEquals(expectedPlatform, actualPlatform);
