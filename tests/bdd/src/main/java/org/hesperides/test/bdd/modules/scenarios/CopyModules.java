@@ -46,6 +46,12 @@ public class CopyModules extends HesperidesScenario implements En {
             copy(version, ModuleIO.class);
         });
 
+        Given("^a copy of this module changing the name to \"([^\"]*)\"$", (String name) -> {
+            ModuleIO existingModule = moduleBuilder.build();
+            ModuleIO newModule = moduleBuilder.withName(name).build();
+            moduleClient.copy(existingModule, existingModule.getIsWorkingCopy(), newModule, ModuleIO.class);
+        });
+
         When("^I try to create a copy of this module, using the same key$", () -> {
             testContext.responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
         });
