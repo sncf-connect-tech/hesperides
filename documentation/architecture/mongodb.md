@@ -17,8 +17,8 @@ Un _HealthIndicator_ Spring Boot expose ces informations dans un endpoint HTTP:
 
 _cf._ <https://docs.mongodb.com/manual/reference/write-concern/> & <https://dzone.com/articles/mongodb-write-concern-3-must-know-caveats>
 
-Dans le cas d'Hesperides, nous recommendons l'utilisation d'un cluster de 6 noeuds Mongo redondé sur 2 datacenters.
+Dans le cas d'Hesperides, nous recommendons l'utilisation d'un cluster de 2 noeuds Mongo en lecture/écriture sur 2 datacenters, plus un 3e servant d'arbitre en cas de _split brain_.
 
 Dans ce cas, nous recommendons l'emploi de ces paramètres de connexion pour assurer que 
 
-    ?w=majority
+    ?maxPoolSize=10&maxIdleTimeMS=2000&w=2&j=true&wtimeout=5000
