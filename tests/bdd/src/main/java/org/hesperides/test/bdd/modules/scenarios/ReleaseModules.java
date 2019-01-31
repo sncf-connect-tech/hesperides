@@ -69,6 +69,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
                 moduleBuilder.withVersion("");
             }
             testContext.responseEntity = moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class));
+            moduleBuilder.withModuleType(ModuleIO.RELEASE);
         });
 
         Then("^the module is successfully released(?: in version \"(.*)\")?$", (String releasedModuleVersion) -> {

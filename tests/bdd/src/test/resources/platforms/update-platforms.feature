@@ -18,12 +18,22 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are also copied
 
-  Scenario: update an existing platform, using the released version of a module already there in workingcopy
+  Scenario: update an existing platform, using the released version of a module already there as workingcopy
     Given an existing module with properties
-    And an existing platform with this module
+    And an existing platform with this module and valued properties
+    And I release this module
     When I update this platform, using the released version of this module
     Then the platform is successfully updated
     And the platform has no module valued properties
+
+  #issue-469
+  Scenario: update an existing platform, using the released version of a module already there as workingcopy, and requiring the copy of properties
+    Given an existing module with properties
+    And an existing platform with this module and valued properties
+    And I release this module
+    When I update this platform, using the released version of this module, and requiring the copy of properties
+    Then the platform is successfully updated
+    And the platform property values are also copied
 
   Scenario: update an existing platform, adding a module introducing new instance properties
     Given an existing module with properties

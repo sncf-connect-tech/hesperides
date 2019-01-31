@@ -101,8 +101,8 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(matchingProperties)) {
-            // Si on ne la retrouve pas dans le module
-            // on la conserve telle quelle
+            // Si on ne la retrouve pas dans le module (propriété définie puis
+            // valorisée puis supprimée du template) on la conserve telle quelle
             completedProperties.add(this);
         } else {
             matchingProperties.stream()

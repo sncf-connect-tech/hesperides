@@ -46,7 +46,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
-    private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
+    private List<TemplateBuilder> expectedTemplates = new ArrayList<>();
 
     private static int nbTemplates = 12;
 
@@ -54,9 +54,9 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
 
         Given("^multiple templates in this module$", () -> {
             for (int i = 0; i < nbTemplates; i++) {
-                templateBuilder.withName("template-" + i + 1);
-                moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
-                expectedPartialTemplates.add(templateBuilder.buildPartialTemplate(moduleBuilder.getNamespace()));
+                TemplateBuilder newTemplateBuilder = new TemplateBuilder().withName("template-" + i + 1);
+                moduleClient.addTemplate(newTemplateBuilder.build(), moduleBuilder.build());
+                expectedTemplates.add(newTemplateBuilder);
             }
         });
 
@@ -86,6 +86,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
 
         Then("^a list of all the templates of the module is returned$", () -> {
             assertOK();
+            List<PartialTemplateIO> expectedPartialTemplates = expectedTemplates.stream().map(templateBuilder -> templateBuilder.buildPartialTemplate(moduleBuilder.getNamespace())).collect(Collectors.toList());
             List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) testContext.getResponseBody());
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()

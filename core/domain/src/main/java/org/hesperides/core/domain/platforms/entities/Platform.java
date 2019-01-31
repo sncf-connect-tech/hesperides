@@ -142,8 +142,8 @@ public class Platform {
 
             isModuleVersionUpdated = providedModule.getModulePath().equals(existingModule.getModulePath())
                     && providedModule.getName().equals(existingModule.getName())
-                    && providedModule.isWorkingCopy() == existingModule.isWorkingCopy()
-                    && !providedModule.getVersion().equals(existingModule.getVersion());
+                    && !providedModule.getVersion().equals(existingModule.getVersion())
+                    || providedModule.isWorkingCopy() != existingModule.isWorkingCopy();
         }
         return isModuleVersionUpdated;
     }
