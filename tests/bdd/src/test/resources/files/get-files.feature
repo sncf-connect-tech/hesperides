@@ -88,3 +88,12 @@ Feature: Get instance or module files
     And an existing platform with this module and filename and location values
     When I get the module files
     Then the file location is "etcetc/confconf"
+
+  #issue-474
+  Scenario: get files using predefined property module-path of a module deployed in multiple logical group of a platform
+    Given a template to create with filename "{{hesperides.module.path.full}}"
+    And an existing module with this template
+    And an existing platform with this module in logical group "group-1"
+    And I update this platform, adding this module in logical group "group-2"
+    When I get the module files in the logical group "group-2"
+    Then the files are successfully retrieved

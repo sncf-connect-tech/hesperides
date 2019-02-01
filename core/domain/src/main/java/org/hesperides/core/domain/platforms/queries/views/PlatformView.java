@@ -39,9 +39,10 @@ public class PlatformView {
     Long versionId;
     List<ValuedPropertyView> globalProperties;
 
-    public Optional<DeployedModuleView> getDeployedModule(Module.Key moduleKey) {
+    public Optional<DeployedModuleView> getDeployedModule(String modulePath, Module.Key moduleKey) {
         return deployedModules.stream()
-                .filter(deployedModule -> deployedModule.getModuleKey().equals(moduleKey))
+                .filter(deployedModule -> deployedModule.getModulePath().equalsIgnoreCase(modulePath)
+                        && deployedModule.getModuleKey().equals(moduleKey))
                 .findFirst();
     }
 }

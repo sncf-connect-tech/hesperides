@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.files.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
@@ -62,12 +63,11 @@ public class GetFiles extends HesperidesScenario implements En {
 
     public GetFiles() {
 
-        When("^I( try to)? get the (instance|module)? files$", (String tryTo, String instanceOrModule) -> {
+        When("^I( try to)? get the (instance|module)? files(?: in the logical group \"([^\"]*)\")?$", (String tryTo, String instanceOrModule, String logicalGroup) -> {
             PlatformIO platform = platformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
 
-            Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
-                    ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
+            Optional<DeployedModuleIO> deployedModule = getDeployedModule(platform, logicalGroup);
             String modulePath = deployedModule.map(DeployedModuleIO::getModulePath).orElse("anything");
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
@@ -103,6 +103,13 @@ public class GetFiles extends HesperidesScenario implements En {
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
             assertEquals(expectedLocation, actualOutput.get(0).getLocation());
         });
+    }
+
+    private Optional<DeployedModuleIO> getDeployedModule(PlatformIO platform, String logicalGroup) {
+        return platform.getDeployedModules()
+                .stream()
+                .filter(deployedModuleIO -> StringUtils.isEmpty(logicalGroup) || deployedModuleIO.getModulePath().equalsIgnoreCase("#" + logicalGroup))
+                .findFirst();
     }
 
     private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {

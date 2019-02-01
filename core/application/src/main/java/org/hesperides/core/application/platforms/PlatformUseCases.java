@@ -148,20 +148,18 @@ public class PlatformUseCases {
                 deployedModuleProperties = hidePasswordProperties(deployedModuleProperties);
             }
             properties.addAll(deployedModuleProperties);
-            properties.addAll(getGlobalPropertiesUsedInModule(platform, moduleKey));
+            properties.addAll(getGlobalPropertiesUsedInModule(platform, propertiesPath, moduleKey));
         }
         return properties;
     }
 
-    private List<ValuedPropertyView> getGlobalPropertiesUsedInModule(PlatformView platform, Module.Key moduleKey) {
-        return platform.getDeployedModule(moduleKey).map(deployedModule -> {
+    private List<ValuedPropertyView> getGlobalPropertiesUsedInModule(PlatformView platform, String propertiesPath, Module.Key moduleKey) {
             List<AbstractPropertyView> flatModuleProperties = AbstractPropertyView.flattenProperties(moduleQueries.getProperties(moduleKey));
             return platform.getGlobalProperties().stream().filter(globalProperty -> {
                 List<GlobalPropertyUsageView> moduleGlobalProperties = GlobalPropertyUsageView.getModuleGlobalProperties(
-                        flatModuleProperties, globalProperty.getName(), deployedModule.getPropertiesPath());
+                        flatModuleProperties, globalProperty.getName(), propertiesPath);
                 return !CollectionUtils.isEmpty(moduleGlobalProperties);
             }).collect(Collectors.toList());
-        }).orElse(Collections.emptyList());
     }
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
