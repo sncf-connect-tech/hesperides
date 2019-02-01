@@ -61,7 +61,7 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
         List<AbstractPropertyDocument> moduleIterablePropertyChildren = abstractModuleProperties.stream()
                 .filter(IterablePropertyDocument.class::isInstance)
                 .map(IterablePropertyDocument.class::cast)
-                .filter(iterablePropertyDocument -> name.equalsIgnoreCase(iterablePropertyDocument.getName()))
+                .filter(iterablePropertyDocument -> name.equals(iterablePropertyDocument.getName()))
                 .findFirst()
                 .map(IterablePropertyDocument::getProperties)
                 .orElse(Collections.emptyList());

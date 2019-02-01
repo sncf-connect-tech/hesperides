@@ -97,7 +97,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         List<AbstractValuedPropertyDocument> completedProperties = new ArrayList<>();
 
         List<AbstractPropertyDocument> matchingProperties = abstractModuleProperties.stream()
-                .filter(abstractModuleProperty -> name.equalsIgnoreCase(abstractModuleProperty.getName()))
+                .filter(abstractModuleProperty -> name.equals(abstractModuleProperty.getName()))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(matchingProperties)) {

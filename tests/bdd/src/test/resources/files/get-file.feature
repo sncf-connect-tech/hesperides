@@ -243,3 +243,22 @@ Feature: Get file
       a-value
       a-value
       """
+
+  #issue-476
+  Scenario: get file with valued properties with the same name but different case
+    Given an existing module with this template content
+      """
+      {{ a-property }}
+      {{ A-PROPERTY }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value   |
+      | a-property | a-value |
+      | A-PROPERTY | A-VALUE |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      a-value
+      A-VALUE
+      """

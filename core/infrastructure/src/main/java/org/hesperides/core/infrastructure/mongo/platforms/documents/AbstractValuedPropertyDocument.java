@@ -128,7 +128,7 @@ public abstract class AbstractValuedPropertyDocument {
         return abstractValuedProperties.stream()
                 .filter(ValuedPropertyDocument.class::isInstance)
                 .map(ValuedPropertyDocument.class::cast)
-                .anyMatch(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName) &&
+                .anyMatch(valuedProperty -> valuedProperty.getName().equals(propertyName) &&
                         StringUtils.isNotEmpty(valuedProperty.getValue()));
     }
 
