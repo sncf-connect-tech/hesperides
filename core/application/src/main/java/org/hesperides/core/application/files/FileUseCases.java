@@ -101,8 +101,8 @@ public class FileUseCases {
                                                              String modulePath,
                                                              boolean getModuleValuesIfInstanceDoesntExist) {
 
-        String location = valorizeWithModuleAndGlobalAndInstanceProperties(template.getLocation(), platform, moduleKey, instanceName, false);
-        String filename = valorizeWithModuleAndGlobalAndInstanceProperties(template.getFilename(), platform, moduleKey, instanceName, false);
+        String location = valorizeWithModuleAndGlobalAndInstanceProperties(template.getLocation(), platform, modulePath, moduleKey, instanceName, false);
+        String filename = valorizeWithModuleAndGlobalAndInstanceProperties(template.getFilename(), platform, modulePath, moduleKey, instanceName, false);
         return new InstanceFileView(location, filename, platform, modulePath, moduleKey, instanceName, template, getModuleValuesIfInstanceDoesntExist);
     }
 
@@ -129,10 +129,14 @@ public class FileUseCases {
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
         boolean shouldHidePasswordProperties = platform.isProductionPlatform() && !user.isProd();
-        return valorizeWithModuleAndGlobalAndInstanceProperties(templateContent, platform, moduleKey, instanceName, shouldHidePasswordProperties);
+        return valorizeWithModuleAndGlobalAndInstanceProperties(templateContent, platform, modulePath, moduleKey, instanceName, shouldHidePasswordProperties);
     }
 
-    private void validateRequiredEntities(Platform.Key platformKey, Module.Key moduleKey, String modulePath, boolean getModuleValuesIfInstanceDoesntExist, String instanceName) {
+    private void validateRequiredEntities(Platform.Key platformKey,
+                                          Module.Key moduleKey,
+                                          String modulePath,
+                                          boolean getModuleValuesIfInstanceDoesntExist,
+                                          String instanceName) {
 
         if (!platformQueries.platformExists(platformKey)) {
             throw new PlatformNotFoundException(platformKey);
@@ -158,8 +162,14 @@ public class FileUseCases {
      * 3. La valorisation d'une propriété d'instance peut faire référence
      * à une propriété globale.
      */
-    private static String valorizeWithModuleAndGlobalAndInstanceProperties(String input, PlatformView platform, Module.Key moduleKey, String instanceName, boolean shouldHidePasswordProperties) {
-        DeployedModuleView deployedModule = platform.getDeployedModule(moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
+    private static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
+                                                                           PlatformView platform,
+                                                                           String modulePath,
+                                                                           Module.Key moduleKey,
+                                                                           String instanceName,
+                                                                           boolean shouldHidePasswordProperties) {
+
+        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
 
         List<AbstractValuedPropertyView> moduleProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
@@ -202,7 +212,9 @@ public class FileUseCases {
      * Remplace les propriétés entre moustaches par leur valorisation
      * à l'aide du framework Mustache.
      */
-    private static String replaceMustachePropertiesWithValues(String input, Map<String, String> predefinedProperties, List<? extends AbstractValuedPropertyView> properties) {
+    private static String replaceMustachePropertiesWithValues(String input,
+                                                              Map<String, String> predefinedProperties,
+                                                              List<? extends AbstractValuedPropertyView> properties) {
         Map<String, Object> scopes = propertiesToScopes(properties);
         scopes.putAll(predefinedProperties);
 
@@ -253,7 +265,8 @@ public class FileUseCases {
                 .orElse(Collections.emptyList());
     }
 
-    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> properties, List<ValuedPropertyView> otherProperties) {
+    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> properties,
+                                                           List<ValuedPropertyView> otherProperties) {
         return Stream
                 .concat(properties.stream(), otherProperties.stream())
                 .collect(Collectors.toList());
