@@ -151,7 +151,7 @@ public class PropertyBuilder {
         String result = input;
         properties.addAll(predefinedProperties);
         for (String propertyName : extractProperties(input)) {
-            String propertyValue = properties.stream().filter(valuedProperty -> valuedProperty.getName().equalsIgnoreCase(propertyName.trim())).map(ValuedPropertyIO::getValue).findFirst().orElse("");
+            String propertyValue = properties.stream().filter(valuedProperty -> valuedProperty.getName().equals(propertyName.trim())).map(ValuedPropertyIO::getValue).findFirst().orElse("");
             result = result.replace("{{" + propertyName + "}}", propertyValue);
         }
         return result;

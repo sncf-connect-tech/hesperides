@@ -271,7 +271,7 @@ public class PlatformBuilder {
     public String getPropertyValue(String propertName) {
         return properties
                 .stream()
-                .filter(property -> property.getName().equalsIgnoreCase(propertName.trim()))
+                .filter(property -> property.getName().equals(propertName.trim()))
                 .findFirst()
                 .map(Property::getValue)
                 .orElse("");

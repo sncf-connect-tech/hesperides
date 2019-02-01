@@ -71,7 +71,7 @@ public class GlobalPropertyUsageView {
                 .stream()
                 .filter(ValuedPropertyView.class::isInstance)
                 .map(ValuedPropertyView.class::cast)
-                .filter(simpleProperty -> simpleProperty.getName().equalsIgnoreCase(globalPropertyName) ||
+                .filter(simpleProperty -> simpleProperty.getName().equals(globalPropertyName) ||
                         simpleProperty.getValue().toLowerCase().contains("{{" + globalPropertyName.toLowerCase() + "}}"))
                 .findFirst()
                 .map(ValuedPropertyView::getName);
@@ -88,6 +88,6 @@ public class GlobalPropertyUsageView {
 
     private static boolean propertyNameIsInProperties(String propertyName, List<PropertyView> moduleProperties) {
         return moduleProperties.stream()
-                .anyMatch(propertyView -> propertyView.getName().equalsIgnoreCase(propertyName));
+                .anyMatch(propertyView -> propertyView.getName().equals(propertyName));
     }
 }
