@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,7 +68,7 @@ public class PlatformsController extends AbstractController {
     }
 
     @ApiOperation("Retrieve a platform")
-    @GetMapping("/{application_name}/platforms/{platform_name}")
+    @GetMapping("/{application_name}/platforms/{platform_name:.+}")
     public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
                                                   @PathVariable("platform_name") final String platformName) {
 

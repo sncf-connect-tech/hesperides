@@ -35,3 +35,9 @@ Feature: Get platforms
     And I update this platform, adding this module in logical group "group-2"
     When I get the platform detail
     Then the platform detail is successfully retrieved
+
+  #issue_478
+  Scenario: get the detail of an existing platform with a point in its name
+    Given an existing platform named "TEST_1.0"
+    When I get the platform detail
+    Then the platform detail is successfully retrieved
