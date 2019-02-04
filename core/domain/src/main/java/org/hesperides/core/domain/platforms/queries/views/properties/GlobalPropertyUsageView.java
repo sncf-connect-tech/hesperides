@@ -23,7 +23,6 @@ public class GlobalPropertyUsageView {
                                                                           final String globalPropertyName,
                                                                           final String propertiesPath) {
         return moduleProperties.stream()
-                // TODO Sensible à la casse ?
                 .filter(moduleProperty -> moduleProperty.getName().equals(globalPropertyName))
                 .map(moduleProperty -> new GlobalPropertyUsageView(false, propertiesPath))
                 .collect(Collectors.toList());

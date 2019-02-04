@@ -33,6 +33,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.IterableVal
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -53,12 +54,12 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
         this.iterablePropertyItems = IterablePropertyItemIO.fromIterablePropertyItem(iterableValuedPropertyView.getIterablePropertyItems());
     }
 
-    public static List<IterableValuedPropertyIO> fromIterableValuedPropertyViews(final List<IterableValuedPropertyView> iterableValuedPropertyViews) {
+    public static Set<IterableValuedPropertyIO> fromIterableValuedPropertyViews(final List<IterableValuedPropertyView> iterableValuedPropertyViews) {
         return Optional.ofNullable(iterableValuedPropertyViews)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(IterableValuedPropertyIO::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     public IterableValuedProperty toDomainInstance() {
@@ -77,9 +78,9 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
         return AbstractValuedProperty.flattenValuedProperties(iterableValuedProperties);
     }
 
-    public static List<IterableValuedProperty> toDomainInstances(List<IterableValuedPropertyIO> iterableValuedPropertyIOS) {
+    public static List<IterableValuedProperty> toDomainInstances(Set<IterableValuedPropertyIO> iterableValuedPropertyIOS) {
         return Optional.ofNullable(iterableValuedPropertyIOS)
-                .orElse(Collections.emptyList())
+                .orElse(Collections.emptySet())
                 .stream()
                 .map(IterableValuedPropertyIO::toDomainInstance)
                 .collect(Collectors.toList());

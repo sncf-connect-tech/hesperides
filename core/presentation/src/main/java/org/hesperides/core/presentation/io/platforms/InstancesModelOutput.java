@@ -65,8 +65,8 @@ public class InstancesModelOutput {
             name = instancePropertyName;
             comment = "";
             isRequired = false;
-            defaultValue = "";
-            pattern = "";
+            defaultValue = null;
+            pattern = null;
             isPassword = false;
         }
     }

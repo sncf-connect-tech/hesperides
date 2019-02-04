@@ -31,10 +31,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.IterablePro
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Value
@@ -44,15 +41,15 @@ public class IterablePropertyItemIO {
     String title;
     @SerializedName("values")
     @JsonProperty("values")
-    List<AbstractValuedPropertyIO> abstractValuedProperties;
+    Set<AbstractValuedPropertyIO> abstractValuedProperties;
 
     public IterablePropertyItemIO(final IterablePropertyItemView iterablePropertyItemView) {
         this.title = iterablePropertyItemView.getTitle();
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(iterablePropertyItemView.getAbstractValuedPropertyViews(), ValuedPropertyView.class);
-        final List<ValuedPropertyIO> valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
+        final Set<ValuedPropertyIO> valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(iterablePropertyItemView.getAbstractValuedPropertyViews(), IterableValuedPropertyView.class);
-        final List<IterableValuedPropertyIO> iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-        this.abstractValuedProperties = new ArrayList<>(valuedProperties);
+        final Set<IterableValuedPropertyIO> iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+        this.abstractValuedProperties = new HashSet<>(valuedProperties);
         this.abstractValuedProperties.addAll(iterableValuedProperties);
     }
 
@@ -69,11 +66,11 @@ public class IterablePropertyItemIO {
 
         // Récupération des valuedPropertyIOS dans la liste d'abstact et transformation en globalProperties du domaine
         List<ValuedPropertyIO> propertyIOS = AbstractValuedPropertyIO.getPropertyWithType(this.abstractValuedProperties, ValuedPropertyIO.class);
-        abstractValuedProperties.addAll(ValuedPropertyIO.toDomainInstances(propertyIOS));
+        abstractValuedProperties.addAll(ValuedPropertyIO.toDomainInstances(new HashSet<>(propertyIOS)));
 
         // Récupération des iterableValuedPropertyIOS dans la liste d'abstact et transformation en iterableValuedProperties du domaine
         List<IterableValuedPropertyIO> iterableValuedPropertyIOS = AbstractValuedPropertyIO.getPropertyWithType(this.abstractValuedProperties, IterableValuedPropertyIO.class);
-        abstractValuedProperties.addAll(IterableValuedPropertyIO.toDomainInstances(iterableValuedPropertyIOS));
+        abstractValuedProperties.addAll(IterableValuedPropertyIO.toDomainInstances(new HashSet<>(iterableValuedPropertyIOS)));
 
         return new IterablePropertyItem(title, abstractValuedProperties);
     }
