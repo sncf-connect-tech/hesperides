@@ -42,10 +42,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.function.Predicate.isEqual;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Every.everyItem;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
 import static org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO.flattenValuedProperties;
@@ -126,12 +123,12 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         if (StringUtils.isNotEmpty(withIterableProperties)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-module-1", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1"))),
-                            new IterablePropertyItemIO("bloc-module-2", Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2")))
+                            new IterablePropertyItemIO("bloc-module-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1")))),
+                            new IterablePropertyItemIO("bloc-module-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2"))))
                     )),
                     new IterableValuedPropertyIO("techno-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-techno-1", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1"))),
-                            new IterablePropertyItemIO("bloc-techno-2", Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2")))
+                            new IterablePropertyItemIO("bloc-techno-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1")))),
+                            new IterablePropertyItemIO("bloc-techno-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2"))))
                     ))
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
@@ -141,26 +138,26 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         if (StringUtils.isNotEmpty(withIterableCeption)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-module-foo-1", Arrays.asList(
+                            new IterablePropertyItemIO("bloc-module-foo-1", new HashSet<>(Arrays.asList(
                                     new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                            new IterablePropertyItemIO("bloc-module-bar-1", Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-1", new HashSet<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-1")
-                                            )),
-                                            new IterablePropertyItemIO("bloc-module-bar-2", Arrays.asList(
+                                            ))),
+                                            new IterablePropertyItemIO("bloc-module-bar-2", new HashSet<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-2")
-                                            ))
+                                            )))
                                     ))
-                            )),
-                            new IterablePropertyItemIO("bloc-module-foo-2", Arrays.asList(
+                            ))),
+                            new IterablePropertyItemIO("bloc-module-foo-2", new HashSet<>(Arrays.asList(
                                     new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                            new IterablePropertyItemIO("bloc-module-bar-1", Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-1", new HashSet<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-3")
-                                            )),
-                                            new IterablePropertyItemIO("bloc-module-bar-2", Arrays.asList(
+                                            ))),
+                                            new IterablePropertyItemIO("bloc-module-bar-2", new HashSet<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-4")
-                                            ))
+                                            )))
                                     ))
-                            ))
+                            )))
                     ))
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
@@ -230,19 +227,19 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Given("^the platform has these valued properties$", (DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(valuedProperties, Collections.emptyList()), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet()), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has these iterable properties$", (DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
-            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(Collections.emptyList(), iterableProperties), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(Collections.emptySet(), new HashSet<>(iterableProperties)), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has these global properties$", (DataTable data) -> {
             List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(globalProperties, Collections.emptyList()));
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(globalProperties), Collections.emptySet()));
             platformBuilder.incrementVersionId();
         });
 
@@ -306,7 +303,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
             PropertiesIO actualProperties = responseEntity.getBody();
             assertThat(extractValues(toDomainInstances(actualProperties.getValuedProperties())), everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
-            List<String> actualIterablePropertiesEndValues = extractValues(flattenValuedProperties(actualProperties.getIterableValuedProperties()));
+            List<String> actualIterablePropertiesEndValues = extractValues(flattenValuedProperties(new ArrayList<>(actualProperties.getIterableValuedProperties())));
             assertThat(actualIterablePropertiesEndValues, everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
         });
 
@@ -354,7 +351,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 bloc.getValue().entrySet().forEach(property -> {
                     properties.add(new ValuedPropertyIO(property.getKey(), property.getValue()));
                 });
-                items.add(new IterablePropertyItemIO(bloc.getKey(), properties));
+                items.add(new IterablePropertyItemIO(bloc.getKey(), new HashSet<>(properties)));
             });
             iterableProperties.add(new IterableValuedPropertyIO(iterable.getKey(), items));
         });

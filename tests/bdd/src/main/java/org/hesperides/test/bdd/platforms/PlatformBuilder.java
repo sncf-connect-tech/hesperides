@@ -100,7 +100,7 @@ public class PlatformBuilder {
     }
 
     public void withInstance(String name, List<ValuedPropertyIO> properties) {
-        instances.add(new InstanceIO(name, properties));
+        instances.add(new InstanceIO(name, new HashSet<>(properties)));
     }
 
     public void withInstance(String name) {
@@ -163,8 +163,8 @@ public class PlatformBuilder {
                         .stream()
                         .filter(property -> property.isGlobal() == isGlobal)
                         .map(property -> new ValuedPropertyIO(property.name, property.value))
-                        .collect(Collectors.toList()),
-                iterableProperties);
+                        .collect(Collectors.toSet()),
+                new HashSet<>(iterableProperties));
     }
 
     public List<Property> getProperties() {
@@ -212,8 +212,8 @@ public class PlatformBuilder {
 
     public PropertiesIO getProperties(boolean onlyGlobalProperties) {
         return new PropertiesIO(
-                onlyGlobalProperties ? getAllGlobalProperties() : getModulePropertiesAndUsedGlobalProperties(),
-                iterableProperties);
+                new HashSet<>(onlyGlobalProperties ? getAllGlobalProperties() : getModulePropertiesAndUsedGlobalProperties()),
+                new HashSet<>(iterableProperties));
     }
 
     public List<ValuedPropertyIO> getAllGlobalProperties() {
@@ -252,7 +252,7 @@ public class PlatformBuilder {
                 instanceProperties.entrySet()
                         .stream()
                         .map(entry -> new InstancesModelOutput.InstancePropertyOutput(
-                                entry.getValue(), "", false, "", "", false))
+                                entry.getValue(), "", false, null, null, false))
                         .collect(Collectors.toList()));
     }
 
@@ -266,15 +266,6 @@ public class PlatformBuilder {
                 .stream()
                 .map(platform -> new ModulePlatformsOutput(platform.getApplicationName(), platform.getPlatformName()))
                 .collect(Collectors.toList());
-    }
-
-    public String getPropertyValue(String propertName) {
-        return properties
-                .stream()
-                .filter(property -> property.getName().equals(propertName.trim()))
-                .findFirst()
-                .map(Property::getValue)
-                .orElse("");
     }
 
     public List<ValuedPropertyIO> getInstancePropertyValues() {

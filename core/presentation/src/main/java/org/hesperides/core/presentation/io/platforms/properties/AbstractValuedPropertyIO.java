@@ -28,6 +28,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -36,9 +37,9 @@ public abstract class AbstractValuedPropertyIO {
 
     String name;
 
-    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(List<AbstractValuedPropertyIO> properties, Class<T> clazz) {
+    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(Set<AbstractValuedPropertyIO> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElse(Collections.emptySet())
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)

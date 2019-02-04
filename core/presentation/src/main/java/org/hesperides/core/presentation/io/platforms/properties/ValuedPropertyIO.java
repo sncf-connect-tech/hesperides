@@ -28,6 +28,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -50,19 +51,19 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
         return new ValuedProperty(null, getName(), value);
     }
 
-    public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyIO> valuedPropertyOutputs) {
+    public static List<ValuedProperty> toDomainInstances(Set<ValuedPropertyIO> valuedPropertyOutputs) {
         return Optional.ofNullable(valuedPropertyOutputs)
-                .orElse(Collections.emptyList())
+                .orElse(Collections.emptySet())
                 .stream()
                 .map(ValuedPropertyIO::toDomainInstance)
                 .collect(Collectors.toList());
     }
 
-    public static List<ValuedPropertyIO> fromValuedPropertyViews(List<ValuedPropertyView> valuedPropertyViews) {
+    public static Set<ValuedPropertyIO> fromValuedPropertyViews(List<ValuedPropertyView> valuedPropertyViews) {
         return Optional.ofNullable(valuedPropertyViews)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(ValuedPropertyIO::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }

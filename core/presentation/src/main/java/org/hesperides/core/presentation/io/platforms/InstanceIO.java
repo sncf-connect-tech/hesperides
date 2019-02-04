@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -44,7 +45,7 @@ public class InstanceIO {
     @NotNull
     @SerializedName("key_values")
     @JsonProperty("key_values")
-    List<ValuedPropertyIO> valuedProperties;
+    Set<ValuedPropertyIO> valuedProperties;
 
     public InstanceIO(InstanceView instanceView) {
         this.name = instanceView.getName();

@@ -34,6 +34,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Value
 @AllArgsConstructor
@@ -42,12 +43,12 @@ public class PropertiesIO {
     @NotNull
     @SerializedName("key_value_properties")
     @JsonProperty("key_value_properties")
-    List<ValuedPropertyIO> valuedProperties;
+    Set<ValuedPropertyIO> valuedProperties;
 
     @NotNull
     @SerializedName("iterable_properties")
     @JsonProperty("iterable_properties")
-    List<IterableValuedPropertyIO> iterableValuedProperties;
+    Set<IterableValuedPropertyIO> iterableValuedProperties;
 
     public List<AbstractValuedProperty> toDomainInstances() {
         final List<ValuedProperty> valuedProperties = ValuedPropertyIO.toDomainInstances(this.valuedProperties);
