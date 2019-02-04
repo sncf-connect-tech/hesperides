@@ -287,7 +287,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         return AbstractPropertyDocument.toViews(technoDocument.getProperties());
     }
 
-    public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos) {
+    public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos, TemplateContainer.Key moduleKey) {
         technos = Optional.ofNullable(technos).orElse(Collections.emptyList());
         List<TechnoDocument> technoDocs = technoRepository.findAllByKeyIn(technos.stream()
                 .map(techno -> new KeyDocument(techno.getKey()))
@@ -298,7 +298,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             Set<TemplateContainer.Key> technoKeys = technos.stream().map(TemplateContainer::getKey).collect(Collectors.toSet());
             Set<TemplateContainer.Key> retrievedTechnoKeys = technoDocs.stream().map(TechnoDocument::getDomainKey).collect(Collectors.toSet());
             technoKeys.removeAll(retrievedTechnoKeys);
-            throw new NotFoundException("Techno not found among " + technos.size() + " requested, no techno was found in repository for the following keys: " + technoKeys);
+            throw new NotFoundException("Techno not found among " + technos.size() + " requested by module " + moduleKey.getNamespaceWithoutPrefix() +  ", no techno was found in repository for the following keys: " + technoKeys);
         }
         return technoDocs;
     }
