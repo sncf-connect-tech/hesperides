@@ -131,7 +131,7 @@ public class ModuleDocument {
         );
     }
 
-    private Module.Key getDomainKey() {
+    public Module.Key getDomainKey() {
         return new Module.Key(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.isWorkingCopy()));
     }
 

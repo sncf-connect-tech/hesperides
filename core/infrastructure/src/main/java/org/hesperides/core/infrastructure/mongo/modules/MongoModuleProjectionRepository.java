@@ -76,7 +76,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @EventHandler
     @Override
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
-        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos());
+        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos(), event.getModule().getKey());
         ModuleDocument moduleDocument = new ModuleDocument(event.getModuleId(), event.getModule(), technoDocuments);
 
         if (HasProfile.dataMigration()) {
@@ -96,7 +96,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
             throw new NotFoundException("Module not found - update impossible - module ID: " + event.getModuleId());
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
-        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos());
+        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos(), moduleDocument.getDomainKey());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
 
