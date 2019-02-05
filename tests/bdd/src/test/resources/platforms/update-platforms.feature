@@ -76,6 +76,7 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-481
+  @wip
   Scenario: update an existing platform, upgrading a logical group and requiring the copy of properties
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
