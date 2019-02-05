@@ -79,6 +79,7 @@ public class Platform {
                 globalProperties
         );
     }
+
     @Value
     public static class Key {
         String applicationName;
@@ -88,9 +89,9 @@ public class Platform {
     /**
      * Lorsqu'on met à jour une plateforme, le valorisation au niveau de chaque module déployé n'est pas fournie.
      * Il faut donc rapatrier cette valorisation lorsqu'il s'agit d'un module existant.
-     *
+     * <p>
      * Il est possible de copier les propriétés des modules déployés dont la version a été modifiée.
-     *
+     * <p>
      * Il y a donc 3 cas possibles :
      * - Module existant
      * - Nouvelle version de module avec copie de propriétés
@@ -116,7 +117,7 @@ public class Platform {
                     } else if (copyPropertiesForUpgradedModules) {
                         // Copie de propriété pour les modules dont la version a été mise à jour
                         deployedModule = deployedModules.stream()
-                                .filter(existingModule -> isModuleVersionUpdated(existingModule, providedModule))
+                                .filter(existingModule -> isModuleUpdated(existingModule, providedModule))
                                 .findAny()
                                 .map(existingModule -> providedModule.setValuedProperties(existingModule.getValuedProperties()))
                                 .orElse(providedModule); // Si une autre propriété que la version est mise à jour, on considère que c'est un nouveau module
@@ -131,25 +132,17 @@ public class Platform {
                 }).collect(Collectors.toList());
     }
 
-    private static boolean isModuleVersionUpdated(DeployedModule existingModule, DeployedModule providedModule) {
-        boolean isModuleVersionUpdated = false;
-        if (providedModule.getId().equals(existingModule.getId())) {
-            // Cette comparaison permet de gérer 2 cas possible, tous les 2 valides :
-            // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à la NOUVELLE version de module
-            // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à l'ANCIENNE version de module
-            // À noter qu'à ce stade nous n'avons pas accès au "vrai" `propertiesPath` fourni en entrée du controller REST.
-            // Cette information est perdue lorsque la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
-
-            // On considère que le module est mis à jour si au moins l'un des éléments suivants est modifié :
-            // - Le groupe logique
-            // - Le nom du module
-            // - Sa version
-            // - Son type (workingcopy/release)
-            isModuleVersionUpdated = !providedModule.getModulePath().equals(existingModule.getModulePath())
-                    || !providedModule.getName().equals(existingModule.getName())
-                    || !providedModule.getVersion().equals(existingModule.getVersion())
-                    || providedModule.isWorkingCopy() != existingModule.isWorkingCopy();
-        }
-        return isModuleVersionUpdated;
+    private static boolean isModuleUpdated(DeployedModule existingModule, DeployedModule providedModule) {
+        // Le seul moyen de savoir si c'est un module existant est de comparer son identifiant
+        return providedModule.getId().equals(existingModule.getId()) &&
+                // On considère que le module est mis à jour si au moins l'un des éléments suivants est modifié :
+                // - Le groupe logique
+                // - Le nom du module
+                // - Sa version
+                // - Son type (workingcopy/release)
+                (!providedModule.getModulePath().equals(existingModule.getModulePath())
+                        || !providedModule.getName().equals(existingModule.getName())
+                        || !providedModule.getVersion().equals(existingModule.getVersion())
+                        || providedModule.isWorkingCopy() != existingModule.isWorkingCopy());
     }
 }
