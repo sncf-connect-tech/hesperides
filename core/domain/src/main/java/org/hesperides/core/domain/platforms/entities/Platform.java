@@ -138,12 +138,17 @@ public class Platform {
             // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à la NOUVELLE version de module
             // - le `propertiesPath` du module fourni dans la payload de l'appel REST correspond à l'ANCIENNE version de module
             // À noter qu'à ce stade nous n'avons pas accès au "vrai" `propertiesPath` fourni en entrée du controller REST.
-            // Cette information est perdue lors de la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
+            // Cette information est perdue lorsque la conversion de DeployedModuleIO en DeployedModule a lieu dans DeployedModuleIO.toDomainInstance.
 
-            isModuleVersionUpdated = providedModule.getModulePath().equals(existingModule.getModulePath())
-                    && (!providedModule.getName().equals(existingModule.getName())
+            // On considère que le module est mis à jour si au moins l'un des éléments suivants est modifié :
+            // - Le groupe logique
+            // - Le nom du module
+            // - Sa version
+            // - Son type (workingcopy/release)
+            isModuleVersionUpdated = !providedModule.getModulePath().equals(existingModule.getModulePath())
+                    || !providedModule.getName().equals(existingModule.getName())
                     || !providedModule.getVersion().equals(existingModule.getVersion())
-                    || providedModule.isWorkingCopy() != existingModule.isWorkingCopy());
+                    || providedModule.isWorkingCopy() != existingModule.isWorkingCopy();
         }
         return isModuleVersionUpdated;
     }
