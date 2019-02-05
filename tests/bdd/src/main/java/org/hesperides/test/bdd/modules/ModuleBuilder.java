@@ -41,6 +41,7 @@ public class ModuleBuilder {
     private long versionId;
 
     private List<TemplateIO> templates;
+    private String logicalGroup;
 
     public ModuleBuilder() {
         reset();
@@ -54,6 +55,7 @@ public class ModuleBuilder {
         technos = new ArrayList<>();
         templates = new ArrayList<>();
         versionId = 0;
+        logicalGroup = null;
         return this;
     }
 
@@ -105,10 +107,6 @@ public class ModuleBuilder {
     }
 
     public String getPropertiesPath() {
-        return getPropertiesPath(null);
-    }
-
-    public String getPropertiesPath(String logicalGroup) {
         return "#" + StringUtils.defaultString(logicalGroup, "GROUP") + "#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
@@ -127,5 +125,13 @@ public class ModuleBuilder {
 
     public List<TemplateIO> getTemplates() {
         return templates;
+    }
+
+    public void setLogicalGroup(String logicalGroup) {
+        this.logicalGroup = logicalGroup;
+    }
+
+    public String getLogicalGroup() {
+        return logicalGroup;
     }
 }

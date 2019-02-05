@@ -89,6 +89,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                                         String withGlobalPropertiesAsInstanceValues,
                                         String withFilenameLocationValues) {
 
+        moduleBuilder.setLogicalGroup(logicalGroup);
+
         if (StringUtils.isNotEmpty(isProd)) {
             platformBuilder.withIsProductionPlatform(true);
             commonSteps.setAuthUserRole("prod");
@@ -106,7 +108,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 }
                 platformBuilder.withInstance("instance-foo-1");
             }
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(logicalGroup), logicalGroup);
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
         }
         testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
         assertOK();
@@ -116,7 +118,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (moduleBuilder.hasTechno()) {
                 platformBuilder.withProperty("techno-foo", "12");
             }
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath(logicalGroup));
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
 
