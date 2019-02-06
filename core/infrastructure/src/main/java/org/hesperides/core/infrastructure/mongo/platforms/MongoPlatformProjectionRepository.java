@@ -150,7 +150,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                     .map(ModuleDocument::getProperties)
                     .orElse(Collections.emptyList());
 
-            List<AbstractValuedPropertyDocument> valuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContent(abstractValuedProperties, moduleProperties);
+            List<AbstractValuedPropertyDocument> valuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContentAndIsPassword(abstractValuedProperties, moduleProperties);
             valuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(abstractValuedProperties, moduleProperties));
             deployedModuleDocument.setValuedProperties(valuedProperties);
         });

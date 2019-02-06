@@ -44,11 +44,13 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     private String mustacheContent;
     private String value;
+    private boolean isPassword;
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
         name = valuedProperty.getName();
         value = valuedProperty.getValue();
+        isPassword = valuedProperty.isPassword();
     }
 
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
@@ -60,7 +62,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toView() {
-        return new ValuedPropertyView(mustacheContent, getName(), value);
+        return new ValuedPropertyView(mustacheContent, getName(), value, isPassword);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -84,16 +86,17 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         defaultValuedProperty.setMustacheContent(property.getMustacheContent());
         defaultValuedProperty.setName(property.getName());
         defaultValuedProperty.setValue(property.getDefaultValue());
+        defaultValuedProperty.setPassword(property.isPassword());
         return defaultValuedProperty;
     }
 
     @Override
     protected ValuedProperty toDomainInstance() {
-        return new ValuedProperty(mustacheContent, name, value);
+        return new ValuedProperty(mustacheContent, name, value, isPassword);
     }
 
     @Override
-    protected List<AbstractValuedPropertyDocument> completeWithMustacheContent(List<AbstractPropertyDocument> abstractModuleProperties) {
+    protected List<AbstractValuedPropertyDocument> completeWithMustacheContentAndIsPassword(List<AbstractPropertyDocument> abstractModuleProperties) {
         List<AbstractValuedPropertyDocument> completedProperties = new ArrayList<>();
 
         List<AbstractPropertyDocument> matchingProperties = abstractModuleProperties.stream()
@@ -107,13 +110,12 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         } else {
             matchingProperties.stream()
                     .map(PropertyDocument.class::cast)
-                    .map(PropertyDocument::getMustacheContent)
-                    .forEach(mustacheContent -> {
+                    .forEach(propertyDocument -> {
                         // Il arrive qu'une propriété soit déclarée plusieurs fois avec le même nom
                         // et un commentaire distinct. Dans ce cas on crée autant de propriétés valorisées
                         // qu'il n'y a de propriétés déclarées afin de pouvoir les compléter avec les
                         // différents mustacheContent
-                        AbstractValuedPropertyDocument newValuedProperty = cloneWithMustacheContent(mustacheContent);
+                        AbstractValuedPropertyDocument newValuedProperty = cloneWithMustacheContentAndIsPassword(propertyDocument);
                         completedProperties.add(newValuedProperty);
                     });
         }
@@ -121,11 +123,12 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         return completedProperties;
     }
 
-    private ValuedPropertyDocument cloneWithMustacheContent(String mustacheContent) {
+    private ValuedPropertyDocument cloneWithMustacheContentAndIsPassword(PropertyDocument propertyDocument) {
         ValuedPropertyDocument newValuedPropertyDocument = new ValuedPropertyDocument();
         newValuedPropertyDocument.setName(name);
-        newValuedPropertyDocument.setMustacheContent(mustacheContent);
+        newValuedPropertyDocument.setMustacheContent(propertyDocument.getMustacheContent());
         newValuedPropertyDocument.setValue(value);
+        newValuedPropertyDocument.setPassword(propertyDocument.isPassword());
         return newValuedPropertyDocument;
     }
 }

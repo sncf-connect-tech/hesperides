@@ -24,13 +24,17 @@ import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.Matcher;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.*;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
@@ -42,10 +46,12 @@ import org.springframework.http.ResponseEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Every.everyItem;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
-import static org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO.flattenValuedProperties;
 import static org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO.toDomainInstances;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -54,6 +60,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
+    @Autowired
+    private ModuleClient moduleClient;
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
@@ -88,33 +96,32 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                                         String withInstanceValues,
                                         String withGlobalPropertiesAsInstanceValues,
                                         String withFilenameLocationValues) {
-
         moduleBuilder.setLogicalGroup(logicalGroup);
 
-        if (StringUtils.isNotEmpty(isProd)) {
+        if (isNotEmpty(isProd)) {
             platformBuilder.withIsProductionPlatform(true);
             commonSteps.setAuthUserRole("prod");
         }
 
-        if (StringUtils.isNotEmpty(platformName)) {
+        if (isNotEmpty(platformName)) {
             platformBuilder.withPlatformName(platformName);
         }
 
-        if (StringUtils.isNotEmpty(withThisModule)) {
-            if (StringUtils.isNotEmpty(withAnInstance)) {
-                if (StringUtils.isNotEmpty(withInstanceValues)) {
-                    String instancePropertyValue = StringUtils.isNotEmpty(withGlobalPropertiesAsInstanceValues) ? "global-module-foo" : "instance-module-foo-value";
+        if (isNotEmpty(withThisModule)) {
+            if (isNotEmpty(withAnInstance)) {
+                if (isNotEmpty(withInstanceValues)) {
+                    String instancePropertyValue = isNotEmpty(withGlobalPropertiesAsInstanceValues) ? "global-module-foo" : "instance-module-foo-value";
                     platformBuilder.withInstancePropertyValue("instance-module-foo", instancePropertyValue);
                 }
                 platformBuilder.withInstance("instance-foo-1");
             }
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
         }
         testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
         assertOK();
 
-        if (StringUtils.isNotEmpty(withValuedProperties)) {
-            platformBuilder.withProperty("module-foo", "12");
+        if (isNotEmpty(withValuedProperties)) {
+            modelBuilder.getProperties().forEach(property -> platformBuilder.withProperty(property.getName(), "12"));
             if (moduleBuilder.hasTechno()) {
                 platformBuilder.withProperty("techno-foo", "12");
             }
@@ -122,7 +129,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         }
 
-        if (StringUtils.isNotEmpty(withIterableProperties)) {
+        if (isNotEmpty(withIterableProperties)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
                             new IterablePropertyItemIO("bloc-module-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1")))),
@@ -137,7 +144,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         }
 
-        if (StringUtils.isNotEmpty(withIterableCeption)) {
+        if (isNotEmpty(withIterableCeption)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
                             new IterablePropertyItemIO("bloc-module-foo-1", new HashSet<>(Arrays.asList(
@@ -166,7 +173,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         }
 
-        if (StringUtils.isNotEmpty(withGlobalProperties)) {
+        if (isNotEmpty(withGlobalProperties)) {
             platformBuilder.withGlobalProperty("global-module-foo", "12", modelBuilder);
             if (moduleBuilder.hasTechno()) {
                 platformBuilder.withGlobalProperty("global-techno-foo", "12", modelBuilder);
@@ -178,7 +185,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         }
 
-        if (StringUtils.isNotEmpty(withInstanceProperties)) {
+        if (isNotEmpty(withInstanceProperties)) {
             platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
             if (moduleBuilder.hasTechno()) {
                 platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
@@ -187,7 +194,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         }
 
-        if (StringUtils.isNotEmpty(withFilenameLocationValues)) {
+        if (isNotEmpty(withFilenameLocationValues)) {
             platformBuilder.withProperty("filename", "conf");
             platformBuilder.withProperty("location", "etc");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
@@ -199,31 +206,32 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^a( prod)? platform to create(?:, named \"([^\"]*)\")?( with this module)?( with an instance( with properties)?)?( with the same name but different letter case)?$", (
+        Given("^a( prod)? platform to create(?:, named \"([^\"]*)\")?( with this module(?: associated to an empty path)?)?( with an instance( with properties)?)?( with the same name but different letter case)?$", (
                 String isProd, String platformName, String withThisModule, String withAnInstance, String withProperties, String sameNameDifferentLetterCase) -> {
 
-            if (StringUtils.isNotEmpty(isProd)) {
+            if (isNotEmpty(isProd)) {
                 platformBuilder.withIsProductionPlatform(true);
             }
 
-            if (StringUtils.isNotEmpty(platformName)) {
+            if (isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
-            } else if (StringUtils.isNotEmpty(sameNameDifferentLetterCase)) {
+            } else if (isNotEmpty(sameNameDifferentLetterCase)) {
                 platformBuilder.withPlatformName(platformBuilder.getPlatformName().toUpperCase());
             }
 
-            if (StringUtils.isNotEmpty(withThisModule)) {
-                if (StringUtils.isNotEmpty(withAnInstance)) {
+            if (isNotEmpty(withThisModule)) {
+                if (isNotEmpty(withAnInstance)) {
 
                     List<ValuedPropertyIO> instancesProperties = new ArrayList<>();
-                    if (StringUtils.isNotEmpty(withProperties)) {
+                    if (isNotEmpty(withProperties)) {
                         instancesProperties.add(new ValuedPropertyIO("instance-property-a", "instance-property-a-val"));
                         instancesProperties.add(new ValuedPropertyIO("instance-property-b", "instance-property-b-val"));
                     }
 
                     platformBuilder.withInstance("instance-foo-1", instancesProperties);
                 }
-                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath());
+                moduleBuilder.setLogicalGroup(withThisModule.contains("empty path") ? "" : null);
+                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             }
         });
 
@@ -258,11 +266,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         When("^I( try to)? copy this platform( using the same key)?( to a non-prod one)?$", (String tryTo, String usingTheSameKey, String toNonProd) -> {
             PlatformIO existingPlatform = platformBuilder.buildInput();
-            String newName = StringUtils.isNotEmpty(usingTheSameKey) ? existingPlatform.getPlatformName() : existingPlatform.getPlatformName() + "-copy";
+            String newName = isNotEmpty(usingTheSameKey) ? existingPlatform.getPlatformName() : existingPlatform.getPlatformName() + "-copy";
             PlatformBuilder newPlatform = new PlatformBuilder()
                     .withApplicationName(existingPlatform.getApplicationName())
                     .withPlatformName(newName);
-            if (StringUtils.isNotEmpty(toNonProd)) {
+            if (isNotEmpty(toNonProd)) {
                 newPlatform.withIsProductionPlatform(false);
             }
             testContext.responseEntity = platformClient.copy(existingPlatform, newPlatform.buildInput(), getResponseType(tryTo, PlatformIO.class));
@@ -270,11 +278,20 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withVersionId(1);
         });
 
-        Then("^the platform is successfully created$", () -> {
+        Then("^the platform is successfully created(?: with \"(.*)\" as path)?$", (String expectedModulePath) -> {
             assertOK();
+            // The returned deployed modules always have a non-empty modulePath, even if none was provided:
+            if (platformBuilder.getDeployedModules().size() > 0 && isBlank(platformBuilder.getDeployedModules().get(0).getModulePath())) {
+                platformBuilder.withNoModule();
+                moduleBuilder.setLogicalGroup("#");
+                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            }
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
+            if (isNotEmpty(expectedModulePath)) {
+                Assert.assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
+            }
         });
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
@@ -301,15 +318,24 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });
 
-        Then("^the password property values are obfuscated$", () -> {
-            ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
-            PropertiesIO actualProperties = responseEntity.getBody();
-            assertThat(extractValues(toDomainInstances(actualProperties.getValuedProperties())), everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
-            List<String> actualIterablePropertiesEndValues = extractValues(flattenValuedProperties(new ArrayList<>(actualProperties.getIterableValuedProperties())));
-            assertThat(actualIterablePropertiesEndValues, everyItem(equalTo(OBFUSCATED_PASSWORD_VALUE)));
+        Then("^the (non-)?password property values are (not )?obfuscated$", (String nonPasswordProps, String notObfuscated) -> {
+            Matcher<String> isObfusctedOrNot = isNotEmpty(notObfuscated) ? not(equalTo(OBFUSCATED_PASSWORD_VALUE)) : equalTo(OBFUSCATED_PASSWORD_VALUE);
+
+            ModelOutput model = (ModelOutput) moduleClient.getModel(moduleBuilder.build(), ModelOutput.class).getBody();
+            Map<String, PropertyOutput> propertyModelsPerName = model.getProperties().stream().collect(Collectors.toMap(PropertyOutput::getName, p -> p));
+            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
+
+            List<ValuedProperty> actualDomainProperties = toDomainInstances(actualProperties.getValuedProperties());
+            List<String> actualPropertyValues = extractValuesIfPasswordOrNot(actualDomainProperties, propertyModelsPerName, isEmpty(nonPasswordProps));
+            assertThat(actualPropertyValues, hasSize(greaterThan(0)));
+            assertThat(actualPropertyValues, everyItem(isObfusctedOrNot));
+
+            List<ValuedProperty> actualIterableDomainProperties = flattenValuedProperties(actualProperties.getIterableValuedProperties());
+            List<String> actualIterablePropertiesValues = extractValuesIfPasswordOrNot(actualIterableDomainProperties, propertyModelsPerName, isEmpty(nonPasswordProps));
+            assertThat(actualIterablePropertiesValues, everyItem(isObfusctedOrNot));
         });
 
-        Then("^the passwords in the file are obfuscated$", () -> {
+        Then("^there are obfuscated password properties in the file$", () -> {
             String actualOutput = (String) testContext.getResponseBody();
             assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
         });
@@ -323,8 +349,17 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
     }
 
-    private static List<String> extractValues(List<ValuedProperty> valuedProperties) {
-        return valuedProperties.stream().map(ValuedProperty::getValue).collect(Collectors.toList());
+    private static List<String> extractValuesIfPasswordOrNot(List<ValuedProperty> valuedProperties, Map<String, PropertyOutput> propertyModelsPerName, boolean selectPasswordProps) {
+        return valuedProperties.stream()
+                .filter(p -> (!selectPasswordProps) ^ propertyModelsPerName.get(p.getName()).isPassword())
+                .map(ValuedProperty::getValue).collect(Collectors.toList());
+    }
+
+    private static List<ValuedProperty> flattenValuedProperties(Set<IterableValuedPropertyIO> iterableValuedIOProperties) {
+        List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
+                .map(IterableValuedPropertyIO::toDomainInstance)
+                .collect(Collectors.toList());
+        return AbstractValuedProperty.flattenValuedProperties(iterableValuedProperties);
     }
 
     /**
