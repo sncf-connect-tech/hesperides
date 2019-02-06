@@ -22,6 +22,7 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
 import java.util.Collections;
@@ -37,21 +38,28 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     String mustacheContent;
     String value;
+    String defaultValue;
 
-    public ValuedPropertyView(String mustacheContent, String name, String value) {
+    public ValuedPropertyView(String mustacheContent, String name, String value, String defaultValue) {
         super(name);
         this.mustacheContent = mustacheContent;
         this.value = value;
+        this.defaultValue = defaultValue;
     }
 
     @Override
     public ValuedProperty toDomainValuedProperty() {
-        return new ValuedProperty(mustacheContent, getName(), value);
+        return new ValuedProperty(mustacheContent, getName(), value, defaultValue);
     }
 
     @Override
     public AbstractValuedPropertyView withPasswordsHidden() {
-        return new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE);
+        return new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE, defaultValue);
+    }
+
+    @Override
+    protected Optional<AbstractValuedPropertyView> getOnlyValuedProperty() {
+        return StringUtils.isEmpty(value) ? Optional.empty() : Optional.of(this);
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {

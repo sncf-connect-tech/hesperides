@@ -53,4 +53,8 @@ public class IterablePropertyItemView {
                 .map(IterablePropertyItemView::toDomainIterablePropertyItem)
                 .collect(Collectors.toList());
     }
+
+    IterablePropertyItemView withOnlyValuedProperty() {
+        return new IterablePropertyItemView(title, AbstractValuedPropertyView.getOnlyValuedProperties(abstractValuedPropertyViews));
+    }
 }

@@ -4,29 +4,15 @@ import lombok.Value;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Value
 public class GlobalPropertyUsageView {
 
     boolean isRemovedFromTemplate;
     String propertiesPath;
-
-    /**
-     * Récupère la liste des propriétés globales utilisées dans les modules
-     */
-    public static List<GlobalPropertyUsageView> getModuleGlobalProperties(final List<AbstractPropertyView> moduleProperties,
-                                                                          final String globalPropertyName,
-                                                                          final String propertiesPath) {
-        return moduleProperties.stream()
-                .filter(moduleProperty -> moduleProperty.getName().equals(globalPropertyName))
-                .map(moduleProperty -> new GlobalPropertyUsageView(false, propertiesPath))
-                .collect(Collectors.toList());
-    }
 
     /**
      * Retourne la liste des utilisations d'une propriété globale.

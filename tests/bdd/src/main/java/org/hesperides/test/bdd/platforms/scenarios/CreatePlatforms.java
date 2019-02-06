@@ -229,6 +229,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Given("^the platform has these valued properties$", (DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
             platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet()), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
@@ -289,14 +290,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform property values are(?: also)? copied$", () -> {
             // Propriétés valorisées
             ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
-            PropertiesIO expectedProperties = platformBuilder.getProperties(false);
+            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO();
             PropertiesIO actualProperties = responseEntity.getBody();
             assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
             responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
             assertOK();
-            PropertiesIO expectedGlobalProperties = platformBuilder.getProperties(true);
+            PropertiesIO expectedGlobalProperties = platformBuilder.getGlobalPropertiesIO();
             PropertiesIO actualGlobalProperties = responseEntity.getBody();
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });

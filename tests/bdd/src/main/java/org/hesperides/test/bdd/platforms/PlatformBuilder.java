@@ -167,10 +167,6 @@ public class PlatformBuilder {
                 new HashSet<>(iterableProperties));
     }
 
-    public List<Property> getProperties() {
-        return properties;
-    }
-
     public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
         boolean isUsed = modelBuilder.containsProperty(name);
         properties.add(new Property(name, value, true, isUsed, false));
@@ -189,31 +185,24 @@ public class PlatformBuilder {
         instanceProperties.put(propertyName, instancePropertyName);
     }
 
-    public void withModuleVersion(String newVersion) {
-        withModuleVersion(newVersion, false);
-    }
-
-    public void withModuleVersion(String newVersion, boolean updatePropertiesPath) {
-        if (deployedModules.size() != 1) {
-            throw new RuntimeException("This method can only be used on a PlatformBuilder containing a single module");
-        }
-        DeployedModuleIO module = deployedModules.get(0);
-        DeployedModuleIO newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances());
-        if (updatePropertiesPath) {
-            String propertiesPath = newModule.toDomainInstance().generatePropertiesPath();
-            newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), propertiesPath, module.getInstances());
-        }
-        deployedModules = Collections.singletonList(newModule);
-    }
-
     public void incrementVersionId() {
         versionId++;
     }
 
-    public PropertiesIO getProperties(boolean onlyGlobalProperties) {
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public PropertiesIO getPropertiesIO() {
         return new PropertiesIO(
-                new HashSet<>(onlyGlobalProperties ? getAllGlobalProperties() : getModulePropertiesAndUsedGlobalProperties()),
+                new HashSet<>(getModuleProperties()),
                 new HashSet<>(iterableProperties));
+    }
+
+    public PropertiesIO getGlobalPropertiesIO() {
+        return new PropertiesIO(
+                new HashSet<>(getAllGlobalProperties()),
+                new HashSet<>());
     }
 
     public List<ValuedPropertyIO> getAllGlobalProperties() {
@@ -224,10 +213,10 @@ public class PlatformBuilder {
                 .collect(Collectors.toList());
     }
 
-    public List<ValuedPropertyIO> getModulePropertiesAndUsedGlobalProperties() {
+    private List<ValuedPropertyIO> getModuleProperties() {
         return properties
                 .stream()
-                .filter(property -> !property.isGlobal() || property.isUsed())
+                .filter(property -> !property.isGlobal())
                 .map(property -> new ValuedPropertyIO(property.name, property.value))
                 .collect(Collectors.toList());
     }

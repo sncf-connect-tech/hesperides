@@ -280,7 +280,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query) {
+    public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final Optional<PlatformDocument> platformDocument = platformRepository
                 .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
@@ -296,6 +296,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         return AbstractValuedPropertyDocument.toViews(abstractValuedPropertyDocuments);
     }
+
 
     @QueryHandler
     @Override

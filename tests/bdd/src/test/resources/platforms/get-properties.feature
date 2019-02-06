@@ -28,3 +28,19 @@ Feature: Get properties
     Given an existing platform with global properties
     When I get the global properties of this platform
     Then the platform global properties are successfully retrieved
+
+  #issue-486
+  Scenario: get properties of a platform with valued properties and a module that have a property with a default value
+    Given an existing module with this template content
+      """
+      {{ simple-property }}
+      {{ set-default-property | @default 42 }}
+      {{ unset-default-property | @default 42 }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name                 | value        |
+      | simple-property      | first-value  |
+      | set-default-property | second-value |
+    When I get the platform properties for this module
+    Then the platform properties are successfully retrieved

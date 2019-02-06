@@ -44,11 +44,13 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     private String mustacheContent;
     private String value;
+    private String defaultValue;
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
         name = valuedProperty.getName();
         value = valuedProperty.getValue();
+        defaultValue = valuedProperty.getDefaultValue();
     }
 
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
@@ -60,7 +62,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toView() {
-        return new ValuedPropertyView(mustacheContent, getName(), value);
+        return new ValuedPropertyView(mustacheContent, getName(), value, defaultValue);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -83,13 +85,13 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
         defaultValuedProperty.setMustacheContent(property.getMustacheContent());
         defaultValuedProperty.setName(property.getName());
-        defaultValuedProperty.setValue(property.getDefaultValue());
+        defaultValuedProperty.setDefaultValue(property.getDefaultValue());
         return defaultValuedProperty;
     }
 
     @Override
     protected ValuedProperty toDomainInstance() {
-        return new ValuedProperty(mustacheContent, name, value);
+        return new ValuedProperty(mustacheContent, name, value, defaultValue);
     }
 
     @Override

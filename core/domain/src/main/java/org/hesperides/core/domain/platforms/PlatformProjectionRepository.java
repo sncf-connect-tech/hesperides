@@ -58,7 +58,7 @@ public interface PlatformProjectionRepository {
     List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
 
     @QueryHandler
-    List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulesPropertiesQuery query);
+    List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query);
 
     @QueryHandler
     List<ValuedPropertyView> onGetGlobalPropertiesQuery(GetGlobalPropertiesQuery query);

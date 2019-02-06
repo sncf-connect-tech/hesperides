@@ -77,7 +77,7 @@ public class PlatformQueries extends AxonQueries {
     }
 
     public List<AbstractValuedPropertyView> getDeployedModuleProperties(final Platform.Key platformKey, final String propertiesPath) {
-        return querySyncList(new GetDeployedModulesPropertiesQuery(platformKey, propertiesPath), AbstractValuedPropertyView.class);
+        return querySyncList(new GetDeployedModulePropertiesQuery(platformKey, propertiesPath), AbstractValuedPropertyView.class);
     }
 
     public List<ValuedPropertyView> getGlobalProperties(final Platform.Key platformKey) {
