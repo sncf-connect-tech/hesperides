@@ -67,9 +67,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String withAnEmptyPayload,
             String changeApplicationVersion,
             String toProd) {
-
         moduleBuilder.setLogicalGroup(logicalGroup);
-
         if (StringUtils.isNotEmpty(addingOrRemovingModule)) {
             if (addingOrRemovingModule.contains("adding")) {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);

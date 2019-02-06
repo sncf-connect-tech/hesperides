@@ -9,6 +9,12 @@ Feature: Create platform
     When I create this platform
     Then the platform is successfully created
 
+  Scenario: create a platform with a module associated to an empty path
+    Given an existing module
+    And a platform to create with this module associated to an empty path with an instance with properties
+    When I create this platform
+    Then the platform is successfully created with "#" as path
+
   Scenario: create a faulty platform
     Given a platform to create, named "oops space"
     When I try to create this platform

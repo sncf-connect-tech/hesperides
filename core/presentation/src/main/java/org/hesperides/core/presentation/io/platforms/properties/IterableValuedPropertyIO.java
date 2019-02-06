@@ -71,13 +71,6 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
         return new IterableValuedProperty(getName(), iterablePropertyItems);
     }
 
-    public static List<ValuedProperty> flattenValuedProperties(List<IterableValuedPropertyIO> iterableValuedIOProperties) {
-        List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
-                                       .map(IterableValuedPropertyIO::toDomainInstance)
-                                       .collect(Collectors.toList());
-        return AbstractValuedProperty.flattenValuedProperties(iterableValuedProperties);
-    }
-
     public static List<IterableValuedProperty> toDomainInstances(Set<IterableValuedPropertyIO> iterableValuedPropertyIOS) {
         return Optional.ofNullable(iterableValuedPropertyIOS)
                 .orElse(Collections.emptySet())

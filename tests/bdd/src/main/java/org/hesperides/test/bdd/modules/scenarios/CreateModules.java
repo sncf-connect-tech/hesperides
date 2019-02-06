@@ -37,12 +37,14 @@ public class CreateModules extends HesperidesScenario implements En {
         Given("^an existing module" +
                 "(?: named \"([^\"]*)\")?" +
                 "( (?:and|with) (?:a|this) template)?" +
-                "( (?:and|with)(?: password)? properties)?" +
+                "( (?:and|with) properties)?" +
+                "( (?:and|with) password properties)?" +
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) this techno)?$", (
                 String moduleName,
                 String withTemplate,
                 String withProperties,
+                String withPasswordProperties,
                 String withGlobalProperties,
                 String withThisTechno) -> {
 
@@ -64,8 +66,11 @@ public class CreateModules extends HesperidesScenario implements En {
             moduleBuilder.withVersionId(1);
 
             if (StringUtils.isNotEmpty(withProperties)) {
-                addPropertyToBuilders("module-foo", withProperties.contains("password"));
-                addPropertyToBuilders("module-bar", withProperties.contains("password"));
+                addPropertyToBuilders("module-foo");
+                addPropertyToBuilders("module-bar");
+            }
+            if (StringUtils.isNotEmpty(withPasswordProperties)) {
+                addPropertyToBuilders("module-fuzz", true);
             }
 
             if (StringUtils.isNotEmpty(withGlobalProperties)) {

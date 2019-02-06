@@ -21,7 +21,6 @@
 package org.hesperides.test.bdd.platforms;
 
 import lombok.Value;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
@@ -107,12 +106,21 @@ public class PlatformBuilder {
         withInstance(name, getInstancePropertyValues());
     }
 
-    public PlatformBuilder withModule(ModuleIO module, String propertiesPath) {
-        return withModule(module, propertiesPath, null);
+    public List<DeployedModuleIO> getDeployedModules() {
+        return deployedModules;
+    }
+
+    public void setDeployedModules(List<DeployedModuleIO> deployedModules) {
+        this.deployedModules = deployedModules;
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath, String logicalGroup) {
-        String modulePath = "#" + StringUtils.defaultString(logicalGroup, "GROUP");
+        String modulePath = "#GROUP";
+        if ("".equals(logicalGroup) || "#".equals(logicalGroup)) {
+            modulePath = logicalGroup;
+        } else if (logicalGroup != null) {
+            modulePath = "#" + logicalGroup;
+        }
         deployedModules.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
         return this;
     }
@@ -183,6 +191,19 @@ public class PlatformBuilder {
     public void withInstanceProperty(String propertyName, String instancePropertyName) {
         withProperty(propertyName, "{{" + instancePropertyName + "}}");
         instanceProperties.put(propertyName, instancePropertyName);
+    }
+
+    public void withModuleVersion(String newVersion, boolean updatePropertiesPath) {
+        if (deployedModules.size() != 1) {
+            throw new RuntimeException("This method can only be used on a PlatformBuilder containing a single module");
+        }
+        DeployedModuleIO module = deployedModules.get(0);
+        DeployedModuleIO newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances());
+        if (updatePropertiesPath) {
+            String propertiesPath = newModule.toDomainInstance().generatePropertiesPath();
+            newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), propertiesPath, module.getInstances());
+        }
+        deployedModules = Collections.singletonList(newModule);
     }
 
     public void incrementVersionId() {
