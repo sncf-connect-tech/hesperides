@@ -25,17 +25,17 @@ Feature: Get file
     Given an existing module with this template content
       """
       {{ default-property | @default default-value }}
-      {{ default-with-value | @default default-value }}
+      {{ default-overwritten-value | @default default-value }}
       """
     And an existing platform with this module
     And the platform has these valued properties
       | name               | value       |
-      | default-with-value | other-value |
+      | default-overwritten-value | overwritten-value |
     When I get the module template file
     Then the file is successfully retrieved and contains
       """
       default-value
-      other-value
+      overwritten-value
       """
 
   Scenario: get file with iterable and default values

@@ -175,10 +175,6 @@ public class PlatformBuilder {
                 new HashSet<>(iterableProperties));
     }
 
-    public List<Property> getProperties() {
-        return properties;
-    }
-
     public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
         boolean isUsed = modelBuilder.containsProperty(name);
         properties.add(new Property(name, value, true, isUsed, false));
@@ -214,10 +210,20 @@ public class PlatformBuilder {
         versionId++;
     }
 
-    public PropertiesIO getProperties(boolean onlyGlobalProperties) {
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public PropertiesIO getPropertiesIO() {
         return new PropertiesIO(
-                new HashSet<>(onlyGlobalProperties ? getAllGlobalProperties() : getModulePropertiesAndUsedGlobalProperties()),
+                new HashSet<>(getModuleProperties()),
                 new HashSet<>(iterableProperties));
+    }
+
+    public PropertiesIO getGlobalPropertiesIO() {
+        return new PropertiesIO(
+                new HashSet<>(getAllGlobalProperties()),
+                new HashSet<>());
     }
 
     public List<ValuedPropertyIO> getAllGlobalProperties() {
@@ -228,10 +234,10 @@ public class PlatformBuilder {
                 .collect(Collectors.toList());
     }
 
-    public List<ValuedPropertyIO> getModulePropertiesAndUsedGlobalProperties() {
+    private List<ValuedPropertyIO> getModuleProperties() {
         return properties
                 .stream()
-                .filter(property -> !property.isGlobal() || property.isUsed())
+                .filter(property -> !property.isGlobal())
                 .map(property -> new ValuedPropertyIO(property.name, property.value))
                 .collect(Collectors.toList());
     }

@@ -22,10 +22,10 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
@@ -46,6 +46,16 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
         return new IterableValuedPropertyView(getName(), iterablePropertyItems.stream()
                 .map(IterablePropertyItemView::withPasswordsHidden)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    protected Optional<AbstractValuedPropertyView> getOnlyValuedProperty() {
+
+        List<IterablePropertyItemView> items = iterablePropertyItems.stream()
+                .map(IterablePropertyItemView::withOnlyValuedProperty)
+                .collect(Collectors.toList());
+
+        return Optional.of(new IterableValuedPropertyView(getName(), items));
     }
 
     @Override

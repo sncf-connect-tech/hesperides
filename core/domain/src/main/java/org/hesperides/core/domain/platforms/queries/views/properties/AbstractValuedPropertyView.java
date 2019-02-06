@@ -28,16 +28,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Value
 @NonFinal
 public abstract class AbstractValuedPropertyView {
+
     String name;
 
-    abstract public <T extends AbstractValuedProperty> T toDomainValuedProperty();
+    public abstract <T extends AbstractValuedProperty> T toDomainValuedProperty();
 
-    abstract public AbstractValuedPropertyView withPasswordsHidden();
+    public abstract AbstractValuedPropertyView withPasswordsHidden();
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
@@ -61,4 +61,20 @@ public abstract class AbstractValuedPropertyView {
         // Legacy reference implementation: https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/resources/PermissionAwareApplicationsProxy.java#L288
         return moduleProperties.stream().map(AbstractValuedPropertyView::withPasswordsHidden).collect(Collectors.toList());
     }
+
+    /**
+     * Récupère de manière récursive les propriétés valorisées en excluant
+     * les propriétés non valorisées mais ayant une valeur par défaut.
+     * <p>
+     * Il y a peut-être moyen de faire ça directement en Mongo mais je ne sais pas comment :)
+     */
+    public static List<AbstractValuedPropertyView> getOnlyValuedProperties(List<AbstractValuedPropertyView> properties) {
+        return properties.stream()
+                .map(AbstractValuedPropertyView::getOnlyValuedProperty)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    protected abstract Optional<AbstractValuedPropertyView> getOnlyValuedProperty();
 }

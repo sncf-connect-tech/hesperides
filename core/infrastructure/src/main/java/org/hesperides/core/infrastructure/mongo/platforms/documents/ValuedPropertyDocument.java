@@ -44,12 +44,14 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     private String mustacheContent;
     private String value;
+    private String defaultValue;
     private boolean isPassword;
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
         name = valuedProperty.getName();
         value = valuedProperty.getValue();
+        defaultValue = valuedProperty.getDefaultValue();
         isPassword = valuedProperty.isPassword();
     }
 
@@ -62,7 +64,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toView() {
-        return new ValuedPropertyView(mustacheContent, getName(), value, isPassword);
+        return new ValuedPropertyView(mustacheContent, getName(), value, defaultValue, isPassword);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -85,14 +87,14 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
         defaultValuedProperty.setMustacheContent(property.getMustacheContent());
         defaultValuedProperty.setName(property.getName());
-        defaultValuedProperty.setValue(property.getDefaultValue());
+        defaultValuedProperty.setDefaultValue(property.getDefaultValue());
         defaultValuedProperty.setPassword(property.isPassword());
         return defaultValuedProperty;
     }
 
     @Override
     protected ValuedProperty toDomainInstance() {
-        return new ValuedProperty(mustacheContent, name, value, isPassword);
+        return new ValuedProperty(mustacheContent, name, value, defaultValue, isPassword);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
     }
 
     public ValuedProperty toDomainInstance() {
-        return new ValuedProperty(null, getName(), value, false);
+        return new ValuedProperty(null, getName(), value, null, false);
     }
 
     public static List<ValuedProperty> toDomainInstances(Set<ValuedPropertyIO> valuedPropertyOutputs) {

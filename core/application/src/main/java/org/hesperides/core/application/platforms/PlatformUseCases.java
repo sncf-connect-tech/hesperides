@@ -20,18 +20,12 @@ import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPrope
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.hesperides.core.domain.platforms.queries.views.DeployedModuleView.toDomainDeployedModules;
-import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
-import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.toDomainValuedProperties;
 
 
 @Component
@@ -74,8 +68,8 @@ public class PlatformUseCases {
                 newPlatform.getVersion(),
                 newPlatform.isProductionPlatform(),
                 1L,
-                toDomainDeployedModules(existingPlatform.getDeployedModules()),
-                toDomainValuedProperties(existingPlatform.getGlobalProperties())
+                DeployedModuleView.toDomainDeployedModules(existingPlatform.getDeployedModules()),
+                ValuedPropertyView.toDomainValuedProperties(existingPlatform.getGlobalProperties())
         );
         return commands.createPlatform(newFullPlatform, user);
     }
@@ -130,7 +124,7 @@ public class PlatformUseCases {
         return queries.searchApplications(applicationName);
     }
 
-    public List<AbstractValuedPropertyView> getProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
+    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         PlatformView platform = queries.getOptionalPlatform(platformKey)
@@ -143,23 +137,21 @@ public class PlatformUseCases {
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            List<AbstractValuedPropertyView> deployedModuleProperties = queries.getDeployedModuleProperties(platformKey, propertiesPath);
+
+            properties = queries.getDeployedModuleProperties(platformKey, propertiesPath);
+
+            // On exclue les propriétés non valorisées ayant une valeur par défaut
+            properties = AbstractValuedPropertyView.getOnlyValuedProperties(properties);
+
+            // Pas besoin de récupérer la plateforme entière juste pour ce test
+            // surtout si c'est pour refaire une requête pour récupérer les propriétés
+            // => Créer une requête isProductionPlatform ou réutiliser la plateforme
+            // pour récupérer les propriétés
             if (platform.isProductionPlatform() && !user.isProd()) {
-                deployedModuleProperties = hidePasswordProperties(deployedModuleProperties);
+                properties = AbstractValuedPropertyView.hidePasswordProperties(properties);
             }
-            properties.addAll(deployedModuleProperties);
-            properties.addAll(getGlobalPropertiesUsedInModule(platform, propertiesPath, moduleKey));
         }
         return properties;
-    }
-
-    private List<ValuedPropertyView> getGlobalPropertiesUsedInModule(PlatformView platform, String propertiesPath, Module.Key moduleKey) {
-            List<AbstractPropertyView> flatModuleProperties = AbstractPropertyView.flattenProperties(moduleQueries.getProperties(moduleKey));
-            return platform.getGlobalProperties().stream().filter(globalProperty -> {
-                List<GlobalPropertyUsageView> moduleGlobalProperties = GlobalPropertyUsageView.getModuleGlobalProperties(
-                        flatModuleProperties, globalProperty.getName(), propertiesPath);
-                return !CollectionUtils.isEmpty(moduleGlobalProperties);
-            }).collect(Collectors.toList());
     }
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
@@ -207,6 +199,6 @@ public class PlatformUseCases {
             commands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
-        return getProperties(platformKey, propertiesPath, user);
+        return getValuedProperties(platformKey, propertiesPath, user);
     }
 }
