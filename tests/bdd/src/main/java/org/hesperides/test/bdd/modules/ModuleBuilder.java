@@ -20,7 +20,6 @@
  */
 package org.hesperides.test.bdd.modules;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
@@ -107,7 +106,13 @@ public class ModuleBuilder {
     }
 
     public String getPropertiesPath() {
-        return "#" + StringUtils.defaultString(logicalGroup, "GROUP") + "#" + name + "#" + version + "#" + versionType.toUpperCase();
+        String modulePath = "#GROUP";
+        if ("".equals(logicalGroup) || "#".equals(logicalGroup)) {
+            modulePath = logicalGroup;
+        } else if (logicalGroup != null) {
+            modulePath = "#" + logicalGroup;
+        }
+        return modulePath + "#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
     public String getVersionType() {

@@ -73,11 +73,11 @@ public abstract class AbstractValuedPropertyDocument {
      *
      * @see org.hesperides.core.application.files.FileUseCases#valorizeWithModuleAndGlobalAndInstanceProperties
      */
-    public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
-                                                                                             List<AbstractPropertyDocument> abstractModuleProperties) {
+    public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContentAndIsPassword(List<AbstractValuedPropertyDocument> abstractValuedProperties,
+                                                                                                          List<AbstractPropertyDocument> abstractModuleProperties) {
         return abstractValuedProperties
                 .stream()
-                .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContent(abstractModuleProperties))
+                .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContentAndIsPassword(abstractModuleProperties))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -136,5 +136,5 @@ public abstract class AbstractValuedPropertyDocument {
 
     protected abstract AbstractValuedPropertyView toView();
 
-    protected abstract List<AbstractValuedPropertyDocument> completeWithMustacheContent(List<AbstractPropertyDocument> abstractModuleProperties);
+    protected abstract List<AbstractValuedPropertyDocument> completeWithMustacheContentAndIsPassword(List<AbstractPropertyDocument> abstractModuleProperties);
 }

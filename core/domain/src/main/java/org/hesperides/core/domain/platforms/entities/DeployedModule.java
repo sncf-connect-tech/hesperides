@@ -32,8 +32,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+
 @Value
 public class DeployedModule {
+
+    public static final String DEFAULT_MODULE_PATH = "#";
 
     Long id;
     String name;
@@ -50,7 +54,7 @@ public class DeployedModule {
         this.name = name;
         this.version = version;
         this.isWorkingCopy = isWorkingCopy;
-        this.modulePath = modulePath;
+        this.modulePath = defaultIfBlank(modulePath, DEFAULT_MODULE_PATH);
         this.propertiesPath = generatePropertiesPath();
         this.valuedProperties = valuedProperties;
         this.instances = instances;

@@ -34,11 +34,13 @@ public class ValuedProperty extends AbstractValuedProperty {
 
     String mustacheContent;
     String value;
+    boolean isPassword;
 
-    public ValuedProperty(String mustacheContent, String name, String value) {
+    public ValuedProperty(String mustacheContent, String name, String value, boolean isPassword) {
         super(name);
         this.mustacheContent = mustacheContent;
         this.value = value;
+        this.isPassword = isPassword;
     }
 
     /**

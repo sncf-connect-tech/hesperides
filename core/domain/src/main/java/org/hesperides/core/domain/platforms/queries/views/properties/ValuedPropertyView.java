@@ -37,21 +37,27 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     String mustacheContent;
     String value;
+    boolean isPassword;
 
-    public ValuedPropertyView(String mustacheContent, String name, String value) {
+    public ValuedPropertyView(String mustacheContent, String name, String value, boolean isPassword) {
         super(name);
         this.mustacheContent = mustacheContent;
         this.value = value;
+        this.isPassword = isPassword;
     }
 
     @Override
     public ValuedProperty toDomainValuedProperty() {
-        return new ValuedProperty(mustacheContent, getName(), value);
+        return new ValuedProperty(mustacheContent, getName(), value, isPassword);
     }
 
     @Override
     public AbstractValuedPropertyView withPasswordsHidden() {
-        return new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE);
+        AbstractValuedPropertyView valuedProperty = this;
+        if (isPassword) {
+            valuedProperty = new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE, isPassword);
+        }
+        return valuedProperty;
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {
