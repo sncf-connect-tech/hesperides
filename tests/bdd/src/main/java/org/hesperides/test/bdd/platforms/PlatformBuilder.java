@@ -45,7 +45,7 @@ public class PlatformBuilder {
 
     private List<Property> properties;
     private List<IterableValuedPropertyIO> iterableProperties;
-    private Map<String, String> instanceProperties;
+    private Set<String> instanceProperties;
     private List<InstanceIO> instances;
     private List<ValuedPropertyIO> instancePropertyValues;
 
@@ -64,7 +64,7 @@ public class PlatformBuilder {
         versionId = 1;
         properties = new ArrayList<>();
         iterableProperties = new ArrayList<>();
-        instanceProperties = new HashMap<>();
+        instanceProperties = new HashSet<>();
         instances = new ArrayList<>();
         instancePropertyValues = new ArrayList<>();
         return this;
@@ -188,22 +188,13 @@ public class PlatformBuilder {
         properties.add(new Property(name, value, false, false, false));
     }
 
-    public void withInstanceProperty(String propertyName, String instancePropertyName) {
-        withProperty(propertyName, "{{" + instancePropertyName + "}}");
-        instanceProperties.put(propertyName, instancePropertyName);
-    }
-
-    public void withModuleVersion(String newVersion, boolean updatePropertiesPath) {
-        if (deployedModules.size() != 1) {
-            throw new RuntimeException("This method can only be used on a PlatformBuilder containing a single module");
-        }
-        DeployedModuleIO module = deployedModules.get(0);
-        DeployedModuleIO newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances());
-        if (updatePropertiesPath) {
-            String propertiesPath = newModule.toDomainInstance().generatePropertiesPath();
-            newModule = new DeployedModuleIO(module.getId(), module.getName(), newVersion, module.getIsWorkingCopy(), module.getModulePath(), propertiesPath, module.getInstances());
-        }
-        deployedModules = Collections.singletonList(newModule);
+    public void withInstanceProperty(String propertyName, String... instancePropertyNames) {
+        StringBuilder propertyValue = new StringBuilder();
+        Arrays.stream(instancePropertyNames).forEach(instancePropertyName -> {
+            instanceProperties.add(instancePropertyName);
+            propertyValue.append("{{" + instancePropertyName + "}}");
+        });
+        withProperty(propertyName, propertyValue.toString());
     }
 
     public void incrementVersionId() {
@@ -259,11 +250,10 @@ public class PlatformBuilder {
 
     public InstancesModelOutput buildInstancesModel() {
         return new InstancesModelOutput(
-                instanceProperties.entrySet()
-                        .stream()
-                        .map(entry -> new InstancesModelOutput.InstancePropertyOutput(
-                                entry.getValue(), "", false, null, null, false))
-                        .collect(Collectors.toList()));
+                instanceProperties.stream()
+                        .map(propertyName -> new InstancesModelOutput.InstancePropertyOutput(
+                                propertyName, "", false, null, null, false))
+                        .collect(Collectors.toSet()));
     }
 
     public void addPlatform(PlatformIO platform) {

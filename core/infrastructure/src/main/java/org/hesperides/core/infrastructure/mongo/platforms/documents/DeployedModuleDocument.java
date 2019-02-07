@@ -25,6 +25,8 @@ import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
+import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
@@ -103,9 +105,10 @@ public class DeployedModuleDocument {
                 .collect(Collectors.toList());
     }
 
-    public DeployedModuleDocument buildInstancesModel(List<ValuedPropertyDocument> globalPropertyDocuments) {
+    public DeployedModuleDocument buildInstancesModel(List<ValuedPropertyDocument> globalPropertyDocuments, List<AbstractPropertyDocument> modulePropertyDocuments) {
         List<ValuedProperty> globalProperties = ValuedPropertyDocument.toDomainInstances(globalPropertyDocuments);
-        DeployedModule deployedModuleWithInstanceProperties = this.toDomainInstance().buildInstancesModel(globalProperties);
+        List<AbstractProperty> moduleProperties = AbstractPropertyDocument.toDomainInstances(modulePropertyDocuments);
+        DeployedModule deployedModuleWithInstanceProperties = this.toDomainInstance().buildInstancesModel(globalProperties, moduleProperties);
         return new DeployedModuleDocument(deployedModuleWithInstanceProperties);
     }
 }

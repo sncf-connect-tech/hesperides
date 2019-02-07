@@ -15,10 +15,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -72,7 +70,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository, getModulesProperties(platformDocument.getDeployedModules()));
+    }
+
+    /**
+     * Récupère la liste des propriétés applatie de chaque module déployé
+     */
+    private Map<KeyDocument, List<AbstractPropertyDocument>> getModulesProperties(List<DeployedModuleDocument> deployedModules) {
+        List<KeyDocument> moduleKeys = deployedModules.stream()
+                .map(DeployedModuleDocument::getPropertiesPath)
+                .map(Module.Key::fromPropertiesPath)
+                .map(KeyDocument::new)
+                .collect(Collectors.toList());
+
+        return mongoModuleRepository.findPropertiesByKeyIn(moduleKeys)
+                .stream()
+                .collect(Collectors.toMap(ModuleDocument::getKey, ModuleDocument::flattenProperties));
     }
 
     @EventHandler
@@ -107,7 +120,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         } else {
             platformDocument.setVersionId(newPlatformDocument.getVersionId());
         }
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository, getModulesProperties(platformDocument.getDeployedModules()));
     }
 
     @EventHandler
@@ -154,7 +167,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             valuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(abstractValuedProperties, moduleProperties));
             deployedModuleDocument.setValuedProperties(valuedProperties);
         });
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository, getModulesProperties(platformDocument.getDeployedModules()));
     }
 
     @EventHandler
@@ -190,7 +203,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
         platformDocument.setGlobalProperties(valuedProperties);
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(platformRepository, getModulesProperties(platformDocument.getDeployedModules()));
     }
 
     /*** QUERY HANDLERS ***/

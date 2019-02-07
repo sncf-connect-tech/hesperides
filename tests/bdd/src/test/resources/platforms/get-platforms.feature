@@ -36,7 +36,7 @@ Feature: Get platforms
     When I get the platform detail
     Then the platform detail is successfully retrieved
 
-  #issue_478
+  #issue-478
   Scenario: get the detail of an existing platform with a point in its name
     Given an existing platform named "TEST_1.0"
     When I get the platform detail

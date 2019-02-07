@@ -28,6 +28,7 @@ import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyVie
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -42,7 +43,21 @@ public class IterablePropertyDocument extends AbstractPropertyDocument {
         this.properties = AbstractPropertyDocument.fromDomainInstances(iterableProperty.getProperties());
     }
 
+    @Override
+    public IterableProperty toDomainInstance() {
+        return new IterableProperty(name, AbstractPropertyDocument.toDomainInstances(properties));
+    }
+
+    @Override
     public IterablePropertyView toView() {
         return new IterablePropertyView(getName(), AbstractPropertyDocument.toViews(properties));
+    }
+
+    @Override
+    public List<AbstractPropertyDocument> flattenProperties() {
+        return properties.stream()
+                .map(AbstractPropertyDocument::flattenProperties)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

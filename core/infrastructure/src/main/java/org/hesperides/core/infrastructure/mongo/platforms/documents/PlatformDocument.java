@@ -22,15 +22,19 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -110,12 +114,14 @@ public class PlatformDocument {
         );
     }
 
-    public void buildInstancesModelAndSave(MongoPlatformRepository platformRepository) {
+    public void buildInstancesModelAndSave(MongoPlatformRepository platformRepository, Map<KeyDocument, List<AbstractPropertyDocument>> modulesProperties) {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(deployedModule -> deployedModule.buildInstancesModel(globalProperties))
-                .collect(Collectors.toList());
+                .map(deployedModule -> {
+                    Module.Key moduleKey = Module.Key.fromPropertiesPath(deployedModule.getPropertiesPath());
+                    return deployedModule.buildInstancesModel(globalProperties, modulesProperties.get(new KeyDocument(moduleKey)));
+                }).collect(Collectors.toList());
         platformRepository.save(this);
     }
 

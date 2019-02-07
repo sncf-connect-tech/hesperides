@@ -28,6 +28,7 @@ import lombok.Value;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -36,14 +37,14 @@ public class InstancesModelOutput {
 
     @SerializedName("keys")
     @JsonProperty("keys")
-    List<InstancePropertyOutput> instanceProperties;
+    Set<InstancePropertyOutput> instanceProperties;
 
     public static InstancesModelOutput fromInstancesModelView(List<String> instancesModelView) {
         return new InstancesModelOutput(Optional.ofNullable(instancesModelView)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(InstancePropertyOutput::new)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet()));
     }
 
     @Value

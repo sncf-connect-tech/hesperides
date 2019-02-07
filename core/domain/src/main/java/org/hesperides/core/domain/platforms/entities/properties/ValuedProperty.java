@@ -23,10 +23,14 @@ package org.hesperides.core.domain.platforms.entities.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -45,23 +49,25 @@ public class ValuedProperty extends AbstractValuedProperty {
         this.isPassword = isPassword;
     }
 
-    /**
-     * True si la valeur est entre moustaches et si cette valeur entre moustaches
-     * ne correspond pas au nom d'une propriété globale
-     */
-    public boolean valueIsInstanceProperty(List<ValuedProperty> platformGlobalProperties) {
-        String valueBetweenMustaches = extractValueBetweenMustaches(value);
-        return StringUtils.isNotEmpty(valueBetweenMustaches) && !Optional.ofNullable(platformGlobalProperties)
+    public static boolean instancePropertyNameIsNotInGlobalProperties(String instancePropertyName, List<ValuedProperty> globalProperties) {
+        return Optional.ofNullable(globalProperties)
                 .orElse(Collections.emptyList())
                 .stream()
-                .anyMatch(globalProperty -> globalProperty.getName().equals(valueBetweenMustaches));
+                .noneMatch(globalProperty -> globalProperty.getName().equals(instancePropertyName));
     }
 
-    private String extractValueBetweenMustaches(String value) {
-        return StringUtils.substringBetween(value, "{{", "}}");
+    public List<String> extractInstanceProperties() {
+        return Optional.ofNullable(StringUtils.substringsBetween(this.value, "{{", "}}"))
+                .map(Arrays::stream)
+                .orElse(Stream.empty())
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
-    public String extractInstancePropertyNameFromValue() {
-        return extractValueBetweenMustaches(value);
+    public boolean valuedPropertyNameIsInModuleModel(List<AbstractProperty> moduleProperties) {
+        return Optional.ofNullable(moduleProperties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .anyMatch(moduleProperty -> moduleProperty.getName().equals(getName()));
     }
 }

@@ -24,6 +24,7 @@ import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class DeployedModule {
                 .orElse(0L);
     }
 
-    public DeployedModule buildInstancesModel(List<ValuedProperty> globalProperties) {
+    public DeployedModule buildInstancesModel(List<ValuedProperty> globalProperties, List<AbstractProperty> moduleProperties) {
         return new DeployedModule(
                 id,
                 name,
@@ -124,14 +125,22 @@ public class DeployedModule {
                 modulePath,
                 valuedProperties,
                 instances,
-                extractInstancesModel(valuedProperties, globalProperties));
+                extractInstancesModel(globalProperties, moduleProperties));
     }
 
-    private static List<String> extractInstancesModel(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
-        return AbstractValuedProperty.flattenValuedProperties(moduleProperties)
+    /**
+     * Une propriété d'instance fait partie du model d'instance
+     * si elle ne correspond pas au nom d'une propriété globale
+     * et si la propriété de module duquel elle est extraite
+     * fait partie du model de ce module. (^^)
+     */
+    private List<String> extractInstancesModel(List<ValuedProperty> globalProperties, List<AbstractProperty> moduleProperties) {
+        return AbstractValuedProperty.flattenValuedProperties(valuedProperties)
                 .stream()
-                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(globalProperties))
-                .map(valuedProperty -> valuedProperty.extractInstancePropertyNameFromValue())
+                .filter(valuedProperty -> valuedProperty.valuedPropertyNameIsInModuleModel(moduleProperties))
+                .map(ValuedProperty::extractInstanceProperties)
+                .flatMap(List::stream)
+                .filter(instancePropertyName -> ValuedProperty.instancePropertyNameIsNotInGlobalProperties(instancePropertyName, globalProperties))
                 .collect(Collectors.toList());
     }
 

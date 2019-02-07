@@ -23,24 +23,8 @@ package org.hesperides.core.domain.templatecontainers.queries;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 @Value
 @NonFinal
 public abstract class AbstractPropertyView {
-
     String name;
-
-    /**
-     * Extrait la liste complète des propriétés mises à plat
-     */
-    public static List<AbstractPropertyView> flattenProperties(final List<AbstractPropertyView> properties) {
-        return properties.stream()
-                .flatMap(propertyView -> propertyView instanceof PropertyView
-                        ? Stream.of(propertyView)
-                        : flattenProperties(((IterablePropertyView) propertyView).getProperties()).stream())
-                .collect(Collectors.toList());
-    }
 }
