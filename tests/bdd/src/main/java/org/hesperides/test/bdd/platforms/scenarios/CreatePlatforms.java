@@ -46,9 +46,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Every.everyItem;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
@@ -233,6 +231,42 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 moduleBuilder.setLogicalGroup(withThisModule.contains("empty path") ? "" : null);
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             }
+        });
+
+        Given("^the platform has instance properties with the same name as a global property$", () -> {
+            platformBuilder.withProperty("module-foo", "{{ global-property }}");
+            platformBuilder.withInstanceProperty("module-bar", "instance-property");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+            platformBuilder.withGlobalProperty("global-property", "12", modelBuilder);
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has instance properties with the same name as another module property$", () -> {
+            platformBuilder.withProperty("module-foo", "{{ module-bar }}");
+            platformBuilder.withProperty("module-bar", "12");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has instance properties with the same name as the module property that it's declared in$", () -> {
+            platformBuilder.withInstanceProperty("module-foobar", "module-foobar");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has multiple instance properties declared in the same property value$", () -> {
+            platformBuilder.withInstanceProperty("module-bar", "instance-property", "another-instance-property");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has an instance property declared twice$", () -> {
+            platformBuilder.withInstanceProperty("module-foo", "instance-property");
+            platformBuilder.withInstanceProperty("module-bar", "instance-property");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has these valued properties$", (DataTable data) -> {

@@ -24,9 +24,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -45,23 +48,36 @@ public class ValuedProperty extends AbstractValuedProperty {
         this.isPassword = isPassword;
     }
 
+    public List<String> extractInstanceProperties(List<ValuedProperty> globalProperties, List<ValuedProperty> modulesProperties) {
+        return extractValuesBetweenCurlyBrackets()
+                .stream()
+                .filter(valueBetweenCurlyBrackets -> isInstanceProperty(getName(), valueBetweenCurlyBrackets, globalProperties, modulesProperties))
+                .collect(Collectors.toList());
+    }
+
+    private List<String> extractValuesBetweenCurlyBrackets() {
+        return Optional.ofNullable(StringUtils.substringsBetween(value, "{{", "}}"))
+                .map(Arrays::stream)
+                .orElse(Stream.empty())
+                .map(String::trim)
+                .collect(Collectors.toList());
+    }
+
     /**
-     * True si la valeur est entre moustaches et si cette valeur entre moustaches
-     * ne correspond pas au nom d'une propriété globale
+     * Une propriété déclarée dans une valorisation de propriété de module est considérée
+     * comme propriété d'instance si elle n'est pas dans la liste des propriétés globales
+     * de la plateforme ni dans celle des propriétés du module, sauf si c'est elle-même.
      */
-    public boolean valueIsInstanceProperty(List<ValuedProperty> platformGlobalProperties) {
-        String valueBetweenMustaches = extractValueBetweenMustaches(value);
-        return StringUtils.isNotEmpty(valueBetweenMustaches) && !Optional.ofNullable(platformGlobalProperties)
+    private static boolean isInstanceProperty(String currentPropertyName, String valueBetweenCurlyBrackets, List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {
+        return currentPropertyName.equals(valueBetweenCurlyBrackets) ||
+                (propertyIsNotInProperties(valueBetweenCurlyBrackets, globalProperties) &&
+                        propertyIsNotInProperties(valueBetweenCurlyBrackets, moduleProperties));
+    }
+
+    private static boolean propertyIsNotInProperties(String propertyName, List<ValuedProperty> properties) {
+        return Optional.ofNullable(properties)
                 .orElse(Collections.emptyList())
                 .stream()
-                .anyMatch(globalProperty -> globalProperty.getName().equals(valueBetweenMustaches));
-    }
-
-    private String extractValueBetweenMustaches(String value) {
-        return StringUtils.substringBetween(value, "{{", "}}");
-    }
-
-    public String extractInstancePropertyNameFromValue() {
-        return extractValueBetweenMustaches(value);
+                .noneMatch(property -> property.getName().equals(propertyName));
     }
 }

@@ -27,6 +27,7 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,6 +52,7 @@ public class ModulePlatformsOutput {
         return Optional.ofNullable(modulePlatformViews)
                 .orElse(Collections.emptyList())
                 .stream()
+                .sorted(Comparator.comparing(ModulePlatformView::getPlatformName))
                 .map(ModulePlatformsOutput::new)
                 .collect(Collectors.toList());
     }

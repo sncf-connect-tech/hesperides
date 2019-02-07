@@ -124,14 +124,15 @@ public class DeployedModule {
                 modulePath,
                 valuedProperties,
                 instances,
-                extractInstancesModel(valuedProperties, globalProperties));
+                extractInstancesModel(globalProperties));
     }
 
-    private static List<String> extractInstancesModel(List<AbstractValuedProperty> moduleProperties, List<ValuedProperty> globalProperties) {
-        return AbstractValuedProperty.flattenValuedProperties(moduleProperties)
+    private List<String> extractInstancesModel(List<ValuedProperty> globalProperties) {
+        List<ValuedProperty> flatValuedProperties = AbstractValuedProperty.flattenValuedProperties(this.valuedProperties);
+        return flatValuedProperties
                 .stream()
-                .filter(valuedProperty -> valuedProperty.valueIsInstanceProperty(globalProperties))
-                .map(valuedProperty -> valuedProperty.extractInstancePropertyNameFromValue())
+                .map(valuedProperty -> valuedProperty.extractInstanceProperties(globalProperties, flatValuedProperties))
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 

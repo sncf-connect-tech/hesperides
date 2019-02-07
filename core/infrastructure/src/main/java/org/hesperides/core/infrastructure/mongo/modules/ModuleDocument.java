@@ -138,11 +138,17 @@ public class ModuleDocument {
     public ModuleSimplePropertiesView toModuleSimplePropertiesView() {
         return new ModuleSimplePropertiesView(
                 getDomainKey(),
-                properties
-                        .stream()
+                properties.stream()
                         .filter(PropertyDocument.class::isInstance)
                         .map(PropertyDocument.class::cast)
                         .map(PropertyDocument::toView)
                         .collect(Collectors.toList()));
+    }
+
+    public List<AbstractPropertyDocument> flattenProperties() {
+        return properties.stream()
+                .map(AbstractPropertyDocument::flattenProperties)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }

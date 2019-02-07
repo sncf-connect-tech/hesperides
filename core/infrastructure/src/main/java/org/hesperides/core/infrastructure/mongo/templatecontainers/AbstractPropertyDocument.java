@@ -56,5 +56,17 @@ public abstract class AbstractPropertyDocument {
                 .collect(Collectors.toList());
     }
 
+    public static List<AbstractProperty> toDomainInstances(List<AbstractPropertyDocument> properties) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractPropertyDocument::toDomainInstance)
+                .collect(Collectors.toList());
+    }
+
+    public abstract AbstractProperty toDomainInstance();
+
     public abstract AbstractPropertyView toView();
+
+    public abstract List<AbstractPropertyDocument> flattenProperties();
 }
