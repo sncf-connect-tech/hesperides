@@ -192,7 +192,7 @@ public class PlatformBuilder {
         StringBuilder propertyValue = new StringBuilder();
         Arrays.stream(instancePropertyNames).forEach(instancePropertyName -> {
             instanceProperties.add(instancePropertyName);
-            propertyValue.append("{{" + instancePropertyName + "}}");
+            propertyValue.append("{{ " + instancePropertyName + " }}");
         });
         withProperty(propertyName, propertyValue.toString());
     }

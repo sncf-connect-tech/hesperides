@@ -127,18 +127,12 @@ public class DeployedModule {
                 extractInstancesModel(globalProperties));
     }
 
-    /**
-     * Une propriété déclarée dans une valorisation de propriété de module est considérée
-     * comme propriété d'instance si elle n'est pas dans la liste des propriétés globales
-     * de la plateforme ni dans celle des propriétés du module.
-     */
     private List<String> extractInstancesModel(List<ValuedProperty> globalProperties) {
         List<ValuedProperty> flatValuedProperties = AbstractValuedProperty.flattenValuedProperties(this.valuedProperties);
         return flatValuedProperties
                 .stream()
-                .map(ValuedProperty::extractValuesBetweenCurlyBrackets)
+                .map(valuedProperty -> valuedProperty.extractInstanceProperties(globalProperties, flatValuedProperties))
                 .flatMap(List::stream)
-                .filter(instancePropertyName -> ValuedProperty.isInstanceProperty(instancePropertyName, globalProperties, flatValuedProperties))
                 .collect(Collectors.toList());
     }
 

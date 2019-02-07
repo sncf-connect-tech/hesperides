@@ -48,7 +48,14 @@ public class ValuedProperty extends AbstractValuedProperty {
         this.isPassword = isPassword;
     }
 
-    public List<String> extractValuesBetweenCurlyBrackets() {
+    public List<String> extractInstanceProperties(List<ValuedProperty> globalProperties, List<ValuedProperty> modulesProperties) {
+        return extractValuesBetweenCurlyBrackets()
+                .stream()
+                .filter(valueBetweenCurlyBrackets -> isInstanceProperty(getName(), valueBetweenCurlyBrackets, globalProperties, modulesProperties))
+                .collect(Collectors.toList());
+    }
+
+    private List<String> extractValuesBetweenCurlyBrackets() {
         return Optional.ofNullable(StringUtils.substringsBetween(value, "{{", "}}"))
                 .map(Arrays::stream)
                 .orElse(Stream.empty())
@@ -56,8 +63,15 @@ public class ValuedProperty extends AbstractValuedProperty {
                 .collect(Collectors.toList());
     }
 
-    public static boolean isInstanceProperty(String propertyName, List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {
-        return propertyIsNotInProperties(propertyName, globalProperties) && propertyIsNotInProperties(propertyName, moduleProperties);
+    /**
+     * Une propriété déclarée dans une valorisation de propriété de module est considérée
+     * comme propriété d'instance si elle n'est pas dans la liste des propriétés globales
+     * de la plateforme ni dans celle des propriétés du module, sauf si c'est elle-même.
+     */
+    private static boolean isInstanceProperty(String currentPropertyName, String valueBetweenCurlyBrackets, List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {
+        return currentPropertyName.equals(valueBetweenCurlyBrackets) ||
+                (propertyIsNotInProperties(valueBetweenCurlyBrackets, globalProperties) &&
+                        propertyIsNotInProperties(valueBetweenCurlyBrackets, moduleProperties));
     }
 
     private static boolean propertyIsNotInProperties(String propertyName, List<ValuedProperty> properties) {

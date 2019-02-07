@@ -243,9 +243,15 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
-        Given("^the platform has instance properties with the same name as a module property$", () -> {
+        Given("^the platform has instance properties with the same name as another module property$", () -> {
             platformBuilder.withProperty("module-foo", "{{ module-bar }}");
             platformBuilder.withProperty("module-bar", "12");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has instance properties with the same name as the module property that it's declared in$", () -> {
+            platformBuilder.withInstanceProperty("module-foobar", "module-foobar");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
