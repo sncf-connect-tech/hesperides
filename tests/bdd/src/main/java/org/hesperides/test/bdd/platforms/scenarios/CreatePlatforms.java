@@ -233,13 +233,20 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
         });
 
-        Given("^the platform has instance properties with the same name as global properties$", () -> {
+        Given("^the platform has instance properties with the same name as a global property$", () -> {
             platformBuilder.withProperty("module-foo", "{{ global-property }}");
             platformBuilder.withInstanceProperty("module-bar", "instance-property");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
             platformBuilder.withGlobalProperty("global-property", "12", modelBuilder);
             platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
+            platformBuilder.incrementVersionId();
+        });
+
+        Given("^the platform has instance properties with the same name as a module property$", () -> {
+            platformBuilder.withProperty("module-foo", "{{ module-bar }}");
+            platformBuilder.withProperty("module-bar", "12");
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 

@@ -23,7 +23,6 @@ package org.hesperides.core.domain.platforms.entities.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,25 +48,22 @@ public class ValuedProperty extends AbstractValuedProperty {
         this.isPassword = isPassword;
     }
 
-    public static boolean instancePropertyNameIsNotInGlobalProperties(String instancePropertyName, List<ValuedProperty> globalProperties) {
-        return Optional.ofNullable(globalProperties)
-                .orElse(Collections.emptyList())
-                .stream()
-                .noneMatch(globalProperty -> globalProperty.getName().equals(instancePropertyName));
-    }
-
-    public List<String> extractInstanceProperties() {
-        return Optional.ofNullable(StringUtils.substringsBetween(this.value, "{{", "}}"))
+    public List<String> extractValuesBetweenCurlyBrackets() {
+        return Optional.ofNullable(StringUtils.substringsBetween(value, "{{", "}}"))
                 .map(Arrays::stream)
                 .orElse(Stream.empty())
                 .map(String::trim)
                 .collect(Collectors.toList());
     }
 
-    public boolean valuedPropertyNameIsInModuleModel(List<AbstractProperty> moduleProperties) {
-        return Optional.ofNullable(moduleProperties)
+    public static boolean isInstanceProperty(String propertyName, List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {
+        return propertyIsNotInProperties(propertyName, globalProperties) && propertyIsNotInProperties(propertyName, moduleProperties);
+    }
+
+    private static boolean propertyIsNotInProperties(String propertyName, List<ValuedProperty> properties) {
+        return Optional.ofNullable(properties)
                 .orElse(Collections.emptyList())
                 .stream()
-                .anyMatch(moduleProperty -> moduleProperty.getName().equals(getName()));
+                .noneMatch(property -> property.getName().equals(propertyName));
     }
 }

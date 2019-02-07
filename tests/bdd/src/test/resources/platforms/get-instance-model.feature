@@ -12,7 +12,15 @@ Feature: Get instance model
   Scenario: get instance properties with an instance property name that is the same as a global property name
     Given an existing module with properties
     And an existing platform with this module and an instance
-    And the platform has instance properties with the same name as global properties
+    And the platform has instance properties with the same name as a global property
+    When I get the instance model
+    Then the instance model is successfully retrieved
+
+  #issue-489
+  Scenario: get instance properties with an instance property name that is the same as a module property name
+    Given an existing module with properties
+    And an existing platform with this module and an instance
+    And the platform has instance properties with the same name as a module property
     When I get the instance model
     Then the instance model is successfully retrieved
 
