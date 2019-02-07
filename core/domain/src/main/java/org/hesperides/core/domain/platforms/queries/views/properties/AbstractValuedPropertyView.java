@@ -35,6 +35,17 @@ public abstract class AbstractValuedPropertyView {
 
     String name;
 
+    protected abstract List<ValuedPropertyView> flattenProperties();
+
+    public static List<ValuedPropertyView> getFlatProperties(List<AbstractValuedPropertyView> properties) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractValuedPropertyView::flattenProperties)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
     public abstract <T extends AbstractValuedProperty> T toDomainValuedProperty();
 
     public abstract AbstractValuedPropertyView withPasswordsHidden();

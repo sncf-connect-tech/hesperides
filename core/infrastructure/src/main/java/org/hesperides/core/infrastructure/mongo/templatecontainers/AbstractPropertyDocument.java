@@ -67,6 +67,4 @@ public abstract class AbstractPropertyDocument {
     public abstract AbstractProperty toDomainInstance();
 
     public abstract AbstractPropertyView toView();
-
-    public abstract List<AbstractPropertyDocument> flattenProperties();
 }

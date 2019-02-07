@@ -144,11 +144,4 @@ public class ModuleDocument {
                         .map(PropertyDocument::toView)
                         .collect(Collectors.toList()));
     }
-
-    public List<AbstractPropertyDocument> flattenProperties() {
-        return properties.stream()
-                .map(AbstractPropertyDocument::flattenProperties)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-    }
 }
