@@ -25,6 +25,7 @@ import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,11 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     @Override
     public ValuedProperty toDomainValuedProperty() {
         return new ValuedProperty(mustacheContent, getName(), value, defaultValue, isPassword);
+    }
+
+    @Override
+    protected List<ValuedPropertyView> flattenProperties() {
+        return Arrays.asList(this);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
+import org.hesperides.commons.ValueUtils;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -41,25 +42,14 @@ public class GlobalPropertyUsageView {
                 globalPropertyUsages.add(new GlobalPropertyUsageView(false, propertiesPath));
 
             } else {
-                Optional<String> valuedProperty = getValuedPropertyUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
-                if (valuedProperty.isPresent()) {
-                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedProperty.get(), moduleSimpleProperties);
+                Optional<String> valuedPropertyName = getValuedPropertyNameUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
+                if (valuedPropertyName.isPresent()) {
+                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName.get(), moduleSimpleProperties);
                     globalPropertyUsages.add(new GlobalPropertyUsageView(isRemovedFromTemplate, propertiesPath));
                 }
             }
         });
         return globalPropertyUsages;
-    }
-
-    private static Optional<String> getValuedPropertyUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
-        return valuedProperties
-                .stream()
-                .filter(ValuedPropertyView.class::isInstance)
-                .map(ValuedPropertyView.class::cast)
-                .filter(simpleProperty -> simpleProperty.getName().equals(globalPropertyName) ||
-                        simpleProperty.getValue().toLowerCase().contains("{{" + globalPropertyName.toLowerCase() + "}}"))
-                .findFirst()
-                .map(ValuedPropertyView::getName);
     }
 
     private static List<PropertyView> getModuleSimpleProperties(List<ModuleSimplePropertiesView> modulesSimpleProperties, TemplateContainer.Key moduleKey) {
@@ -74,5 +64,19 @@ public class GlobalPropertyUsageView {
     private static boolean propertyNameIsInProperties(String propertyName, List<PropertyView> moduleProperties) {
         return moduleProperties.stream()
                 .anyMatch(propertyView -> propertyView.getName().equals(propertyName));
+    }
+
+    private static Optional<String> getValuedPropertyNameUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
+        List<ValuedPropertyView> flatProperties = AbstractValuedPropertyView.getFlatProperties(valuedProperties);
+        return flatProperties
+                .stream()
+                .filter(valuedProperty -> globalPropertyIsUsedInValuedProperty(valuedProperty, globalPropertyName))
+                .findFirst()
+                .map(ValuedPropertyView::getName);
+    }
+
+    private static boolean globalPropertyIsUsedInValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
+        List<String> valuesBetweenCurlyBrackets = ValueUtils.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
+        return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
     }
 }

@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +40,18 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     public IterableValuedPropertyView(String name, List<IterablePropertyItemView> iterablePropertyItems) {
         super(name);
         this.iterablePropertyItems = iterablePropertyItems;
+    }
+
+    @Override
+    protected List<ValuedPropertyView> flattenProperties() {
+        return Optional.ofNullable(iterablePropertyItems)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemView::getAbstractValuedPropertyViews)
+                .flatMap(List::stream)
+                .map(AbstractValuedPropertyView::flattenProperties)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
