@@ -22,12 +22,14 @@ package org.hesperides.core.domain.platforms.entities.properties;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.hesperides.commons.ValueUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -47,9 +49,18 @@ public class ValuedProperty extends AbstractValuedProperty {
     }
 
     public List<String> extractInstanceProperties(List<ValuedProperty> globalProperties, List<ValuedProperty> modulesProperties) {
-        return ValueUtils.extractValuesBetweenCurlyBrackets(value)
+        return extractValuesBetweenCurlyBrackets(value)
                 .stream()
                 .filter(valueBetweenCurlyBrackets -> isInstanceProperty(getName(), valueBetweenCurlyBrackets, globalProperties, modulesProperties))
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> extractValuesBetweenCurlyBrackets(String value) {
+        return Optional.ofNullable(value)
+                .map(notNullValue -> StringUtils.substringsBetween(notNullValue, "{{", "}}"))
+                .map(Arrays::stream)
+                .orElse(Stream.empty())
+                .map(String::trim)
                 .collect(Collectors.toList());
     }
 

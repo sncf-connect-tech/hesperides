@@ -157,7 +157,7 @@ public class FileUseCases {
      * et au niveau du module (valorisation classique).
      * <p>
      * 2. La valorisation d'une propriété au niveau du module peut faire référence
-     * à une propriété globale ou d'instance.
+     * à une propriété globale, du module ou d'instance.
      * <p>
      * 3. La valorisation d'une propriété d'instance peut faire référence
      * à une propriété globale.
@@ -181,7 +181,7 @@ public class FileUseCases {
         Map<String, String> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
 
         input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleProperties, globalProperties)); // 1.*
-        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(instanceProperties, globalProperties));// 2.*
+        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleProperties, instanceProperties, globalProperties)); // 2.*
         return replaceMustachePropertiesWithValues(input, predefinedProperties, globalProperties); // 3.*
     }
 
@@ -266,10 +266,9 @@ public class FileUseCases {
                 .orElse(Collections.emptyList());
     }
 
-    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> properties,
-                                                           List<ValuedPropertyView> otherProperties) {
-        return Stream
-                .concat(properties.stream(), otherProperties.stream())
+    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView>... properties) {
+        return Arrays.stream(properties)
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 

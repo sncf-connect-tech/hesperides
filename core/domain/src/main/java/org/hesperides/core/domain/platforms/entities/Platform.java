@@ -132,17 +132,17 @@ public class Platform {
                 }).collect(Collectors.toList());
     }
 
+    /**
+     * Un module est considéré comme mis à jour si son properties_path est modifié.
+     * C'est-à-dire si l'un des éléments suivants est modifié :
+     * - Le groupe logique
+     * - Le nom du module
+     * - Sa version
+     * - Son type (workingcopy/release)
+     */
     private static boolean isModuleUpdated(DeployedModule existingModule, DeployedModule providedModule) {
         // Le seul moyen de savoir si c'est un module existant est de comparer son identifiant
         return providedModule.getId().equals(existingModule.getId()) &&
-                // On considère que le module est mis à jour si au moins l'un des éléments suivants est modifié :
-                // - Le groupe logique
-                // - Le nom du module
-                // - Sa version
-                // - Son type (workingcopy/release)
-                (!providedModule.getModulePath().equals(existingModule.getModulePath())
-                        || !providedModule.getName().equals(existingModule.getName())
-                        || !providedModule.getVersion().equals(existingModule.getVersion())
-                        || providedModule.isWorkingCopy() != existingModule.isWorkingCopy());
+                !providedModule.getPropertiesPath().equals(existingModule.getPropertiesPath());
     }
 }
