@@ -3,7 +3,9 @@ package org.hesperides.core.domain.templatecontainers.entities;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +42,7 @@ public abstract class TemplateContainer {
         protected abstract String getUriPrefix();
 
         public URI getURI() {
-            return URI.create("/rest" + getUriPrefix() + "/" + name + "/" + version + "/" + versionType.name().toLowerCase());
+            return URI.create("/rest" + getUriPrefix() + "/" + urlEncodeUtf8(name) + "/" + urlEncodeUtf8(version) + "/" + versionType.name().toLowerCase());
         }
 
         protected abstract String getNamespacePrefix();
@@ -85,5 +87,13 @@ public abstract class TemplateContainer {
 
     public static VersionType getVersionType(boolean isWorkingCopy) {
         return isWorkingCopy ? VersionType.workingcopy : VersionType.release;
+    }
+
+    public static String urlEncodeUtf8(String input) {
+        try {
+            return URLEncoder.encode(input, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

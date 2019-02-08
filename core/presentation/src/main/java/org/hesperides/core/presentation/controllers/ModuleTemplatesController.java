@@ -19,6 +19,8 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +84,11 @@ public class ModuleTemplatesController extends AbstractController {
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         AntPathMatcher apm = new AntPathMatcher();
         path = apm.extractPathWithinPattern(bestMatchPattern, path);
-        return path;
+        try {
+            return URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @PostMapping("/workingcopy/templates")

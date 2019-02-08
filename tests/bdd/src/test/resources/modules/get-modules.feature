@@ -21,6 +21,12 @@ Feature: Get modules detail
     When I get the module detail with the wrong letter case
     Then the module detail is successfully retrieved
 
+  @integ-test-only
+  Scenario: get the detail of a module whose name contains a slash and a percent sign
+    Given an existing module named "toto/tata%titi"
+    When I get the module detail
+    Then the module detail is successfully retrieved
+
   Scenario: get the detail of the working copy of a module that doesn't exist
     Given a module that doesn't exist
     When I try to get the module detail
