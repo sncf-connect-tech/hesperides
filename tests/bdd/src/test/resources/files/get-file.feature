@@ -29,7 +29,7 @@ Feature: Get file
       """
     And an existing platform with this module
     And the platform has these valued properties
-      | name               | value       |
+      | name                      | value             |
       | default-overwritten-value | overwritten-value |
     When I get the module template file
     Then the file is successfully retrieved and contains
@@ -261,4 +261,21 @@ Feature: Get file
       """
       a-value
       A-VALUE
+      """
+
+  #issue-496
+  Scenario: get file with property valorized with another valued property
+    Given an existing module with this template content
+      """
+      {{ property-a }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value            |
+      | property-a | {{ property-b }} |
+      | property-b | a-value          |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      a-value
       """

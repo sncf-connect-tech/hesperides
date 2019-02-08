@@ -1,8 +1,8 @@
 package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
-import org.hesperides.commons.ValueUtils;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -20,15 +20,15 @@ public class GlobalPropertyUsageView {
      * Il existe 2 façons d'utiliser une propriété globale :
      * - En tant que propriété dans un template
      * - En tant que valeur de propriété d'un module déployé
-     *
+     * <p>
      * Le critère isRemovedFromTemplate est déterminé comme ceci :
-     *
+     * <p>
      * Si la propriété globale existe dans les propriétés du module
      * ou est utilisée en tant que valeur d'une propriété
      * au niveau du module, et que cette propriété initialement déclarée dans le
      * template ne fait plus partie de la liste des propriétés simples (par opposition
      * aux propriétés itérables) du model, isRemovedFromTemplate = true.
-     *
+     * <p>
      * Dans tous les autres cas, isRemovedFromTemplate = false;
      */
     public static Set<GlobalPropertyUsageView> getGlobalPropertyUsage(String globalPropertyName, List<DeployedModuleView> deployedModules, List<ModuleSimplePropertiesView> modulesSimpleProperties) {
@@ -76,7 +76,7 @@ public class GlobalPropertyUsageView {
     }
 
     private static boolean globalPropertyIsUsedInValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
-        List<String> valuesBetweenCurlyBrackets = ValueUtils.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
+        List<String> valuesBetweenCurlyBrackets = ValuedProperty.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
         return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
     }
 }
