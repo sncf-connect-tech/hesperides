@@ -81,4 +81,9 @@ public class ValuedProperty extends AbstractValuedProperty {
                 .stream()
                 .noneMatch(property -> property.getName().equals(propertyName));
     }
+
+    @Override
+    protected Stream<ValuedProperty> flattenProperties() {
+        return Stream.of(this);
+    }
 }

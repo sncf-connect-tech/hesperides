@@ -394,7 +394,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
                 .map(IterableValuedPropertyIO::toDomainInstance)
                 .collect(Collectors.toList());
-        return AbstractValuedProperty.flattenValuedProperties(iterableValuedProperties);
+        return AbstractValuedProperty.getFlatValuedProperties(iterableValuedProperties);
     }
 
     /**

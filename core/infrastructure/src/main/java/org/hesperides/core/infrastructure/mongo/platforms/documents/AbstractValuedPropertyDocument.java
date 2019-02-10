@@ -51,7 +51,7 @@ public abstract class AbstractValuedPropertyDocument {
                 ).collect(Collectors.toList());
     }
 
-    public static List<AbstractValuedProperty> toAbstractDomainInstances(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments) {
+    static List<AbstractValuedProperty> toAbstractDomainInstances(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments) {
         return Optional.ofNullable(abstractValuedPropertyDocuments)
                 .orElse(Collections.emptyList())
                 .stream()

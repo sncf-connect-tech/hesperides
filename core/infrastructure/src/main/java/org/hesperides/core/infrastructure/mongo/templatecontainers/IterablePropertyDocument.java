@@ -27,7 +27,11 @@ import org.hesperides.core.domain.templatecontainers.entities.IterableProperty;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Data
 @NoArgsConstructor
@@ -50,5 +54,14 @@ public class IterablePropertyDocument extends AbstractPropertyDocument {
     @Override
     public IterablePropertyView toView() {
         return new IterablePropertyView(getName(), AbstractPropertyDocument.toViews(properties));
+    }
+
+    @Override
+    protected Stream<PropertyDocument> flattenProperties() {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractPropertyDocument::flattenProperties)
+                .flatMap(Function.identity());
     }
 }

@@ -25,11 +25,11 @@ import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -56,8 +56,8 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected List<ValuedPropertyView> flattenProperties() {
-        return Arrays.asList(this);
+    protected Stream<ValuedPropertyView> flattenProperties() {
+        return Stream.of(this);
     }
 
     @Override

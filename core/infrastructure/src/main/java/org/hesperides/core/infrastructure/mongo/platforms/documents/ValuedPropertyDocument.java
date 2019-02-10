@@ -49,7 +49,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
-        name = valuedProperty.getName();
+        name = valuedProperty.getName().trim();
         value = valuedProperty.getValue();
         defaultValue = valuedProperty.getDefaultValue();
         isPassword = valuedProperty.isPassword();
@@ -101,7 +101,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     protected List<AbstractValuedPropertyDocument> completeWithMustacheContentAndIsPassword(List<AbstractPropertyDocument> abstractModuleProperties) {
         List<AbstractValuedPropertyDocument> completedProperties = new ArrayList<>();
 
-        List<AbstractPropertyDocument> matchingProperties = abstractModuleProperties.stream()
+        List<PropertyDocument> matchingProperties = AbstractPropertyDocument.getFlatProperties(abstractModuleProperties)
                 .filter(abstractModuleProperty -> name.equals(abstractModuleProperty.getName()))
                 .collect(Collectors.toList());
 
@@ -111,7 +111,6 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
             completedProperties.add(this);
         } else {
             matchingProperties.stream()
-                    .map(PropertyDocument.class::cast)
                     .forEach(propertyDocument -> {
                         // Il arrive qu'une propriété soit déclarée plusieurs fois avec le même nom
                         // et un commentaire distinct. Dans ce cas on crée autant de propriétés valorisées
