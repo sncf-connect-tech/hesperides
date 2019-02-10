@@ -27,7 +27,9 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @NonFinal
@@ -35,15 +37,14 @@ public abstract class AbstractValuedPropertyView {
 
     String name;
 
-    protected abstract List<ValuedPropertyView> flattenProperties();
+    protected abstract Stream<ValuedPropertyView> flattenProperties();
 
-    public static List<ValuedPropertyView> getFlatProperties(List<AbstractValuedPropertyView> properties) {
+    public static Stream<ValuedPropertyView> getFlatProperties(List<AbstractValuedPropertyView> properties) {
         return Optional.ofNullable(properties)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(AbstractValuedPropertyView::flattenProperties)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .flatMap(Function.identity());
     }
 
     public abstract <T extends AbstractValuedProperty> T toDomainValuedProperty();

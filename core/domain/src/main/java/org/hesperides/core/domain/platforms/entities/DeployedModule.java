@@ -128,7 +128,7 @@ public class DeployedModule {
     }
 
     private List<String> extractInstancesModel(List<ValuedProperty> globalProperties) {
-        List<ValuedProperty> flatValuedProperties = AbstractValuedProperty.flattenValuedProperties(this.valuedProperties);
+        List<ValuedProperty> flatValuedProperties = AbstractValuedProperty.getFlatValuedProperties(this.valuedProperties);
         return flatValuedProperties
                 .stream()
                 .map(valuedProperty -> valuedProperty.extractInstanceProperties(globalProperties, flatValuedProperties))

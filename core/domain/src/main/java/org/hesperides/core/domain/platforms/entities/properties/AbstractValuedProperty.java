@@ -26,6 +26,7 @@ import lombok.experimental.NonFinal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,14 +45,13 @@ public abstract class AbstractValuedProperty {
                 .collect(Collectors.toList());
     }
 
-    public static List<ValuedProperty> flattenValuedProperties(final List<AbstractValuedProperty> abstractValuedProperties) {
+    public static List<ValuedProperty> getFlatValuedProperties(final List<AbstractValuedProperty> abstractValuedProperties) {
         return abstractValuedProperties
                 .stream()
-                .flatMap(abstractValuedProperty -> abstractValuedProperty instanceof ValuedProperty
-                        ? Stream.of((ValuedProperty) abstractValuedProperty)
-                        : flattenValuedProperties(
-                        ((IterableValuedProperty) abstractValuedProperty).getItems().stream().flatMap(
-                                item -> item.getAbstractValuedProperties().stream()).collect(Collectors.toList())).stream())
+                .map(AbstractValuedProperty::flattenProperties)
+                .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
+
+    protected abstract Stream<ValuedProperty> flattenProperties();
 }

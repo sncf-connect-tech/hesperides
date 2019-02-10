@@ -27,6 +27,8 @@ import org.hesperides.core.domain.templatecontainers.entities.Property;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.stream.Stream;
+
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -58,5 +60,10 @@ public class PropertyDocument extends AbstractPropertyDocument {
     @Override
     public PropertyView toView() {
         return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
+    }
+
+    @Override
+    protected Stream<PropertyDocument> flattenProperties() {
+        return Stream.of(this);
     }
 }
