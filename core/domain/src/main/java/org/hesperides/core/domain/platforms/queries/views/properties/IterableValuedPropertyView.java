@@ -27,7 +27,9 @@ import org.hesperides.core.domain.platforms.entities.properties.IterableValuedPr
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
@@ -43,15 +45,14 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected List<ValuedPropertyView> flattenProperties() {
+    protected Stream<ValuedPropertyView> flattenProperties() {
         return Optional.ofNullable(iterablePropertyItems)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(IterablePropertyItemView::getAbstractValuedPropertyViews)
                 .flatMap(List::stream)
                 .map(AbstractValuedPropertyView::flattenProperties)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .flatMap(Function.identity());
     }
 
     @Override

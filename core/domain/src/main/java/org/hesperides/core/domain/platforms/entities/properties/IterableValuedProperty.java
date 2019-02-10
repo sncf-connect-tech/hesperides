@@ -23,7 +23,11 @@ package org.hesperides.core.domain.platforms.entities.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -34,5 +38,16 @@ public class IterableValuedProperty extends AbstractValuedProperty {
     public IterableValuedProperty(String name, List<IterablePropertyItem> items) {
         super(name);
         this.items = items;
+    }
+
+    @Override
+    protected Stream<ValuedProperty> flattenProperties() {
+        return Optional.ofNullable(items)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItem::getAbstractValuedProperties)
+                .flatMap(List::stream)
+                .map(AbstractValuedProperty::flattenProperties)
+                .flatMap(Function.identity());
     }
 }

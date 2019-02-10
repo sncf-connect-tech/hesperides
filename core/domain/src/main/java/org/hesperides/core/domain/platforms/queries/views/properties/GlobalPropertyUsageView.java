@@ -67,9 +67,7 @@ public class GlobalPropertyUsageView {
     }
 
     private static Optional<String> getValuedPropertyNameUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
-        List<ValuedPropertyView> flatProperties = AbstractValuedPropertyView.getFlatProperties(valuedProperties);
-        return flatProperties
-                .stream()
+        return AbstractValuedPropertyView.getFlatProperties(valuedProperties)
                 .filter(valuedProperty -> globalPropertyIsUsedInValuedProperty(valuedProperty, globalPropertyName))
                 .findFirst()
                 .map(ValuedPropertyView::getName);

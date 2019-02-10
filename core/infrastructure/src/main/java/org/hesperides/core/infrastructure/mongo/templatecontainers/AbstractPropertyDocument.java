@@ -30,7 +30,9 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 @NoArgsConstructor
@@ -67,4 +69,14 @@ public abstract class AbstractPropertyDocument {
     public abstract AbstractProperty toDomainInstance();
 
     public abstract AbstractPropertyView toView();
+
+    public static Stream<PropertyDocument> getFlatProperties(List<AbstractPropertyDocument> properties) {
+        return Optional.ofNullable(properties)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(AbstractPropertyDocument::flattenProperties)
+                .flatMap(Function.identity());
+    }
+
+    protected abstract Stream<PropertyDocument> flattenProperties();
 }
