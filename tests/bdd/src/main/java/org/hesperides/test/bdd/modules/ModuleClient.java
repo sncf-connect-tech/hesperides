@@ -36,13 +36,14 @@ import java.util.List;
 
 import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.urlEncodeUtf8;
 import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.NONE;
-import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.TEMPLATE_AND_VALUES;
 
 @Component
 public class ModuleClient {
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private DefaultUriBuilderFactory defaultUriBuilderFactory;
 
     public ResponseEntity create(ModuleIO moduleInput) {
         return create(moduleInput, ModuleIO.class);
@@ -152,11 +153,23 @@ public class ModuleClient {
     }
 
     public ResponseEntity getTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/" + templateName,
-                responseType,
-                moduleInput.getName(),
-                moduleInput.getVersion(),
-                moduleInput.getVersionType());
+        return getTemplate(templateName, moduleInput, responseType, false);
+    }
+
+    public ResponseEntity getTemplate(String templateName, ModuleIO moduleInput, Class responseType, boolean urlEncodeTemplateName) {
+        DefaultUriBuilderFactory.EncodingMode defaultEncodingMode = defaultUriBuilderFactory.getEncodingMode();
+        try {
+            if (!urlEncodeTemplateName) {
+                defaultUriBuilderFactory.setEncodingMode(NONE);
+            }
+            return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/" + templateName,
+                    responseType,
+                    moduleInput.getName(),
+                    moduleInput.getVersion(),
+                    moduleInput.getVersionType());
+        } finally {
+            defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
+        }
     }
 
     public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
