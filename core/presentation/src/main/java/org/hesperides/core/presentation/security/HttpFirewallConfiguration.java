@@ -31,9 +31,9 @@ public class HttpFirewallConfiguration {
     @Bean
     public HttpFirewall httpFirewall() {
         final StrictHttpFirewall httpFirewall = new StrictHttpFirewall();
-        // C'est une faille de sécurité mais le legacy le permet
-        // TODO Créer un test fonctionnel
+        // C'est une faille de sécurité mais le legacy le permet:
         httpFirewall.setAllowUrlEncodedPercent(true);
+        httpFirewall.setAllowUrlEncodedSlash(true);
         return httpFirewall;
     }
 }

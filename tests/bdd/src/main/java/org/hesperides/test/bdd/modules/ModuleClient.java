@@ -29,9 +29,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.urlEncodeUtf8;
+import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.NONE;
+import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.TEMPLATE_AND_VALUES;
 
 @Component
 public class ModuleClient {
@@ -159,8 +164,8 @@ public class ModuleClient {
                 HttpMethod.DELETE,
                 null,
                 responseType,
-                moduleInput.getName(),
-                moduleInput.getVersion(),
+                urlEncodeUtf8(moduleInput.getName()),
+                urlEncodeUtf8(moduleInput.getVersion()),
                 moduleInput.getVersionType());
     }
 
@@ -169,11 +174,11 @@ public class ModuleClient {
     }
 
     public ResponseEntity<String[]> getVersions(String name) {
-        return restTemplate.getForEntity("/modules/{name}", String[].class, name);
+        return restTemplate.getForEntity("/modules/{name}", String[].class, urlEncodeUtf8(name));
     }
 
     public ResponseEntity<String[]> getTypes(String name, String version) {
-        return restTemplate.getForEntity("/modules/{name}/{version}", String[].class, name, version);
+        return restTemplate.getForEntity("/modules/{name}/{version}", String[].class, urlEncodeUtf8(name), urlEncodeUtf8(version));
     }
 
     public ResponseEntity update(ModuleIO moduleInput, Class responseType) {

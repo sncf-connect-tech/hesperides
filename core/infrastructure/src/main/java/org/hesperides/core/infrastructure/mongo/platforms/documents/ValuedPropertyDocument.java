@@ -49,7 +49,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
-        name = valuedProperty.getName();
+        name = valuedProperty.getName().trim();
         value = valuedProperty.getValue();
         defaultValue = valuedProperty.getDefaultValue();
         isPassword = valuedProperty.isPassword();
