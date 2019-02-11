@@ -43,8 +43,14 @@ Feature: Get module templates
     When I get this template in this module
     Then the module template is successfully returned
 
+  Scenario: get a template with a url-encoded slash within the title
+    Given a template with "/" within the title
+    And an existing module with this template
+    When I get this template in this module using an url-encoded template name
+    Then the module template is successfully returned
+
   Scenario: get a template with a percent sign within the title
     Given a template with "%" within the title
     And an existing module with this template
-    When I get this template in this module
+    When I get this template in this module using an url-encoded template name
     Then the module template is successfully returned

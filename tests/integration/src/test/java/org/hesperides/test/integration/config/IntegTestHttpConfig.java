@@ -15,6 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.net.ssl.SSLContext;
 
@@ -31,8 +32,13 @@ public class IntegTestHttpConfig {
     private Integer proxyPort;
 
     @Bean
-    public RestTemplate buildRestTemplate(Gson gson) throws Exception {
-        return new DebuggableRestTemplate(gson, buildHttpClient(), remoteBaseUrl);
+    public DefaultUriBuilderFactory defaultUriBuilderFactory() {
+        return new DefaultUriBuilderFactory(remoteBaseUrl);
+    }
+
+    @Bean
+    public RestTemplate buildRestTemplate(Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) throws Exception {
+        return new DebuggableRestTemplate(gson, defaultUriBuilderFactory, buildHttpClient());
     }
 
     private CloseableHttpClient buildHttpClient() throws Exception {
