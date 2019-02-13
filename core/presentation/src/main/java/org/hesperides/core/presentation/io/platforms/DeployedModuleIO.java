@@ -94,6 +94,7 @@ public class DeployedModuleIO {
         return Optional.ofNullable(deployedModuleViews)
                 .orElse(Collections.emptyList())
                 .stream()
+                .filter(deployedModuleView -> deployedModuleView.getId() != null)
                 .map(DeployedModuleIO::new)
                 .collect(Collectors.toList());
     }

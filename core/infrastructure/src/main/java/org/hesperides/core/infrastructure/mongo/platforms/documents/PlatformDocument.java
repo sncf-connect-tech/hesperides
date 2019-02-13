@@ -29,6 +29,7 @@ import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepositor
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -119,9 +120,56 @@ public class PlatformDocument {
         platformRepository.save(this);
     }
 
-    public void fillExistingAndUpgradedModulesWithProperties(List<DeployedModuleDocument> providedDeployedModules, boolean copyPropertiesForUpgradedModules) {
-        List<DeployedModule> deployedModulesProvided = DeployedModuleDocument.toDomainInstances(providedDeployedModules);
-        List<DeployedModule> deployedModules = toDomainPlatform().fillExistingAndUpgradedModulesWithProperties(deployedModulesProvided, copyPropertiesForUpgradedModules);
+    public void fillExistingAndUpgradedModulesWithProperties(List<DeployedModuleDocument> providedModuleDocuments, boolean copyPropertiesForUpgradedModules) {
+        List<DeployedModule> providedModules = DeployedModuleDocument.toDomainInstances(providedModuleDocuments);
+        List<DeployedModule> deployedModules = toDomainPlatform().fillExistingAndUpgradedModulesWithProperties(providedModules, copyPropertiesForUpgradedModules);
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
+    }
+
+    public void update(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
+        List<DeployedModuleDocument> newModules = new ArrayList<>();
+
+        /**
+         * Si c'est un nouveau module, on l'ajoute simplement
+         * Si c'est un module existant (id + path), on copie les propriétés existantes pour ne pas les perdre
+         * Si c'est une mise à jour (id existant mais nouveau path), on passe l'identifiant du module existant à null
+         *  et on récupère les propriétés du module existant si c'est demandé
+         * Si c'est un retour arrière (id et path existants mais sur 2 modules distincts), on récupère les propriétés
+         *  du path existant et on met l'id de l'id existant à null
+         */
+
+        providedModules.forEach(providedModule -> {
+            Optional<DeployedModuleDocument> existingModuleByIdAndPath = getModuleByIdAndPath(providedModule);
+            if (existingModuleByIdAndPath.isPresent()) {
+                providedModule.setValuedProperties(existingModuleByIdAndPath.get().getValuedProperties());
+            } else {
+                getModuleById(providedModule.getId()).ifPresent(existingModuleById -> {
+                    existingModuleById.setId(null);
+                    newModules.add(existingModuleById);
+                    Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
+                    if (copyPropertiesForUpgradedModules) {
+                        providedModule.setValuedProperties(existingModuleById.getValuedProperties());
+                    } else if (existingModuleByPath.isPresent()) {
+                        providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
+                    }
+                });
+            }
+            newModules.add(providedModule);
+        });
+
+        deployedModules = newModules;
+    }
+
+    private Optional<DeployedModuleDocument> getModuleByIdAndPath(DeployedModuleDocument providedModule) {
+        return deployedModules.stream().filter(existingModule -> providedModule.getId().equals(existingModule.getId()) &&
+                providedModule.getPropertiesPath().equals(existingModule.getPropertiesPath())).findFirst();
+    }
+
+    private Optional<DeployedModuleDocument> getModuleById(Long providedModuleId) {
+        return deployedModules.stream().filter(existingModule -> providedModuleId.equals(existingModule.getId())).findFirst();
+    }
+
+    private Optional<DeployedModuleDocument> getModuleByPath(String providedModulePath) {
+        return deployedModules.stream().filter(existingModule -> providedModulePath.equals(existingModule.getPropertiesPath())).findFirst();
     }
 }

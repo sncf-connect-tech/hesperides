@@ -6,8 +6,13 @@ import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
+import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Value
 public class GlobalPropertyUsageView {
@@ -41,12 +46,13 @@ public class GlobalPropertyUsageView {
             if (propertyNameIsInProperties(globalPropertyName, moduleSimpleProperties)) {
                 globalPropertyUsages.add(new GlobalPropertyUsageView(false, propertiesPath));
 
-            } else {
-                Optional<String> valuedPropertyName = getValuedPropertyNameUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
-                if (valuedPropertyName.isPresent()) {
-                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName.get(), moduleSimpleProperties);
+            }
+            List<String> valuedPropertiesName = getSimpleValuedPropertiesNameUsingGlobalProperty(globalPropertyName, deployedModule.getValuedProperties());
+            if (!CollectionUtils.isEmpty(valuedPropertiesName)) {
+                valuedPropertiesName.forEach(valuedPropertyName -> {
+                    boolean isRemovedFromTemplate = !propertyNameIsInProperties(valuedPropertyName, moduleSimpleProperties);
                     globalPropertyUsages.add(new GlobalPropertyUsageView(isRemovedFromTemplate, propertiesPath));
-                }
+                });
             }
         });
         return globalPropertyUsages;
@@ -61,20 +67,22 @@ public class GlobalPropertyUsageView {
                 .orElse(Collections.emptyList());
     }
 
-    private static boolean propertyNameIsInProperties(String propertyName, List<PropertyView> moduleProperties) {
-        return moduleProperties.stream()
-                .anyMatch(propertyView -> propertyView.getName().equals(propertyName));
-    }
-
-    private static Optional<String> getValuedPropertyNameUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
-        return AbstractValuedPropertyView.getFlatProperties(valuedProperties)
+    private static List<String> getSimpleValuedPropertiesNameUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {
+        return valuedProperties.stream()
+                .filter(ValuedPropertyView.class::isInstance)
+                .map(ValuedPropertyView.class::cast)
                 .filter(valuedProperty -> globalPropertyIsUsedInValuedProperty(valuedProperty, globalPropertyName))
-                .findFirst()
-                .map(ValuedPropertyView::getName);
+                .map(ValuedPropertyView::getName)
+                .collect(Collectors.toList());
     }
 
     private static boolean globalPropertyIsUsedInValuedProperty(ValuedPropertyView valuedProperty, String globalPropertyName) {
         List<String> valuesBetweenCurlyBrackets = ValuedProperty.extractValuesBetweenCurlyBrackets(valuedProperty.getValue());
         return valuedProperty.getName().equals(globalPropertyName) || valuesBetweenCurlyBrackets.contains(globalPropertyName);
+    }
+
+    private static boolean propertyNameIsInProperties(String propertyName, List<PropertyView> moduleProperties) {
+        return moduleProperties.stream()
+                .anyMatch(propertyView -> propertyView.getName().equals(propertyName));
     }
 }

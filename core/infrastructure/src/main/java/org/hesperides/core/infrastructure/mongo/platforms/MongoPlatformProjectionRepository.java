@@ -71,14 +71,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
-        PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+        PlatformDocument platformDocument;
+        if (HasProfile.dataMigration() && platformRepository.existsById(event.getPlatformId())) {
+            platformDocument = platformRepository.findById(event.getPlatformId()).get();
+            platformDocument.setVersionId(1L);
+        } else {
+            platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+        }
         platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
     @EventHandler
     @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        platformRepository.deleteById(event.getPlatformId());
+        if (!HasProfile.dataMigration()) {
+            platformRepository.deleteById(event.getPlatformId());
+        }
     }
 
     @EventHandler
@@ -100,13 +108,30 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         PlatformDocument platformDocument = existingPlatformDocument.get();
         platformDocument.setVersion(newPlatformDocument.getVersion());
         platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
-        platformDocument.fillExistingAndUpgradedModulesWithProperties(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules());
+        platformDocument.update(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), newPlatformDocument.getVersionId());
         if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
             // Rustine temporaire pour le temps de la migration
             platformDocument.setVersionId(platformDocument.getVersionId() + 1);
         } else {
             platformDocument.setVersionId(newPlatformDocument.getVersionId());
         }
+
+        // Modification des propriétés du module dans la plateforme
+        platformDocument.getDeployedModules().forEach(deployedModuleDocument -> {
+            // Récupérer le model du module afin d'attribuer à chaque
+            // propriété valorisée la définition initiale de la propriété
+            // (ex: {{prop | @required}} => "prop | @required")
+            Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
+            KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
+            List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
+                    .findPropertiesByModuleKey(moduleKeyDocument)
+                    .map(ModuleDocument::getProperties)
+                    .orElse(Collections.emptyList());
+
+            List<AbstractValuedPropertyDocument> valuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContentAndIsPassword(deployedModuleDocument.getValuedProperties(), moduleProperties);
+            valuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(deployedModuleDocument.getValuedProperties(), moduleProperties));
+            deployedModuleDocument.setValuedProperties(valuedProperties);
+        });
         platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
