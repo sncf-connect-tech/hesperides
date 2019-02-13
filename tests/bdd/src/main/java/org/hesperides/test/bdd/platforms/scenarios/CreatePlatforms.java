@@ -115,6 +115,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
         }
+        commonSteps.ensureUserAuthIsSet();
         testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
         assertOK();
 
