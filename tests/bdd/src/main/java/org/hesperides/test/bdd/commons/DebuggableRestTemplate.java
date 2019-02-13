@@ -37,10 +37,6 @@ public class DebuggableRestTemplate extends RestTemplate {
         this(gson, uriTemplateHandler, null);
     }
 
-    public DebuggableRestTemplate(Gson gson, CloseableHttpClient httpClient, String baseUrl) {
-        this(gson, new DefaultUriBuilderFactory(baseUrl), httpClient);
-    }
-
     public DebuggableRestTemplate(Gson gson, UriTemplateHandler uriTemplateHandler, CloseableHttpClient httpClient) {
         super();
         this.gson = gson;

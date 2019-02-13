@@ -31,12 +31,12 @@ import static org.junit.Assert.assertEquals;
 public class PropertyTest {
 
     private void assertProperty(Property expectedProperty, Property actualProperty) {
-        assertEquals(expectedProperty.getName(), actualProperty.getName());
-        assertEquals(expectedProperty.isRequired(), actualProperty.isRequired());
-        assertEquals(expectedProperty.getComment(), actualProperty.getComment());
-        assertEquals(expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
-        assertEquals(expectedProperty.getPattern(), actualProperty.getPattern());
-        assertEquals(expectedProperty.isPassword(), actualProperty.isPassword());
+        assertEquals("name differ", expectedProperty.getName(), actualProperty.getName());
+        assertEquals("required differ", expectedProperty.isRequired(), actualProperty.isRequired());
+        assertEquals("comment differ", expectedProperty.getComment(), actualProperty.getComment());
+        assertEquals("defaultValue differ", expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
+        assertEquals("pattern differ", expectedProperty.getPattern(), actualProperty.getPattern());
+        assertEquals("password differ", expectedProperty.isPassword(), actualProperty.isPassword());
     }
 
     @Test

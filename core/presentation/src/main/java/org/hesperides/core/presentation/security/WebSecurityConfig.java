@@ -30,6 +30,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import static org.hesperides.commons.spring.SpringProfiles.LDAP;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 /**
  * L'implémentation de l'authentification LDAP se trouve dans la couche infrastructure
@@ -57,9 +58,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        /*
-         * Pour désactiver CSRF ?
-         */
+        http.sessionManagement()
+                .sessionCreationPolicy(STATELESS);
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
