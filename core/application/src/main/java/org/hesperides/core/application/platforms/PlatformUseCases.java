@@ -158,7 +158,7 @@ public class PlatformUseCases {
         PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
         List<DeployedModuleView> deployedModules = platform.getDeployedModules().stream()
-                .filter(deployedModule -> deployedModule.getId() != null)
+                .filter(deployedModule -> deployedModule.getId() > 0)
                 .collect(Collectors.toList());
 
         List<TemplateContainer.Key> modulesKeys = deployedModules

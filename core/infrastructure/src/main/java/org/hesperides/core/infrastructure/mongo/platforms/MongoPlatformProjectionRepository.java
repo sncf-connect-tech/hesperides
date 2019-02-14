@@ -71,13 +71,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
-        PlatformDocument platformDocument;
-        if (HasProfile.dataMigration() && platformRepository.existsById(event.getPlatformId())) {
-            platformDocument = platformRepository.findById(event.getPlatformId()).get();
-            platformDocument.setVersionId(1L);
-        } else {
-            platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        }
+//        PlatformDocument platformDocument;
+//        if (HasProfile.dataMigration() && platformRepository.existsById(event.getPlatformId())) {
+//            platformDocument = platformRepository.findById(event.getPlatformId()).get();
+//            platformDocument.setVersionId(1L);
+//        } else {
+//            platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+//        }
+        PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
         platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 

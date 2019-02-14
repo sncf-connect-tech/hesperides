@@ -127,7 +127,7 @@ public class PlatformDocument {
     }
 
     public void update(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
-        List<DeployedModuleDocument> newModules = new ArrayList<>();
+        List<DeployedModuleDocument> newModuleList = new ArrayList<>();
 
         /**
          * Si c'est un nouveau module, on l'ajoute simplement
@@ -143,21 +143,32 @@ public class PlatformDocument {
             if (existingModuleByIdAndPath.isPresent()) {
                 providedModule.setValuedProperties(existingModuleByIdAndPath.get().getValuedProperties());
             } else {
-                getModuleById(providedModule.getId()).ifPresent(existingModuleById -> {
-                    existingModuleById.setId(null);
-                    newModules.add(existingModuleById);
-                    Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
+                Optional<DeployedModuleDocument> existingModuleById = getModuleById(providedModule.getId());
+                Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
+                if (existingModuleById.isPresent()) {
+                    existingModuleById.get().setId(0L);
+                    newModuleList.add(existingModuleById.get());
                     if (copyPropertiesForUpgradedModules) {
-                        providedModule.setValuedProperties(existingModuleById.getValuedProperties());
+                        providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
                     } else if (existingModuleByPath.isPresent()) {
                         providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
                     }
-                });
+                } else if (existingModuleByPath.isPresent()) {
+                    // Cas de retour arrière après suppression
+                    providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
+                }
             }
-            newModules.add(providedModule);
+            newModuleList.add(providedModule);
+        });
+        // Supprimer l'identifiant des modules qui n'ont pas été fournis (pour conserver les valorisations)
+        deployedModules.forEach(existingModule -> {
+            if (existingModule.hasBeenRemovedFrom(newModuleList)) {
+                existingModule.setId(0L);
+                newModuleList.add(existingModule);
+            }
         });
 
-        deployedModules = newModules;
+        deployedModules = newModuleList;
     }
 
     private Optional<DeployedModuleDocument> getModuleByIdAndPath(DeployedModuleDocument providedModule) {
