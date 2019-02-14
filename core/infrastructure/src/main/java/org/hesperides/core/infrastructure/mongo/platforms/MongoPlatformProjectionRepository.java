@@ -67,13 +67,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
-//        PlatformDocument platformDocument;
-//        if (HasProfile.dataMigration() && platformRepository.existsById(event.getPlatformId())) {
-//            platformDocument = platformRepository.findById(event.getPlatformId()).get();
-//            platformDocument.setVersionId(1L);
-//        } else {
-//            platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-//        }
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
         platformDocument.buildInstancesModelAndSave(platformRepository);
     }
@@ -81,6 +74,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
+        // Dans le legacy, les plateformes ne sont pas vraiment supprimées
+        // mais simplement désactivées. Comme on ne migre pas les plateformes
+        // dont le dernier évènement est un évènement de suppression,
+        // il n'est pas nécessaire d'effectuer cette suppression.
         if (!HasProfile.dataMigration()) {
             platformRepository.deleteById(event.getPlatformId());
         }

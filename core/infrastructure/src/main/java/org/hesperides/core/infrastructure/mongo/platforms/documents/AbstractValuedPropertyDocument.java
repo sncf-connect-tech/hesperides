@@ -75,7 +75,8 @@ public abstract class AbstractValuedPropertyDocument {
      */
     public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContentAndIsPassword(List<AbstractValuedPropertyDocument> abstractValuedProperties,
                                                                                                           List<AbstractPropertyDocument> abstractModuleProperties) {
-
+        // `Collectors.toSet()` est important car il permet d'éviter les doublons
+        // créés par la méthode `completeWithMustacheContentAndIsPassword`
         return new ArrayList<>(abstractValuedProperties
                 .stream()
                 .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContentAndIsPassword(abstractModuleProperties))

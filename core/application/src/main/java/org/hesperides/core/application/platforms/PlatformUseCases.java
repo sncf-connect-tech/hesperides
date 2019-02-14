@@ -157,6 +157,7 @@ public class PlatformUseCases {
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
         PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
+        // On ne tient compte que des modules utilisés dans la platforme (pas des modules sauvegardés)
         List<DeployedModuleView> deployedModules = platform.getDeployedModules().stream()
                 .filter(deployedModule -> deployedModule.getId() > 0)
                 .collect(Collectors.toList());

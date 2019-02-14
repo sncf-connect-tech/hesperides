@@ -22,7 +22,6 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
@@ -120,23 +119,17 @@ public class PlatformDocument {
         platformRepository.save(this);
     }
 
-    public void fillExistingAndUpgradedModulesWithProperties(List<DeployedModuleDocument> providedModuleDocuments, boolean copyPropertiesForUpgradedModules) {
-        List<DeployedModule> providedModules = DeployedModuleDocument.toDomainInstances(providedModuleDocuments);
-        List<DeployedModule> deployedModules = toDomainPlatform().fillExistingAndUpgradedModulesWithProperties(providedModules, copyPropertiesForUpgradedModules);
-        this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
-    }
-
+    /**
+     * 4 cas d'utilisation :
+     * - Nouveau module : on l'ajoute simplement
+     * - Module existant (id + path) : on copie les propriétés existantes pour ne pas les perdre
+     * - Mise à jour (id existant mais nouveau path) : on passe l'identifiant du module existant à null
+     * et on récupère les propriétés du module existant si c'est demandé => `copyPropertiesForUpgradedModules`
+     * - Retour arrière (id et path existants mais sur 2 modules distincts) : on récupère les propriétés
+     * du path existant et on met l'id du module existant à 0
+     */
     public void updateModules(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
         List<DeployedModuleDocument> newModuleList = new ArrayList<>();
-
-        /**
-         * Si c'est un nouveau module, on l'ajoute simplement
-         * Si c'est un module existant (id + path), on copie les propriétés existantes pour ne pas les perdre
-         * Si c'est une mise à jour (id existant mais nouveau path), on passe l'identifiant du module existant à null
-         *  et on récupère les propriétés du module existant si c'est demandé
-         * Si c'est un retour arrière (id et path existants mais sur 2 modules distincts), on récupère les propriétés
-         *  du path existant et on met l'id du module existant à 0
-         */
 
         providedModules.forEach(providedModule -> {
             Optional<DeployedModuleDocument> existingModuleByIdAndPath = getModuleByIdAndPath(providedModule);
