@@ -47,6 +47,8 @@ management:
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: ${ENABLE_PROMETHEUS_METRICS:true}
   endpoints:
     web:
       base-path: /manage
