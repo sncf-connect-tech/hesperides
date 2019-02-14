@@ -111,6 +111,6 @@ public class DeployedModuleDocument {
 
     public boolean hasBeenRemovedFrom(List<DeployedModuleDocument> newModuleList) {
         return newModuleList.stream()
-                .noneMatch(newModule -> id.equals(newModule.getId()) && propertiesPath.equals(newModule.getPropertiesPath()));
+                .noneMatch(newModule -> propertiesPath.equals(newModule.getPropertiesPath()));
     }
 }

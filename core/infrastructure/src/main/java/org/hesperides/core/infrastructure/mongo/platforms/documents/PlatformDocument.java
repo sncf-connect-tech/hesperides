@@ -126,7 +126,7 @@ public class PlatformDocument {
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
     }
 
-    public void update(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
+    public void updateModules(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
         List<DeployedModuleDocument> newModuleList = new ArrayList<>();
 
         /**
@@ -135,7 +135,7 @@ public class PlatformDocument {
          * Si c'est une mise à jour (id existant mais nouveau path), on passe l'identifiant du module existant à null
          *  et on récupère les propriétés du module existant si c'est demandé
          * Si c'est un retour arrière (id et path existants mais sur 2 modules distincts), on récupère les propriétés
-         *  du path existant et on met l'id de l'id existant à null
+         *  du path existant et on met l'id du module existant à 0
          */
 
         providedModules.forEach(providedModule -> {

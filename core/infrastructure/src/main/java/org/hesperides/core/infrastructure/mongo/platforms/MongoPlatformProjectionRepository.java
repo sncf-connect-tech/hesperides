@@ -8,17 +8,13 @@ import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
-import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.AbstractValuedPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.PlatformKeyDocument;
-import org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument;
+import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,38 +98,25 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
          * Par contre, les valorisations de propriétés globales ou de modules sont préservées.
          */
         PlatformDocument newPlatformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        Optional<PlatformDocument> existingPlatformDocument = platformRepository.findById(event.getPlatformId());
-        if (!existingPlatformDocument.isPresent()) {
-            throw new PlatformNotFoundException("Platform not found - update impossible - platformId: " + event.getPlatformId());
-        }
-        PlatformDocument platformDocument = existingPlatformDocument.get();
-        platformDocument.setVersion(newPlatformDocument.getVersion());
-        platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
-        platformDocument.update(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), newPlatformDocument.getVersionId());
-        if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
-            // Rustine temporaire pour le temps de la migration
-            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
-        } else {
-            platformDocument.setVersionId(newPlatformDocument.getVersionId());
-        }
+        platformRepository.findById(event.getPlatformId()).ifPresent(platformDocument -> {
+            platformDocument.setVersion(newPlatformDocument.getVersion());
+            platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
+            platformDocument.updateModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), newPlatformDocument.getVersionId());
 
-        // Modification des propriétés du module dans la plateforme
-        platformDocument.getDeployedModules().forEach(deployedModuleDocument -> {
-            // Récupérer le model du module afin d'attribuer à chaque
-            // propriété valorisée la définition initiale de la propriété
-            // (ex: {{prop | @required}} => "prop | @required")
-            Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
-            KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
-            List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
-                    .findPropertiesByModuleKey(moduleKeyDocument)
-                    .map(ModuleDocument::getProperties)
-                    .orElse(Collections.emptyList());
+            if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
+                platformDocument.setVersionId(platformDocument.getVersionId() + 1);
+            } else {
+                platformDocument.setVersionId(newPlatformDocument.getVersionId());
+            }
 
-            List<AbstractValuedPropertyDocument> valuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContentAndIsPassword(deployedModuleDocument.getValuedProperties(), moduleProperties);
-            valuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(deployedModuleDocument.getValuedProperties(), moduleProperties));
-            deployedModuleDocument.setValuedProperties(valuedProperties);
+            platformDocument.getDeployedModules()
+                    .stream()
+                    .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
+                    .forEach(deployedModuleDocument -> {
+                        completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument);
+                    });
+            platformDocument.buildInstancesModelAndSave(platformRepository);
         });
-        platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
     @EventHandler
@@ -166,21 +149,26 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         platformDocument.getDeployedModules().stream()
                 .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
                 .findAny().ifPresent(deployedModuleDocument -> {
-            // Récupérer le model du module afin d'attribuer à chaque
-            // propriété valorisée la définition initiale de la propriété
-            // (ex: {{prop | @required}} => "prop | @required")
-            Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
-            KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
-            List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
-                    .findPropertiesByModuleKey(moduleKeyDocument)
-                    .map(ModuleDocument::getProperties)
-                    .orElse(Collections.emptyList());
-
-            List<AbstractValuedPropertyDocument> valuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContentAndIsPassword(abstractValuedProperties, moduleProperties);
-            valuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(abstractValuedProperties, moduleProperties));
-            deployedModuleDocument.setValuedProperties(valuedProperties);
+            completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument);
         });
         platformDocument.buildInstancesModelAndSave(platformRepository);
+    }
+
+    private void completePropertiesWithMustacheContentPasswordAndDefaultValues(List<AbstractValuedPropertyDocument> abstractValuedProperties,
+                                                                               DeployedModuleDocument deployedModuleDocument) {
+        // Récupérer le model du module afin d'attribuer à chaque
+        // propriété valorisée la définition initiale de la propriété
+        // (ex: {{prop | @required}} => "prop | @required")
+        Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
+        KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
+        List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
+                .findPropertiesByModuleKey(moduleKeyDocument)
+                .map(ModuleDocument::getProperties)
+                .orElse(Collections.emptyList());
+
+        List<AbstractValuedPropertyDocument> completedValuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContentAndIsPassword(abstractValuedProperties, moduleProperties);
+        completedValuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(completedValuedProperties, moduleProperties));
+        deployedModuleDocument.setValuedProperties(completedValuedProperties);
     }
 
     @EventHandler

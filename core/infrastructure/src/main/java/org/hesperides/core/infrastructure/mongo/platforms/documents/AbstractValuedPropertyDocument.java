@@ -75,11 +75,12 @@ public abstract class AbstractValuedPropertyDocument {
      */
     public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContentAndIsPassword(List<AbstractValuedPropertyDocument> abstractValuedProperties,
                                                                                                           List<AbstractPropertyDocument> abstractModuleProperties) {
-        return abstractValuedProperties
+
+        return new ArrayList<>(abstractValuedProperties
                 .stream()
                 .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContentAndIsPassword(abstractModuleProperties))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet()));
     }
 
     /**
