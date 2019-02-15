@@ -108,4 +108,9 @@ public class DeployedModuleDocument {
         DeployedModule deployedModuleWithInstanceProperties = this.toDomainInstance().buildInstancesModel(globalProperties);
         return new DeployedModuleDocument(deployedModuleWithInstanceProperties);
     }
+
+    public boolean hasBeenRemovedFrom(List<DeployedModuleDocument> newModuleList) {
+        return newModuleList.stream()
+                .noneMatch(newModule -> propertiesPath.equals(newModule.getPropertiesPath()));
+    }
 }

@@ -18,7 +18,6 @@ Feature: Restrict actions on prod platforms to prod users
     When I try to update this platform
     Then a 403 error is returned, blaming "Updating a production platform is reserved to production role"
 
-  @wip
   Scenario: restrict non-prod platform update to prod
     Given an existing platform
     And an authenticated lambda user
