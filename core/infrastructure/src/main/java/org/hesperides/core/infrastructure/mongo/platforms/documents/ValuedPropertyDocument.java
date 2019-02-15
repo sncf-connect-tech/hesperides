@@ -23,6 +23,7 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -54,7 +55,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
-        name = valuedProperty.getName().trim();
+        name = StringUtils.trim(valuedProperty.getName());
         value = valuedProperty.getValue();
         defaultValue = valuedProperty.getDefaultValue();
         isPassword = valuedProperty.isPassword();
