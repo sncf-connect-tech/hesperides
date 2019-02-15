@@ -39,7 +39,11 @@ public class TemplateView {
         FileRightsView other;
 
         public Template.Rights toDomainInstance() {
-            return new Template.Rights(user.toDomainInstance(), group.toDomainInstance(), other.toDomainInstance());
+            return new Template.Rights(
+                    user != null ? user.toDomainInstance() : null,
+                    group != null ? group.toDomainInstance() : null,
+                    other != null ? other.toDomainInstance() : null
+            );
         }
     }
 

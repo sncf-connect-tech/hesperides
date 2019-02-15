@@ -28,10 +28,13 @@ import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.core.presentation.io.TechnoModulesOutput;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -225,5 +228,18 @@ public class ModulesController extends AbstractController {
         ModelOutput modelOutput = new ModelOutput(abstractPropertyViews);
 
         return ResponseEntity.ok(modelOutput);
+    }
+
+    @ApiOperation("Retrieve modules using techno")
+    @GetMapping("/using_techno/{techno_name}/{techno_version}/{techno_type}")
+    public ResponseEntity<List<TechnoModulesOutput>> getModulesUsingTechno(@PathVariable("techno_name") final String technoName,
+                                                                           @PathVariable("techno_version") final String technoVersion,
+                                                                           @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType) {
+
+        Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
+        List<TechnoModuleView> technoModulesViews = moduleUseCases.getModulesUsingTechno(technoKey);
+        List<TechnoModulesOutput> technoModulesOutputs = TechnoModulesOutput.fromViews(technoModulesViews);
+
+        return ResponseEntity.ok(technoModulesOutputs);
     }
 }

@@ -51,6 +51,7 @@ public class TestContextCleaner {
         propertyBuilder.reset();
         modelBuilder.reset();
         moduleBuilder.reset();
+        moduleBuilder.resetModules();
         platformBuilder.reset();
         platformBuilder.resetPlatforms();
     }

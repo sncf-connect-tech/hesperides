@@ -22,11 +22,15 @@ package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.TechnoModulesOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hesperides.core.presentation.io.ModuleIO.WORKINGCOPY;
 
@@ -42,6 +46,8 @@ public class ModuleBuilder {
     private List<TemplateIO> templates;
     private String logicalGroup;
 
+    private List<ModuleIO> modules = new ArrayList<>();
+
     public ModuleBuilder() {
         reset();
     }
@@ -56,6 +62,10 @@ public class ModuleBuilder {
         versionId = 0;
         logicalGroup = null;
         return this;
+    }
+
+    public void resetModules() {
+        modules = new ArrayList<>();
     }
 
     public String getName() {
@@ -138,5 +148,17 @@ public class ModuleBuilder {
 
     public String getLogicalGroup() {
         return logicalGroup;
+    }
+
+    public void addModule(ModuleIO module) {
+        modules.add(module);
+    }
+
+    public List<TechnoModulesOutput> buildTechnoModules() {
+        return Optional.ofNullable(modules)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(module -> new TechnoModulesOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
+                .collect(Collectors.toList());
     }
 }

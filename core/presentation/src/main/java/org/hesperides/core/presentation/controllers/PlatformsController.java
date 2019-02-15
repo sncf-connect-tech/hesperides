@@ -146,7 +146,7 @@ public class PlatformsController extends AbstractController {
         boolean isWorkingCopy = !TemplateContainer.VersionType.release.toString().equalsIgnoreCase(moduleVersionType);
 
         Module.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.getVersionType(isWorkingCopy));
-        List<ModulePlatformView> modulePlatformViews = platformUseCases.getPlatformUsingModule(moduleKey);
+        List<ModulePlatformView> modulePlatformViews = platformUseCases.getPlatformsUsingModule(moduleKey);
         List<ModulePlatformsOutput> modulePlatformsOutputs = ModulePlatformsOutput.fromViews(modulePlatformViews);
 
         return ResponseEntity.ok(modulePlatformsOutputs);

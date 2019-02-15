@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;

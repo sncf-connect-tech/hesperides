@@ -22,6 +22,7 @@ package org.hesperides.core.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -40,5 +41,9 @@ public class KeyDocument implements Serializable {
         this.name = key.getName();
         this.version = key.getVersion();
         this.isWorkingCopy = key.isWorkingCopy();
+    }
+
+    public static TechnoModuleView toTechnoModuleView(KeyDocument moduleKeyDocument) {
+        return new TechnoModuleView(moduleKeyDocument.getName(), moduleKeyDocument.getVersion(), moduleKeyDocument.isWorkingCopy);
     }
 }

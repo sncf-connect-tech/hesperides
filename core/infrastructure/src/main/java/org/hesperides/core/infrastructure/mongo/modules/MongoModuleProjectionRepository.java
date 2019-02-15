@@ -8,12 +8,14 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
+import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
 import org.hesperides.core.infrastructure.mongo.eventstores.AxonEventRepository;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
+import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
@@ -208,6 +210,16 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         return moduleRepository.findPropertiesByKeyIn(modulesKeys)
                 .stream()
                 .map(ModuleDocument::toModuleSimplePropertiesView)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TechnoModuleView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
+        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosId(query.getTechnoId());
+        return moduleDocuments
+                .stream()
+                .map(ModuleDocument::getKey)
+                .map(KeyDocument::toTechnoModuleView)
                 .collect(Collectors.toList());
     }
 }
