@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -56,11 +55,6 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Stream<ValuedPropertyView> flattenProperties() {
-        return Stream.of(this);
-    }
-
-    @Override
     public AbstractValuedPropertyView withPasswordsHidden() {
         AbstractValuedPropertyView valuedProperty = this;
         if (isPassword) {
@@ -70,8 +64,8 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> getOnlyValuedProperty() {
-        return StringUtils.isEmpty(value) ? Optional.empty() : Optional.of(this);
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue() {
+        return StringUtils.isEmpty(value) && StringUtils.isNotEmpty(defaultValue) ? Optional.empty() : Optional.of(this);
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {

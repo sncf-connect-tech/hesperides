@@ -27,25 +27,13 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Value
 @NonFinal
 public abstract class AbstractValuedPropertyView {
 
     String name;
-
-    protected abstract Stream<ValuedPropertyView> flattenProperties();
-
-    public static Stream<ValuedPropertyView> getFlatProperties(List<AbstractValuedPropertyView> properties) {
-        return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(AbstractValuedPropertyView::flattenProperties)
-                .flatMap(Function.identity());
-    }
 
     public abstract <T extends AbstractValuedProperty> T toDomainValuedProperty();
 
@@ -80,13 +68,13 @@ public abstract class AbstractValuedPropertyView {
      * <p>
      * Il y a peut-être moyen de faire ça directement en Mongo mais je ne sais pas comment :)
      */
-    public static List<AbstractValuedPropertyView> getOnlyValuedProperties(List<AbstractValuedPropertyView> properties) {
+    public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> properties) {
         return properties.stream()
-                .map(AbstractValuedPropertyView::getOnlyValuedProperty)
+                .map(AbstractValuedPropertyView::excludePropertyWithOnlyDefaultValue)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    protected abstract Optional<AbstractValuedPropertyView> getOnlyValuedProperty();
+    protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue();
 }

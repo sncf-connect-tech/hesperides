@@ -54,7 +54,7 @@ public class IterablePropertyItemView {
                 .collect(Collectors.toList());
     }
 
-    IterablePropertyItemView withOnlyValuedProperty() {
-        return new IterablePropertyItemView(title, AbstractValuedPropertyView.getOnlyValuedProperties(abstractValuedPropertyViews));
+    IterablePropertyItemView excludePropertyWithOnlyDefaultValue() {
+        return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(abstractValuedPropertyViews));
     }
 }

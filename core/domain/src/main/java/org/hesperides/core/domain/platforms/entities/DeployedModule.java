@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
@@ -128,10 +129,12 @@ public class DeployedModule {
     }
 
     private List<String> extractInstancesModel(List<ValuedProperty> globalProperties) {
-        List<ValuedProperty> flatValuedProperties = AbstractValuedProperty.getFlatValuedProperties(this.valuedProperties);
-        return flatValuedProperties
+        List<ValuedProperty> moduleProperties = AbstractValuedProperty.getFlatValuedProperties(this.valuedProperties);
+        List<ValuedProperty> globalAndModuleProperties = Stream.concat(moduleProperties.stream(), globalProperties.stream()).collect(Collectors.toList());
+
+        return globalAndModuleProperties
                 .stream()
-                .map(valuedProperty -> valuedProperty.extractInstanceProperties(globalProperties, flatValuedProperties))
+                .map(valuedProperty -> valuedProperty.extractInstanceProperties(globalProperties, moduleProperties))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }

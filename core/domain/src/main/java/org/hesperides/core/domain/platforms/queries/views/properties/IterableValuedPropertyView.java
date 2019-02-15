@@ -24,12 +24,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
@@ -45,17 +42,6 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Stream<ValuedPropertyView> flattenProperties() {
-        return Optional.ofNullable(iterablePropertyItems)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(IterablePropertyItemView::getAbstractValuedPropertyViews)
-                .flatMap(List::stream)
-                .map(AbstractValuedPropertyView::flattenProperties)
-                .flatMap(Function.identity());
-    }
-
-    @Override
     public AbstractValuedPropertyView withPasswordsHidden() {
         return new IterableValuedPropertyView(getName(), iterablePropertyItems.stream()
                 .map(IterablePropertyItemView::withPasswordsHidden)
@@ -63,10 +49,10 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> getOnlyValuedProperty() {
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue() {
 
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
-                .map(IterablePropertyItemView::withOnlyValuedProperty)
+                .map(IterablePropertyItemView::excludePropertyWithOnlyDefaultValue)
                 .collect(Collectors.toList());
 
         return Optional.of(new IterableValuedPropertyView(getName(), items));

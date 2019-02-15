@@ -16,7 +16,7 @@ Feature: Update platforms
     And I release this module
     When I update this platform, upgrading its module
     Then the platform is successfully updated
-    And the platform has no module valued properties
+#    And the platform property values are also copied
 
   Scenario: update an existing platform, adding a module introducing new instance properties
     Given an existing module with properties
@@ -41,7 +41,7 @@ Feature: Update platforms
     When I update this platform, removing this module
     And I update this platform, adding this module
     Then the platform is successfully updated
-    And the platform has no module valued properties
+    And the platform property values are also copied
 
   #issue-451
   Scenario: update an existing platform, changing the application version

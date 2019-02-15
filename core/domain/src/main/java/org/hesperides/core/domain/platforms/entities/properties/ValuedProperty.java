@@ -48,10 +48,10 @@ public class ValuedProperty extends AbstractValuedProperty {
         this.isPassword = isPassword;
     }
 
-    public List<String> extractInstanceProperties(List<ValuedProperty> globalProperties, List<ValuedProperty> modulesProperties) {
+    public List<String> extractInstanceProperties(List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {
         return extractValuesBetweenCurlyBrackets(value)
                 .stream()
-                .filter(valueBetweenCurlyBrackets -> isInstanceProperty(getName(), valueBetweenCurlyBrackets, globalProperties, modulesProperties))
+                .filter(valueBetweenCurlyBrackets -> isInstanceProperty(getName(), valueBetweenCurlyBrackets, globalProperties, moduleProperties))
                 .collect(Collectors.toList());
     }
 
@@ -69,9 +69,12 @@ public class ValuedProperty extends AbstractValuedProperty {
      * comme propriété d'instance si elle n'est pas dans la liste des propriétés globales
      * de la plateforme ni dans celle des propriétés du module, sauf si c'est elle-même.
      */
-    private static boolean isInstanceProperty(String currentPropertyName, String valueBetweenCurlyBrackets, List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {
-        return currentPropertyName.equals(valueBetweenCurlyBrackets) ||
-                (propertyIsNotInProperties(valueBetweenCurlyBrackets, globalProperties) &&
+    private static boolean isInstanceProperty(String currentPropertyName,
+                                              String valueBetweenCurlyBrackets,
+                                              List<ValuedProperty> globalProperties,
+                                              List<ValuedProperty> moduleProperties) {
+        return propertyIsNotInProperties(valueBetweenCurlyBrackets, globalProperties) &&
+                (currentPropertyName.equals(valueBetweenCurlyBrackets) ||
                         propertyIsNotInProperties(valueBetweenCurlyBrackets, moduleProperties));
     }
 

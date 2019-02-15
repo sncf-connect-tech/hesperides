@@ -141,7 +141,7 @@ public class PlatformUseCases {
             properties = queries.getDeployedModuleProperties(platformKey, propertiesPath);
 
             // On exclue les propriétés non valorisées ayant une valeur par défaut
-            properties = AbstractValuedPropertyView.getOnlyValuedProperties(properties);
+            properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties);
 
             // Pas besoin de récupérer la plateforme entière juste pour ce test
             // surtout si c'est pour refaire une requête pour récupérer les propriétés
@@ -156,7 +156,13 @@ public class PlatformUseCases {
 
     public Map<String, Set<GlobalPropertyUsageView>> getGlobalPropertiesUsage(final Platform.Key platformKey) {
         PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        List<TemplateContainer.Key> modulesKeys = platform.getDeployedModules()
+
+        // On ne tient compte que des modules utilisés dans la platforme (pas des modules sauvegardés)
+        List<DeployedModuleView> deployedModules = platform.getDeployedModules().stream()
+                .filter(deployedModule -> deployedModule.getId() > 0)
+                .collect(Collectors.toList());
+
+        List<TemplateContainer.Key> modulesKeys = deployedModules
                 .stream()
                 .map(DeployedModuleView::getModuleKey)
                 .collect(Collectors.toList());
@@ -165,7 +171,7 @@ public class PlatformUseCases {
         return platform.getGlobalProperties().stream()
                 .map(ValuedPropertyView::getName)
                 .collect(Collectors.toMap(Function.identity(), globalPropertyName ->
-                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, platform.getDeployedModules(), modulesSimpleProperties)));
+                        GlobalPropertyUsageView.getGlobalPropertyUsage(globalPropertyName, deployedModules, modulesSimpleProperties)));
     }
 
     public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {

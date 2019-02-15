@@ -22,13 +22,13 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -119,9 +119,61 @@ public class PlatformDocument {
         platformRepository.save(this);
     }
 
-    public void fillExistingAndUpgradedModulesWithProperties(List<DeployedModuleDocument> providedDeployedModules, boolean copyPropertiesForUpgradedModules) {
-        List<DeployedModule> deployedModulesProvided = DeployedModuleDocument.toDomainInstances(providedDeployedModules);
-        List<DeployedModule> deployedModules = toDomainPlatform().fillExistingAndUpgradedModulesWithProperties(deployedModulesProvided, copyPropertiesForUpgradedModules);
-        this.deployedModules = DeployedModuleDocument.fromDomainInstances(deployedModules);
+    /**
+     * 4 cas d'utilisation :
+     * - Nouveau module : on l'ajoute simplement
+     * - Module existant (id + path) : on copie les propriétés existantes pour ne pas les perdre
+     * - Mise à jour (id existant mais nouveau path) : on passe l'identifiant du module existant à null
+     * et on récupère les propriétés du module existant si c'est demandé => `copyPropertiesForUpgradedModules`
+     * - Retour arrière (id et path existants mais sur 2 modules distincts) : on récupère les propriétés
+     * du path existant et on met l'id du module existant à 0
+     */
+    public void updateModules(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
+        List<DeployedModuleDocument> newModuleList = new ArrayList<>();
+
+        providedModules.forEach(providedModule -> {
+            Optional<DeployedModuleDocument> existingModuleByIdAndPath = getModuleByIdAndPath(providedModule);
+            if (existingModuleByIdAndPath.isPresent()) {
+                providedModule.setValuedProperties(existingModuleByIdAndPath.get().getValuedProperties());
+            } else {
+                Optional<DeployedModuleDocument> existingModuleById = getModuleById(providedModule.getId());
+                Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
+                if (existingModuleById.isPresent()) {
+                    existingModuleById.get().setId(0L);
+                    newModuleList.add(existingModuleById.get());
+                    if (copyPropertiesForUpgradedModules) {
+                        providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
+                    } else if (existingModuleByPath.isPresent()) {
+                        providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
+                    }
+                } else if (existingModuleByPath.isPresent()) {
+                    // Cas de retour arrière après suppression
+                    providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
+                }
+            }
+            newModuleList.add(providedModule);
+        });
+        // Supprimer l'identifiant des modules qui n'ont pas été fournis (pour conserver les valorisations)
+        deployedModules.forEach(existingModule -> {
+            if (existingModule.hasBeenRemovedFrom(newModuleList)) {
+                existingModule.setId(0L);
+                newModuleList.add(existingModule);
+            }
+        });
+
+        deployedModules = newModuleList;
+    }
+
+    private Optional<DeployedModuleDocument> getModuleByIdAndPath(DeployedModuleDocument providedModule) {
+        return deployedModules.stream().filter(existingModule -> providedModule.getId().equals(existingModule.getId()) &&
+                providedModule.getPropertiesPath().equals(existingModule.getPropertiesPath())).findFirst();
+    }
+
+    private Optional<DeployedModuleDocument> getModuleById(Long providedModuleId) {
+        return deployedModules.stream().filter(existingModule -> providedModuleId.equals(existingModule.getId())).findFirst();
+    }
+
+    private Optional<DeployedModuleDocument> getModuleByPath(String providedModulePath) {
+        return deployedModules.stream().filter(existingModule -> providedModulePath.equals(existingModule.getPropertiesPath())).findFirst();
     }
 }
