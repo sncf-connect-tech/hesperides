@@ -112,7 +112,7 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new ApplicationNotFoundException(applicationName));
     }
 
-    public List<ModulePlatformView> getPlatformUsingModule(Module.Key moduleKey) {
+    public List<ModulePlatformView> getPlatformsUsingModule(Module.Key moduleKey) {
         return queries.getPlatformsUsingModule(moduleKey);
     }
 

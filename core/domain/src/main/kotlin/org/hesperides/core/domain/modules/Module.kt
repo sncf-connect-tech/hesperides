@@ -31,3 +31,4 @@ data class GetModuleVersionTypesQuery(val moduleName: String, val moduleVersion:
 data class SearchModulesQuery(val input: String)
 data class GetModulePropertiesQuery(val moduleKey: TemplateContainer.Key)
 data class GetModulesSimplePropertiesQuery(val modulesKeys: List<TemplateContainer.Key>)
+data class GetModulesUsingTechnoQuery(val technoId: String)

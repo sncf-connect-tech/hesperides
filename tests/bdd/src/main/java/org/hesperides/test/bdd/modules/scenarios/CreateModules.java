@@ -49,6 +49,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 String withThisTechno) -> {
 
             if (StringUtils.isNotEmpty(moduleName)) {
+                moduleBuilder.reset();
                 moduleBuilder.withName(moduleName);
             }
 
@@ -81,6 +82,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 moduleBuilder.withTemplate(templateBuilder.build());
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
+            moduleBuilder.addModule(moduleBuilder.build());
         });
 
         Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {

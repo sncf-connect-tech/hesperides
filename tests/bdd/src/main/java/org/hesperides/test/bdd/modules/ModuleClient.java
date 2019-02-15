@@ -21,6 +21,8 @@
 package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.TechnoModulesOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,5 +201,14 @@ public class ModuleClient {
                 HttpMethod.PUT,
                 new HttpEntity<>(moduleInput),
                 responseType);
+    }
+
+    public ResponseEntity<TechnoModulesOutput[]> getModulesUsingTechno(TechnoIO techno) {
+        return restTemplate.getForEntity(
+                "/modules/using_techno/{techno_name}/{techno_version}/{techno_type}",
+                TechnoModulesOutput[].class,
+                techno.getName(),
+                techno.getVersion(),
+                techno.getIsWorkingCopy() ? "workingcopy" : "release");
     }
 }

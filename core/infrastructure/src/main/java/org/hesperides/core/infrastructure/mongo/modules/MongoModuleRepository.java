@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.mongo.modules;
 
+import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
@@ -48,4 +49,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     @Query(value = "{ 'key' : { $in: ?0 } }", fields = "{ 'key' : 1, 'properties' : 1 }")
     List<ModuleDocument> findPropertiesByKeyIn(List<KeyDocument> modulesKeys);
+
+    List<ModuleDocument> findAllByTechnosId(String technoId);
 }

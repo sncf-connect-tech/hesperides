@@ -3,6 +3,7 @@ package org.hesperides.core.domain.modules.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.modules.*;
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
@@ -67,5 +68,9 @@ public class ModuleQueries extends AxonQueries {
 
     public List<ModuleSimplePropertiesView> getModulesSimpleProperties(List<TemplateContainer.Key> modulesKeys) {
         return querySyncList(new GetModulesSimplePropertiesQuery(modulesKeys), ModuleSimplePropertiesView.class);
+    }
+
+    public List<TechnoModuleView> getModulesUsingTechno(String technoId) {
+        return querySyncList(new GetModulesUsingTechnoQuery(technoId), TechnoModuleView.class);
     }
 }
