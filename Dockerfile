@@ -7,6 +7,7 @@ RUN rm /etc/init.d/mongo* /etc/conf.d/mongo* /usr/bin/mongod /usr/bin/mongos /et
 COPY bootstrap/target/hesperides-*.jar hesperides.jar
 COPY mongo_create_collections.js /
 COPY docker_entrypoint.sh /
+RUN chmod u+x /docker_entrypoint.sh
 
 ENTRYPOINT ["/docker_entrypoint.sh"]
 
