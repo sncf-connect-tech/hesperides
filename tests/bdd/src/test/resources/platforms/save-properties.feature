@@ -4,7 +4,7 @@ Feature: Save properties
     Given an authenticated user
 
   #issue-504
-  Scenario: save a required property and a property that has to match a pattern
+  Scenario: saving properties with @required and/or @pattern annotations`
     Given an existing module with this template content
       """
       {{ required-property | @required }}
@@ -43,4 +43,30 @@ Feature: Save properties
     When I try to save these properties
       | name       | value |
       | a-property |       |
+    Then the request is rejected with a bad request error
+
+  Scenario: save a valid required property and an invalid pattern property
+    Given an existing module with this template content
+      """
+      {{ required-property | @required }}
+      {{ pattern-property | @pattern "[a-z]*" }}
+      """
+    And an existing platform with this module
+    When I try to save these properties
+      | name              | value   |
+      | required-property | a-value |
+      | pattern-property  | aValue  |
+    Then the request is rejected with a bad request error
+
+  Scenario: save an invalid required property and a valid pattern property
+    Given an existing module with this template content
+      """
+      {{ required-property | @required }}
+      {{ pattern-property | @pattern "[a-z]*" }}
+      """
+    And an existing platform with this module
+    When I try to save these properties
+      | name              | value  |
+      | required-property |        |
+      | pattern-property  | avalue |
     Then the request is rejected with a bad request error

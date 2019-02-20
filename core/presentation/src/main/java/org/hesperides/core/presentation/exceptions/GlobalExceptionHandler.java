@@ -6,8 +6,7 @@ import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
-import org.hesperides.core.domain.platforms.exceptions.PropertyPatternNotMatchedException;
-import org.hesperides.core.domain.platforms.exceptions.RequiredPropertyNotValorisedException;
+import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,8 +43,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             IllegalArgumentException.class,
             RequiredPropertyWithDefaultValueException.class,
             UpdateReleaseException.class,
-            RequiredPropertyNotValorisedException.class,
-            PropertyPatternNotMatchedException.class})
+            InvalidPropertyValorisationException.class})
     public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
