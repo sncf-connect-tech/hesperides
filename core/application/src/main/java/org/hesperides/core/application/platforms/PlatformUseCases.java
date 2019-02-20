@@ -10,9 +10,7 @@ import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
-import org.hesperides.core.domain.platforms.exceptions.DuplicatePlatformException;
-import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
+import org.hesperides.core.domain.platforms.exceptions.*;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
@@ -20,6 +18,8 @@ import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPrope
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -202,9 +202,32 @@ public class PlatformUseCases {
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
+            validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey);
             commands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
         return getValuedProperties(platformKey, propertiesPath, user);
+    }
+
+    /**
+     * Vérifie que les propriétés obligatoires sont bien valorisées
+     * et que celles ayant un pattern le respecte bien.
+     */
+    private void validateRequiredAndPatternProperties(List<AbstractValuedProperty> abstractValuedProperties, Module.Key moduleKey) {
+        // On récupère d'abord toutes les propriétés du module et les propriétés valorisées.
+        // Cela inclut les propriétés définies ou valorisées à l'intérieur des propriétés itérables.
+        List<PropertyView> allModuleProperties = AbstractPropertyView.getFlatProperties(moduleQueries.getProperties(moduleKey));
+        List<ValuedProperty> allValuedProperties = AbstractValuedProperty.getFlatValuedProperties(abstractValuedProperties);
+
+        allModuleProperties.forEach(moduleProperty -> {
+            List<ValuedProperty> matchingValuedProperties = allValuedProperties.stream()
+                    .filter(valuedPropery -> StringUtils.equals(valuedPropery.getName(), moduleProperty.getName()))
+                    .collect(Collectors.toList());
+            if (moduleProperty.isRequiredAndNotValorised(matchingValuedProperties)) {
+                throw new RequiredPropertyNotValorisedException(moduleProperty.getName());
+            } else if (moduleProperty.hasValueThatDoesntMatchPattern(matchingValuedProperties)) {
+                throw new PropertyPatternNotMatchedException(moduleProperty.getName(), moduleProperty.getPattern());
+            }
+        });
     }
 }
