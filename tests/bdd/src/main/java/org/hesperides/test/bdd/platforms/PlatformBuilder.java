@@ -49,8 +49,6 @@ public class PlatformBuilder {
     private List<InstanceIO> instances;
     private List<ValuedPropertyIO> instancePropertyValues;
 
-    private List<PlatformIO> platforms = new ArrayList<>();
-
     public PlatformBuilder() {
         reset();
     }
@@ -68,10 +66,6 @@ public class PlatformBuilder {
         instances = new ArrayList<>();
         instancePropertyValues = new ArrayList<>();
         return this;
-    }
-
-    public void resetPlatforms() {
-        platforms = new ArrayList<>();
     }
 
     public String getPlatformName() {
@@ -110,8 +104,18 @@ public class PlatformBuilder {
         return deployedModules;
     }
 
-    public void setDeployedModules(List<DeployedModuleIO> deployedModules) {
-        this.deployedModules = deployedModules;
+    public void incrementDeployedModuleIds() {
+        deployedModules = deployedModules.stream()
+                .map(dm -> new DeployedModuleIO(
+                        dm.getId() + 1,
+                        dm.getName(),
+                        dm.getVersion(),
+                        dm.getIsWorkingCopy(),
+                        dm.getModulePath(),
+                        dm.getPropertiesPath(),
+                        dm.getInstances()
+                ))
+                .collect(Collectors.toList());
     }
 
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath, String logicalGroup) {
@@ -165,16 +169,6 @@ public class PlatformBuilder {
         return new ApplicationOutput(applicationName, Arrays.asList(platform));
     }
 
-    public PropertiesIO buildPropertiesInput(boolean isGlobal) {
-        return new PropertiesIO(
-                properties
-                        .stream()
-                        .filter(property -> property.isGlobal() == isGlobal)
-                        .map(property -> new ValuedPropertyIO(property.name, property.value))
-                        .collect(Collectors.toSet()),
-                new HashSet<>(iterableProperties));
-    }
-
     public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
         boolean isUsed = modelBuilder.containsProperty(name);
         properties.add(new Property(name, value, true, isUsed, false));
@@ -186,6 +180,17 @@ public class PlatformBuilder {
 
     public void withProperty(String name, String value) {
         properties.add(new Property(name, value, false, false, false));
+    }
+
+    public void setProperty(String name, String value) {
+        properties = properties.stream()
+                .map(p -> {
+                    if (p.getName().equals(name)) {
+                        p = p.copyWithValue(value);
+                    }
+                    return p;
+                })
+                .collect(Collectors.toList());
     }
 
     public void withInstanceProperty(String propertyName, String... instancePropertyNames) {
@@ -205,30 +210,16 @@ public class PlatformBuilder {
         return properties;
     }
 
-    public PropertiesIO getPropertiesIO() {
+    public PropertiesIO getPropertiesIO(boolean isGlobal) {
         return new PropertiesIO(
-                new HashSet<>(getModuleProperties()),
+                new HashSet<>(getValuedProperties(isGlobal)),
                 new HashSet<>(iterableProperties));
     }
 
-    public PropertiesIO getGlobalPropertiesIO() {
-        return new PropertiesIO(
-                new HashSet<>(getAllGlobalProperties()),
-                new HashSet<>());
-    }
-
-    public List<ValuedPropertyIO> getAllGlobalProperties() {
+    private List<ValuedPropertyIO> getValuedProperties(boolean isGlobal) {
         return properties
                 .stream()
-                .filter(Property::isGlobal)
-                .map(property -> new ValuedPropertyIO(property.name, property.value))
-                .collect(Collectors.toList());
-    }
-
-    private List<ValuedPropertyIO> getModuleProperties() {
-        return properties
-                .stream()
-                .filter(property -> !property.isGlobal())
+                .filter(property -> property.isGlobal() == isGlobal)
                 .map(property -> new ValuedPropertyIO(property.name, property.value))
                 .collect(Collectors.toList());
     }
@@ -238,6 +229,10 @@ public class PlatformBuilder {
                 .stream()
                 .map(property -> new ValuedPropertyIO(property.name, property.value))
                 .collect(Collectors.toList());
+    }
+
+    public List<ValuedPropertyIO> getAllGlobalProperties() {
+        return getValuedProperties(true);
     }
 
     public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
@@ -256,18 +251,6 @@ public class PlatformBuilder {
                         .collect(Collectors.toSet()));
     }
 
-    public void addPlatform(PlatformIO platform) {
-        platforms.add(platform);
-    }
-
-    public List<ModulePlatformsOutput> buildModulePlatforms() {
-        return Optional.ofNullable(platforms)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(platform -> new ModulePlatformsOutput(platform.getApplicationName(), platform.getPlatformName()))
-                .collect(Collectors.toList());
-    }
-
     public List<ValuedPropertyIO> getInstancePropertyValues() {
         return instancePropertyValues;
     }
@@ -279,5 +262,14 @@ public class PlatformBuilder {
         boolean isGlobal;
         boolean isUsed;
         boolean isRemovedFromTemplate;
+        Property copyWithValue(String newValue) {
+            return new Property(
+                    name,
+                    newValue,
+                    isGlobal,
+                    isUsed,
+                    isRemovedFromTemplate
+            );
+        }
     }
 }

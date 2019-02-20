@@ -26,6 +26,7 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,23 +36,28 @@ public class GetPlatforms extends HesperidesScenario implements En {
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
 
     public GetPlatforms() {
 
-        When("^I( try to)? get the platform detail( at a specific time in the past)?( with the wrong letter case)?$", (String tryTo, String withTimestamp, String withWrongLetterCase) -> {
+        When("^I( try to)? get the platform detail( at a specific time in the past)?( at the time of the EPOCH)?( with the wrong letter case)?$", (String tryTo, String withTimestamp, String withEpochTimestamp, String withWrongLetterCase) -> {
+            Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
-                //TODO
+                timestamp = platformHistory.getFirstPlatformTimestamp();
+            } else if (StringUtils.isNotEmpty(withEpochTimestamp)) {
+                timestamp = 0L;
             }
             PlatformIO platformInput = platformBuilder.buildInput();
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {
                 platformInput = new PlatformBuilder().withPlatformName(platformBuilder.getPlatformName().toUpperCase()).buildInput();
             }
-            testContext.responseEntity = platformClient.get(platformInput, getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.get(platformInput, timestamp, getResponseType(tryTo, PlatformIO.class));
         });
 
-        Then("^the platform detail is successfully retrieved", () -> {
+        Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {
             assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
+            PlatformIO expectedPlatform = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformState() : platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });

@@ -70,12 +70,17 @@ public class PlatformsController extends AbstractController {
     @ApiOperation("Retrieve a platform")
     @GetMapping("/{application_name}/platforms/{platform_name:.+}")
     public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
-                                                  @PathVariable("platform_name") final String platformName) {
+                                                  @PathVariable("platform_name") final String platformName,
+                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        PlatformView platformView = platformUseCases.getPlatform(platformKey);
+        PlatformView platformView;
+        if (timestamp != null) {
+            platformView = platformUseCases.getPlatformAtPointInTime(platformKey, timestamp);
+        } else {
+            platformView = platformUseCases.getPlatform(platformKey);
+        }
         PlatformIO platformOutput = new PlatformIO(platformView);
-
         return ResponseEntity.ok(platformOutput);
     }
 
@@ -125,8 +130,8 @@ public class PlatformsController extends AbstractController {
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
     @ApiOperation("Get properties with the given path in a platform")
     public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") final String applicationName,
-                                                                  @PathVariable(value = "platform_name") final String platform_name,
-                                                                  @RequestParam(value = "path") final String propertiesPath) {
+                                                                  @PathVariable("platform_name") final String platform_name,
+                                                                  @RequestParam("path") final String propertiesPath) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
 
@@ -204,10 +209,11 @@ public class PlatformsController extends AbstractController {
     public ResponseEntity<PropertiesIO> getValuedProperties(Authentication authentication,
                                                             @PathVariable("application_name") final String applicationName,
                                                             @PathVariable("platform_name") final String platformName,
-                                                            @RequestParam("path") final String propertiesPath) {
+                                                            @RequestParam("path") final String propertiesPath,
+                                                            @RequestParam(value = "timestamp", required = false) final Long timestamp) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
         return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
     }
 

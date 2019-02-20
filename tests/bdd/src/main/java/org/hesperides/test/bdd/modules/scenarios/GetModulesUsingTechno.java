@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.TechnoModulesOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ public class GetModulesUsingTechno extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private ModuleHistory moduleHistory;
+    @Autowired
     private TechnoBuilder technoBuilder;
 
     public GetModulesUsingTechno() {
@@ -49,7 +52,7 @@ public class GetModulesUsingTechno extends HesperidesScenario implements En {
 
         Then("^the modules using this techno are successfully retrieved", () -> {
             assertOK();
-            List<TechnoModulesOutput> expectedModules = moduleBuilder.buildTechnoModules();
+            List<TechnoModulesOutput> expectedModules = moduleHistory.buildTechnoModules();
             List<TechnoModulesOutput> actualModules = Arrays.asList(getBodyAsArray());
             Assert.assertEquals(expectedModules, actualModules);
         });

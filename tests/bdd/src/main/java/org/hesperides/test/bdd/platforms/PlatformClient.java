@@ -86,8 +86,16 @@ public class PlatformClient {
     }
 
     public ResponseEntity get(PlatformIO platformInput, Class responseType) {
+        return get(platformInput, null, responseType);
+    }
+
+    public ResponseEntity get(PlatformIO platformInput, Long timestamp, Class responseType) {
+        String url = "/applications/{application_name}/platforms/{platform_name}";
+        if (timestamp != null) {
+            url += "?timestamp=" + timestamp;
+        }
         return restTemplate.getForEntity(
-                "/applications/{application_name}/platforms/{platform_name}",
+                url,
                 responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
@@ -162,8 +170,16 @@ public class PlatformClient {
     }
 
     public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath) {
+        return getProperties(platform, propertiesPath, null);
+    }
+
+    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath, Long timestamp) {
+        String url = "/applications/{application_name}/platforms/{platform_name}/properties?path={properties_path}";
+        if (timestamp != null) {
+            url += "&timestamp=" + timestamp;
+        }
         return restTemplate.getForEntity(
-                "/applications/{application_name}/platforms/{platform_name}/properties?path={properties_path}",
+                url,
                 PropertiesIO.class,
                 platform.getApplicationName(),
                 platform.getPlatformName(),

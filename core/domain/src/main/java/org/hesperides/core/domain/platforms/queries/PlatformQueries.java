@@ -20,11 +20,13 @@
  */
 package org.hesperides.core.domain.platforms.queries;
 
+import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -32,12 +34,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class PlatformQueries extends AxonQueries {
 
+    private QueryGateway queryGateway;
+
     protected PlatformQueries(QueryGateway queryGateway) {
         super(queryGateway);
+        this.queryGateway = queryGateway;
     }
 
     public Optional<String> getOptionalPlatformId(Platform.Key platformKey) {
@@ -50,6 +56,17 @@ public class PlatformQueries extends AxonQueries {
 
     public Optional<PlatformView> getOptionalPlatform(Platform.Key platformKey) {
         return querySyncOptional(new GetPlatformByKeyQuery(platformKey), PlatformView.class);
+    }
+
+    public PlatformView getPlatformAtPointInTime(String platformId, long timestamp) {
+        try {
+            return queryGateway.query(new GetPlatformAtPointInTimeQuery(platformId, timestamp), PlatformView.class).get();
+        } catch (ExecutionException | InterruptedException error) {
+            if (error.getCause() instanceof InexistantPlatformAtTimeException) {
+                throw (InexistantPlatformAtTimeException)error.getCause();
+            }
+            throw new QueryExecutionException(error.getMessage(), error);
+        }
     }
 
     public boolean platformExists(Platform.Key platformKey) {

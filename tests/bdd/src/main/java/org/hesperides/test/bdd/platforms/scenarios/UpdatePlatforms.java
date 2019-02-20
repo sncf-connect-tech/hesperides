@@ -30,6 +30,8 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -46,7 +48,11 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private ModelBuilder modelBuilder;
+    @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
 
     @When("^I( try to)? update this platform" +
             "(, (?:adding|removing) this module)?" +
@@ -55,6 +61,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "(, upgrading its module)?" +
             "(, and requiring the copy of properties)?" +
             "(, with an empty payload)?" +
+            "(, changing property values)?" +
             "(, changing the application version)?" +
             "( to a prod one)?$")
     public void whenIupdateThisPlatform(
@@ -65,6 +72,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String upgradeModule,
             String withCopy,
             String withAnEmptyPayload,
+            String changePropertyValues,
             String changeApplicationVersion,
             String toProd) {
         moduleBuilder.setLogicalGroup(logicalGroup);
@@ -82,12 +90,17 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
             platformBuilder.withInstance("instance-foo-1");
             platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
         if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
             // So that "Then the platform is successfully updated" step validate there is no more modules:
             platformBuilder.withNoModule();
+        }
+        if (StringUtils.isNotEmpty(changePropertyValues)) {
+            modelBuilder.getProperties().forEach(property -> platformBuilder.setProperty(property.getName(), "42"));
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
         }
         if (StringUtils.isNotEmpty(changeApplicationVersion)) {
             platformBuilder.withVersion("12");
@@ -96,6 +109,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withIsProductionPlatform(true);
         }
         testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class));
+        platformHistory.addPlatform();
         platformBuilder.incrementVersionId();
     }
 

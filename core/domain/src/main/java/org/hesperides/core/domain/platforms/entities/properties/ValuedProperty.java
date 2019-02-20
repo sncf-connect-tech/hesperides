@@ -79,10 +79,13 @@ public class ValuedProperty extends AbstractValuedProperty {
     }
 
     private static boolean propertyIsNotInProperties(String propertyName, List<ValuedProperty> properties) {
-        return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
-                .stream()
-                .noneMatch(property -> property.getName().equals(propertyName));
+        // Lucas 2019/02/20: d'après mes tests avec JProfiler, cette méthode est un hotspot
+        // lors de l'ajout de la migration de plateforme.
+        // Pour optimiser je me passe donc d'Optional et de lambda ici:
+        if (properties == null || propertyName == null) {
+            return false;
+        }
+        return properties.stream().map(ValuedProperty::getName).noneMatch(propertyName::equals);
     }
 
     @Override

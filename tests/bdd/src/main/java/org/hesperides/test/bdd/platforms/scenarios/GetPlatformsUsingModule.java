@@ -24,8 +24,8 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,7 +37,7 @@ public class GetPlatformsUsingModule extends HesperidesScenario implements En {
     @Autowired
     private PlatformClient platformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private PlatformHistory platformHistory;
     @Autowired
     private ModuleBuilder moduleBuilder;
 
@@ -49,7 +49,7 @@ public class GetPlatformsUsingModule extends HesperidesScenario implements En {
 
         Then("^the platforms using this module are successfully retrieved", () -> {
             assertOK();
-            List<ModulePlatformsOutput> expectedPlatforms = platformBuilder.buildModulePlatforms();
+            List<ModulePlatformsOutput> expectedPlatforms = platformHistory.buildModulePlatforms();
             List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(getBodyAsArray());
             Assert.assertEquals(expectedPlatforms, actualPlatforms);
         });

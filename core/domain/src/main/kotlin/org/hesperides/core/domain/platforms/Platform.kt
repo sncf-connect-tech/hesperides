@@ -29,6 +29,7 @@ data class PlatformModulePropertiesUpdatedEvent(val platformId: String, val prop
 data class GetPlatformIdFromKeyQuery(val platformKey: Platform.Key)
 data class GetPlatformByIdQuery(val platformId: String)
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
+data class GetPlatformAtPointInTimeQuery(val platformId: String, val timestamp: Long)
 data class PlatformExistsByKeyQuery(val platformKey: Platform.Key)
 data class GetApplicationByNameQuery(val applicationName: String)
 data class GetPlatformsUsingModuleQuery(val moduleKey: Module.Key)
