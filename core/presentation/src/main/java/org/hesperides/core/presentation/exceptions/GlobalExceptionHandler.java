@@ -1,11 +1,13 @@
 package org.hesperides.core.presentation.exceptions;
 
 import org.axonframework.commandhandling.model.AggregateNotFoundException;
+import org.axonframework.queryhandling.QueryExecutionException;
 import org.hesperides.core.domain.exceptions.DuplicateException;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
+import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.springframework.http.HttpHeaders;
@@ -59,7 +61,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param ex "not found" failure
      * @return entitiy
      */
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler({InexistantPlatformAtTimeException.class, NotFoundException.class})
     public ResponseEntity handleNotFound(Exception ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }

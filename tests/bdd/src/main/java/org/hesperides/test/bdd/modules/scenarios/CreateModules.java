@@ -7,6 +7,7 @@ import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
@@ -21,6 +22,8 @@ public class CreateModules extends HesperidesScenario implements En {
     private ModuleClient moduleClient;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private ModuleHistory moduleHistory;
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
@@ -82,7 +85,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 moduleBuilder.withTemplate(templateBuilder.build());
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
-            moduleBuilder.addModule(moduleBuilder.build());
+            moduleHistory.addModule();
         });
 
         Given("^a module with (\\d+) versions$", (Integer nbVersions) -> {

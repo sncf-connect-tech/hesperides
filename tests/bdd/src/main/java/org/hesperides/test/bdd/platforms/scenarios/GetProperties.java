@@ -27,6 +27,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -39,21 +40,27 @@ public class GetProperties extends HesperidesScenario implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
+    private PlatformHistory platformHistory;
+    @Autowired
     private ModuleBuilder moduleBuilder;
 
     public GetProperties() {
 
-        When("^I get the platform properties for this module$", () -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+        When("^I get the platform properties for this module( at a specific time in the past)?$", (String withTimestamp) -> {
+            Long timestamp = null;
+            if (StringUtils.isNotEmpty(withTimestamp)) {
+                timestamp = platformHistory.getFirstPlatformTimestamp();
+            }
+            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp);
         });
 
         When("^I get the global properties of this platform$", () -> {
             testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
         });
 
-        Then("^the platform( global)? properties are successfully retrieved$", (String global) -> {
+        Then("^the( initial)? platform( global)? properties are successfully retrieved$", (String initial, String global) -> {
             assertOK();
-            PropertiesIO expectedProperties = StringUtils.isEmpty(global) ? platformBuilder.getPropertiesIO() : platformBuilder.getGlobalPropertiesIO();
+            PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformProperties() : platformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
             PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)testContext.responseEntity).getBody();
             assertEquals(expectedProperties, actualProperties);
         });

@@ -84,6 +84,12 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
     }
 
+    public PlatformView getPlatformAtPointInTime(Platform.Key platformKey, long timestamp) {
+        String platformId = queries.getOptionalPlatformId(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        return queries.getPlatformAtPointInTime(platformId, timestamp);
+    }
+
     public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
         PlatformView existingPlatform = queries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
@@ -125,10 +131,13 @@ public class PlatformUseCases {
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
+        return getValuedProperties(platformKey, propertiesPath, null, user);
+    }
+
+    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
-        PlatformView platform = queries.getOptionalPlatform(platformKey)
-                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
 
         if (ROOT_PATH.equals(propertiesPath)) {
             properties.addAll(queries.getGlobalProperties(platformKey));

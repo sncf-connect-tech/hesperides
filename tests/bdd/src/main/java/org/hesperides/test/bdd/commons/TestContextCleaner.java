@@ -1,7 +1,9 @@
 package org.hesperides.test.bdd.commons;
 
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
@@ -33,7 +35,11 @@ public class TestContextCleaner {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private ModuleHistory moduleHistory;
+    @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
 
     public void reset() {
         resetRestTemplateAuthHeader();
@@ -51,8 +57,8 @@ public class TestContextCleaner {
         propertyBuilder.reset();
         modelBuilder.reset();
         moduleBuilder.reset();
-        moduleBuilder.resetModules();
+        moduleHistory.reset();
         platformBuilder.reset();
-        platformBuilder.resetPlatforms();
+        platformHistory.reset();
     }
 }

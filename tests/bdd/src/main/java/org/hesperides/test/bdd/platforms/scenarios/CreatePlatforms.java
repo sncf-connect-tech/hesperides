@@ -37,6 +37,7 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     private ModuleClient moduleClient;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
@@ -114,6 +117,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withInstance("instance-foo-1");
             }
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            platformBuilder.incrementDeployedModuleIds();
         }
         commonSteps.ensureUserAuthIsSet();
         testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
@@ -124,7 +128,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (moduleBuilder.hasTechno()) {
                 platformBuilder.withProperty("techno-foo", "12");
             }
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
 
@@ -139,7 +143,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                             new IterablePropertyItemIO("bloc-techno-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2"))))
                     ))
             ));
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
 
@@ -168,7 +172,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                             )))
                     ))
             ));
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
 
@@ -180,7 +184,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withGlobalProperty("global-filename", "abc", modelBuilder);
             platformBuilder.withGlobalProperty("global-location", "def", modelBuilder);
             platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(true));
             platformBuilder.incrementVersionId();
         }
 
@@ -189,18 +193,18 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (moduleBuilder.hasTechno()) {
                 platformBuilder.withInstanceProperty("techno-foo", "instance-techno-foo");
             }
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
 
         if (isNotEmpty(withFilenameLocationValues)) {
             platformBuilder.withProperty("filename", "conf");
             platformBuilder.withProperty("location", "etc");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         }
 
-        platformBuilder.addPlatform(platformBuilder.buildInput());
+        platformHistory.addPlatform();
     }
 
     public CreatePlatforms() {
@@ -237,36 +241,36 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Given("^the platform has instance properties with the same name as a global property$", () -> {
             platformBuilder.withProperty("module-foo", "{{ global-property }}");
             platformBuilder.withInstanceProperty("module-bar", "instance-property");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
             platformBuilder.withGlobalProperty("global-property", "12", modelBuilder);
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(true));
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(true));
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has instance properties with the same name as another module property$", () -> {
             platformBuilder.withProperty("module-foo", "{{ module-bar }}");
             platformBuilder.withProperty("module-bar", "12");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has instance properties with the same name as the module property that it's declared in$", () -> {
             platformBuilder.withInstanceProperty("module-foobar", "module-foobar");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has multiple instance properties declared in the same property value$", () -> {
             platformBuilder.withInstanceProperty("module-bar", "instance-property", "another-instance-property");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has an instance property declared twice$", () -> {
             platformBuilder.withInstanceProperty("module-foo", "instance-property");
             platformBuilder.withInstanceProperty("module-bar", "instance-property");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
@@ -342,14 +346,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform property values are(?: also)? copied$", () -> {
             // Propriétés valorisées
             ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
-            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO();
+            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO(false);
             PropertiesIO actualProperties = responseEntity.getBody();
             assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
             responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
             assertOK();
-            PropertiesIO expectedGlobalProperties = platformBuilder.getGlobalPropertiesIO();
+            PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
             PropertiesIO actualGlobalProperties = responseEntity.getBody();
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });

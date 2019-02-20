@@ -55,7 +55,7 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
         Given("^the deployed module properties are valued with the platform global properties$", () -> {
             platformBuilder.withProperty("module-foo", "{{ instance-property-a }}{{ global-module-foo }}");
             platformBuilder.withProperty("techno-foo", "{{ global-techno-foo }}");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.buildPropertiesInput(false), moduleBuilder.getPropertiesPath());
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, false);
             platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, false);
         });

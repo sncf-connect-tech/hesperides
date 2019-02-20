@@ -2,16 +2,22 @@ package org.hesperides.core.infrastructure.mongo.platforms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.axonframework.eventhandling.AnnotationEventListenerAdapter;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
+import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
+import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.infrastructure.inmemory.platforms.InmemoryPlatformRepository;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.platforms.documents.*;
@@ -43,21 +49,23 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     private final MongoPlatformRepository platformRepository;
     private final MongoModuleRepository mongoModuleRepository;
+    private final EventStorageEngine eventStorageEngine;
     private final MongoTemplate mongoTemplate;
     private final Environment environment;
 
     @Autowired
     public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
-                                             MongoTemplate mongoTemplate, Environment environment) {
+                                             EventStorageEngine eventStorageEngine, MongoTemplate mongoTemplate, Environment environment) {
         this.platformRepository = platformRepository;
         this.mongoModuleRepository = mongoModuleRepository;
+        this.eventStorageEngine = eventStorageEngine;
         this.mongoTemplate = mongoTemplate;
         this.environment = environment;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
-        if (isProfileActive(environment, MONGO)) {
+        if (environment != null && isProfileActive(environment, MONGO)) {
             ensureCaseInsensitivity(mongoTemplate, PLATFORM_COLLECTION_NAME);
         }
     }
@@ -106,12 +114,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 platformDocument.setVersionId(newPlatformDocument.getVersionId());
             }
 
-            platformDocument.getDeployedModules()
-                    .stream()
-                    .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
-                    .forEach(deployedModuleDocument -> {
-                        completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument);
-                    });
+            if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
+                platformDocument.getDeployedModules()
+                        .stream()
+                        .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
+                        .forEach(deployedModuleDocument -> {
+                            completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument);
+                        });
+            }
             platformDocument.buildInstancesModelAndSave(platformRepository);
         });
     }
@@ -143,11 +153,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         }
 
         // Modification des propriétés du module dans la plateforme
-        platformDocument.getDeployedModules().stream()
-                .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
-                .findAny().ifPresent(deployedModuleDocument -> {
-            completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument);
-        });
+        if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
+            platformDocument.getDeployedModules().stream()
+                    .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
+                    .findAny().ifPresent(deployedModuleDocument -> {
+                completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument);
+            });
+        }
         platformDocument.buildInstancesModelAndSave(platformRepository);
     }
 
@@ -227,6 +239,35 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.findOptionalByKey(platformKeyDocument)
                 .map(PlatformDocument::toPlatformView);
+    }
+
+    @QueryHandler
+    public PlatformView onGetPlatformAtPointInTimeQuery(GetPlatformAtPointInTimeQuery query) {
+        DomainEventStream eventStream = eventStorageEngine.readEvents(query.getPlatformId()).filter(domainEventMessage ->
+                domainEventMessage.getTimestamp().toEpochMilli() < query.getTimestamp()
+        );
+        InmemoryPlatformRepository inmemoryPlatformRepository = new InmemoryPlatformRepository();
+        AnnotationEventListenerAdapter eventHandlerAdapter = new AnnotationEventListenerAdapter(new MongoPlatformProjectionRepository(
+                inmemoryPlatformRepository, null, null, null, null
+        ));
+        boolean errorWhileReplaying = false;
+        boolean zeroEventsBeforeTimestamp = true;
+        while (!errorWhileReplaying && eventStream.hasNext()) {
+            zeroEventsBeforeTimestamp = false;
+            try {
+                eventHandlerAdapter.handle(eventStream.next());
+            } catch (Exception error) {
+                errorWhileReplaying = true;
+                log.error("Unreplayable platform event: {}", error);
+            }
+        }
+        if (zeroEventsBeforeTimestamp) {
+            throw new InexistantPlatformAtTimeException(query.getTimestamp());
+        }
+        if (errorWhileReplaying) {
+            throw new UnreplayablePlatformEventsException(query.getTimestamp());
+        }
+        return inmemoryPlatformRepository.getCurrentPlatformDocument().toPlatformView();
     }
 
     @QueryHandler
