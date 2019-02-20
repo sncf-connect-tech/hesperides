@@ -135,10 +135,14 @@ public class PlatformClient {
     }
 
     public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {
+        return saveProperties(platformInput, propertiesInput, propertiesPath, PropertiesIO.class);
+    }
+
+    public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, Class responseType) {
         return restTemplate.postForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={properties_path}&comment={comment}",
                 propertiesInput,
-                PropertiesIO.class,
+                responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName(),
                 platformInput.getVersionId(),

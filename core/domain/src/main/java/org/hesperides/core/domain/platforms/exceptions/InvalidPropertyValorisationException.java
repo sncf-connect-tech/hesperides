@@ -18,29 +18,11 @@
  *
  *
  */
-package org.hesperides.core.domain.templatecontainers.queries;
+package org.hesperides.core.domain.platforms.exceptions;
 
-import lombok.Value;
-import lombok.experimental.NonFinal;
+public class InvalidPropertyValorisationException extends RuntimeException {
 
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-@Value
-@NonFinal
-public abstract class AbstractPropertyView {
-
-    String name;
-
-    public static List<PropertyView> getFlatProperties(final List<AbstractPropertyView> abstractValuedProperties) {
-        return abstractValuedProperties
-                .stream()
-                .map(AbstractPropertyView::flattenProperties)
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+    public InvalidPropertyValorisationException(String message) {
+        super(message);
     }
-
-    protected abstract Stream<PropertyView> flattenProperties();
 }
