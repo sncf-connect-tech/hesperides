@@ -15,7 +15,6 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
 import org.hesperides.core.infrastructure.mongo.eventstores.AxonEventRepository;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
-import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;

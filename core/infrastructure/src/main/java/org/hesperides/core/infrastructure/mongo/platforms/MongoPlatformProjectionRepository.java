@@ -17,6 +17,7 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.hesperides.core.infrastructure.inmemory.platforms.InmemoryPlatformRepository;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
@@ -47,20 +48,39 @@ import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensure
 @Repository
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
 
-    private final MongoPlatformRepository platformRepository;
+    private MinimalPlatformRepository minimalPlatformRepository;
+    private final PlatformRepository platformRepository;
     private final MongoModuleRepository mongoModuleRepository;
     private final EventStorageEngine eventStorageEngine;
     private final MongoTemplate mongoTemplate;
     private final Environment environment;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
+    public MongoPlatformProjectionRepository(PlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
                                              EventStorageEngine eventStorageEngine, MongoTemplate mongoTemplate, Environment environment) {
+        this.minimalPlatformRepository = platformRepository;
         this.platformRepository = platformRepository;
         this.mongoModuleRepository = mongoModuleRepository;
         this.eventStorageEngine = eventStorageEngine;
         this.mongoTemplate = mongoTemplate;
         this.environment = environment;
+    }
+
+    private MongoPlatformProjectionRepository(MinimalPlatformRepository minimalPlatformRepository) {
+        this.minimalPlatformRepository = minimalPlatformRepository;
+        this.platformRepository = null;
+        this.mongoModuleRepository = null;
+        this.eventStorageEngine = null;
+        this.mongoTemplate = null;
+        this.environment = null;
+    }
+
+    // Both only exists for batch:
+    public MinimalPlatformRepository getMinimalPlatformRepository() {
+        return minimalPlatformRepository;
+    }
+    public void setMinimalPlatformRepository(MinimalPlatformRepository minimalPlatformRepository) {
+        this.minimalPlatformRepository = minimalPlatformRepository;
     }
 
     @PostConstruct
@@ -76,7 +96,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
 
     @EventHandler
@@ -87,7 +107,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // dont le dernier évènement est un évènement de suppression,
         // il n'est pas nécessaire d'effectuer cette suppression.
         if (!HasProfile.dataMigration()) {
-            platformRepository.deleteById(event.getPlatformId());
+            minimalPlatformRepository.deleteById(event.getPlatformId());
         }
     }
 
@@ -103,7 +123,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
          * Par contre, les valorisations de propriétés globales ou de modules sont préservées.
          */
         PlatformDocument newPlatformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        platformRepository.findById(event.getPlatformId()).ifPresent(platformDocument -> {
+        minimalPlatformRepository.findById(event.getPlatformId()).ifPresent(platformDocument -> {
             platformDocument.setVersion(newPlatformDocument.getVersion());
             platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
             platformDocument.updateModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), newPlatformDocument.getVersionId());
@@ -122,7 +142,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                             completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument);
                         });
             }
-            platformDocument.buildInstancesModelAndSave(platformRepository);
+            platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
         });
     }
 
@@ -133,7 +153,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         final List<AbstractValuedPropertyDocument> abstractValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
 
         // Récupération de la plateforme et mise à jour de la version
-        Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
+        Optional<PlatformDocument> optPlatformDocument = minimalPlatformRepository.findById(event.getPlatformId());
         if (!optPlatformDocument.isPresent()) {
             if (HasProfile.dataMigration()) {
                 // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
@@ -160,7 +180,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument);
             });
         }
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
 
     private void completePropertiesWithMustacheContentPasswordAndDefaultValues(List<AbstractValuedPropertyDocument> abstractValuedProperties,
@@ -192,7 +212,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Retrieve platform
 
-        Optional<PlatformDocument> optPlatformDocument = platformRepository.findById(event.getPlatformId());
+        Optional<PlatformDocument> optPlatformDocument = minimalPlatformRepository.findById(event.getPlatformId());
         if (!optPlatformDocument.isPresent()) {
             if (HasProfile.dataMigration()) {
                 // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
@@ -213,7 +233,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.setVersionId(event.getPlatformVersionId());
         }
         platformDocument.setGlobalProperties(valuedProperties);
-        platformDocument.buildInstancesModelAndSave(platformRepository);
+        platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
 
     /*** QUERY HANDLERS ***/
@@ -230,7 +250,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     public Optional<PlatformView> onGetPlatformByIdQuery(GetPlatformByIdQuery query) {
-        return platformRepository.findById(query.getPlatformId()).map(PlatformDocument::toPlatformView);
+        return minimalPlatformRepository.findById(query.getPlatformId()).map(PlatformDocument::toPlatformView);
     }
 
     @QueryHandler
@@ -247,9 +267,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 domainEventMessage.getTimestamp().toEpochMilli() < query.getTimestamp()
         );
         InmemoryPlatformRepository inmemoryPlatformRepository = new InmemoryPlatformRepository();
-        AnnotationEventListenerAdapter eventHandlerAdapter = new AnnotationEventListenerAdapter(new MongoPlatformProjectionRepository(
-                inmemoryPlatformRepository, null, null, null, null
-        ));
+        AnnotationEventListenerAdapter eventHandlerAdapter = new AnnotationEventListenerAdapter(new MongoPlatformProjectionRepository(inmemoryPlatformRepository));
         boolean errorWhileReplaying = false;
         boolean zeroEventsBeforeTimestamp = true;
         while (!errorWhileReplaying && eventStream.hasNext()) {
