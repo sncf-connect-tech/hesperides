@@ -24,7 +24,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
+import org.hesperides.core.infrastructure.MinimalPlatformRepository;
+import org.hesperides.core.infrastructure.mongo.platforms.PlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -110,7 +111,7 @@ public class PlatformDocument {
         );
     }
 
-    public void buildInstancesModelAndSave(MongoPlatformRepository platformRepository) {
+    public void buildInstancesModelAndSave(MinimalPlatformRepository platformRepository) {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
