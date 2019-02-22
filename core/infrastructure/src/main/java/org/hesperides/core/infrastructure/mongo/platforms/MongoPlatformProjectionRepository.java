@@ -49,14 +49,14 @@ import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensure
 public class MongoPlatformProjectionRepository implements PlatformProjectionRepository {
 
     private MinimalPlatformRepository minimalPlatformRepository;
-    private final PlatformRepository platformRepository;
+    private final MongoPlatformRepository platformRepository;
     private final MongoModuleRepository mongoModuleRepository;
     private final EventStorageEngine eventStorageEngine;
     private final MongoTemplate mongoTemplate;
     private final Environment environment;
 
     @Autowired
-    public MongoPlatformProjectionRepository(PlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
                                              EventStorageEngine eventStorageEngine, MongoTemplate mongoTemplate, Environment environment) {
         this.minimalPlatformRepository = platformRepository;
         this.platformRepository = platformRepository;
