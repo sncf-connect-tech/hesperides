@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
+import org.hesperides.core.infrastructure.mongo.platforms.PlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
