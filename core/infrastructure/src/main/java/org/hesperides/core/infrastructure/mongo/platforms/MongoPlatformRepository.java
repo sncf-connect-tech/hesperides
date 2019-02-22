@@ -17,7 +17,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
-public interface PlatformRepository extends MongoRepository<PlatformDocument, String>, MinimalPlatformRepository {
+public interface MongoPlatformRepository extends MongoRepository<PlatformDocument, String>, MinimalPlatformRepository {
 
     @Query(value = "{ 'key' : ?0 }", fields = "{ '_id' : 1 }")
     Optional<PlatformDocument> findOptionalIdByKey(PlatformKeyDocument key);
