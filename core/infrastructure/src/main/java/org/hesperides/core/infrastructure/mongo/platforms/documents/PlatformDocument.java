@@ -43,6 +43,8 @@ import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_N
 @NoArgsConstructor
 public class PlatformDocument {
 
+    private static int NUMBER_OF_ARCHIVED_MODULES = 2;
+
     @Id
     private String id;
     private PlatformKeyDocument key;
@@ -154,9 +156,15 @@ public class PlatformDocument {
             }
             newModuleList.add(providedModule);
         });
-        // Supprimer l'identifiant des modules qui n'ont pas été fournis (pour conserver les valorisations)
+        // Supprimer l'identifiant des modules qui n'ont pas été fournis pour conserver
+        // les valorisations, tout en limitant cette historisation pour ne pas dépasser
+        // la taille max autorisée par MongoDB (16Mo par document)
         deployedModules.forEach(existingModule -> {
-            if (existingModule.hasBeenRemovedFrom(newModuleList)) {
+            long nbOfExistingModuleByModulePathAndName = newModuleList.stream()
+                    .filter(module -> module.getName().equals(existingModule.getName()) &&
+                            module.getModulePath().equals(existingModule.getModulePath()))
+                    .count();
+            if (existingModule.hasBeenRemovedFrom(newModuleList) && nbOfExistingModuleByModulePathAndName < NUMBER_OF_ARCHIVED_MODULES) {
                 existingModule.setId(0L);
                 newModuleList.add(existingModule);
             }
