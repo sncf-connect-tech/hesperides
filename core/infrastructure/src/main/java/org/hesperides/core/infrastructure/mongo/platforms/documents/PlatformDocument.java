@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.infrastructure.mongo.platforms.MongoPlatformRepository;
+import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -41,6 +41,8 @@ import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_N
 @Document(collection = PLATFORM_COLLECTION_NAME)
 @NoArgsConstructor
 public class PlatformDocument {
+
+    private static int NUMBER_OF_ARCHIVED_MODULES = 2;
 
     @Id
     private String id;
@@ -110,7 +112,7 @@ public class PlatformDocument {
         );
     }
 
-    public void buildInstancesModelAndSave(MongoPlatformRepository platformRepository) {
+    public void buildInstancesModelAndSave(MinimalPlatformRepository platformRepository) {
         deployedModules = Optional.ofNullable(deployedModules)
                 .orElse(Collections.emptyList())
                 .stream()
@@ -153,9 +155,15 @@ public class PlatformDocument {
             }
             newModuleList.add(providedModule);
         });
-        // Supprimer l'identifiant des modules qui n'ont pas été fournis (pour conserver les valorisations)
+        // Supprimer l'identifiant des modules qui n'ont pas été fournis pour conserver
+        // les valorisations, tout en limitant cette historisation pour ne pas dépasser
+        // la taille max autorisée par MongoDB (16Mo par document)
         deployedModules.forEach(existingModule -> {
-            if (existingModule.hasBeenRemovedFrom(newModuleList)) {
+            long nbOfExistingModuleByModulePathAndName = newModuleList.stream()
+                    .filter(module -> module.getName().equals(existingModule.getName()) &&
+                            module.getModulePath().equals(existingModule.getModulePath()))
+                    .count();
+            if (existingModule.hasBeenRemovedFrom(newModuleList) && nbOfExistingModuleByModulePathAndName < NUMBER_OF_ARCHIVED_MODULES) {
                 existingModule.setId(0L);
                 newModuleList.add(existingModule);
             }
