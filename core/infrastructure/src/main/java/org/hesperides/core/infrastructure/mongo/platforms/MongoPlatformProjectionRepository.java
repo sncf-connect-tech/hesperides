@@ -75,7 +75,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         this.environment = null;
     }
 
-    // Both only exists for batch:
+    // Both only exist for batch:
     public MinimalPlatformRepository getMinimalPlatformRepository() {
         return minimalPlatformRepository;
     }
@@ -268,22 +268,17 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         );
         InmemoryPlatformRepository inmemoryPlatformRepository = new InmemoryPlatformRepository();
         AnnotationEventListenerAdapter eventHandlerAdapter = new AnnotationEventListenerAdapter(new MongoPlatformProjectionRepository(inmemoryPlatformRepository));
-        boolean errorWhileReplaying = false;
         boolean zeroEventsBeforeTimestamp = true;
-        while (!errorWhileReplaying && eventStream.hasNext()) {
+        while (eventStream.hasNext()) {
             zeroEventsBeforeTimestamp = false;
             try {
                 eventHandlerAdapter.handle(eventStream.next());
             } catch (Exception error) {
-                errorWhileReplaying = true;
-                log.error("Unreplayable platform event: {}", error);
+                throw new UnreplayablePlatformEventsException(query.getTimestamp(), error);
             }
         }
         if (zeroEventsBeforeTimestamp) {
             throw new InexistantPlatformAtTimeException(query.getTimestamp());
-        }
-        if (errorWhileReplaying) {
-            throw new UnreplayablePlatformEventsException(query.getTimestamp());
         }
         return inmemoryPlatformRepository.getCurrentPlatformDocument().toPlatformView();
     }

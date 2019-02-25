@@ -43,7 +43,7 @@ import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensure
 @Repository
 public class MongoModuleProjectionRepository implements ModuleProjectionRepository {
 
-    private final MongoModuleRepository moduleRepository;
+    private MongoModuleRepository moduleRepository;
     private final MongoTechnoProjectionRepository technoProjectionRepository;
     private final MongoTemplate mongoTemplate;
     private final MongoSearchOptions searchOptions;
@@ -63,6 +63,14 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         this.searchOptions = searchOptions;
         this.environment = environment;
         this.axonEventRepository = axonEventRepository;
+    }
+
+    // Both only exist for batch:
+    public MongoModuleRepository getMongoModuleRepository() {
+        return moduleRepository;
+    }
+    public void setMongoModuleRepository(MongoModuleRepository moduleRepository) {
+        this.moduleRepository = moduleRepository;
     }
 
     @PostConstruct

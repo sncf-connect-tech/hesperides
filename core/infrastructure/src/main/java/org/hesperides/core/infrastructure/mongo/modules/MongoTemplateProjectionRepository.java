@@ -46,10 +46,15 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 @Repository
 public class MongoTemplateProjectionRepository implements TemplateProjectionRepository {
 
-    private final MongoModuleRepository moduleRepository;
+    private MongoModuleRepository moduleRepository;
 
     @Autowired
     public MongoTemplateProjectionRepository(MongoModuleRepository moduleRepository) {
+        this.moduleRepository = moduleRepository;
+    }
+
+    // Only exists for batch:
+    public void setMongoModuleRepository(MongoModuleRepository moduleRepository) {
         this.moduleRepository = moduleRepository;
     }
 
