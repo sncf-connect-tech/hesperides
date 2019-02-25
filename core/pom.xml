@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.hesperides</groupId>
         <artifactId>hesperides</artifactId>
-        <version>4.2.4</version>
+        <version>4.2.4-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
