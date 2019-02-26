@@ -56,6 +56,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         UrlPathHelper urlPathHelper = new UrlPathHelper();
         urlPathHelper.setUrlDecode(false);
         configurer.setUrlPathHelper(urlPathHelper);
+        configurer.setUseSuffixPatternMatch(false); // avoids bug with getInstanceFiles when instance name ends with .digit and it gets mangled
     }
 
     @Bean
