@@ -40,6 +40,20 @@ logging:
     root: INFO
 #    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
+# Access it: http://localhost:8080/rest/manage
+# Includes but does not limit to:
+# - /manage/beans
+# - /manage/caches
+# - /manage/health
+# - /manage/configprops
+# - /manage/env
+# - /manage/info
+# - /manage/loggers
+# - /manage/heapdump
+# - /manage/threaddump
+# - /manage/metrics
+# - /manage/scheduledtasks
+# - /manage/httptrace
 management:
   health:
     ldap:

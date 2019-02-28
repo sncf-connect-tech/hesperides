@@ -15,7 +15,7 @@ public class EventView {
 
     public EventView(final DomainEventMessage domainEventMessage) {
         this.type = domainEventMessage.getPayload().getClass().getName();
-        this.data = ((UserEvent) domainEventMessage.getPayload());
+        this.data = (UserEvent) domainEventMessage.getPayload();
         this.timestamp = domainEventMessage.getTimestamp();
     }
 }

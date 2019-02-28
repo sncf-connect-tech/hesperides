@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class EventUseCases {
 
     private static final String MODULE_EVENTSTREAM_TYPE = "module";
     private static final String PLATFORM_EVENTSTREAM_TYPE = "platform";
+    private static final String INVALID_STREAM_NAME_ERROR_MSG = "Invalid stream name, expected format: module-$name-$version-$versionType or platform-$app-$platform";
 
     private final EventQueries eventQueries;
     private final ModuleQueries moduleQueries;
@@ -35,34 +37,46 @@ public class EventUseCases {
 
     public List<EventView> parseStreamNameAndGetEvents(String streamNameWithType, Integer page, Integer size) {
         String[] split = streamNameWithType.split("-", 2);
+        if (split.length < 2) {
+            throw new IllegalArgumentException(INVALID_STREAM_NAME_ERROR_MSG);
+        }
         String streamType = split[0];
         String streamName = split[1];
         switch (streamType) {
             case MODULE_EVENTSTREAM_TYPE:
                 return moduleQueries.getModulesName()
                         .stream()
-                        .filter(m -> contains(streamName, m))
+                        .filter(m -> contains(streamName, m)) // Lucas 2019/02/28: peu robuste, on peut avoir la cas de modules toto & toto-tata => toto peut être sélectionné ici alors qu'on requête toto-tata
                         .findFirst()
-                        .flatMap(moduleKey -> parseModuleKey(streamName, moduleKey))
+                        .map(moduleKey -> parseModuleKey(streamName, moduleKey))
                         .map(key -> getEvents(key, page, size))
                         .orElse(Collections.emptyList());
             case PLATFORM_EVENTSTREAM_TYPE:
                 String[] streamNameSplited = streamName.split("-", 2);
+                if (streamNameSplited.length < 2) {
+                    throw new IllegalArgumentException(INVALID_STREAM_NAME_ERROR_MSG);
+                }
                 final Platform.Key platformKey = new Platform.Key(streamNameSplited[0], streamNameSplited[1]);
                 return getEvents(platformKey, page, size);
             default:
-                return Collections.emptyList();
+                throw new IllegalArgumentException(INVALID_STREAM_NAME_ERROR_MSG);
         }
     }
 
     @NotNull
-    private static Optional<Module.Key> parseModuleKey(String streamName, String moduleName) {
+    private static Module.Key parseModuleKey(String streamName, String moduleName) {
         String versionAndVersionType = streamName.replace(moduleName + "-", "");
         Matcher matcher = Pattern.compile("(.*)-([^-]+)$").matcher(versionAndVersionType);
-        if (matcher.matches()) {
-            return Optional.of(new Module.Key(moduleName, matcher.group(1), TemplateContainer.VersionType.fromMinimizedForm(matcher.group(2))));
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException(INVALID_STREAM_NAME_ERROR_MSG);
         }
-        return Optional.empty();
+        TemplateContainer.VersionType versionType;
+        try {
+            versionType = TemplateContainer.VersionType.fromMinimizedForm(matcher.group(2));
+        } catch(InvalidParameterException e) {
+            throw new IllegalArgumentException(INVALID_STREAM_NAME_ERROR_MSG);
+        }
+        return new Module.Key(moduleName, matcher.group(1), versionType);
     }
 
     public List<EventView> getEvents(TemplateContainer.Key key, Integer page, Integer size) {
