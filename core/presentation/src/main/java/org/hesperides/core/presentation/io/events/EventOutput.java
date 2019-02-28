@@ -4,15 +4,8 @@ import lombok.Value;
 import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.modules.ModuleCreatedEvent;
 import org.hesperides.core.domain.modules.TemplateCreatedEvent;
-import org.hesperides.core.domain.modules.TemplateDeletedEvent;
 import org.hesperides.core.domain.modules.TemplateUpdatedEvent;
 import org.hesperides.core.domain.security.UserEvent;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.util.Collections.singletonMap;
-import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.VersionType.workingcopy;
 
 
 @Value
@@ -21,7 +14,7 @@ public class EventOutput {
     String type;
     Long timestamp;
     String user;
-    Map<String, Object> data;
+    Object data;
 
     public EventOutput(EventView view) {
         this.type = view.getType();
@@ -31,29 +24,20 @@ public class EventOutput {
     }
 
     /*
-     * TODO: Map future new events here based on Angular directive in front
-     * Some event does not require a mapping, but we prefer set them here even if there's nothing to do
-     * https://github.com/voyages-sncf-technologies/hesperides-gui/tree/master/src/app/event/directives
+     * For legacy retro-compatibility, look for usage of event.data in: https://github.com/voyages-sncf-technologies/hesperides-gui/tree/master/src/app/event/directives
      */
-    private static Map<String, Object> getEventData(final UserEvent userEvent) {
-        final Map<String, Object> eventData = new HashMap<>();
+    private static Object getEventData(final UserEvent userEvent) {
         if (userEvent instanceof ModuleCreatedEvent) {
-            ModuleCreatedEvent e = (ModuleCreatedEvent) userEvent;
-            Map<String, Object> moduleCreated = new HashMap<>();
-            moduleCreated.put("name", e.getModule().getKey().getName());
-            moduleCreated.put("version", e.getModule().getKey().getVersion());
-            moduleCreated.put("working_copy", e.getModule().getKey().getVersionType() == workingcopy);
-            eventData.put("moduleCreated", moduleCreated);
-        } else if (userEvent instanceof TemplateCreatedEvent) {
-            TemplateCreatedEvent e = (TemplateCreatedEvent) userEvent;
-            eventData.put("created", singletonMap("name", e.getTemplate().getName()));
-        } else if (userEvent instanceof TemplateUpdatedEvent) {
-            TemplateUpdatedEvent e = (TemplateUpdatedEvent) userEvent;
-            eventData.put("updated", singletonMap("name", e.getTemplate().getName()));
-        } else if (userEvent instanceof TemplateDeletedEvent) {
-            TemplateDeletedEvent e = (TemplateDeletedEvent) userEvent;
-            eventData.put("templateName", e.getTemplateName());
+            return new ModuleCreatedEventIO((ModuleCreatedEvent) userEvent);
         }
-        return eventData;
+        if (userEvent instanceof TemplateCreatedEvent) {
+            return new TemplateCreatedEventIO((TemplateCreatedEvent) userEvent);
+        }
+        if (userEvent instanceof TemplateUpdatedEvent) {
+            return new TemplateUpdatedEventIO((TemplateUpdatedEvent) userEvent);
+        }
+        // For TemplateDeletedEvent, only field used by legacy front is .templateName, so we pass through the event
+        // For many other events (ModuleTechnosUpdatedEvent, techno events...) legacy front was totally bogus and used .platform.platform_name...
+        return userEvent;
     }
 }
