@@ -2,7 +2,7 @@
 
 ## Utilisation
 
-    mvn gatling:execute -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -DusersPerSecond=20 -Dduration=60seconds
+    mvn gatling:execute -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -DusersPerSecond=4 -Dduration=10seconds
 
 ## Options
 

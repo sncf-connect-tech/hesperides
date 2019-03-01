@@ -79,6 +79,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public MinimalPlatformRepository getMinimalPlatformRepository() {
         return minimalPlatformRepository;
     }
+
     public void setMinimalPlatformRepository(MinimalPlatformRepository minimalPlatformRepository) {
         this.minimalPlatformRepository = minimalPlatformRepository;
     }
@@ -138,9 +139,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 platformDocument.getDeployedModules()
                         .stream()
                         .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
-                        .forEach(deployedModuleDocument -> {
-                            completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument);
-                        });
+                        .forEach(deployedModuleDocument ->
+                            completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
+                        );
             }
             platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
         });
@@ -176,9 +177,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
             platformDocument.getDeployedModules().stream()
                     .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
-                    .findAny().ifPresent(deployedModuleDocument -> {
-                completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument);
-            });
+                    .findAny().ifPresent(deployedModuleDocument ->
+                        completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument)
+            );
         }
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
