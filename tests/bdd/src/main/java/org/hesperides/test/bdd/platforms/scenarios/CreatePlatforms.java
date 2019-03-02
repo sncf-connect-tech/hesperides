@@ -82,8 +82,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             "( (?:and|with) iterable-ception)?" +
             "( (?:and|with) global properties)?" +
             "( (?:and|with) instance properties)?" +
-            "( (?:and|with) (global properties as )?instance values)?" +
-            "( and filename and location values)?$")
+            "( (?:and|with) global properties as instance values)?" +
+            "(?: (?:and|with) an instance value named \"([^ ]+)\")?" +
+            "( (?:and|with) filename and location values)?$")
     public void givenAnExistingPlatform(String isProd,
                                         String platformName,
                                         String withThisModule,
@@ -94,8 +95,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                                         String withIterableCeption,
                                         String withGlobalProperties,
                                         String withInstanceProperties,
-                                        String withInstanceValues,
                                         String withGlobalPropertiesAsInstanceValues,
+                                        String withInstanceValueNamed,
                                         String withFilenameLocationValues) {
         moduleBuilder.setLogicalGroup(logicalGroup);
 
@@ -110,9 +111,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(withThisModule)) {
             if (isNotEmpty(withAnInstance)) {
-                if (isNotEmpty(withInstanceValues)) {
-                    String instancePropertyValue = isNotEmpty(withGlobalPropertiesAsInstanceValues) ? "global-module-foo" : "instance-module-foo-value";
-                    platformBuilder.withInstancePropertyValue("instance-module-foo", instancePropertyValue);
+                if (isNotEmpty(withGlobalPropertiesAsInstanceValues)) {
+                    platformBuilder.withInstancePropertyValue("instance-module-foo", "global-module-foo");
+                }
+                if (isNotEmpty(withInstanceValueNamed)) {
+                    platformBuilder.withInstancePropertyValue(withInstanceValueNamed, "/var");
                 }
                 platformBuilder.withInstance("instance-foo-1");
             }
