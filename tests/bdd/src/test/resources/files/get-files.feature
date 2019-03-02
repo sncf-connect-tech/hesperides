@@ -73,6 +73,15 @@ Feature: Get instance or module files
     When I get the instance files
     Then the files are successfully retrieved
 
+  Scenario: get files with module property using a similarly named instance property in location
+    Given a template to create with location "{{ module-foobar }}"
+    And an existing module with this template
+    And an existing platform with this module and an instance and an instance value named "module-foobar"
+    And the platform has instance properties with the same name as the module property that it's declared in
+    When I get the instance files
+    Then the files are successfully retrieved
+    And their location contains no mustaches
+
   #issue-457
   Scenario: get files with predefined properties used in filename and location
     Given a template to create with filename "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}" with location "{{hesperides.application.name}}{{hesperides.application.version}}{{hesperides.platform.name}}{{hesperides.module.name}}{{hesperides.module.version}}{{hesperides.module.path.full}}{{hesperides.instance.name}}"

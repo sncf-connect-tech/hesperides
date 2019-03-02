@@ -44,7 +44,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class GetFiles extends HesperidesScenario implements En {
 
@@ -102,6 +105,15 @@ public class GetFiles extends HesperidesScenario implements En {
             assertOK();
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
             assertEquals(expectedLocation, actualOutput.get(0).getLocation());
+        });
+
+        Then("^their location contains no mustaches$", () -> {
+            assertOK();
+            List<InstanceFileOutput> files = Arrays.asList(getBodyAsArray());
+            files.forEach(file -> {
+                assertThat(file.getLocation(), not(containsString("{{")));
+                assertThat(file.getLocation(), not(containsString("}}")));
+            });
         });
     }
 

@@ -21,6 +21,7 @@
 package org.hesperides.core.application.files;
 
 import com.github.mustachejava.Mustache;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
@@ -55,6 +56,7 @@ import java.util.stream.Stream;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
 @Component
+@Slf4j
 public class FileUseCases {
 
     private final PlatformQueries platformQueries;
@@ -180,9 +182,13 @@ public class FileUseCases {
 
         Map<String, String> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
 
-        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleProperties, globalProperties)); // 1.*
-        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleProperties, instanceProperties, globalProperties)); // 2.*
-        return replaceMustachePropertiesWithValues(input, predefinedProperties, globalProperties); // 3.*
+        List<AbstractValuedPropertyView> moduleAndGlobalProperties = concat(moduleProperties, globalProperties, "global one during 1st pass");
+        // 1st pass:
+        input = replaceMustachePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
+        // 2nd pass:
+        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleAndGlobalProperties, instanceProperties, "instance one during 2nd pass"));
+        // 3rd pass:
+        return replaceMustachePropertiesWithValues(input, predefinedProperties, globalProperties);
     }
 
     private static Map<String, String> getPredefinedProperties(PlatformView platform, DeployedModuleView deployedModule, String instanceName) {
@@ -266,10 +272,19 @@ public class FileUseCases {
                 .orElse(Collections.emptyList());
     }
 
-    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView>... properties) {
-        return Arrays.stream(properties)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1, List<? extends AbstractValuedPropertyView> listOfProps2, String overridingPropIdForWarning) {
+        List<AbstractValuedPropertyView> properties = new ArrayList<>(listOfProps2);
+        Set<String> propertyNames = properties.stream()
+                .map(AbstractValuedPropertyView::getName)
+                .collect(Collectors.toSet());
+        for (AbstractValuedPropertyView property : listOfProps1) {
+            if (propertyNames.contains(property.getName())) {
+                log.warn("During valorization, property {} was overriden by {} with same name", property.getName(), overridingPropIdForWarning);
+            } else {
+                properties.add(property);
+            }
+        }
+        return properties;
     }
 
     /**
