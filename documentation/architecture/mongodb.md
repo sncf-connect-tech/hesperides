@@ -24,3 +24,9 @@ Nous recommendons l'emploi de ces paramètres de connexion :
 Un _HealthIndicator_ Spring Boot expose ces informations dans un endpoint HTTP:
 
     curl -s http://localhost:8080/rest/manage/health
+
+## Erreurs
+
+### MongoWaitQueueFullException: Too many threads are already waiting for a connection. Max number of threads (maxWaitQueueSize) of 50 has been exceeded
+
+_cf._ https://stackoverflow.com/a/54981196/636849 pour configurer cette limite.

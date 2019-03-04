@@ -30,6 +30,7 @@ public class MongoClientHealthIndicator implements HealthIndicator {
             put("connectionsPerHost", mongoClientOptions.getConnectionsPerHost());
             put("minConnectionsPerHost", mongoClientOptions.getMinConnectionsPerHost());
             put("threadsAllowedToBlockForConnectionMultiplier", mongoClientOptions.getThreadsAllowedToBlockForConnectionMultiplier());
+            put("maxWaitQueueSize", mongoClientOptions.getThreadsAllowedToBlockForConnectionMultiplier() * mongoClientOptions.getConnectionsPerHost()); // from MongoClientOptions.java or ConnectionPoolSettings.java
             put("serverSelectionTimeout", mongoClientOptions.getServerSelectionTimeout());
             put("maxWaitTime", mongoClientOptions.getMaxWaitTime());
             put("maxConnectionIdleTime", mongoClientOptions.getMaxConnectionIdleTime());
