@@ -20,17 +20,16 @@
  */
 package org.hesperides.core.domain.templatecontainers.entities;
 
-import com.github.mustachejava.Code;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
+import com.github.mustachejava.*;
 import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import org.hesperides.commons.spring.HasProfile;
 
+import java.io.IOException;
 import java.io.StringReader;
+import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -97,7 +96,23 @@ public abstract class AbstractProperty {
     }
 
     public static Mustache getMustacheInstanceFromStringContent(String content) {
-        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+        MustacheFactory mustacheFactory = new UnescapedValuesMustacheFactory();
         return mustacheFactory.compile(new StringReader(content), "anything");
+    }
+
+    /**
+     * Cette classe permet d'éviter d'échapper les valorisations.
+     * Cela a pour but d'être rétrocompatible avec le legacy et
+     * c'est le comportement attendu.
+     */
+    private static class UnescapedValuesMustacheFactory extends DefaultMustacheFactory {
+        @Override
+        public void encode(String value, Writer writer) {
+            try {
+                writer.append(value);
+            } catch (IOException e) {
+                throw new MustacheException("Failed to append value: " + value);
+            }
+        }
     }
 }

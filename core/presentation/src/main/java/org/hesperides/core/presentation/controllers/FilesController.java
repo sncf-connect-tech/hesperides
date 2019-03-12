@@ -58,7 +58,7 @@ public class FilesController extends AbstractController {
     }
 
     @ApiOperation("Get a valued template file")
-    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE, path =
+    @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE + ";charset=UTF-8", path =
             "/applications/{application_name}/platforms/{platform_name}/{module_path}/{module_name}/{module_version}/instances/{instance_name}/{template_name}")
     public ResponseEntity<String> getFile(Authentication authentication,
                                           @PathVariable("application_name") final String applicationName,
