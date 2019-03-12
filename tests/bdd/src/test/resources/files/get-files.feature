@@ -61,7 +61,7 @@ Feature: Get instance or module files
   Scenario: get files with instance property used in filename and location
     Given a template to create with filename "{{ module-foo }}.json" with location "/{{ module-foo }}"
     And an existing module with this template
-    And an existing platform with this module and an instance and instance properties and instance values
+    And an existing platform with this module and an instance and instance properties
     When I get the instance files
     Then the files are successfully retrieved
 
