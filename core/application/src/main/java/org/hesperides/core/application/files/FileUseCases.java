@@ -182,11 +182,11 @@ public class FileUseCases {
 
         Map<String, String> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
 
-        List<AbstractValuedPropertyView> moduleAndGlobalProperties = concat(moduleProperties, globalProperties, "global one during 1st pass");
+        List<AbstractValuedPropertyView> moduleAndGlobalProperties = concat(moduleProperties, globalProperties, platform, moduleKey, "global one during 1st pass");
         // 1st pass:
         input = replaceMustachePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
         // 2nd pass:
-        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleAndGlobalProperties, instanceProperties, "instance one during 2nd pass"));
+        input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleAndGlobalProperties, instanceProperties, platform, moduleKey, "instance one during 2nd pass"));
         // 3rd pass:
         return replaceMustachePropertiesWithValues(input, predefinedProperties, globalProperties);
     }
@@ -272,14 +272,18 @@ public class FileUseCases {
                 .orElse(Collections.emptyList());
     }
 
-    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1, List<? extends AbstractValuedPropertyView> listOfProps2, String overridingPropIdForWarning) {
+    private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1,
+                                                           List<? extends AbstractValuedPropertyView> listOfProps2,
+                                                           PlatformView platform, Module.Key moduleKey, String overridingPropIdForWarning) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>(listOfProps2);
         Set<String> propertyNames = properties.stream()
                 .map(AbstractValuedPropertyView::getName)
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
             if (propertyNames.contains(property.getName())) {
-                log.warn("During valorization, property {} was overriden by {} with same name", property.getName(), overridingPropIdForWarning);
+                log.warn("{}-{} {}: During valorization, property {} was overriden by {} with same name",
+                        platform.getApplicationName(), platform.getPlatformName(), moduleKey.getNamespaceWithoutPrefix(),
+                        property.getName(), overridingPropIdForWarning);
             } else {
                 properties.add(property);
             }

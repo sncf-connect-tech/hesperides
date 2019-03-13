@@ -51,6 +51,10 @@ public final class ModuleIO {
     }
 
     public String getVersionType() {
+        return getVersionType(isWorkingCopy);
+    }
+
+    static public String getVersionType(Boolean isWorkingCopy) {
         return isWorkingCopy ? WORKINGCOPY : RELEASE;
     }
 }
