@@ -97,6 +97,16 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+        if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
+            // Il arrive que les propriétés d'un module déployé ne soient pas valorisées par la suite,
+            // cela ne doit pas empêcher de tenir compte des valeurs par défaut:
+            platformDocument.getDeployedModules()
+                    .stream()
+                    .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
+                    .forEach(deployedModuleDocument ->
+                            completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
+                    );
+        }
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
 

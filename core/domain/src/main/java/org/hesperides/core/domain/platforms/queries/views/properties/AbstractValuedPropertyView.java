@@ -77,4 +77,6 @@ public abstract class AbstractValuedPropertyView {
     }
 
     protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue();
+
+    public abstract String getMustacheContentOrName();
 }

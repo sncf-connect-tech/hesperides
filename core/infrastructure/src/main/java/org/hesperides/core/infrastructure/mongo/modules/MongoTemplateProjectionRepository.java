@@ -79,7 +79,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         if (HasProfile.dataMigration()) {
             moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
         } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+            moduleDocument.extractPropertiesAndSave(moduleRepository);
         }
     }
 
@@ -96,7 +96,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         if (HasProfile.dataMigration()) {
             moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
         } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+            moduleDocument.extractPropertiesAndSave(moduleRepository);
         }
     }
 
@@ -109,7 +109,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         moduleDocument.removeTemplate(event.getTemplateName());
-        moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     /*** QUERY HANDLERS ***/
