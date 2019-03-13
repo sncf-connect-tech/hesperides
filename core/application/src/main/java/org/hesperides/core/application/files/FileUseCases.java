@@ -183,10 +183,10 @@ public class FileUseCases {
         Map<String, String> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
 
         List<AbstractValuedPropertyView> moduleAndGlobalProperties = concat(moduleProperties, globalProperties, platform, moduleKey, "global one during 1st pass");
-        boolean containsModifiedDelimiterBeforeValorisation = !containsModifiedDelimiter(input);
+        boolean containsModifiedDelimiterBeforeValorisation = containsModifiedDelimiter(input);
         // 1st pass:
         input = replaceMustachePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
-        if (containsModifiedDelimiterBeforeValorisation) {
+        if (!containsModifiedDelimiterBeforeValorisation) {
             // 2nd pass:
             input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleAndGlobalProperties, instanceProperties, platform, moduleKey, "instance one during 2nd pass"));
             // 3rd pass:
@@ -196,7 +196,7 @@ public class FileUseCases {
     }
 
     private static boolean containsModifiedDelimiter(String input) {
-        return input != null && input.contains("{{=<% %>=}}");
+        return input != null && input.contains("{{=");
     }
 
     private static Map<String, String> getPredefinedProperties(PlatformView platform, DeployedModuleView deployedModule, String instanceName) {
