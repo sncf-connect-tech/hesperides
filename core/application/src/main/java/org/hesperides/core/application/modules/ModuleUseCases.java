@@ -118,7 +118,7 @@ public class ModuleUseCases {
         if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.createTemplateInWorkingCopy(optionalModuleId.get(), template, user);
+        commands.createTemplateInWorkingCopy(optionalModuleId.get(), moduleKey, template, user);
     }
 
     public void updateTemplateInWorkingCopy(TemplateContainer.Key moduleKey, Template template, User user) {
@@ -126,7 +126,7 @@ public class ModuleUseCases {
         if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.updateTemplateInWorkingCopy(optionalModuleId.get(), template, user);
+        commands.updateTemplateInWorkingCopy(optionalModuleId.get(), moduleKey, template, user);
     }
 
     public void deleteTemplate(TemplateContainer.Key moduleKey, String templateName, User user) {
@@ -134,7 +134,7 @@ public class ModuleUseCases {
         if (!optionalModuleId.isPresent()) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        commands.deleteTemplate(optionalModuleId.get(), templateName, user);
+        commands.deleteTemplate(optionalModuleId.get(), moduleKey, templateName, user);
     }
 
     public Optional<ModuleView> getModule(TemplateContainer.Key moduleKey) {

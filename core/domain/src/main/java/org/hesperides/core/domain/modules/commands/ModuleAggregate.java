@@ -73,7 +73,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .initializeVersionId();
 
-        apply(new TemplateCreatedEvent(command.getModuleId(), template, command.getUser().getName()));
+        apply(new TemplateCreatedEvent(command.getModuleId(), command.getModuleKey(), template, command.getUser().getName()));
     }
 
     @CommandHandler
@@ -87,7 +87,7 @@ class ModuleAggregate implements Serializable {
                 .validateProperties()
                 .incrementVersionId();
 
-        apply(new TemplateUpdatedEvent(command.getModuleId(), template, command.getUser().getName()));
+        apply(new TemplateUpdatedEvent(command.getModuleId(), command.getModuleKey(), template, command.getUser().getName()));
     }
 
     private Long getExpectedVersionId(UpdateTemplateCommand command) {
@@ -101,7 +101,7 @@ class ModuleAggregate implements Serializable {
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
         }
-        apply(new TemplateDeletedEvent(command.getModuleId(), command.getTemplateName(), command.getUser().getName()));
+        apply(new TemplateDeletedEvent(command.getModuleId(), command.getModuleKey(), command.getTemplateName(), command.getUser().getName()));
     }
 
     /*** EVENT HANDLERS ***/
