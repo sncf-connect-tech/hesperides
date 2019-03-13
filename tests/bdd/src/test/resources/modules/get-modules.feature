@@ -38,13 +38,6 @@ Feature: Get modules detail
     When I try to get the module detail for a module type "release"
     Then the resource is not found
 
-  Scenario: get the detail of a module after its techno has been deleted
-    Given an existing techno
-    And an existing module with this techno
-    And I delete this techno
-    When I get the module detail
-    Then the module detail is successfully retrieved
-
   Scenario: get the detail of a module with an invalid module type
     Given an existing techno
     And an existing module with this techno

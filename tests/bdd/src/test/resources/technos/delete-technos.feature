@@ -22,3 +22,9 @@ Feature: Delete technos
     Given an existing techno
     When I delete this techno
     Then this techno templates are also deleted
+
+  Scenario: delete a techno in use by a module
+    Given an existing techno
+    And an existing module with this techno
+    When I try to delete this techno
+    Then the techno deletion is rejected with a conflict error

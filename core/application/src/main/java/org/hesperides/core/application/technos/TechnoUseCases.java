@@ -1,12 +1,16 @@
 package org.hesperides.core.application.technos;
 
+import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
+import org.hesperides.core.domain.modules.queries.ModuleQueries;
+import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.technos.commands.TechnoCommands;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.DuplicateTechnoException;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
+import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
 import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
@@ -28,11 +32,13 @@ public class TechnoUseCases {
 
     private final TechnoCommands commands;
     private final TechnoQueries queries;
+    private final ModuleQueries moduleQueries;
 
     @Autowired
-    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries) {
+    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries, ModuleQueries moduleQueries) {
         this.commands = commands;
         this.queries = queries;
+        this.moduleQueries = moduleQueries;
     }
 
     /**
@@ -57,6 +63,10 @@ public class TechnoUseCases {
         Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
         if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
+        }
+        List<TechnoModuleView> technoModulesViews = moduleQueries.getModulesUsingTechno(technoId.get());
+        if (!HasProfile.dataMigration() && !technoModulesViews.isEmpty()) {
+            throw new UndeletableTechnoInUseException(technoKey, technoModulesViews);
         }
         commands.deleteTechno(technoId.get(), user);
     }

@@ -41,6 +41,10 @@ public class DeleteTechnos extends HesperidesScenario implements En {
             assertNotFound();
         });
 
+        Then("^the techno deletion is rejected with a conflict error$", () -> {
+            assertConflict();
+        });
+
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
             testContext.responseEntity = technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
