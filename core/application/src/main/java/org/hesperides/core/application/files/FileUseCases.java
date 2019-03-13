@@ -244,11 +244,8 @@ public class FileUseCases {
             if (property instanceof ValuedPropertyView) {
 
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
-                // Pour la clé, si on n'a pas la valeur entre moustaches, c'est le cas pour les
-                // propriétés globales et les propriétés d'instance, on prend le nom de la propriété
-                String propertyToReplace = StringUtils.trim(StringUtils.defaultString(valuedProperty.getMustacheContent(), valuedProperty.getName()));
                 // Pour la valeur, si la propriété n'est pas valorisée, on prend la valeur par défaut
-                scopes.put(propertyToReplace, StringUtils.trim(StringUtils.defaultString(valuedProperty.getValue(), valuedProperty.getDefaultValue())));
+                scopes.put(valuedProperty.getMustacheContentOrName(), StringUtils.trim(StringUtils.defaultString(valuedProperty.getValue(), valuedProperty.getDefaultValue())));
 
             } else if (property instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
@@ -276,11 +273,11 @@ public class FileUseCases {
                                                            List<? extends AbstractValuedPropertyView> listOfProps2,
                                                            PlatformView platform, Module.Key moduleKey, String overridingPropIdForWarning) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>(listOfProps2);
-        Set<String> propertyNames = properties.stream()
-                .map(AbstractValuedPropertyView::getName)
+        Set<String> replacableStrings= properties.stream()
+                .map(AbstractValuedPropertyView::getMustacheContentOrName)
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
-            if (propertyNames.contains(property.getName())) {
+            if (replacableStrings.contains(property.getMustacheContentOrName())) {
                 log.warn("{}-{} {}: During valorization, property {} was overriden by {} with same name",
                         platform.getApplicationName(), platform.getPlatformName(), moduleKey.getNamespaceWithoutPrefix(),
                         property.getName(), overridingPropIdForWarning);

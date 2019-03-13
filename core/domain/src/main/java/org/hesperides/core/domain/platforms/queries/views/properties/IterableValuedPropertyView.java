@@ -49,6 +49,11 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
+    public String getMustacheContentOrName() {
+        return getName();
+    }
+
+    @Override
     protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue() {
 
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()

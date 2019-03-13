@@ -119,7 +119,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
                     moduleDocument.getTechnos().stream()
                             .filter(technoDocument -> !technoDocument.getId().equals(technoId))
                             .collect(Collectors.toList()));
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+            moduleDocument.extractPropertiesAndSave(moduleRepository);
         });
     }
 

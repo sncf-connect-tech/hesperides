@@ -93,7 +93,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
             boolean isFirstEvent = axonEventRepository.hasOneEvent(event.getModuleId());
             moduleDocument.extractPropertiesAndSave(moduleRepository, updatedTemplatesName, isFirstEvent);
         } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+            moduleDocument.extractPropertiesAndSave(moduleRepository);
         }
     }
 
@@ -113,7 +113,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
             List<String> updatedTemplatesName = Techno.getTemplatesName(event.getTechnos());
             moduleDocument.extractPropertiesAndSave(moduleRepository, updatedTemplatesName);
         } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Collections.emptyList());
+            moduleDocument.extractPropertiesAndSave(moduleRepository);
         }
     }
 

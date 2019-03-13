@@ -50,6 +50,14 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
+    public String getMustacheContentOrName() {
+        // Il s'agit de la clé de substitution de moustache.
+        // Si on n'a pas la valeur entre moustaches, on prend le nom de la propriété
+        // (c'est le cas pour les propriétés globales et les propriétés d'instance)
+        return StringUtils.trim(StringUtils.defaultString(mustacheContent, getName()));
+    }
+
+    @Override
     public ValuedProperty toDomainValuedProperty() {
         return new ValuedProperty(mustacheContent, getName(), value, defaultValue, isPassword);
     }

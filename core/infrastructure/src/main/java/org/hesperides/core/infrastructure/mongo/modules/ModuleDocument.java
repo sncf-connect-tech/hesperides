@@ -20,6 +20,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,10 @@ public class ModuleDocument {
 
     public void removeTemplate(String templateName) {
         templates.removeIf(templateDocument -> templateDocument.getName().equalsIgnoreCase(templateName));
+    }
+
+    public void extractPropertiesAndSave(MongoModuleRepository moduleRepository) {
+        extractPropertiesAndSave(moduleRepository, Collections.emptyList());
     }
 
     public void extractPropertiesAndSave(MongoModuleRepository moduleRepository, List<String> updatedTemplatesName) {
