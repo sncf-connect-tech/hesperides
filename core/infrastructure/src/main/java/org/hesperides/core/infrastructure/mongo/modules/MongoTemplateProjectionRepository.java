@@ -65,7 +65,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
-            throw new NotFoundException("Module not found - template creation impossible - module ID: " + event.getModuleId());
+            throw new NotFoundException("Module not found - template creation impossible - module: " + event.getModuleKey().getNamespaceWithoutPrefix());
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
@@ -88,7 +88,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
-            throw new NotFoundException("Module not found - template update impossible - module ID: " + event.getModuleId());
+            throw new NotFoundException("Module not found - template update impossible - module: " + event.getModuleKey().getNamespaceWithoutPrefix());
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
@@ -105,7 +105,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
-            throw new NotFoundException("Module not found - template deletion impossible - module ID: " + event.getModuleId());
+            throw new NotFoundException("Module not found - template deletion impossible - module: " + event.getModuleKey().getNamespaceWithoutPrefix());
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         moduleDocument.removeTemplate(event.getTemplateName());
