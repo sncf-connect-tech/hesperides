@@ -233,7 +233,14 @@ public class FileUseCases {
 
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
                 // Pour la valeur, si la propriété n'est pas valorisée, on prend la valeur par défaut
-                scopes.put(valuedProperty.getMustacheContentOrName(), StringUtils.trim(StringUtils.defaultString(valuedProperty.getValue(), valuedProperty.getDefaultValue())));
+                String propertyValue = StringUtils.trim(StringUtils.defaultString(valuedProperty.getValue(), valuedProperty.getDefaultValue()));
+                scopes.put(valuedProperty.getMustacheContentOrName(), propertyValue);
+                // #540
+                if (valuedProperty.getMustacheContent() != null &&
+                        !valuedProperty.getMustacheContentOrName().equals(valuedProperty.getName()) &&
+                        !scopes.containsKey(valuedProperty.getName())) {
+                    scopes.put(valuedProperty.getName(), propertyValue);
+                }
 
             } else if (property instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;

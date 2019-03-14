@@ -301,3 +301,40 @@ Feature: Get file
       ${{NOT_SUBSTITUTED}}
 
       """
+
+  #issue-540
+  Scenario: get file with property valorized with another valued property that has an annotation
+    Given an existing module with this template content
+      """
+      {{ property-a | a comment }}
+      {{ property-b }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value            |
+      | property-a | a-value          |
+      | property-b | {{ property-a }} |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      a-value
+      a-value
+      """
+
+  Scenario: get file with instance properties created by a module property that references itself
+    Given an existing module with this template content
+      """
+      {{ some-property | a comment}}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name          | value               |
+      | some-property | {{ some-property }} |
+    And the platform has these instance properties
+      | name          | value          |
+      | some-property | instance-value |
+    When I get the instance template file
+    Then the file is successfully retrieved and contains
+      """
+      instance-value
+      """
