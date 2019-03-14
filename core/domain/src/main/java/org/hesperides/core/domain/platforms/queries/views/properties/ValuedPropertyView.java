@@ -49,6 +49,14 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
         this.isPassword = isPassword;
     }
 
+    public ValuedPropertyView(String name, String value) {
+        super(name);
+        this.mustacheContent = null;
+        this.value = value;
+        this.defaultValue = null;
+        this.isPassword = false;
+    }
+
     @Override
     public String getMustacheContentOrName() {
         // Il s'agit de la clé de substitution de moustache.
@@ -82,5 +90,9 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
                 .stream()
                 .map(ValuedPropertyView::toDomainValuedProperty)
                 .collect(Collectors.toList());
+    }
+
+    public ValuedPropertyView withValue(String value) {
+        return new ValuedPropertyView(mustacheContent, getName(), value, defaultValue, isPassword);
     }
 }

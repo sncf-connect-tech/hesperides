@@ -263,11 +263,30 @@ Feature: Get file
       A-VALUE
       """
 
-  #issue-496
-  Scenario: get file with property valorized with another valued property
+  Scenario: get file with property valorized with another valued property twice
     Given an existing module with this template content
       """
       {{ property-a }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value            |
+      | property-a | {{ property-b }} |
+      | property-b | {{ property-c }} |
+      | property-c | a-value          |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      a-value
+      """
+
+  Scenario: get file using a set delimiter
+    Given an existing module with this template content
+      """
+      {{=<% %>=}}
+      <%property-a%>
+      ${{NOT_SUBSTITUTED}}
+      <%={{ }}=%>
       """
     And an existing platform with this module
     And the platform has these valued properties
@@ -277,5 +296,8 @@ Feature: Get file
     When I get the module template file
     Then the file is successfully retrieved and contains
       """
+
       a-value
+      ${{NOT_SUBSTITUTED}}
+
       """
