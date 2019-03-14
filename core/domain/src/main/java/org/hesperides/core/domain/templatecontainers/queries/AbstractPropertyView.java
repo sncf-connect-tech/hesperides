@@ -24,6 +24,7 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,13 +35,19 @@ public abstract class AbstractPropertyView {
 
     String name;
 
-    public static List<PropertyView> getFlatProperties(final List<AbstractPropertyView> abstractValuedProperties) {
+    protected abstract Stream<PropertyView> flattenProperties();
+
+    public static Stream<PropertyView> getFlatProperties(final List<AbstractPropertyView> abstractValuedProperties) {
         return abstractValuedProperties
                 .stream()
                 .map(AbstractPropertyView::flattenProperties)
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+                .flatMap(Function.identity());
     }
 
-    protected abstract Stream<PropertyView> flattenProperties();
+    public static Map<String, AbstractPropertyView> getPropertiesModelPerName(final List<AbstractPropertyView> properties) {
+        return properties.stream()
+                .collect(Collectors.toMap(AbstractPropertyView::getName,
+                        Function.identity(),
+                        (p1, p2) -> p1));
+    }
 }

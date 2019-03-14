@@ -59,7 +59,7 @@ public class PropertyDocument extends AbstractPropertyDocument {
 
     @Override
     public PropertyView toView() {
-        return new PropertyView(getName(), isRequired, comment, defaultValue, pattern, isPassword);
+        return new PropertyView(getName(), mustacheContent, isRequired, comment, defaultValue, pattern, isPassword);
     }
 
     @Override

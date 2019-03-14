@@ -73,13 +73,13 @@ public abstract class AbstractValuedPropertyDocument {
      *
      * @see org.hesperides.core.application.files.FileUseCases#valorizeWithModuleAndGlobalAndInstanceProperties
      */
-    public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContentAndIsPassword(List<AbstractValuedPropertyDocument> abstractValuedProperties,
-                                                                                                          List<AbstractPropertyDocument> abstractModuleProperties) {
+    public static List<AbstractValuedPropertyDocument> completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
+                                                                                             List<AbstractPropertyDocument> abstractModelProperties) {
         // `Collectors.toSet()` est important car il permet d'éviter les doublons
-        // créés par la méthode `completeWithMustacheContentAndIsPassword`
+        // créés par la méthode `completeWithMustacheContent`
         return new ArrayList<>(abstractValuedProperties
                 .stream()
-                .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContentAndIsPassword(abstractModuleProperties))
+                .map(abstractValuedProperty -> abstractValuedProperty.completeWithMustacheContent(abstractModelProperties))
                 .flatMap(List::stream)
                 .collect(Collectors.toSet()));
     }
@@ -138,5 +138,5 @@ public abstract class AbstractValuedPropertyDocument {
 
     protected abstract AbstractValuedPropertyView toView();
 
-    protected abstract List<AbstractValuedPropertyDocument> completeWithMustacheContentAndIsPassword(List<AbstractPropertyDocument> abstractModuleProperties);
+    protected abstract List<AbstractValuedPropertyDocument> completeWithMustacheContent(List<AbstractPropertyDocument> abstractModelProperties);
 }

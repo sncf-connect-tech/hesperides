@@ -37,15 +37,11 @@ public class ValuedProperty extends AbstractValuedProperty {
 
     String mustacheContent;
     String value;
-    String defaultValue;
-    boolean isPassword;
 
-    public ValuedProperty(String mustacheContent, String name, String value, String defaultValue, boolean isPassword) {
+    public ValuedProperty(String mustacheContent, String name, String value) {
         super(name);
         this.mustacheContent = mustacheContent;
         this.value = value;
-        this.defaultValue = defaultValue;
-        this.isPassword = isPassword;
     }
 
     public List<String> extractInstanceProperties(List<ValuedProperty> globalProperties, List<ValuedProperty> moduleProperties) {

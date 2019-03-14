@@ -104,7 +104,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                     .stream()
                     .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
                     .forEach(deployedModuleDocument ->
-                            completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
+                            completePropertiesWithMustacheContent(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
                     );
         }
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
@@ -150,7 +150,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         .stream()
                         .filter(deployedModuleDocument -> deployedModuleDocument.getId() > 0)
                         .forEach(deployedModuleDocument ->
-                            completePropertiesWithMustacheContentPasswordAndDefaultValues(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
+                            completePropertiesWithMustacheContent(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
                         );
             }
             platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
@@ -188,26 +188,26 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.getDeployedModules().stream()
                     .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
                     .findAny().ifPresent(deployedModuleDocument ->
-                        completePropertiesWithMustacheContentPasswordAndDefaultValues(abstractValuedProperties, deployedModuleDocument)
+                        completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument)
             );
         }
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
 
-    private void completePropertiesWithMustacheContentPasswordAndDefaultValues(List<AbstractValuedPropertyDocument> abstractValuedProperties,
-                                                                               DeployedModuleDocument deployedModuleDocument) {
+    private void completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
+                                                       DeployedModuleDocument deployedModuleDocument) {
         // Récupérer le model du module afin d'attribuer à chaque
         // propriété valorisée la définition initiale de la propriété
         // (ex: {{prop | @required}} => "prop | @required")
         Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
         KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
-        List<AbstractPropertyDocument> moduleProperties = mongoModuleRepository
+        List<AbstractPropertyDocument> modulePropertiesModel = mongoModuleRepository
                 .findPropertiesByModuleKey(moduleKeyDocument)
                 .map(ModuleDocument::getProperties)
                 .orElse(Collections.emptyList());
 
-        List<AbstractValuedPropertyDocument> completedValuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContentAndIsPassword(abstractValuedProperties, moduleProperties);
-        completedValuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(completedValuedProperties, moduleProperties));
+        List<AbstractValuedPropertyDocument> completedValuedProperties = AbstractValuedPropertyDocument.completePropertiesWithMustacheContent(abstractValuedProperties, modulePropertiesModel);
+        completedValuedProperties.addAll(AbstractValuedPropertyDocument.getUnsetPropertiesWithDefaultValues(completedValuedProperties, modulePropertiesModel));
         deployedModuleDocument.setValuedProperties(completedValuedProperties);
     }
 

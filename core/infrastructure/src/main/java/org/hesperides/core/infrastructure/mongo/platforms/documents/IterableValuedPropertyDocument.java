@@ -57,8 +57,8 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
     }
 
     @Override
-    protected List<AbstractValuedPropertyDocument> completeWithMustacheContentAndIsPassword(List<AbstractPropertyDocument> abstractModuleProperties) {
-        List<AbstractPropertyDocument> moduleIterablePropertyChildren = abstractModuleProperties.stream()
+    protected List<AbstractValuedPropertyDocument> completeWithMustacheContent(List<AbstractPropertyDocument> abstractModelProperties) {
+        List<AbstractPropertyDocument> moduleIterablePropertyChildren = abstractModelProperties.stream()
                 .filter(IterablePropertyDocument.class::isInstance)
                 .map(IterablePropertyDocument.class::cast)
                 .filter(iterablePropertyDocument -> name.equals(iterablePropertyDocument.getName()))
@@ -71,14 +71,14 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
             IterablePropertyItemDocument newItem = new IterablePropertyItemDocument();
             newItem.setTitle(item.getTitle());
             // Récursivité
-            newItem.setAbstractValuedProperties(completePropertiesWithMustacheContentAndIsPassword(item.getAbstractValuedProperties(), moduleIterablePropertyChildren));
+            newItem.setAbstractValuedProperties(completePropertiesWithMustacheContent(item.getAbstractValuedProperties(), moduleIterablePropertyChildren));
             completedItems.add(newItem);
         });
         this.items = completedItems;
         // On ne retourne toujours qu'une seule propriété itérable mais sous forme de liste
         // car la méthode abstraite, elle, doit retourner une liste à cause du cas de propriété
         // simple définie plusieurs fois avec le même nom mais un commentaire distinct.
-        /** @see org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument#completeWithMustacheContentAndIsPassword */
+        /** @see org.hesperides.core.infrastructure.mongo.platforms.documents.ValuedPropertyDocument#completeWithMustacheContent */
         return Arrays.asList(this);
     }
 }

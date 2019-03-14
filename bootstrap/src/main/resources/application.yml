@@ -39,7 +39,8 @@ logging:
   level:
     root: INFO
     org.springframework.data.mongodb.core.MongoTemplate: ${MONGO_QUERIES_LOG_LEVEL:INFO}
-    org.hesperides.core.application.files.FileUseCases: ${FILE_USE_CASES_LOG_LEVEL:INFO}
+    org.hesperides.core.application.files.FileValuationContext: ${FILE_VALUATION_LOG_LEVEL:INFO}
+    org.hesperides.core.domain.templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
 
 # Access it: http://localhost:8080/rest/manage
 # Includes but does not limit to:

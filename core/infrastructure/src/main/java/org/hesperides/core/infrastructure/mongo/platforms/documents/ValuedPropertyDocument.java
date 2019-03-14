@@ -23,6 +23,7 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -32,6 +33,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
@@ -42,23 +44,17 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     private String mustacheContent;
     private String value;
-    private String defaultValue;
-    private boolean isPassword;
 
-    public ValuedPropertyDocument(String name, String mustacheContent, String value, String defaultValue, boolean isPassword) {
+    public ValuedPropertyDocument(String name, String mustacheContent, String value) {
         this.name = name;
         this.mustacheContent = mustacheContent;
         this.value = value;
-        this.defaultValue = defaultValue;
-        this.isPassword = isPassword;
     }
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
         mustacheContent = valuedProperty.getMustacheContent();
         name = StringUtils.trim(valuedProperty.getName());
         value = valuedProperty.getValue();
-        defaultValue = valuedProperty.getDefaultValue();
-        isPassword = valuedProperty.isPassword();
     }
 
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
@@ -70,7 +66,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toView() {
-        return new ValuedPropertyView(mustacheContent, getName(), value, defaultValue, isPassword);
+        return new ValuedPropertyView(mustacheContent, getName(), value);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -93,45 +89,37 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
         ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
         defaultValuedProperty.setMustacheContent(property.getMustacheContent());
         defaultValuedProperty.setName(property.getName());
-        defaultValuedProperty.setDefaultValue(property.getDefaultValue());
-        defaultValuedProperty.setPassword(property.isPassword());
         return defaultValuedProperty;
     }
 
     @Override
     protected ValuedProperty toDomainInstance() {
-        return new ValuedProperty(mustacheContent, name, value, defaultValue, isPassword);
+        return new ValuedProperty(mustacheContent, name, value);
     }
 
     @Override
-    protected List<AbstractValuedPropertyDocument> completeWithMustacheContentAndIsPassword(List<AbstractPropertyDocument> abstractModuleProperties) {
-        Set<AbstractValuedPropertyDocument> completedProperties = new HashSet<>();
-
-        List<PropertyDocument> matchingProperties = AbstractPropertyDocument.getFlatProperties(abstractModuleProperties)
+    protected List<AbstractValuedPropertyDocument> completeWithMustacheContent(List<AbstractPropertyDocument> abstractModelProperties) {
+        List<PropertyDocument> matchingProperties = AbstractPropertyDocument.getFlatProperties(abstractModelProperties)
                 .filter(abstractModuleProperty -> name.equals(abstractModuleProperty.getName()))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(matchingProperties)) {
             // Si on ne la retrouve pas dans le module (propriété définie puis
             // valorisée puis supprimée du template) on la conserve telle quelle
-            completedProperties.add(this);
-        } else {
-            matchingProperties
-                    .forEach(propertyDocument -> {
+            return Collections.singletonList(this);
+        }
+        return matchingProperties.stream()
+                .map(propertyDocument ->
                         // Il arrive qu'une propriété soit déclarée plusieurs fois avec le même nom
                         // et un commentaire distinct. Dans ce cas on crée autant de propriétés valorisées
                         // qu'il n'y a de propriétés déclarées afin de pouvoir les compléter avec les
                         // différents mustacheContent
-                        AbstractValuedPropertyDocument newValuedProperty = cloneWithMustacheContentAndIsPassword(
-                                propertyDocument.getMustacheContent(), propertyDocument.isPassword());
-                        completedProperties.add(newValuedProperty);
-                    });
-        }
-
-        return new ArrayList<>(completedProperties);
+                        cloneWithMustacheContentAndIsPassword(propertyDocument.getMustacheContent())
+                )
+                .collect(Collectors.toList());
     }
 
-    private ValuedPropertyDocument cloneWithMustacheContentAndIsPassword(String mustacheContent, boolean isPassword) {
-        return new ValuedPropertyDocument(name, mustacheContent, value, defaultValue, isPassword);
+    private ValuedPropertyDocument cloneWithMustacheContentAndIsPassword(String mustacheContent) {
+        return new ValuedPropertyDocument(name, mustacheContent, value);
     }
 }

@@ -115,7 +115,7 @@ public class TechnoDocument {
     private List<AbstractPropertyDocument> extractPropertiesFromTemplates(List<String> updatedTemplatesName, boolean isFirstEvent) {
         TemplateContainer.Key technoKey = getDomainKey();
         List<Template> templates = TemplateDocument.toDomainInstances(this.templates, technoKey);
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates, updatedTemplatesName, isFirstEvent);
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(templates, updatedTemplatesName, isFirstEvent, key.toString());
         List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
         return abstractPropertyDocuments;
     }

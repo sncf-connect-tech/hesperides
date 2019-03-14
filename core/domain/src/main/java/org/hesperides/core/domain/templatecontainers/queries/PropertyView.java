@@ -14,14 +14,16 @@ import java.util.stream.Stream;
 @EqualsAndHashCode(callSuper = true)
 public class PropertyView extends AbstractPropertyView {
 
+    String mustacheContent;
     boolean isRequired;
     String comment;
     String defaultValue;
     String pattern;
     boolean isPassword;
 
-    public PropertyView(String name, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
+    public PropertyView(String name, String mustacheContent, boolean isRequired, String comment, String defaultValue, String pattern, boolean isPassword) {
         super(name);
+        this.mustacheContent = mustacheContent;
         this.isRequired = isRequired;
         this.comment = comment;
         this.defaultValue = defaultValue;

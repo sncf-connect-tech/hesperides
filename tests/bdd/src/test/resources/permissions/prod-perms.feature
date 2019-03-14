@@ -52,5 +52,26 @@ Feature: Restrict actions on prod platforms to prod users
     When I get the module template file
     Then there are obfuscated password properties in the file
 
-  # TODO: https://github.com/voyages-sncf-technologies/hesperides/issues/356
+  Scenario: a property in a file is obfuscated if it is tagged as a password in another template
+    Given an existing module with this template content
+      """
+      {{password}}
+      """
+    And another template in this module with this content
+      """
+      {{password|@password}}
+      """
+    And an existing prod platform with this module
+    And the platform has these valued properties
+      | name     | value  |
+      | password | SECRET |
+    And an authenticated lambda user
+    When I get the module template file
+    Then there are obfuscated password properties in the initial file
+
   Scenario: restrict timestamp-based access to password properties on prod platforms
+    Given an existing module with a template and properties and password properties
+    And an existing prod platform with this module and valued properties
+    When as an authenticated lambda user
+    And I get the platform properties for this module at a specific time in the past
+    Then the password property values are obfuscated

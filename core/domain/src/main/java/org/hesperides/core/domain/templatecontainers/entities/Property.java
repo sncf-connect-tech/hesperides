@@ -31,6 +31,18 @@ public class Property extends AbstractProperty {
         this.isPassword = isPassword;
     }
 
+    public Property cloneAsPassword() {
+        return new Property(mustacheContent, getName(), isRequired, comment, defaultValue, pattern, true);
+    }
+
+    public Property cloneAsRequired() {
+        return new Property(mustacheContent, getName(), true, comment, defaultValue, pattern, isPassword);
+    }
+
+    public Property cloneWithDefaultValue(String defaultValue) {
+        return new Property(mustacheContent, getName(), isRequired, comment, defaultValue, pattern, isPassword);
+    }
+
     private enum AnnotationType {
         IS_REQUIRED("required"),
         COMMENT("comment"),
