@@ -17,7 +17,7 @@ public class CommonSteps extends HesperidesScenario implements En {
     private TestContext testContext;
 
     public CommonSteps() {
-        Given("^an authenticated ?(.*)? user$", this::setAuthUserRole);
+        Given("^(?:as )?an authenticated ?(.*)? user$", this::setAuthUserRole);
 
         Then("^the resource is not found$", () -> {
             assertNotFound();

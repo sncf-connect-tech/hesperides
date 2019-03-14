@@ -224,7 +224,7 @@ public class ModulesController extends AbstractController {
         log.debug("getModuleModel {} {} {}", moduleName, moduleVersion, versionType);
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, versionType);
-        List<AbstractPropertyView> abstractPropertyViews = moduleUseCases.getProperties(moduleKey);
+        List<AbstractPropertyView> abstractPropertyViews = moduleUseCases.getPropertiesModel(moduleKey);
         ModelOutput modelOutput = new ModelOutput(abstractPropertyViews);
 
         return ResponseEntity.ok(modelOutput);

@@ -13,8 +13,13 @@ import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class GetModulesModel extends HesperidesScenario implements En {
 
@@ -32,7 +37,8 @@ public class GetModulesModel extends HesperidesScenario implements En {
     public GetModulesModel() {
 
         Given("^an existing module with iterable properties$", () -> {
-            moduleClient.create(moduleBuilder.build());
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            assertCreated();
 
             propertyBuilder.reset().withName("module-foo").withProperty(new PropertyBuilder().withName("module-bar"));
             modelBuilder.withIterableProperty(propertyBuilder.build());
@@ -42,7 +48,8 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with iterable-ception$", () -> {
-            moduleClient.create(moduleBuilder.build());
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            assertCreated();
 
             propertyBuilder.reset().withName("module-foo").withProperty(new PropertyBuilder().withName("module-bar").withProperty(new PropertyBuilder().withName("module-foobar")));
             modelBuilder.withIterableProperty(propertyBuilder.build());
@@ -52,7 +59,8 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with properties with the same name and comment but different default values in multiple templates$", () -> {
-            moduleClient.create(moduleBuilder.build());
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            assertCreated();
 
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("b");
             modelBuilder.withProperty(propertyBuilder.build());
@@ -75,7 +83,8 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with properties with the same name but different comments in two templates$", () -> {
-            moduleClient.create(moduleBuilder.build());
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            assertCreated();
 
             propertyBuilder.reset().withName("foo").withComment("comment-a");
             modelBuilder.withProperty(propertyBuilder.build());
@@ -121,6 +130,22 @@ public class GetModulesModel extends HesperidesScenario implements En {
             assertEquals(expectedProperty.getName(), actualProperty.getName());
             assertEquals(expectedProperty.getComment(), actualProperty.getComment());
             assertEquals(expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
+        });
+
+        Then("^the model of this module lists (\\d+) propert(?:y|ies)$", (Integer propertyCount) -> {
+            assertOK();
+            Set<PropertyOutput> actualProperties = ((ModelOutput) testContext.getResponseBody()).getProperties();
+            assertThat(actualProperties, hasSize(propertyCount));
+        });
+
+        Then("^the model of property \"([^\"]+)\" is a required password and has a default value of \"([^\"]+)\"", (String propertyName, String defaultValue) -> {
+            assertOK();
+            Set<PropertyOutput> actualProperties = ((ModelOutput) testContext.getResponseBody()).getProperties();
+            PropertyOutput matchingPropertyModel = actualProperties.stream().filter(p -> p.getName().equals(propertyName)).findAny().orElse(null);
+            assertNotNull(matchingPropertyModel);
+            assertTrue(matchingPropertyModel.isRequired());
+            assertTrue(matchingPropertyModel.isPassword());
+            assertEquals(matchingPropertyModel.getDefaultValue(), defaultValue);
         });
 
         Then("^the module model if not found$", () -> {

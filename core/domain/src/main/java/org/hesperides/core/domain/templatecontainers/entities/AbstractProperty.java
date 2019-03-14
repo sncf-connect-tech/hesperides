@@ -25,6 +25,8 @@ import com.github.mustachejava.codes.IterableCode;
 import com.github.mustachejava.codes.ValueCode;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.commons.spring.HasProfile;
 
 import java.io.IOException;
@@ -32,49 +34,103 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Value
 @NonFinal
+@Slf4j
 public abstract class AbstractProperty {
 
     String name;
 
-    public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates, List<String> updatedTemplatesName, boolean isFirstEvent) {
+    public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates, List<String> updatedTemplatesName, boolean isFirstEvent, String templateContainerKey) {
         Set<AbstractProperty> properties = new HashSet<>();
 
         if (HasProfile.dataMigration()) {
 
-            Set<AbstractProperty> updatedTemplatesProperties = Optional.ofNullable(templates)
-                    .orElse(Collections.emptyList())
-                    .stream()
+            Stream<AbstractProperty> updatedTemplatesProperties = Optional.ofNullable(templates)
+                    .orElse(Collections.emptyList()).stream()
                     .sorted((template1, template2) -> isFirstEvent ? template2.getName().compareTo(template1.getName()) : template1.getName().compareTo(template2.getName()))
                     .filter(template -> updatedTemplatesName.stream().anyMatch(updatedTemplateName -> updatedTemplateName.equalsIgnoreCase(template.getName())))
                     .map(Template::extractProperties)
-                    .flatMap(List::stream)
-                    .collect(Collectors.toSet());
+                    .flatMap(List::stream);
+            List<AbstractProperty> mergedUpdatedProperties = mergeAbstractPropertyDefinitions(updatedTemplatesProperties, templateContainerKey)
+                    .collect(Collectors.toList());
+            properties.addAll(mergedUpdatedProperties);
 
-            Set<AbstractProperty> otherTemplatesProperties = Optional.ofNullable(templates)
-                    .orElse(Collections.emptyList())
-                    .stream()
+            Stream<AbstractProperty> otherTemplatesProperties = Optional.ofNullable(templates)
+                    .orElse(Collections.emptyList()).stream()
                     .sorted((template1, template2) -> template2.getName().compareTo(template1.getName()))
                     .filter(template -> updatedTemplatesName.stream().noneMatch(updatedTemplate -> updatedTemplate.equalsIgnoreCase(template.getName())))
                     .map(Template::extractProperties)
-                    .flatMap(List::stream)
-                    .collect(Collectors.toSet());
-
-            properties.addAll(updatedTemplatesProperties);
-            properties.addAll(otherTemplatesProperties);
+                    .flatMap(List::stream);
+            List<AbstractProperty> mergedOtherProperties = mergeAbstractPropertyDefinitions(otherTemplatesProperties, templateContainerKey)
+                    .collect(Collectors.toList());
+            properties.addAll(mergedOtherProperties);
 
         } else {
-            properties.addAll(Optional.ofNullable(templates)
-                    .orElse(Collections.emptyList())
-                    .stream()
+
+            Stream<AbstractProperty> propertiesFromTemplates = Optional.ofNullable(templates)
+                    .orElse(Collections.emptyList()).stream()
                     .map(Template::extractProperties)
-                    .flatMap(List::stream)
-                    .collect(Collectors.toSet()));
+                    .flatMap(List::stream);
+            List<AbstractProperty> mergedProperties = mergeAbstractPropertyDefinitions(propertiesFromTemplates, templateContainerKey)
+                    .collect(Collectors.toList());
+            properties.addAll(mergedProperties);
+
         }
 
         return new ArrayList<>(properties);
+    }
+
+    static private Stream<AbstractProperty> mergeAbstractPropertyDefinitions(Stream<AbstractProperty> properties, String templateContainerKey) {
+        // A stream cannot be split in 2, hence we need to convert it to a collection:
+        List<AbstractProperty> propertyList = properties.collect(Collectors.toList());
+        return Stream.concat(
+                propertyList.stream().filter(IterableProperty.class::isInstance),
+                mergePropertyDefinitions(propertyList.stream().filter(Property.class::isInstance).map(Property.class::cast), templateContainerKey)
+        );
+    }
+
+    static private Stream<Property> mergePropertyDefinitions(Stream<Property> properties, String templateContainerKey) {
+        Map<NameAndComment, List<Property>> propertiesPerNameAndComment = properties
+                .collect(groupingBy(p -> new NameAndComment(p.getName(), p.getComment())));
+        // Lorsqu'une propriété est utilisée à plusieurs endroits,
+        // il suffit qu'une de ses définitions soit annotée en @password, @default ou @required
+        // pour que toutes ses occurences le soient:
+        return propertiesPerNameAndComment.values().stream()
+                .map(propertiesWithSameNameAndComment -> {
+                    Property property = propertiesWithSameNameAndComment.get(0);
+                    String propertyName = property.getName();
+                    if (propertiesWithSameNameAndComment.stream().anyMatch(Property::isPassword)) {
+                        property = property.cloneAsPassword();
+                    }
+                    if (propertiesWithSameNameAndComment.stream().anyMatch(Property::isRequired)) {
+                        property = property.cloneAsRequired();
+                    }
+                    Optional<String> firstDefaultValue = propertiesWithSameNameAndComment.stream()
+                            .map(Property::getDefaultValue)
+                            .filter(StringUtils::isNotBlank)
+                            .findFirst();
+                    if (firstDefaultValue.isPresent()) {
+                        String defaultValue = firstDefaultValue.get();
+                        property = property.cloneWithDefaultValue(defaultValue);
+                        propertiesWithSameNameAndComment.stream()
+                                .map(Property::getDefaultValue)
+                                .filter(StringUtils::isNotBlank)
+                                .filter(otherDefaultValue -> !otherDefaultValue.equals(defaultValue))
+                                .forEach(otherDefaultValue -> log.debug("{}: Property {} has several differing default values defined", templateContainerKey, propertyName));
+                    }
+                    return property;
+                });
+    }
+
+    @Value
+    private static class NameAndComment {
+        private String name;
+        private String comment;
     }
 
     public static List<AbstractProperty> extractPropertiesFromStringContent(String content) {

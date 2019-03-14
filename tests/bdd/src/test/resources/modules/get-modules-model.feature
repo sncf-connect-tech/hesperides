@@ -39,15 +39,31 @@ Feature: Get module model
   Scenario: get the model of a module with properties with the same name and comment but different default values in multiple templates
     Given an existing module with properties with the same name and comment but different default values in multiple templates
     When I get the model of this module
-    Then the model of this module contains the property with the same name and comment
+    Then the model of this module lists 1 property
+    And the model of this module contains the property with the same name and comment
 
   Scenario: get the model of a module with properties with the same name but different comments in two templates
     Given an existing module with properties with the same name but different comments in two templates
     When I get the model of this module
-    Then the model of this module contains the properties
+    Then the model of this module lists 2 properties
+    And the model of this module contains the properties
 
   Scenario: get the model of a module with a template with variables in filename and location
     Given a template to create with filename "{{filename}}.json" with location "/{{location}}"
     And an existing module with this template
     When I get the model of this module
     Then the model of this module contains the properties
+
+  Scenario: the model of a module property aggregates the annotations of all its definitions
+    Given an existing module with this template content
+      """
+      {{foo|@required}}
+      """
+    And another template in this module with this content
+      """
+      {{foo|@password}}
+      {{foo|@default BAR}}
+      """
+    When I get the model of this module
+    Then the model of this module lists 1 property
+    Then the model of property "foo" is a required password and has a default value of "BAR"

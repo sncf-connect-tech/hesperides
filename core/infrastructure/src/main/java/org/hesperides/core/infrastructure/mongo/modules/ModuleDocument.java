@@ -103,7 +103,7 @@ public class ModuleDocument {
         List<Template> allTemplates = getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments();
         List<AbstractProperty> abstractProperties;
         try {
-            abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, updatedTemplatesName, isFirstEvent);
+            abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, updatedTemplatesName, isFirstEvent, key.toString());
         } catch (InvalidTemplateException invalidTemplateException) {
             throw new InvalidTemplateException(key.toString(), invalidTemplateException);
         }

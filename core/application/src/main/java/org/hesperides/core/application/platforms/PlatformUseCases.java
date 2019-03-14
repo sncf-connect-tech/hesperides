@@ -146,18 +146,19 @@ public class PlatformUseCases {
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
+            List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
 
             properties = queries.getDeployedModuleProperties(platformKey, propertiesPath);
 
             // On exclue les propriétés non valorisées ayant une valeur par défaut
-            properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties);
+            properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
 
             // Pas besoin de récupérer la plateforme entière juste pour ce test
             // surtout si c'est pour refaire une requête pour récupérer les propriétés
             // => Créer une requête isProductionPlatform ou réutiliser la plateforme
             // pour récupérer les propriétés
             if (platform.isProductionPlatform() && !user.isProd()) {
-                properties = AbstractValuedPropertyView.hidePasswordProperties(properties);
+                properties = AbstractValuedPropertyView.hidePasswordProperties(properties, modulePropertiesModel);
             }
         }
         return properties;
@@ -225,10 +226,9 @@ public class PlatformUseCases {
     private void validateRequiredAndPatternProperties(List<AbstractValuedProperty> abstractValuedProperties, Module.Key moduleKey) {
         // On récupère d'abord toutes les propriétés du module et les propriétés valorisées.
         // Cela inclut les propriétés définies ou valorisées à l'intérieur des propriétés itérables.
-        List<PropertyView> allModuleProperties = AbstractPropertyView.getFlatProperties(moduleQueries.getProperties(moduleKey));
         List<ValuedProperty> allValuedProperties = AbstractValuedProperty.getFlatValuedProperties(abstractValuedProperties);
 
-        allModuleProperties.forEach(moduleProperty -> {
+        AbstractPropertyView.getFlatProperties(moduleQueries.getPropertiesModel(moduleKey)).forEach(moduleProperty -> {
             List<ValuedProperty> matchingValuedProperties = allValuedProperties.stream()
                     .filter(valuedPropery -> StringUtils.equals(valuedPropery.getName(), moduleProperty.getName()))
                     .collect(Collectors.toList());

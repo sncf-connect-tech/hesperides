@@ -23,10 +23,16 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
@@ -42,9 +48,9 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    public AbstractValuedPropertyView withPasswordsHidden() {
+    public AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword) {
         return new IterableValuedPropertyView(getName(), iterablePropertyItems.stream()
-                .map(IterablePropertyItemView::withPasswordsHidden)
+                .map(property -> property.withPasswordsHidden(isPassword))
                 .collect(Collectors.toList()));
     }
 
@@ -54,10 +60,10 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue() {
-
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView iterablePropertyModel) {
+        List<AbstractPropertyView> propertiesModel = iterablePropertyModel == null ? null : ((IterablePropertyView)iterablePropertyModel).getProperties();
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
-                .map(IterablePropertyItemView::excludePropertyWithOnlyDefaultValue)
+                .map(item -> item.excludePropertyWithOnlyDefaultValue(propertiesModel))
                 .collect(Collectors.toList());
 
         return Optional.of(new IterableValuedPropertyView(getName(), items));
@@ -66,5 +72,16 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     @Override
     public IterableValuedProperty toDomainValuedProperty() {
         return new IterableValuedProperty(getName(), toDomainIterablePropertyItems(iterablePropertyItems));
+    }
+
+    @Override
+    protected Stream<ValuedPropertyView> flattenProperties() {
+        return Optional.ofNullable(iterablePropertyItems)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(IterablePropertyItemView::getAbstractValuedPropertyViews)
+                .flatMap(List::stream)
+                .map(AbstractValuedPropertyView::flattenProperties)
+                .flatMap(Function.identity());
     }
 }

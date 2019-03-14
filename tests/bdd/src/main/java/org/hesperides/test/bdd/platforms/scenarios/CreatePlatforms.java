@@ -362,7 +362,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });
 
-        Then("^the (non-)?password property values are (not )?obfuscated$", (String nonPasswordProps, String notObfuscated) -> {
+        Then("^the (password |non-password |)property values are (not )?obfuscated$", (String selectPasswordProps, String notObfuscated) -> {
             Matcher<String> isObfusctedOrNot = isNotEmpty(notObfuscated) ? not(equalTo(OBFUSCATED_PASSWORD_VALUE)) : equalTo(OBFUSCATED_PASSWORD_VALUE);
 
             ModelOutput model = (ModelOutput) moduleClient.getModel(moduleBuilder.build(), ModelOutput.class).getBody();
@@ -370,16 +370,16 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
 
             List<ValuedProperty> actualDomainProperties = toDomainInstances(actualProperties.getValuedProperties());
-            List<String> actualPropertyValues = extractValuesIfPasswordOrNot(actualDomainProperties, propertyModelsPerName, isEmpty(nonPasswordProps));
+            List<String> actualPropertyValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
             assertThat(actualPropertyValues, hasSize(greaterThan(0)));
             assertThat(actualPropertyValues, everyItem(isObfusctedOrNot));
 
             List<ValuedProperty> actualIterableDomainProperties = flattenValuedProperties(actualProperties.getIterableValuedProperties());
-            List<String> actualIterablePropertiesValues = extractValuesIfPasswordOrNot(actualIterableDomainProperties, propertyModelsPerName, isEmpty(nonPasswordProps));
+            List<String> actualIterablePropertiesValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualIterableDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
             assertThat(actualIterablePropertiesValues, everyItem(isObfusctedOrNot));
         });
 
-        Then("^there are obfuscated password properties in the file$", () -> {
+        Then("^there are obfuscated password properties in the(?: initial)? file$", () -> {
             String actualOutput = (String) testContext.getResponseBody();
             assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
         });
@@ -391,6 +391,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with an already exist error$", () -> {
             assertConflict();
         });
+    }
+
+    private static List<String> extractValues(List<ValuedProperty> valuedProperties) {
+        return valuedProperties.stream()
+                .map(ValuedProperty::getValue).collect(Collectors.toList());
     }
 
     private static List<String> extractValuesIfPasswordOrNot(List<ValuedProperty> valuedProperties, Map<String, PropertyOutput> propertyModelsPerName, boolean selectPasswordProps) {

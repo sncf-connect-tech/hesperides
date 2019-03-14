@@ -55,7 +55,6 @@ public class ModuleUseCases {
         }
         verifyTechnosExistence(module.getTechnos());
         return commands.createModule(module, user);
-
     }
 
     public String createWorkingCopyFrom(TemplateContainer.Key existingModuleKey, TemplateContainer.Key newModuleKey, User user) {
@@ -190,11 +189,11 @@ public class ModuleUseCases {
         return queries.getOptionalModule(newModuleKey).get();
     }
 
-    public List<AbstractPropertyView> getProperties(TemplateContainer.Key moduleKey) {
+    public List<AbstractPropertyView> getPropertiesModel(TemplateContainer.Key moduleKey) {
         if (!queries.moduleExists(moduleKey)) {
             throw new ModuleNotFoundException(moduleKey);
         }
-        return queries.getProperties(moduleKey);
+        return queries.getPropertiesModel(moduleKey);
     }
 
     public List<TechnoModuleView> getModulesUsingTechno(Techno.Key technoKey) {

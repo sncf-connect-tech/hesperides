@@ -22,10 +22,12 @@ package org.hesperides.core.domain.platforms.queries.views.properties;
 
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.IterablePropertyItem;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
@@ -40,9 +42,9 @@ public class IterablePropertyItemView {
         return new IterablePropertyItem(title, toDomainAbstractValuedProperties(abstractValuedPropertyViews));
     }
 
-    public IterablePropertyItemView withPasswordsHidden() {
+    public IterablePropertyItemView withPasswordsHidden(Predicate<String> isPassword) {
         return new IterablePropertyItemView(title, abstractValuedPropertyViews.stream()
-                .map(AbstractValuedPropertyView::withPasswordsHidden)
+                .map(property -> property.withPasswordsHidden(isPassword))
                 .collect(Collectors.toList()));
     }
 
@@ -54,7 +56,7 @@ public class IterablePropertyItemView {
                 .collect(Collectors.toList());
     }
 
-    IterablePropertyItemView excludePropertyWithOnlyDefaultValue() {
-        return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(abstractValuedPropertyViews));
+    IterablePropertyItemView excludePropertyWithOnlyDefaultValue(List<AbstractPropertyView> propertiesModel) {
+        return new IterablePropertyItemView(title, AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(abstractValuedPropertyViews, propertiesModel));
     }
 }

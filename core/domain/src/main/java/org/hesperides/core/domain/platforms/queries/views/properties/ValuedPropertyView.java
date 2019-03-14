@@ -24,11 +24,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -38,23 +42,17 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     String mustacheContent;
     String value;
-    String defaultValue;
-    boolean isPassword;
 
-    public ValuedPropertyView(String mustacheContent, String name, String value, String defaultValue, boolean isPassword) {
+    public ValuedPropertyView(String mustacheContent, String name, String value) {
         super(name);
         this.mustacheContent = mustacheContent;
         this.value = value;
-        this.defaultValue = defaultValue;
-        this.isPassword = isPassword;
     }
 
     public ValuedPropertyView(String name, String value) {
         super(name);
         this.mustacheContent = null;
         this.value = value;
-        this.defaultValue = null;
-        this.isPassword = false;
     }
 
     @Override
@@ -67,21 +65,30 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     @Override
     public ValuedProperty toDomainValuedProperty() {
-        return new ValuedProperty(mustacheContent, getName(), value, defaultValue, isPassword);
+        return new ValuedProperty(mustacheContent, getName(), value);
     }
 
     @Override
-    public AbstractValuedPropertyView withPasswordsHidden() {
+    protected Stream<ValuedPropertyView> flattenProperties() {
+        return Stream.of(this);
+    }
+
+    @Override
+    public AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword) {
         AbstractValuedPropertyView valuedProperty = this;
-        if (isPassword) {
-            valuedProperty = new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE, defaultValue, isPassword);
+        if (isPassword.test(getName())) {
+            valuedProperty = new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE);
         }
         return valuedProperty;
     }
 
     @Override
-    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue() {
-        return StringUtils.isEmpty(value) && StringUtils.isNotEmpty(defaultValue) ? Optional.empty() : Optional.of(this);
+    protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView propertyModel) {
+        if (StringUtils.isNotEmpty(value)) {
+            return Optional.of(this);
+        }
+        PropertyView singlePropertyModel = (PropertyView)propertyModel;
+        return singlePropertyModel == null || StringUtils.isEmpty(singlePropertyModel.getDefaultValue()) ? Optional.of(this) : Optional.empty();
     }
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {
@@ -93,6 +100,6 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     public ValuedPropertyView withValue(String value) {
-        return new ValuedPropertyView(mustacheContent, getName(), value, defaultValue, isPassword);
+        return new ValuedPropertyView(mustacheContent, getName(), value);
     }
 }

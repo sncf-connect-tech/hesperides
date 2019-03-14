@@ -92,7 +92,8 @@ public class CreateModules extends HesperidesScenario implements En {
             moduleBuilder.withName("new-module");
             for (int i = 0; i < nbVersions; i++) {
                 moduleBuilder.withVersion("1." + i);
-                moduleClient.create(moduleBuilder.build());
+                testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                assertCreated();
             }
         });
 
@@ -105,7 +106,8 @@ public class CreateModules extends HesperidesScenario implements En {
                     moduleBuilder.withName("new-module");
                 }
                 moduleBuilder.withVersion("0.0." + i + 1);
-                moduleClient.create(moduleBuilder.build());
+                testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                assertCreated();
             }
         });
 
@@ -120,8 +122,15 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with this template content?$", (String templateContent) -> {
-            moduleClient.create(moduleBuilder.build());
+            commonSteps.ensureUserAuthIsSet();
+            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            assertCreated();
             templateBuilder.setContent(templateContent);
+            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+        });
+
+        Given("^another template in this module with this content?$", (String templateContent) -> {
+            templateBuilder.withName("template2").withFilename("template2.json").setContent(templateContent);
             moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
 
