@@ -38,6 +38,7 @@ import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.platforms.queries.views.InstanceView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.User;
@@ -154,16 +155,6 @@ public class FileUseCases {
         }
     }
 
-    /**
-     * 1. Une propriété peut être valorisée au niveau de la platforme (propriété globale)
-     * et au niveau du module (valorisation classique).
-     * <p>
-     * 2. La valorisation d'une propriété au niveau du module peut faire référence
-     * à une propriété globale, du module ou d'instance.
-     * <p>
-     * 3. La valorisation d'une propriété d'instance peut faire référence
-     * à une propriété globale.
-     */
     private static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
                                                                            PlatformView platform,
                                                                            String modulePath,
@@ -171,7 +162,8 @@ public class FileUseCases {
                                                                            String instanceName,
                                                                            boolean shouldHidePasswordProperties) {
 
-        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
+        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey)
+                .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
 
         List<AbstractValuedPropertyView> moduleProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
@@ -179,65 +171,52 @@ public class FileUseCases {
         }
         List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
         List<ValuedPropertyView> instanceProperties = getInstanceProperties(deployedModule.getInstances(), instanceName);
+        List<ValuedPropertyView> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
 
-        Map<String, String> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
-
+        // Concatène les propriétés globales, de module, d'instance et prédéfinies
         List<AbstractValuedPropertyView> moduleAndGlobalProperties = concat(moduleProperties, globalProperties, platform, moduleKey, "global one during 1st pass");
-        boolean containsModifiedDelimiterBeforeValorisation = containsModifiedDelimiter(input);
-        // 1st pass:
-        input = replaceMustachePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
-        if (!containsModifiedDelimiterBeforeValorisation) {
-            // 2nd pass:
-            input = replaceMustachePropertiesWithValues(input, predefinedProperties, concat(moduleAndGlobalProperties, instanceProperties, platform, moduleKey, "instance one during 2nd pass"));
-            // 3rd pass:
-            input = replaceMustachePropertiesWithValues(input, predefinedProperties, globalProperties);
-        }
-        return input;
+        List<AbstractValuedPropertyView> moduleGlobalAndInstanceProperties = concat(moduleAndGlobalProperties, instanceProperties, platform, moduleKey, "instance one during 2nd pass");
+        List<AbstractValuedPropertyView> moduleGlobalInstanceAndPredefinedProperties = concat(moduleGlobalAndInstanceProperties, predefinedProperties, platform, moduleKey, "predefined one during 3rd pass");
+
+        // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive
+        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(moduleGlobalInstanceAndPredefinedProperties, moduleGlobalAndInstanceProperties);
+
+        Map<String, Object> scopes = propertiesToScopes(preparedProperties);
+        return replaceMustachePropertiesWithValues(input, scopes);
     }
 
-    private static boolean containsModifiedDelimiter(String input) {
-        return input != null && input.contains("{{=");
-    }
+    // TODO Refactoriser
+    private static List<AbstractValuedPropertyView> preparePropertiesValues(List<? extends AbstractValuedPropertyView> propertiesToValorise,
+                                                                            List<? extends AbstractValuedPropertyView> propertiesValues) {
 
-    private static Map<String, String> getPredefinedProperties(PlatformView platform, DeployedModuleView deployedModule, String instanceName) {
-        Map<String, String> predefinedProperties = new HashMap<>();
-        predefinedProperties.put("hesperides.application.name", platform.getApplicationName());
-        predefinedProperties.put("hesperides.application.version", platform.getVersion());
-        predefinedProperties.put("hesperides.platform.name", platform.getPlatformName());
-        predefinedProperties.put("hesperides.module.name", deployedModule.getName());
-        predefinedProperties.put("hesperides.module.version", deployedModule.getVersion());
-        String modulePath = deployedModule.getModulePath();
-        predefinedProperties.put("hesperides.module.path.full", modulePath.replace('#', '/'));
-        predefinedProperties.putAll(getPathLogicalGroups(modulePath));
-        predefinedProperties.put("hesperides.instance.name", instanceName);
-        return predefinedProperties;
-    }
+        List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
+        Map<String, Object> scopes = propertiesToScopes(propertiesValues);
 
-    private static Map<String, String> getPathLogicalGroups(String modulePath) {
-        Map<String, String> pathLogicalGroups = new HashMap<>();
-        String[] groups = modulePath.split("#");
-        for (int index = 1; index < groups.length; index++) {
-            pathLogicalGroups.put("hesperides.module.path." + (index - 1), groups[index]);
-        }
-        return pathLogicalGroups;
-    }
+        propertiesToValorise.forEach(property -> {
+            if (property instanceof ValuedPropertyView) {
 
-    /**
-     * Remplace les propriétés entre moustaches par leur valorisation
-     * à l'aide du framework Mustache.
-     */
-    private static String replaceMustachePropertiesWithValues(String input,
-                                                              Map<String, String> predefinedProperties,
-                                                              List<? extends AbstractValuedPropertyView> properties) {
-        Map<String, Object> scopes = propertiesToScopes(properties);
-        scopes.putAll(predefinedProperties);
+                ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
+                if (StringUtils.contains(valuedProperty.getValue(), "{{")) {
+                    String newValue = replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopes);
+                    preparedProperties.add(valuedProperty.withValue(newValue));
+                } else {
+                    preparedProperties.add(valuedProperty);
+                }
 
-        Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(input);
-        StringWriter stringWriter = new StringWriter();
-        mustache.execute(stringWriter, scopes);
-        stringWriter.flush();
 
-        return stringWriter.toString();
+            } else if (property instanceof IterableValuedPropertyView) {
+                IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
+
+                List<IterablePropertyItemView> items = new ArrayList<>();
+                iterableValuedProperty.getIterablePropertyItems().forEach(iterablePropertyItem -> {
+                    IterablePropertyItemView iterablePropertyItemView = new IterablePropertyItemView(iterablePropertyItem.getTitle(), preparePropertiesValues(iterablePropertyItem.getAbstractValuedPropertyViews(), propertiesValues));
+                    items.add(iterablePropertyItemView);
+                });
+                preparedProperties.add(new IterableValuedPropertyView(iterableValuedProperty.getName(), items));
+            }
+        });
+
+        return propertiesToValorise.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertiesValues);
     }
 
     /**
@@ -269,6 +248,41 @@ public class FileUseCases {
         return scopes;
     }
 
+    /**
+     * Remplace les propriétés entre moustaches par leur valorisation
+     * à l'aide du framework Mustache.
+     */
+    private static String replaceMustachePropertiesWithValues(String input, Map<String, Object> scopes) {
+        Mustache mustache = AbstractProperty.getMustacheInstanceFromStringContent(input);
+        StringWriter stringWriter = new StringWriter();
+        mustache.execute(stringWriter, scopes);
+        stringWriter.flush();
+        return stringWriter.toString();
+    }
+
+    private static List<ValuedPropertyView> getPredefinedProperties(PlatformView platform, DeployedModuleView deployedModule, String instanceName) {
+        List<ValuedPropertyView> predefinedProperties = new ArrayList<>();
+        predefinedProperties.add(new ValuedPropertyView("hesperides.application.name", platform.getApplicationName()));
+        predefinedProperties.add(new ValuedPropertyView("hesperides.application.version", platform.getVersion()));
+        predefinedProperties.add(new ValuedPropertyView("hesperides.platform.name", platform.getPlatformName()));
+        predefinedProperties.add(new ValuedPropertyView("hesperides.module.name", deployedModule.getName()));
+        predefinedProperties.add(new ValuedPropertyView("hesperides.module.version", deployedModule.getVersion()));
+        String modulePath = deployedModule.getModulePath();
+        predefinedProperties.add(new ValuedPropertyView("hesperides.module.path.full", modulePath.replace('#', '/')));
+        predefinedProperties.addAll(getPathLogicalGroups(modulePath));
+        predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", instanceName));
+        return predefinedProperties;
+    }
+
+    private static List<ValuedPropertyView> getPathLogicalGroups(String modulePath) {
+        List<ValuedPropertyView> pathLogicalGroups = new ArrayList<>();
+        String[] groups = modulePath.split("#");
+        for (int index = 1; index < groups.length; index++) {
+            pathLogicalGroups.add(new ValuedPropertyView("hesperides.module.path." + (index - 1), groups[index]));
+        }
+        return pathLogicalGroups;
+    }
+
     private static List<ValuedPropertyView> getInstanceProperties(List<InstanceView> instances, String instanceName) {
         return instances.stream()
                 .filter(instance -> instance.getName().equalsIgnoreCase(instanceName))
@@ -279,9 +293,11 @@ public class FileUseCases {
 
     private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1,
                                                            List<? extends AbstractValuedPropertyView> listOfProps2,
-                                                           PlatformView platform, Module.Key moduleKey, String overridingPropIdForWarning) {
+                                                           PlatformView platform,
+                                                           Module.Key moduleKey,
+                                                           String overridingPropIdForWarning) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>(listOfProps2);
-        Set<String> replacableStrings= properties.stream()
+        Set<String> replacableStrings = properties.stream()
                 .map(AbstractValuedPropertyView::getMustacheContentOrName)
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
