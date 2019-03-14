@@ -5,6 +5,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 public class TemplateNotFoundException extends NotFoundException {
     public TemplateNotFoundException(TemplateContainer.Key templateContainerKey, String templateName) {
-        super("Could not find template in " + templateContainerKey + "/" + templateName);
+        super("Could not find template in " + templateContainerKey.getNamespaceWithoutPrefix() + "/" + templateName);
     }
 }

@@ -5,7 +5,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 
 public class PlatformNotFoundException extends NotFoundException {
     public PlatformNotFoundException(Platform.Key platformKey) {
-        super("Could not find platform info for " + platformKey);
+        super("Could not find platform info for " + platformKey.getApplicationName() + "-" + platformKey.getPlatformName());
     }
 
     public PlatformNotFoundException(String platformId) {
