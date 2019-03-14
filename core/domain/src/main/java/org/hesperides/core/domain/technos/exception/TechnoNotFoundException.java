@@ -25,6 +25,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 public class TechnoNotFoundException extends NotFoundException {
     public TechnoNotFoundException(TemplateContainer.Key key) {
-        super("Could not find techno info for " + key);
+        super("Could not find techno info for " + key.getNamespaceWithoutPrefix());
     }
 }

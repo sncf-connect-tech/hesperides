@@ -5,6 +5,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 public class DuplicateModuleException extends DuplicateException {
     public DuplicateModuleException(TemplateContainer.Key newModuleKey) {
-        super("could not create a new module with key: " + newModuleKey + " as it already exists");
+        super("could not create a new module with key: " + newModuleKey.getNamespaceWithoutPrefix() + " as it already exists");
     }
 }

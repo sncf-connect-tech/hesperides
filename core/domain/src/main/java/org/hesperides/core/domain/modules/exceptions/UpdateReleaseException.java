@@ -24,6 +24,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 public class UpdateReleaseException extends RuntimeException {
     public UpdateReleaseException(TemplateContainer.Key key) {
-        super("Could not update a released version of a module (key: " + key + ")");
+        super("Could not update a released version of a module (key: " + key.getNamespaceWithoutPrefix() + ")");
     }
 }

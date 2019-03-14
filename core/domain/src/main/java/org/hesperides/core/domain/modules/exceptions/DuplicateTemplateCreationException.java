@@ -5,6 +5,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 public class DuplicateTemplateCreationException extends DuplicateException {
     public DuplicateTemplateCreationException(TemplateContainer.Key templateContainerKey, String templateName) {
-        super("Template " + templateContainerKey + "/" + templateName + " already exists");
+        super("Template " + templateContainerKey.getNamespaceWithoutPrefix() + "/" + templateName + " already exists");
     }
 }

@@ -171,7 +171,7 @@ public class FileUseCases {
                                                                            String instanceName,
                                                                            boolean shouldHidePasswordProperties) {
 
-        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey));
+        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey).orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
 
         List<AbstractValuedPropertyView> moduleProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
@@ -286,7 +286,7 @@ public class FileUseCases {
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
             if (replacableStrings.contains(property.getMustacheContentOrName())) {
-                log.warn("{}-{} {}: During valorization, property {} was overriden by {} with same name",
+                log.debug("{}-{} {}: During valorization, property {} was overriden by {} with same name",
                         platform.getApplicationName(), platform.getPlatformName(), moduleKey.getNamespaceWithoutPrefix(),
                         property.getName(), overridingPropIdForWarning);
             } else {
