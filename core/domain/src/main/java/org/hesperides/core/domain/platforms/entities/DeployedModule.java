@@ -48,7 +48,7 @@ public class DeployedModule {
     String propertiesPath;
     List<AbstractValuedProperty> valuedProperties;
     List<Instance> instances;
-    List<String> instancesModel; // Liste des noms des propriétés des instances
+    List<String> instancesModel; // Liste des noms de propriétés de toutes les instances du module
 
     public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
         this.id = id;

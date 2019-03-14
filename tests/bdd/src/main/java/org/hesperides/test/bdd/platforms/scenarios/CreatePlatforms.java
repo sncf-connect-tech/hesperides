@@ -45,6 +45,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.*;
@@ -365,7 +366,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             Matcher<String> isObfusctedOrNot = isNotEmpty(notObfuscated) ? not(equalTo(OBFUSCATED_PASSWORD_VALUE)) : equalTo(OBFUSCATED_PASSWORD_VALUE);
 
             ModelOutput model = (ModelOutput) moduleClient.getModel(moduleBuilder.build(), ModelOutput.class).getBody();
-            Map<String, PropertyOutput> propertyModelsPerName = model.getProperties().stream().collect(Collectors.toMap(PropertyOutput::getName, p -> p));
+            Map<String, PropertyOutput> propertyModelsPerName = model.getProperties().stream().collect(Collectors.toMap(PropertyOutput::getName, Function.identity()));
             PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
 
             List<ValuedProperty> actualDomainProperties = toDomainInstances(actualProperties.getValuedProperties());

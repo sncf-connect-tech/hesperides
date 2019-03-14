@@ -60,7 +60,6 @@ public class DeployedModuleDocument {
     }
 
     public DeployedModuleView toDeployedModuleView() {
-        // Attention, les propriétés d'instance ne sont pas incluses dans cette vue
         return new DeployedModuleView(
                 id,
                 name,
@@ -69,7 +68,8 @@ public class DeployedModuleDocument {
                 modulePath,
                 propertiesPath,
                 InstanceDocument.toInstanceViews(instances),
-                AbstractValuedPropertyDocument.toViews(valuedProperties)
+                AbstractValuedPropertyDocument.toViews(valuedProperties),
+                instancesModel
         );
     }
 

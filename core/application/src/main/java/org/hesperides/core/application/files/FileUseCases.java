@@ -170,7 +170,7 @@ public class FileUseCases {
             moduleProperties = hidePasswordProperties(moduleProperties);
         }
         List<ValuedPropertyView> globalProperties = platform.getGlobalProperties();
-        List<ValuedPropertyView> instanceProperties = getInstanceProperties(deployedModule.getInstances(), instanceName);
+        List<ValuedPropertyView> instanceProperties = getInstanceProperties(deployedModule.getInstances(), deployedModule.getInstancesModel(), instanceName);
         List<ValuedPropertyView> predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
 
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
@@ -179,7 +179,7 @@ public class FileUseCases {
         List<AbstractValuedPropertyView> moduleGlobalInstanceAndPredefinedProperties = concat(moduleGlobalAndInstanceProperties, predefinedProperties, platform, moduleKey, "predefined one during 3rd pass");
 
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive
-        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(moduleGlobalInstanceAndPredefinedProperties, moduleGlobalAndInstanceProperties);
+        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(moduleGlobalInstanceAndPredefinedProperties, moduleGlobalInstanceAndPredefinedProperties);
 
         Map<String, Object> scopes = propertiesToScopes(preparedProperties);
         return replaceMustachePropertiesWithValues(input, scopes);
@@ -216,6 +216,7 @@ public class FileUseCases {
             }
         });
 
+        // TODO Commenter
         return propertiesToValorise.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertiesValues);
     }
 
@@ -283,12 +284,16 @@ public class FileUseCases {
         return pathLogicalGroups;
     }
 
-    private static List<ValuedPropertyView> getInstanceProperties(List<InstanceView> instances, String instanceName) {
+    private static List<ValuedPropertyView> getInstanceProperties(List<InstanceView> instances, List<String> instancesModel, String instanceName) {
         return instances.stream()
                 .filter(instance -> instance.getName().equalsIgnoreCase(instanceName))
                 .findFirst()
                 .map(InstanceView::getValuedProperties)
-                .orElse(Collections.emptyList());
+                .orElse(Collections.emptyList())
+                .stream()
+                // #539 La propriété d'instance doit faire partie du model d'instances
+                .filter(instanceProperty -> instancesModel.contains(instanceProperty.getName()))
+                .collect(Collectors.toList());
     }
 
     private static List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1,
