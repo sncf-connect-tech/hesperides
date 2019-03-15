@@ -85,8 +85,10 @@ public abstract class AbstractProperty {
         return new ArrayList<>(properties);
     }
 
+    // Méthode chapeau permettant d'uniquement traiter les Property,
+    // les IterableProperty n'étant pas modifiées et ressortent telles quelles
     static private Stream<AbstractProperty> mergeAbstractPropertyDefinitions(Stream<AbstractProperty> properties, String templateContainerKey) {
-        // A stream cannot be split in 2, hence we need to convert it to a collection:
+        // Un stream ne peut être "splitté" en 2, nous devons donc le convertir en collection:
         List<AbstractProperty> propertyList = properties.collect(Collectors.toList());
         return Stream.concat(
                 propertyList.stream().filter(IterableProperty.class::isInstance),
@@ -94,12 +96,13 @@ public abstract class AbstractProperty {
         );
     }
 
+    // Déduplication des définitions de propriétés, lorsqu'elles sont employées à plusieurs endroits dans les templates.
+    // La règle: lorsqu'une propriété est utilisée à plusieurs endroits,
+    // il suffit qu'une de ses définitions soit annotée en @password, @default ou @required
+    // pour que toutes ses occurences le soient:
     static private Stream<Property> mergePropertyDefinitions(Stream<Property> properties, String templateContainerKey) {
         Map<NameAndComment, List<Property>> propertiesPerNameAndComment = properties
                 .collect(groupingBy(p -> new NameAndComment(p.getName(), p.getComment())));
-        // Lorsqu'une propriété est utilisée à plusieurs endroits,
-        // il suffit qu'une de ses définitions soit annotée en @password, @default ou @required
-        // pour que toutes ses occurences le soient:
         return propertiesPerNameAndComment.values().stream()
                 .map(propertiesWithSameNameAndComment -> {
                     Property property = propertiesWithSameNameAndComment.get(0);
