@@ -55,7 +55,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 import static org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView.getPropertiesModelPerName;
 
@@ -261,12 +260,16 @@ public class FileUseCases {
                 .filter(ValuedPropertyView.class::isInstance).map(ValuedPropertyView.class::cast)
                 .forEach(valuedProperty -> {
                     if (!scopes.containsKey(valuedProperty.getName())) {
+                        // Cas où une valorisation de propriété a été insérée pour la clef "mustacheContent" mais PAS pour le nom exact de la propriété,
+                        // et aucune autre propriété n'a été insérée pour ce nom
+                        // (ce qui peut arriver lorsque des propriétés d'instance ou globales ont le même nom),
+                        // on l'insère donc maintenant:
                         PropertyView propertyModel = (PropertyView) propertiesModelPerName.get(valuedProperty.getName());
                         scopes.put(valuedProperty.getName(), figurePropertyValue(valuedProperty, propertyModel));
                     }
                 });
-        // Handling case of iterable properties when there are missing valuations
-        // but the iterable property model has default values.
+        // Gestion du cas des propriétés iterables où certaines de ses propriétés
+        // peuvent ne pas avoir de valorisation mais le modèle a des valeurs par défaut.
         // cf. BDD Scenario: get file with iterable and default values
         propertiesModelPerName.values().stream()
                 .filter(PropertyView.class::isInstance).map(PropertyView.class::cast)
@@ -281,10 +284,10 @@ public class FileUseCases {
         return scopes;
     }
 
-    static private String figurePropertyValue(ValuedPropertyView valuedProperty, PropertyView propertyModel) {
-        // No property model will be found corresponding to global & predefined valued property names,
-        // hence propertyModel will be null and there is no associated default value
-        String defaultValue = propertyModel != null ? propertyModel.getDefaultValue() : "";
+    static private String figurePropertyValue(ValuedPropertyView valuedProperty, PropertyView property) {
+        // Aucun modèle de propriété n'existe pour les propriétés globales & prédéfinies,
+        // donc pour elles `propertyModel` sera null et il n'y a aucune valeur par défaut associée
+        String defaultValue = property != null ? property.getDefaultValue() : "";
         // Pour la valeur, si la propriété n'est pas valorisée, on prend la valeur par défaut
         return StringUtils.trim(StringUtils.defaultString(valuedProperty.getValue(), defaultValue));
     }

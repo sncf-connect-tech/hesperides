@@ -33,9 +33,9 @@ public class FileValuationContext {
 
     List<AbstractValuedPropertyView> completeWithContextualProperties(List<AbstractValuedPropertyView> properties) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
-        properties = concat(properties, getGlobalProperties(), "global one during 1st pass");
-        properties = concat(properties, getInstanceProperties(), "instance one during 2nd pass");
-        properties = concat(properties, getPredefinedProperties(), "predefined one during 3rd pass");
+        properties = concat(properties, getGlobalProperties(), "a global property");
+        properties = concat(properties, getInstanceProperties(), "an instance property");
+        properties = concat(properties, getPredefinedProperties(), "a predefined property");
         return properties;
     }
 
@@ -48,7 +48,7 @@ public class FileValuationContext {
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
             if (replacableStrings.contains(property.getMustacheContentOrName())) {
-                log.debug("{}: During valorization, property {} was overriden by {} with same name",
+                log.debug("{}: During valorization, {} was overriden by {} with same name",
                         deployedModuleDescriptor, property.getName(), overridingPropIdForWarning);
             } else {
                 properties.add(property);
