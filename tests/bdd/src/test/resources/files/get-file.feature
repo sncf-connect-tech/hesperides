@@ -338,3 +338,21 @@ Feature: Get file
       """
       instance-value
       """
+
+  Scenario: a global property overrides a valued one with the same name
+    Given an existing module with this template content
+      """
+      {{ property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value        |
+      | property | MODULE_VALUE |
+    And the platform has these global properties
+      | name     | value        |
+      | property | GLOBAL_VALUE |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      GLOBAL_VALUE
+      """
