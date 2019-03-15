@@ -356,3 +356,18 @@ Feature: Get file
       """
       GLOBAL_VALUE
       """
+
+  Scenario: a property referencing itself must disappear without any corresponding instance property defined
+    Given an existing module with this template content
+      """
+      {{ property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value          |
+      | property | {{ property }} |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+
+      """

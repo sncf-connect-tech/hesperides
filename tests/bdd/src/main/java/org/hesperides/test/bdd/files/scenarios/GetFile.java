@@ -37,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Optional;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.junit.Assert.assertEquals;
 
 public class GetFile extends HesperidesScenario implements En {
@@ -85,7 +86,7 @@ public class GetFile extends HesperidesScenario implements En {
             assertOK();
             String expectedOutput = fileContent;
             String actualOutput = (String) testContext.getResponseBody();
-            assertEquals(expectedOutput, actualOutput);
+            assertEquals(expectedOutput, defaultString(actualOutput, ""));
         });
     }
 
