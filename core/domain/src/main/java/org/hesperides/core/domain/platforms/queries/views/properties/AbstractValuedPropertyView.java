@@ -30,11 +30,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView.getFlatProperties;
-import static org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView.getPropertiesModelPerName;
 
 @Value
 @NonFinal
@@ -44,13 +41,9 @@ public abstract class AbstractValuedPropertyView {
 
     public abstract <T extends AbstractValuedProperty> T toDomainValuedProperty();
 
-    public abstract String getMustacheContentOrName();
-
     protected abstract AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword);
 
     protected abstract Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView propertyModel);
-
-    protected abstract Stream<ValuedPropertyView> flattenProperties();
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
@@ -86,23 +79,11 @@ public abstract class AbstractValuedPropertyView {
      * Il y a peut-être moyen de faire ça directement en Mongo mais je ne sais pas comment :)
      */
     public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> valuedProperties, List<AbstractPropertyView> propertiesModel) {
-        Map<String, AbstractPropertyView> propertiesModelPerName = getPropertiesModelPerName(propertiesModel);
+        Map<String, AbstractPropertyView> propertiesModelPerName = propertiesModel.stream()
+                .collect(Collectors.toMap(AbstractPropertyView::getName, Function.identity(), (p1, p2) -> p1));
         return valuedProperties.stream()
                 .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(propertiesModelPerName.get(valuedProperty.getName())))
                 .filter(Optional::isPresent).map(Optional::get)
                 .collect(Collectors.toList());
-    }
-
-    public static Stream<ValuedPropertyView> getFlatValuedProperties(final List<AbstractValuedPropertyView> properties) {
-        return properties.stream()
-                .map(AbstractValuedPropertyView::flattenProperties)
-                .flatMap(Function.identity());
-    }
-
-    public static Map<String, AbstractValuedPropertyView> getValuedPropertiesPerName(final List<AbstractValuedPropertyView> abstractValuedProperties) {
-        return abstractValuedProperties.stream()
-                .collect(Collectors.toMap(AbstractValuedPropertyView::getName,
-                        Function.identity(),
-                        (p1, p2) -> p1));
     }
 }

@@ -84,48 +84,6 @@ public abstract class AbstractValuedPropertyDocument {
                 .collect(Collectors.toSet()));
     }
 
-    /**
-     * Complète les propriétés non valorisées avec leur valeur par défaut lorsqu'elle est définie.
-     */
-    public static List<AbstractValuedPropertyDocument> getUnsetPropertiesWithDefaultValues(List<AbstractValuedPropertyDocument> abstractValuedProperties,
-                                                                                           List<AbstractPropertyDocument> abstractModuleProperties) {
-
-        List<AbstractValuedPropertyDocument> propertiesWithDefaultValues = new ArrayList<>();
-        abstractModuleProperties.forEach(abstractProperty -> {
-
-            if (abstractProperty instanceof PropertyDocument) {
-                PropertyDocument property = (PropertyDocument) abstractProperty;
-                if (StringUtils.isNotEmpty(property.getDefaultValue()) &&
-                        !propertyHasValue(property.getName(), abstractValuedProperties)) {
-                    ValuedPropertyDocument defaultValuedProperty = ValuedPropertyDocument.buildDefaultValuedProperty(property);
-                    propertiesWithDefaultValues.add(defaultValuedProperty);
-                }
-
-            } else if (abstractProperty instanceof IterablePropertyDocument) {
-                IterablePropertyDocument iterableProperty = (IterablePropertyDocument) abstractProperty;
-                // Dans le cas d'une propriété itérable, il faut que le bloc existe (qu'il ait un nom)
-                // pour que la valeur par défaut de ses éléments soit prise en compte
-                abstractValuedProperties.stream()
-                        .filter(IterableValuedPropertyDocument.class::isInstance)
-                        .map(IterableValuedPropertyDocument.class::cast)
-                        .map(IterableValuedPropertyDocument::getItems)
-                        .forEach(iterablePropertyItems -> {
-                            iterablePropertyItems.forEach(iterablePropertyItem -> {
-                                List<AbstractValuedPropertyDocument> iterablePropertiesWithDefaultValues =
-                                        // Récursivité
-                                        getUnsetPropertiesWithDefaultValues(
-                                                iterablePropertyItem.getAbstractValuedProperties(),
-                                                iterableProperty.getProperties()
-                                        );
-                                propertiesWithDefaultValues.addAll(iterablePropertiesWithDefaultValues);
-                            });
-                        });
-            }
-        });
-
-        return propertiesWithDefaultValues;
-    }
-
     private static boolean propertyHasValue(String propertyName, List<AbstractValuedPropertyDocument> abstractValuedProperties) {
         return abstractValuedProperties.stream()
                 .filter(ValuedPropertyDocument.class::isInstance)

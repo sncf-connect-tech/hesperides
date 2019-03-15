@@ -55,8 +55,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
-import static org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView.getPropertiesModelPerName;
 
 @Component
 public class FileUseCases {
@@ -176,24 +176,23 @@ public class FileUseCases {
         valuedProperties = valuationContext.completeWithContextualProperties(valuedProperties);
 
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive
-        Map<String, AbstractPropertyView> propertiesModelPerName = getPropertiesModelPerName(modulePropertiesModel);
-        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(valuedProperties, propertiesModelPerName, valuationContext);
+        Map<String, List<AbstractPropertyView>> propertyModelsPerName = modulePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName));
+        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(valuedProperties, propertyModelsPerName, valuationContext);
 
-        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertiesModelPerName, valuationContext);
+        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName, valuationContext);
         return replaceMustachePropertiesWithValues(input, scopes);
     }
 
     // TODO: Refactoriser
     private static List<AbstractValuedPropertyView> preparePropertiesValues(List<AbstractValuedPropertyView> valuedProperties,
-                                                                            Map<String, AbstractPropertyView> propertiesModelPerName,
+                                                                            Map<String, List<AbstractPropertyView>> propertyModelsPerName,
                                                                             FileValuationContext valuationContext) {
 
         List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
-        Map<String, Object> scopes = propertiesToScopes(valuedProperties, propertiesModelPerName, valuationContext);
+        Map<String, Object> scopes = propertiesToScopes(valuedProperties, propertyModelsPerName, valuationContext);
 
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
-
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
                 if (StringUtils.contains(valuedProperty.getValue(), "{{")) {
                     valuedProperty = valuedProperty.withValue(replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopes));
@@ -201,14 +200,14 @@ public class FileUseCases {
                 preparedProperties.add(valuedProperty);
             } else if (property instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
-                IterablePropertyView iterablePropertyModel = (IterablePropertyView) propertiesModelPerName.get(property.getName());
+                IterablePropertyView iterablePropertyModel = (IterablePropertyView) propertyModelsPerName.get(property.getName()).get(0);
                 List<AbstractPropertyView> iterablePropertiesModel = iterablePropertyModel != null ? iterablePropertyModel.getProperties() : Collections.EMPTY_LIST;
 
                 List<IterablePropertyItemView> items = new ArrayList<>();
                 iterableValuedProperty.getIterablePropertyItems().forEach(valuedPropertyItem -> {
                     List<AbstractValuedPropertyView> preparedIterableProperties = preparePropertiesValues(
                             valuationContext.completeWithContextualProperties(valuedPropertyItem.getAbstractValuedPropertyViews()),
-                            getPropertiesModelPerName(iterablePropertiesModel),
+                            iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName)),
                             valuationContext
                     );
                     IterablePropertyItemView iterablePropertyItemView = new IterablePropertyItemView(valuedPropertyItem.getTitle(), preparedIterableProperties);
@@ -220,7 +219,7 @@ public class FileUseCases {
 
         // Recursion tant qu'on a pas atteind un point stable,
         // c'est à dire que la phase de substitution n'a entrainé aucun nouveau changement de valeur de propriétés
-        return valuedProperties.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertiesModelPerName, valuationContext);
+        return valuedProperties.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertyModelsPerName, valuationContext);
     }
 
     /**
@@ -230,24 +229,28 @@ public class FileUseCases {
      * - nom-propriété-itérable => map (...)
      */
     private static Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> valuedProperties,
-                                                          Map<String, AbstractPropertyView> propertiesModelPerName,
+                                                          Map<String, List<AbstractPropertyView>> propertyModelsPerName,
                                                           FileValuationContext valuationContext) {
         Map<String, Object> scopes = new HashMap<>();
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
-                PropertyView propertyModel = (PropertyView) propertiesModelPerName.get(property.getName());
-                scopes.put(valuedProperty.getMustacheContentOrName(), figurePropertyValue(valuedProperty, propertyModel));
+                if (propertyModelsPerName.containsKey(property.getName())) {
+                    for (AbstractPropertyView abstractPropertyModel : propertyModelsPerName.get(property.getName())) {
+                        PropertyView propertyModel = (PropertyView) abstractPropertyModel;
+                        scopes.put(propertyModel.getMustacheContent(), figurePropertyValue(valuedProperty, propertyModel));
+                    }
+                }
             } else if (property instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
-                IterablePropertyView iterablePropertyModel = (IterablePropertyView) propertiesModelPerName.get(property.getName());
+                IterablePropertyView iterablePropertyModel = (IterablePropertyView) propertyModelsPerName.get(property.getName()).get(0);
                 List<AbstractPropertyView> iterablePropertiesModel = iterablePropertyModel != null ? iterablePropertyModel.getProperties() : Collections.EMPTY_LIST;
 
                 List<Map<String, Object>> items = iterableValuedProperty.getIterablePropertyItems()
                         .stream()
                         .map(item -> propertiesToScopes(
                                 valuationContext.completeWithContextualProperties(item.getAbstractValuedPropertyViews()),
-                                getPropertiesModelPerName(iterablePropertiesModel),
+                                iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName)),
                                 valuationContext
                         ))
                         .collect(Collectors.toList());
@@ -264,14 +267,15 @@ public class FileUseCases {
                         // et aucune autre propriété n'a été insérée pour ce nom
                         // (ce qui peut arriver lorsque des propriétés d'instance ou globales ont le même nom),
                         // on l'insère donc maintenant:
-                        PropertyView propertyModel = (PropertyView) propertiesModelPerName.get(valuedProperty.getName());
+                        PropertyView propertyModel = propertyModelsPerName.containsKey(valuedProperty.getName()) ? (PropertyView) propertyModelsPerName.get(valuedProperty.getName()).get(0) : null;
                         scopes.put(valuedProperty.getName(), figurePropertyValue(valuedProperty, propertyModel));
                     }
                 });
         // Gestion du cas des propriétés iterables où certaines de ses propriétés
         // peuvent ne pas avoir de valorisation mais le modèle a des valeurs par défaut.
         // cf. BDD Scenario: get file with iterable and default values
-        propertiesModelPerName.values().stream()
+        propertyModelsPerName.values().stream()
+                .map(propertyModels -> propertyModels.get(0))
                 .filter(PropertyView.class::isInstance).map(PropertyView.class::cast)
                 .forEach(propertyModel -> {
                     if (!scopes.containsKey(propertyModel.getName())) {

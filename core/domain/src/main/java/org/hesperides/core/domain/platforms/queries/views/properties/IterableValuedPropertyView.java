@@ -55,11 +55,6 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     @Override
-    public String getMustacheContentOrName() {
-        return getName();
-    }
-
-    @Override
     protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView iterablePropertyModel) {
         List<AbstractPropertyView> propertiesModel = iterablePropertyModel == null ? null : ((IterablePropertyView)iterablePropertyModel).getProperties();
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
@@ -72,16 +67,5 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
     @Override
     public IterableValuedProperty toDomainValuedProperty() {
         return new IterableValuedProperty(getName(), toDomainIterablePropertyItems(iterablePropertyItems));
-    }
-
-    @Override
-    protected Stream<ValuedPropertyView> flattenProperties() {
-        return Optional.ofNullable(iterablePropertyItems)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(IterablePropertyItemView::getAbstractValuedPropertyViews)
-                .flatMap(List::stream)
-                .map(AbstractValuedPropertyView::flattenProperties)
-                .flatMap(Function.identity());
     }
 }
