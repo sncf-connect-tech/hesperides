@@ -47,11 +47,14 @@ public class FileValuationContext {
                 .map(AbstractValuedPropertyView::getName)
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
-            if (replacableStrings.contains(property.getName())) {
+            // !! Ne pas inverser cette condition !!
+            // Si le log.debug reste seul dans le `if`,
+            // nous avons observé que la clause `else` est exécutée à la place
+            if (!replacableStrings.contains(property.getName())) {
+                properties.add(property);
+            } else {
                 log.debug("{}: During valorization, {} was overriden by {} with same name",
                         deployedModuleDescriptor, property.getName(), overridingPropIdForWarning);
-            } else {
-                properties.add(property);
             }
         }
         return properties;
