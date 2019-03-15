@@ -83,17 +83,6 @@ public class PlatformDocument {
         );
     }
 
-    public Platform toDomainPlatform() {
-        return new Platform(
-                key.toDomainPlatformKey(),
-                version,
-                isProductionPlatform,
-                versionId,
-                DeployedModuleDocument.toDomainInstances(deployedModules),
-                ValuedPropertyDocument.toDomainInstances(globalProperties)
-        );
-    }
-
     public SearchApplicationResultView toSearchApplicationResultView() {
         return new SearchApplicationResultView(key.getApplicationName());
     }

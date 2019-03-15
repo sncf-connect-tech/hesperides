@@ -40,44 +40,23 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     public final static String OBFUSCATED_PASSWORD_VALUE = "********";
 
-    String mustacheContent;
     String value;
-
-    public ValuedPropertyView(String mustacheContent, String name, String value) {
-        super(name);
-        this.mustacheContent = mustacheContent;
-        this.value = value;
-    }
 
     public ValuedPropertyView(String name, String value) {
         super(name);
-        this.mustacheContent = null;
         this.value = value;
-    }
-
-    @Override
-    public String getMustacheContentOrName() {
-        // Il s'agit de la clé de substitution de moustache.
-        // Si on n'a pas la valeur entre moustaches, on prend le nom de la propriété
-        // (c'est le cas pour les propriétés globales et les propriétés d'instance)
-        return StringUtils.trim(StringUtils.defaultString(mustacheContent, getName()));
     }
 
     @Override
     public ValuedProperty toDomainValuedProperty() {
-        return new ValuedProperty(mustacheContent, getName(), value);
-    }
-
-    @Override
-    protected Stream<ValuedPropertyView> flattenProperties() {
-        return Stream.of(this);
+        return new ValuedProperty(getName(), value);
     }
 
     @Override
     public AbstractValuedPropertyView withPasswordsHidden(Predicate<String> isPassword) {
         AbstractValuedPropertyView valuedProperty = this;
         if (isPassword.test(getName())) {
-            valuedProperty = new ValuedPropertyView(mustacheContent, getName(), OBFUSCATED_PASSWORD_VALUE);
+            valuedProperty = new ValuedPropertyView(getName(), OBFUSCATED_PASSWORD_VALUE);
         }
         return valuedProperty;
     }
@@ -100,6 +79,6 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
     }
 
     public ValuedPropertyView withValue(String value) {
-        return new ValuedPropertyView(mustacheContent, getName(), value);
+        return new ValuedPropertyView(getName(), value);
     }
 }

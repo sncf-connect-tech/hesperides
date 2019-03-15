@@ -23,7 +23,6 @@ package org.hesperides.core.infrastructure.mongo.platforms.documents;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -33,7 +32,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
@@ -42,17 +40,14 @@ import java.util.stream.Collectors;
 @Document
 public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
-    private String mustacheContent;
     private String value;
 
-    public ValuedPropertyDocument(String name, String mustacheContent, String value) {
+    public ValuedPropertyDocument(String name, String value) {
         this.name = name;
-        this.mustacheContent = mustacheContent;
         this.value = value;
     }
 
     public ValuedPropertyDocument(ValuedProperty valuedProperty) {
-        mustacheContent = valuedProperty.getMustacheContent();
         name = StringUtils.trim(valuedProperty.getName());
         value = valuedProperty.getValue();
     }
@@ -66,7 +61,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
     }
 
     public ValuedPropertyView toView() {
-        return new ValuedPropertyView(mustacheContent, getName(), value);
+        return new ValuedPropertyView(getName(), value);
     }
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
@@ -85,16 +80,9 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
                 .collect(Collectors.toList());
     }
 
-    public static ValuedPropertyDocument buildDefaultValuedProperty(PropertyDocument property) {
-        ValuedPropertyDocument defaultValuedProperty = new ValuedPropertyDocument();
-        defaultValuedProperty.setMustacheContent(property.getMustacheContent());
-        defaultValuedProperty.setName(property.getName());
-        return defaultValuedProperty;
-    }
-
     @Override
     protected ValuedProperty toDomainInstance() {
-        return new ValuedProperty(mustacheContent, name, value);
+        return new ValuedProperty(name, value);
     }
 
     @Override
@@ -108,18 +96,11 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
             // valorisée puis supprimée du template) on la conserve telle quelle
             return Collections.singletonList(this);
         }
+        // Il arrive qu'une propriété soit déclarée plusieurs fois avec le même nom
+        // et un commentaire distinct. Dans ce cas on crée autant de propriétés valorisées
+        // qu'il n'y a de propriétés déclarées
         return matchingProperties.stream()
-                .map(propertyDocument ->
-                        // Il arrive qu'une propriété soit déclarée plusieurs fois avec le même nom
-                        // et un commentaire distinct. Dans ce cas on crée autant de propriétés valorisées
-                        // qu'il n'y a de propriétés déclarées afin de pouvoir les compléter avec les
-                        // différents mustacheContent
-                        cloneWithMustacheContentAndIsPassword(propertyDocument.getMustacheContent())
-                )
+                .map(propertyDocument -> new ValuedPropertyDocument(name, value))
                 .collect(Collectors.toList());
-    }
-
-    private ValuedPropertyDocument cloneWithMustacheContentAndIsPassword(String mustacheContent) {
-        return new ValuedPropertyDocument(name, mustacheContent, value);
     }
 }

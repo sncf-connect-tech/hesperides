@@ -40,14 +40,14 @@ public class FileValuationContext {
     }
 
     private List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1,
-                                                   List<? extends AbstractValuedPropertyView> listOfProps2,
+                                                    List<? extends AbstractValuedPropertyView> listOfProps2,
                                                     String overridingPropIdForWarning) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>(listOfProps2);
         Set<String> replacableStrings = properties.stream()
                 .map(AbstractValuedPropertyView::getName)
                 .collect(Collectors.toSet());
         for (AbstractValuedPropertyView property : listOfProps1) {
-            if (replacableStrings.contains(property.getMustacheContentOrName())) {
+            if (replacableStrings.contains(property.getName())) {
                 log.debug("{}: During valorization, {} was overriden by {} with same name",
                         deployedModuleDescriptor, property.getName(), overridingPropIdForWarning);
             } else {
