@@ -117,29 +117,6 @@ Feature: Get file
       global-value
       """
 
-  Scenario: get file with global properties used in iterable properties
-    Given an existing module with this template content
-      """
-      {{#a}}
-        {{ global-property }}
-        {{ will-be-replaced-by-global-value }}
-      {{/a}}
-      """
-    And an existing platform with this module
-    And the platform has these global properties
-      | name            | value        |
-      | global-property | global-value |
-    And the platform has these iterable properties
-      | iterable | bloc   | name                             | value                 |
-      | a        | bloc-1 | will-be-replaced-by-global-value | {{ global-property }} |
-    When I get the module template file
-    Then the file is successfully retrieved and contains
-      """
-        global-value
-        global-value
-
-      """
-
   #issue-453
   Scenario: get file with global properties used in instance property values
     Given an existing module with this template content
@@ -387,4 +364,56 @@ Feature: Get file
       """
     <logger level="DEBUG">
     <logger level="DEBUG">
+      """
+
+  #issue-547
+  Scenario: an iterable property is not overridden by a global property with the same name even if it is not valorized
+    Given an existing module with this template content
+      """
+      {{#iterable-property}}
+        {{ global-property-a }}
+        {{ global-property-b }}
+        {{ simple-property }}
+      {{/iterable-property}}
+      """
+    And an existing platform with this module
+    And the platform has these iterable properties
+      | iterable          | bloc   | name              | value   |
+      | iterable-property | bloc-1 | global-property-a | value-1 |
+      | iterable-property | bloc-1 | simple-property   | value-2 |
+    And the platform has these global properties
+      | name              | value          |
+      | global-property-a | GLOBAL_VALUE_A |
+      | global-property-b | GLOBAL_VALUE_B |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+        value-1
+        &nbsp;
+        value-2
+
+      """
+
+  #issue-547
+  Scenario: get file with global properties used by iterable properties
+    Given an existing module with this template content
+      """
+      {{#a}}
+        {{ global-property }}
+        {{ will-be-replaced-by-global-value }}
+      {{/a}}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name            | value        |
+      | global-property | global-value |
+    And the platform has these iterable properties
+      | iterable | bloc   | name                             | value                 |
+      | a        | bloc-1 | will-be-replaced-by-global-value | {{ global-property }} |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+        &nbsp;
+        global-value
+
       """

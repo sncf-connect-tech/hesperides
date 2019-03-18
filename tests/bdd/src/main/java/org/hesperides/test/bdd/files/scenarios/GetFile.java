@@ -84,7 +84,7 @@ public class GetFile extends HesperidesScenario implements En {
 
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
             assertOK();
-            String expectedOutput = fileContent;
+            String expectedOutput = fileContent.replaceAll("&nbsp;", "");
             String actualOutput = (String) testContext.getResponseBody();
             assertEquals(expectedOutput, defaultString(actualOutput, ""));
         });
