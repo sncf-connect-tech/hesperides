@@ -460,11 +460,16 @@ public class PropertyTest {
         List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromStringContent(content);
         IterableProperty iterablePropertyA = (IterableProperty) abstractProperties.get(0);
         assertEquals("a", iterablePropertyA.getName());
-        Property propertyFoo = (Property) iterablePropertyA.getProperties().get(1);
-        assertProperty(new Property("foo|@required", "foo", true, null, "", "", false), propertyFoo);
-        IterableProperty iterablePropertyB = (IterableProperty) iterablePropertyA.getProperties().get(0);
-        assertEquals("b", iterablePropertyB.getName());
-        Property propertyBar = (Property) iterablePropertyB.getProperties().get(0);
-        assertProperty(new Property("{bar|@default zzz", "bar", false, null, "zzz", "", false), propertyBar);
+        iterablePropertyA.getProperties().forEach(abstractProperty -> {
+            if (abstractProperty instanceof IterableProperty) {
+                IterableProperty iterablePropertyB = (IterableProperty) abstractProperty;
+                Property propertyFoo = (Property) iterablePropertyB.getProperties().get(0);
+                assertProperty(new Property("bar|@default zzz", "bar", false, null, "zzz", "", false), propertyFoo);
+                assertEquals("b", iterablePropertyB.getName());
+            } else {
+                Property propertyBar = (Property) abstractProperty;
+                assertProperty(new Property("foo|@required", "foo", true, null, "", "", false), propertyBar);
+            }
+        });
     }
 }

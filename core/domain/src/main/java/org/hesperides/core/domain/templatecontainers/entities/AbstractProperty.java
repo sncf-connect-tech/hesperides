@@ -101,37 +101,43 @@ public abstract class AbstractProperty {
     // il suffit qu'une de ses définitions soit annotée en @password, @default ou @required
     // pour que toutes ses occurences le soient:
     static private Stream<Property> mergePropertyDefinitions(Stream<Property> properties, String templateContainerKey) {
-        Map<NameAndComment, List<Property>> propertiesPerNameAndComment = properties
-                .collect(groupingBy(p -> new NameAndComment(p.getName(), p.getComment())));
-        return propertiesPerNameAndComment.values().stream()
-                .map(propertiesWithSameNameAndComment -> {
-                    Property property = propertiesWithSameNameAndComment.get(0);
-                    String propertyName = property.getName();
-                    if (propertiesWithSameNameAndComment.stream().anyMatch(Property::isPassword)) {
-                        property = property.cloneAsPassword();
-                    }
-                    if (propertiesWithSameNameAndComment.stream().anyMatch(Property::isRequired)) {
-                        property = property.cloneAsRequired();
-                    }
-                    Optional<String> firstDefaultValue = propertiesWithSameNameAndComment.stream()
-                            .map(Property::getDefaultValue)
-                            .filter(StringUtils::isNotBlank)
-                            .findFirst();
-                    if (firstDefaultValue.isPresent()) {
-                        String defaultValue = firstDefaultValue.get();
-                        property = property.cloneWithDefaultValue(defaultValue);
-                        propertiesWithSameNameAndComment.stream()
-                                .map(Property::getDefaultValue)
-                                .filter(StringUtils::isNotBlank)
-                                .filter(otherDefaultValue -> !otherDefaultValue.equals(defaultValue))
-                                .forEach(otherDefaultValue -> log.debug("{}: Property {} has several differing default values defined", templateContainerKey, propertyName));
-                    }
-                    return property;
-                });
+        Map<DedupeKey, List<Property>> propertiesPerDedupeKey = properties
+                .collect(groupingBy(p -> new DedupeKey(p.getName(), p.getComment())));
+        List<Property> dedupedProperties = new ArrayList<>();
+        propertiesPerDedupeKey.values().forEach(propertiesWithSameNameAndComment -> {
+            Property property = propertiesWithSameNameAndComment.get(0);
+            String propertyName = property.getName();
+            if (propertiesWithSameNameAndComment.stream().anyMatch(Property::isPassword)) {
+                property = property.cloneAsPassword();
+            }
+            if (propertiesWithSameNameAndComment.stream().anyMatch(Property::isRequired)) {
+                property = property.cloneAsRequired();
+            }
+            Optional<String> firstDefaultValue = propertiesWithSameNameAndComment.stream()
+                    .map(Property::getDefaultValue)
+                    .filter(StringUtils::isNotBlank)
+                    .findFirst();
+            if (firstDefaultValue.isPresent()) {
+                String defaultValue = firstDefaultValue.get();
+                property = property.cloneWithDefaultValue(defaultValue);
+                propertiesWithSameNameAndComment.stream()
+                        .map(Property::getDefaultValue)
+                        .filter(StringUtils::isNotBlank)
+                        .filter(otherDefaultValue -> !otherDefaultValue.equals(defaultValue))
+                        .forEach(otherDefaultValue -> log.debug("{}: Property {} has several differing default values defined", templateContainerKey, propertyName));
+            }
+            Set<String> mustacheContents = propertiesWithSameNameAndComment.stream()
+                    .map(Property::getMustacheContent)
+                    .collect(Collectors.toSet());
+            for (String mustacheContent : mustacheContents) {
+                dedupedProperties.add(property.cloneWithMustacheContent(mustacheContent));
+            }
+        });
+        return dedupedProperties.stream();
     }
 
     @Value
-    private static class NameAndComment {
+    private static class DedupeKey {
         private String name;
         private String comment;
     }

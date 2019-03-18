@@ -43,6 +43,10 @@ public class Property extends AbstractProperty {
         return new Property(mustacheContent, getName(), isRequired, comment, defaultValue, pattern, isPassword);
     }
 
+    public Property cloneWithMustacheContent(String mustacheContent) {
+        return new Property(mustacheContent, getName(), isRequired, comment, defaultValue, pattern, isPassword);
+    }
+
     private enum AnnotationType {
         IS_REQUIRED("required"),
         COMMENT("comment"),
@@ -415,7 +419,7 @@ public class Property extends AbstractProperty {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getComment(), this.getName());
+        return Objects.hash(this.getName(), this.getComment(), this.getMustacheContent());
     }
 
     @Override
@@ -427,8 +431,9 @@ public class Property extends AbstractProperty {
             equals = false;
         } else {
             final Property otherProperty = (Property) object;
-            equals = Objects.equals(this.getComment(), otherProperty.getComment()) &&
-                    Objects.equals(this.getName(), otherProperty.getName());
+            equals = Objects.equals(this.getName(), otherProperty.getName()) &&
+                    Objects.equals(this.getComment(), otherProperty.getComment()) &&
+                    Objects.equals(this.getMustacheContent(), otherProperty.getMustacheContent());
         }
         return equals;
     }

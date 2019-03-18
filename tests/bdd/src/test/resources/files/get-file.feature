@@ -371,3 +371,20 @@ Feature: Get file
       """
 
       """
+
+  Scenario: file from a template containing 2 properties with same name and comment but different mustache content
+    Given an existing module with this template content
+      """
+    <logger level="{{logging.level|@comment "some comments" @default INFO}}">
+    <logger level="{{logging.level|some comments @default INFO}}">
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name          | value |
+      | logging.level | DEBUG |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+    <logger level="DEBUG">
+    <logger level="DEBUG">
+      """
