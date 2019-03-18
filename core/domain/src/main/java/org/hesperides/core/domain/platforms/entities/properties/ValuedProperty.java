@@ -67,9 +67,9 @@ public class ValuedProperty extends AbstractValuedProperty {
                                               String valueBetweenCurlyBrackets,
                                               List<ValuedProperty> globalProperties,
                                               List<ValuedProperty> moduleProperties) {
-        return propertyIsNotInProperties(valueBetweenCurlyBrackets, globalProperties) &&
-                (currentPropertyName.equals(valueBetweenCurlyBrackets) ||
-                        propertyIsNotInProperties(valueBetweenCurlyBrackets, moduleProperties));
+        return (propertyIsNotInProperties(valueBetweenCurlyBrackets, globalProperties) &&
+                propertyIsNotInProperties(valueBetweenCurlyBrackets, moduleProperties))
+                || currentPropertyName.equals(valueBetweenCurlyBrackets);
     }
 
     private static boolean propertyIsNotInProperties(String propertyName, List<ValuedProperty> properties) {
