@@ -316,6 +316,27 @@ Feature: Get file
       instance-value
       """
 
+  Scenario: get file with instance properties created by a module property that references itself and a global property with same name
+    Given an existing module with this template content
+      """
+      {{ some-property | a comment}}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name          | value               |
+      | some-property | {{ some-property }} |
+    And the platform has these valued properties
+      | name          | value               |
+      | some-property | {{ some-property }} |
+    And the platform has these instance properties
+      | name          | value          |
+      | some-property | instance-value |
+    When I get the instance template file
+    Then the file is successfully retrieved and contains
+      """
+      instance-value
+      """
+
   Scenario: a global property overrides a valued one with the same name
     Given an existing module with this template content
       """
