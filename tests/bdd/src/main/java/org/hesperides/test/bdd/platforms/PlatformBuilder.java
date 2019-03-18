@@ -216,7 +216,7 @@ public class PlatformBuilder {
                 new HashSet<>(iterableProperties));
     }
 
-    private List<ValuedPropertyIO> getValuedProperties(boolean isGlobal) {
+    public List<ValuedPropertyIO> getValuedProperties(boolean isGlobal) {
         return properties
                 .stream()
                 .filter(property -> property.isGlobal() == isGlobal)

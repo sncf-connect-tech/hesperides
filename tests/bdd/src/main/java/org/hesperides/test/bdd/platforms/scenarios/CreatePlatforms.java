@@ -48,7 +48,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Every.everyItem;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
@@ -280,14 +281,15 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Given("^the platform has these valued properties$", (DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
-            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet()), moduleBuilder.getPropertiesPath());
+            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
         Given("^the platform has these iterable properties$", (DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
-            platformClient.saveProperties(platformBuilder.buildInput(), new PropertiesIO(Collections.emptySet(), new HashSet<>(iterableProperties)), moduleBuilder.getPropertiesPath());
+            platformBuilder.withIterableProperties(iterableProperties);
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
         });
 
