@@ -67,3 +67,13 @@ Feature: Get module model
     When I get the model of this module
     Then the model of this module lists 1 property
     Then the model of property "foo" is a required password and has a default value of "BAR"
+
+  Scenario: model of a template containing 2 properties with same name and comment but different mustache content
+    Given an existing module with this template content
+      """
+    <logger level="{{logging.level|@comment "some comments" @default INFO}}">
+    <logger level="{{logging.level|some comments @default INFO}}">
+      """
+    When I get the model of this module
+    Then the model of this module lists 1 property
+    Then the model of property "logging.level" has a comment of "some comments" and a default value of "INFO"

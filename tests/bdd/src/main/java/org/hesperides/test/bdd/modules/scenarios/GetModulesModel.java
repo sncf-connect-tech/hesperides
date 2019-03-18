@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
@@ -138,15 +139,26 @@ public class GetModulesModel extends HesperidesScenario implements En {
             assertThat(actualProperties, hasSize(propertyCount));
         });
 
-        Then("^the model of property \"([^\"]+)\" is a required password and has a default value of \"([^\"]+)\"", (String propertyName, String defaultValue) -> {
-            assertOK();
-            Set<PropertyOutput> actualProperties = ((ModelOutput) testContext.getResponseBody()).getProperties();
-            PropertyOutput matchingPropertyModel = actualProperties.stream().filter(p -> p.getName().equals(propertyName)).findAny().orElse(null);
-            assertNotNull(matchingPropertyModel);
-            assertTrue(matchingPropertyModel.isRequired());
-            assertTrue(matchingPropertyModel.isPassword());
-            assertEquals(matchingPropertyModel.getDefaultValue(), defaultValue);
-        });
+        Then("^the model of property \"([^\"]+)\"" +
+                        "( is a required password)?" +
+                        "(?: has a comment of \"([^\"]+)\")?" +
+                        "(?: and(?: has)? a default value of \"([^\"]+)\")?",
+                (String propertyName, String isRequiredPassword, String comment, String defaultValue) -> {
+                    assertOK();
+                    Set<PropertyOutput> actualProperties = ((ModelOutput) testContext.getResponseBody()).getProperties();
+                    PropertyOutput matchingPropertyModel = actualProperties.stream().filter(p -> p.getName().equals(propertyName)).findAny().orElse(null);
+                    assertNotNull(matchingPropertyModel);
+                    if (isNotBlank(isRequiredPassword)) {
+                        assertTrue(matchingPropertyModel.isRequired());
+                        assertTrue(matchingPropertyModel.isPassword());
+                    }
+                    if (isNotBlank(comment)) {
+                        assertEquals(comment, matchingPropertyModel.getComment());
+                    }
+                    if (isNotBlank(defaultValue)) {
+                        assertEquals(matchingPropertyModel.getDefaultValue(), defaultValue);
+                    }
+                });
 
         Then("^the module model if not found$", () -> {
             assertNotFound();

@@ -162,7 +162,7 @@ public class FileUseCases {
                                                                            PlatformView platform,
                                                                            String modulePath,
                                                                            Module.Key moduleKey,
-                                                                           List<AbstractPropertyView> modulePropertiesModel,
+                                                                           List<AbstractPropertyView> modulePropertiesModels,
                                                                            String instanceName,
                                                                            boolean shouldHidePasswordProperties) {
 
@@ -171,13 +171,13 @@ public class FileUseCases {
 
         List<AbstractValuedPropertyView> valuedProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
-            valuedProperties = hidePasswordProperties(valuedProperties, modulePropertiesModel);
+            valuedProperties = hidePasswordProperties(valuedProperties, modulePropertiesModels);
         }
         FileValuationContext valuationContext = new FileValuationContext(platform, deployedModule, instanceName);
         valuedProperties = valuationContext.completeWithContextualProperties(valuedProperties);
 
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive
-        Map<String, List<AbstractPropertyView>> propertyModelsPerName = modulePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName));
+        Map<String, List<AbstractPropertyView>> propertyModelsPerName = modulePropertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
         List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(valuedProperties, propertyModelsPerName, valuationContext);
 
         Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName, valuationContext);

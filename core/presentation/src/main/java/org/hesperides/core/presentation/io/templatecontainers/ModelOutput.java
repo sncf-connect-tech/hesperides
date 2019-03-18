@@ -50,6 +50,9 @@ public class ModelOutput {
      * @param abstractPropertyViews
      */
     public ModelOutput(List<AbstractPropertyView> abstractPropertyViews) {
+        // Note: l'utilisation d'un Set de PropertyOutput va provoquer ici le dédoublonnage de
+        // propriétés différant uniquement par leur mustacheContent
+        // cf. BDD Scenario: model of a template containing 2 properties with same name and comment but different mustache content
         Set<PropertyOutput> propertyOutputs = new HashSet<>();
         Set<PropertyOutput> iterablePropertyOutputs = new HashSet<>();
 
