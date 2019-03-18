@@ -2,7 +2,6 @@ package org.hesperides.core.application.files;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.platforms.queries.views.InstanceView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
@@ -31,9 +30,11 @@ public class FileValuationContext {
         deployedModuleDescriptor = platform.getApplicationName() + "-" + platform.getPlatformName() + " " + deployedModule.getPropertiesPath();
     }
 
-    List<AbstractValuedPropertyView> completeWithContextualProperties(List<AbstractValuedPropertyView> properties) {
+    List<AbstractValuedPropertyView> completeWithContextualProperties(List<AbstractValuedPropertyView> properties, boolean withGlobals) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
-        properties = concat(properties, getGlobalProperties(), "a global property");
+        if (withGlobals) {
+            properties = concat(properties, getGlobalProperties(), "a global property");
+        }
         properties = concat(properties, getInstanceProperties(), "an instance property");
         properties = concat(properties, getPredefinedProperties(), "a predefined property");
         return properties;
