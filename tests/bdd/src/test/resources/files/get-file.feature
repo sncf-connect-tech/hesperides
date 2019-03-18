@@ -438,3 +438,17 @@ Feature: Get file
         global-value
 
       """
+
+  Scenario: get file with a property with the same name but 2 different default values
+    Given an existing module with this template content
+    """
+    {{ simple-property | @default 10}}
+    {{ simple-property | @default 5 }}
+    """
+    And an existing platform with this module
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+    10
+    10
+    """
