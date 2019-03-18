@@ -300,8 +300,9 @@ public class FileUseCases {
         // Gestion du cas des propriétés iterables où certaines de ses propriétés
         // peuvent ne pas avoir de valorisation mais le modèle a des valeurs par défaut.
         // cf. BDD Scenario: get file with iterable and default values
+        //  &  BDD Scenario: get file with a property with the same name but 2 different default values
         propertyModelsPerName.values().stream()
-                .map(propertyModels -> propertyModels.get(0))
+                .flatMap(Collection::stream)
                 .filter(PropertyView.class::isInstance).map(PropertyView.class::cast)
                 .forEach(propertyModel -> {
                     if (!scopes.containsKey(propertyModel.getName())) {
