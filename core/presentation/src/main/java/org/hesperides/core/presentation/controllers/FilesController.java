@@ -72,7 +72,7 @@ public class FilesController extends AbstractController {
                                           @RequestParam("template_namespace") final String templateNamespace,
                                           @RequestParam(value = "simulate", required = false) final Boolean simulate) {
 
-        String file = filesUseCases.getFile(
+        String fileContent = filesUseCases.getFile(
                 applicationName,
                 platformName,
                 modulePath,
@@ -85,6 +85,6 @@ public class FilesController extends AbstractController {
                 Boolean.TRUE.equals(simulate),
                 fromAuthentication(authentication));
 
-        return ResponseEntity.ok(file);
+        return ResponseEntity.ok(fileContent);
     }
 }

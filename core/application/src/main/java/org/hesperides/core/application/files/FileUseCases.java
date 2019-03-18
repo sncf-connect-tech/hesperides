@@ -52,6 +52,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -187,14 +188,13 @@ public class FileUseCases {
     private static List<AbstractValuedPropertyView> preparePropertiesValues(List<AbstractValuedPropertyView> valuedProperties,
                                                                             Map<String, List<AbstractPropertyView>> propertyModelsPerName,
                                                                             FileValuationContext valuationContext) {
-
         List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
         Map<String, Object> scopes = propertiesToScopes(valuedProperties, propertyModelsPerName, valuationContext);
 
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
-                if (StringUtils.contains(valuedProperty.getValue(), "{{")) {
+                if (StringUtils.contains(valuedProperty.getValue(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
                     valuedProperty = valuedProperty.withValue(replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopes));
                 }
                 preparedProperties.add(valuedProperty);
@@ -219,7 +219,28 @@ public class FileUseCases {
 
         // Recursion tant qu'on a pas atteind un point stable,
         // c'est à dire que la phase de substitution n'a entrainé aucun nouveau changement de valeur de propriétés
-        return valuedProperties.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertyModelsPerName, valuationContext);
+        return removeUniqueSelfReferencingProperties(
+                valuedProperties.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertyModelsPerName, valuationContext)
+        );
+    }
+
+    // cf. BDD Scenario: a property referencing itself must disappear without any corresponding instance property defined
+    private static List<AbstractValuedPropertyView> removeUniqueSelfReferencingProperties(List<AbstractValuedPropertyView> properties) {
+        Map<String, Long> propertyCountPerName = properties.stream()
+                .collect(Collectors.groupingBy(AbstractValuedPropertyView::getName, Collectors.counting()));
+        return properties.stream()
+                .filter(abstractValuedProperty -> {
+                    if (!(abstractValuedProperty instanceof ValuedPropertyView) || propertyCountPerName.get(abstractValuedProperty.getName()) > 1) {
+                        return true;
+                    }
+                    ValuedPropertyView valuedProperty = (ValuedPropertyView)abstractValuedProperty;
+                    return !doesMustacheHasKey(valuedProperty.getValue(), valuedProperty.getName());
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static boolean doesMustacheHasKey(String mustacheText, String potentialKey) {
+        return Pattern.compile("\\{\\{ *" + potentialKey + "( |\\}}).+").matcher(mustacheText).find();
     }
 
     /**
