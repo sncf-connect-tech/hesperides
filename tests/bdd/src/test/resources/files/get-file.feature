@@ -452,3 +452,18 @@ Feature: Get file
     10
     10
     """
+
+  Scenario: property values are not trimmed
+    Given an existing module with this template content
+      """
+      property:{{ property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value       |
+      | property | &nbsp;value |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      property: value
+      """

@@ -320,7 +320,7 @@ public class FileUseCases {
         // donc pour elles `propertyModel` sera null et il n'y a aucune valeur par défaut associée
         String defaultValue = property != null ? property.getDefaultValue() : "";
         // Pour la valeur, si la propriété n'est pas valorisée, on prend la valeur par défaut
-        return StringUtils.trim(StringUtils.defaultString(valuedProperty.getValue(), defaultValue));
+        return StringUtils.defaultString(valuedProperty.getValue(), defaultValue);
     }
 
     /**
