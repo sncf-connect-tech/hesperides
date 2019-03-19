@@ -320,6 +320,7 @@ Feature: Get file
     Given an existing module with this template content
       """
       {{ some-property | a comment}}
+      {{#a}}{{ some-property | a comment}}{{/a}}
       """
     And an existing platform with this module
     And the platform has these global properties
@@ -328,6 +329,9 @@ Feature: Get file
     And the platform has these valued properties
       | name          | value               |
       | some-property | {{ some-property }} |
+    And the platform has these iterable properties
+      | iterable | bloc   | name          | value               |
+      | a        | bloc-1 | some-property | {{ some-property }} |
     And the platform has these instance properties
       | name          | value          |
       | some-property | instance-value |
@@ -335,6 +339,28 @@ Feature: Get file
     Then the file is successfully retrieved and contains
       """
       instance-value
+      instance-value
+      """
+
+  Scenario: global properties override instance ones
+    Given an existing module with this template content
+      """
+      {{ instance.user.home }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name               | value                    |
+      | instance.user.home | {{ instance.user.home }} |
+    And the platform has these instance properties
+      | name               | value |
+      | instance.user.home |       |
+    And the platform has these global properties
+      | name               | value      |
+      | instance.user.home | /home/toto |
+    When I get the instance template file
+    Then the file is successfully retrieved and contains
+      """
+      /home/toto
       """
 
   Scenario: a global property overrides a valued one with the same name
@@ -474,16 +500,19 @@ Feature: Get file
       property: value
       """
 
-  Scenario: instance properties can override predefined ones
+  Scenario: instance properties override predefined ones
     Given an existing module with this template content
       """
-      {{ hesperides.application.name }}
+      {{ property }}
       """
     And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value                             |
+      | property | {{ hesperides.application.name }} |
     And the platform has these instance properties
       | name                        | value |
       | hesperides.application.name | PROUT |
-    When I get the module template file
+    When I get the instance template file
     Then the file is successfully retrieved and contains
       """
       PROUT
