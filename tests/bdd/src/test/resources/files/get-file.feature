@@ -473,3 +473,18 @@ Feature: Get file
       """
       property: value
       """
+
+  Scenario: instance properties can override predefined ones
+    Given an existing module with this template content
+      """
+      {{ hesperides.application.name }}
+      """
+    And an existing platform with this module
+    And the platform has these instance properties
+      | name                        | value |
+      | hesperides.application.name | PROUT |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      PROUT
+      """

@@ -35,8 +35,8 @@ public class FileValuationContext {
         if (withGlobals) {
             properties = concat(properties, getGlobalProperties(), "a global property");
         }
-        properties = concat(properties, getInstanceProperties(), "an instance property");
         properties = concat(properties, getPredefinedProperties(), "a predefined property");
+        properties = concat(properties, getInstanceProperties(), "an instance property");
         return properties;
     }
 
