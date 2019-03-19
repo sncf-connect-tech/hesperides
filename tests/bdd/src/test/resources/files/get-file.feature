@@ -359,6 +359,9 @@ Feature: Get file
     Given an existing module with this template content
       """
       {{ property }}
+      {{property}}
+      {{property|@required}}
+      {{property |@password}}
       """
     And an existing platform with this module
     And the platform has these valued properties
@@ -367,6 +370,9 @@ Feature: Get file
     When I get the module template file
     Then the file is successfully retrieved and contains
       """
+
+
+
 
       """
 

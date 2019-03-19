@@ -246,7 +246,7 @@ public class FileUseCases {
     }
 
     private static boolean doesMustacheHasKey(String mustacheText, String potentialKey) {
-        return Pattern.compile("\\{\\{ *" + potentialKey + "( |\\}}).+").matcher(mustacheText).find();
+        return Pattern.compile("\\{\\{ *" + potentialKey + " *(\\||\\}\\})").matcher(mustacheText).find();
     }
 
     /**
