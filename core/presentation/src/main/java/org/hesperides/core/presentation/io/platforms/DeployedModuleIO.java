@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @AllArgsConstructor
@@ -51,7 +52,6 @@ public class DeployedModuleIO {
     String modulePath;
     @SerializedName("properties_path")
     String propertiesPath;  // en tant qu'input : facultatif, inutile et toujours ignoré
-
     List<InstanceIO> instances;
 
     public DeployedModuleIO(DeployedModuleView deployedModuleView) {
@@ -90,12 +90,7 @@ public class DeployedModuleIO {
                 .collect(Collectors.toList());
     }
 
-    public static List<DeployedModuleIO> fromDeployedModuleViews(List<DeployedModuleView> deployedModuleViews) {
-        return Optional.ofNullable(deployedModuleViews)
-                .orElse(Collections.emptyList())
-                .stream()
-                .filter(deployedModuleView -> deployedModuleView.getId() > 0)
-                .map(DeployedModuleIO::new)
-                .collect(Collectors.toList());
+    public static List<DeployedModuleIO> fromActiveDeployedModuleViews(Stream<DeployedModuleView> activeDeployedModules) {
+        return activeDeployedModules.map(DeployedModuleIO::new).collect(Collectors.toList());
     }
 }

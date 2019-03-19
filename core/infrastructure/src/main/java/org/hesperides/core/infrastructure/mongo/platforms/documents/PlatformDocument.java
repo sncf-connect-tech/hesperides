@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
 
@@ -61,6 +62,11 @@ public class PlatformDocument {
         this.versionId = platform.getVersionId();
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
         this.globalProperties = ValuedPropertyDocument.fromDomainInstances(platform.getGlobalProperties());
+    }
+
+    public Stream<DeployedModuleDocument> getActiveDeployedModules() {
+        return Optional.ofNullable(deployedModules).orElse(Collections.emptyList())
+                .stream().filter(deployedModule -> deployedModule.getId() > 0);
     }
 
     public PlatformView toPlatformView() {

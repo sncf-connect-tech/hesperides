@@ -26,6 +26,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Value
 public class PlatformView {
@@ -39,8 +40,12 @@ public class PlatformView {
     Long versionId;
     List<ValuedPropertyView> globalProperties;
 
+    public Stream<DeployedModuleView> getActiveDeployedModules() {
+        return deployedModules.stream().filter(deployedModule -> deployedModule.getId() > 0);
+    }
+
     public Optional<DeployedModuleView> getDeployedModule(String modulePath, Module.Key moduleKey) {
-        return deployedModules.stream()
+        return getActiveDeployedModules()
                 .filter(deployedModule -> deployedModule.getModulePath().equalsIgnoreCase(modulePath)
                         && deployedModule.getModuleKey().equals(moduleKey))
                 .findFirst();

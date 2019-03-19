@@ -19,7 +19,6 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -168,8 +167,7 @@ public class PlatformUseCases {
         PlatformView platform = queries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
 
         // On ne tient compte que des modules utilisés dans la platforme (pas des modules sauvegardés)
-        List<DeployedModuleView> deployedModules = platform.getDeployedModules().stream()
-                .filter(deployedModule -> deployedModule.getId() > 0)
+        List<DeployedModuleView> deployedModules = platform.getActiveDeployedModules()
                 .collect(Collectors.toList());
 
         List<TemplateContainer.Key> modulesKeys = deployedModules
