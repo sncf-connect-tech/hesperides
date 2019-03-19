@@ -32,11 +32,11 @@ public class FileValuationContext {
 
     List<AbstractValuedPropertyView> completeWithContextualProperties(List<AbstractValuedPropertyView> properties, boolean withGlobals) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
+        properties = concat(properties, getPredefinedProperties(), "a predefined property");
+        properties = concat(properties, getInstanceProperties(), "an instance property");
         if (withGlobals) {
             properties = concat(properties, getGlobalProperties(), "a global property");
         }
-        properties = concat(properties, getPredefinedProperties(), "a predefined property");
-        properties = concat(properties, getInstanceProperties(), "an instance property");
         return properties;
     }
 

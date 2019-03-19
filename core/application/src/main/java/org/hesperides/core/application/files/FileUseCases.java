@@ -189,14 +189,18 @@ public class FileUseCases {
                                                                             Map<String, List<AbstractPropertyView>> propertyModelsPerName,
                                                                             FileValuationContext valuationContext) {
         List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
-        List<AbstractValuedPropertyView> allValuedProperties = valuationContext.completeWithContextualProperties(valuedProperties, true);
-        Map<String, Object> scopes = propertiesToScopes(allValuedProperties, propertyModelsPerName);
+        Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, true), propertyModelsPerName);
+        Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, false), propertyModelsPerName);
 
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
                 ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
                 if (StringUtils.contains(valuedProperty.getValue(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
                     valuedProperty = valuedProperty.withValue(replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopes));
+                    // cf. BDD Scenario: get file with instance properties created by a module property that references itself and a global property with same name
+                    if (StringUtils.contains(valuedProperty.getValue(), "}}")) {
+                        valuedProperty = valuedProperty.withValue(replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopesWithoutGlobals));
+                    }
                 }
                 preparedProperties.add(valuedProperty);
             } else if (property instanceof IterableValuedPropertyView) {
