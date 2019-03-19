@@ -71,7 +71,7 @@ public class PlatformIO {
         applicationName = platformView.getApplicationName();
         version = platformView.getVersion();
         isProductionPlatform = platformView.isProductionPlatform();
-        deployedModules = hidePlatformsModules ? Collections.emptyList() : DeployedModuleIO.fromDeployedModuleViews(platformView.getDeployedModules());
+        deployedModules = hidePlatformsModules ? Collections.emptyList() : DeployedModuleIO.fromActiveDeployedModuleViews(platformView.getActiveDeployedModules());
         versionId = platformView.getVersionId();
     }
 
