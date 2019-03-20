@@ -306,6 +306,34 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
+        Given("^the platform has iterable-ception$", () -> {
+            List<IterableValuedPropertyIO> iterableProperties = Arrays.asList(
+                    new IterableValuedPropertyIO("a", Arrays.asList(
+                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                    new ValuedPropertyIO("valued_in_a", "value_a"),
+                                    new IterableValuedPropertyIO("b", Arrays.asList(
+                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                                    new ValuedPropertyIO("valued_in_b", "value_b"),
+                                                    new IterableValuedPropertyIO("c", Arrays.asList(
+                                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                                                    new ValuedPropertyIO("valued_in_c", "value_c")
+                                                            )))
+                                                    ))
+                                            )))
+                                    )),
+                                    new IterableValuedPropertyIO("d", Arrays.asList(
+                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                                    new ValuedPropertyIO("valued_in_d", "value_d")
+                                            )))
+                                    ))
+                            )))
+                    ))
+            );
+            platformBuilder.withIterableProperties(iterableProperties);
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+        });
+
         When("^I( try to)? create this platform$", (String tryTo) -> {
             testContext.responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
@@ -432,22 +460,20 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         // Deuxième étape : recréer l'arbre des données
         // attendues en input à l'aide des maps
         List<IterableValuedPropertyIO> iterableProperties = new ArrayList<>();
-        iterableMap.entrySet().forEach(iterable -> {
+        iterableMap.forEach((iterableName, iterableItems) -> {
             List<IterablePropertyItemIO> items = new ArrayList<>();
-            iterable.getValue().entrySet().forEach(bloc -> {
+            iterableItems.forEach((itemTitle, itemProperties) -> {
                 List<AbstractValuedPropertyIO> properties = new ArrayList<>();
-                bloc.getValue().entrySet().forEach(property -> {
-                    properties.add(new ValuedPropertyIO(property.getKey(), property.getValue()));
-                });
-                items.add(new IterablePropertyItemIO(bloc.getKey(), new HashSet<>(properties)));
+                itemProperties.forEach((propertyName, propertyValue) -> properties.add(new ValuedPropertyIO(propertyName, propertyValue)));
+                items.add(new IterablePropertyItemIO(itemTitle, new HashSet<>(properties)));
             });
-            iterableProperties.add(new IterableValuedPropertyIO(iterable.getKey(), items));
+            iterableProperties.add(new IterableValuedPropertyIO(iterableName, items));
         });
         return iterableProperties;
     }
 
     @Value
-    private class IterableProperty {
+    private static class IterableProperty {
         String iterable;
         String bloc;
         String name;

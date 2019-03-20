@@ -169,18 +169,18 @@ public class FileUseCases {
         DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey)
                 .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
 
-        List<AbstractValuedPropertyView> valuedProperties = deployedModule.getValuedProperties();
+        List<AbstractValuedPropertyView> moduleValuedProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
-            valuedProperties = hidePasswordProperties(valuedProperties, modulePropertiesModels);
+            moduleValuedProperties = hidePasswordProperties(moduleValuedProperties, modulePropertiesModels);
         }
         FileValuationContext valuationContext = new FileValuationContext(platform, deployedModule, instanceName);
-        valuedProperties = valuationContext.completeWithContextualProperties(valuedProperties, true);
+        List<AbstractValuedPropertyView> allValuedProperties = valuationContext.completeWithContextualProperties(moduleValuedProperties, true);
 
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive
         Map<String, List<AbstractPropertyView>> propertyModelsPerName = modulePropertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
-        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(valuedProperties, propertyModelsPerName, valuationContext);
+        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(allValuedProperties, propertyModelsPerName, valuationContext);
 
-        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName);
+        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName, valuationContext);
         return replaceMustachePropertiesWithValues(input, scopes);
     }
 
@@ -189,8 +189,8 @@ public class FileUseCases {
                                                                             Map<String, List<AbstractPropertyView>> propertyModelsPerName,
                                                                             FileValuationContext valuationContext) {
         List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
-        Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, true), propertyModelsPerName);
-        Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, false), propertyModelsPerName);
+        Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, true), propertyModelsPerName, valuationContext);
+        Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, false), propertyModelsPerName, valuationContext);
 
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
@@ -260,7 +260,17 @@ public class FileUseCases {
      * - nom-propriété-itérable => map (...)
      */
     private static Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> valuedProperties,
-                                                          Map<String, List<AbstractPropertyView>> propertyModelsPerName) {
+                                                          Map<String, List<AbstractPropertyView>> propertyModelsPerName,
+                                                          FileValuationContext valuationContext) {
+
+        List<ValuedPropertyView> valuedSimpleProperties = valuedProperties.stream()
+                .filter(ValuedPropertyView.class::isInstance)
+                .map(ValuedPropertyView.class::cast)
+                // La ligne suivante permettrait d'être iso-legacy mais n'ayant pas de diff correspondant à ce cas, on laisse comme ça
+                // cf. BDD "get file with global and instance properties used in and by iterable properties" (files/get-file.feature:450)
+                //.filter(p -> !valuationContext.isInstanceProperty(p.getName()))
+                .collect(Collectors.toList());
+
         Map<String, Object> scopes = new HashMap<>();
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
@@ -279,9 +289,20 @@ public class FileUseCases {
 
                 List<Map<String, Object>> items = iterableValuedProperty.getIterablePropertyItems()
                         .stream()
-                        .map(item -> propertiesToScopes(item.getAbstractValuedPropertyViews(),
-                                iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName))
-                        ))
+                        .map(item -> {
+                            // Concatène les propriétés parentes avec les propriété de l'item
+                            // pour bénéficier de la valorisation de ces propriétés dans les
+                            // propriétés filles
+                            List<AbstractValuedPropertyView> parentAndItemSimpleValuedProperties = Stream.concat(
+                                    valuedSimpleProperties.stream(),
+                                    item.getAbstractValuedPropertyViews().stream()
+                            ).collect(Collectors.toList());
+
+                            return propertiesToScopes(
+                                    parentAndItemSimpleValuedProperties,
+                                    iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName)),
+                                    valuationContext);
+                        })
                         .collect(Collectors.toList());
 
                 scopes.put(iterableValuedProperty.getName(), items);
