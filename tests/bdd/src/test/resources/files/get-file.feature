@@ -517,3 +517,63 @@ Feature: Get file
       """
       PROUT
       """
+
+  # Comportement différent du cas précédent, on laisse comme ça si on privilégie l'un ou l'autre
+  Scenario: get file with an iterable property with the same name but 2 different default values
+    Given an existing module with this template content
+    """
+    {{#a}}
+    {{ simple-property | @default 10}}
+    {{ simple-property | @default 5 }}
+    {{/a}}
+    """
+    And an existing platform with this module
+    And the platform has these iterable properties
+      | iterable | bloc   | name | value |
+      | a        | bloc-1 |      |       |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+    10
+    5
+
+    """
+
+  Scenario: property values are not trimmed
+    Given an existing module with this template content
+      """
+      property:{{ property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value       |
+      | property | &nbsp;value |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      property: value
+      """
+
+  Scenario: get file with an iterable-ception
+    Given an existing module with this template content
+    """
+    {{#a}}
+      {{#b}}
+        {{#c}}
+          {{valued_in_a}}-{{valued_in_b}}-{{valued_in_c}}-{{valued_in_d}}
+        {{/c}}
+      {{/b}}
+      {{#d}}
+        {{valued_in_a}}-{{valued_in_b}}-{{valued_in_c}}-{{valued_in_d}}
+      {{/d}}
+    {{/a}}
+    """
+    And an existing platform with this module
+    And the platform has iterable-ception
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+          value_a-value_b-value_c-
+        value_a---value_d
+
+    """
