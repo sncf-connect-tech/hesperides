@@ -533,7 +533,6 @@ Feature: Get file
       PROUT
       """
 
-  # Comportement différent du cas précédent, on laisse comme ça si on privilégie l'un ou l'autre
   Scenario: get file with an iterable property with the same name but 2 different default values
     Given an existing module with this template content
     """
