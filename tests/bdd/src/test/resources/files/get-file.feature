@@ -515,22 +515,28 @@ Feature: Get file
       property: value
       """
 
-  Scenario: instance properties override predefined ones
+  Scenario: predefined properties override instance properties
     Given an existing module with this template content
       """
-      {{ property }}
+      {{ property-a }}
+      {{ property-b }}
+      {{ hesperides.module.path.full }}
       """
     And an existing platform with this module
     And the platform has these valued properties
-      | name     | value                             |
-      | property | {{ hesperides.application.name }} |
+      | name       | value                             |
+      | property-a | {{ hesperides.application.name }} |
+      | property-b | {{ hesperides.module.path.full }} |
     And the platform has these instance properties
       | name                        | value |
       | hesperides.application.name | PROUT |
+      | hesperides.module.path.full |       |
     When I get the instance template file
     Then the file is successfully retrieved and contains
       """
-      PROUT
+      test-application
+      /GROUP
+      /GROUP
       """
 
   Scenario: get file with an iterable property with the same name but 2 different default values
