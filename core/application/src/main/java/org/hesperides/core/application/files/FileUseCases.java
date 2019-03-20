@@ -49,7 +49,6 @@ import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -181,7 +180,7 @@ public class FileUseCases {
         Map<String, List<AbstractPropertyView>> propertyModelsPerName = modulePropertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
         List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(allValuedProperties, propertyModelsPerName, valuationContext);
 
-        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName, moduleValuedProperties);
+        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName, valuationContext);
         return replaceMustachePropertiesWithValues(input, scopes);
     }
 
@@ -190,8 +189,8 @@ public class FileUseCases {
                                                                             Map<String, List<AbstractPropertyView>> propertyModelsPerName,
                                                                             FileValuationContext valuationContext) {
         List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
-        Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, true), propertyModelsPerName);
-        Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, false), propertyModelsPerName);
+        Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, true), propertyModelsPerName, valuationContext);
+        Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, false), propertyModelsPerName, valuationContext);
 
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
@@ -254,11 +253,6 @@ public class FileUseCases {
         return Pattern.compile("\\{\\{ *" + potentialKey + " *(\\||\\}\\})").matcher(mustacheText).find();
     }
 
-    private static Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> valuedProperties,
-                                                          Map<String, List<AbstractPropertyView>> propertyModelsPerName) {
-        return propertiesToScopes(valuedProperties, propertyModelsPerName, Collections.emptyList());
-    }
-
     /**
      * Transforme une liste de propriétés `AbstractValuedPropertyView` pouvant contenir des propriétés simples
      * et des propriétés itérables en map de ce type :
@@ -267,7 +261,16 @@ public class FileUseCases {
      */
     private static Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> valuedProperties,
                                                           Map<String, List<AbstractPropertyView>> propertyModelsPerName,
-                                                          List<AbstractValuedPropertyView> moduleValuedProperties) {
+                                                          FileValuationContext valuationContext) {
+
+        List<ValuedPropertyView> valuedSimpleProperties = valuedProperties.stream()
+                .filter(ValuedPropertyView.class::isInstance)
+                .map(ValuedPropertyView.class::cast)
+                // La ligne suivante permettrait d'être iso-legacy mais n'ayant pas de diff correspondant à ce cas, on laisse comme ça
+                // cf. BDD "get file with global and instance properties used in and by iterable properties" (files/get-file.feature:450)
+                //.filter(p -> !valuationContext.isInstanceProperty(p.getName()))
+                .collect(Collectors.toList());
+
         Map<String, Object> scopes = new HashMap<>();
         valuedProperties.forEach(property -> {
             if (property instanceof ValuedPropertyView) {
@@ -284,17 +287,21 @@ public class FileUseCases {
                 List<AbstractPropertyView> iterablePropertiesModel = iterablePropertyModel != null ?
                         ((IterablePropertyView) iterablePropertyModel.get(0)).getProperties() : Collections.emptyList();
 
-                List<ValuedPropertyView> parentSimpleValuedProperties = getParentSimpleValuedProperties(moduleValuedProperties, iterableValuedProperty, Collections.emptyList());
-
                 List<Map<String, Object>> items = iterableValuedProperty.getIterablePropertyItems()
                         .stream()
                         .map(item -> {
-                            // On concatène les valorisations parentes aux valorisations de
-                            // l'item afin de les retrouver par la suite (cf. iterable-ception)
-                            List<AbstractValuedPropertyView> parentAndItemSimpleValuedProperties = Stream.concat(parentSimpleValuedProperties.stream(), item.getAbstractValuedPropertyViews().stream()).collect(Collectors.toList());
-                            return propertiesToScopes(parentAndItemSimpleValuedProperties,
+                            // Concatène les propriétés parentes avec les propriété de l'item
+                            // pour bénéficier de la valorisation de ces propriétés dans les
+                            // propriétés filles
+                            List<AbstractValuedPropertyView> parentAndItemSimpleValuedProperties = Stream.concat(
+                                    valuedSimpleProperties.stream(),
+                                    item.getAbstractValuedPropertyViews().stream()
+                            ).collect(Collectors.toList());
+
+                            return propertiesToScopes(
+                                    parentAndItemSimpleValuedProperties,
                                     iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName)),
-                                    moduleValuedProperties);
+                                    valuationContext);
                         })
                         .collect(Collectors.toList());
 
@@ -331,53 +338,6 @@ public class FileUseCases {
                     }
                 });
         return scopes;
-    }
-
-    /**
-     * Récupère la liste des propriétés simples des parents de la propriété itérable que l'on recherche
-     */
-    private static List<ValuedPropertyView> getParentSimpleValuedProperties(List<AbstractValuedPropertyView> moduleValuedProperties,
-                                                                            IterableValuedPropertyView iterableValuedPropertyToFind,
-                                                                            List<ValuedPropertyView> parentSimpleValuedProperties) {
-
-        for (AbstractValuedPropertyView valuedProperty : moduleValuedProperties) {
-
-            if (valuedProperty instanceof IterableValuedPropertyView) {
-                IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) valuedProperty;
-                if (isProbablyTheSameIterable(iterableValuedProperty, iterableValuedPropertyToFind)) {
-                    return parentSimpleValuedProperties;
-                } else {
-
-                    for (IterablePropertyItemView item : iterableValuedProperty.getIterablePropertyItems()) {
-                        Stream<ValuedPropertyView> itemSimpleValuedProperties = item.getAbstractValuedPropertyViews().stream().filter(ValuedPropertyView.class::isInstance).map(ValuedPropertyView.class::cast);
-                        List<ValuedPropertyView> itemAndParentSimpleValuedProperties = Stream.concat(itemSimpleValuedProperties, parentSimpleValuedProperties.stream()).collect(Collectors.toList());
-                        List<ValuedPropertyView> resultIfFound = getParentSimpleValuedProperties(item.getAbstractValuedPropertyViews(), iterableValuedPropertyToFind, itemAndParentSimpleValuedProperties);
-                        if (!CollectionUtils.isEmpty(resultIfFound)) {
-                            return resultIfFound;
-                        }
-                    }
-                }
-            }
-        }
-
-        return Collections.emptyList();
-    }
-
-    /**
-     * Solution bancale pour tester si une propriété itérable est identique à une autre...
-     * La propriété itérable à retrouver contient les propriétés prédéfinies et n'est donc
-     * pas identique à l'autre qui ne les contient pas. On compare le nom de la propriété,
-     * le nombre d'items et les titres de ces items...
-     */
-    private static boolean isProbablyTheSameIterable(IterableValuedPropertyView iterableValuedProperty, IterableValuedPropertyView iterableValuedPropertyToFind) {
-        boolean isProbablyTheSameIterable = false;
-        if (iterableValuedProperty.getName().equals(iterableValuedPropertyToFind.getName()) &&
-                iterableValuedProperty.getIterablePropertyItems().size() == iterableValuedPropertyToFind.getIterablePropertyItems().size()) {
-            List<String> itemsTitles = iterableValuedProperty.getIterablePropertyItems().stream().map(IterablePropertyItemView::getTitle).collect(Collectors.toList());
-            List<String> itemsTitles2 = iterableValuedPropertyToFind.getIterablePropertyItems().stream().map(IterablePropertyItemView::getTitle).collect(Collectors.toList());
-            return itemsTitles.equals(itemsTitles2);
-        }
-        return isProbablyTheSameIterable;
     }
 
     static private String figurePropertyValue(ValuedPropertyView valuedProperty, PropertyView property) {

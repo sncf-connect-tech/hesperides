@@ -419,8 +419,7 @@ Feature: Get file
     <logger level="DEBUG">
       """
 
-  #issue-547
-  Scenario: an iterable property is not overridden by a global property with the same name even if it is not valorized
+  Scenario: an iterable property is not overridden by a global property with the same name if it's valorized
     Given an existing module with this template content
       """
       {{#iterable-property}}
@@ -442,33 +441,49 @@ Feature: Get file
     Then the file is successfully retrieved and contains
       """
         value-1
-        &nbsp;
+        GLOBAL_VALUE_B
         value-2
 
       """
 
-  #issue-547
-  Scenario: get file with global properties used by iterable properties
+  Scenario: get file with global and instance properties used in and by iterable properties
     Given an existing module with this template content
       """
       {{#a}}
         {{ global-property }}
+        {{ instance-property }}
+        {{ hesperides.application.name }}
         {{ will-be-replaced-by-global-value }}
+        {{ will-be-replaced-by-instance-value }}
+        {{ will-be-replaced-by-predefined-value }}
       {{/a}}
+      {{ property }}
       """
     And an existing platform with this module
     And the platform has these global properties
       | name            | value        |
       | global-property | global-value |
+    And the platform has these valued properties
+      | name     | value                   |
+      | property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value          |
+      | instance-property | instance-value |
     And the platform has these iterable properties
-      | iterable | bloc   | name                             | value                 |
-      | a        | bloc-1 | will-be-replaced-by-global-value | {{ global-property }} |
-    When I get the module template file
+      | iterable | bloc   | name                                 | value                             |
+      | a        | bloc-1 | will-be-replaced-by-global-value     | {{ global-property }}             |
+      | a        | bloc-1 | will-be-replaced-by-instance-value   | {{ instance-property }}           |
+      | a        | bloc-1 | will-be-replaced-by-predefined-value | {{ hesperides.application.name }} |
+    When I get the instance template file
     Then the file is successfully retrieved and contains
       """
-        &nbsp;
         global-value
-
+        instance-value
+        test-application
+        global-value
+        instance-value
+        test-application
+      instance-value
       """
 
   Scenario: get file with a property with the same name but 2 different default values
