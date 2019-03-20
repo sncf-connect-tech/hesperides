@@ -344,7 +344,7 @@ public class FileUseCases {
 
             if (valuedProperty instanceof IterableValuedPropertyView) {
                 IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) valuedProperty;
-                if (iterableValuedProperty.getName().equals(iterableValuedPropertyToFind.getName())) {
+                if (isProbablyTheSameIterable(iterableValuedProperty, iterableValuedPropertyToFind)) {
                     return parentSimpleValuedProperties;
                 } else {
 
@@ -361,6 +361,23 @@ public class FileUseCases {
         }
 
         return Collections.emptyList();
+    }
+
+    /**
+     * Solution bancale pour tester si une propriété itérable est identique à une autre...
+     * La propriété itérable à retrouver contient les propriétés prédéfinies et n'est donc
+     * pas identique à l'autre qui ne les contient pas. On compare le nom de la propriété,
+     * le nombre d'items et les titres de ces items...
+     */
+    private static boolean isProbablyTheSameIterable(IterableValuedPropertyView iterableValuedProperty, IterableValuedPropertyView iterableValuedPropertyToFind) {
+        boolean isProbablyTheSameIterable = false;
+        if (iterableValuedProperty.getName().equals(iterableValuedPropertyToFind.getName()) &&
+                iterableValuedProperty.getIterablePropertyItems().size() == iterableValuedPropertyToFind.getIterablePropertyItems().size()) {
+            List<String> itemsTitles = iterableValuedProperty.getIterablePropertyItems().stream().map(IterablePropertyItemView::getTitle).collect(Collectors.toList());
+            List<String> itemsTitles2 = iterableValuedPropertyToFind.getIterablePropertyItems().stream().map(IterablePropertyItemView::getTitle).collect(Collectors.toList());
+            return itemsTitles.equals(itemsTitles2);
+        }
+        return isProbablyTheSameIterable;
     }
 
     static private String figurePropertyValue(ValuedPropertyView valuedProperty, PropertyView property) {
