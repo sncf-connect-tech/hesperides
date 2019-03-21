@@ -11,7 +11,6 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -21,44 +20,37 @@ public class FileValuationContext {
     private List<ValuedPropertyView> globalProperties;
     private List<ValuedPropertyView> instanceProperties;
     private List<ValuedPropertyView> predefinedProperties;
-    private String deployedModuleDescriptor;
+    private List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel;
 
-    FileValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName) {
+    FileValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel) {
         globalProperties = platform.getGlobalProperties();
         instanceProperties = getInstanceProperties(deployedModule.getInstances(), deployedModule.getInstancesModel(), instanceName);
         predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
-        deployedModuleDescriptor = platform.getApplicationName() + "-" + platform.getPlatformName() + " " + deployedModule.getPropertiesPath();
+        this.extraValuedPropertiesWithoutModel = extraValuedPropertiesWithoutModel;
     }
 
-    List<AbstractValuedPropertyView> completeWithContextualProperties(List<AbstractValuedPropertyView> properties, boolean withGlobals) {
+    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors) {
+        return completeWithContextualProperties(propertyVisitors, true);
+    }
+
+    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals) {
+        return completeWithContextualProperties(propertyVisitors, withGlobals, false);
+    }
+
+    // Pas la plus belle signature du monde...
+    // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
+    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals, boolean withExtraPropsWithoutModel) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
-        properties = concat(properties, getInstanceProperties(), "an instance property");
-        properties = concat(properties, getPredefinedProperties(), "a predefined property");
+        propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties)
+                                           .addOverridingValuedProperties(predefinedProperties);
         if (withGlobals) {
-            properties = concat(properties, getGlobalProperties(), "a global property");
+            propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties);
         }
-        return properties;
-    }
-
-    private List<AbstractValuedPropertyView> concat(List<? extends AbstractValuedPropertyView> listOfProps1,
-                                                    List<? extends AbstractValuedPropertyView> listOfProps2,
-                                                    String overridingPropIdForWarning) {
-        List<AbstractValuedPropertyView> properties = new ArrayList<>(listOfProps2);
-        Set<String> replacableStrings = properties.stream()
-                .map(AbstractValuedPropertyView::getName)
-                .collect(Collectors.toSet());
-        for (AbstractValuedPropertyView property : listOfProps1) {
-            // !! Ne pas inverser cette condition !!
-            // Si le log.debug reste seul dans le `if`,
-            // nous avons observé que la clause `else` est exécutée à la place
-            if (!replacableStrings.contains(property.getName())) {
-                properties.add(property);
-            } else {
-                log.debug("{}: During valorization, {} was overriden by {} with same name",
-                        deployedModuleDescriptor, property.getName(), overridingPropIdForWarning);
-            }
+        if (withExtraPropsWithoutModel) {
+            propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(extraValuedPropertiesWithoutModel.stream()
+                    .filter(ValuedPropertyView.class::isInstance).map(ValuedPropertyView.class::cast));
         }
-        return properties;
+        return propertyVisitors;
     }
 
     private static List<ValuedPropertyView> getInstanceProperties(List<InstanceView> instances, List<String> instancesModel, String instanceName) {

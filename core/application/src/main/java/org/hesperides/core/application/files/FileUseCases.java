@@ -36,15 +36,11 @@ import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
-import org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView;
-import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
-import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +52,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.groupingBy;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
 @Component
@@ -169,84 +164,63 @@ public class FileUseCases {
         DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey)
                 .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
 
-        List<AbstractValuedPropertyView> moduleValuedProperties = deployedModule.getValuedProperties();
+        List<AbstractValuedPropertyView> valuedProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
-            moduleValuedProperties = hidePasswordProperties(moduleValuedProperties, modulePropertiesModels);
+            valuedProperties = hidePasswordProperties(valuedProperties, modulePropertiesModels);
         }
-        FileValuationContext valuationContext = new FileValuationContext(platform, deployedModule, instanceName);
-        List<AbstractValuedPropertyView> allValuedProperties = valuationContext.completeWithContextualProperties(moduleValuedProperties, true);
-
-        // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive
-        Map<String, List<AbstractPropertyView>> propertyModelsPerName = modulePropertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
-        List<AbstractValuedPropertyView> preparedProperties = preparePropertiesValues(allValuedProperties, propertyModelsPerName, valuationContext);
-
-        Map<String, Object> scopes = propertiesToScopes(preparedProperties, propertyModelsPerName, valuationContext);
+        PropertyVisitorsSequence propertyVisitors = PropertyVisitorsSequence.fromModelAndValuedProperties(modulePropertiesModels, valuedProperties);
+        List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel = extractValuedPropertiesWithoutModel(valuedProperties, propertyVisitors);
+        // A ce stade, `valuedProperties` ne contient plus que les valorisations de propriétés sans modèle associé
+        FileValuationContext valuationContext = new FileValuationContext(platform, deployedModule, instanceName, extraValuedPropertiesWithoutModel);
+        PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors);
+        // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive :
+        PropertyVisitorsSequence preparedPropertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext);
+        Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
         return replaceMustachePropertiesWithValues(input, scopes);
     }
 
-    // TODO: Refactoriser
-    private static List<AbstractValuedPropertyView> preparePropertiesValues(List<AbstractValuedPropertyView> valuedProperties,
-                                                                            Map<String, List<AbstractPropertyView>> propertyModelsPerName,
-                                                                            FileValuationContext valuationContext) {
-        List<AbstractValuedPropertyView> preparedProperties = new ArrayList<>();
-        Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, true), propertyModelsPerName, valuationContext);
-        Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(valuedProperties, false), propertyModelsPerName, valuationContext);
+    private static List<AbstractValuedPropertyView> extractValuedPropertiesWithoutModel(List<AbstractValuedPropertyView> valuedProperties,
+                                                                                        PropertyVisitorsSequence propertyVisitors) {
+        Set<String> propertyWithModelNames = propertyVisitors.getProperties().stream()
+                .map(PropertyVisitor::getName)
+                .collect(Collectors.toSet());
+        return valuedProperties.stream()
+                .filter(vp -> !propertyWithModelNames.contains(vp.getName()))
+                .collect(Collectors.toList());
+    }
 
-        valuedProperties.forEach(property -> {
-            if (property instanceof ValuedPropertyView) {
-                ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
-                if (StringUtils.contains(valuedProperty.getValue(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
-                    valuedProperty = valuedProperty.withValue(replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopes));
-                    // cf. BDD Scenario: get file with instance properties created by a module property that references itself and a global property with same name
-                    if (StringUtils.contains(valuedProperty.getValue(), "}}")) {
-                        valuedProperty = valuedProperty.withValue(replaceMustachePropertiesWithValues(valuedProperty.getValue(), scopesWithoutGlobals));
-                    }
+    private static PropertyVisitorsSequence preparePropertiesValues(PropertyVisitorsSequence propertyVisitors,
+                                                                    FileValuationContext valuationContext) {
+        PropertyVisitorsSequence preparedPropertyVisitors = propertyVisitors.mapSimplesRecursive(propertyVisitor -> {
+            Optional<String> optValue = propertyVisitor.getValue();
+            if (optValue.isPresent() && StringUtils.contains(optValue.get(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
+                // iso-legacy: on inclue les valorisations sans modèle ici
+                // cf. BDD Scenario: get file with property valorized with another valued property twice
+                Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, true, true));
+                String value = replaceMustachePropertiesWithValues(optValue.get(), scopes);
+                // cf. BDD Scenario: get file with instance properties created by a module property that references itself and a global property with same name
+                if (StringUtils.contains(value, "}}")) {
+                    Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, false));
+                    value = replaceMustachePropertiesWithValues(value, scopesWithoutGlobals);
                 }
-                preparedProperties.add(valuedProperty);
-            } else if (property instanceof IterableValuedPropertyView) {
-                IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
-                List<AbstractPropertyView> iterablePropertyModel = propertyModelsPerName.get(property.getName());
-                List<AbstractPropertyView> iterablePropertiesModel = iterablePropertyModel != null ?
-                        ((IterablePropertyView) iterablePropertyModel.get(0)).getProperties() : Collections.emptyList();
-
-                List<IterablePropertyItemView> items = new ArrayList<>();
-                iterableValuedProperty.getIterablePropertyItems().forEach(valuedPropertyItem -> {
-                    // #547 Les propriétés itérables ne sont pas écrasées par les propriétés globales
-                    List<AbstractValuedPropertyView> valuedPropertiesWithoutGlobals = valuationContext
-                            .completeWithContextualProperties(valuedPropertyItem.getAbstractValuedPropertyViews(), false);
-
-                    List<AbstractValuedPropertyView> preparedIterableProperties = preparePropertiesValues(
-                            valuedPropertiesWithoutGlobals,
-                            iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName)),
-                            valuationContext
-                    );
-                    IterablePropertyItemView iterablePropertyItemView = new IterablePropertyItemView(valuedPropertyItem.getTitle(), preparedIterableProperties);
-                    items.add(iterablePropertyItemView);
-                });
-                preparedProperties.add(new IterableValuedPropertyView(iterableValuedProperty.getName(), items));
+                propertyVisitor = propertyVisitor.withValue(value);
             }
+            return propertyVisitor;
         });
-
-        // Recursion tant qu'on a pas atteint un point stable,
-        // c'est à dire que la phase de substitution n'a entrainé aucun nouveau changement de valeur de propriétés
         return removeUniqueSelfReferencingProperties(
-                valuedProperties.equals(preparedProperties) ? preparedProperties : preparePropertiesValues(preparedProperties, propertyModelsPerName, valuationContext)
+                propertyVisitors.equals(preparedPropertyVisitors) ? preparedPropertyVisitors : preparePropertiesValues(preparedPropertyVisitors, valuationContext)
         );
     }
 
-    // cf. BDD Scenario: a property referencing itself must disappear without any corresponding instance property defined
-    private static List<AbstractValuedPropertyView> removeUniqueSelfReferencingProperties(List<AbstractValuedPropertyView> properties) {
-        Map<String, Long> propertyCountPerName = properties.stream()
-                .collect(Collectors.groupingBy(AbstractValuedPropertyView::getName, Collectors.counting()));
-        return properties.stream()
-                .filter(abstractValuedProperty -> {
-                    if (!(abstractValuedProperty instanceof ValuedPropertyView) || propertyCountPerName.get(abstractValuedProperty.getName()) > 1) {
-                        return true;
-                    }
-                    ValuedPropertyView valuedProperty = (ValuedPropertyView) abstractValuedProperty;
-                    return !doesMustacheHasKey(valuedProperty.getValue(), valuedProperty.getName());
-                })
-                .collect(Collectors.toList());
+    private static PropertyVisitorsSequence removeUniqueSelfReferencingProperties(PropertyVisitorsSequence propertyVisitors) {
+        Map<String, Long> propertyCountPerName = propertyVisitors.stream()
+                .collect(Collectors.groupingBy(PropertyVisitor::getName, Collectors.counting()));
+        return propertyVisitors.filterSimplesRecursive(propertyVisitor -> {
+            Optional<String> optValue = propertyVisitor.getValue();
+            return !propertyCountPerName.containsKey(propertyVisitor.getName())
+                    || propertyCountPerName.get(propertyVisitor.getName()) > 1
+                    || (optValue.isPresent() && !doesMustacheHasKey(optValue.get(), propertyVisitor.getName()));
+        });
     }
 
     private static boolean doesMustacheHasKey(String mustacheText, String potentialKey) {
@@ -259,93 +233,38 @@ public class FileUseCases {
      * - nom-propriété-simple => valeur-propriété-simple
      * - nom-propriété-itérable => map (...)
      */
-    private static Map<String, Object> propertiesToScopes(List<AbstractValuedPropertyView> valuedProperties,
-                                                          Map<String, List<AbstractPropertyView>> propertyModelsPerName,
-                                                          FileValuationContext valuationContext) {
-
-        List<ValuedPropertyView> valuedSimpleProperties = valuedProperties.stream()
-                .filter(ValuedPropertyView.class::isInstance)
-                .map(ValuedPropertyView.class::cast)
-                // La ligne suivante permettrait d'être iso-legacy mais n'ayant pas de diff correspondant à ce cas, on laisse comme ça
-                // cf. BDD "get file with global and instance properties used in and by iterable properties" (files/get-file.feature:450)
-                //.filter(p -> !valuationContext.isInstanceProperty(p.getName()))
-                .collect(Collectors.toList());
-
+    private static Map<String, Object> propertiesToScopes(PropertyVisitorsSequence preparedPropertyVisitors) {
+        // On concatène les propriétés parentes avec les propriété de l'item
+        // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles
+        // cf. BDD Scenario: get file with an iterable-ception
+        PropertyVisitorsSequence completePropertyVisitors = preparedPropertyVisitors.mapSequencesRecursive(propertyVisitors -> {
+            List<SimplePropertyVisitor> simpleSimplePropertyVisitors = propertyVisitors.getSimplePropertyVisitors();
+            return propertyVisitors.mapDirectChildIterablePropertyVisitors(
+                    iterablePropertyVisitor -> iterablePropertyVisitor.addPropertyVisitorsOrUpdateValue(simpleSimplePropertyVisitors)
+            );
+        });
         Map<String, Object> scopes = new HashMap<>();
-        valuedProperties.forEach(property -> {
-            if (property instanceof ValuedPropertyView) {
-                ValuedPropertyView valuedProperty = (ValuedPropertyView) property;
-                if (propertyModelsPerName.containsKey(property.getName())) {
-                    for (AbstractPropertyView abstractPropertyModel : propertyModelsPerName.get(property.getName())) {
-                        PropertyView propertyModel = (PropertyView) abstractPropertyModel;
-                        scopes.put(propertyModel.getMustacheContent(), figurePropertyValue(valuedProperty, propertyModel));
-                    }
-                }
-            } else if (property instanceof IterableValuedPropertyView) {
-                IterableValuedPropertyView iterableValuedProperty = (IterableValuedPropertyView) property;
-                List<AbstractPropertyView> iterablePropertyModel = propertyModelsPerName.get(property.getName());
-                List<AbstractPropertyView> iterablePropertiesModel = iterablePropertyModel != null ?
-                        ((IterablePropertyView) iterablePropertyModel.get(0)).getProperties() : Collections.emptyList();
-
-                List<Map<String, Object>> items = iterableValuedProperty.getIterablePropertyItems()
-                        .stream()
-                        .map(item -> {
-                            // Concatène les propriétés parentes avec les propriété de l'item
-                            // pour bénéficier de la valorisation de ces propriétés dans les
-                            // propriétés filles
-                            List<AbstractValuedPropertyView> parentAndItemSimpleValuedProperties = Stream.concat(
-                                    valuedSimpleProperties.stream(),
-                                    item.getAbstractValuedPropertyViews().stream()
-                            ).collect(Collectors.toList());
-
-                            return propertiesToScopes(
-                                    parentAndItemSimpleValuedProperties,
-                                    iterablePropertiesModel.stream().collect(groupingBy(AbstractPropertyView::getName)),
-                                    valuationContext);
-                        })
-                        .collect(Collectors.toList());
-
-                scopes.put(iterableValuedProperty.getName(), items);
+        completePropertyVisitors.forEach(
+                simplePropertyVisitor ->
+                    simplePropertyVisitor.getMustacheKeyValues().forEach(scopes::put),
+                iterablePropertyVisitor -> scopes.put(
+                        iterablePropertyVisitor.getName(),
+                        iterablePropertyVisitor.getItems().stream()
+                                .map(FileUseCases::propertiesToScopes)
+                                .collect(Collectors.toList()))
+        );
+        // cf. #540 & BDD Scenario: get file with instance properties created by a module property that references itself
+        completePropertyVisitors.forEachSimplesRecursive(propertyVisitor -> {
+            Optional<String> optValue = propertyVisitor.getValue();
+            if (!scopes.containsKey(propertyVisitor.getName())) {
+                // Cas où une valorisation de propriété a été insérée pour la clef "mustacheContent" mais PAS pour le nom exact de la propriété,
+                // et aucune autre propriété n'a été insérée pour ce nom
+                // (ce qui peut arriver lorsque des propriétés d'instance ou globales ont le même nom),
+                // on l'insère donc maintenant:
+                optValue.ifPresent(value -> scopes.put(propertyVisitor.getName(), value));
             }
         });
-        // cf. #540 & BDD Scenario: get file with instance properties created by a module property that references itself
-        valuedProperties.stream()
-                .filter(ValuedPropertyView.class::isInstance).map(ValuedPropertyView.class::cast)
-                .forEach(valuedProperty -> {
-                    if (!scopes.containsKey(valuedProperty.getName())) {
-                        // Cas où une valorisation de propriété a été insérée pour la clef "mustacheContent" mais PAS pour le nom exact de la propriété,
-                        // et aucune autre propriété n'a été insérée pour ce nom
-                        // (ce qui peut arriver lorsque des propriétés d'instance ou globales ont le même nom),
-                        // on l'insère donc maintenant:
-                        PropertyView propertyModel = propertyModelsPerName.containsKey(valuedProperty.getName()) ?
-                                (PropertyView) propertyModelsPerName.get(valuedProperty.getName()).get(0) : null;
-                        scopes.put(valuedProperty.getName(), figurePropertyValue(valuedProperty, propertyModel));
-                    }
-                });
-        // Gestion du cas des propriétés iterables où certaines de ses propriétés
-        // peuvent ne pas avoir de valorisation mais le modèle a des valeurs par défaut.
-        // cf. BDD Scenario: get file with iterable and default values
-        //  &  BDD Scenario: get file with a property with the same name but 2 different default values
-        propertyModelsPerName.values().stream()
-                .flatMap(Collection::stream)
-                .filter(PropertyView.class::isInstance).map(PropertyView.class::cast)
-                .forEach(propertyModel -> {
-                    if (!scopes.containsKey(propertyModel.getName())) {
-                        scopes.put(propertyModel.getName(), propertyModel.getDefaultValue());
-                    }
-                    if (!scopes.containsKey(propertyModel.getMustacheContent())) {
-                        scopes.put(propertyModel.getMustacheContent(), propertyModel.getDefaultValue());
-                    }
-                });
         return scopes;
-    }
-
-    static private String figurePropertyValue(ValuedPropertyView valuedProperty, PropertyView property) {
-        // Aucun modèle de propriété n'existe pour les propriétés globales & prédéfinies,
-        // donc pour elles `propertyModel` sera null et il n'y a aucune valeur par défaut associée
-        String defaultValue = property != null ? property.getDefaultValue() : "";
-        // Pour la valeur, si la propriété n'est pas valorisée, on prend la valeur par défaut
-        return StringUtils.defaultString(valuedProperty.getValue(), defaultValue);
     }
 
     /**
