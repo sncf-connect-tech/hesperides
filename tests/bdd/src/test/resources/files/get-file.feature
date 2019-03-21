@@ -240,7 +240,7 @@ Feature: Get file
       A-VALUE
       """
 
-  Scenario: get file with property valorized with another valued property twice
+  Scenario: get file with property valorized with another valued property
     Given an existing module with this template content
       """
       {{ property-a }}
@@ -249,12 +249,11 @@ Feature: Get file
     And the platform has these valued properties
       | name       | value            |
       | property-a | {{ property-b }} |
-      | property-b | {{ property-c }} |
-      | property-c | a-value          |
+      | property-b | FINAL VALUE      |
     When I get the module template file
     Then the file is successfully retrieved and contains
       """
-      a-value
+      FINAL VALUE
       """
 
   Scenario: get file using a set delimiter
@@ -419,6 +418,8 @@ Feature: Get file
     <logger level="DEBUG">
       """
 
+  #issue-547 Les propriétés itérables ne sont pas écrasées par les propriétés globales
+  # Note (Lucas 2019/03/22): dans le legacy "GLOBAL_VALUE_B" n'apparait pas dans le fichier final
   Scenario: an iterable property is not overridden by a global property with the same name if it's valorized
     Given an existing module with this template content
       """
@@ -490,7 +491,7 @@ Feature: Get file
     Given an existing module with this template content
     """
     {{ simple-property | @default 10}}
-    {{ simple-property | @default 5 }}
+    {{ simple-property | @default 5}}
     """
     And an existing platform with this module
     When I get the module template file
@@ -596,4 +597,30 @@ Feature: Get file
           value_a-value_b-value_c-
         value_a---value_d
 
+    """
+
+  Scenario: an module property refering to an empty instance property and another module property that have been removed from the template should not take the module value
+    Given an existing module with this template content
+    """
+    {{#a}}
+    {{ it-property }}
+    {{/a}}
+    {{ property }}
+    """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name              | value                 |
+      | instance-property | module-value          |
+      | property          | {{instance-property}} |
+    And the platform has these iterable properties
+      | iterable | bloc   | name        | value                 |
+      | a        | bloc-1 | it-property | {{instance-property}} |
+    And the platform has these instance properties
+      | name              | value |
+      | instance-property |       |
+    When I get the instance template file
+    Then the file is successfully retrieved and contains
+    """
+    module-value
+    module-value
     """
