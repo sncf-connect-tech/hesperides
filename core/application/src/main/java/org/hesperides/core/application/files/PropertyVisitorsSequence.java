@@ -27,6 +27,17 @@ class PropertyVisitorsSequence {
         this.properties = Collections.unmodifiableList(properties);
     }
 
+    int size() {
+        return properties.size();
+    }
+
+    List<SimplePropertyVisitor> getSimplePropertyVisitors() {
+        return properties.stream()
+                .filter(SimplePropertyVisitor.class::isInstance)
+                .map(SimplePropertyVisitor.class::cast)
+                .collect(Collectors.toList());
+    }
+
     static PropertyVisitorsSequence fromModelAndValuedProperties(List<AbstractPropertyView> propertyModels,
                                                                  List<AbstractValuedPropertyView> valuedProperties) {
         return fromModelAndValuedProperties(propertyModels, valuedProperties, true);
@@ -124,12 +135,12 @@ class PropertyVisitorsSequence {
     }
 
     /* Applique une fonction récursivement à toutes propriétés, sans provoquer de transformation */
-    public void forEach(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
+    void forEach(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
         properties.forEach(property -> property.acceptEither(simpleConsumer, iterableConsumer));
     }
 
     /* Applique une fonction récursivement à toutes propriétés simple, sans provoquer de transformation */
-    public void forEachSimplesRecursive(Consumer<SimplePropertyVisitor> consumer) {
+    void forEachSimplesRecursive(Consumer<SimplePropertyVisitor> consumer) {
         properties.forEach(property -> property.acceptSimplesRecursive(consumer));
     }
 
@@ -152,21 +163,6 @@ class PropertyVisitorsSequence {
         return new PropertyVisitorsSequence(
                 mapper.apply(this).properties.stream().map(property -> property.mapSequencesRecursive(mapper)).collect(Collectors.toList())
         );
-    }
-
-    int size() {
-        return properties.size();
-    }
-
-    Stream<PropertyVisitor> stream() {
-        return properties.stream();
-    }
-
-    List<SimplePropertyVisitor> getSimplePropertyVisitors() {
-        return properties.stream()
-                .filter(SimplePropertyVisitor.class::isInstance)
-                .map(SimplePropertyVisitor.class::cast)
-                .collect(Collectors.toList());
     }
 
     PropertyVisitorsSequence mapDirectChildIterablePropertyVisitors(Function<IterablePropertyVisitor, PropertyVisitor> mapper) {
