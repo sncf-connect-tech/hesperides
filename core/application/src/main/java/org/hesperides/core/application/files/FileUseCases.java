@@ -48,10 +48,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
+import static org.apache.commons.lang3.StringUtils.substringsBetween;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
 @Component
@@ -153,13 +156,14 @@ public class FileUseCases {
         }
     }
 
-    private static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
-                                                                           PlatformView platform,
-                                                                           String modulePath,
-                                                                           Module.Key moduleKey,
-                                                                           List<AbstractPropertyView> modulePropertiesModels,
-                                                                           String instanceName,
-                                                                           boolean shouldHidePasswordProperties) {
+    // public for testing
+    public static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
+                                                                          PlatformView platform,
+                                                                          String modulePath,
+                                                                          Module.Key moduleKey,
+                                                                          List<AbstractPropertyView> modulePropertiesModels,
+                                                                          String instanceName,
+                                                                          boolean shouldHidePasswordProperties) {
 
         DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey)
                 .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
@@ -212,19 +216,21 @@ public class FileUseCases {
         );
     }
 
+    // cf. BDD Scenario: a property referencing itself must disappear without any corresponding instance property defined
     private static PropertyVisitorsSequence removeUniqueSelfReferencingProperties(PropertyVisitorsSequence propertyVisitors) {
-        Map<String, Long> propertyCountPerName = propertyVisitors.stream()
-                .collect(Collectors.groupingBy(PropertyVisitor::getName, Collectors.counting()));
         return propertyVisitors.filterSimplesRecursive(propertyVisitor -> {
-            Optional<String> optValue = propertyVisitor.getValue();
-            return !propertyCountPerName.containsKey(propertyVisitor.getName())
-                    || propertyCountPerName.get(propertyVisitor.getName()) > 1
-                    || (optValue.isPresent() && !doesMustacheHasKey(optValue.get(), propertyVisitor.getName()));
+            boolean includePropertyVisitor = true;
+            if (propertyVisitor.isValued()) {
+                String[] containedPropertyNames = substringsBetween(propertyVisitor.getValue().get(), "{{", "}}");
+                if (containedPropertyNames != null) {
+                    String propertyName = propertyVisitor.getName();
+                    includePropertyVisitor = Arrays.stream(containedPropertyNames)
+                            .map(String::trim)
+                            .noneMatch(propertyName::equals);
+                }
+            }
+            return includePropertyVisitor;
         });
-    }
-
-    private static boolean doesMustacheHasKey(String mustacheText, String potentialKey) {
-        return Pattern.compile("\\{\\{ *" + potentialKey + " *(\\||\\}\\})").matcher(mustacheText).find();
     }
 
     /**
@@ -246,7 +252,7 @@ public class FileUseCases {
         Map<String, Object> scopes = new HashMap<>();
         completePropertyVisitors.forEach(
                 simplePropertyVisitor ->
-                    simplePropertyVisitor.getMustacheKeyValues().forEach(scopes::put),
+                        simplePropertyVisitor.getMustacheKeyValues().forEach(scopes::put),
                 iterablePropertyVisitor -> scopes.put(
                         iterablePropertyVisitor.getName(),
                         iterablePropertyVisitor.getItems().stream()

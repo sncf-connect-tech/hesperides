@@ -46,7 +46,7 @@ public class DeployedModuleView {
     List<AbstractValuedPropertyView> valuedProperties;
     List<String> instancesModel;
 
-    public TemplateContainer.Key getModuleKey() {
+    public Module.Key getModuleKey() {
         return new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
     }
 

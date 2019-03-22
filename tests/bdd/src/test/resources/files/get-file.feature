@@ -624,3 +624,21 @@ Feature: Get file
     module-value
     module-value
     """
+
+  Scenario: cross-referencing properties should not crash the application
+    Given an existing module with this template content
+      """
+      {{ property-a }}
+      {{ property-b }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value          |
+      | property-a | {{ property-b }} |
+      | property-b | {{ property-a }} |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      {{ property-b }}
+      {{ property-a }}
+      """
