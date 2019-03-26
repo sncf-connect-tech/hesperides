@@ -41,19 +41,15 @@ import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
 import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.groupingBy;
 import static org.apache.commons.lang3.StringUtils.substringsBetween;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
@@ -237,7 +233,7 @@ public class FileUseCases {
      * Transforme une liste de propriétés `AbstractValuedPropertyView` pouvant contenir des propriétés simples
      * et des propriétés itérables en map de ce type :
      * - nom-propriété-simple => valeur-propriété-simple
-     * - nom-propriété-itérable => map (...)
+     * - nom-propriété-itérable => list (...)
      */
     private static Map<String, Object> propertiesToScopes(PropertyVisitorsSequence preparedPropertyVisitors) {
         // On concatène les propriétés parentes avec les propriété de l'item
