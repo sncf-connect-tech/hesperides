@@ -55,6 +55,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     private final MongoTemplate mongoTemplate;
     private final Environment environment;
 
+    private int numberOfArchivedModuleVersions = 0;
+
     @Autowired
     public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
                                              EventStorageEngine eventStorageEngine, MongoTemplate mongoTemplate, Environment environment) {
@@ -82,6 +84,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     public void setMinimalPlatformRepository(MinimalPlatformRepository minimalPlatformRepository) {
         this.minimalPlatformRepository = minimalPlatformRepository;
+    }
+
+    public void setNumberOfArchivedModuleVersions(int numberOfArchivedModuleVersions) {
+        this.numberOfArchivedModuleVersions = numberOfArchivedModuleVersions;
     }
 
     @PostConstruct
@@ -135,7 +141,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         minimalPlatformRepository.findById(event.getPlatformId()).ifPresent(platformDocument -> {
             platformDocument.setVersion(newPlatformDocument.getVersion());
             platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
-            platformDocument.updateModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), newPlatformDocument.getVersionId());
+            platformDocument.updateModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), numberOfArchivedModuleVersions);
 
             if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
                 platformDocument.setVersionId(platformDocument.getVersionId() + 1);

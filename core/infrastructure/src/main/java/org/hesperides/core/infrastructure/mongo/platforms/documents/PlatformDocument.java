@@ -43,7 +43,7 @@ import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_N
 @NoArgsConstructor
 public class PlatformDocument {
 
-    private static int NUMBER_OF_ARCHIVED_MODULES = 2;
+    private static int DEFAULT_NUMBER_OF_ARCHIVED_MODULE_VERSIONS = 2;
 
     @Id
     private String id;
@@ -125,8 +125,15 @@ public class PlatformDocument {
      * - Retour arrière (id et path existants mais sur 2 modules distincts) : on récupère les propriétés
      * du path existant et on met l'id du module existant à 0
      */
-    public void updateModules(List<DeployedModuleDocument> providedModules, boolean copyPropertiesForUpgradedModules, Long versionId) {
+    public void updateModules(List<DeployedModuleDocument> providedModules,
+                              boolean copyPropertiesForUpgradedModules,
+                              int numberOfArchivedModuleVersions) {
         List<DeployedModuleDocument> newModuleList = new ArrayList<>();
+
+        if (numberOfArchivedModuleVersions < DEFAULT_NUMBER_OF_ARCHIVED_MODULE_VERSIONS) {
+            numberOfArchivedModuleVersions = DEFAULT_NUMBER_OF_ARCHIVED_MODULE_VERSIONS;
+        }
+        int finalNumberOfArchivedModuleVersions = numberOfArchivedModuleVersions;
 
         providedModules.forEach(providedModule -> {
             Optional<DeployedModuleDocument> existingModuleByIdAndPath = getModuleByIdAndPath(providedModule);
@@ -158,7 +165,8 @@ public class PlatformDocument {
                     .filter(module -> module.getName().equals(existingModule.getName()) &&
                             module.getModulePath().equals(existingModule.getModulePath()))
                     .count();
-            if (existingModule.hasBeenRemovedFrom(newModuleList) && nbOfExistingModuleByModulePathAndName < NUMBER_OF_ARCHIVED_MODULES) {
+            if (existingModule.hasBeenRemovedFrom(newModuleList) &&
+                    nbOfExistingModuleByModulePathAndName < finalNumberOfArchivedModuleVersions) {
                 existingModule.setId(0L);
                 newModuleList.add(existingModule);
             }
