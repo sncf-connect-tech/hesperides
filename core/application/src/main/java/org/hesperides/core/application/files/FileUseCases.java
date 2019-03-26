@@ -195,13 +195,18 @@ public class FileUseCases {
             Optional<String> optValue = propertyVisitor.getValue();
             if (optValue.isPresent() && StringUtils.contains(optValue.get(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
                 // iso-legacy: on inclue les valorisations sans modèle ici
-                // cf. BDD Scenario: get file with property valorized with another valued property twice
+                // cf. BDD Scenario: get file with property valorized with another valued property
                 Map<String, Object> scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, true, true));
                 String value = replaceMustachePropertiesWithValues(optValue.get(), scopes);
                 // cf. BDD Scenario: get file with instance properties created by a module property that references itself and a global property with same name
                 if (StringUtils.contains(value, "}}")) {
-                    Map<String, Object> scopesWithoutGlobals = propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, false));
-                    value = replaceMustachePropertiesWithValues(value, scopesWithoutGlobals);
+                    scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, false, true));
+                    value = replaceMustachePropertiesWithValues(value, scopes);
+                    // cf. BDD Scenario: get file with property valorized with another valued property valorized with a predefined property
+                    if (StringUtils.contains(value, "}}")) {
+                        scopes = propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors));
+                        value = replaceMustachePropertiesWithValues(value, scopes);
+                    }
                 }
                 propertyVisitor = propertyVisitor.withValue(value);
             }

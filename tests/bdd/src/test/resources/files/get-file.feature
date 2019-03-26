@@ -249,7 +249,8 @@ Feature: Get file
     And the platform has these valued properties
       | name       | value            |
       | property-a | {{ property-b }} |
-      | property-b | FINAL VALUE      |
+      | property-b | {{ property-c }} |
+      | property-c | FINAL VALUE      |
     When I get the module template file
     Then the file is successfully retrieved and contains
       """
@@ -633,12 +634,29 @@ Feature: Get file
       """
     And an existing platform with this module
     And the platform has these valued properties
-      | name     | value          |
+      | name       | value            |
       | property-a | {{ property-b }} |
       | property-b | {{ property-a }} |
     When I get the module template file
     Then the file is successfully retrieved and contains
       """
-      {{ property-b }}
+
+
+      """
+
+  Scenario: get file with property valorized with another valued property valorized with a predefined property
+    Given an existing module with this template content
+      """
       {{ property-a }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value                             |
+      | property-a | {{ property-b }}                  |
+      | property-b | {{ property-c }}                  |
+      | property-c | {{ hesperides.application.name }} |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      test-application
       """
