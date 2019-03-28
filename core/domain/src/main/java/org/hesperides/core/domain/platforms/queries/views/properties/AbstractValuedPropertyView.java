@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView.getFlatProperties;
 
@@ -78,8 +79,10 @@ public abstract class AbstractValuedPropertyView {
      * <p>
      * Il y a peut-être moyen de faire ça directement en Mongo mais je ne sais pas comment :)
      */
-    public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> valuedProperties, List<AbstractPropertyView> propertiesModel) {
-        Map<String, AbstractPropertyView> propertiesModelPerName = propertiesModel.stream()
+    public static List<AbstractValuedPropertyView> excludePropertiesWithOnlyDefaultValue(List<AbstractValuedPropertyView> valuedProperties,
+                                                                                         List<AbstractPropertyView> propertiesModel) {
+        Stream<AbstractPropertyView> propertiesModelStream = propertiesModel == null ? Stream.empty() : propertiesModel.stream();
+        Map<String, AbstractPropertyView> propertiesModelPerName = propertiesModelStream
                 .collect(Collectors.toMap(AbstractPropertyView::getName, Function.identity(), (p1, p2) -> p1));
         return valuedProperties.stream()
                 .map(valuedProperty -> valuedProperty.excludePropertyWithOnlyDefaultValue(propertiesModelPerName.get(valuedProperty.getName())))
