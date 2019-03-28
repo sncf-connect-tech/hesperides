@@ -118,6 +118,20 @@ public class PlatformBuilder {
                 .collect(Collectors.toList());
     }
 
+    public void setDeployedModulesVersion(String version) {
+        deployedModules = deployedModules.stream()
+                .map(dm -> new DeployedModuleIO(
+                        dm.getId(),
+                        dm.getName(),
+                        version,
+                        dm.getIsWorkingCopy(),
+                        dm.getModulePath(),
+                        dm.getPropertiesPath(),
+                        dm.getInstances()
+                ))
+                .collect(Collectors.toList());
+    }
+
     public PlatformBuilder withModule(ModuleIO module, String propertiesPath, String logicalGroup) {
         String modulePath = "#GROUP";
         if ("".equals(logicalGroup) || "#".equals(logicalGroup)) {

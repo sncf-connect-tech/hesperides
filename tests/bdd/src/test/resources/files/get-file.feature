@@ -391,7 +391,7 @@ Feature: Get file
       """
     And an existing platform with this module
     And the platform has these valued properties
-      | name     | value          |
+      | name     | value                                |
       | property | {{ property }} |
     When I get the module template file
     Then the file is successfully retrieved and contains
@@ -401,6 +401,18 @@ Feature: Get file
 
 
       """
+
+  Scenario: detect self-referencing property generating infinite recursion
+    Given an existing module with this template content
+      """
+      {{ property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value                                |
+      | property | {{ global_property }}/{{ property }} |
+    When I get the module template file
+    Then the request is rejected with an internal error
 
   Scenario: file from a template containing 2 properties with same name and comment but different mustache content
     Given an existing module with this template content
@@ -661,6 +673,7 @@ Feature: Get file
       test-application
       """
 
+  # Note: rien ne nous contraint ici vis à vis du legacy : nous pourrions interdire ce cas dans les templates
   Scenario: get file with a property and an iterable property that have the same name and are not valorized
     Given an existing module with this template content
     """

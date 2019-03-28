@@ -38,7 +38,10 @@ import org.springframework.util.CollectionUtils;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.hamcrest.Matchers.containsString;
+import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class GetFile extends HesperidesScenario implements En {
 
@@ -87,6 +90,11 @@ public class GetFile extends HesperidesScenario implements En {
             String expectedOutput = fileContent.replaceAll("&nbsp;", "");
             String actualOutput = (String) testContext.getResponseBody();
             assertEquals(expectedOutput, defaultString(actualOutput, ""));
+        });
+
+        Then("^there are obfuscated password properties in the(?: initial)? file$", () -> {
+            String actualOutput = (String) testContext.getResponseBody();
+            assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
         });
     }
 

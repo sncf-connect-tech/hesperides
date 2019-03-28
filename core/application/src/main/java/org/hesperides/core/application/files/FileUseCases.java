@@ -56,6 +56,7 @@ import static org.hesperides.core.domain.platforms.queries.views.properties.Abst
 @Component
 public class FileUseCases {
 
+    private static int MAX_PREPARE_PROPERTIES_COUNT = 10;
     private final PlatformQueries platformQueries;
     private final ModuleQueries moduleQueries;
 
@@ -174,7 +175,7 @@ public class FileUseCases {
         FileValuationContext valuationContext = new FileValuationContext(platform, deployedModule, instanceName, extraValuedPropertiesWithoutModel);
         PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors);
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive :
-        PropertyVisitorsSequence preparedPropertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext);
+        PropertyVisitorsSequence preparedPropertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext, 0);
         Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
         return replaceMustachePropertiesWithValues(input, scopes);
     }
@@ -190,7 +191,11 @@ public class FileUseCases {
     }
 
     private static PropertyVisitorsSequence preparePropertiesValues(PropertyVisitorsSequence propertyVisitors,
-                                                                    FileValuationContext valuationContext) {
+                                                                    FileValuationContext valuationContext,
+                                                                    int iterationCount) {
+        if (iterationCount > MAX_PREPARE_PROPERTIES_COUNT) {
+            throw new InfiniteMustacheRecursion("Infinite loop due to self-referencing property or template");
+        }
         PropertyVisitorsSequence preparedPropertyVisitors = propertyVisitors.mapSimplesRecursive(propertyVisitor -> {
             Optional<String> optValue = propertyVisitor.getValue();
             if (optValue.isPresent() && StringUtils.contains(optValue.get(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
@@ -213,7 +218,7 @@ public class FileUseCases {
             return propertyVisitor;
         });
         return removeUniqueSelfReferencingProperties(
-                propertyVisitors.equals(preparedPropertyVisitors) ? preparedPropertyVisitors : preparePropertiesValues(preparedPropertyVisitors, valuationContext)
+                propertyVisitors.equals(preparedPropertyVisitors) ? preparedPropertyVisitors : preparePropertiesValues(preparedPropertyVisitors, valuationContext, iterationCount + 1)
         );
     }
 

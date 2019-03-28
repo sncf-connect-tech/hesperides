@@ -24,17 +24,11 @@ import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import lombok.Value;
-import org.hamcrest.Matcher;
-import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.*;
-import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -42,18 +36,12 @@ import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Every.everyItem;
-import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
-import static org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO.toDomainInstances;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -61,8 +49,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     @Autowired
     private PlatformClient platformClient;
-    @Autowired
-    private ModuleClient moduleClient;
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
@@ -338,6 +324,18 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             testContext.responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
         });
 
+        Given("^an existing platform with this module in version (.+) and the property \"([^\"]*)\" valued accordingly$", (String version, String propertyName) -> {
+            moduleBuilder.withVersion(version);
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            platformBuilder.incrementDeployedModuleIds();
+            testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
+            assertOK();
+            platformBuilder.withProperty(propertyName, version);
+            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+            platformBuilder.incrementVersionId();
+            platformHistory.addPlatform();
+        });
+
         When("^I( try to)? copy this platform( using the same key)?( to a non-prod one)?$", (String tryTo, String usingTheSameKey, String toNonProd) -> {
             PlatformIO existingPlatform = platformBuilder.buildInput();
             String newName = isNotEmpty(usingTheSameKey) ? existingPlatform.getPlatformName() : existingPlatform.getPlatformName() + "-copy";
@@ -377,43 +375,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             assertConflict();
         });
 
-        Then("^the platform property values are(?: also)? copied$", () -> {
-            // Propriétés valorisées
-            ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
-            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO(false);
-            PropertiesIO actualProperties = responseEntity.getBody();
-            assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
-            assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
-            // Propriétés globales
-            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
-            assertOK();
-            PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
-            PropertiesIO actualGlobalProperties = responseEntity.getBody();
-            assertEquals(expectedGlobalProperties, actualGlobalProperties);
-        });
-
-        Then("^the (password |non-password |)property values are (not )?obfuscated$", (String selectPasswordProps, String notObfuscated) -> {
-            Matcher<String> isObfusctedOrNot = isNotEmpty(notObfuscated) ? not(equalTo(OBFUSCATED_PASSWORD_VALUE)) : equalTo(OBFUSCATED_PASSWORD_VALUE);
-
-            ModelOutput model = (ModelOutput) moduleClient.getModel(moduleBuilder.build(), ModelOutput.class).getBody();
-            Map<String, PropertyOutput> propertyModelsPerName = model.getProperties().stream().collect(Collectors.toMap(PropertyOutput::getName, Function.identity()));
-            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
-
-            List<ValuedProperty> actualDomainProperties = toDomainInstances(actualProperties.getValuedProperties());
-            List<String> actualPropertyValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
-            assertThat(actualPropertyValues, hasSize(greaterThan(0)));
-            assertThat(actualPropertyValues, everyItem(isObfusctedOrNot));
-
-            List<ValuedProperty> actualIterableDomainProperties = flattenValuedProperties(actualProperties.getIterableValuedProperties());
-            List<String> actualIterablePropertiesValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualIterableDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
-            assertThat(actualIterablePropertiesValues, everyItem(isObfusctedOrNot));
-        });
-
-        Then("^there are obfuscated password properties in the(?: initial)? file$", () -> {
-            String actualOutput = (String) testContext.getResponseBody();
-            assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
-        });
-
         Then("^the platform copy fails with a not found error$", () -> {
             assertNotFound();
         });
@@ -421,24 +382,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with an already exist error$", () -> {
             assertConflict();
         });
-    }
-
-    private static List<String> extractValues(List<ValuedProperty> valuedProperties) {
-        return valuedProperties.stream()
-                .map(ValuedProperty::getValue).collect(Collectors.toList());
-    }
-
-    private static List<String> extractValuesIfPasswordOrNot(List<ValuedProperty> valuedProperties, Map<String, PropertyOutput> propertyModelsPerName, boolean selectPasswordProps) {
-        return valuedProperties.stream()
-                .filter(p -> (!selectPasswordProps) ^ propertyModelsPerName.get(p.getName()).isPassword())
-                .map(ValuedProperty::getValue).collect(Collectors.toList());
-    }
-
-    private static List<ValuedProperty> flattenValuedProperties(Set<IterableValuedPropertyIO> iterableValuedIOProperties) {
-        List<AbstractValuedProperty> iterableValuedProperties = iterableValuedIOProperties.stream()
-                .map(IterableValuedPropertyIO::toDomainInstance)
-                .collect(Collectors.toList());
-        return AbstractValuedProperty.getFlatValuedProperties(iterableValuedProperties);
     }
 
     /**

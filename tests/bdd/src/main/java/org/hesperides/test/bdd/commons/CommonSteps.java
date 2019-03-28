@@ -27,6 +27,10 @@ public class CommonSteps extends HesperidesScenario implements En {
             assertBadRequest();
         });
 
+        Then("^the request is rejected with an internal error$", () -> {
+            assertInternalServerError();
+        });
+
         Then("^an empty list is returned$", () -> {
             assertOK();
             assertEquals(0, getBodyAsArray().length);

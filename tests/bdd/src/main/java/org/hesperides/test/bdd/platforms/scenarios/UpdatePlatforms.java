@@ -34,6 +34,7 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,6 +115,23 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     }
 
     public UpdatePlatforms() {
+        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)(?: updating the value of the \"([^\"]+)\" property accordingly)?$", (String versions, String propertyName) -> {
+            Arrays.stream(versions.split(", ")).forEach(version -> {
+                platformBuilder.setDeployedModulesVersion(version);
+                moduleBuilder.withVersion(version); // to update the properties path
+                testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class);
+                assertOK();
+                platformBuilder.incrementVersionId();
+                if (StringUtils.isNotEmpty(propertyName)) {
+                    platformBuilder.setProperty(propertyName, version);
+                    testContext.responseEntity = platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+                    assertOK();
+                    platformBuilder.incrementVersionId();
+                }
+                platformHistory.addPlatform();
+            });
+        });
+
         Then("^the platform is successfully updated$", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();

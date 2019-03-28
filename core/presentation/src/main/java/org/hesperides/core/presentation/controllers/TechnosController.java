@@ -52,7 +52,7 @@ import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api("/templates/packages")
-@RequestMapping("/templates/packages")
+@RequestMapping({"/templates/packages", "/technos"})
 @RestController
 public class TechnosController extends AbstractController {
 

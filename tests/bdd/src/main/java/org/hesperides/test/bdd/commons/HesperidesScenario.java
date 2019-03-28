@@ -74,7 +74,7 @@ public class HesperidesScenario {
         assertEquals(HttpStatus.NO_CONTENT, testContext.responseEntity.getStatusCode());
     }
 
-    public void assertInternalServerErreur() {
+    public void assertInternalServerError() {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.responseEntity.getStatusCode());
     }
 }

@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
@@ -187,7 +188,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         // Modification des propriétés du module dans la plateforme
         if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
-            platformDocument.getDeployedModules().stream()
+            platformDocument.getActiveDeployedModules()
                     .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
                     .findAny().ifPresent(deployedModuleDocument ->
                         completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument)
@@ -361,9 +362,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
-                .map(PlatformDocument::getDeployedModules)
-                .orElse(Collections.emptyList())
-                .stream()
+                .map(PlatformDocument::getActiveDeployedModules)
+                .orElse(Stream.empty())
                 .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getValuedProperties())
                         .orElse(Collections.emptyList())
                         .stream())
@@ -371,7 +371,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         return AbstractValuedPropertyDocument.toViews(abstractValuedPropertyDocuments);
     }
-
 
     @QueryHandler
     @Override
@@ -381,9 +380,8 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
 
         return platformDocument
-                .map(PlatformDocument::getDeployedModules)
-                .orElse(Collections.emptyList())
-                .stream()
+                .map(PlatformDocument::getActiveDeployedModules)
+                .orElse(Stream.empty())
                 .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getInstancesModel())
                         .orElse(Collections.emptyList())
                         .stream())
