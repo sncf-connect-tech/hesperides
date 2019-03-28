@@ -9,7 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
@@ -101,6 +103,7 @@ class SimplePropertyVisitor implements PropertyVisitor {
     static SimplePropertyVisitor fromAbstractPropertyViews(List<AbstractPropertyView> propertiesModels,
                                                            ValuedPropertyView valuedPropertyView) {
         return new SimplePropertyVisitor(propertiesModels.stream()
+                .filter(PropertyView.class::isInstance)
                 .map(PropertyView.class::cast)
                 .collect(Collectors.toList()), valuedPropertyView);
     }

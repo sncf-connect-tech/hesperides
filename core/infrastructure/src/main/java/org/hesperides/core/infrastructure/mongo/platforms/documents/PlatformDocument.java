@@ -142,7 +142,10 @@ public class PlatformDocument {
             } else {
                 Optional<DeployedModuleDocument> existingModuleById = getModuleById(providedModule.getId());
                 Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
-                if (existingModuleById.isPresent()) {
+                if (existingModuleByPath.isPresent()) {
+                    // Cas de retour arrière après suppression
+                    providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
+                } else if (existingModuleById.isPresent()) {
                     existingModuleById.get().setId(0L);
                     newModuleList.add(existingModuleById.get());
                     if (copyPropertiesForUpgradedModules) {
@@ -150,9 +153,6 @@ public class PlatformDocument {
                     } else if (existingModuleByPath.isPresent()) {
                         providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
                     }
-                } else if (existingModuleByPath.isPresent()) {
-                    // Cas de retour arrière après suppression
-                    providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
                 }
             }
             newModuleList.add(providedModule);

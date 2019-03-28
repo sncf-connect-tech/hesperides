@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -66,7 +65,7 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
         if (StringUtils.isNotEmpty(value)) {
             return Optional.of(this);
         }
-        PropertyView singlePropertyModel = (PropertyView)propertyModel;
+        PropertyView singlePropertyModel = (PropertyView) propertyModel;
         return singlePropertyModel == null || StringUtils.isEmpty(singlePropertyModel.getDefaultValue()) ? Optional.of(this) : Optional.empty();
     }
 

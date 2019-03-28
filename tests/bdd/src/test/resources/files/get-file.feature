@@ -660,3 +660,17 @@ Feature: Get file
       """
       test-application
       """
+
+  Scenario: get file with a property and an iterable property that have the same name and are not valorized
+    Given an existing module with this template content
+    """
+    {{#a}}
+    {{ it-property }}
+    {{/a}}
+    {{ a }}
+    """
+    And an existing platform with this module
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+    """

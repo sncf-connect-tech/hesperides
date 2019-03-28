@@ -7,6 +7,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.IterableVal
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -66,11 +67,17 @@ class PropertyVisitorsSequence {
             }
             return Optional.ofNullable(propertyVisitor);
         }).filter(Optional::isPresent).map(Optional::get)
-          .collect(Collectors.toList());
+                .collect(Collectors.toList());
+        // Maintenant on ajoute les propriétés pour lesquelles on a un modèle mais pas de valorisation
         Set<String> valuedPropertyNames = propertyVisitors.stream().map(PropertyVisitor::getName).collect(Collectors.toSet());
         propertyModelsPerName.forEach((propertyName, propertyModels) -> {
             if (!valuedPropertyNames.contains(propertyName)) {
-                propertyVisitors.add(SimplePropertyVisitor.fromAbstractPropertyViews(propertyModels));
+                AbstractPropertyView firstPropertyView = propertyModels.get(0);
+                if (firstPropertyView instanceof PropertyView) {
+                    propertyVisitors.add(SimplePropertyVisitor.fromAbstractPropertyViews(propertyModels));
+                } else {
+                    propertyVisitors.add(new IterablePropertyVisitor(propertyModels));
+                }
             }
         });
         return new PropertyVisitorsSequence(propertyVisitors);
