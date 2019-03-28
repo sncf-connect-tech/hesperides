@@ -14,6 +14,8 @@ import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 public class CreateModules extends HesperidesScenario implements En {
@@ -151,6 +153,20 @@ public class CreateModules extends HesperidesScenario implements En {
 
         Then("^the module creation is rejected with a not found error$", () -> {
             assertNotFound();
+        });
+        Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$",
+                (String propertyName, String versions) -> {
+            addPropertyToBuilders(propertyName);
+            moduleBuilder.withTemplate(templateBuilder.build());
+            Arrays.stream(versions.split(", ")).forEach(version -> {
+                moduleBuilder.withVersion(version);
+                testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                assertCreated();
+                moduleBuilder.withVersionId(1);
+                testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+                assertCreated();
+                moduleHistory.addModule();
+            });
         });
     }
 

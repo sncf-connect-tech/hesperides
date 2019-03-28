@@ -82,3 +82,19 @@ Feature: Update platforms
     When I update this platform in logical group "new-group", upgrading its module, and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
+
+  #issue-564
+  Scenario: restoring properties of a deployed module to a previous version
+    Given a module with a property "version" existing in versions: 1, 2, 3
+    And an existing platform with this module in version 1 and the property "version" valued accordingly
+    And I update the module version on this platform successively to versions 2, 3 updating the value of the "version" property accordingly
+    When I update the module version on this platform to version 1
+    Then property "version" has for value "1" on the platform
+
+  #issue-564
+  Scenario: restoring properties of a deployed module to a previous version but hitting the history limit
+    Given a module with a property "version" existing in versions: 1, 2, 3, 4
+    And an existing platform with this module in version 1 and the property "version" valued accordingly
+    And I update the module version on this platform successively to versions 2, 3, 4 updating the value of the "version" property accordingly
+    When I update the module version on this platform to version 1
+    Then property "version" has no value on the platform

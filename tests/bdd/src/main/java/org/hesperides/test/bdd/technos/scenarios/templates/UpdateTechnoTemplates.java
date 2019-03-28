@@ -66,7 +66,7 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
         });
 
         Then("^the techno template update is rejected with an internal server error$", () -> {
-            assertInternalServerErreur();
+            assertInternalServerError();
         });
 
         Then("^the techno template is updated$", () -> {

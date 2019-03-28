@@ -28,13 +28,12 @@ import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
 
 
@@ -128,13 +127,12 @@ public class PlatformDocument {
     public void updateModules(List<DeployedModuleDocument> providedModules,
                               boolean copyPropertiesForUpgradedModules,
                               int numberOfArchivedModuleVersions) {
-        List<DeployedModuleDocument> newModuleList = new ArrayList<>();
-
         if (numberOfArchivedModuleVersions < DEFAULT_NUMBER_OF_ARCHIVED_MODULE_VERSIONS) {
             numberOfArchivedModuleVersions = DEFAULT_NUMBER_OF_ARCHIVED_MODULE_VERSIONS;
         }
         int finalNumberOfArchivedModuleVersions = numberOfArchivedModuleVersions;
 
+        List<DeployedModuleDocument> newDeployedModules = new ArrayList<>();
         providedModules.forEach(providedModule -> {
             Optional<DeployedModuleDocument> existingModuleByIdAndPath = getModuleByIdAndPath(providedModule);
             if (existingModuleByIdAndPath.isPresent()) {
@@ -143,36 +141,40 @@ public class PlatformDocument {
                 Optional<DeployedModuleDocument> existingModuleById = getModuleById(providedModule.getId());
                 Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
                 if (existingModuleByPath.isPresent()) {
-                    // Cas de retour arrière après suppression
+                    // Cas normal + cas du retour vers une ancienne version de module précédement déployée
                     providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
                 } else if (existingModuleById.isPresent()) {
-                    existingModuleById.get().setId(0L);
-                    newModuleList.add(existingModuleById.get());
+                    // Pas de correspondance par path trouvée
+                    // Il s'agit par exemple d'un changement de version de module
                     if (copyPropertiesForUpgradedModules) {
                         providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
-                    } else if (existingModuleByPath.isPresent()) {
-                        providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
                     }
                 }
             }
-            newModuleList.add(providedModule);
+            newDeployedModules.add(providedModule);
         });
+
         // Supprimer l'identifiant des modules qui n'ont pas été fournis pour conserver
         // les valorisations, tout en limitant cette historisation pour ne pas dépasser
         // la taille max autorisée par MongoDB (16Mo par document)
-        deployedModules.forEach(existingModule -> {
-            long nbOfExistingModuleByModulePathAndName = newModuleList.stream()
-                    .filter(module -> module.getName().equals(existingModule.getName()) &&
-                            module.getModulePath().equals(existingModule.getModulePath()))
-                    .count();
-            if (existingModule.hasBeenRemovedFrom(newModuleList) &&
-                    nbOfExistingModuleByModulePathAndName < finalNumberOfArchivedModuleVersions) {
-                existingModule.setId(0L);
-                newModuleList.add(existingModule);
+        List<DeployedModuleDocument> remainingDeployedModules = deployedModules.stream()
+                .filter(existingModule -> existingModule.hasBeenRemovedFrom(newDeployedModules))
+                .peek(existingModule -> existingModule.setId(0L))
+                .collect(Collectors.toList());
+        Map<String, List<DeployedModuleDocument>> inactiveDeployedModulesPerModulePathAndName = remainingDeployedModules.stream()
+                .filter(deployedModule -> deployedModule.getId() == 0)
+                .collect(groupingBy(deployedModule -> deployedModule.getModulePath() + "#" + deployedModule.getName()));
+        inactiveDeployedModulesPerModulePathAndName.values().forEach(inactiveDeployedModules -> {
+            // On supprime les plus anciens modules déployés inactifs pour n'en conserver que `finalNumberOfArchivedModuleVersions`
+            if (inactiveDeployedModules.size() > finalNumberOfArchivedModuleVersions) {
+                // Attention: un prérequis au bon fonctionnement de cette logique est que l'ordre d'insertion des modules déployés soit préservé
+                inactiveDeployedModules.subList(0, inactiveDeployedModules.size() - finalNumberOfArchivedModuleVersions)
+                        .forEach(remainingDeployedModules::remove);
             }
         });
-
-        deployedModules = newModuleList;
+        // On ajoute les nouveaux modules dans un 2e temps pour préserver l'ordre d'insertion
+        remainingDeployedModules.addAll(newDeployedModules);
+        deployedModules = remainingDeployedModules;
     }
 
     private Optional<DeployedModuleDocument> getModuleByIdAndPath(DeployedModuleDocument providedModule) {
