@@ -104,6 +104,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
+        if (HasProfile.dataMigration()) {
+            minimalPlatformRepository.findById(event.getPlatformId()).ifPresent(existingPlatform -> {
+                // Si la plateforme existe, pour chacun de ses modules :
+                // - s'il existe on récupère ses propriétés
+                // - sinon on récupère la module en question
+                existingPlatform.getDeployedModules().forEach(existingModule -> {
+                    Optional<DeployedModuleDocument> providedModule = platformDocument.getDeployedModules().stream()
+                            .filter(newModule -> newModule.getId().equals(existingModule.getId())).findFirst();
+                    if (providedModule.isPresent()) {
+                        providedModule.get().setValuedProperties(existingModule.getValuedProperties());
+                    } else {
+                        platformDocument.getDeployedModules().add(existingModule);
+                    }
+                });
+            });
+        }
         if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
             // Il arrive que les propriétés d'un module déployé ne soient pas valorisées par la suite,
             // cela ne doit pas empêcher de tenir compte des valeurs par défaut:
