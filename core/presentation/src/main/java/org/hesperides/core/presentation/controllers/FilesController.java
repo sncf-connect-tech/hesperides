@@ -39,8 +39,11 @@ public class FilesController extends AbstractController {
                                                                      @PathVariable("module_version") final String moduleVersion,
                                                                      @PathVariable("instance_name") final String instanceName,
                                                                      @RequestParam("isWorkingCopy") final Boolean isWorkingCopy,
-                                                                     @RequestParam(value = "simulate", required = false) final Boolean simulate) {
+                                                                     @RequestParam(value = "simulate", required = false, defaultValue = "false") final String simulate) {
 
+        // Pour des raisons de retrocompatibilité avec le front,
+        // en attendant que https://github.com/voyages-sncf-technologies/hesperides-gui/pull/164 soit en prod,
+        // nous devons pour le moment supporter simulate=undefined en valeur de paramètre
         List<InstanceFileOutput> files = filesUseCases.getFiles(
                 applicationName,
                 platformName,
@@ -49,7 +52,7 @@ public class FilesController extends AbstractController {
                 moduleVersion,
                 instanceName,
                 Boolean.TRUE.equals(isWorkingCopy),
-                Boolean.TRUE.equals(simulate))
+                "true".equals(simulate))
                 .stream()
                 .map(InstanceFileOutput::new)
                 .collect(Collectors.toList());
