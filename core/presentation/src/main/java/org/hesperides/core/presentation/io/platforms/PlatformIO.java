@@ -79,7 +79,7 @@ public class PlatformIO {
         return new Platform(
                 new Platform.Key(applicationName, platformName),
                 version,
-                isProductionPlatform,
+                isProductionPlatform != null ? isProductionPlatform : false,
                 versionId,
                 DeployedModuleIO.toDomainInstances(deployedModules),
                 Collections.emptyList()
