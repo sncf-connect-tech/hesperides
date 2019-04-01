@@ -201,8 +201,6 @@ public class ModulesController extends AbstractController {
     @PostMapping("/perform_search")
     public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
 
-        log.debug("search module {}", input);
-
         checkQueryParameterNotEmpty("terms", input);
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
@@ -213,6 +211,17 @@ public class ModulesController extends AbstractController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(moduleOutputs);
+    }
+
+    @ApiOperation("Search for a single module")
+    @PostMapping("/search")
+    public ResponseEntity<ModuleIO> searchSingle(@RequestParam("terms") final String input) {
+
+        checkQueryParameterNotEmpty("terms", input);
+
+        ModuleView moduleView = moduleUseCases.searchSingle(input);
+
+        return ResponseEntity.ok(new ModuleIO(moduleView));
     }
 
     @ApiOperation("Get properties model")
