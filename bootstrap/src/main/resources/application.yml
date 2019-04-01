@@ -38,7 +38,11 @@ logging:
   file: /var/log/hesperides.log
   level:
     root: INFO
-    org.springframework.data.mongodb.core.MongoTemplate: ${MONGO_QUERIES_LOG_LEVEL:INFO}
+    org.springframework:
+      data.mongodb.core.MongoTemplate: ${MONGO_QUERIES_LOG_LEVEL:INFO}
+      # On ne logue pas les nombreux "Ignoring PartialResultException"
+      # dus aux champs referrals ignorés, cf. https://docs.spring.io/spring-ldap/docs/2.3.2.RELEASE/reference/#ldaptemplate-configuration
+      security.ldap.SpringSecurityLdapTemplate: WARN
     org.hesperides.core.application.files.FileValuationContext: ${FILE_VALUATION_LOG_LEVEL:INFO}
     org.hesperides.core.domain.templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
 
