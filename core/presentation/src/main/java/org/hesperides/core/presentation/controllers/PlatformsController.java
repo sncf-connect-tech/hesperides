@@ -117,7 +117,7 @@ public class PlatformsController extends AbstractController {
     }
 
     @GetMapping("/{application_name}")
-    @ApiOperation("Get applications")
+    @ApiOperation("Get application")
     public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
                                                             @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
 
@@ -157,21 +157,16 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(modulePlatformsOutputs);
     }
 
-    @ApiOperation("List platforms of a given application")
-    @PostMapping("/platforms/perform_search")
-    public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("applicationName") final String applicationName,
-                                                                    @RequestParam(value = "platformName", required = false) final String platformName) {
+    @GetMapping("")
+    @ApiOperation("Get applications")
+    public ResponseEntity<List<SearchResultOutput>> getApplications() {
+        List<SearchApplicationResultView> apps = platformUseCases.listApplications();
 
-        checkQueryParameterNotEmpty("applicationName", applicationName);
-        List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, platformName);
-
-        List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchPlatformResultViews)
-                .orElse(Collections.emptyList())
-                .stream()
+        List<SearchResultOutput> appsOutput = apps.stream()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(searchResultOutputs);
+        return ResponseEntity.ok(appsOutput);
     }
 
     @ApiOperation("Search applications")
@@ -181,6 +176,23 @@ public class PlatformsController extends AbstractController {
         List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(defaultString(applicationName, ""));
 
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchApplicationResultViews)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(SearchResultOutput::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(searchResultOutputs);
+    }
+
+    @ApiOperation("List platforms of a given application")
+    @PostMapping("/platforms/perform_search")
+    public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("applicationName") final String applicationName,
+                                                                    @RequestParam(value = "platformName", required = false) final String platformName) {
+
+        checkQueryParameterNotEmpty("applicationName", applicationName);
+        List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, platformName);
+
+        List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchPlatformResultViews)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(SearchResultOutput::new)

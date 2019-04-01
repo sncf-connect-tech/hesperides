@@ -85,12 +85,16 @@ public class PlatformQueries extends AxonQueries {
         return querySyncList(new GetPlatformsUsingModuleQuery(moduleKey), ModulePlatformView.class);
     }
 
-    public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
-        return querySyncList(new SearchPlatformsQuery(applicationName, platformName), SearchPlatformResultView.class);
+    public List<SearchApplicationResultView> listApplications() {
+        return querySyncList(new ListApplicationsQuery(), SearchApplicationResultView.class);
     }
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
         return querySyncList(new SearchApplicationsQuery(applicationName), SearchApplicationResultView.class);
+    }
+
+    public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
+        return querySyncList(new SearchPlatformsQuery(applicationName, platformName), SearchPlatformResultView.class);
     }
 
     public List<AbstractValuedPropertyView> getDeployedModuleProperties(final Platform.Key platformKey, final String propertiesPath) {

@@ -55,10 +55,13 @@ public interface PlatformProjectionRepository {
     List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query);
 
     @QueryHandler
-    List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query);
+    List<SearchApplicationResultView> onListApplicationsQuery(ListApplicationsQuery query);
 
     @QueryHandler
     List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
+
+    @QueryHandler
+    List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query);
 
     @QueryHandler
     List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query);

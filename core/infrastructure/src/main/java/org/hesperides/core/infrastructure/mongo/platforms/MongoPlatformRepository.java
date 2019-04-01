@@ -31,6 +31,9 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     List<PlatformDocument> findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
             String moduleName, String moduleVersion, boolean isWorkingCopy);
 
+    @Query(value = "{}", fields = "{ 'key.applicationName' : 1 }")
+    List<PlatformDocument> listApplicationNames();
+
     @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' } }") // case-insensitive
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
