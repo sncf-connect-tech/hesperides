@@ -109,6 +109,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
             searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             String searchFilter = String.format("(%s=%s)", ldapConfiguration.getUsernameAttribute(), username);
 
+            // Durant cet appel SpringSecurityLdapTemplate logue parfois des "Ignoring PartialResultException"
             dirContextOperations = SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx,
                     searchControls, ldapConfiguration.getUserSearchBase(), searchFilter,
                     new Object[]{username});
