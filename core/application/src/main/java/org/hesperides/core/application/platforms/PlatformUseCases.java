@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.logging.log4j.util.Strings.isBlank;
+
 
 @Component
 public class PlatformUseCases {
@@ -121,12 +123,22 @@ public class PlatformUseCases {
         return queries.getPlatformsUsingModule(moduleKey);
     }
 
-    public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
-        return queries.searchPlatforms(applicationName, platformName);
+    public List<SearchApplicationResultView> listApplications() {
+        return queries.listApplications();
     }
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
-        return queries.searchApplications(applicationName);
+        List<SearchApplicationResultView> apps;
+        if (isBlank(applicationName)) {
+            apps = queries.listApplications();
+        } else {
+            apps = queries.searchApplications(applicationName);
+        }
+        return apps;
+    }
+
+    public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
+        return queries.searchPlatforms(applicationName, platformName);
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {

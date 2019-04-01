@@ -334,9 +334,37 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
                         moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
 
-        return platformDocuments
-                .stream()
+        return Optional.ofNullable(platformDocuments)
+                .map(List::stream)
+                .orElse(Stream.empty())
                 .map(PlatformDocument::toModulePlatformView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<SearchApplicationResultView> onListApplicationsQuery(ListApplicationsQuery query) {
+
+        List<PlatformDocument> platformDocuments = platformRepository.listApplicationNames();
+
+        return Optional.ofNullable(platformDocuments)
+                .map(List::stream)
+                .orElse(Stream.empty())
+                .map(PlatformDocument::toSearchApplicationResultView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query) {
+
+        List<PlatformDocument> platformDocuments = platformRepository
+                .findAllByKeyApplicationNameLike(query.getApplicationName());
+
+        return Optional.ofNullable(platformDocuments)
+                .map(List::stream)
+                .orElse(Stream.empty())
+                .map(PlatformDocument::toSearchApplicationResultView)
                 .collect(Collectors.toList());
     }
 
@@ -351,22 +379,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         query.getApplicationName(),
                         platformName);
 
-        return platformDocuments
-                .stream()
+        return Optional.ofNullable(platformDocuments)
+                .map(List::stream)
+                .orElse(Stream.empty())
                 .map(PlatformDocument::toSearchPlatformResultView)
-                .collect(Collectors.toList());
-    }
-
-    @QueryHandler
-    @Override
-    public List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query) {
-
-        List<PlatformDocument> platformDocuments = platformRepository
-                .findAllByKeyApplicationNameLike(query.getApplicationName());
-
-        return platformDocuments
-                .stream()
-                .map(PlatformDocument::toSearchApplicationResultView)
                 .collect(Collectors.toList());
     }
 
