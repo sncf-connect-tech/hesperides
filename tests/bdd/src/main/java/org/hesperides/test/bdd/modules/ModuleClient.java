@@ -98,14 +98,14 @@ public class ModuleClient {
                 moduleInput.getVersionType());
     }
 
-    public ResponseEntity copy(ModuleIO existingModuleInput, Boolean isWorkingCopy, ModuleIO newModuleInput, Class responseType) {
+    public ResponseEntity copy(ModuleIO existingModuleInput, ModuleIO newModuleInput, Class responseType) {
         // We need to tret isWorkingCopy separately here as it can be null in the tests, whereas ModuleIO.isWorkingCopy can never be null (and it is a GOOD thing)
         return restTemplate.postForEntity("/modules?from_module_name={name}&from_module_version={version}&from_is_working_copy={isWorkingCopy}",
                 newModuleInput,
                 responseType,
                 existingModuleInput.getName(),
                 existingModuleInput.getVersion(),
-                isWorkingCopy);
+                existingModuleInput.getIsWorkingCopy());
     }
 
     public ResponseEntity getModel(ModuleIO moduleInput, Class responseType) {

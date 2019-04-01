@@ -48,8 +48,8 @@ public class CopyModules extends HesperidesScenario implements En {
 
         Given("^a copy of this module changing the name to \"([^\"]*)\"$", (String name) -> {
             ModuleIO existingModule = moduleBuilder.build();
-            ModuleIO newModule = moduleBuilder.withName(name).build();
-            moduleClient.copy(existingModule, existingModule.getIsWorkingCopy(), newModule, ModuleIO.class);
+            ModuleIO newModule = moduleBuilder.withModuleType(ModuleIO.WORKINGCOPY).withName(name).build();
+            moduleClient.copy(existingModule, newModule, ModuleIO.class);
         });
 
         When("^I try to create a copy of this module, using the same key$", () -> {
@@ -58,14 +58,13 @@ public class CopyModules extends HesperidesScenario implements En {
 
         Then("^the module is successfully duplicated$", () -> {
             assertCreated();
-            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersion("1.0.1");
-            ModuleIO expectedModule = expectedModuleBuilder.build();
+            ModuleIO expectedModule = moduleBuilder.build();
             ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
 
             // Vérifie la liste des templates
             // Seul le namespace est différent
-            String expectedNamespace = expectedModuleBuilder.getNamespace();
+            String expectedNamespace = moduleBuilder.getNamespace();
             List<PartialTemplateIO> expectedTemplates = moduleClient.getTemplates(moduleBuilder.build())
                     .stream()
                     .map(expectedTemplate -> new PartialTemplateIO(expectedTemplate.getName(), expectedNamespace, expectedTemplate.getFilename(), expectedTemplate.getLocation()))
@@ -101,8 +100,8 @@ public class CopyModules extends HesperidesScenario implements En {
     }
 
     private ResponseEntity copy(String newVersion, Class responseType) {
-        ModuleIO newModuleInput = new ModuleBuilder().withVersion(newVersion).build();
-        return moduleClient.copy(moduleBuilder.build(), moduleBuilder.isWorkingCopy(), newModuleInput, responseType);
+        ModuleIO existingModule = moduleBuilder.build();
+        moduleBuilder.withModuleType(ModuleIO.WORKINGCOPY).withVersion(newVersion);
+        return moduleClient.copy(existingModule, moduleBuilder.build(), responseType);
     }
-
 }

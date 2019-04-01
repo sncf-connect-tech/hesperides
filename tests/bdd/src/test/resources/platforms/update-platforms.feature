@@ -14,9 +14,9 @@ Feature: Update platforms
     Given an existing module with properties
     And an existing platform with this module and valued properties
     And I release this module
-    When I update this platform, upgrading its module
+    When I update this platform, upgrading its module, and requiring the copy of properties
     Then the platform is successfully updated
-#    And the platform property values are also copied
+    And the platform property values are also copied
 
   Scenario: update an existing platform, adding a module introducing new instance properties
     Given an existing module with properties
@@ -98,3 +98,13 @@ Feature: Update platforms
     And I update the module version on this platform successively to versions 2, 3, 4 updating the value of the "version" property accordingly
     When I update the module version on this platform to version 1
     Then property "version" has no value on the platform
+
+  Scenario: restoring properties of a deployed module to an already upgraded module
+    Given an existing module with properties and global properties
+    And an existing platform with this module and an instance and valued properties and global properties and instance properties
+    And a copy of this module in version 2.0.0
+    And I update this platform, upgrading its module
+    And I update this platform, downgrading its module
+    When I update this platform, upgrading its module to version "2.0.0", and requiring the copy of properties
+    Then the platform is successfully updated
+    And the platform property values are also copied
