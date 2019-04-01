@@ -29,7 +29,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -136,24 +135,33 @@ public class PlatformDocument {
         providedModules.forEach(providedModule -> {
             Optional<DeployedModuleDocument> existingModuleByIdAndPath = getModuleByIdAndPath(providedModule);
             if (existingModuleByIdAndPath.isPresent()) {
+                // Le module n'est pas modifié donc on récupère ses propriétés
                 providedModule.setValuedProperties(existingModuleByIdAndPath.get().getValuedProperties());
             } else {
                 Optional<DeployedModuleDocument> existingModuleById = getModuleById(providedModule.getId());
                 Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
-                if (existingModuleByPath.isPresent()) {
-                    // Cas normal + cas du retour vers une ancienne version de module précédement déployée
+                if (existingModuleById.isPresent() && copyPropertiesForUpgradedModules) {
+                    // Mise à jour de module avec copie de propriétés
+                    providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
+                } else if (existingModuleByPath.isPresent()) {
+                    // Retour vers une ancienne version de module précédement déployée
                     providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
-                } else if (existingModuleById.isPresent()) {
-                    // Pas de correspondance par path trouvée
-                    // Il s'agit par exemple d'un changement de version de module
-                    if (copyPropertiesForUpgradedModules) {
-                        providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
-                    }
                 }
             }
             newDeployedModules.add(providedModule);
         });
 
+        List<DeployedModuleDocument> remainingDeployedModules = getArchivedModules(finalNumberOfArchivedModuleVersions, newDeployedModules);
+        // On ajoute les nouveaux modules dans un 2e temps pour préserver l'ordre d'insertion
+        remainingDeployedModules.addAll(newDeployedModules);
+
+        deployedModules = remainingDeployedModules;
+    }
+
+    /**
+     * Récupère la liste des modules archivés
+     */
+    private List<DeployedModuleDocument> getArchivedModules(int finalNumberOfArchivedModuleVersions, List<DeployedModuleDocument> newDeployedModules) {
         // Supprimer l'identifiant des modules qui n'ont pas été fournis pour conserver
         // les valorisations, tout en limitant cette historisation pour ne pas dépasser
         // la taille max autorisée par MongoDB (16Mo par document)
@@ -172,9 +180,7 @@ public class PlatformDocument {
                         .forEach(remainingDeployedModules::remove);
             }
         });
-        // On ajoute les nouveaux modules dans un 2e temps pour préserver l'ordre d'insertion
-        remainingDeployedModules.addAll(newDeployedModules);
-        deployedModules = remainingDeployedModules;
+        return remainingDeployedModules;
     }
 
     private Optional<DeployedModuleDocument> getModuleByIdAndPath(DeployedModuleDocument providedModule) {
