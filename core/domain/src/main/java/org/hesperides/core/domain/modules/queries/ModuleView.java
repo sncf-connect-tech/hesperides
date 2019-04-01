@@ -17,8 +17,12 @@ public class ModuleView {
     List<TechnoView> technos;
     Long versionId;
 
+    public Module.Key getKey() {
+        return new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+    }
+
     public Module toDomainInstance() {
-        TemplateContainer.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+        TemplateContainer.Key moduleKey = getKey();
         return new Module(moduleKey, TemplateView.toDomainInstances(templates, moduleKey), TechnoView.toDomainInstances(technos), versionId);
     }
 }

@@ -1,5 +1,7 @@
 package org.hesperides.core.application.modules;
 
+import org.hesperides.core.domain.exceptions.DuplicateException;
+import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
@@ -21,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -162,6 +165,21 @@ public class ModuleUseCases {
 
     public List<ModuleView> search(String input) {
         return queries.search(input);
+    }
+
+    public ModuleView searchSingle(String input) {
+        List<ModuleView> moduleViews = search(input);
+        if (moduleViews == null || moduleViews.isEmpty()) {
+            throw new NotFoundException("No module found matching: " + input);
+        }
+        if (moduleViews.size() > 1) {
+            String matchingModules = moduleViews.stream()
+                    .map(ModuleView::getKey)
+                    .map(Module.Key::getNamespaceWithoutPrefix)
+                    .collect(Collectors.joining(", "));
+            throw new DuplicateException("Non-unique matching modules found: " + matchingModules);
+        }
+        return moduleViews.get(0);
     }
 
     public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {
