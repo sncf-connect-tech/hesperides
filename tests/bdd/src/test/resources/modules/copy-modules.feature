@@ -12,7 +12,7 @@ Feature: Copy modules
 
   Scenario: copy a released module
     Given an existing techno with properties
-    Given a released module with properties and this techno
+    And a released module with properties and this techno
     When I create a copy of this module
     Then the module is successfully duplicated
     But the version type of the duplicated module is working copy
