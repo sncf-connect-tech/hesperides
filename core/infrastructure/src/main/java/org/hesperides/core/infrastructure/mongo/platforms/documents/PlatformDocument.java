@@ -27,6 +27,7 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -142,7 +143,13 @@ public class PlatformDocument {
                 Optional<DeployedModuleDocument> existingModuleByPath = getModuleByPath(providedModule.getPropertiesPath());
                 if (existingModuleById.isPresent() && copyPropertiesForUpgradedModules) {
                     // Mise à jour de module avec copie de propriétés
-                    providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
+                    if (!CollectionUtils.isEmpty(existingModuleById.get().getValuedProperties())) {
+                        // On vérifie que la liste de propriétés valorisées n'est pas vide
+                        providedModule.setValuedProperties(existingModuleById.get().getValuedProperties());
+                    } else if (existingModuleByPath.isPresent()) {
+                        // Si elle est vide on récupère les propriétés d'une version archivée du module si elle existe
+                        providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
+                    }
                 } else if (existingModuleByPath.isPresent()) {
                     // Retour vers une ancienne version de module précédement déployée
                     providedModule.setValuedProperties(existingModuleByPath.get().getValuedProperties());
