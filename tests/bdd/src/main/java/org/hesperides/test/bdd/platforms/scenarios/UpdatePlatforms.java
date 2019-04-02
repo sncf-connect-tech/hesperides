@@ -60,7 +60,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "(?: in logical group \"([^\"]*)\")?" +
             "(, adding an instance and an instance property)?" +
             "(, upgrading its module(?: to version \"([^\"]*)\")?)?" +
-            "(, downgrading its module)?" +
+            "(?:, downgrading its module to version \"([^\"]*)\")?" +
             "(, and requiring the copy of properties)?" +
             "(, with an empty payload)?" +
             "(, changing property values)?" +
@@ -73,7 +73,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String addingInstanceAndInstanceProperty,
             String upgradeModule,
             String upgradeVersion,
-            String downgradeModule,
+            String downgradeVersion,
             String withCopy,
             String withAnEmptyPayload,
             String changePropertyValues,
@@ -94,9 +94,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             }
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
         }
-        if (StringUtils.isNotEmpty(downgradeModule)) {
+        if (StringUtils.isNotEmpty(downgradeVersion)) {
             platformBuilder.withNoModule();
-            moduleBuilder.withVersion("1.0.0");
+            moduleBuilder.withVersion(downgradeVersion);
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
         }
         if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
