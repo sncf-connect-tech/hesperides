@@ -69,16 +69,17 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
-        boolean templateAlreadyExist = false;  // this is only needed for the time of the migration, as checks are already done in the application layer
         if (HasProfile.dataMigration()) {
-            templateAlreadyExist = moduleDocument.getTemplates().stream().anyMatch(existingTemplate -> existingTemplate.getName().equals(templateDocument.getName()));
-        }
-        if (!templateAlreadyExist) {
-            moduleDocument.addTemplate(templateDocument);
-        }
-        if (HasProfile.dataMigration()) {
+            // this is only needed for the time of the migration, as checks are already done in the application layer
+            boolean templateAlreadyExist = moduleDocument.getTemplates().stream().anyMatch(existingTemplate -> existingTemplate.getName().equals(templateDocument.getName()));
+            if (templateAlreadyExist) {
+                moduleDocument.updateTemplate(templateDocument);
+            } else {
+                moduleDocument.addTemplate(templateDocument);
+            }
             moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
         } else {
+            moduleDocument.addTemplate(templateDocument);
             moduleDocument.extractPropertiesAndSave(moduleRepository);
         }
     }
