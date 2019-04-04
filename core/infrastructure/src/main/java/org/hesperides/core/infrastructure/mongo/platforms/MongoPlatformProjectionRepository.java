@@ -78,15 +78,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         this.environment = null;
     }
 
-    // Both only exist for batch:
+    // Those only exist for batch:
     public MinimalPlatformRepository getMinimalPlatformRepository() {
         return minimalPlatformRepository;
     }
-
     public void setMinimalPlatformRepository(MinimalPlatformRepository minimalPlatformRepository) {
         this.minimalPlatformRepository = minimalPlatformRepository;
     }
-
     public void setNumberOfArchivedModuleVersions(int numberOfArchivedModuleVersions) {
         this.numberOfArchivedModuleVersions = numberOfArchivedModuleVersions;
     }

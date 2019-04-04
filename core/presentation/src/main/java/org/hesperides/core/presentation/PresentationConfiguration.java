@@ -1,7 +1,10 @@
 package org.hesperides.core.presentation;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
@@ -22,6 +25,8 @@ import springfox.documentation.spring.web.json.Json;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+
+import static java.lang.reflect.Modifier.*;
 
 @Configuration
 @EnableWebMvc
@@ -66,6 +71,20 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
                 .serializeNulls()
+                .addSerializationExclusionStrategy(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes field) {
+                        // Ceci est nécessaire pour éviter des erreurs 500 lorsqu'on requête /rest/manage/beans:
+                        // "Could not write JSON" "Attempted to serialize java.lang.Class" "Forgot to register a type adapter?"
+                        // à cause de org.springframework.boot.actuate.beans.BeansEndpoint.BeanDescriptor
+                        // Plus de doc sur le sujet: https://www.baeldung.com/gson-exclude-fields-serialization
+                        return field.getDeclaredType().getTypeName().equals("java.lang.Class<?>");
+                    }
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
                 .create();
     }
 }
