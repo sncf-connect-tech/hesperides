@@ -39,7 +39,7 @@ public class UsersController extends AbstractController {
 
     @ApiOperation("Authenticates users. It returns useful information about the authenticated user.")
     @GetMapping("/auth")
-    public ResponseEntity<Map> getUserInfo(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getUserInfo(Authentication authentication) {
 
         User currentUser = User.fromAuthentication(authentication);
 
