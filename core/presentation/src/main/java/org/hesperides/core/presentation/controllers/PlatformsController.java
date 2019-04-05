@@ -163,6 +163,7 @@ public class PlatformsController extends AbstractController {
         List<SearchApplicationResultView> apps = platformUseCases.listApplications();
 
         List<SearchResultOutput> appsOutput = apps.stream()
+                .distinct()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 
@@ -178,6 +179,7 @@ public class PlatformsController extends AbstractController {
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchApplicationResultViews)
                 .orElse(Collections.emptyList())
                 .stream()
+                .distinct()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 
@@ -195,6 +197,7 @@ public class PlatformsController extends AbstractController {
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchPlatformResultViews)
                 .orElse(Collections.emptyList())
                 .stream()
+                .distinct()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 

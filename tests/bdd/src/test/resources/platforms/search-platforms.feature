@@ -12,12 +12,12 @@ Feature: Search platforms
   Scenario: search for all platforms
     Given a list of 12 applications prefixed by "app" with 4 platforms prefixed by "plf" in each application
     When I search for the platform "plf" in the application "app"
-    Then the platform search result contains 48 entries
+    Then the platform search result contains 4 entries
 
   Scenario: search for platforms with only one letter
     Given a list of 12 applications prefixed by "app" with 4 platforms prefixed by "plf" in each application
     When I search for the platform "p" in the application "a"
-    Then the platform search result contains 48 entries
+    Then the platform search result contains 4 entries
 
   Scenario: search for a platform that doesn't exist
     Given a list of 12 applications prefixed by "app" with 4 platforms prefixed by "plf" in each application
