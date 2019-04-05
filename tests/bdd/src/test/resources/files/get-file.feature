@@ -391,7 +391,7 @@ Feature: Get file
       """
     And an existing platform with this module
     And the platform has these valued properties
-      | name     | value                                |
+      | name     | value          |
       | property | {{ property }} |
     When I get the module template file
     Then the file is successfully retrieved and contains
@@ -400,6 +400,24 @@ Feature: Get file
 
 
 
+      """
+
+  Scenario: an instance property referencing itself should appear as itself and not empty
+    Given an existing module with this template content
+      """
+      {{ property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name     | value                   |
+      | property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value                   |
+      | instance-property | {{ instance-property }} |
+    When I get the instance template file
+    Then the file is successfully retrieved and contains
+      """
+      {{ instance-property }}
       """
 
   Scenario: detect self-referencing property generating infinite recursion

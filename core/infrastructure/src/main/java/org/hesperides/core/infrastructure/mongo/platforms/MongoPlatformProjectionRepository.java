@@ -82,9 +82,11 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public MinimalPlatformRepository getMinimalPlatformRepository() {
         return minimalPlatformRepository;
     }
+
     public void setMinimalPlatformRepository(MinimalPlatformRepository minimalPlatformRepository) {
         this.minimalPlatformRepository = minimalPlatformRepository;
     }
+
     public void setNumberOfArchivedModuleVersions(int numberOfArchivedModuleVersions) {
         this.numberOfArchivedModuleVersions = numberOfArchivedModuleVersions;
     }
@@ -167,7 +169,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
                 platformDocument.getActiveDeployedModules()
                         .forEach(deployedModuleDocument ->
-                            completePropertiesWithMustacheContent(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
+                                completePropertiesWithMustacheContent(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
                         );
             }
             platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
@@ -205,7 +207,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.getActiveDeployedModules()
                     .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
                     .findAny().ifPresent(deployedModuleDocument ->
-                        completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument)
+                    completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument)
             );
         }
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
