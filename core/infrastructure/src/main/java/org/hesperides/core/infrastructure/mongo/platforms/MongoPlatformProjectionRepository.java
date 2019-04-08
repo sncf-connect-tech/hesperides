@@ -195,12 +195,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             }
         }
         PlatformDocument platformDocument = optPlatformDocument.get();
-        if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {
-            // Rustine temporaire pour le temps de la migration
-            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
-        } else {
-            platformDocument.setVersionId(event.getPlatformVersionId());
-        }
+        platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
         if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
@@ -253,12 +248,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         PlatformDocument platformDocument = optPlatformDocument.get();
 
         // Update platform information
-        if (HasProfile.dataMigration() && event.getPlatformVersionId() == 0L) {
-            // Rustine temporaire pour le temps de la migration
-            platformDocument.setVersionId(platformDocument.getVersionId() + 1);
-        } else {
-            platformDocument.setVersionId(event.getPlatformVersionId());
-        }
+        platformDocument.setVersionId(event.getPlatformVersionId());
         platformDocument.setGlobalProperties(valuedProperties);
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }

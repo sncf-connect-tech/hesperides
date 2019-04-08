@@ -14,8 +14,6 @@ interface PropertyVisitor {
 
     void acceptEither(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer);
 
-    boolean testSimplesRecursive(Predicate<SimplePropertyVisitor> predicate);
-
     PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper);
 
     PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper);

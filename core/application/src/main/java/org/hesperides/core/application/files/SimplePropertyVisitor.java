@@ -65,11 +65,6 @@ class SimplePropertyVisitor implements PropertyVisitor {
     }
 
     @Override
-    public boolean testSimplesRecursive(Predicate<SimplePropertyVisitor> predicate) {
-        return predicate.test(this);
-    }
-
-    @Override
     public PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper) {
         return mapper.apply(this);
     }

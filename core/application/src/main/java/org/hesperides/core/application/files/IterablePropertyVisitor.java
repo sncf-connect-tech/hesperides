@@ -63,11 +63,6 @@ class IterablePropertyVisitor implements PropertyVisitor {
     }
 
     @Override
-    public boolean testSimplesRecursive(Predicate<SimplePropertyVisitor> predicate) {
-        return items.stream().allMatch(item -> item.filterSimplesRecursive(predicate).size() > 0);
-    }
-
-    @Override
     public PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper) {
         return new IterablePropertyVisitor(name, items.stream()
                 .map(item -> item.mapSimplesRecursive(mapper))

@@ -50,7 +50,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.commons.lang3.StringUtils.substringsBetween;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
 @Component
@@ -176,7 +175,7 @@ public class FileUseCases {
         PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors);
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive :
         PropertyVisitorsSequence preparedPropertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext, 0);
-        Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
+        Map<String, Object> scopes = propertiesToScopes(removeMustachesInPropertyValues(preparedPropertyVisitors));
         return replaceMustachePropertiesWithValues(input, scopes);
     }
 
@@ -217,25 +216,18 @@ public class FileUseCases {
             }
             return propertyVisitor;
         });
-        return removeUniqueSelfReferencingProperties(
-                propertyVisitors.equals(preparedPropertyVisitors) ? preparedPropertyVisitors : preparePropertiesValues(preparedPropertyVisitors, valuationContext, iterationCount + 1)
-        );
+        return propertyVisitors.equals(preparedPropertyVisitors) ? preparedPropertyVisitors : preparePropertiesValues(preparedPropertyVisitors, valuationContext, iterationCount + 1);
     }
 
-    // cf. BDD Scenario: a property referencing itself must disappear without any corresponding instance property defined
-    private static PropertyVisitorsSequence removeUniqueSelfReferencingProperties(PropertyVisitorsSequence propertyVisitors) {
-        return propertyVisitors.filterSimplesRecursive(propertyVisitor -> {
-            boolean includePropertyVisitor = true;
+    // Juste avant d'appeler le moteur Mustache,
+    // on supprime toutes les {{mustaches}} n'ayant pas déjà été substituées par `preparePropertiesValues` des valorisations,
+    // afin que les fichiers générés n'en contiennent plus aucune trace
+    private static PropertyVisitorsSequence removeMustachesInPropertyValues(PropertyVisitorsSequence propertyVisitors) {
+        return propertyVisitors.mapSimplesRecursive(propertyVisitor -> {
             if (propertyVisitor.isValued()) {
-                String[] containedPropertyNames = substringsBetween(propertyVisitor.getValue().get(), "{{", "}}");
-                if (containedPropertyNames != null) {
-                    String propertyName = propertyVisitor.getName();
-                    includePropertyVisitor = Arrays.stream(containedPropertyNames)
-                            .map(String::trim)
-                            .noneMatch(propertyName::equals);
-                }
+                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValue().get(), "\\{\\{[^}]*\\}\\}"));
             }
-            return includePropertyVisitor;
+            return propertyVisitor;
         });
     }
 

@@ -151,13 +151,6 @@ class PropertyVisitorsSequence {
         properties.forEach(property -> property.acceptSimplesRecursive(consumer));
     }
 
-    /* Filtre une liste de propriétés pour en exclure celle ne respectant pas la condition */
-    PropertyVisitorsSequence filterSimplesRecursive(Predicate<SimplePropertyVisitor> predicate) {
-        return new PropertyVisitorsSequence(properties.stream()
-                .filter(property -> property.testSimplesRecursive(predicate))
-                .collect(Collectors.toList()));
-    }
-
     /* Applique une fonction récursivement, en transformant potentiellement les propriétés */
     PropertyVisitorsSequence mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper) {
         return new PropertyVisitorsSequence(
