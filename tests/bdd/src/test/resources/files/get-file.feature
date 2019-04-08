@@ -381,7 +381,7 @@ Feature: Get file
       GLOBAL_VALUE
       """
 
-  Scenario: a property referencing itself must disappear without any corresponding instance property defined
+  Scenario: a module property referencing itself must disappear without any corresponding instance property defined
     Given an existing module with this template content
       """
       {{ property }}
@@ -402,7 +402,7 @@ Feature: Get file
 
       """
 
-  Scenario: an instance property referencing itself should appear as itself and not empty
+  Scenario: an instance property referencing itself must disappear without any corresponding instance property defined
     Given an existing module with this template content
       """
       {{ property }}
@@ -417,7 +417,7 @@ Feature: Get file
     When I get the instance template file
     Then the file is successfully retrieved and contains
       """
-      {{ instance-property }}
+
       """
 
   Scenario: detect self-referencing property generating infinite recursion
