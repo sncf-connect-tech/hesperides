@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.infrastructure.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.UserRole;
 import org.springframework.context.annotation.Profile;
@@ -33,17 +34,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import javax.naming.AuthenticationException;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
+import javax.naming.*;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -54,12 +50,16 @@ import static org.hesperides.commons.spring.SpringProfiles.LDAP;
 
 @Profile(LDAP)
 @Component
+@Slf4j
 public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider {
-    private LdapConfiguration ldapConfiguration;
-
     /**
-     * TODO: Gestion des erreurs
+     * AD matching rule.
+     *
+     * @link https://msdn.microsoft.com/en-us/library/aa746475(v=vs.85).aspx
      */
+    private static final String LDAP_MATCHING_RULE_IN_CHAIN_OID = "1.2.840.113556.1.4.1941";
+
+    private LdapConfiguration ldapConfiguration;
 
     public LdapAuthenticationProvider(final LdapConfiguration ldapConfiguration) {
         this.ldapConfiguration = ldapConfiguration;
@@ -68,11 +68,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Override
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
         String username = auth.getName();
-        /**
-         * TODO
-         * Tester un mot de passe avec une lettre accentuée
-         * Il paraît que ça plante => Gérer le cas
-         */
         String password = (String) auth.getCredentials();
         DirContext ctx = buildSearchContext(username, password);
         return searchUser(ctx, username);
@@ -133,43 +128,58 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Override
     protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        String[] groups = userData.getStringAttributes("memberOf");
-        if (!isBlank(ldapConfiguration.getProdGroupName()) && hasGroup(groups, ldapConfiguration.getProdGroupName())) {
+        DirContext context = buildSearchContext(username, password);
+        if (!isBlank(ldapConfiguration.getProdGroupName()) && hasGroup(context, ldapConfiguration.getProdGroupName(), userData.getNameInNamespace())) {
             authorities.add(new SimpleGrantedAuthority(UserRole.PROD));
         }
-        if (!isBlank(ldapConfiguration.getTechGroupName()) && hasGroup(groups, ldapConfiguration.getTechGroupName())) {
+        if (!isBlank(ldapConfiguration.getTechGroupName()) && hasGroup(context, ldapConfiguration.getTechGroupName(), userData.getNameInNamespace())) {
             authorities.add(new SimpleGrantedAuthority(UserRole.TECH));
         }
         return authorities;
     }
 
-    private boolean hasGroup(final String[] groups, final String groupName) {
-        boolean hasRole = false;
-        if (groups != null && StringUtils.hasText(groupName)) {
-            for (String group : groups) {
-                String commonName = getCommonName(group);
-                if (groupName.equalsIgnoreCase(commonName)) {
-                    hasRole = true;
-                    break;
-                }
-            }
-        }
-        return hasRole;
-    }
-
     /**
-     * Get the CN out of the DN
-     *
-     * @param distinguishedName
-     * @return
+     * Méthode reprise telle qu'elle du legacy pour reproduire à l'identique la gestion des rôles.
      */
-    private String getCommonName(final String distinguishedName) {
-        String commonName = null;
-        LdapName ldapName = LdapUtils.newLdapName(distinguishedName);
-        Rdn rdn = LdapUtils.getRdn(ldapName, "cn");
-        if (rdn != null && rdn.getValue() != null) {
-            commonName = rdn.getValue().toString();
+    private boolean hasGroup(DirContext context, String groupName, String userDN) {
+        try {
+            String groupSearch = String.format("(CN=%s)", groupName);
+            SearchControls searchControls = new SearchControls();
+            searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+            NamingEnumeration<SearchResult> groupResults = context.search(ldapConfiguration.getRoleSearchBase(), groupSearch, searchControls);
+
+            SearchResult groupSearchResult;
+            if (groupResults.hasMoreElements()) {
+                groupSearchResult = groupResults.nextElement();
+                if (groupResults.hasMoreElements()) {
+                    log.error("Expected to find only one group for " + ldapConfiguration.getProdGroupName() + " but found more results");
+                    return false;
+                }
+
+            } else {
+                log.error("Unable to find group {}", ldapConfiguration.getProdGroupName());
+                return false;
+            }
+
+            //Search recursively to see if user is member of this group
+            //We search memberOf the prod group using user DN as base DN
+            //We should have one result if the user belongs to the group -> the user itself
+            String groupDN = groupSearchResult.getNameInNamespace();
+            searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+            String memberOfSearch = String.format("(memberOf:%s:=%s)", LDAP_MATCHING_RULE_IN_CHAIN_OID, groupDN);
+
+            NamingEnumeration<SearchResult> memberOfSearchResults = context.search(userDN, memberOfSearch, searchControls);
+
+            if (memberOfSearchResults.hasMore()) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (NamingException e) {
+            log.error(e.getExplanation());
         }
-        return commonName;
+        return false;
     }
 }
