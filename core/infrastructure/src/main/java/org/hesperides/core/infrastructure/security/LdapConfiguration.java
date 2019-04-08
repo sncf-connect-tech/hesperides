@@ -42,6 +42,7 @@ public class LdapConfiguration {
     private String url;
     private String domain;
     private String userSearchBase;
+    private String roleSearchBase;
     private String usernameAttribute;
     private String connectTimeout;
     private String readTimeout;
