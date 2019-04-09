@@ -1,7 +1,9 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,6 +13,8 @@ public class SearchModules extends HesperidesScenario implements En {
 
     @Autowired
     private ModuleClient moduleClient;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     public SearchModules() {
 
@@ -30,6 +34,18 @@ public class SearchModules extends HesperidesScenario implements En {
             testContext.responseEntity = moduleClient.search("", String.class);
         });
 
+        When("^I search for a single module using only the name and version of this module$", () -> {
+            testContext.responseEntity = moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion(), ModuleIO.class);
+        });
+
+        When("^I search for the released version of this single module$", () -> {
+            testContext.responseEntity = moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " false", ModuleIO.class);
+        });
+
+        When("^I search for the working copy version of this single module$", () -> {
+            testContext.responseEntity = moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " true", ModuleIO.class);
+        });
+
         Then("^the module is found$", () -> {
             assertOK();
             assertEquals(1, getBodyAsArray().length);
@@ -42,6 +58,20 @@ public class SearchModules extends HesperidesScenario implements En {
 
         Then("^the search request is rejected with a bad request error$", () -> {
             assertBadRequest();
+        });
+
+        Then("^I get the working copy version of this module$", () -> {
+            assertOK();
+            ModuleIO expectedModule = moduleBuilder.withVersionType(ModuleIO.WORKINGCOPY).build();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            assertEquals(expectedModule, actualModule);
+        });
+
+        Then("^I get the released version of this module$", () -> {
+            assertOK();
+            ModuleIO expectedModule = moduleBuilder.withVersionType(ModuleIO.RELEASE).build();
+            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            assertEquals(expectedModule, actualModule);
         });
     }
 }

@@ -22,15 +22,11 @@ package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.TechnoModulesOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.hesperides.core.presentation.io.ModuleIO.WORKINGCOPY;
 
@@ -66,6 +62,10 @@ public class ModuleBuilder {
         return this.name;
     }
 
+    public String getVersion() {
+        return this.version;
+    }
+
     public ModuleBuilder withName(String name) {
         this.name = name;
         return this;
@@ -76,7 +76,7 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder withModuleType(String versionType) {
+    public ModuleBuilder withVersionType(String versionType) {
         this.versionType = versionType;
         return this;
     }

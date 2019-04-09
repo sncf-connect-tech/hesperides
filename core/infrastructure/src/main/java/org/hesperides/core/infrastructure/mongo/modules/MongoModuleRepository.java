@@ -1,6 +1,5 @@
 package org.hesperides.core.infrastructure.mongo.modules;
 
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +36,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : 1 }")
     Optional<ModuleDocument> findTemplatesByModuleKey(KeyDocument moduleKey);
 
-    List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
+//    List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
     @Query(value = "{ 'technos.$id' : ?0 }")
     List<ModuleDocument> findAllByTechnoId(String technoId);
@@ -51,4 +50,8 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     List<ModuleDocument> findPropertiesByKeyIn(List<KeyDocument> modulesKeys);
 
     List<ModuleDocument> findAllByTechnosId(String technoId);
+
+    @Query(value = "{ 'key.name': { '$regex' : ?0, '$options' : 'i' }, 'key.version': { '$regex' : ?1, '$options' : 'i' } }")
+    List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
+
 }
