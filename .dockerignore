@@ -1,0 +1,4 @@
+/.git/
+/bootstrap/target
+/Dockerfile
+/*.log

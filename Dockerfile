@@ -1,10 +1,16 @@
+FROM maven:3-jdk-8-alpine
+WORKDIR /usr/local/src
+COPY . .
+RUN mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
+
+
 FROM openjdk:8-jre-alpine
 
 RUN apk add curl mongodb
 # We only need the MongoDB shell:
 RUN rm /etc/init.d/mongo* /etc/conf.d/mongo* /usr/bin/mongod /usr/bin/mongos /etc/logrotate.d/mongodb /usr/bin/install_compass
 
-COPY bootstrap/target/hesperides-*.jar hesperides.jar
+COPY --from=0 /usr/local/src/bootstrap/target/hesperides-*.jar hesperides.jar
 COPY mongo_create_collections.js /
 COPY docker_entrypoint.sh /
 RUN chmod u+x /docker_entrypoint.sh
