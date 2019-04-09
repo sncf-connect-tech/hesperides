@@ -1,7 +1,6 @@
 package org.hesperides.core.application.modules;
 
-import org.hesperides.core.domain.exceptions.DuplicateException;
-import org.hesperides.core.domain.exceptions.NotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
@@ -19,11 +18,9 @@ import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -167,19 +164,24 @@ public class ModuleUseCases {
         return queries.search(input);
     }
 
-    public ModuleView searchSingle(String input) {
-        List<ModuleView> moduleViews = search(input);
-        if (moduleViews == null || moduleViews.isEmpty()) {
-            throw new NotFoundException("No module found matching: " + input);
+    public Optional<ModuleView> searchSingle(String input) {
+        String[] values = input.split(" ");
+        String name = values.length > 0 ? values[0] : "";
+        String version = values.length > 1 ? values[1] : "";
+        String workingCopy = values.length > 2 ? values[2] : "";
+
+        Optional<ModuleView> moduleView;
+        // Reproduction du legacy : si le type de version est passé en input ("true" ou "false"),
+        // on tente de récupérer le module correspondant. S'il ne l'est pas, on effectue une recherche
+        // classique sur nom et la version du module et on récupère la premier résultat.
+        if (StringUtils.isNotEmpty(workingCopy)) {
+            boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
+            moduleView = queries.getOptionalModule(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)));
+        } else {
+            List<ModuleView> moduleViews = queries.search(input);
+            moduleView = moduleViews.size() > 0 ? Optional.of(moduleViews.get(0)) : Optional.empty();
         }
-        if (moduleViews.size() > 1) {
-            String matchingModules = moduleViews.stream()
-                    .map(ModuleView::getKey)
-                    .map(Module.Key::getNamespaceWithoutPrefix)
-                    .collect(Collectors.joining(", "));
-            throw new DuplicateException("Non-unique matching modules found: " + matchingModules);
-        }
-        return moduleViews.get(0);
+        return moduleView;
     }
 
     public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {

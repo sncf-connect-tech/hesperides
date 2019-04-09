@@ -25,7 +25,7 @@ public class GetModules extends HesperidesScenario implements En {
 
         When("^I( try to)? get the module detail(?: for a module type \"(.*)\")?( with the wrong letter case)?$", (String tryTo, String moduleType, String withWrongLetterCase) -> {
             if (StringUtils.isNotEmpty(moduleType)) {
-                moduleBuilder.withModuleType(moduleType);
+                moduleBuilder.withVersionType(moduleType);
             }
             ModuleIO moduleInput = moduleBuilder.build();
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {

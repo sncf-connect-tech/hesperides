@@ -69,6 +69,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     public MongoModuleRepository getMongoModuleRepository() {
         return moduleRepository;
     }
+
     public void setMongoModuleRepository(MongoModuleRepository moduleRepository) {
         this.moduleRepository = moduleRepository;
     }
@@ -189,12 +190,15 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public List<ModuleView> onSearchModulesQuery(SearchModulesQuery query) {
         String[] values = query.getInput().split(" ");
-        String name = values.length >= 1 ? values[0] : "";
-        String version = values.length >= 2 ? values[1] : "";
+        String name = values.length > 0 ? values[0] : "";
+        String version = values.length > 1 ? values[1] : "";
 
         Pageable pageable = PageRequest.of(0, searchOptions.getModuleSearchMaxResults());
-        List<ModuleDocument> moduleDocuments = moduleRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable);
-        return moduleDocuments.stream().map(ModuleDocument::toModuleView).collect(Collectors.toList());
+        List<ModuleView> collect = moduleRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable)
+                .stream()
+                .map(ModuleDocument::toModuleView)
+                .collect(Collectors.toList());
+        return collect;
     }
 
     @QueryHandler

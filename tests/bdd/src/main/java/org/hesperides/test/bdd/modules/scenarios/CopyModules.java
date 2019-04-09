@@ -34,7 +34,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
         When("^I( try to)? create a copy of this module( without specifying the version of the source module)?( without specifying whether it is a workingcopy)?$", (String tryTo, String unknownSrcVersion, String unknownSrcWorkingCopy) -> {
             if (!isBlank(unknownSrcWorkingCopy)) {
-                moduleBuilder.withModuleType(null);
+                moduleBuilder.withVersionType(null);
             }
             if (!isBlank(unknownSrcVersion)) {
                 moduleBuilder.withVersion(null);
@@ -48,7 +48,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
         Given("^a copy of this module changing the name to \"([^\"]*)\"$", (String name) -> {
             ModuleIO existingModule = moduleBuilder.build();
-            ModuleIO newModule = moduleBuilder.withModuleType(ModuleIO.WORKINGCOPY).withName(name).build();
+            ModuleIO newModule = moduleBuilder.withVersionType(ModuleIO.WORKINGCOPY).withName(name).build();
             moduleClient.copy(existingModule, newModule, ModuleIO.class);
         });
 
@@ -101,7 +101,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
     private ResponseEntity copy(String newVersion, Class responseType) {
         ModuleIO existingModule = moduleBuilder.build();
-        moduleBuilder.withModuleType(ModuleIO.WORKINGCOPY).withVersion(newVersion);
+        moduleBuilder.withVersionType(ModuleIO.WORKINGCOPY).withVersion(newVersion);
         return moduleClient.copy(existingModule, moduleBuilder.build(), responseType);
     }
 }
