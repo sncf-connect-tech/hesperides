@@ -36,8 +36,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'templates' : 1 }")
     Optional<ModuleDocument> findTemplatesByModuleKey(KeyDocument moduleKey);
 
-//    List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
-
     @Query(value = "{ 'technos.$id' : ?0 }")
     List<ModuleDocument> findAllByTechnoId(String technoId);
 

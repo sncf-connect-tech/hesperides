@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -18,8 +19,12 @@ public class SearchModules extends HesperidesScenario implements En {
 
     public SearchModules() {
 
-        When("^I search for one specific module$", () -> {
-            testContext.responseEntity = moduleClient.search("new-module 0.0.3");
+        When("^I search for one specific module( using the wrong case)?$", (String wrongCase) -> {
+            String input = "new-module 0.0.3";
+            if (StringUtils.isNotEmpty(wrongCase)) {
+                input = input.toUpperCase();
+            }
+            testContext.responseEntity = moduleClient.search(input);
         });
 
         When("^I search for some of those modules$", () -> {

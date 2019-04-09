@@ -171,6 +171,9 @@ public class ModuleUseCases {
         String workingCopy = values.length > 2 ? values[2] : "";
 
         Optional<ModuleView> moduleView;
+        // Reproduction du legacy : si le type de version est passé en input ("true" ou "false"),
+        // on tente de récupérer le module correspondant. S'il ne l'est pas, on effectue une recherche
+        // classique sur nom et la version du module et on récupère la premier résultat.
         if (StringUtils.isNotEmpty(workingCopy)) {
             boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
             moduleView = queries.getOptionalModule(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)));

@@ -8,6 +8,11 @@ Feature: Search modules
     When I search for one specific module
     Then the module is found
 
+  Scenario: search for an existing module using the wrong case
+    Given a list of modules
+    When I search for one specific module using the wrong case
+    Then the module is found
+
   Scenario: search for existing modules
     Given a list of modules
     When I search for some of those modules

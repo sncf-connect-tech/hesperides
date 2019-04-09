@@ -107,7 +107,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 } else {
                     moduleBuilder.withName("new-module");
                 }
-                moduleBuilder.withVersion("0.0." + i + 1);
+                moduleBuilder.withVersion("0.0." + (i + 1));
                 testContext.responseEntity = moduleClient.create(moduleBuilder.build());
                 assertCreated();
             }
