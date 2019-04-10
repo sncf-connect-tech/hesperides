@@ -172,6 +172,13 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Search applications")
     @PostMapping("/perform_search")
+    @Deprecated
+    public ResponseEntity<List<SearchResultOutput>> postSearchApplications(@RequestParam("name") String applicationName) {
+        return searchApplications(applicationName);
+    }
+
+    @ApiOperation("Search applications")
+    @GetMapping("/perform_search")
     public ResponseEntity<List<SearchResultOutput>> searchApplications(@RequestParam("name") String applicationName) {
 
         List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(defaultString(applicationName, ""));
@@ -188,6 +195,14 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("List platforms of a given application")
     @PostMapping("/platforms/perform_search")
+    @Deprecated
+    public ResponseEntity<List<SearchResultOutput>> postSearchPlatforms(@RequestParam("applicationName") final String applicationName,
+                                                                        @RequestParam(value = "platformName", required = false) final String platformName) {
+        return searchPlatforms(applicationName, platformName);
+    }
+
+    @ApiOperation("List platforms of a given application")
+    @GetMapping("/platforms/perform_search")
     public ResponseEntity<List<SearchResultOutput>> searchPlatforms(@RequestParam("applicationName") final String applicationName,
                                                                     @RequestParam(value = "platformName", required = false) final String platformName) {
 
