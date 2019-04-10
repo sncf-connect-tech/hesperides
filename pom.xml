@@ -170,17 +170,21 @@
                 <version>${mongo-java-server.version}</version>
             </dependency>
 
-            <!-- Various -->
+            <!-- SpringBoot components -->
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-test</artifactId>
+                <version>${spring-security-test.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.version}</version>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-dependencies</artifactId>
+                <version>${spring-boot-admin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
+
+            <!-- Swagger -->
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
@@ -195,6 +199,18 @@
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger-ui</artifactId>
                 <version>${swagger2.version}</version>
+            </dependency>
+
+            <!-- Various -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -234,11 +250,6 @@
                 <version>${hamcrest.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-test</artifactId>
-                <version>${spring-security-test.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>info.cukes</groupId>
                 <artifactId>cucumber-junit</artifactId>
                 <version>${cucumber.version}</version>
@@ -262,14 +273,6 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>de.codecentric</groupId>
-                <artifactId>spring-boot-admin-dependencies</artifactId>
-                <version>${spring-boot-admin.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -427,7 +430,13 @@
             <name>Victor SALAUN</name>
             <email>victor.salaun@gmail.com</email>
             <organization>voyages-sncf-technologies</organization>
-            <organizationUrl>https://www.oui.sncf/</organizationUrl>
+            <organizationUrl>https://www.oui.sncf</organizationUrl>
+        </developer>
+        <developer>
+            <id>LCM</id>
+            <name>Lucas CIMON</name>
+            <organization>voyages-sncf-technologies</organization>
+            <organizationUrl>https://www.oui.sncf</organizationUrl>
         </developer>
     </developers>
 
