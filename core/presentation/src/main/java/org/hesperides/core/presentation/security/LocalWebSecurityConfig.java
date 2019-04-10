@@ -14,6 +14,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] AUTH_WHITELIST = {
+            "/versions",
             "/manage/**",
             // -- swagger ui:
             "/swagger-resources/**",
