@@ -23,12 +23,14 @@ package org.hesperides.core.infrastructure.security;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.UserRole;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
@@ -63,6 +65,12 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
     public LdapAuthenticationProvider(final LdapConfiguration ldapConfiguration) {
         this.ldapConfiguration = ldapConfiguration;
+    }
+
+    @Cacheable(cacheNames = "users", key = "#authentication.principal")
+    public Authentication authenticate(Authentication authentication)
+            throws org.springframework.security.core.AuthenticationException {
+        return super.authenticate(authentication);
     }
 
     @Override
