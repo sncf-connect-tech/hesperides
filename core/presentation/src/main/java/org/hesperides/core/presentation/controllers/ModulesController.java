@@ -199,6 +199,13 @@ public class ModulesController extends AbstractController {
 
     @ApiOperation("Search for modules")
     @PostMapping("/perform_search")
+    @Deprecated
+    public ResponseEntity<List<ModuleIO>> postSearch(@RequestParam("terms") final String input) {
+        return search(input);
+    }
+
+    @ApiOperation("Search for modules")
+    @GetMapping("/perform_search")
     public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
         checkQueryParameterNotEmpty("terms", input);
 
@@ -214,6 +221,13 @@ public class ModulesController extends AbstractController {
 
     @ApiOperation("Search for a single module")
     @PostMapping("/search")
+    @Deprecated
+    public ResponseEntity<ModuleIO> postSearchSingle(@RequestParam("terms") final String input) {
+        return searchSingle(input);
+    }
+
+    @ApiOperation("Search for a single module")
+    @GetMapping("/search")
     public ResponseEntity<ModuleIO> searchSingle(@RequestParam("terms") final String input) {
         checkQueryParameterNotEmpty("terms", input);
 
