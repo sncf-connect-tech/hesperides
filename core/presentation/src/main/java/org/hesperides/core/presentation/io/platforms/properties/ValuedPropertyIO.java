@@ -25,6 +25,7 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class ValuedPropertyIO extends AbstractValuedPropertyIO {
 
+    @NotNull
     String value;
 
     public ValuedPropertyIO(String name, String value) {

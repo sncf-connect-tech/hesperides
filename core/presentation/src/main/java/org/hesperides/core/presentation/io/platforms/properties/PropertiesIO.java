@@ -31,6 +31,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.AbstractVal
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class PropertiesIO {
     @NotNull
     @SerializedName("key_value_properties")
     @JsonProperty("key_value_properties")
+    @Valid
     Set<ValuedPropertyIO> valuedProperties;
 
     @NotNull
