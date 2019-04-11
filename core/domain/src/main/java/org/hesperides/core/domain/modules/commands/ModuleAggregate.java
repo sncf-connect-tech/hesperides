@@ -112,6 +112,9 @@ class ModuleAggregate implements Serializable {
         this.id = event.getModuleId();
         this.key = event.getModule().getKey();
         this.versionId = event.getModule().getVersionId();
+        event.getModule().getTemplates().forEach(template ->
+            this.templates.put(template.getName(), template)
+        );
         log.debug("module créé. (aggregate is live ? {})", isLive());
     }
 
