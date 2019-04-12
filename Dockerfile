@@ -1,6 +1,10 @@
 FROM maven:3-jdk-8-alpine
 WORKDIR /usr/local/src
-COPY . .
+COPY bootstrap bootstrap
+COPY commons commons
+COPY core core
+COPY tests tests
+COPY pom.xml .
 RUN mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 
 
@@ -21,10 +25,10 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localhost:8080/rest/manage/health || exit 1
 
-# -XX:ExitOnOutOfMemoryError // an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
-# -XX:+HeapDumpOnOutOfMemoryError // get a heap dump at the point the application crashes
+# -XX:+ExitOnOutOfMemoryError // an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
+# -XX:+HeapDumpOnOutOfMemoryError // get a heap dump when the app crashes
 CMD ["/usr/bin/java", \
-     "-XX:ExitOnOutOfMemoryError", "-XX:+HeapDumpOnOutOfMemoryError", \
+     "-XX:+ExitOnOutOfMemoryError", "-XX:+HeapDumpOnOutOfMemoryError", \
      "-Xms2g", "-Xmx4g", \
      "-jar", "/hesperides.jar" \
 ]
