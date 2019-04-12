@@ -22,17 +22,15 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import lombok.Value;
+import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,7 +51,21 @@ public class SaveProperties extends HesperidesScenario implements En {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
             propertiesIO = new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet());
-            testContext.responseEntity = platformClient.saveProperties(platformBuilder.buildInput(), propertiesIO, moduleBuilder.getPropertiesPath(), getResponseType(tryTo, PropertiesIO.class));
+            testContext.responseEntity = platformClient.saveProperties(
+                    platformBuilder.buildInput(),
+                    propertiesIO,
+                    moduleBuilder.getPropertiesPath(),
+                    getResponseType(tryTo, PropertiesIO.class));
+        });
+
+        Given("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
+            List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
+            platformBuilder.withIterableProperties(iterableProperties);
+            testContext.responseEntity = platformClient.saveProperties(
+                    platformBuilder.buildInput(),
+                    platformBuilder.getPropertiesIO(false),
+                    moduleBuilder.getPropertiesPath(),
+                    getResponseType(tryTo, PropertiesIO.class));
         });
 
         Then("^the properties are successfully saved$", () -> {
@@ -62,5 +74,44 @@ public class SaveProperties extends HesperidesScenario implements En {
             PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
             assertEquals(expectedProperties, actualProperties);
         });
+    }
+
+    /**
+     * Cette méthode transforme une matrice à deux dimensions
+     * contenant les colonnes "iterable", "bloc", "name", "value"
+     * en une liste de IterableValuedPropertyIO.
+     */
+    public static List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
+        Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
+        // Première étape : transformer la datatable en map
+        // pour mutualiser les données
+        valuedProperties.forEach(iterableProperty -> {
+            Map<String, Map<String, String>> itemMap = iterableMap.getOrDefault(iterableProperty.getIterable(), new HashMap<>());
+            Map<String, String> propertyMap = itemMap.getOrDefault(iterableProperty.getBloc(), new HashMap<>());
+            propertyMap.put(iterableProperty.getName(), iterableProperty.getValue());
+            itemMap.put(iterableProperty.getBloc(), propertyMap);
+            iterableMap.put(iterableProperty.getIterable(), itemMap);
+        });
+        // Deuxième étape : recréer l'arbre des données
+        // attendues en input à l'aide des maps
+        List<IterableValuedPropertyIO> iterableProperties = new ArrayList<>();
+        iterableMap.forEach((iterableName, iterableItems) -> {
+            List<IterablePropertyItemIO> items = new ArrayList<>();
+            iterableItems.forEach((itemTitle, itemProperties) -> {
+                List<AbstractValuedPropertyIO> properties = new ArrayList<>();
+                itemProperties.forEach((propertyName, propertyValue) -> properties.add(new ValuedPropertyIO(propertyName, propertyValue)));
+                items.add(new IterablePropertyItemIO(itemTitle, new HashSet<>(properties)));
+            });
+            iterableProperties.add(new IterableValuedPropertyIO(iterableName, items));
+        });
+        return iterableProperties;
+    }
+
+    @Value
+    public static class IterableProperty {
+        String iterable;
+        String bloc;
+        String name;
+        String value;
     }
 }

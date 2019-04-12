@@ -50,6 +50,7 @@ public class PropertiesIO {
     @NotNull
     @SerializedName("iterable_properties")
     @JsonProperty("iterable_properties")
+    @Valid
     Set<IterableValuedPropertyIO> iterableValuedProperties;
 
     public List<AbstractValuedProperty> toDomainInstances() {
