@@ -70,3 +70,14 @@ Feature: Save properties
       | required-property |        |
       | pattern-property  | avalue |
     Then the request is rejected with a bad request error
+
+  Scenario: saving a property without a value should return an bad request error
+    Given an existing module with this template content
+      """
+      {{ property }}
+      """
+    And an existing platform with this module
+    When I try to save these properties
+      | name     |
+      | property |
+    Then the request is rejected with a bad request error

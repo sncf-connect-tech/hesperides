@@ -276,6 +276,7 @@ public class PlatformBuilder {
         boolean isGlobal;
         boolean isUsed;
         boolean isRemovedFromTemplate;
+
         Property copyWithValue(String newValue) {
             return new Property(
                     name,
