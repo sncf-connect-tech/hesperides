@@ -31,6 +31,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.IterablePro
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,8 +40,10 @@ import java.util.stream.Collectors;
 public class IterablePropertyItemIO {
 
     String title;
+
     @SerializedName("values")
     @JsonProperty("values")
+    @Valid
     Set<AbstractValuedPropertyIO> abstractValuedProperties;
 
     public IterablePropertyItemIO(final IterablePropertyItemView iterablePropertyItemView) {

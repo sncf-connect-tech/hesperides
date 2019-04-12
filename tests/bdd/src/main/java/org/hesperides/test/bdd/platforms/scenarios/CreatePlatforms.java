@@ -23,9 +23,11 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
-import lombok.Value;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.*;
+import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -273,7 +275,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
 
         Given("^the platform has these iterable properties$", (DataTable data) -> {
-            List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
+            List<IterableValuedPropertyIO> iterableProperties = SaveProperties.dataTableToIterableProperties(data.asList(SaveProperties.IterableProperty.class));
             platformBuilder.withIterableProperties(iterableProperties);
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
@@ -382,44 +384,5 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform copy fails with an already exist error$", () -> {
             assertConflict();
         });
-    }
-
-    /**
-     * Cette méthode transforme une matrice à deux dimensions
-     * contenant les colonnes "iterable", "bloc", "name", "value"
-     * en une liste de IterableValuedPropertyIO.
-     */
-    private List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
-        Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
-        // Première étape : transformer la datatable en map
-        // pour mutualiser les données
-        valuedProperties.forEach(iterableProperty -> {
-            Map<String, Map<String, String>> itemMap = iterableMap.getOrDefault(iterableProperty.getIterable(), new HashMap<>());
-            Map<String, String> propertyMap = itemMap.getOrDefault(iterableProperty.getBloc(), new HashMap<>());
-            propertyMap.put(iterableProperty.getName(), iterableProperty.getValue());
-            itemMap.put(iterableProperty.getBloc(), propertyMap);
-            iterableMap.put(iterableProperty.getIterable(), itemMap);
-        });
-        // Deuxième étape : recréer l'arbre des données
-        // attendues en input à l'aide des maps
-        List<IterableValuedPropertyIO> iterableProperties = new ArrayList<>();
-        iterableMap.forEach((iterableName, iterableItems) -> {
-            List<IterablePropertyItemIO> items = new ArrayList<>();
-            iterableItems.forEach((itemTitle, itemProperties) -> {
-                List<AbstractValuedPropertyIO> properties = new ArrayList<>();
-                itemProperties.forEach((propertyName, propertyValue) -> properties.add(new ValuedPropertyIO(propertyName, propertyValue)));
-                items.add(new IterablePropertyItemIO(itemTitle, new HashSet<>(properties)));
-            });
-            iterableProperties.add(new IterableValuedPropertyIO(iterableName, items));
-        });
-        return iterableProperties;
-    }
-
-    @Value
-    private static class IterableProperty {
-        String iterable;
-        String bloc;
-        String name;
-        String value;
     }
 }
