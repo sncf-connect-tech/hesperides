@@ -8,7 +8,10 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hesperides.test.bdd.versions.MatcherUtils.semVerGreaterThan;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class SearchModules extends HesperidesScenario implements En {
 
@@ -59,6 +62,14 @@ public class SearchModules extends HesperidesScenario implements En {
         Then("^the list of module results is limited to (\\d+) items$", (Integer limit) -> {
             assertOK();
             assertEquals(limit.intValue(), getBodyAsArray().length);
+        });
+
+        Then("^the resulting list is ordered using semantic versioning starting by the highest ones$", () -> {
+            assertOK();
+            ModuleIO[] modulesFound = getBodyAsArray();
+            for (int i = 0; i < modulesFound.length - 1; i++) {
+                assertThat(modulesFound[i].getVersion(), semVerGreaterThan(modulesFound[i + 1].getVersion()));
+            }
         });
 
         Then("^the search request is rejected with a bad request error$", () -> {
