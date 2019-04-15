@@ -38,6 +38,21 @@ Feature: Get file
       overwritten-value
       """
 
+  Scenario: get file with default value and an empty string valorization
+    Given an existing module with this template content
+      """
+      {{ default-property | @default default-value }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name             | value |
+      | default-property |       |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      default-value
+      """
+
   Scenario: get file with iterable and default values
     Given an existing module with this template content
       """
@@ -707,6 +722,20 @@ Feature: Get file
     """
 
   Scenario: get file using a set delimiter and with a property default value including mustaches
+    Given an existing module with this template content
+    """
+    {{=<% %>=}}
+    <% property-b | @default '{{ preserved }}' %>
+    """
+    And an existing platform with this module
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+
+
+    """
+
+  Scenario: get file
     Given an existing module with this template content
     """
     {{=<% %>=}}

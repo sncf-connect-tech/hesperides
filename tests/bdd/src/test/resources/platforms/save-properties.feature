@@ -95,7 +95,7 @@ Feature: Save properties
       | a        | bloc-1 | property |
     Then the request is rejected with a bad request error
 
-  Scenario: save a required property without value when it's also a global property should not return an error
+  Scenario: saving a required property without value when it's also defined as a= global property should not return an error
     Given an existing module with this template content
       """
       {{ property }}
