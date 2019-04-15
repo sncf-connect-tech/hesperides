@@ -1,6 +1,7 @@
 package org.hesperides.core.application.files;
 
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @EqualsAndHashCode
@@ -42,7 +42,8 @@ class SimplePropertyVisitor implements PropertyVisitor {
     Map<String, String> getMustacheKeyValues() {
         return propertyModels.stream().collect(Collectors.toMap(
                 PropertyView::getMustacheContent,
-                pm -> propertyValue != null ? propertyValue.getValue() : pm.getDefaultValue()
+                propertyModel -> propertyValue != null && StringUtils.isNotEmpty(propertyValue.getValue())
+                        ? propertyValue.getValue() : propertyModel.getDefaultValue()
         ));
     }
 
