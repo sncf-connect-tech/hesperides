@@ -49,7 +49,7 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
 
     List<ModuleDocument> findAllByTechnosId(String technoId);
 
-    @Query(value = "{ 'key.name': { '$regex' : ?0, '$options' : 'i' }, 'key.version': { '$regex' : ?1, '$options' : 'i' } }")
+    @Query(value = "{ 'key.name': { '$regex' : ?0, '$options' : 'i' }, 'key.version': { '$regex' : ?1, '$options' : 'i' } }", sort = "{ 'key.version' : -1 }")
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
 }

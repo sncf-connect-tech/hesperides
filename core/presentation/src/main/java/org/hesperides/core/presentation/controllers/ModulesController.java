@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.security.User.fromAuthentication;
+import static org.hesperides.core.domain.versions.SemVerComparator.semVerComparing;
 
 @Slf4j
 @Api("/modules")
@@ -214,6 +215,7 @@ public class ModulesController extends AbstractController {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(ModuleIO::new)
+                .sorted(semVerComparing(ModuleIO::getVersion).reversed())
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(moduleOutputs);

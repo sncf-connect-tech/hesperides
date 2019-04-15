@@ -734,17 +734,3 @@ Feature: Get file
 
 
     """
-
-  Scenario: get file
-    Given an existing module with this template content
-    """
-    {{=<% %>=}}
-    <% property-b | @default '{{ preserved }}' %>
-    """
-    And an existing platform with this module
-    When I get the module template file
-    Then the file is successfully retrieved and contains
-    """
-
-
-    """
