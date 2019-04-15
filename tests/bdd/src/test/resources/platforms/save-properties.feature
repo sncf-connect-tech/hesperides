@@ -94,3 +94,18 @@ Feature: Save properties
       | iterable | bloc   | name     |
       | a        | bloc-1 | property |
     Then the request is rejected with a bad request error
+
+  Scenario: save a required property without value when it's also a global property should not return an error
+    Given an existing module with this template content
+      """
+      {{ property }}
+      {{ global-property | @required }}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name            | value        |
+      | global-property | global-value |
+    When I save these properties
+      | name     | value |
+      | property | value |
+    Then the properties are successfully saved

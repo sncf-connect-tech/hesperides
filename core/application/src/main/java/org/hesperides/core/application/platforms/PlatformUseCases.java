@@ -222,7 +222,7 @@ public class PlatformUseCases {
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
-            validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey);
+            validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey, platformKey);
             commands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
@@ -233,10 +233,13 @@ public class PlatformUseCases {
      * Vérifie que les propriétés obligatoires sont bien valorisées
      * et que celles ayant un pattern le respecte bien.
      */
-    private void validateRequiredAndPatternProperties(List<AbstractValuedProperty> abstractValuedProperties, Module.Key moduleKey) {
+    private void validateRequiredAndPatternProperties(List<AbstractValuedProperty> abstractValuedProperties, Module.Key moduleKey, Platform.Key platformKey) {
         // On récupère d'abord toutes les propriétés du module et les propriétés valorisées.
         // Cela inclut les propriétés définies ou valorisées à l'intérieur des propriétés itérables.
         List<ValuedProperty> allValuedProperties = AbstractValuedProperty.getFlatValuedProperties(abstractValuedProperties);
+        // On doit tenir compte des propriétés globales
+        List<ValuedPropertyView> globalProperties = queries.getGlobalProperties(platformKey);
+        allValuedProperties.addAll(ValuedPropertyView.toDomainValuedProperties(globalProperties));
 
         AbstractPropertyView.getFlatProperties(moduleQueries.getPropertiesModel(moduleKey)).forEach(moduleProperty -> {
             List<ValuedProperty> matchingValuedProperties = allValuedProperties.stream()
