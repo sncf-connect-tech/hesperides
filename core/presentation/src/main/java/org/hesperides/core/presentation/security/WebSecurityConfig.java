@@ -44,6 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationProvider authenticationProvider;
 
     private static final String[] AUTH_WHITELIST = {
+            "/versions",
             "/manage/**",
             // -- swagger ui
             "/swagger-resources/**",
