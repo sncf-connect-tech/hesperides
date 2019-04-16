@@ -25,7 +25,7 @@ public class GetTechnos extends HesperidesScenario implements En {
 
         When("^I( try to)? get the techno detail(?: for a techno type \"(.*)\")?( with the wrong letter case)?$", (String tryTo, String technoType, String withWrongLetterCase) -> {
             if (StringUtils.isNotEmpty(technoType)) {
-                technoBuilder.withModuleType(technoType);
+                technoBuilder.withVersionType(technoType);
             }
             TechnoIO technoInput = technoBuilder.build();
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {

@@ -8,6 +8,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,12 @@ public class CopyModules extends HesperidesScenario implements En {
 
     public CopyModules() {
 
-        When("^I( try to)? create a copy of this module( without specifying the version of the source module)?( without specifying whether it is a workingcopy)?$", (String tryTo, String unknownSrcVersion, String unknownSrcWorkingCopy) -> {
+        When("^I( try to)? create a copy of this module" +
+                "( without specifying the version of the source module)?" +
+                "( without specifying whether it is a workingcopy)?$", (
+                String tryTo,
+                String unknownSrcVersion,
+                String unknownSrcWorkingCopy) -> {
             if (!isBlank(unknownSrcWorkingCopy)) {
                 moduleBuilder.withVersionType(null);
             }
@@ -48,7 +54,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
         Given("^a copy of this module changing the name to \"([^\"]*)\"$", (String name) -> {
             ModuleIO existingModule = moduleBuilder.build();
-            ModuleIO newModule = moduleBuilder.withVersionType(ModuleIO.WORKINGCOPY).withName(name).build();
+            ModuleIO newModule = moduleBuilder.withVersionType(TemplateContainerHelper.WORKINGCOPY).withName(name).build();
             moduleClient.copy(existingModule, newModule, ModuleIO.class);
         });
 
@@ -101,7 +107,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
     private ResponseEntity copy(String newVersion, Class responseType) {
         ModuleIO existingModule = moduleBuilder.build();
-        moduleBuilder.withVersionType(ModuleIO.WORKINGCOPY).withVersion(newVersion);
+        moduleBuilder.withVersionType(TemplateContainerHelper.WORKINGCOPY).withVersion(newVersion);
         return moduleClient.copy(existingModule, moduleBuilder.build(), responseType);
     }
 }

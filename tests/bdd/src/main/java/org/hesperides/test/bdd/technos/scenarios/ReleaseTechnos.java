@@ -7,6 +7,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +33,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
             }
             technoClient.create(templateBuilder.build(), technoBuilder.build());
             technoClient.release(technoBuilder.build());
-            technoBuilder.withModuleType(TechnoIO.RELEASE);
+            technoBuilder.withVersionType(TemplateContainerHelper.RELEASE);
         });
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
@@ -41,7 +42,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
 
         Then("^the techno is successfully released$", () -> {
             assertCreated();
-            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withModuleType(TechnoIO.RELEASE);
+            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersionType(TemplateContainerHelper.RELEASE);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
             TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);

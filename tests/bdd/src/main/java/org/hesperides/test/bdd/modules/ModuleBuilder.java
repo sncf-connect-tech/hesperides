@@ -23,12 +23,11 @@ package org.hesperides.test.bdd.modules;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.hesperides.core.presentation.io.ModuleIO.WORKINGCOPY;
 
 @Component
 public class ModuleBuilder {
@@ -50,7 +49,7 @@ public class ModuleBuilder {
         // Valeurs par défaut
         name = "test-module";
         version = "1.0.0";
-        versionType = WORKINGCOPY;
+        versionType = TemplateContainerHelper.WORKINGCOPY;
         technos = new ArrayList<>();
         templates = new ArrayList<>();
         versionId = 0;
@@ -96,7 +95,7 @@ public class ModuleBuilder {
     }
 
     public ModuleIO build() {
-        return new ModuleIO(name, version, isWorkingCopy(), technos, versionId);
+        return new ModuleIO(name, version, TemplateContainerHelper.isWorkingCopy(versionType), technos, versionId);
     }
 
     public String getNamespace() {
@@ -121,10 +120,6 @@ public class ModuleBuilder {
 
     public String getVersionType() {
         return versionType;
-    }
-
-    public Boolean isWorkingCopy() {
-        return versionType == WORKINGCOPY;
     }
 
     public ModuleBuilder withTemplate(TemplateIO template) {
