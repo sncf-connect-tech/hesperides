@@ -24,6 +24,10 @@ server:
     enabled: true
     mime-types: application/json
 
+hesperides:
+  security:
+    auth-whitelist: ${AUTH_WHITELIST:/versions|/manage/**|/swagger-resources/|/swagger-ui.html|/v2/api-docs|/webjars/**}
+
 ldap:
   url: ${LDAP_URL}
   domain: ${LDAP_DOMAIN}

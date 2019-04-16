@@ -21,6 +21,7 @@
 package org.hesperides.core.presentation.security;
 
 import org.hesperides.core.domain.security.AuthenticationProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -43,15 +44,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationProvider authenticationProvider;
 
-    private static final String[] AUTH_WHITELIST = {
-            "/versions",
-            "/manage/**",
-            // -- swagger ui
-            "/swagger-resources/**",
-            "/swagger-ui.html",
-            "/v2/api-docs",
-            "/webjars/**"
-    };
+    @Value("#{'${hesperides.security.auth-whitelist}'.split('\\|')}")
+    String[] authWhitelist;
 
     public WebSecurityConfig(final AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
@@ -63,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(STATELESS);
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers(authWhitelist).permitAll()
                 .anyRequest()
                 .fullyAuthenticated()
                 .and()
