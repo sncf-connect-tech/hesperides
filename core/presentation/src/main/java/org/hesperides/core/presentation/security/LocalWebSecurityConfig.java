@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,15 +14,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Profile(NOLDAP)
 public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final String[] AUTH_WHITELIST = {
-            "/versions",
-            "/manage/**",
-            // -- swagger ui:
-            "/swagger-resources/**",
-            "/swagger-ui.html",
-            "/v2/api-docs",
-            "/webjars/**"
-    };
+    @Value("#{'${hesperides.security.auth-whitelist}'.split('\\|')}")
+    String[] authWhitelist;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -29,7 +23,7 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(STATELESS);
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers(authWhitelist).permitAll()
                 .anyRequest().fullyAuthenticated()
                 .and().httpBasic();
     }
