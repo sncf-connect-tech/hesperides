@@ -81,3 +81,6 @@ management:
       base-path: /manage
       exposure:
         include: '*'
+
+swagger:
+  host: ${SWAGGER_HOST:}
