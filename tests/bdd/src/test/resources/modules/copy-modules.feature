@@ -27,10 +27,8 @@ Feature: Copy modules
   Scenario: copy a module without specifying if source module is a working copy
     Given an existing techno with properties
     Given a released module with properties and this techno
-    When I create a copy of this module without specifying whether it is a workingcopy
-    Then the module is successfully duplicated
-    But the version type of the duplicated module is working copy
-    And the model of the module is the same
+    When I try to create a copy of this module without specifying whether it is a workingcopy
+    Then the module copy is rejected with a bad request error
 
   Scenario: copy a module that doesn't exist
     Given a module that doesn't exist

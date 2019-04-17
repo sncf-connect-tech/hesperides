@@ -28,6 +28,7 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,7 @@ public class DeployedModuleIO {
     String name;
     @OnlyPrintableCharacters(subject = "deployedModules.version")
     String version;
+    @NotNull
     @SerializedName("working_copy")
     @JsonProperty("working_copy")
     Boolean isWorkingCopy;

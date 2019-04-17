@@ -28,6 +28,7 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,13 +38,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class TechnoIO {
 
-    public final static String WORKINGCOPY = "workingcopy";
-    public final static String RELEASE = "release";
-
     @OnlyPrintableCharacters(subject = "name")
     String name;
     @OnlyPrintableCharacters(subject = "version")
     String version;
+    @NotNull
     @SerializedName("working_copy")
     @JsonProperty("working_copy")
     Boolean isWorkingCopy;
@@ -72,9 +71,5 @@ public class TechnoIO {
                 .stream()
                 .map(TechnoIO::new)
                 .collect(Collectors.toList());
-    }
-
-    public String getVersionType() {
-        return isWorkingCopy ? WORKINGCOPY : RELEASE;
     }
 }

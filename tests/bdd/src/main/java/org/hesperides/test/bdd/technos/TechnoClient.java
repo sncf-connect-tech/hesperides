@@ -23,6 +23,7 @@ package org.hesperides.test.bdd.technos;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -50,7 +51,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType());
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity search(String terms) {
@@ -84,7 +85,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType());
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity copy(TechnoIO existingTechnoInput, TechnoIO newTechnoInput, Class responseType) {
@@ -101,7 +102,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType());
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()));
 
     }
 
@@ -125,7 +126,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType());
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity getTemplates(TechnoIO technoInput, Class responseType) {
@@ -133,7 +134,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType());
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()));
     }
 
     public List<PartialTemplateIO> getTemplates(TechnoIO technoInput) {
@@ -146,7 +147,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType(),
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()),
                 templateName);
     }
 
@@ -157,7 +158,7 @@ public class TechnoClient {
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
-                technoInput.getVersionType(),
+                TemplateContainerHelper.getVersionType(technoInput.getIsWorkingCopy()),
                 templateName);
     }
 
@@ -172,5 +173,4 @@ public class TechnoClient {
     public ResponseEntity<String[]> getTypes(String name, String version) {
         return restTemplate.getForEntity("/templates/packages/{name}/{version}", String[].class, name, version);
     }
-
 }

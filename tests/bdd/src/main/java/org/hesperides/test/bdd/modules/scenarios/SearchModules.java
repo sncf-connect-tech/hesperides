@@ -6,6 +6,7 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
@@ -67,14 +68,14 @@ public class SearchModules extends HesperidesScenario implements En {
 
         Then("^I get the working copy version of this module$", () -> {
             assertOK();
-            ModuleIO expectedModule = moduleBuilder.withVersionType(ModuleIO.WORKINGCOPY).build();
+            ModuleIO expectedModule = moduleBuilder.withVersionType(TemplateContainerHelper.WORKINGCOPY).build();
             ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 
         Then("^I get the released version of this module$", () -> {
             assertOK();
-            ModuleIO expectedModule = moduleBuilder.withVersionType(ModuleIO.RELEASE).build();
+            ModuleIO expectedModule = moduleBuilder.withVersionType(TemplateContainerHelper.RELEASE).build();
             ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });

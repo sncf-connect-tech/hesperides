@@ -29,7 +29,8 @@ public class TemplateView {
     }
 
     public Template toDomainInstance(TemplateContainer.Key key) {
-        return new Template(name, filename, location, content, rights.toDomainInstance(), versionId, key);
+        Template.Rights rights = this.rights != null ? this.rights.toDomainInstance() : null;
+        return new Template(name, filename, location, content, rights, versionId, key);
     }
 
     @Value

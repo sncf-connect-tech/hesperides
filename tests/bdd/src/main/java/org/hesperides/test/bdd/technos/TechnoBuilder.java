@@ -23,12 +23,11 @@ package org.hesperides.test.bdd.technos;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.hesperides.core.presentation.io.TechnoIO.WORKINGCOPY;
 
 @Component
 public class TechnoBuilder {
@@ -48,7 +47,7 @@ public class TechnoBuilder {
         // Valeurs par défaut
         name = "test-techno";
         version = "1.0.0";
-        versionType = WORKINGCOPY;
+        versionType = TemplateContainerHelper.WORKINGCOPY;
         properties = new ArrayList<>();
         templates = new ArrayList<>();
     }
@@ -67,13 +66,13 @@ public class TechnoBuilder {
         return this;
     }
 
-    public TechnoBuilder withModuleType(String versionType) {
+    public TechnoBuilder withVersionType(String versionType) {
         this.versionType = versionType;
         return this;
     }
 
     public TechnoIO build() {
-        return new TechnoIO(name, version, isWorkingCopy());
+        return new TechnoIO(name, version, TemplateContainerHelper.isWorkingCopy(versionType));
     }
 
     public String getNamespace() {
@@ -90,10 +89,6 @@ public class TechnoBuilder {
 
     public String getVersionType() {
         return versionType;
-    }
-
-    public Boolean isWorkingCopy() {
-        return versionType == WORKINGCOPY;
     }
 
     public TechnoBuilder withTemplate(TemplateIO template) {

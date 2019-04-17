@@ -113,13 +113,23 @@ public class CreateModules extends HesperidesScenario implements En {
             }
         });
 
-        Given("^a module to create(?: with the same name and version)?( with this techno)?( but different letter case)?$", (String withThisTechno, String withDifferentCase) -> {
+        Given("^a module to create" +
+                "(?: with the same name and version)?" +
+                "( with this techno)?" +
+                "( but different letter case)?" +
+                "( without a version type)?$", (
+                String withThisTechno,
+                String withDifferentCase,
+                String withoutVersionType) -> {
             moduleBuilder.reset();
             if (StringUtils.isNotEmpty(withDifferentCase)) {
                 moduleBuilder.withName(moduleBuilder.getName().toUpperCase());
             }
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
+            }
+            if (StringUtils.isNotEmpty(withoutVersionType)) {
+                moduleBuilder.withVersionType(null);
             }
         });
 
@@ -135,6 +145,21 @@ public class CreateModules extends HesperidesScenario implements En {
             templateBuilder.withName("template2").withFilename("template2.json").setContent(templateContent);
             moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
         });
+
+        Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$",
+                (String propertyName, String versions) -> {
+                    addPropertyToBuilders(propertyName);
+                    moduleBuilder.withTemplate(templateBuilder.build());
+                    Arrays.stream(versions.split(", ")).forEach(version -> {
+                        moduleBuilder.withVersion(version);
+                        testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                        assertCreated();
+                        moduleBuilder.withVersionId(1);
+                        testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+                        assertCreated();
+                        moduleHistory.addModule();
+                    });
+                });
 
         When("^I( try to)? create this module$", (String tryTo) -> {
             testContext.responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
@@ -154,19 +179,9 @@ public class CreateModules extends HesperidesScenario implements En {
         Then("^the module creation is rejected with a not found error$", () -> {
             assertNotFound();
         });
-        Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$",
-                (String propertyName, String versions) -> {
-            addPropertyToBuilders(propertyName);
-            moduleBuilder.withTemplate(templateBuilder.build());
-            Arrays.stream(versions.split(", ")).forEach(version -> {
-                moduleBuilder.withVersion(version);
-                testContext.responseEntity = moduleClient.create(moduleBuilder.build());
-                assertCreated();
-                moduleBuilder.withVersionId(1);
-                testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
-                assertCreated();
-                moduleHistory.addModule();
-            });
+
+        Then("^the module creation is rejected with a bad request error$", () -> {
+            assertBadRequest();
         });
     }
 

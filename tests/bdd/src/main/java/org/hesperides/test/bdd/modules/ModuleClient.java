@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.TechnoModulesOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -99,12 +100,15 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                moduleInput.getVersionType());
+                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity copy(ModuleIO existingModuleInput, ModuleIO newModuleInput, Class responseType) {
-        // We need to tret isWorkingCopy separately here as it can be null in the tests, whereas ModuleIO.isWorkingCopy can never be null (and it is a GOOD thing)
-        return restTemplate.postForEntity("/modules?from_module_name={name}&from_module_version={version}&from_is_working_copy={isWorkingCopy}",
+        String url = "/modules?from_module_name={name}&from_module_version={version}";
+        if (existingModuleInput.getIsWorkingCopy() != null) {
+            url += "&from_is_working_copy={isWorkingCopy}";
+        }
+        return restTemplate.postForEntity(url,
                 newModuleInput,
                 responseType,
                 existingModuleInput.getName(),
@@ -117,7 +121,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                moduleInput.getVersionType());
+                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
 
     }
 
@@ -132,7 +136,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                moduleInput.getVersionType());
+                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
@@ -142,7 +146,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                moduleInput.getVersionType());
+                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity getTemplates(ModuleIO moduleInput, Class responseType) {
@@ -150,7 +154,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                moduleInput.getVersionType());
+                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
     }
 
     public List<PartialTemplateIO> getTemplates(ModuleIO moduleInput) {
@@ -172,7 +176,7 @@ public class ModuleClient {
                     responseType,
                     moduleInput.getName(),
                     moduleInput.getVersion(),
-                    moduleInput.getVersionType());
+                    TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
         } finally {
             defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
         }
@@ -185,7 +189,7 @@ public class ModuleClient {
                 responseType,
                 urlEncodeUtf8(moduleInput.getName()),
                 urlEncodeUtf8(moduleInput.getVersion()),
-                moduleInput.getVersionType());
+                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity<String[]> getNames() {

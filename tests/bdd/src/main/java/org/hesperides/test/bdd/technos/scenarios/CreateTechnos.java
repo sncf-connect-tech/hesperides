@@ -62,7 +62,10 @@ public class CreateTechnos extends HesperidesScenario implements En {
             }
         });
 
-        Given("^a techno to create(?: with the same name and version)?( but different letter case)?$", (String withDifferentLetterCase) -> {
+        Given("^a techno to create" +
+                "(?: with the same name and version)?" +
+                "( but different letter case)?$", (
+                String withDifferentLetterCase) -> {
             if (StringUtils.isNotEmpty(withDifferentLetterCase)) {
                 technoBuilder.withName(technoBuilder.getName().toUpperCase());
             }

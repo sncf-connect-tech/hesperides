@@ -33,3 +33,8 @@ Feature: Create modules
     And a module to create with this techno
     When I try to create this module
     Then the module creation is rejected with a not found error
+
+  Scenario: create a module without a version type
+    Given a module to create without a version type
+    When I try to create this module
+    Then the module creation is rejected with a bad request error
