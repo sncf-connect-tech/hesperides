@@ -39,7 +39,7 @@ Feature: Update techno templates
     Given an existing techno
     And the template has an invalid property
     When I try to update this techno template
-    Then the techno template update is rejected with an internal server error
+    Then the techno template update is rejected with a bad request error
 
    Scenario: update an existing template in a techno and check the new versionID
      Given an existing techno

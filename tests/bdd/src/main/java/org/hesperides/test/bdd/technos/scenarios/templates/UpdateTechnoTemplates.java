@@ -69,6 +69,10 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
             assertInternalServerError();
         });
 
+        Then("^the techno template update is rejected with a bad request error$", () -> {
+            assertBadRequest();
+        });
+
         Then("^the techno template is updated$", () -> {
             assertOK();
             String expectedNamespace = technoBuilder.getNamespace();
