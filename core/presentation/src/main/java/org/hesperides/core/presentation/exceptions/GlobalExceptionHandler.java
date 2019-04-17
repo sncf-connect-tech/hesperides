@@ -11,6 +11,7 @@ import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
 import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
+import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             IllegalArgumentException.class,
             RequiredPropertyWithDefaultValueException.class,
             UpdateReleaseException.class,
-            InvalidPropertyValorisationException.class})
+            InvalidPropertyValorisationException.class,
+            InvalidTemplateException.class})
     public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
@@ -76,12 +78,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleUnexpectedException(Exception ex, WebRequest request) {
+        String path = request.getDescription(false);
+        logger.error("Unexpected error (path=" + path + "):");
         logger.error(ex);
         Map<String, Object> jsonData = new HashMap<>();
         jsonData.put("message", StringUtils.isNotEmpty(ex.getMessage()) ? ex.getMessage() : ex.toString());
         jsonData.put("status", "500");
         jsonData.put("error", "Internal Server Error");
-        jsonData.put("path", request.getDescription(false));
+        jsonData.put("path", path);
         jsonData.put("stack_trace", ExceptionUtils.getStackTrace(ex));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonData);
     }
