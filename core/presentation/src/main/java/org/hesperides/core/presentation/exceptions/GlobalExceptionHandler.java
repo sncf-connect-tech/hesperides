@@ -12,12 +12,14 @@ import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeE
 import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
 import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.WebUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,9 +73,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Exceptions non gérées
-     *
-     * @param ex
-     * @return
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleUnexpectedException(Exception ex, WebRequest request) {
@@ -85,5 +84,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         jsonData.put("path", request.getDescription(false));
         jsonData.put("stack_trace", ExceptionUtils.getStackTrace(ex));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonData);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
+            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+        }
+        return new ResponseEntity<>(body != null ? body : ex.getMessage(), headers, status);
     }
 }
