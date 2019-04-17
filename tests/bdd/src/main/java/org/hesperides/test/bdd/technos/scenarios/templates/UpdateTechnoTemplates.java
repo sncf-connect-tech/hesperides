@@ -70,7 +70,7 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
         });
 
         Then("^the techno template update is rejected with a bad request error$", () -> {
-            assertInternalServerError();
+            assertBadRequest();
         });
 
         Then("^the techno template is updated$", () -> {
