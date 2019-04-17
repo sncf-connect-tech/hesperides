@@ -4,11 +4,14 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTags;
+import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -22,11 +25,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 import springfox.documentation.spring.web.json.Json;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static java.lang.reflect.Modifier.*;
 
 @Configuration
 @EnableWebMvc
@@ -86,5 +90,29 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                     }
                 })
                 .create();
+    }
+
+    // Configuration des tags multi-dimensionnels Prometheus
+    // Inspiré de org.springframework.boot.actuate.metrics.web.servlet.DefaultWebMvcTagsProvider
+    @Bean
+    public WebMvcTagsProvider webMvcTagsProvider() {
+        return new WebMvcTagsProvider() {
+            @Override
+            public Iterable<Tag> getTags(HttpServletRequest request, HttpServletResponse response, Object handler, Throwable exception) {
+                List<Tag> tags = new ArrayList<>();
+                tags.add(WebMvcTags.method(request));
+                tags.add(Tag.of("path", request.getRequestURI()));
+                tags.add(WebMvcTags.exception(exception));
+                tags.add(WebMvcTags.status(response));
+                tags.add(WebMvcTags.outcome(response));
+                tags.add(Tag.of("user-agent", request.getHeader("User-Agent")));
+                return tags;
+            }
+
+            @Override
+            public Iterable<Tag> getLongRequestTags(HttpServletRequest request, Object handler) {
+                return Tags.of(WebMvcTags.method(request), WebMvcTags.uri(request, null));
+            }
+        };
     }
 }
