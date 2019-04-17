@@ -86,7 +86,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         jsonData.put("status", "500");
         jsonData.put("error", "Internal Server Error");
         jsonData.put("path", path);
-        jsonData.put("stack_trace", ExceptionUtils.getStackTrace(ex));
+        jsonData.put("stacktrace", ExceptionUtils.getStackTrace(ex));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonData);
     }
 
