@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+
 @Configuration
 @EnableWebMvc
 public class PresentationConfiguration implements WebMvcConfigurer {
@@ -101,11 +103,13 @@ public class PresentationConfiguration implements WebMvcConfigurer {
             public Iterable<Tag> getTags(HttpServletRequest request, HttpServletResponse response, Object handler, Throwable exception) {
                 List<Tag> tags = new ArrayList<>();
                 tags.add(WebMvcTags.method(request));
+                tags.add(WebMvcTags.uri(request, response));
                 tags.add(Tag.of("path", request.getRequestURI()));
+                tags.add(Tag.of("query", defaultString(request.getQueryString())));
                 tags.add(WebMvcTags.exception(exception));
                 tags.add(WebMvcTags.status(response));
                 tags.add(WebMvcTags.outcome(response));
-                tags.add(Tag.of("user-agent", request.getHeader("User-Agent")));
+                tags.add(Tag.of("user-agent", defaultString(request.getHeader("User-Agent"))));
                 return tags;
             }
 
