@@ -101,7 +101,9 @@ public class PresentationConfiguration implements WebMvcConfigurer {
             public Iterable<Tag> getTags(HttpServletRequest request, HttpServletResponse response, Object handler, Throwable exception) {
                 List<Tag> tags = new ArrayList<>();
                 tags.add(WebMvcTags.method(request));
+                tags.add(WebMvcTags.uri(request, response));
                 tags.add(Tag.of("path", request.getRequestURI()));
+                tags.add(Tag.of("query", request.getQueryString()));
                 tags.add(WebMvcTags.exception(exception));
                 tags.add(WebMvcTags.status(response));
                 tags.add(WebMvcTags.outcome(response));
