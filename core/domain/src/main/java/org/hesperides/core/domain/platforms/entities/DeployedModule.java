@@ -150,4 +150,8 @@ public class DeployedModule {
                 instances,
                 instancesModel);
     }
+
+    public boolean isActiveModule() {
+        return id != null && id > 0;
+    }
 }
