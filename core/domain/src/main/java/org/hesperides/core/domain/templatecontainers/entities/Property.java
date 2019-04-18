@@ -103,10 +103,9 @@ public class Property extends AbstractProperty {
                         }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT, propertyAnnotations)) {
-                        String value = extractValueAfterFirstSpace(annotationDefinition);
                         validateIsBlank(comment, String.format("Property '%s' has more than one comment", name));
                         // #311
-                        if (onlyStartsWithQuotes(value)) {
+                        if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
                             // #324
                             String valueBetweenQuotes = extractCommentThatStartsWithQuotes(propertyAnnotations);
                             if (valueBetweenQuotes != null) {
