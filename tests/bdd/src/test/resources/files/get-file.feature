@@ -750,3 +750,18 @@ Feature: Get file
     """
     a-b
     """
+
+  Scenario: get file with a global property used in a template but with an annotation
+    Given an existing module with this template content
+      """
+      {{ global-property | @default 12 }}
+      """
+    And an existing platform with this module
+    And the platform has these global properties
+      | name            | value        |
+      | global-property | global-value |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+      global-value
+      """
