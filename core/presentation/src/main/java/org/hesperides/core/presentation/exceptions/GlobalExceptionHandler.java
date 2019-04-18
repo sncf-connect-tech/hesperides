@@ -12,7 +12,6 @@ import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeE
 import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
 import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
 import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
-import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +49,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({
             IllegalArgumentException.class,
-            RequiredPropertyWithDefaultValueException.class,
             UpdateReleaseException.class,
             InvalidPropertyValorisationException.class,
             InvalidTemplateException.class})

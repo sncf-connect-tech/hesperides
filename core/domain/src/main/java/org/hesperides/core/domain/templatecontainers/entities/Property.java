@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.commons.spring.HasProfile;
-import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -98,12 +97,13 @@ public class Property extends AbstractProperty {
                     if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_REQUIRED, propertyAnnotations)) {
                         // #318
                         if (annotationIsFollowedBySpace(AnnotationType.IS_REQUIRED, propertyAnnotations)) {
-                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition),
+                                    String.format("Property '%s' has a @required annotation that should not be followed by a value", name));
                             isRequired = true;
                         }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.COMMENT, propertyAnnotations)) {
-                        validateIsBlank(comment);
+                        validateIsBlank(comment, String.format("Property '%s' has more than one comment", name));
                         // #311
                         if (onlyStartsWithQuotes(extractValueAfterFirstSpace(annotationDefinition))) {
                             // #324
@@ -121,21 +121,22 @@ public class Property extends AbstractProperty {
                         }
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.DEFAULT_VALUE, propertyAnnotations)) {
-                        validateIsBlank(defaultValue);
+                        validateIsBlank(defaultValue, String.format("Property '%s' has more than one default value", name));
                         defaultValue = extractAnnotationValueLegacyStyle(annotationDefinition);
-                        validateIsNotBlank(defaultValue);
-                        validateDoesntStartWithArobase(defaultValue);
+                        validateIsNotBlank(defaultValue, String.format("Property '%s' has an empty or invalid default value", name));
+                        validateDoesntStartWithArobase(defaultValue, name);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.PATTERN, propertyAnnotations)) {
-                        validateIsBlank(pattern);
+                        validateIsBlank(pattern, String.format("Property '%s' has more than one pattern", name));
                         pattern = extractAnnotationValueLegacyStyle(annotationDefinition);
-                        validateIsNotBlank(pattern);
-                        validateDoesntStartWithArobase(pattern);
+                        validateIsNotBlank(pattern, String.format("Property '%s' has an empty or invalid pattern", name));
+                        validateDoesntStartWithArobase(pattern, name);
 
                     } else if (annotationDefinitionStartsWith(annotationDefinition, AnnotationType.IS_PASSWORD, propertyAnnotations)) {
                         // #318
                         if (annotationIsFollowedBySpace(AnnotationType.IS_PASSWORD, propertyAnnotations)) {
-                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition));
+                            validateIsBlank(extractAnnotationValueLegacyStyle(annotationDefinition),
+                                    String.format("Property '%s' has a @password annotation that should not be followed by a value", name));
                             isPassword = true;
                         }
                     }
@@ -164,25 +165,25 @@ public class Property extends AbstractProperty {
 
     private static void validateRequiredOrDefaultValue(String name, boolean isRequired, String defaultValue) {
         if (!HasProfile.dataMigration() && isRequired && !StringUtils.isEmpty(defaultValue)) {
-            throw new RequiredPropertyWithDefaultValueException(name);
+            throw new IllegalArgumentException(String.format("Property '%s' cannot have both annotations @required and @default", name));
         }
     }
 
-    private static void validateIsBlank(String value) {
+    private static void validateIsBlank(String value, String errorMessage) {
         if (!HasProfile.dataMigration() && StringUtils.isNotBlank(value)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(errorMessage);
         }
     }
 
-    private static void validateIsNotBlank(String value) {
+    private static void validateIsNotBlank(String value, String errorMessage) {
         if (!HasProfile.dataMigration() && StringUtils.isBlank(value)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(errorMessage);
         }
     }
 
-    private static void validateDoesntStartWithArobase(String value) {
+    private static void validateDoesntStartWithArobase(String value, String propertyName) {
         if (!HasProfile.dataMigration() && value != null && value.startsWith("@")) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(String.format("Unknown annotation '%s' in property '%s'", value, propertyName));
         }
     }
 

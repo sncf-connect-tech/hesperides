@@ -20,7 +20,6 @@
  */
 package org.hesperides.core.domain.templatecontainers.entities;
 
-import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
 import org.junit.Test;
 
 import java.util.List;
@@ -324,80 +323,104 @@ public class PropertyTest {
                 Property.extractProperty("antislash|@comment \"\\\\\\\\\\u\""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    private void failExtractingProperty(String propertyDefinition, String expectedErrorMessage) {
+        String actualErrorMessage = null;
+        try {
+            Property.extractProperty(propertyDefinition);
+        } catch (IllegalArgumentException e) {
+            actualErrorMessage = e.getMessage();
+        }
+        assertEquals(expectedErrorMessage, actualErrorMessage);
+    }
+
+    @Test
     public void requiredWithValueIsNotAllowed() {
-        Property.extractProperty("required with value|@required true");
+        failExtractingProperty("required with value|@required true",
+                "Property 'required with value' has a @required annotation that should not be followed by a value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void passwordWithValueIsNotAllowed() {
-        Property.extractProperty("password with value|@password true");
+        failExtractingProperty("password with value|@password true",
+                "Property 'password with value' has a @password annotation that should not be followed by a value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void missingDefaultValueIsNotAllowed() {
-        Property.extractProperty("missing default value|@default ");
+        failExtractingProperty("missing default value|@default ",
+                "Property 'missing default value' has an empty or invalid default value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void emptyDefaultValueIsNotAllowed() {
-        Property.extractProperty("empty default value|@default \"\"");
+        failExtractingProperty("empty default value|@default \"\"",
+                "Property 'empty default value' has an empty or invalid default value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void blankDefaultValueIsNotAllowed() {
-        Property.extractProperty("blank default value|@default \"  \"");
+        failExtractingProperty("blank default value|@default \"  \"",
+                "Property 'blank default value' has an empty or invalid default value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void missingPatternIsNotAllowed() {
-        Property.extractProperty("missing pattern|@pattern ");
+        failExtractingProperty("missing pattern|@pattern ",
+                "Property 'missing pattern' has an empty or invalid pattern");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void emptyPatternIsNotAllowed() {
-        Property.extractProperty("empty pattern|@pattern \"\"");
+        failExtractingProperty("empty pattern|@pattern \"\"",
+                "Property 'empty pattern' has an empty or invalid pattern");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void blankPatternIsNotAllowed() {
-        Property.extractProperty("blank pattern|@pattern \" \"");
+        failExtractingProperty("blank pattern|@pattern \" \"",
+                "Property 'blank pattern' has an empty or invalid pattern");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void overriddenCommentIsNotAllowed() {
-        Property.extractProperty("overridden comment|first comment @comment 'second one'");
+        failExtractingProperty("overridden comment|first comment @comment second one",
+                "Property 'overridden comment' has more than one comment");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void unknownAnnotationIsNotAllowed() {
-        // Ce test est OK pour l'instant mais ne le sera plus quand il faudra utliser des exceptions spécifiques
-        Property.extractProperty("unknown annotation|@default @oops");
+        failExtractingProperty("unknown annotation|@default @oops",
+                "Unknown annotation '@oops' in property 'unknown annotation'");
     }
 
-    @Test(expected = RequiredPropertyWithDefaultValueException.class)
+    @Test
     public void requiredDefaultValueIsNotAllowed() {
-        Property.extractProperty("required default value|@required @default 12");
+        failExtractingProperty("required default value|@required @default 12",
+                "Property 'required default value' cannot have both annotations @required and @default");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void multipleCommentsAreNotAllowed() {
-        Property.extractProperty("multiple comments|@comment x @comment y");
+        failExtractingProperty("multiple comments|@comment x @comment y",
+                "Property 'multiple comments' has more than one comment");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void multipleDefaultsAreNotAllowed() {
-        Property.extractProperty("multiple defaults|@default 12 @default 13");
+        failExtractingProperty("multiple defaults|@default 12 @default 13",
+                "Property 'multiple defaults' has more than one default value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void multiplePatternsAreNotAllowed() {
-        Property.extractProperty("multiple patterns|@pattern * @pattern ?");
+        failExtractingProperty("multiple patterns|@pattern * @pattern ?",
+                "Property 'multiple patterns' has more than one pattern");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void patternThatStartsButDoesntEndWithQuotesIsNotAllowed() {
-        Property.extractProperty("pattern that starts but doesn't end with quotes | @pattern \"*");
+        failExtractingProperty("pattern that starts but doesn't end with quotes | @pattern \"*",
+                "Property 'pattern that starts but doesn't end with quotes' has an empty or invalid pattern");
     }
 
     @Test
