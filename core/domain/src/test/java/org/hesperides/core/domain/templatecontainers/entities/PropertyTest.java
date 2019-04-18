@@ -21,7 +21,6 @@
 package org.hesperides.core.domain.templatecontainers.entities;
 
 import org.hesperides.core.domain.templatecontainers.exceptions.RequiredPropertyWithDefaultValueException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -134,6 +133,9 @@ public class PropertyTest {
 
         assertProperty(new Property("comment that is an email address| @comment 'name@email.com' ", "comment that is an email address", false, "name@email.com", "", "", false),
                 Property.extractProperty("comment that is an email address| @comment 'name@email.com' "));
+
+        assertProperty(new Property("comment without annotation but with 2 arobases| @admin and @user", "comment without annotation but with 2 arobases", false, "@admin and @user", "", "", false),
+                Property.extractProperty("comment without annotation but with 2 arobases| @admin and @user"));
 
         // Annotations avec et sans majuscules
 
@@ -398,12 +400,6 @@ public class PropertyTest {
         Property.extractProperty("pattern that starts but doesn't end with quotes | @pattern \"*");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    @Ignore
-    public void commentWithoutAnnotationButWithTwoArobase() {
-        Property.extractProperty("comment without annotation but with 2 arobases| @admin and @user");
-    }
-
     @Test
     public void testStartsWithKnownAnnotation() {
         assertEquals(true, Property.startsWithKnownAnnotation("@required"));
@@ -471,5 +467,12 @@ public class PropertyTest {
                 assertProperty(new Property("foo|@required", "foo", true, null, "", "", false), propertyBar);
             }
         });
+    }
+
+    @Test
+    public void testExtractPropertyWithDefaultValueContainingProperties() {
+        assertProperty(new Property("default-contains-properties | @default \"\\{\\{property-a\\}\\}/\\{\\{property-b\\}\\}\"",
+                        "default-contains-properties", false, null, "{{property-a}}/{{property-b}}", "", false),
+                (Property) Property.extractPropertiesFromStringContent("{{default-contains-properties | @default \"\\{\\{property-a\\}\\}/\\{\\{property-b\\}\\}\"}}").get(0));
     }
 }
