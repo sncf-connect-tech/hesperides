@@ -56,3 +56,8 @@ Feature: Create platform
     When I delete this platform
     And I create this platform
     Then the platform is successfully created
+
+  Scenario: create a platform with a space character in its version
+    Given a platform to create with version "a b"
+    When I create this platform
+    Then the platform is successfully created

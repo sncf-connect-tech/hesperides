@@ -28,6 +28,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +48,7 @@ public class PlatformIO {
     @SerializedName("application_name")
     @JsonProperty("application_name")
     String applicationName;
-    @OnlyPrintableCharacters(subject = "application_version")
+    @NotEmpty
     @SerializedName("application_version")
     @JsonProperty("application_version")
     String version;
