@@ -734,3 +734,19 @@ Feature: Get file
 
     {{ preserved }}
     """
+
+  Scenario: get file with a property that has 2 properties in its default value
+    Given an existing module with this template content
+    """
+    {{ property | @default "\{\{property-a\}\}-\{\{property-b\}\}" }}
+    """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name       | value |
+      | property-a | a     |
+      | property-b | b     |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+    """
+    a-b
+    """
