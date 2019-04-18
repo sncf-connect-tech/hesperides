@@ -202,8 +202,19 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^a( prod)? platform to create(?:, named \"([^\"]*)\")?( with this module(?: associated to an empty path)?)?( with an instance( with properties)?)?( with the same name but different letter case)?$", (
-                String isProd, String platformName, String withThisModule, String withAnInstance, String withProperties, String sameNameDifferentLetterCase) -> {
+        Given("^a( prod)? platform to create" +
+                "(?:, named \"([^\"]*)\")?" +
+                "(?: with version \"([^\"]*)\")?" +
+                "( with this module(?: associated to an empty path)?)?" +
+                "( with an instance( with properties)?)?" +
+                "( with the same name but different letter case)?$", (
+                String isProd,
+                String platformName,
+                String platformVersion,
+                String withThisModule,
+                String withAnInstance,
+                String withProperties,
+                String sameNameDifferentLetterCase) -> {
 
             if (isNotEmpty(isProd)) {
                 platformBuilder.withIsProductionPlatform(true);
@@ -213,6 +224,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withPlatformName(platformName);
             } else if (isNotEmpty(sameNameDifferentLetterCase)) {
                 platformBuilder.withPlatformName(platformBuilder.getPlatformName().toUpperCase());
+            }
+
+            if (isNotEmpty(platformVersion)) {
+                platformBuilder.withVersion(platformVersion);
             }
 
             if (isNotEmpty(withThisModule)) {
