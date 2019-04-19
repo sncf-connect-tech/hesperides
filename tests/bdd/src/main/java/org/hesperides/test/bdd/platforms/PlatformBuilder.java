@@ -39,7 +39,7 @@ public class PlatformBuilder {
     private String platformName;
     private String applicationName;
     private String version;
-    private boolean isProductionPlatform;
+    private Boolean isProductionPlatform;
     private List<DeployedModuleIO> deployedModules;
     private long versionId;
 
@@ -87,7 +87,7 @@ public class PlatformBuilder {
         return this;
     }
 
-    public PlatformBuilder withIsProductionPlatform(boolean isProductionPlatform) {
+    public PlatformBuilder withIsProductionPlatform(Boolean isProductionPlatform) {
         this.isProductionPlatform = isProductionPlatform;
         return this;
     }
@@ -267,6 +267,10 @@ public class PlatformBuilder {
 
     public List<ValuedPropertyIO> getInstancePropertyValues() {
         return instancePropertyValues;
+    }
+
+    public Boolean getIsProductionPlatform() {
+        return isProductionPlatform;
     }
 
     @Value

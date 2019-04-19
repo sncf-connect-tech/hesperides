@@ -207,6 +207,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 "(?: with version \"([^\"]*)\")?" +
                 "( with this module(?: associated to an empty path)?)?" +
                 "( with an instance( with properties)?)?" +
+                "( without setting isProductionPlatform?)?" +
                 "( with the same name but different letter case)?$", (
                 String isProd,
                 String platformName,
@@ -214,6 +215,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 String withThisModule,
                 String withAnInstance,
                 String withProperties,
+                String withoutSettingIsProductionPlatform,
                 String sameNameDifferentLetterCase) -> {
 
             if (isNotEmpty(isProd)) {
@@ -243,6 +245,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 }
                 moduleBuilder.setLogicalGroup(withThisModule.contains("empty path") ? "" : null);
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            }
+
+            if (isNotEmpty(withoutSettingIsProductionPlatform)) {
+                platformBuilder.withIsProductionPlatform(null);
             }
         });
 
@@ -369,6 +375,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Then("^the platform is successfully created(?: with \"(.*)\" as path)?$", (String expectedModulePath) -> {
             assertOK();
+            if (platformBuilder.getIsProductionPlatform() == null) {
+                platformBuilder.withIsProductionPlatform(false);
+            }
             // The returned deployed modules always have a non-empty modulePath, even if none was provided:
             if (platformBuilder.getDeployedModules().size() > 0 && isBlank(platformBuilder.getDeployedModules().get(0).getModulePath())) {
                 platformBuilder.withNoModule();
