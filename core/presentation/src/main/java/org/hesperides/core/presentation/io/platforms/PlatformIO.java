@@ -52,7 +52,6 @@ public class PlatformIO {
     @SerializedName("application_version")
     @JsonProperty("application_version")
     String version;
-    @NotNull
     @SerializedName("production")
     @JsonProperty("production")
     Boolean isProductionPlatform;
