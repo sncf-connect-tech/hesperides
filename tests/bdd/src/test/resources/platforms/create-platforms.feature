@@ -61,3 +61,8 @@ Feature: Create platform
     Given a platform to create with version "a b"
     When I create this platform
     Then the platform is successfully created
+
+  Scenario: create a platform without setting isProductionPlatform
+    Given a platform to create without setting isProductionPlatform
+    When I create this platform
+    Then the platform is successfully created
