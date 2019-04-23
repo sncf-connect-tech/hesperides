@@ -1,7 +1,24 @@
 # CHANGELOG
 Tous les changements notables sur ce projet sont documentés dans ce fichier.
 
-Le format est basé sur [Keep a Changelog](http://keepachangelog.com)
+Le format est basé sur [Keep a Changelog](http://keepachangelog.com).
+
+Il est généré automatiquement à partir des commits dont le message débute par
+`added:` / `changed:` / `deprecated:` / `removed:` / `fixed:` / `security:`
+gâce à [gitchangelog](https://github.com/vaab/gitchangelog) :
+```
+pip install gitchangelog pystache
+gitchangelog
+```
+
+<!-- gitchangelog START -->
+## _(unreleased)_
+### Added
+
+- Added: Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md. [Lucas Cimon]
+
+
+<!-- gitchangelog END -->
 
 
 ## 2019-04-18
