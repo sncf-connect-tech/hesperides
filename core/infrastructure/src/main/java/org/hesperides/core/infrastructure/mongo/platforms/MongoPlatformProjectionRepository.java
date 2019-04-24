@@ -360,7 +360,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
-    public List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query) {
+        public List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query) {
 
         String platformName = StringUtils.defaultString(query.getPlatformName(), "");
 

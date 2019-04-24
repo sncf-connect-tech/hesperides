@@ -66,4 +66,4 @@ est désormais déterministe et documentée
 
 ### Deprecated
 - le _endpoint_ `/templates/packages`, remplacé par `technos`
-- `POST /modules/search - /modules/perform_search - /applications/search - /applications/perform_search` remplacé par des _endpoints_ `GET` avec les même noms
+- `POST /technos/search - /modules/search - /modules/perform_search - /applications/search - /applications/perform_search` remplacé par des _endpoints_ `GET` avec les même noms
