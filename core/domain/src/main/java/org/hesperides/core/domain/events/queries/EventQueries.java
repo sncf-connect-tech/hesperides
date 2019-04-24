@@ -3,8 +3,6 @@ package org.hesperides.core.domain.events.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
-import org.hesperides.core.domain.events.PlatformEventsByStreamQuery;
-import org.hesperides.core.domain.platforms.entities.Platform;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -20,12 +18,8 @@ public class EventQueries extends AxonQueries {
         super(queryGateway);
     }
 
-    public List<EventView> getEvents(String id, Integer page, Integer size) {
-        return ordinateAndPaginateAccordingSize(querySyncList(new GenericEventsByStreamQuery(id), EventView.class), page, size);
-    }
-
-    public List<EventView> getEvents(Platform.Key key, Integer page, Integer size) {
-        return ordinateAndPaginateAccordingSize(querySyncList(new PlatformEventsByStreamQuery(key), EventView.class), page, size);
+    public List<EventView> getEvents(String aggregateId, Integer page, Integer size) {
+        return ordinateAndPaginateAccordingSize(querySyncList(new GenericEventsByStreamQuery(aggregateId), EventView.class), page, size);
     }
 
     private List<EventView> ordinateAndPaginateAccordingSize(final List<EventView> events, Integer page, Integer size) {
