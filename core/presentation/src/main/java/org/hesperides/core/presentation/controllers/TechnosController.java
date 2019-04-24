@@ -224,6 +224,13 @@ public class TechnosController extends AbstractController {
 
     @ApiOperation("Search for technos")
     @PostMapping("/perform_search")
+    @Deprecated
+    public ResponseEntity<List<TechnoIO>> postSearch(@RequestParam("terms") final String input) {
+        return search(input);
+    }
+
+    @ApiOperation("Search for technos")
+    @GetMapping("/perform_search")
     public ResponseEntity<List<TechnoIO>> search(@RequestParam("terms") final String input) {
 
         log.debug("search technos {}", input);
