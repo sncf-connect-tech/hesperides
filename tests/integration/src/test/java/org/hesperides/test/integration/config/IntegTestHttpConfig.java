@@ -8,6 +8,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.axonframework.config.EventHandlingConfiguration;
 import org.hesperides.core.presentation.PresentationConfiguration;
 import org.hesperides.test.bdd.commons.DebuggableRestTemplate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -54,5 +55,10 @@ public class IntegTestHttpConfig {
     @Bean
     public static Gson gson() {
         return PresentationConfiguration.gson();
+    }
+
+    @Bean
+    public EventHandlingConfiguration eventHandlerConfiguration() {
+        return new EventHandlingConfiguration();
     }
 }
