@@ -28,17 +28,17 @@ public class Template {
 
     public List<AbstractProperty> extractProperties() {
         List<AbstractProperty> properties = new ArrayList<>();
-        properties.addAll(extractPropertiesFromStringContent("filename", filename));
-        properties.addAll(extractPropertiesFromStringContent("location", location));
-        properties.addAll(extractPropertiesFromStringContent("content", content));
+        properties.addAll(extractPropertiesFromStringContent(filename, "filename", filename));
+        properties.addAll(extractPropertiesFromStringContent(filename, "location", location));
+        properties.addAll(extractPropertiesFromStringContent(filename, "content", content));
         return properties;
     }
 
-    private List<AbstractProperty> extractPropertiesFromStringContent(String fieldName, String string) {
+    private List<AbstractProperty> extractPropertiesFromStringContent(String fileName, String fieldName, String string) {
         try {
             return AbstractProperty.extractPropertiesFromStringContent(string);
-        } catch (MustacheException mustacheException) {
-            throw new InvalidTemplateException(templateContainerKey.toString(), fieldName, mustacheException);
+        } catch (IllegalArgumentException|MustacheException illegalArgException) {
+            throw new InvalidTemplateException(templateContainerKey.toString(), fileName, fieldName, illegalArgException);
         }
     }
 
