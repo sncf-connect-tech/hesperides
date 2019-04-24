@@ -11,6 +11,12 @@ pip install gitchangelog pystache
 gitchangelog
 ```
 
+Les messages de commit ne comprenant pas ces préfixes,
+par exemple ceux suivant la convention [Conventional Commits](https://www.conventionalcommits.org)
+débutant par `chore:` / `docs:` / `refactor:` / `style:` / `test:`,
+ne seront simplement pas inclus dans ce changelog.
+
+
 <!-- gitchangelog START -->
 ## _(unreleased)_
 ### Added

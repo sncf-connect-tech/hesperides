@@ -4,7 +4,6 @@ import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.events.EventRepository;
 import org.hesperides.core.domain.events.GenericEventsByStreamQuery;
-import org.hesperides.core.domain.events.PlatformEventsByStreamQuery;
 import org.hesperides.core.domain.events.queries.EventView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -30,13 +29,7 @@ public class AxonEventRepository implements EventRepository {
     @QueryHandler
     @Override
     public List<EventView> onGetEventsStream(final GenericEventsByStreamQuery query) {
-        return getEventViews(query.getEventStream());
-    }
-
-    @QueryHandler
-    @Override
-    public List<EventView> onGetEventsStream(final PlatformEventsByStreamQuery query) {
-        return getEventViews(query.getEventStream().toString());
+        return getEventViews(query.getAggregateId());
     }
 
     private List<EventView> getEventViews(final String aggregateIdentifier) {

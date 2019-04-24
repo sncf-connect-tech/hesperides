@@ -5,6 +5,7 @@ import org.hesperides.core.domain.events.queries.EventView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,13 @@ public class EventUseCases {
 
     private final EventQueries eventQueries;
     private final ModuleQueries moduleQueries;
+    private final PlatformQueries platformQueries;
 
     @Autowired
-    public EventUseCases(EventQueries eventQueries, ModuleQueries moduleQueries) {
+    public EventUseCases(EventQueries eventQueries, ModuleQueries moduleQueries, PlatformQueries platformQueries) {
         this.eventQueries = eventQueries;
         this.moduleQueries = moduleQueries;
+        this.platformQueries = platformQueries;
     }
 
     public List<EventView> parseStreamNameAndGetEvents(String streamNameWithType, Integer page, Integer size) {
@@ -86,6 +89,8 @@ public class EventUseCases {
     }
 
     public List<EventView> getEvents(Platform.Key key, Integer page, Integer size) {
-        return eventQueries.getEvents(key, page, size);
+        return platformQueries.getOptionalPlatformId(key)
+                .map(platformId -> eventQueries.getEvents(platformId, page, size))
+                .orElse(Collections.emptyList());
     }
 }

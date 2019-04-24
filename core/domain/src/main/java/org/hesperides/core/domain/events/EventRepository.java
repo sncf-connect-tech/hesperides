@@ -9,7 +9,4 @@ public interface EventRepository {
 
     @QueryHandler
     List<EventView> onGetEventsStream(GenericEventsByStreamQuery query);
-
-    @QueryHandler
-    List<EventView> onGetEventsStream(PlatformEventsByStreamQuery query);
 }
