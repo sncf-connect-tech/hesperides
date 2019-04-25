@@ -101,12 +101,7 @@ public class ModuleDocument {
 
     private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos(List<String> updatedTemplatesName, boolean isFirstEvent) {
         List<Template> allTemplates = getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments();
-        List<AbstractProperty> abstractProperties;
-        try {
-            abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, updatedTemplatesName, isFirstEvent, key.toString());
-        } catch (InvalidTemplateException invalidTemplateException) {
-            throw new InvalidTemplateException(key.toString(), invalidTemplateException);
-        }
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, updatedTemplatesName, isFirstEvent, key.toString());
         List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
         return abstractPropertyDocuments;
     }
