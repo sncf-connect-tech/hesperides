@@ -69,7 +69,7 @@ public class PlatformUseCases {
                 newPlatform.getVersion(),
                 newPlatform.isProductionPlatform(),
                 1L,
-                DeployedModuleView.toDomainDeployedModules(existingPlatform.getDeployedModules()),
+                DeployedModuleView.toDomainDeployedModules(existingPlatform.getActiveDeployedModules()),
                 ValuedPropertyView.toDomainValuedProperties(existingPlatform.getGlobalProperties())
         );
         return commands.createPlatform(newFullPlatform, user);
