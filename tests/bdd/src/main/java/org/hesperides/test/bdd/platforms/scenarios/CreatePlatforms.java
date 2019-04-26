@@ -44,6 +44,7 @@ import java.util.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -395,6 +396,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
             assertEquals(HttpStatus.valueOf(httpCode), testContext.responseEntity.getStatusCode());
             assertThat((String) testContext.getResponseBody(), containsString(message));
+        });
+
+        Then("^there is (\\d+) module on this platform$", (Integer moduleCount) -> {
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            assertThat(actualPlatform.getDeployedModules(), hasSize(moduleCount));
         });
 
         Then("^the platform creation fails with an already exist error$", () -> {
