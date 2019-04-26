@@ -11,15 +11,6 @@ Hesperides is an open source tool generating content from a template file (using
 
 Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesperides frontend.
 
-:exclamation: :exclamation: :exclamation:
-
-**The project is currently being rework**
-
-See branch `develop` for the new version under construction
-
-See branch `master` for the production version 
-
-:exclamation: :exclamation: :exclamation:
 
 ## Installation
 

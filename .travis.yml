@@ -20,9 +20,9 @@ stages:
 - name: build
 - name: test
 - name: docker
-  if: (branch = develop OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
+  if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 - name: deploy
-  if: (branch = develop OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
+  if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 jobs:
   include:
   - stage: build
