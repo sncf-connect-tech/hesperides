@@ -24,11 +24,15 @@ gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## None
+## _(unreleased)_
+### Changed
+
+- Changed: simplification de /rest/versions & correction timezone du "build time" [Lucas Cimon]
+
+
 ### Fixed
 
 - Lors d'une copie de plateforme on ignore les deployed modules inactifs de l'historique (#624) [Lucas Cimon]
-
 
 
 ## 2019-04-26
