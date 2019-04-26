@@ -16,12 +16,29 @@ par exemple ceux suivant la convention [Conventional Commits](https://www.conven
 débutant par `chore:` / `docs:` / `refactor:` / `style:` / `test:`,
 ne seront simplement pas inclus dans ce changelog.
 
+Pour automatiquement mettre à jour ce fichier à chaque commit,
+placez le code suivant dans `.git/hooks/pre-commit` :
+```
+#!/bin/sh
+gitchangelog && git add CHANGELOG.md
+```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-04-26
 ### Added
 
-- Added: Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md. [Lucas Cimon]
+- Added: Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md (#616) [Lucas Cimon]
+
+
+### Deprecated
+
+- Deprecated: POST /technos/perform_search (#618) [Lucas Cimon]
+
+
+### Fixed
+
+- Correction du GET /events/platforms/... & ajout tests BDD (#617) [Lucas Cimon]
+
 
 
 <!-- gitchangelog END -->
