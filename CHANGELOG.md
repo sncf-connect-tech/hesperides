@@ -24,6 +24,13 @@ gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## None
+### Fixed
+
+- Lors d'une copie de plateforme on ignore les deployed modules inactifs de l'historique. [Lucas Cimon]
+
+
+
 ## 2019-04-26
 ### Added
 

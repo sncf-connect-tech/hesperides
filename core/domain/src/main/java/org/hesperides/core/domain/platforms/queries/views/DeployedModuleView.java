@@ -26,10 +26,9 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.toDomainAbstractValuedProperties;
 
@@ -66,10 +65,8 @@ public class DeployedModuleView {
         );
     }
 
-    public static List<DeployedModule> toDomainDeployedModules(List<DeployedModuleView> deployedModuleViews) {
-        return Optional.ofNullable(deployedModuleViews)
-                .orElse(Collections.emptyList())
-                .stream()
+    public static List<DeployedModule> toDomainDeployedModules(Stream<DeployedModuleView> deployedModuleViews) {
+        return deployedModuleViews
                 .map(DeployedModuleView::toDomainDeployedModule)
                 .collect(Collectors.toList());
     }
