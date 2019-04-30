@@ -37,6 +37,7 @@ class TechnoAggregate implements Serializable {
     @SuppressWarnings("unused")
     public TechnoAggregate(CreateTechnoCommand command) {
         log.debug("Applying CreateTechnoCommand...");
+        command.getTechno().validateTemplates();
         apply(new TechnoCreatedEvent(UUID.randomUUID().toString(), command.getTechno(), command.getUser().getName()));
     }
 

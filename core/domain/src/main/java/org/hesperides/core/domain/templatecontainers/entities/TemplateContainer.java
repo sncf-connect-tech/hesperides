@@ -32,6 +32,13 @@ public abstract class TemplateContainer {
                 .collect(Collectors.toList());
     }
 
+    public TemplateContainer validateTemplates() {
+        if (templates != null) {
+            templates.forEach(Template::validateProperties);
+        }
+        return this;
+    }
+
     @Value
     @NonFinal
     public static abstract class Key {

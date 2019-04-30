@@ -39,8 +39,11 @@ class ModuleAggregate implements Serializable {
     @SuppressWarnings("unused")
     public ModuleAggregate(CreateModuleCommand command) {
         log.debug("Applying create module command...");
-        Module module = command.getModule().initializeVersionId();
-        module.getTemplates().forEach(Template::validateProperties);
+
+        Module module = command.getModule()
+                .validateTemplates()
+                .initializeVersionId();
+
         apply(new ModuleCreatedEvent(UUID.randomUUID().toString(), module, command.getUser().getName()));
     }
 
