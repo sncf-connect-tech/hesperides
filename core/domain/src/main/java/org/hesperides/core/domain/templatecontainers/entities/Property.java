@@ -3,7 +3,6 @@ package org.hesperides.core.domain.templatecontainers.entities;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.commons.spring.HasProfile;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -164,25 +163,25 @@ public class Property extends AbstractProperty {
     }
 
     private static void validateRequiredOrDefaultValue(String name, boolean isRequired, String defaultValue) {
-        if (!HasProfile.dataMigration() && isRequired && !StringUtils.isEmpty(defaultValue)) {
+        if (isRequired && !StringUtils.isEmpty(defaultValue)) {
             throw new IllegalArgumentException(String.format("Property '%s' cannot have both annotations @required and @default", name));
         }
     }
 
     private static void validateIsBlank(String value, String errorMessage) {
-        if (!HasProfile.dataMigration() && StringUtils.isNotBlank(value)) {
+        if (StringUtils.isNotBlank(value)) {
             throw new IllegalArgumentException(errorMessage);
         }
     }
 
     private static void validateIsNotBlank(String value, String errorMessage) {
-        if (!HasProfile.dataMigration() && StringUtils.isBlank(value)) {
+        if (StringUtils.isBlank(value)) {
             throw new IllegalArgumentException(errorMessage);
         }
     }
 
     private static void validateDoesntStartWithArobase(String value, String propertyName) {
-        if (!HasProfile.dataMigration() && value != null && value.startsWith("@")) {
+        if (value != null && value.startsWith("@")) {
             throw new IllegalArgumentException(String.format("Unknown annotation '%s' in property '%s'", value, propertyName));
         }
     }

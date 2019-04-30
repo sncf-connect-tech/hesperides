@@ -7,7 +7,6 @@ import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
@@ -104,22 +103,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
-        if (HasProfile.dataMigration()) {
-            minimalPlatformRepository.findById(event.getPlatformId()).ifPresent(existingPlatform -> {
-                // Si la plateforme existe, pour chacun de ses modules :
-                // - s'il existe on récupère ses propriétés
-                // - sinon on récupère la module en question
-                existingPlatform.getDeployedModules().forEach(existingModule -> {
-                    Optional<DeployedModuleDocument> providedModule = platformDocument.getDeployedModules().stream()
-                            .filter(newModule -> newModule.getId().equals(existingModule.getId())).findFirst();
-                    if (providedModule.isPresent()) {
-                        providedModule.get().setValuedProperties(existingModule.getValuedProperties());
-                    } else {
-                        platformDocument.getDeployedModules().add(existingModule);
-                    }
-                });
-            });
-        }
         if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
             // Il arrive que les propriétés d'un module déployé ne soient pas valorisées par la suite,
             // cela ne doit pas empêcher de tenir compte des valeurs par défaut:
@@ -134,13 +117,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @EventHandler
     @Override
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        // Dans le legacy, les plateformes ne sont pas vraiment supprimées
-        // mais simplement désactivées. Comme on ne migre pas les plateformes
-        // dont le dernier évènement est un évènement de suppression,
-        // il n'est pas nécessaire d'effectuer cette suppression.
-        if (!HasProfile.dataMigration()) {
-            minimalPlatformRepository.deleteById(event.getPlatformId());
-        }
+        minimalPlatformRepository.deleteById(event.getPlatformId());
     }
 
     @EventHandler
@@ -160,11 +137,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             platformDocument.setProductionPlatform(newPlatformDocument.isProductionPlatform());
             platformDocument.updateModules(newPlatformDocument.getDeployedModules(), event.getCopyPropertiesForUpgradedModules(), numberOfArchivedModuleVersions);
 
-            if (HasProfile.dataMigration() && newPlatformDocument.getVersionId() == 0L) {
-                platformDocument.setVersionId(platformDocument.getVersionId() + 1);
-            } else {
-                platformDocument.setVersionId(newPlatformDocument.getVersionId());
-            }
+            platformDocument.setVersionId(newPlatformDocument.getVersionId());
 
             if (mongoModuleRepository != null) { // On saute cette étape dans le cas d'un InmemoryPlatformRepository
                 platformDocument.getActiveDeployedModules()
@@ -185,14 +158,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // Récupération de la plateforme et mise à jour de la version
         Optional<PlatformDocument> optPlatformDocument = minimalPlatformRepository.findById(event.getPlatformId());
         if (!optPlatformDocument.isPresent()) {
-            if (HasProfile.dataMigration()) {
-                // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
-                // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
-                log.warn("PlatformModulePropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
-                return;
-            } else {
-                throw new NotFoundException("Platform not found - module properties update impossible - platform ID: " + event.getPlatformId());
-            }
+            throw new NotFoundException("Platform not found - module properties update impossible - platform ID: " + event.getPlatformId());
         }
         PlatformDocument platformDocument = optPlatformDocument.get();
         platformDocument.setVersionId(event.getPlatformVersionId());
@@ -236,14 +202,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
         Optional<PlatformDocument> optPlatformDocument = minimalPlatformRepository.findById(event.getPlatformId());
         if (!optPlatformDocument.isPresent()) {
-            if (HasProfile.dataMigration()) {
-                // Cette rustine permet de gérer le cas de VSL-PRD1-BETA par exemple,
-                // où les 10 derniers évènements connus entrainent des MAJ de cette platforme supprimée
-                log.warn("PlatformPropertiesUpdatedEvent event received but platform does not exist: {}", event.getPlatformId());
-                return;
-            } else {
-                throw new NotFoundException("Platform not found - platform properties update impossible - platform ID: " + event.getPlatformId());
-            }
+            throw new NotFoundException("Platform not found - platform properties update impossible - platform ID: " + event.getPlatformId());
         }
         PlatformDocument platformDocument = optPlatformDocument.get();
 
