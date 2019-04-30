@@ -25,6 +25,12 @@ public class Module extends TemplateContainer {
         this.versionId = versionId;
     }
 
+    @Override
+    public Module validateTemplates() {
+        return (Module) super.validateTemplates();
+    }
+
+
     public Module initializeVersionId() {
         return new Module(getKey(), getTemplates(), technos, 1L);
     }
