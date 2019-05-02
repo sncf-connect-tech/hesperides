@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-@Api("/events")
+@Api(tags = "g-Events", description = " ")
 @RequestMapping("/events")
 @RestController
 public class EventsController extends AbstractController {

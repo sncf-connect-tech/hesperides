@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-@Api("/users")
+@Api(tags = "h-Users and versions", description = " ")
 @RequestMapping("/users")
 @RestController
 public class UsersController extends AbstractController {
