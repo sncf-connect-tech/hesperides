@@ -94,6 +94,9 @@ public class Module extends TemplateContainer {
 
         public static Key fromPropertiesPath(final String propertiesPath) {
             String[] parts = propertiesPath.split("#");
+            if (parts.length < 3) {
+                throw new IllegalArgumentException("Too short properties path: " + propertiesPath);
+            }
             VersionType versionType = parts[parts.length - 1].toUpperCase().equals("RELEASE") ? VersionType.release : VersionType.workingcopy;
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
         }

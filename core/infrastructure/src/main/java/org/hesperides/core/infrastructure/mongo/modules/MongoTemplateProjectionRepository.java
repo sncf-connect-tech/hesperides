@@ -52,11 +52,6 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         this.moduleRepository = moduleRepository;
     }
 
-    // Only exists for batch:
-    public void setMongoModuleRepository(MongoModuleRepository moduleRepository) {
-        this.moduleRepository = moduleRepository;
-    }
-
     /*** EVENT HANDLERS ***/
 
     @EventHandler

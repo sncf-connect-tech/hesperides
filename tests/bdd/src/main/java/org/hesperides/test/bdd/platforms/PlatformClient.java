@@ -194,4 +194,14 @@ public class PlatformClient {
                 module.getVersion(),
                 module.getIsWorkingCopy() ? "workingcopy" : "release");
     }
+
+    public ResponseEntity restore(PlatformIO platformInput, Class responseType) {
+        return restTemplate.exchange(
+                "/applications/{application_name}/platforms/{platform_name}/restore",
+                HttpMethod.POST,
+                null,
+                responseType,
+                platformInput.getApplicationName(),
+                platformInput.getPlatformName());
+    }
 }

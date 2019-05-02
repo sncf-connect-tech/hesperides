@@ -25,6 +25,11 @@ gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## None
+### Added
+
+- Add: /{application_name}/platforms/{platform_name}/restore - implementation backend pour #622. [Lucas Cimon]
+
+
 ### Fixed
 
 - Lors d'une copie de plateforme on ignore les deployed modules inactifs de l'historique (#624) [Lucas Cimon]

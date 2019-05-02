@@ -28,6 +28,9 @@ public interface PlatformProjectionRepository {
     @EventHandler
     void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event);
 
+    @EventHandler
+    PlatformView onRestoreDeletedPlatformEvent(RestoreDeletedPlatformEvent event);
+
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
@@ -35,6 +38,9 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     Optional<PlatformView> onGetPlatformByIdQuery(GetPlatformByIdQuery query);
+
+    @QueryHandler
+    Optional<String> onGetPlatformIdFromEvents(GetPlatformIdFromEvents query);
 
     @QueryHandler
     Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query);

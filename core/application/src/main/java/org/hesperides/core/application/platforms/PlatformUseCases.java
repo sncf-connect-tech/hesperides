@@ -252,4 +252,11 @@ public class PlatformUseCases {
             }
         });
     }
+
+    public PlatformView restoreDeletedPlatform(final Platform.Key platformKey, final User user) {
+        String platformId = queries.getOptionalPlatformIdFromEvents(platformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        commands.restoreDeletedPlatform(platformId, user);
+        return queries.getOptionalPlatform(platformId).get();
+    }
 }

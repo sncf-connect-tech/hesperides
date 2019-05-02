@@ -116,6 +116,17 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{application_name}/platforms/{platform_name}/restore")
+    @ApiOperation("Restore platform")
+    public ResponseEntity<PlatformIO> restorePlatform(Authentication authentication,
+                                                      @PathVariable("application_name") final String applicationName,
+                                                      @PathVariable("platform_name") final String platformName) {
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+        PlatformView platformView = platformUseCases.restoreDeletedPlatform(platformKey, fromAuthentication(authentication));
+        PlatformIO platformOutput = new PlatformIO(platformView);
+        return ResponseEntity.ok(platformOutput);
+    }
+
     @GetMapping("/{application_name}")
     @ApiOperation("Get application")
     public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
