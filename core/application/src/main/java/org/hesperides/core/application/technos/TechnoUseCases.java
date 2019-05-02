@@ -65,7 +65,7 @@ public class TechnoUseCases {
             throw new TechnoNotFoundException(technoKey);
         }
         List<TechnoModuleView> technoModulesViews = moduleQueries.getModulesUsingTechno(technoId.get());
-        if (!HasProfile.dataMigration() && !technoModulesViews.isEmpty()) {
+        if (!technoModulesViews.isEmpty()) {
             throw new UndeletableTechnoInUseException(technoKey, technoModulesViews);
         }
         commands.deleteTechno(technoId.get(), user);

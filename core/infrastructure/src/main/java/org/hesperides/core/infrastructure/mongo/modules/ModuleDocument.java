@@ -87,21 +87,13 @@ public class ModuleDocument {
     }
 
     public void extractPropertiesAndSave(MongoModuleRepository moduleRepository) {
-        extractPropertiesAndSave(moduleRepository, Collections.emptyList());
-    }
-
-    public void extractPropertiesAndSave(MongoModuleRepository moduleRepository, List<String> updatedTemplatesName) {
-        extractPropertiesAndSave(moduleRepository, updatedTemplatesName, false);
-    }
-
-    public void extractPropertiesAndSave(MongoModuleRepository moduleRepository, List<String> updatedTemplatesName, boolean isFirstEvent) {
-        this.setProperties(extractPropertiesFromTemplatesAndTechnos(updatedTemplatesName, isFirstEvent));
+        this.setProperties(extractPropertiesFromTemplatesAndTechnos());
         moduleRepository.save(this);
     }
 
-    private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos(List<String> updatedTemplatesName, boolean isFirstEvent) {
+    private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos() {
         List<Template> allTemplates = getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments();
-        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, updatedTemplatesName, isFirstEvent, key.toString());
+        List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, key.toString());
         List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
         return abstractPropertyDocuments;
     }

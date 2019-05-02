@@ -3,13 +3,11 @@ package org.hesperides.core.infrastructure.mongo.modules;
 import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.modules.queries.TechnoModuleView;
-import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
@@ -89,13 +87,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos(), event.getModule().getKey());
         ModuleDocument moduleDocument = new ModuleDocument(event.getModuleId(), event.getModule(), technoDocuments);
 
-        if (HasProfile.dataMigration()) {
-            List<String> updatedTemplatesName = event.getModule().getTemplatesName();
-            boolean isFirstEvent = axonEventRepository.hasOneEvent(event.getModuleId());
-            moduleDocument.extractPropertiesAndSave(moduleRepository, updatedTemplatesName, isFirstEvent);
-        } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository);
-        }
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventHandler
@@ -110,12 +102,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
 
-        if (HasProfile.dataMigration()) {
-            List<String> updatedTemplatesName = Techno.getTemplatesName(event.getTechnos());
-            moduleDocument.extractPropertiesAndSave(moduleRepository, updatedTemplatesName);
-        } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository);
-        }
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventHandler
