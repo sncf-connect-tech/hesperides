@@ -52,8 +52,8 @@
         <postgresql.version>9.4-1206-jdbc42</postgresql.version>
         <spring-boot-admin.version>2.1.1</spring-boot-admin.version>
         <spring-security-test.version>4.2.4.RELEASE</spring-security-test.version>
+        <springfox.version>2.8.0</springfox.version><!-- Ne pas changer cette version (cf. swagger-customization.md) -->
         <swagger.version>1.5.18</swagger.version>
-        <swagger2.version>2.8.0</swagger2.version>
         <!-- Plugins -->
         <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
         <gitflow-maven-plugin.version>1.9.0</gitflow-maven-plugin.version>
@@ -193,12 +193,12 @@
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>
-                <version>${swagger2.version}</version>
+                <version>${springfox.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger-ui</artifactId>
-                <version>${swagger2.version}</version>
+                <version>${springfox.version}</version>
             </dependency>
 
             <!-- Various -->

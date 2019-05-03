@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api(tags = "a-Modules", description = " ", position = 1)
+@Api(tags = "1. Modules", description = " ", position = 1)
 @RequestMapping("/modules")
 @RestController
 public class ModulesController extends AbstractController {

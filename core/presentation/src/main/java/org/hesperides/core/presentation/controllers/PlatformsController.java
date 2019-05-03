@@ -29,7 +29,7 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api(tags = "c-Platforms", description = " ")
+@Api(tags = "3. Platforms", description = " ")
 @RequestMapping("/applications")
 @RestController
 public class PlatformsController extends AbstractController {

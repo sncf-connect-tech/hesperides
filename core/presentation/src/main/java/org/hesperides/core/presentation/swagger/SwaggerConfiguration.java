@@ -47,7 +47,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/");
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/"); // Permet de tenir de notre swagger-ui.html
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
@@ -56,7 +56,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer {
         return UiConfigurationBuilder.builder()
 //                .deepLinking(true)
 //                .displayOperationId(false)
-                .defaultModelsExpandDepth(-1)
+                .defaultModelsExpandDepth(-1) // Permet de cacher le model
 //                .defaultModelExpandDepth(1)
 //                .defaultModelRendering(ModelRendering.EXAMPLE)
 //                .displayRequestDuration(false)

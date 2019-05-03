@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api(tags = "e-Technos", description = " ")
+@Api(tags = "5. Technos", description = " ")
 @RequestMapping({"/templates/packages", "/technos"})
 @RestController
 public class TechnosController extends AbstractController {

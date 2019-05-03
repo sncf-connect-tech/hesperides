@@ -18,7 +18,6 @@
         <module>bdd</module>
         <module>integration</module>
         <module>perfs</module>
-        <module>tech</module>
     </modules>
 
 </project>
