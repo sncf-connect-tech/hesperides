@@ -42,7 +42,7 @@ public abstract class AbstractPropertyDocument {
 
     public static List<AbstractPropertyDocument> fromDomainInstances(List<AbstractProperty> properties) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(property -> property instanceof Property
                         ? new PropertyDocument((Property) property)
@@ -52,7 +52,7 @@ public abstract class AbstractPropertyDocument {
 
     public static List<AbstractPropertyView> toViews(List<AbstractPropertyDocument> properties) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractPropertyDocument::toView)
                 .collect(Collectors.toList());
@@ -60,7 +60,7 @@ public abstract class AbstractPropertyDocument {
 
     public static List<AbstractProperty> toDomainInstances(List<AbstractPropertyDocument> properties) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractPropertyDocument::toDomainInstance)
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ public abstract class AbstractPropertyDocument {
 
     public static Stream<PropertyDocument> getFlatProperties(List<AbstractPropertyDocument> properties) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractPropertyDocument::flattenProperties)
                 .flatMap(Function.identity());

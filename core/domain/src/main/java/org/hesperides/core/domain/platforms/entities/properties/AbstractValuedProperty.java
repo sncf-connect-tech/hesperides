@@ -38,7 +38,7 @@ public abstract class AbstractValuedProperty {
 
     public static <T extends AbstractValuedProperty> List<T> filterAbstractValuedPropertyWithType(List<AbstractValuedProperty> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)

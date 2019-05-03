@@ -49,7 +49,7 @@ public class ModuleHistory {
 
     public List<TechnoModulesOutput> buildTechnoModules() {
         return Optional.ofNullable(modules)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(module -> new TechnoModulesOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
                 .collect(Collectors.toList());

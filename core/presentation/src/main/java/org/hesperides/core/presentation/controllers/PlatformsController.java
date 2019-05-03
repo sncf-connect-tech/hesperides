@@ -44,9 +44,10 @@ public class PlatformsController extends AbstractController {
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
     public ResponseEntity<PlatformIO> createPlatform(Authentication authentication,
-                                                     @PathVariable("application_name") final String applicationName,
+                                                     @Deprecated @PathVariable("application_name") final String applicationName,
                                                      @RequestParam(value = "from_application", required = false) final String fromApplication,
                                                      @RequestParam(value = "from_platform", required = false) final String fromPlatform,
+                                                     @RequestParam(value = "copy_instances_and_properties", defaultValue = "true", required = false) final boolean copyInstancesAndProperties,
                                                      @Valid @RequestBody final PlatformIO platformInput) {
 
         Platform newPlatform = platformInput.toDomainInstance();
@@ -58,7 +59,7 @@ public class PlatformsController extends AbstractController {
             checkQueryParameterNotEmpty("from_application", fromApplication);
             checkQueryParameterNotEmpty("from_platform", fromPlatform);
             Platform.Key existingPlatformKey = new Platform.Key(fromApplication, fromPlatform);
-            platformId = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, fromAuthentication(authentication));
+            platformId = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, copyInstancesAndProperties, fromAuthentication(authentication));
         }
 
         PlatformView platformView = platformUseCases.getPlatform(platformId);
@@ -195,7 +196,7 @@ public class PlatformsController extends AbstractController {
         List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(defaultString(applicationName, ""));
 
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchApplicationResultViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .distinct()
                 .map(SearchResultOutput::new)
@@ -221,7 +222,7 @@ public class PlatformsController extends AbstractController {
         List<SearchPlatformResultView> searchPlatformResultViews = platformUseCases.searchPlatforms(applicationName, platformName);
 
         List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchPlatformResultViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .distinct()
                 .map(SearchResultOutput::new)

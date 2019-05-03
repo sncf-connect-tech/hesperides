@@ -39,7 +39,7 @@ public class TechnoView {
 
     public static List<Techno> toDomainInstances(List<TechnoView> technoViews) {
         return Optional.ofNullable(technoViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TechnoView::toDomainInstance)
                 .collect(Collectors.toList());

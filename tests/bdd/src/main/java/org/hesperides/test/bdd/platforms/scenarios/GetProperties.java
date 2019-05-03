@@ -83,16 +83,13 @@ public class GetProperties extends HesperidesScenario implements En {
 
         Then("^the platform property values are(?: also)? copied$", () -> {
             // Propriétés valorisées
-            ResponseEntity<PropertiesIO> responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             PropertiesIO expectedProperties = platformBuilder.getPropertiesIO(false);
-            PropertiesIO actualProperties = responseEntity.getBody();
             assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
-            responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
-            assertOK();
+            PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
             PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
-            PropertiesIO actualGlobalProperties = responseEntity.getBody();
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });
 
@@ -116,14 +113,14 @@ public class GetProperties extends HesperidesScenario implements En {
         Then("^the( initial)? platform( global)? properties are successfully retrieved$", (String initial, String global) -> {
             assertOK();
             PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformProperties() : platformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
-            PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)testContext.responseEntity).getBody();
+            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
             assertEquals(expectedProperties, actualProperties);
         });
 
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
             testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
             assertOK();
-            PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)testContext.responseEntity).getBody();
+            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             assertTrue(matchingProperty.isPresent());
             assertEquals(expectedValue, matchingProperty.get().getValue());
@@ -132,9 +129,19 @@ public class GetProperties extends HesperidesScenario implements En {
         Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
             testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
             assertOK();
-            PropertiesIO actualProperties = ((ResponseEntity<PropertiesIO>)testContext.responseEntity).getBody();
+            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             assertFalse(matchingProperty.isPresent());
+        });
+
+        Then("^there are (\\d+) global properties$", (Integer expectedCount) -> {
+            PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+            assertEquals(expectedCount.intValue(), actualGlobalProperties.getValuedProperties().size());
+        });
+
+        Then("^there are (\\d+) module properties$", (Integer expectedCount) -> {
+            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            assertEquals(expectedCount.intValue(), actualProperties.getValuedProperties().size());
         });
     }
 

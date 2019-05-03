@@ -56,7 +56,7 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
     public static Set<IterableValuedPropertyIO> fromIterableValuedPropertyViews(final List<IterableValuedPropertyView> iterableValuedPropertyViews) {
         return Optional.ofNullable(iterableValuedPropertyViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterableValuedPropertyIO::new)
                 .collect(Collectors.toSet());
@@ -64,7 +64,7 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
     public IterableValuedProperty toDomainInstance() {
         List<IterablePropertyItem> iterablePropertyItems = Optional.ofNullable(this.iterablePropertyItems)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemIO::toDomainInstance)
                 .collect(Collectors.toList());

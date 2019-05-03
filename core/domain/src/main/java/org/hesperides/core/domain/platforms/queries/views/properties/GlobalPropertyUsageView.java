@@ -64,7 +64,7 @@ public class GlobalPropertyUsageView {
                 .filter(moduleModel -> moduleModel.getModuleKey().equals(moduleKey))
                 .findFirst()
                 .map(ModuleSimplePropertiesView::getProperties)
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 
     private static List<String> getSimpleValuedPropertiesNameUsingGlobalProperty(String globalPropertyName, List<AbstractValuedPropertyView> valuedProperties) {

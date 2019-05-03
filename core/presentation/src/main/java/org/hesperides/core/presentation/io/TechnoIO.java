@@ -59,7 +59,7 @@ public class TechnoIO {
 
     public static List<Techno> toDomainInstances(List<TechnoIO> technoIOS) {
         return Optional.ofNullable(technoIOS)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TechnoIO::toDomainInstance)
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class TechnoIO {
 
     public static List<TechnoIO> fromTechnoViews(List<TechnoView> technoViews) {
         return Optional.ofNullable(technoViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TechnoIO::new)
                 .collect(Collectors.toList());

@@ -86,7 +86,7 @@ public class DeployedModuleIO {
 
     public static List<DeployedModule> toDomainInstances(List<DeployedModuleIO> moduleIOS) {
         return Optional.ofNullable(moduleIOS)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(DeployedModuleIO::toDomainInstance)
                 .collect(Collectors.toList());

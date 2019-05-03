@@ -71,7 +71,7 @@ public class ValuedPropertyView extends AbstractValuedPropertyView {
 
     public static List<ValuedProperty> toDomainValuedProperties(List<ValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ValuedPropertyView::toDomainValuedProperty)
                 .collect(Collectors.toList());

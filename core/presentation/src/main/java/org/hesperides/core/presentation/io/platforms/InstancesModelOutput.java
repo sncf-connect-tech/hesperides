@@ -41,7 +41,7 @@ public class InstancesModelOutput {
 
     public static InstancesModelOutput fromInstancesModelView(List<String> instancesModelView) {
         return new InstancesModelOutput(Optional.ofNullable(instancesModelView)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstancePropertyOutput::new)
                 .collect(Collectors.toSet()));

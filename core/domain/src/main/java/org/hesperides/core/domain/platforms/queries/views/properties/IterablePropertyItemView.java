@@ -50,7 +50,7 @@ public class IterablePropertyItemView {
 
     public static List<IterablePropertyItem> toDomainIterablePropertyItems(List<IterablePropertyItemView> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemView::toDomainIterablePropertyItem)
                 .collect(Collectors.toList());

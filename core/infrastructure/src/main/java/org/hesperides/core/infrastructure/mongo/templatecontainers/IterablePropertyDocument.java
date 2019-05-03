@@ -59,7 +59,7 @@ public class IterablePropertyDocument extends AbstractPropertyDocument {
     @Override
     protected Stream<PropertyDocument> flattenProperties() {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractPropertyDocument::flattenProperties)
                 .flatMap(Function.identity());

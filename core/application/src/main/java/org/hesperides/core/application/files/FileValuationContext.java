@@ -58,7 +58,7 @@ public class FileValuationContext {
                 .filter(instance -> instance.getName().equalsIgnoreCase(instanceName))
                 .findFirst()
                 .map(InstanceView::getValuedProperties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 // #539 La propriété d'instance doit faire partie du model d'instances
                 .filter(instanceProperty -> instancesModel.contains(instanceProperty.getName()))

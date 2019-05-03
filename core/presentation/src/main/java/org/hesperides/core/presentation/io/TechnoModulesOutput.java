@@ -25,7 +25,6 @@ import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.modules.queries.TechnoModuleView;
-import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,7 +54,7 @@ public class TechnoModulesOutput {
 
     public static List<TechnoModulesOutput> fromViews(List<TechnoModuleView> technoModuleViews) {
         return Optional.ofNullable(technoModuleViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .sorted(Comparator.comparing(TechnoModuleView::getModuleName))
                 .map(TechnoModulesOutput::new)

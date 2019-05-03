@@ -60,7 +60,7 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
 
     public static Set<ValuedPropertyIO> fromValuedPropertyViews(List<ValuedPropertyView> valuedPropertyViews) {
         return Optional.ofNullable(valuedPropertyViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ValuedPropertyIO::new)
                 .collect(Collectors.toSet());

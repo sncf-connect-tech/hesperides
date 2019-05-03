@@ -46,7 +46,7 @@ public class InstanceDocument {
 
     public static List<Instance> toDomainInstances(List<InstanceDocument> instanceDocuments) {
         return Optional.ofNullable(instanceDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstanceDocument::toDomainInstance)
                 .collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class InstanceDocument {
 
     public static List<InstanceDocument> fromDomainInstances(List<Instance> instances) {
         return Optional.ofNullable(instances)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstanceDocument::new)
                 .collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class InstanceDocument {
 
     public static List<InstanceView> toInstanceViews(List<InstanceDocument> instances) {
         return Optional.ofNullable(instances)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstanceDocument::toInstanceView)
                 .collect(Collectors.toList());

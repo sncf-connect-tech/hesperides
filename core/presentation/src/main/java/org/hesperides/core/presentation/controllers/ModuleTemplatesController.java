@@ -49,7 +49,7 @@ public class ModuleTemplatesController extends AbstractController {
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
         List<TemplateView> templateViews = moduleUseCases.getTemplates(moduleKey);
         List<PartialTemplateIO> partialTemplateOutputs = Optional.ofNullable(templateViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(PartialTemplateIO::new)
                 .collect(Collectors.toList());

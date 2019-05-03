@@ -48,7 +48,7 @@ public abstract class AbstractValuedPropertyView {
 
     public static List<AbstractValuedProperty> toDomainAbstractValuedProperties(List<AbstractValuedPropertyView> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractValuedPropertyView::toDomainValuedProperty)
                 .map(AbstractValuedProperty.class::cast)
@@ -57,7 +57,7 @@ public abstract class AbstractValuedPropertyView {
 
     public static <T extends AbstractValuedPropertyView> List<T> getAbstractValuedPropertyViewWithType(final List<AbstractValuedPropertyView> abstractValuedPropertyViews, Class<T> clazz) {
         return Optional.ofNullable(abstractValuedPropertyViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)

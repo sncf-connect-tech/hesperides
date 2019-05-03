@@ -31,3 +31,14 @@ Feature: Create platform
     Then the platform is successfully created
     And the platform property values are also copied
     And there is 1 module on this platform
+
+  #issue-634
+  Scenario: copy of a platform without instances & properties
+    Given an existing techno with properties and global properties
+    And an existing module with properties and global properties and this techno
+    And an existing platform with this module and an instance and valued properties and global properties and instance properties
+    When I copy this platform without instances & properties
+    Then there is 1 module on this new platform
+    And there are 0 instances
+    And there are 0 global properties
+    And there are 0 module properties

@@ -58,18 +58,17 @@ public class IterablePropertyItemIO {
 
     public static List<IterablePropertyItemIO> fromIterablePropertyItem(final List<IterablePropertyItemView> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemIO::new)
                 .collect(Collectors.toList());
     }
 
     public IterablePropertyItem toDomainInstance() {
-        List<AbstractValuedProperty> abstractValuedProperties = new ArrayList<>();
 
         // Récupération des valuedPropertyIOS dans la liste d'abstact et transformation en globalProperties du domaine
         List<ValuedPropertyIO> propertyIOS = AbstractValuedPropertyIO.getPropertyWithType(this.abstractValuedProperties, ValuedPropertyIO.class);
-        abstractValuedProperties.addAll(ValuedPropertyIO.toDomainInstances(new HashSet<>(propertyIOS)));
+        List<AbstractValuedProperty> abstractValuedProperties = new ArrayList<>(ValuedPropertyIO.toDomainInstances(new HashSet<>(propertyIOS)));
 
         // Récupération des iterableValuedPropertyIOS dans la liste d'abstact et transformation en iterableValuedProperties du domaine
         List<IterableValuedPropertyIO> iterableValuedPropertyIOS = AbstractValuedPropertyIO.getPropertyWithType(this.abstractValuedProperties, IterableValuedPropertyIO.class);

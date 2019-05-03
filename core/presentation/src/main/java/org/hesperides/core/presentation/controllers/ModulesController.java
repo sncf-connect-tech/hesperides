@@ -211,7 +211,7 @@ public class ModulesController extends AbstractController {
 
         List<ModuleView> moduleViews = moduleUseCases.search(input);
         List<ModuleIO> moduleOutputs = Optional.ofNullable(moduleViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ModuleIO::new)
                 .collect(Collectors.toList());

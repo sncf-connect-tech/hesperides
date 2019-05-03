@@ -26,7 +26,7 @@ public abstract class TemplateContainer {
 
     public List<String> getTemplatesName() {
         return Optional.ofNullable(templates)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(Template::getName)
                 .collect(Collectors.toList());

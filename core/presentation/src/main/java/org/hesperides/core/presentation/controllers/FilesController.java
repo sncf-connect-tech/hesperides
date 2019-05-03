@@ -23,7 +23,7 @@ import static org.hesperides.core.domain.security.User.fromAuthentication;
 @RestController
 public class FilesController extends AbstractController {
 
-    private FileUseCases filesUseCases;
+    private final FileUseCases filesUseCases;
 
     @Autowired
     public FilesController(final FileUseCases filesUseCases) {

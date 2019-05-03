@@ -57,9 +57,13 @@ public class PlatformClient {
                 platformInput.getApplicationName());
     }
 
-    public ResponseEntity copy(PlatformIO existingPlatform, PlatformIO newPlatform, Class responseType) {
+    public ResponseEntity copy(PlatformIO existingPlatform, PlatformIO newPlatform, boolean withoutInstancesAndProperties, Class responseType) {
+        String url = "/applications/{application_name}/platforms?from_application={from_application}&from_platform={from_platform}";
+        if (withoutInstancesAndProperties) {
+            url += "&copy_instances_and_properties=false";
+        }
         return restTemplate.postForEntity(
-                "/applications/{application_name}/platforms?from_application={from_application}&from_platform={from_platform}",
+                url,
                 newPlatform,
                 responseType,
                 existingPlatform.getApplicationName(),
