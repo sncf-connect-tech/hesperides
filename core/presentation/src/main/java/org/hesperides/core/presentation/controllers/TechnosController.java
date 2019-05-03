@@ -28,13 +28,10 @@ import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.core.domain.technos.queries.TechnoView;
-import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +48,7 @@ import java.util.stream.Collectors;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api("/templates/packages")
+@Api(tags = "5. Technos", description = " ")
 @RequestMapping({"/templates/packages", "/technos"})
 @RestController
 public class TechnosController extends AbstractController {
@@ -132,39 +129,6 @@ public class TechnosController extends AbstractController {
                 .orElseThrow(() -> new TechnoNotFoundException(technoKey));
     }
 
-    @ApiOperation("Update a template")
-    @PutMapping("/{techno_name}/{techno_version}/workingcopy/templates")
-    public ResponseEntity<TemplateIO> updateTemplateInWorkingCopy(Authentication authentication,
-                                                                  @PathVariable("techno_name") final String technoName,
-                                                                  @PathVariable("techno_version") final String technoVersion,
-                                                                  @Valid @RequestBody final TemplateIO templateInput) {
-
-        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        Template template = templateInput.toDomainInstance(technoKey);
-        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromAuthentication(authentication));
-
-        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, template.getName())
-                .map(TemplateIO::new)
-                .orElseThrow(() -> new TemplateNotFoundException(technoKey, template.getName()));
-
-        return ResponseEntity.ok(templateOutput);
-
-    }
-
-    @GetMapping("/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
-    @ApiOperation("Get template's details")
-    public ResponseEntity<TemplateIO> getTemplate(@PathVariable("techno_name") final String technoName,
-                                                  @PathVariable("techno_version") final String technoVersion,
-                                                  @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType,
-                                                  @PathVariable("template_name") final String templateName) {
-
-        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
-        TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateName)
-                .map(TemplateIO::new)
-                .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateName));
-        return ResponseEntity.ok(templateOutput);
-    }
-
     @ApiOperation("Delete a techno")
     @DeleteMapping("/{techno_name}/{techno_version}/{version_type}")
     public ResponseEntity deleteTechno(Authentication authentication,
@@ -178,32 +142,6 @@ public class TechnosController extends AbstractController {
         technoUseCases.deleteTechno(technoKey, fromAuthentication(authentication));
 
         return ResponseEntity.ok().build();
-    }
-
-    @ApiOperation("Delete template in the working copy of a version")
-    @DeleteMapping("/{techno_name}/{techno_version}/workingcopy/templates/{template_name:.+}")
-    public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
-                                                      @PathVariable("techno_name") final String technoName,
-                                                      @PathVariable("techno_version") final String technoVersion,
-                                                      @PathVariable("template_name") final String templateName) {
-
-        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        this.technoUseCases.deleteTemplate(technoKey, templateName, fromAuthentication(authentication));
-
-        return ResponseEntity.ok().build();
-    }
-
-    @ApiOperation("Get techno templates")
-    @GetMapping("/{techno_name}/{techno_version}/{version_type}/templates")
-    public ResponseEntity<List<PartialTemplateIO>> getTemplates(@PathVariable("techno_name") final String technoName,
-                                                                @PathVariable("techno_version") final String technoVersion,
-                                                                @PathVariable("version_type") final TemplateContainer.VersionType versionType) {
-
-        log.info("getTemplates {} {} {}", technoName, technoVersion, versionType);
-
-        TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, versionType);
-        List<TemplateView> templateViews = technoUseCases.getTemplates(technoKey);
-        return ResponseEntity.ok(templateViews.stream().map(PartialTemplateIO::new).collect(Collectors.toList()));
     }
 
     @ApiOperation("Create a release from an existing workingcopy")
@@ -222,7 +160,7 @@ public class TechnosController extends AbstractController {
         return ResponseEntity.created(releasedTechnoLocation).body(technoOutput);
     }
 
-    @ApiOperation("Search for technos")
+    @ApiOperation("Deprecated - Use GET /technos/perform_search instead")
     @PostMapping("/perform_search")
     @Deprecated
     public ResponseEntity<List<TechnoIO>> postSearch(@RequestParam("terms") final String input) {

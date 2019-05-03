@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api("/modules")
+@Api(tags = "1. Modules", description = " ", position = 1)
 @RequestMapping("/modules")
 @RestController
 public class ModulesController extends AbstractController {
@@ -197,7 +197,7 @@ public class ModulesController extends AbstractController {
         return ResponseEntity.ok(moduleOutput);
     }
 
-    @ApiOperation("Search for modules")
+    @ApiOperation("Deprecated - Use GET /modules/perform_search instead")
     @PostMapping("/perform_search")
     @Deprecated
     public ResponseEntity<List<ModuleIO>> postSearch(@RequestParam("terms") final String input) {
@@ -219,7 +219,7 @@ public class ModulesController extends AbstractController {
         return ResponseEntity.ok(moduleOutputs);
     }
 
-    @ApiOperation("Search for a single module")
+    @ApiOperation("Deprecated - Use GET /modules/search instead")
     @PostMapping("/search")
     @Deprecated
     public ResponseEntity<ModuleIO> postSearchSingle(@RequestParam("terms") final String input) {

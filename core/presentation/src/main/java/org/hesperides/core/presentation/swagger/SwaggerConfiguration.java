@@ -11,6 +11,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger.web.UiConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.net.URI;
@@ -45,7 +47,27 @@ public class SwaggerConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/"); // Permet de tenir de notre swagger-ui.html
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+
+    @Bean
+    UiConfiguration uiConfig() {
+        return UiConfigurationBuilder.builder()
+//                .deepLinking(true)
+//                .displayOperationId(false)
+                .defaultModelsExpandDepth(-1) // Permet de cacher le model
+//                .defaultModelExpandDepth(1)
+//                .defaultModelRendering(ModelRendering.EXAMPLE)
+//                .displayRequestDuration(false)
+//                .docExpansion(DocExpansion.NONE)
+//                .filter(false)
+//                .maxDisplayedTags(null)
+//                .operationsSorter(OperationsSorter.ALPHA)
+//                .showExtensions(false)
+//                .tagsSorter(TagsSorter.ALPHA)
+//                .supportedSubmitMethods(UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS)
+//                .validatorUrl(null)
+                .build();
     }
 }

@@ -29,7 +29,7 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api("/applications")
+@Api(tags = "3. Platforms", description = " ")
 @RequestMapping("/applications")
 @RestController
 public class PlatformsController extends AbstractController {
@@ -170,7 +170,7 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(appsOutput);
     }
 
-    @ApiOperation("Search applications")
+    @ApiOperation("Deprecated - Use GET /applications/perform_search instead")
     @PostMapping("/perform_search")
     @Deprecated
     public ResponseEntity<List<SearchResultOutput>> postSearchApplications(@RequestParam("name") String applicationName) {
@@ -193,7 +193,7 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(searchResultOutputs);
     }
 
-    @ApiOperation("List platforms of a given application")
+    @ApiOperation("Deprecated - Use GET /applications/platforms/perform_search instead")
     @PostMapping("/platforms/perform_search")
     @Deprecated
     public ResponseEntity<List<SearchResultOutput>> postSearchPlatforms(@RequestParam("applicationName") final String applicationName,
