@@ -51,10 +51,9 @@ public class PlatformClient {
 
     public ResponseEntity create(PlatformIO platformInput, Class responseType) {
         return restTemplate.postForEntity(
-                "/applications/{application_name}/platforms",
+                "/applications",
                 platformInput,
-                responseType,
-                platformInput.getApplicationName());
+                responseType);
     }
 
     public ResponseEntity copy(PlatformIO existingPlatform, PlatformIO newPlatform, boolean withoutInstancesAndProperties, Class responseType) {

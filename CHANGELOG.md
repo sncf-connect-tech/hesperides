@@ -37,6 +37,11 @@ gitchangelog && git add CHANGELOG.md
 - Simplification de /rest/versions & correction timezone du "build time" (#626) [Lucas Cimon]
 
 
+### Deprecated
+
+- POST /applications/{application_name}/platforms devient POST /applications. [Lucas Cimon]
+
+
 ### Fixed
 
 - Lors d'une copie de plateforme on ignore les deployed modules inactifs de l'historique (#624) [Lucas Cimon]

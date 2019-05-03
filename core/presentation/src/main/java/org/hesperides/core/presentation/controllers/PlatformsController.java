@@ -43,8 +43,19 @@ public class PlatformsController extends AbstractController {
 
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
+    @Deprecated
+    public ResponseEntity<PlatformIO> createPlatformOld(Authentication authentication,
+                                                        @PathVariable("application_name") final String applicationName,
+                                                        @RequestParam(value = "from_application", required = false) final String fromApplication,
+                                                        @RequestParam(value = "from_platform", required = false) final String fromPlatform,
+                                                        @RequestParam(value = "copy_instances_and_properties", defaultValue = "true", required = false) final boolean copyInstancesAndProperties,
+                                                        @Valid @RequestBody final PlatformIO platformInput) {
+        return createPlatform(authentication, fromApplication, fromPlatform, copyInstancesAndProperties, platformInput);
+    }
+
+    @PostMapping
+    @ApiOperation("Create platform")
     public ResponseEntity<PlatformIO> createPlatform(Authentication authentication,
-                                                     @Deprecated @PathVariable("application_name") final String applicationName,
                                                      @RequestParam(value = "from_application", required = false) final String fromApplication,
                                                      @RequestParam(value = "from_platform", required = false) final String fromPlatform,
                                                      @RequestParam(value = "copy_instances_and_properties", defaultValue = "true", required = false) final boolean copyInstancesAndProperties,
