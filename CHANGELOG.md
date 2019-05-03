@@ -27,7 +27,7 @@ gitchangelog && git add CHANGELOG.md
 ## _(unreleased)_
 ### Added
 
-- Paramètre booléen ?copy_instances_and_properties pour la copie de plateforme - close #634. [Lucas Cimon]
+- Paramètre booléen ?copy_instances_and_properties pour la copie de plateforme - close #634 (#635) [Lucas Cimon]
 
 - /{application_name}/platforms/{platform_name}/restore - implementation backend pour #622 (#631) [Lucas Cimon]
 
@@ -37,23 +37,20 @@ gitchangelog && git add CHANGELOG.md
 - Simplification de /rest/versions & correction timezone du "build time" (#626) [Lucas Cimon]
 
 
-### Deprecated
+### Fixed
 
-- POST /applications/{application_name}/platforms devient POST /applications. [Lucas Cimon]
+- #632 Simplification du Swagger (#633) [Thomas L'Hostis]
 
 
+
+## 2019-04-26
 ### Fixed
 
 - Lors d'une copie de plateforme on ignore les deployed modules inactifs de l'historique (#624) [Lucas Cimon]
 
 
 
-## 2019-04-26
-### Added
-
-- Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md (#616) [Lucas Cimon]
-
-
+## 2019-04-24
 ### Deprecated
 
 - POST /technos/perform_search (#618) [Lucas Cimon]
@@ -62,6 +59,13 @@ gitchangelog && git add CHANGELOG.md
 ### Fixed
 
 - Correction du GET /events/platforms/... & ajout tests BDD (#617) [Lucas Cimon]
+
+
+
+## 2019-04-23
+### Added
+
+- Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md (#616) [Lucas Cimon]
 
 
 
