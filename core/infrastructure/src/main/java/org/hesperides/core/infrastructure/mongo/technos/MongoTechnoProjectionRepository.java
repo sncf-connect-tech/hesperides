@@ -23,7 +23,6 @@ package org.hesperides.core.infrastructure.mongo.technos;
 import com.mongodb.client.DistinctIterable;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.technos.entities.Techno;
@@ -47,7 +46,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -96,14 +98,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
         TechnoDocument technoDocument = new TechnoDocument(event.getTechnoId(), event.getTechno());
-
-        if (HasProfile.dataMigration()) {
-            List<String> updatedTemplatesName = event.getTechno().getTemplatesName();
-            boolean isFirstEvent = axonEventRepository.hasOneEvent(event.getTechnoId());
-            technoDocument.extractPropertiesAndSave(technoRepository, updatedTemplatesName, isFirstEvent);
-        } else {
-            technoDocument.extractPropertiesAndSave(technoRepository, Collections.emptyList());
-        }
+        technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
     @Override
@@ -134,14 +129,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.addTemplate(templateDocument);
 
-        if (HasProfile.dataMigration()) {
-            List<String> updatedTemplatesName = Arrays.asList(event.getTemplate().getName());
-            technoDocument.extractPropertiesAndSave(technoRepository, updatedTemplatesName);
-            updateModelsUsingTechno(event.getTechnoId(), updatedTemplatesName);
-        } else {
-            technoDocument.extractPropertiesAndSave(technoRepository, Collections.emptyList());
-            updateModelsUsingTechno(event.getTechnoId(), Collections.emptyList());
-        }
+        technoDocument.extractPropertiesAndSave(technoRepository);
+        updateModelsUsingTechno(event.getTechnoId());
     }
 
     @EventHandler
@@ -154,14 +143,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         TechnoDocument technoDocument = optTechnoDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         technoDocument.updateTemplate(templateDocument);
-        if (HasProfile.dataMigration()) {
-            List<String> updatedTemplatesName = Arrays.asList(event.getTemplate().getName());
-            technoDocument.extractPropertiesAndSave(technoRepository, updatedTemplatesName);
-            updateModelsUsingTechno(event.getTechnoId(), updatedTemplatesName);
-        } else {
-            technoDocument.extractPropertiesAndSave(technoRepository, Collections.emptyList());
-            updateModelsUsingTechno(event.getTechnoId(), Collections.emptyList());
-        }
+        technoDocument.extractPropertiesAndSave(technoRepository);
+        updateModelsUsingTechno(event.getTechnoId());
     }
 
     @EventHandler
@@ -173,8 +156,8 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         }
         TechnoDocument technoDocument = optTechnoDocument.get();
         technoDocument.removeTemplate(event.getTemplateName());
-        technoDocument.extractPropertiesAndSave(technoRepository, Collections.emptyList());
-        updateModelsUsingTechno(event.getTechnoId(), Collections.emptyList());
+        technoDocument.extractPropertiesAndSave(technoRepository);
+        updateModelsUsingTechno(event.getTechnoId());
     }
 
     /**
@@ -182,9 +165,9 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
      * Cette logique devrait se trouver dans la couche application,
      * mais le batch de migration nécessite de l'avoir ici.
      */
-    private void updateModelsUsingTechno(String technoId, List<String> updatesTemplatesName) {
+    private void updateModelsUsingTechno(String technoId) {
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnoId(technoId);
-        moduleDocuments.forEach(moduleDocument -> moduleDocument.extractPropertiesAndSave(moduleRepository, updatesTemplatesName));
+        moduleDocuments.forEach(moduleDocument -> moduleDocument.extractPropertiesAndSave(moduleRepository));
     }
 
     /*** QUERY HANDLERS ***/

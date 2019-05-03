@@ -16,6 +16,10 @@ import java.util.Optional;
 public class InmemoryPlatformRepository implements MinimalPlatformRepository {
 
     private PlatformDocument currentPlatformDocument = null;
+    // On conserve le PlatformDocument lorsqu'il est supprimé,
+    // pour être récupéré via RestoreDeletedPlatform.
+    // On stocke donc l'état existant/supprimé dans un booléen :
+    private boolean exist = true; // false => deleted
 
     public PlatformDocument getCurrentPlatformDocument() {
         return currentPlatformDocument;
@@ -24,12 +28,13 @@ public class InmemoryPlatformRepository implements MinimalPlatformRepository {
     @Override
     public PlatformDocument save(PlatformDocument platformDoc) {
         currentPlatformDocument = platformDoc;
+        exist = true;
         return platformDoc;
     }
 
     @Override
     public Optional<PlatformDocument> findById(String id) {
-        if (currentPlatformDocument == null || !id.equals(currentPlatformDocument.getId())) {
+        if (!exist || !id.equals(currentPlatformDocument.getId())) {
             throw new UnsupportedOperationException();
         }
         return Optional.of(currentPlatformDocument);
@@ -37,9 +42,9 @@ public class InmemoryPlatformRepository implements MinimalPlatformRepository {
 
     @Override
     public void deleteById(String id) {
-        if (currentPlatformDocument == null || !id.equals(currentPlatformDocument.getId())) {
+        if (!exist || !id.equals(currentPlatformDocument.getId())) {
             throw new UnsupportedOperationException();
         }
-        currentPlatformDocument = null;
+        exist = false;
     }
 }

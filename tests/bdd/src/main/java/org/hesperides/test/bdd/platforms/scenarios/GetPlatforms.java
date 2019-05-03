@@ -41,7 +41,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
     public GetPlatforms() {
 
-        When("^I( try to)? get the platform detail( at a specific time in the past)?( at the time of the EPOCH)?( with the wrong letter case)?$", (String tryTo, String withTimestamp, String withEpochTimestamp, String withWrongLetterCase) -> {
+        When("^(?:when )?I( try to)? get the platform detail( at a specific time in the past)?( at the time of the EPOCH)?( with the wrong letter case)?$", (String tryTo, String withTimestamp, String withEpochTimestamp, String withWrongLetterCase) -> {
             Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 timestamp = platformHistory.getFirstPlatformTimestamp();

@@ -45,42 +45,16 @@ public abstract class AbstractProperty {
 
     String name;
 
-    public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates, List<String> updatedTemplatesName, boolean isFirstEvent, String templateContainerKey) {
+    public static List<AbstractProperty> extractPropertiesFromTemplates(Collection<Template> templates, String templateContainerKey) {
         Set<AbstractProperty> properties = new HashSet<>();
 
-        if (HasProfile.dataMigration()) {
-
-            Stream<AbstractProperty> updatedTemplatesProperties = Optional.ofNullable(templates)
-                    .orElse(Collections.emptyList()).stream()
-                    .sorted((template1, template2) -> isFirstEvent ? template2.getName().compareTo(template1.getName()) : template1.getName().compareTo(template2.getName()))
-                    .filter(template -> updatedTemplatesName.stream().anyMatch(updatedTemplateName -> updatedTemplateName.equalsIgnoreCase(template.getName())))
-                    .map(Template::extractProperties)
-                    .flatMap(List::stream);
-            List<AbstractProperty> mergedUpdatedProperties = mergeAbstractPropertyDefinitions(updatedTemplatesProperties, templateContainerKey)
-                    .collect(Collectors.toList());
-            properties.addAll(mergedUpdatedProperties);
-
-            Stream<AbstractProperty> otherTemplatesProperties = Optional.ofNullable(templates)
-                    .orElse(Collections.emptyList()).stream()
-                    .sorted((template1, template2) -> template2.getName().compareTo(template1.getName()))
-                    .filter(template -> updatedTemplatesName.stream().noneMatch(updatedTemplate -> updatedTemplate.equalsIgnoreCase(template.getName())))
-                    .map(Template::extractProperties)
-                    .flatMap(List::stream);
-            List<AbstractProperty> mergedOtherProperties = mergeAbstractPropertyDefinitions(otherTemplatesProperties, templateContainerKey)
-                    .collect(Collectors.toList());
-            properties.addAll(mergedOtherProperties);
-
-        } else {
-
-            Stream<AbstractProperty> propertiesFromTemplates = Optional.ofNullable(templates)
-                    .orElse(Collections.emptyList()).stream()
-                    .map(Template::extractProperties)
-                    .flatMap(List::stream);
-            List<AbstractProperty> mergedProperties = mergeAbstractPropertyDefinitions(propertiesFromTemplates, templateContainerKey)
-                    .collect(Collectors.toList());
-            properties.addAll(mergedProperties);
-
-        }
+        Stream<AbstractProperty> propertiesFromTemplates = Optional.ofNullable(templates)
+                .orElse(Collections.emptyList()).stream()
+                .map(Template::extractProperties)
+                .flatMap(List::stream);
+        List<AbstractProperty> mergedProperties = mergeAbstractPropertyDefinitions(propertiesFromTemplates, templateContainerKey)
+                .collect(Collectors.toList());
+        properties.addAll(mergedProperties);
 
         return new ArrayList<>(properties);
     }

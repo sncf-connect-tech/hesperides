@@ -22,7 +22,6 @@ package org.hesperides.core.infrastructure.mongo.modules;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -53,11 +52,6 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         this.moduleRepository = moduleRepository;
     }
 
-    // Only exists for batch:
-    public void setMongoModuleRepository(MongoModuleRepository moduleRepository) {
-        this.moduleRepository = moduleRepository;
-    }
-
     /*** EVENT HANDLERS ***/
 
     @EventHandler
@@ -69,19 +63,8 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
-        if (HasProfile.dataMigration()) {
-            // this is only needed for the time of the migration, as checks are already done in the application layer
-            boolean templateAlreadyExist = moduleDocument.getTemplates().stream().anyMatch(existingTemplate -> existingTemplate.getName().equals(templateDocument.getName()));
-            if (templateAlreadyExist) {
-                moduleDocument.updateTemplate(templateDocument);
-            } else {
-                moduleDocument.addTemplate(templateDocument);
-            }
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
-        } else {
-            moduleDocument.addTemplate(templateDocument);
-            moduleDocument.extractPropertiesAndSave(moduleRepository);
-        }
+        moduleDocument.addTemplate(templateDocument);
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventHandler
@@ -94,11 +77,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
         ModuleDocument moduleDocument = optModuleDocument.get();
         TemplateDocument templateDocument = new TemplateDocument(event.getTemplate());
         moduleDocument.updateTemplate(templateDocument);
-        if (HasProfile.dataMigration()) {
-            moduleDocument.extractPropertiesAndSave(moduleRepository, Arrays.asList(event.getTemplate().getName()));
-        } else {
-            moduleDocument.extractPropertiesAndSave(moduleRepository);
-        }
+        moduleDocument.extractPropertiesAndSave(moduleRepository);
     }
 
     @EventHandler

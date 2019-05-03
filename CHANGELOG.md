@@ -29,6 +29,10 @@ gitchangelog && git add CHANGELOG.md
 
 - Changed: simplification de /rest/versions & correction timezone du "build time" [Lucas Cimon]
 
+### Added
+
+- Add: /{application_name}/platforms/{platform_name}/restore - implementation backend pour #622. [Lucas Cimon]
+
 
 ### Fixed
 

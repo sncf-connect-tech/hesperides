@@ -29,6 +29,7 @@ import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -99,6 +100,13 @@ public class PlatformAggregate implements Serializable {
                 command.getPlatformId(),
                 (command.getPlatformVersionId() + 1),
                 command.getValuedProperties(),
+                command.getUser().getName()));
+    }
+
+    @CommandHandler
+    public void onRestoreDeletedPlatformCommandnd(RestoreDeletedPlatformCommand command) {
+        apply(new RestoreDeletedPlatformEvent(
+                command.getPlatformId(),
                 command.getUser().getName()));
     }
 

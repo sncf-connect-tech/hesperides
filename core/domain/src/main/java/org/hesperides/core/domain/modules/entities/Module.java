@@ -25,6 +25,12 @@ public class Module extends TemplateContainer {
         this.versionId = versionId;
     }
 
+    @Override
+    public Module validateTemplates() {
+        return (Module) super.validateTemplates();
+    }
+
+
     public Module initializeVersionId() {
         return new Module(getKey(), getTemplates(), technos, 1L);
     }
@@ -88,6 +94,9 @@ public class Module extends TemplateContainer {
 
         public static Key fromPropertiesPath(final String propertiesPath) {
             String[] parts = propertiesPath.split("#");
+            if (parts.length < 3) {
+                throw new IllegalArgumentException("Too short properties path: " + propertiesPath);
+            }
             VersionType versionType = parts[parts.length - 1].toUpperCase().equals("RELEASE") ? VersionType.release : VersionType.workingcopy;
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
         }

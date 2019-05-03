@@ -25,6 +25,7 @@ import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.security.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -66,5 +67,9 @@ public class PlatformCommands {
                                        final List<ValuedProperty> valuedProperties,
                                        final User user) {
         commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformId, platformVersionId, valuedProperties, user));
+    }
+
+    public void restoreDeletedPlatform(final String platformId, final User user) {
+        commandGateway.sendAndWait(new RestoreDeletedPlatformCommand(platformId, user));
     }
 }

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
-@Api("/modules")
+@Api(tags = "2. Module templates", description = " ")
 @RequestMapping("/modules/{module_name}/{module_version}")
 @RestController
 public class ModuleTemplatesController extends AbstractController {

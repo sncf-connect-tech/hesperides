@@ -50,6 +50,10 @@ public class PlatformQueries extends AxonQueries {
         return querySyncOptional(new GetPlatformIdFromKeyQuery(platformKey), String.class);
     }
 
+    public Optional<String> getOptionalPlatformIdFromEvents(Platform.Key platformKey) {
+        return querySyncOptional(new GetPlatformIdFromEvents(platformKey), String.class);
+    }
+
     public Optional<PlatformView> getOptionalPlatform(String platformId) {
         return querySyncOptional(new GetPlatformByIdQuery(platformId), PlatformView.class);
     }
