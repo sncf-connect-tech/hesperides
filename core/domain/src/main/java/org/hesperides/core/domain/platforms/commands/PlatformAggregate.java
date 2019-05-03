@@ -108,6 +108,7 @@ public class PlatformAggregate implements Serializable {
         apply(new RestoreDeletedPlatformEvent(
                 command.getPlatformId(),
                 command.getUser().getName()));
+        this.versionId++;
     }
 
     /*** EVENT HANDLERS ***/
