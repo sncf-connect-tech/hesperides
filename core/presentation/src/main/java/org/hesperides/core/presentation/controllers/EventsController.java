@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @RestController
 public class EventsController extends AbstractController {
 
-    private EventUseCases eventUseCases;
+    private final EventUseCases eventUseCases;
 
     @Autowired
     public EventsController(final EventUseCases eventUseCases) {

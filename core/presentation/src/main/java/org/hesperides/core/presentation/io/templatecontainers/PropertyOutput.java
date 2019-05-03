@@ -10,10 +10,7 @@ import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyVie
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Value
@@ -91,7 +88,7 @@ public class PropertyOutput {
 
     private static Set<PropertyOutput> fromAbstractPropertyViews(List<AbstractPropertyView> abstractPropertyViews) {
         return Optional.ofNullable(abstractPropertyViews)
-                .orElse(null)
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(PropertyOutput::new)
                 .collect(Collectors.toSet());

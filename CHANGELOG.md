@@ -25,13 +25,21 @@ gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
-### Changed
-
-- Changed: simplification de /rest/versions & correction timezone du "build time" [Lucas Cimon]
-
 ### Added
 
-- Add: /{application_name}/platforms/{platform_name}/restore - implementation backend pour #622. [Lucas Cimon]
+- Paramètre booléen ?copy_instances_and_properties pour la copie de plateforme - close #634. [Lucas Cimon]
+
+- /{application_name}/platforms/{platform_name}/restore - implementation backend pour #622 (#631) [Lucas Cimon]
+
+
+### Changed
+
+- Simplification de /rest/versions & correction timezone du "build time" (#626) [Lucas Cimon]
+
+
+### Deprecated
+
+- POST /applications/{application_name}/platforms devient POST /applications. [Lucas Cimon]
 
 
 ### Fixed
@@ -39,15 +47,16 @@ gitchangelog && git add CHANGELOG.md
 - Lors d'une copie de plateforme on ignore les deployed modules inactifs de l'historique (#624) [Lucas Cimon]
 
 
+
 ## 2019-04-26
 ### Added
 
-- Added: Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md (#616) [Lucas Cimon]
+- Utilisation de `gitchangelog` pour générer ce fichier CHANGELOG.md (#616) [Lucas Cimon]
 
 
 ### Deprecated
 
-- Deprecated: POST /technos/perform_search (#618) [Lucas Cimon]
+- POST /technos/perform_search (#618) [Lucas Cimon]
 
 
 ### Fixed

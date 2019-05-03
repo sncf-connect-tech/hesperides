@@ -176,7 +176,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         List<AbstractPropertyDocument> modulePropertiesModel = mongoModuleRepository
                 .findPropertiesByModuleKey(moduleKeyDocument)
                 .map(ModuleDocument::getProperties)
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
         deployedModuleDocument.setValuedProperties(AbstractValuedPropertyDocument.completePropertiesWithMustacheContent(abstractValuedProperties, modulePropertiesModel));
     }
 
@@ -352,7 +352,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(PlatformDocument::getActiveDeployedModules)
                 .orElse(Stream.empty())
                 .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getValuedProperties())
-                        .orElse(Collections.emptyList())
+                        .orElseGet(Collections::emptyList)
                         .stream())
                 .collect(Collectors.toList());
 
@@ -370,7 +370,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(PlatformDocument::getActiveDeployedModules)
                 .orElse(Stream.empty())
                 .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getInstancesModel())
-                        .orElse(Collections.emptyList())
+                        .orElseGet(Collections::emptyList)
                         .stream())
                 .collect(Collectors.toList());
     }
@@ -382,7 +382,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         return platformRepository.findGlobalPropertiesByPlatformKey(platformKeyDocument)
                 .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 
     @Override

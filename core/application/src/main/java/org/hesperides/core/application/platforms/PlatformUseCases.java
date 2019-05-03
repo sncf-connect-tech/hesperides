@@ -7,6 +7,7 @@ import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
@@ -54,7 +55,7 @@ public class PlatformUseCases {
         return commands.createPlatform(platform, user);
     }
 
-    public String copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, User user) {
+    public String copyPlatform(Platform newPlatform, Platform.Key existingPlatformKey, boolean copyInstancesAndProperties, User user) {
         if (queries.platformExists(newPlatform.getKey())) {
             throw new DuplicatePlatformException(newPlatform.getKey());
         }
@@ -63,14 +64,21 @@ public class PlatformUseCases {
         if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.isProd()) {
             throw new ForbiddenOperationException("Creating a platform from a production platform is reserved to production role");
         }
+        List<DeployedModule> deployedModules = DeployedModuleView.toDomainDeployedModules(existingPlatform.getActiveDeployedModules());
+        if (!copyInstancesAndProperties) {
+            deployedModules = deployedModules.stream()
+                    .map(DeployedModule::copyWithoutInstancesNorProperties)
+                    .collect(Collectors.toList());
+        }
+        List<ValuedProperty> globalProperties = copyInstancesAndProperties ? ValuedPropertyView.toDomainValuedProperties(existingPlatform.getGlobalProperties()) : Collections.emptyList();
         // cf. createPlatformFromExistingPlatform in https://github.com/voyages-sncf-technologies/hesperides/blob/fix/3.0.3/src/main/java/com/vsct/dt/hesperides/applications/AbstractApplicationsAggregate.java#L156
         Platform newFullPlatform = new Platform(
                 newPlatform.getKey(),
                 newPlatform.getVersion(),
                 newPlatform.isProductionPlatform(),
                 1L,
-                DeployedModuleView.toDomainDeployedModules(existingPlatform.getActiveDeployedModules()),
-                ValuedPropertyView.toDomainValuedProperties(existingPlatform.getGlobalProperties())
+                deployedModules,
+                globalProperties
         );
         return commands.createPlatform(newFullPlatform, user);
     }

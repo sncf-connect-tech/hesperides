@@ -40,7 +40,7 @@ public class InstanceView {
 
     public static List<Instance> toDomainInstances(List<InstanceView> instances) {
         return Optional.ofNullable(instances)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstanceView::toDomainInstance)
                 .collect(Collectors.toList());

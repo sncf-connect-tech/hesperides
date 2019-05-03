@@ -64,7 +64,7 @@ public class IterableValuedPropertyDocument extends AbstractValuedPropertyDocume
                 .filter(iterablePropertyDocument -> name.equals(iterablePropertyDocument.getName()))
                 .findFirst()
                 .map(IterablePropertyDocument::getProperties)
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
 
         List<IterablePropertyItemDocument> completedItems = new ArrayList<>();
         this.items.forEach(item -> {

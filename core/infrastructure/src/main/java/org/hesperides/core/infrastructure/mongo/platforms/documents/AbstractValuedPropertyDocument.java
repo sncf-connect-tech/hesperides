@@ -43,7 +43,7 @@ public abstract class AbstractValuedPropertyDocument {
 
     public static List<AbstractValuedPropertyDocument> fromAbstractDomainInstances(final List<AbstractValuedProperty> abstractValuedProperties) {
         return Optional.ofNullable(abstractValuedProperties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(abstractValuedProperty -> abstractValuedProperty instanceof ValuedProperty
                         ? new ValuedPropertyDocument((ValuedProperty) abstractValuedProperty)
@@ -53,7 +53,7 @@ public abstract class AbstractValuedPropertyDocument {
 
     static List<AbstractValuedProperty> toAbstractDomainInstances(List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments) {
         return Optional.ofNullable(abstractValuedPropertyDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractValuedPropertyDocument::toDomainInstance)
                 .collect(Collectors.toList());
@@ -61,7 +61,7 @@ public abstract class AbstractValuedPropertyDocument {
 
     public static List<AbstractValuedPropertyView> toViews(final List<AbstractValuedPropertyDocument> properties) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractValuedPropertyDocument::toView)
                 .collect(Collectors.toList());

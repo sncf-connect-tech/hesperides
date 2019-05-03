@@ -83,7 +83,7 @@ ignore_regexps = [
 ##
 section_regexps = [
     ('Added', [
-        r'^[aA]dd(ed)?\s*:.*$',
+        r'^[aA]dd(?:ed)?\s*:.*$',
      ]),
     ('Changed', [
         r'^[cC]hanged\s*:.*$',
@@ -95,10 +95,10 @@ section_regexps = [
         r'^[rR]emoved\s*:.*$',
      ]),
     ('Fixed', [
-        r'^[fF]ix(ed)?\s*:.*$',
+        r'^[fF]ix(?:ed)?\s*:.*$',
      ]),
     ('Security', [
-        r'^[sS]ecu(rity)?\s*:.*$',
+        r'^[sS]ecu(?:rity)?\s*:.*$',
      ]),
 ]
 
@@ -147,7 +147,7 @@ body_process = ReSub(r'((^|\n)[A-Z]\w+(-\w+)*: .*(\n\s+.*)*)+$', r'') | strip
 ##
 ## Available constructs are those listed in ``body_process`` doc.
 subject_process = (strip |
-    ReSub(r'^([cC]hg|[fF]ix|[nN]ew)\s*:\s*((dev|use?r|pkg|test|doc)\s*:\s*)?([^\n@]*)(@[a-z]+\s+)*$', r'\4') |
+    ReSub(r'^([aA]dd(?:ed)?|[cC]hanged|[dD]eprecated|[rR]emoved|[fF]ix|[sS]ecu(?:rity))\s*:\s*((dev|use?r|pkg|test|doc)\s*:\s*)?([^\n@]*)(@[a-z]+\s+)*$', r'\4') |
     SetIfEmpty("No commit message.") | ucfirst | final_dot)
 
 

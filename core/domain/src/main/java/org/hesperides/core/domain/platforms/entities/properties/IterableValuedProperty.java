@@ -43,7 +43,7 @@ public class IterableValuedProperty extends AbstractValuedProperty {
     @Override
     protected Stream<ValuedProperty> flattenProperties() {
         return Optional.ofNullable(items)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItem::getAbstractValuedProperties)
                 .flatMap(List::stream)

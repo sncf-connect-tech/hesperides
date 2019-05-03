@@ -43,7 +43,7 @@ public class UsersController extends AbstractController {
 
         User currentUser = User.fromAuthentication(authentication);
 
-        Map userInfo = new HashMap<>();
+        Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("username", currentUser.getName());
         userInfo.put("prodUser", currentUser.isProd());
         userInfo.put("techUser", currentUser.isTech());

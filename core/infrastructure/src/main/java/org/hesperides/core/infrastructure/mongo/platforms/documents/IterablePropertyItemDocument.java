@@ -26,7 +26,7 @@ public class IterablePropertyItemDocument {
 
     public static List<IterablePropertyItemView> toIterablePropertyItemViews(final List<IterablePropertyItemDocument> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemDocument::toIterablePropertyItemView)
                 .collect(Collectors.toList());
@@ -39,7 +39,7 @@ public class IterablePropertyItemDocument {
 
     public static List<IterablePropertyItem> toDomainInstances(List<IterablePropertyItemDocument> iterablePropertyItemDocuments) {
         return Optional.ofNullable(iterablePropertyItemDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemDocument::toDomainInstance)
                 .collect(Collectors.toList());
@@ -54,7 +54,7 @@ public class IterablePropertyItemDocument {
 
     public static List<IterablePropertyItemDocument> fromDomainInstances(List<IterablePropertyItem> items) {
         return Optional.ofNullable(items)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(IterablePropertyItemDocument::new)
                 .collect(Collectors.toList());

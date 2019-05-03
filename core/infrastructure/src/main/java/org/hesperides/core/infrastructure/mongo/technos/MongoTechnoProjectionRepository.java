@@ -237,7 +237,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
                         .stream()
                         .map(templateDocument -> templateDocument.toTemplateView(technoKey))
                         .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 
     @QueryHandler
@@ -271,7 +271,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos, TemplateContainer.Key moduleKey) {
-        technos = Optional.ofNullable(technos).orElse(Collections.emptyList());
+        technos = Optional.ofNullable(technos).orElseGet(Collections::emptyList);
         List<TechnoDocument> technoDocs = technoRepository.findAllByKeyIn(technos.stream()
                 .map(techno -> new KeyDocument(techno.getKey()))
                 .collect(Collectors.toList()));

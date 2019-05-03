@@ -23,7 +23,7 @@ public class IterablePropertyView extends AbstractPropertyView {
     @Override
     protected Stream<PropertyView> flattenProperties() {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(AbstractPropertyView::flattenProperties)
                 .flatMap(Function.identity());

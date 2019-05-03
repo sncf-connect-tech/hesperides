@@ -58,7 +58,7 @@ public class InstanceIO {
 
     public static List<Instance> toDomainInstances(List<InstanceIO> instanceIOS) {
         return Optional.ofNullable(instanceIOS)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstanceIO::toDomainInstance)
                 .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class InstanceIO {
 
     public static List<InstanceIO> fromInstanceViews(List<InstanceView> instanceViews) {
         return Optional.ofNullable(instanceViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(InstanceIO::new)
                 .collect(Collectors.toList());

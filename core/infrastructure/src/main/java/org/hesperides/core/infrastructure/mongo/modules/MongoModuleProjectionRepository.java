@@ -195,7 +195,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         return moduleRepository.findPropertiesByModuleKey(moduleKey)
                 .map(ModuleDocument::getProperties)
                 .map(AbstractPropertyDocument::toViews)
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 
     @Override

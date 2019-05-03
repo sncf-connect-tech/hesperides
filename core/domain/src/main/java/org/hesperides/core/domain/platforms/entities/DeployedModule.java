@@ -74,6 +74,19 @@ public class DeployedModule {
         instancesModel = other.instancesModel;
     }
 
+    public DeployedModule copyWithoutInstancesNorProperties() {
+        return new DeployedModule(
+                id,
+                name,
+                version,
+                isWorkingCopy,
+                modulePath,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList()
+        );
+    }
+
     // public for testing
     public String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));

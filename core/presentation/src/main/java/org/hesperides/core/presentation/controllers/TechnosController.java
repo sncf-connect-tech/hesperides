@@ -175,7 +175,7 @@ public class TechnosController extends AbstractController {
 
         List<TechnoView> technoViews = technoUseCases.search(input);
         List<TechnoIO> technoOutputs = Optional.ofNullable(technoViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TechnoIO::new)
                 .collect(Collectors.toList());

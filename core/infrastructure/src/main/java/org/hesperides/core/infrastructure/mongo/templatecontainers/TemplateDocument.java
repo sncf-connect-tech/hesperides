@@ -55,7 +55,7 @@ public class TemplateDocument {
 
     public static List<TemplateDocument> fromDomainInstances(List<Template> templates) {
         return Optional.ofNullable(templates)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TemplateDocument::new)
                 .collect(Collectors.toList());
@@ -63,7 +63,7 @@ public class TemplateDocument {
 
     public static List<TemplateView> toTemplateViews(List<TemplateDocument> templateDocuments, TemplateContainer.Key key) {
         return Optional.ofNullable(templateDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(templateDocument -> templateDocument.toTemplateView(key))
                 .collect(Collectors.toList());
@@ -71,7 +71,7 @@ public class TemplateDocument {
 
     public static List<Template> toDomainInstances(List<TemplateDocument> templateDocuments, TemplateContainer.Key key) {
         return Optional.ofNullable(templateDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(templateDocument -> templateDocument.toDomainInstance(key))
                 .collect(Collectors.toList());

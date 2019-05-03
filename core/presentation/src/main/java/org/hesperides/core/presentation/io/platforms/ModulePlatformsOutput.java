@@ -50,7 +50,7 @@ public class ModulePlatformsOutput {
 
     public static List<ModulePlatformsOutput> fromViews(List<ModulePlatformView> modulePlatformViews) {
         return Optional.ofNullable(modulePlatformViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .sorted(Comparator.comparing(ModulePlatformView::getPlatformName))
                 .map(ModulePlatformsOutput::new)

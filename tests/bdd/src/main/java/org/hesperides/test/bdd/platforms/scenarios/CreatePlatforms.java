@@ -360,7 +360,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformHistory.addPlatform();
         });
 
-        When("^I( try to)? copy this platform( using the same key)?( to a non-prod one)?$", (String tryTo, String usingTheSameKey, String toNonProd) -> {
+        When("^I( try to)? copy this platform( without instances & properties)?( using the same key)?( to a non-prod one)?$", (String tryTo, String withoutInstancesAndProperties, String usingTheSameKey, String toNonProd) -> {
             PlatformIO existingPlatform = platformBuilder.buildInput();
             String newName = isNotEmpty(usingTheSameKey) ? existingPlatform.getPlatformName() : existingPlatform.getPlatformName() + "-copy";
             PlatformBuilder newPlatform = new PlatformBuilder()
@@ -369,7 +369,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (isNotEmpty(toNonProd)) {
                 newPlatform.withIsProductionPlatform(false);
             }
-            testContext.responseEntity = platformClient.copy(existingPlatform, newPlatform.buildInput(), getResponseType(tryTo, PlatformIO.class));
+            testContext.responseEntity = platformClient.copy(existingPlatform, newPlatform.buildInput(), isNotEmpty(withoutInstancesAndProperties), getResponseType(tryTo, PlatformIO.class));
             platformBuilder.withPlatformName(newName);
             platformBuilder.withVersionId(1);
         });
@@ -396,11 +396,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
             assertEquals(HttpStatus.valueOf(httpCode), testContext.responseEntity.getStatusCode());
             assertThat((String) testContext.getResponseBody(), containsString(message));
-        });
-
-        Then("^there is (\\d+) module on this platform$", (Integer moduleCount) -> {
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
-            assertThat(actualPlatform.getDeployedModules(), hasSize(moduleCount));
         });
 
         Then("^the platform creation fails with an already exist error$", () -> {

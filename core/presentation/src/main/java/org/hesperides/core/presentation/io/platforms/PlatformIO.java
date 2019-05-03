@@ -89,7 +89,7 @@ public class PlatformIO {
 
     public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews, boolean hidePlatformsModules) {
         return Optional.ofNullable(platformViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(platformView -> new PlatformIO(platformView, hidePlatformsModules))
                 .collect(toList());

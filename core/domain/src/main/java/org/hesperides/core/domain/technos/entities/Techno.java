@@ -20,7 +20,7 @@ public class Techno extends TemplateContainer {
 
     public static List<String> getTemplatesName(List<Techno> technos) {
         return Optional.ofNullable(technos)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TemplateContainer::getTemplatesName)
                 .flatMap(List::stream)

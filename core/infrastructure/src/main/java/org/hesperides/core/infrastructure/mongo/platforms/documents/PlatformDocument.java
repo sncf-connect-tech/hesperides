@@ -64,7 +64,7 @@ public class PlatformDocument {
     }
 
     public Stream<DeployedModuleDocument> getActiveDeployedModules() {
-        return Optional.ofNullable(deployedModules).orElse(Collections.emptyList())
+        return Optional.ofNullable(deployedModules).orElseGet(Collections::emptyList)
                 .stream().filter(deployedModule -> deployedModule.getId() > 0);
     }
 
@@ -108,7 +108,7 @@ public class PlatformDocument {
 
     public void buildInstancesModelAndSave(MinimalPlatformRepository platformRepository) {
         deployedModules = Optional.ofNullable(deployedModules)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(deployedModule -> deployedModule.buildInstancesModel(globalProperties))
                 .collect(Collectors.toList());

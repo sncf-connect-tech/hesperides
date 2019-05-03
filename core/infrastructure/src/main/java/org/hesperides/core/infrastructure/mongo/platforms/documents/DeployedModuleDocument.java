@@ -75,7 +75,7 @@ public class DeployedModuleDocument {
 
     public static List<DeployedModuleDocument> fromDomainInstances(List<DeployedModule> deployedModules) {
         return Optional.ofNullable(deployedModules)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(DeployedModuleDocument::new)
                 .collect(Collectors.toList());
@@ -83,7 +83,7 @@ public class DeployedModuleDocument {
 
     public static List<DeployedModuleView> toDeployedModuleViews(List<DeployedModuleDocument> deployedModules) {
         return Optional.ofNullable(deployedModules)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(DeployedModuleDocument::toDeployedModuleView)
                 .collect(Collectors.toList());

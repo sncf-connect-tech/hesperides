@@ -49,7 +49,7 @@ public abstract class AbstractProperty {
         Set<AbstractProperty> properties = new HashSet<>();
 
         Stream<AbstractProperty> propertiesFromTemplates = Optional.ofNullable(templates)
-                .orElse(Collections.emptyList()).stream()
+                .orElseGet(Collections::emptyList).stream()
                 .map(Template::extractProperties)
                 .flatMap(List::stream);
         List<AbstractProperty> mergedProperties = mergeAbstractPropertyDefinitions(propertiesFromTemplates, templateContainerKey)

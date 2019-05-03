@@ -59,7 +59,7 @@ public class TechnoDocument {
 
     public static List<TechnoView> toTechnoViews(List<TechnoDocument> technos) {
         return Optional.ofNullable(technos)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TechnoDocument::toTechnoView)
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class TechnoDocument {
 
     public static List<Techno> toDomainInstances(List<TechnoDocument> technoDocuments) {
         return Optional.ofNullable(technoDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TechnoDocument::toDomainInstance)
                 .collect(Collectors.toList());

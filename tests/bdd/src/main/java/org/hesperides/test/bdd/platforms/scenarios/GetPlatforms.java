@@ -23,12 +23,17 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class GetPlatforms extends HesperidesScenario implements En {
 
@@ -60,6 +65,19 @@ public class GetPlatforms extends HesperidesScenario implements En {
             PlatformIO expectedPlatform = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformState() : platformBuilder.buildOutput();
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
+        });
+
+        Then("^there is (\\d+) module on this(?: new)? platform$", (Integer moduleCount) -> {
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            assertThat(actualPlatform.getDeployedModules(), hasSize(moduleCount));
+        });
+
+        Then("^there are (\\d+) instances$", (Integer expectedCount) -> {
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            int instancesCount = actualPlatform.getDeployedModules().stream()
+                    .mapToInt(deployedModule -> deployedModule.getInstances().size())
+                    .sum();
+            assertEquals(expectedCount.intValue(), instancesCount);
         });
     }
 }

@@ -54,7 +54,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public static List<ValuedProperty> toDomainInstances(List<ValuedPropertyDocument> valuedPropertyDocuments) {
         return Optional.ofNullable(valuedPropertyDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ValuedPropertyDocument::toDomainInstance)
                 .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public static List<ValuedPropertyDocument> fromDomainInstances(List<ValuedProperty> valuedProperties) {
         return Optional.ofNullable(valuedProperties)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ValuedPropertyDocument::new)
                 .collect(Collectors.toList());
@@ -74,7 +74,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     public static List<ValuedPropertyView> toValuedPropertyViews(List<ValuedPropertyDocument> valuedPropertyDocuments) {
         return Optional.ofNullable(valuedPropertyDocuments)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ValuedPropertyDocument::toView)
                 .collect(Collectors.toList());

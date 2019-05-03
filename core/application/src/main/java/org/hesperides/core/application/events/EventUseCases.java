@@ -53,7 +53,7 @@ public class EventUseCases {
                         .findFirst()
                         .map(moduleKey -> parseModuleKey(streamName, moduleKey))
                         .map(key -> getEvents(key, page, size))
-                        .orElse(Collections.emptyList());
+                        .orElseGet(Collections::emptyList);
             case PLATFORM_EVENTSTREAM_TYPE:
                 String[] streamNameSplited = streamName.split("-", 2);
                 if (streamNameSplited.length < 2) {
@@ -85,12 +85,12 @@ public class EventUseCases {
     public List<EventView> getEvents(TemplateContainer.Key key, Integer page, Integer size) {
         return moduleQueries.getOptionalModuleId(key)
                 .map(moduleId -> eventQueries.getEvents(moduleId, page, size))
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 
     public List<EventView> getEvents(Platform.Key key, Integer page, Integer size) {
         return platformQueries.getOptionalPlatformId(key)
                 .map(platformId -> eventQueries.getEvents(platformId, page, size))
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 }

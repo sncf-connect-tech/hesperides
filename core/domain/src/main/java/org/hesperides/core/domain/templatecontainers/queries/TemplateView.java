@@ -22,7 +22,7 @@ public class TemplateView {
 
     public static List<Template> toDomainInstances(List<TemplateView> templateViews, TemplateContainer.Key key) {
         return Optional.ofNullable(templateViews)
-                .orElse(Collections.emptyList())
+                .orElseGet(Collections::emptyList)
                 .stream()
                 .map(templateView -> templateView.toDomainInstance(key))
                 .collect(Collectors.toList());

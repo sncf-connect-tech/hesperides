@@ -56,15 +56,13 @@ public class InstanceFileOutput {
         }
 
         private static String fileRightsToString(TemplateView.FileRightsView fileRights) {
-            return new StringBuilder()
-                    .append(booleanToString(fileRights.getRead(), "r"))
-                    .append(booleanToString(fileRights.getWrite(), "w"))
-                    .append(booleanToString(fileRights.getExecute(), "x"))
-                    .toString();
+            return booleanToString(fileRights.getRead(), "r")
+                    + booleanToString(fileRights.getWrite(), "w")
+                    + booleanToString(fileRights.getExecute(), "x");
         }
 
         private static String booleanToString(Boolean value, String valueIfTrue) {
-            String string = "";
+            String string;
             if (value == null) {
                 string = " ";
             } else if (value) {

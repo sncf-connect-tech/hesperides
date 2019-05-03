@@ -115,6 +115,6 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
                         .stream()
                         .map(templateDocument -> templateDocument.toTemplateView(moduleKey))
                         .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
+                .orElseGet(Collections::emptyList);
     }
 }
