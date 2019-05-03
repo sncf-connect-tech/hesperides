@@ -1,5 +1,5 @@
 {{#versions}}
-## {{{tag}}}
+## {{#tag}}{{{tag}}}{{/tag}}{{^tag}}_(unreleased)_{{/tag}}
 {{#sections}}
 ### {{{label}}}
 

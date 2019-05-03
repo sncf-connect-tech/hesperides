@@ -23,8 +23,8 @@ public class GetApplicationVersion extends HesperidesScenario implements En {
         Then("^the versions are returned$", () -> {
             assertOK();
             Map map = getBodyAsMap();
-            assertNotNull(map.get("backend_version"));
-            assertNotNull(map.get("api_version"));
+            assertNotNull(map.get("build_time"));
+            assertNotNull(map.get("version"));
         });
     }
 }

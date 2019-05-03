@@ -1,9 +1,6 @@
 application:
-  name: @project.parent.artifactId@
-  build.version: @project.version@
-  build.timestamp: @maven.build.timestamp@
-  encoding: @project.build.sourceEncoding@
-  java.version: @java.version@
+  version: @project.version@
+  build.time:
 
 # /info actuator endpoint:
 info:

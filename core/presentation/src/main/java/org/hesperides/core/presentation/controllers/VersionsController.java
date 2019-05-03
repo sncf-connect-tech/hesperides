@@ -36,33 +36,19 @@ import java.util.Map;
 @RestController
 public class VersionsController extends AbstractController {
 
-    @Value("${application.name}")
-    private String applicationName;
+    @Value("${application.version}")
+    private String version;
 
-    @Value("${application.build.version}")
-    private String buildVersion;
+    @Value("${application.build.time}")
+    private String buildTime;
 
-    @Value("${application.build.timestamp}")
-    private String buildTimestamp;
-
-    @Value("${application.encoding}")
-    private String applicationEncoding;
-
-    @Value("${application.java.version}")
-    private String javaVersion;
-
-    @ApiOperation("Get backend and API versions")
+    @ApiOperation("Get backend API version")
     @GetMapping
     public ResponseEntity<Map<String, String>> getVersions() {
 
         Map<String, String> propertiesMap = new HashMap<>();
-        propertiesMap.put("backend_version", buildVersion);
-        propertiesMap.put("api_version", buildVersion);
-        propertiesMap.put("application_name", applicationName);
-        propertiesMap.put("build_version", buildVersion);
-        propertiesMap.put("build_timestamp", buildTimestamp);
-        propertiesMap.put("application_encoding", applicationEncoding);
-        propertiesMap.put("java_version", javaVersion);
+        propertiesMap.put("version", version);
+        propertiesMap.put("build_time", buildTime);
 
         return ResponseEntity.ok(propertiesMap);
     }
