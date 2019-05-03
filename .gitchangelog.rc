@@ -83,7 +83,7 @@ ignore_regexps = [
 ##
 section_regexps = [
     ('Added', [
-        r'^[aA]dded\s*:.*$',
+        r'^[aA]dd(ed)?\s*:.*$',
      ]),
     ('Changed', [
         r'^[cC]hanged\s*:.*$',

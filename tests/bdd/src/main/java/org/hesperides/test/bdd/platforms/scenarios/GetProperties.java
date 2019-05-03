@@ -69,7 +69,7 @@ public class GetProperties extends HesperidesScenario implements En {
 
     public GetProperties() {
 
-        When("^I get the platform properties for this module( at a specific time in the past)?$", (String withTimestamp) -> {
+        When("^(?:when )?I get the platform properties for this module( at a specific time in the past)?$", (String withTimestamp) -> {
             Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 timestamp = platformHistory.getFirstPlatformTimestamp();
