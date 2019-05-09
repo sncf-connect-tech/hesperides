@@ -212,7 +212,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .forEach(deployedModuleDocument ->
                         completePropertiesWithMustacheContent(deployedModuleDocument.getValuedProperties(), deployedModuleDocument)
                 );
-        platformDocument.setVersionId(platformDocument.getVersionId() + 1);
         minimalPlatformRepository.save(platformDocument);
         return platformDocument.toPlatformView();
     }

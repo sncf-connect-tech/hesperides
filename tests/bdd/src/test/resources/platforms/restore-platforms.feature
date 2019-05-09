@@ -13,3 +13,10 @@ Feature: Restore platforms
     And when I get the platform properties for this module
     Then the platform properties are successfully retrieved
 
+  Scenario: update a restored platform
+    Given an existing platform
+    And I delete this platform
+    And I restore this platform
+    When I update this platform
+    Then the platform is successfully updated
+

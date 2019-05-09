@@ -38,7 +38,6 @@ public class RestorePlatforms extends HesperidesScenario implements En {
 
         When("^I( try to)? restore this platform$", (String tryTo) -> {
             testContext.responseEntity = platformClient.restore(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class));
-            platformBuilder.incrementVersionId();
         });
     }
 }
