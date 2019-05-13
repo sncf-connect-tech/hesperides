@@ -50,8 +50,8 @@ public class PlatformCommands {
         commandGateway.sendAndWait(new UpdatePlatformCommand(platformId, platform, copyPropertiesForUpgradedModules, user));
     }
 
-    public void deletePlatform(String platformId, User user) {
-        commandGateway.sendAndWait(new DeletePlatformCommand(platformId, user));
+    public void deletePlatform(String platformId, Platform.Key platformKey, User user) {
+        commandGateway.sendAndWait(new DeletePlatformCommand(platformId, platformKey, user));
     }
 
     public void saveModulePropertiesInPlatform(final String platformId,
