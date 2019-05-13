@@ -1,6 +1,7 @@
 # CHANGELOG
-Tous les changements notables sur ce projet sont documentés dans ce fichier.
+Le changelog du frontend est ici: [hesperides-gui/CHANGELOG.md](https://github.com/voyages-sncf-technologies/hesperides-gui/blob/master/CHANGELOG.md)
 
+Tous les changements notables sur ce projet sont documentés dans ce fichier.
 Le format est basé sur [Keep a Changelog](http://keepachangelog.com).
 
 Il est généré automatiquement à partir des commits dont le message débute par
@@ -20,11 +21,18 @@ Pour automatiquement mettre à jour ce fichier à chaque commit,
 placez le code suivant dans `.git/hooks/pre-commit` :
 ```
 #!/bin/sh
-gitchangelog && git add CHANGELOG.md
+git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
+### Fixed
+
+- On permet la restauration de plateforme qui viennent d'être supprimées mais n'ont pas été modifiées dans les 7 derniers jours - close #638. [Lucas Cimon]
+
+
+
+## 2019-05-03
 ### Added
 
 - Paramètre booléen ?copy_instances_and_properties pour la copie de plateforme - close #634 (#635) [Lucas Cimon]
@@ -38,6 +46,8 @@ gitchangelog && git add CHANGELOG.md
 
 
 ### Fixed
+
+- Les platformes restaurés ne pouvaient plus être modifiées à cause d'un problème de cohérence dans l'aggrégat (#636) [Lucas Cimon]
 
 - #632 Simplification du Swagger (#633) [Thomas L'Hostis]
 

@@ -235,15 +235,17 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // On se protège en terme de perfs en n'effectuant cette recherche que sur les 7 derniers jours.
         Instant todayLastWeek = Instant.ofEpochSecond(System.currentTimeMillis()/1000 - 7 * 24 * 60 * 60);
         Stream<? extends TrackedEventMessage<?>> abstractEventStream = eventStorageEngine.readEvents(eventStorageEngine.createTokenAt(todayLastWeek), false);
-        Optional<PlatformEventWithPayload> lastMatchingPlatformEvent = abstractEventStream
+        Optional<PlatformEventWithKey> lastMatchingPlatformEvent = abstractEventStream
                 .map(GenericTrackedDomainEventMessage.class::cast)
                 .filter(msg -> PlatformAggregate.class.getSimpleName().equals(msg.getType()))
                 .map(MessageDecorator::getPayload)
-                .filter(PlatformEventWithPayload.class::isInstance)
-                .map(PlatformEventWithPayload.class::cast)
-                .filter(platformEvent -> platformEvent.getPlatform().getKey().equals(query.getPlatformKey()))
+                .filter(PlatformEventWithKey.class::isInstance)
+                .map(PlatformEventWithKey.class::cast)
+                .filter(platformEvent -> platformEvent.getPlatformKey() != null
+                        && platformEvent.getPlatformKey().getApplicationName().equalsIgnoreCase(query.getPlatformKey().getApplicationName())
+                        && platformEvent.getPlatformKey().getPlatformName().equalsIgnoreCase(query.getPlatformKey().getPlatformName()))
                 .reduce((first, second) -> second); // On récupère le dernier élément
-        return lastMatchingPlatformEvent.map(PlatformEventWithPayload::getPlatformId);
+        return lastMatchingPlatformEvent.map(PlatformEventWithKey::getPlatformId);
     }
 
     @QueryHandler

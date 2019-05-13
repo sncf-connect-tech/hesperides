@@ -34,17 +34,14 @@ public class InmemoryPlatformRepository implements MinimalPlatformRepository {
 
     @Override
     public Optional<PlatformDocument> findById(String id) {
-        if (!exist || !id.equals(currentPlatformDocument.getId())) {
-            throw new UnsupportedOperationException();
+        if (!exist) {
+            return Optional.empty();
         }
         return Optional.of(currentPlatformDocument);
     }
 
     @Override
     public void deleteById(String id) {
-        if (!exist || !id.equals(currentPlatformDocument.getId())) {
-            throw new UnsupportedOperationException();
-        }
         exist = false;
     }
 }
