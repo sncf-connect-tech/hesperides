@@ -32,6 +32,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 
 
+## 2019-05-13
+### Fixed
+
+- On permet la restauration de plateforme qui viennent d'être supprimées mais n'ont pas été modifiées dans les 7 derniers jours - close #638 (#640) [Lucas Cimon]
+
+
+
 ## 2019-05-03
 ### Added
 
