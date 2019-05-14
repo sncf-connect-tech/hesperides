@@ -17,19 +17,13 @@ public class CommonSteps extends HesperidesScenario implements En {
     private TestContext testContext;
 
     public CommonSteps() {
-        Given("^(?:as )?an authenticated ?(.*)? user$", this::setAuthUserRole);
+        Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
 
-        Then("^the resource is not found$", () -> {
-            assertNotFound();
-        });
+        Then("^the resource is not found$", this::assertNotFound);
 
-        Then("^the request is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the request is rejected with a bad request error$", this::assertBadRequest);
 
-        Then("^the request is rejected with an internal error$", () -> {
-            assertInternalServerError();
-        });
+        Then("^the request is rejected with an internal error$", this::assertInternalServerError);
 
         Then("^an empty list is returned$", () -> {
             assertOK();

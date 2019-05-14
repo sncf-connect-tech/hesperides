@@ -24,6 +24,14 @@ public class GetUserInformation extends HesperidesScenario implements En {
             testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
         });
 
+        When("^(?:the user log out|the user re-send valid credentials)$", () ->
+            testContext.responseEntity = restTemplate.getForEntity("/users/auth?logout=true", String.class)
+        );
+
+        Then("^login is successful$", () ->
+            assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode())
+        );
+
         Then("^user information is returned, (with|without) tech role and (with|without) prod role$",
                 (String withTechRole, String withProdRole) -> {
             assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
@@ -31,5 +39,7 @@ public class GetUserInformation extends HesperidesScenario implements En {
             assertEquals("with".equals(withTechRole), map.get("techUser"));
             assertEquals("with".equals(withProdRole), map.get("prodUser"));
         });
+
+        Then("^the request is rejected with an unauthorized error$", this::assertUnauthorized);
     }
 }

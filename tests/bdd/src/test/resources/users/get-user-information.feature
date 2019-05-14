@@ -14,3 +14,7 @@ Feature: Get user information
     Given an authenticated prod user
     When I get the current user information
     Then user information is returned, without tech role and with prod role
+
+  Scenario: user provides no credentials
+    When I get the current user information
+    Then the request is rejected with an unauthorized error

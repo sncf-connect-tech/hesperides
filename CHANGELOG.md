@@ -28,7 +28,14 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ## _(unreleased)_
 ### Fixed
 
-- On permet la restauration de plateforme qui viennent d'être supprimées mais n'ont pas été modifiées dans les 7 derniers jours - close #638. [Lucas Cimon]
+- Le conteneur Docker peut être lancé sans $PROJECTION_REPOSITORY_MONGO_URI si le profil Spring "fake_mongo" est défini. [Lucas Cimon]
+
+
+
+## 2019-05-14
+### Fixed
+
+- Le conteneur Docker peut être lancé sans $PROJECTION_REPOSITORY_MONGO_URI si le profil Spring "fake_mongo" est défini (#641) [Lucas Cimon]
 
 
 
