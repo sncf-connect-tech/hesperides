@@ -74,7 +74,7 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onDeletePlatformCommand(DeletePlatformCommand command) {
-        apply(new PlatformDeletedEvent(command.getPlatformId(), command.getUser().getName()));
+        apply(new PlatformDeletedEvent(command.getPlatformId(), command.getPlatformKey(), command.getUser().getName()));
     }
 
     @CommandHandler

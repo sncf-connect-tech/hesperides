@@ -37,6 +37,10 @@ public class Platform {
     List<DeployedModule> deployedModules;
     private List<ValuedProperty> globalProperties;
 
+    public Key getKey() { // Doit être explicite car employé dans Platform.kt
+        return key;
+    }
+
     public Platform initializeVersionId() {
         return new Platform(
                 key,

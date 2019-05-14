@@ -27,6 +27,8 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 public class RestorePlatforms extends HesperidesScenario implements En {
 
     @Autowired
@@ -36,7 +38,10 @@ public class RestorePlatforms extends HesperidesScenario implements En {
 
     public RestorePlatforms() {
 
-        When("^I( try to)? restore this platform$", (String tryTo) -> {
+        When("^I( try to)? restore this platform( with a different platform case)?$", (String tryTo, String withDifferentPlatformCase) -> {
+            if (isNotBlank(withDifferentPlatformCase)) {
+                platformBuilder.withPlatformName(platformBuilder.getPlatformName().toLowerCase());
+            }
             testContext.responseEntity = platformClient.restore(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class));
         });
     }

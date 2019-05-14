@@ -119,7 +119,7 @@ public class PlatformUseCases {
         if (platform.isProductionPlatform() && !user.isProd()) {
             throw new ForbiddenOperationException("Deleting a production platform is reserved to production role");
         }
-        commands.deletePlatform(platform.getId(), user);
+        commands.deletePlatform(platform.getId(), platformKey, user);
     }
 
     public ApplicationView getApplication(String applicationName) {
@@ -262,6 +262,9 @@ public class PlatformUseCases {
     }
 
     public PlatformView restoreDeletedPlatform(final Platform.Key platformKey, final User user) {
+        if (queries.platformExists(platformKey)) {
+            throw new IllegalArgumentException("Cannot restore an existing platform");
+        }
         String platformId = queries.getOptionalPlatformIdFromEvents(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
         commands.restoreDeletedPlatform(platformId, user);
