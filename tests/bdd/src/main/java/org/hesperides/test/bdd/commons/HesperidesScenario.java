@@ -70,6 +70,10 @@ public class HesperidesScenario {
         assertEquals(HttpStatus.BAD_REQUEST, testContext.responseEntity.getStatusCode());
     }
 
+    public void assertUnauthorized() {
+        assertEquals(HttpStatus.UNAUTHORIZED, testContext.responseEntity.getStatusCode());
+    }
+
     public void assertNoContent() {
         assertEquals(HttpStatus.NO_CONTENT, testContext.responseEntity.getStatusCode());
     }
