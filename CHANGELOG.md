@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-05-15
 ### Added
 
-- Description du format des query params "terms" dans le Swagger pour les recherches de modules & technos. [Lucas Cimon]
+- Description du format des query params "terms" dans le Swagger pour les recherches de modules & technos (#643) [Lucas Cimon]
 
 
 
