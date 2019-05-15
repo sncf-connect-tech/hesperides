@@ -22,6 +22,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.modules.ModuleUseCases;
@@ -200,16 +201,18 @@ public class ModulesController extends AbstractController {
     @ApiOperation("Deprecated - Use GET /modules/perform_search instead")
     @PostMapping("/perform_search")
     @Deprecated
-    public ResponseEntity<List<ModuleIO>> postSearch(@RequestParam("terms") final String input) {
-        return search(input);
+    public ResponseEntity<List<ModuleIO>> postSearch(@ApiParam("Format: name (+ version) (+ true|false)")
+                                                     @RequestParam final String terms) {
+        return search(terms);
     }
 
     @ApiOperation("Search for modules")
     @GetMapping("/perform_search")
-    public ResponseEntity<List<ModuleIO>> search(@RequestParam("terms") final String input) {
-        checkQueryParameterNotEmpty("terms", input);
+    public ResponseEntity<List<ModuleIO>> search(@ApiParam("Format: name (+ version) (+ true|false)")
+                                                 @RequestParam final String terms) {
+        checkQueryParameterNotEmpty("terms", terms);
 
-        List<ModuleView> moduleViews = moduleUseCases.search(input);
+        List<ModuleView> moduleViews = moduleUseCases.search(terms);
         List<ModuleIO> moduleOutputs = Optional.ofNullable(moduleViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
@@ -222,16 +225,18 @@ public class ModulesController extends AbstractController {
     @ApiOperation("Deprecated - Use GET /modules/search instead")
     @PostMapping("/search")
     @Deprecated
-    public ResponseEntity<ModuleIO> postSearchSingle(@RequestParam("terms") final String input) {
-        return searchSingle(input);
+    public ResponseEntity<ModuleIO> postSearchSingle(@ApiParam("Format: name (+ version) (+ true|false)")
+                                                     @RequestParam final String terms) {
+        return searchSingle(terms);
     }
 
     @ApiOperation("Search for a single module")
     @GetMapping("/search")
-    public ResponseEntity<ModuleIO> searchSingle(@RequestParam("terms") final String input) {
-        checkQueryParameterNotEmpty("terms", input);
+    public ResponseEntity<ModuleIO> searchSingle(@ApiParam("Format: name (+ version) (+ true|false)")
+                                                 @RequestParam final String terms) {
+        checkQueryParameterNotEmpty("terms", terms);
 
-        return moduleUseCases.searchSingle(input)
+        return moduleUseCases.searchSingle(terms)
                 .map(ModuleIO::new)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

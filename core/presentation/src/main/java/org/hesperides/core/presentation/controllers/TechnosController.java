@@ -22,6 +22,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.technos.TechnoUseCases;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
@@ -163,17 +164,19 @@ public class TechnosController extends AbstractController {
     @ApiOperation("Deprecated - Use GET /technos/perform_search instead")
     @PostMapping("/perform_search")
     @Deprecated
-    public ResponseEntity<List<TechnoIO>> postSearch(@RequestParam("terms") final String input) {
-        return search(input);
+    public ResponseEntity<List<TechnoIO>> postSearch(@ApiParam("Format: name (+ version)")
+                                                     @RequestParam final String terms) {
+        return search(terms);
     }
 
     @ApiOperation("Search for technos")
     @GetMapping("/perform_search")
-    public ResponseEntity<List<TechnoIO>> search(@RequestParam("terms") final String input) {
+    public ResponseEntity<List<TechnoIO>> search(@ApiParam("Format: name (+ version)")
+                                                 @RequestParam final String terms) {
 
-        log.debug("search technos {}", input);
+        log.debug("search technos {}", terms);
 
-        List<TechnoView> technoViews = technoUseCases.search(input);
+        List<TechnoView> technoViews = technoUseCases.search(terms);
         List<TechnoIO> technoOutputs = Optional.ofNullable(technoViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
