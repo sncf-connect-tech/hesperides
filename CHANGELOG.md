@@ -26,13 +26,18 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
-### Fixed
+### Added
 
-- Le conteneur Docker peut être lancé sans $PROJECTION_REPOSITORY_MONGO_URI si le profil Spring "fake_mongo" est défini. [Lucas Cimon]
+- Description du format des query params "terms" dans le Swagger pour les recherches de modules & technos. [Lucas Cimon]
 
 
 
 ## 2019-05-14
+### Added
+
+- /users/auth?logout=true pour permettre la déconnexion d'utilisateurs via leur navigateur (#642) [Lucas Cimon]
+
+
 ### Fixed
 
 - Le conteneur Docker peut être lancé sans $PROJECTION_REPOSITORY_MONGO_URI si le profil Spring "fake_mongo" est défini (#641) [Lucas Cimon]
