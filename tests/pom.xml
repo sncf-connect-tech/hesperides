@@ -17,6 +17,7 @@
     <modules>
         <module>bdd</module>
         <module>integration</module>
+        <module>nr</module>
         <module>perfs</module>
     </modules>
 
