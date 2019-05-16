@@ -25,6 +25,18 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Added
+
+- Description du format des query params "terms" dans le Swagger pour les recherches de modules & technos. [Lucas Cimon]
+
+
+### Fixed
+
+- Get properties of a platform with valued properties at a specific time in the past - part of the resolution of #229. [Lucas Cimon]
+
+
+
 ## 2019-05-15
 ### Added
 

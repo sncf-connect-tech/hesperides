@@ -167,7 +167,7 @@ public class PlatformUseCases {
             }
             List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
 
-            properties = queries.getDeployedModuleProperties(platformKey, propertiesPath);
+            properties = queries.getDeployedModuleProperties(platform.getId(), propertiesPath, timestamp);
 
             // On exclue les propriétés non valorisées ayant une valeur par défaut
             properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
