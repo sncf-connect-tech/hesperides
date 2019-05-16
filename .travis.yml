@@ -62,7 +62,7 @@ jobs:
     # Warm up:
     - mvn gatling:execute -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -Dduration=5s >/dev/null 2>&1 || true
     - mvn gatling:execute -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -Dpercentile99ResponseTimeMax=15000
-  - stage: docker
+  - stage: deploy
     env: DEPLOY TO DOCKER HUB
     script: "./.travis/docker_build_push.sh"
   - stage: deploy
@@ -74,5 +74,4 @@ jobs:
     script: "./mvnw deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml"
 notifications:
   webhooks: https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
-  email:
-    on_success: never
+  email: false

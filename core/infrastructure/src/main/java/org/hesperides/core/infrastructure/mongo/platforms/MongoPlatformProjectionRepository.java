@@ -232,7 +232,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public Optional<String> onGetPlatformIdFromEvents(GetPlatformIdFromEvents query) {
         // On recherche dans TOUS les événements un PlatformEventWithPayload ayant la bonne clef.
         // On se protège en terme de perfs en n'effectuant cette recherche que sur les 7 derniers jours.
-        Instant todayLastWeek = Instant.ofEpochSecond(System.currentTimeMillis()/1000 - 7 * 24 * 60 * 60);
+        Instant todayLastWeek = Instant.ofEpochSecond(System.currentTimeMillis() / 1000 - 7 * 24 * 60 * 60);
         Stream<? extends TrackedEventMessage<?>> abstractEventStream = eventStorageEngine.readEvents(eventStorageEngine.createTokenAt(todayLastWeek), false);
         Optional<PlatformEventWithKey> lastMatchingPlatformEvent = abstractEventStream
                 .map(GenericTrackedDomainEventMessage.class::cast)
@@ -345,17 +345,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        final Optional<PlatformDocument> platformDocument = platformRepository
-                .findModuleByPropertiesPath(platformKeyDocument, query.getPropertiesPath());
+        PlatformDocument platformDocument;
+        if (query.getTimestamp() >= 0) {
+            // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
+            platformDocument = getPlatformAtPointInTime(query.getPlatformId(), query.getTimestamp());
+        } else {
+            platformDocument = minimalPlatformRepository.findById(query.getPlatformId())
+                    .orElseThrow(() -> new NotFoundException("Platform not found - impossible to get deployed module properties"
+                            + " - platform ID: " + query.getPlatformId() + " - path: " + query.getPropertiesPath())
+                    );
+        }
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
-                .map(PlatformDocument::getActiveDeployedModules)
-                .orElse(Stream.empty())
-                .flatMap(deployedModuleDocument -> Optional.ofNullable(deployedModuleDocument.getValuedProperties())
-                        .orElseGet(Collections::emptyList)
-                        .stream())
-                .collect(Collectors.toList());
+                .getActiveDeployedModules()
+                .filter(deployedModule -> deployedModule.getPropertiesPath().equals(query.getPropertiesPath()))
+                .findAny().map(DeployedModuleDocument::getValuedProperties)
+                .orElseGet(Collections::emptyList);
 
         return AbstractValuedPropertyDocument.toViews(abstractValuedPropertyDocuments);
     }
