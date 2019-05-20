@@ -55,7 +55,11 @@ public class TechnoClient {
     }
 
     public ResponseEntity search(String terms) {
-        return restTemplate.postForEntity("/templates/packages/perform_search?terms=" + terms, null, TechnoIO[].class);
+        return search(terms, 0);
+    }
+
+    public ResponseEntity search(String terms, Integer size) {
+        return restTemplate.getForEntity("/templates/packages/perform_search?terms=" + terms + "&size=" + size, TechnoIO[].class);
     }
 
     public ResponseEntity get(TechnoIO technoInput, String versionType, Class responseType) {

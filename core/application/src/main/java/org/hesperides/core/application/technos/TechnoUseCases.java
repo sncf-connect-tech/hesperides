@@ -1,6 +1,5 @@
 package org.hesperides.core.application.technos;
 
-import org.hesperides.commons.spring.HasProfile;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -29,6 +28,8 @@ import java.util.Optional;
  */
 @Component
 public class TechnoUseCases {
+
+    private static final int DEFAULT_NB_SEARCH_RESULTS = 10;
 
     private final TechnoCommands commands;
     private final TechnoQueries queries;
@@ -136,8 +137,9 @@ public class TechnoUseCases {
         return queries.getTechnoTypes(technoName, technoVersion);
     }
 
-    public List<TechnoView> search(String input) {
-        return queries.search(input);
+    public List<TechnoView> search(String input, Integer providedSize) {
+        int size = providedSize != null && providedSize > 0 ? providedSize : DEFAULT_NB_SEARCH_RESULTS;
+        return queries.search(input, size);
     }
 
     public TechnoView createWorkingCopyFrom(TemplateContainer.Key existingTechnoKey, TemplateContainer.Key newTechnoKey, User user) {

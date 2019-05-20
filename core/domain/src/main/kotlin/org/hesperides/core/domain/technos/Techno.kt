@@ -33,5 +33,5 @@ class GetTechnosNameQuery
 data class GetTechnoVersionsQuery(val technoName: String)
 data class GetTechnoVersionTypesQuery(val technoName: String, val technoVersion: String)
 data class GetTechnoQuery(val technoKey: TemplateContainer.Key)
-data class SearchTechnosQuery(val input: String)
+data class SearchTechnosQuery(val input: String, val size: Integer)
 data class GetTechnoPropertiesQuery(val technoKey: TemplateContainer.Key)

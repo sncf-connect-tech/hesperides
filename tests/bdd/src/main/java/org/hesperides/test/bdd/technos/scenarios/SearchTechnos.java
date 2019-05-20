@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
@@ -24,8 +25,9 @@ public class SearchTechnos extends HesperidesScenario implements En {
             testContext.responseEntity = technoClient.search("a-techno 0.0.3");
         });
 
-        When("^I search for some of those technos$", () -> {
-            testContext.responseEntity = technoClient.search("a-techno");
+        When("^I search for some of those technos(?:, limiting the number of results to (\\d+))?$", (String nbResults) -> {
+            Integer size = StringUtils.isEmpty(nbResults) ? 0 : Integer.valueOf(nbResults);
+            testContext.responseEntity = technoClient.search("a-techno", size);
         });
 
         When("^I search for a techno that does not exist$", () -> {

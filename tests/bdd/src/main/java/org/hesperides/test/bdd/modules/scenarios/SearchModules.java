@@ -28,8 +28,9 @@ public class SearchModules extends HesperidesScenario implements En {
             testContext.responseEntity = moduleClient.search(input);
         });
 
-        When("^I search for some of those modules$", () -> {
-            testContext.responseEntity = moduleClient.search("new-module");
+        When("^I search for some of those modules(?:, limiting the number of results to (\\d+))?$", (String nbResults) -> {
+            Integer size = StringUtils.isEmpty(nbResults) ? 0 : Integer.valueOf(nbResults);
+            testContext.responseEntity = moduleClient.search("new-module", size);
         });
 
         When("^I search for a module that does not exist$", () -> {
@@ -37,7 +38,7 @@ public class SearchModules extends HesperidesScenario implements En {
         });
 
         When("^I try to search for a module with no search terms$", () -> {
-            testContext.responseEntity = moduleClient.search("", String.class);
+            testContext.responseEntity = moduleClient.search("", 0, String.class);
         });
 
         When("^I search for a single module using only the name and version of this module$", () -> {

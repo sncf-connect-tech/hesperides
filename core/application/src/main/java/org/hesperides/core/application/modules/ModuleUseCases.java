@@ -28,6 +28,8 @@ import java.util.Optional;
 @Component
 public class ModuleUseCases {
 
+    private static final int DEFAULT_NB_SEARCH_RESULTS = 10;
+
     private final ModuleCommands commands;
     private final ModuleQueries queries;
     private final TechnoQueries technoQueries;
@@ -160,8 +162,9 @@ public class ModuleUseCases {
         return queries.getTemplate(moduleKey, templateName);
     }
 
-    public List<ModuleView> search(String input) {
-        return queries.search(input);
+    public List<ModuleView> search(String input, Integer providedSize) {
+        int size = providedSize != null && providedSize > 0 ? providedSize : DEFAULT_NB_SEARCH_RESULTS;
+        return queries.search(input, size);
     }
 
     public Optional<ModuleView> searchSingle(String input) {
@@ -178,7 +181,7 @@ public class ModuleUseCases {
             boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
             moduleView = queries.getOptionalModule(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)));
         } else {
-            List<ModuleView> moduleViews = queries.search(input);
+            List<ModuleView> moduleViews = queries.search(input, DEFAULT_NB_SEARCH_RESULTS);
             moduleView = moduleViews.size() > 0 ? Optional.of(moduleViews.get(0)) : Optional.empty();
         }
         return moduleView;
