@@ -3,7 +3,6 @@ package org.hesperides.core.domain.modules.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.modules.*;
-import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
@@ -54,8 +53,8 @@ public class ModuleQueries extends AxonQueries {
         return querySyncOptional(new GetTemplateByNameQuery(moduleKey, templateName), TemplateView.class);
     }
 
-    public List<ModuleView> search(String query) {
-        return querySyncList(new SearchModulesQuery(query), ModuleView.class);
+    public List<ModuleView> search(String query, Integer size) {
+        return querySyncList(new SearchModulesQuery(query, size), ModuleView.class);
     }
 
     public List<TemplateView> getTemplates(TemplateContainer.Key moduleKey) {

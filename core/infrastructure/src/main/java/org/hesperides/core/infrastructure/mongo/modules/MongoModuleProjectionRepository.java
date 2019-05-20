@@ -10,8 +10,7 @@ import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
-import org.hesperides.core.infrastructure.mongo.eventstores.AxonEventRepository;
+import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -20,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -35,7 +33,6 @@ import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
-import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensureCaseInsensitivity;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -44,38 +41,23 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     private MongoModuleRepository moduleRepository;
     private final MongoTechnoProjectionRepository technoProjectionRepository;
     private final MongoTemplate mongoTemplate;
-    private final MongoSearchOptions searchOptions;
     private final Environment environment;
-    private final AxonEventRepository axonEventRepository;
 
     @Autowired
     public MongoModuleProjectionRepository(MongoModuleRepository moduleRepository,
                                            MongoTechnoProjectionRepository technoProjectionRepository,
                                            MongoTemplate mongoTemplate,
-                                           MongoSearchOptions searchOptions,
-                                           Environment environment,
-                                           AxonEventRepository axonEventRepository) {
+                                           Environment environment) {
         this.moduleRepository = moduleRepository;
         this.technoProjectionRepository = technoProjectionRepository;
         this.mongoTemplate = mongoTemplate;
-        this.searchOptions = searchOptions;
         this.environment = environment;
-        this.axonEventRepository = axonEventRepository;
-    }
-
-    // Both only exist for batch:
-    public MongoModuleRepository getMongoModuleRepository() {
-        return moduleRepository;
-    }
-
-    public void setMongoModuleRepository(MongoModuleRepository moduleRepository) {
-        this.moduleRepository = moduleRepository;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (isProfileActive(environment, MONGO)) {
-            ensureCaseInsensitivity(mongoTemplate, MODULE_COLLECTION_NAME);
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, MODULE_COLLECTION_NAME);
         }
     }
 
@@ -180,12 +162,11 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
         String name = values.length > 0 ? values[0] : "";
         String version = values.length > 1 ? values[1] : "";
 
-        Pageable pageable = PageRequest.of(0, searchOptions.getModuleSearchMaxResults());
-        List<ModuleView> collect = moduleRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable)
+        PageRequest pageable = PageRequest.of(0, query.getSize());
+        return moduleRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable)
                 .stream()
                 .map(ModuleDocument::toModuleView)
                 .collect(Collectors.toList());
-        return collect;
     }
 
     @QueryHandler

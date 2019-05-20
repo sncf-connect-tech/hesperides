@@ -30,8 +30,7 @@ import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
-import org.hesperides.core.infrastructure.mongo.MongoSearchOptions;
-import org.hesperides.core.infrastructure.mongo.eventstores.AxonEventRepository;
+import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
 import org.hesperides.core.infrastructure.mongo.modules.MongoModuleRepository;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
@@ -57,7 +56,6 @@ import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAME;
-import static org.hesperides.core.infrastructure.mongo.MongoSearchOptions.ensureCaseInsensitivity;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -66,29 +64,23 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     private final MongoTechnoRepository technoRepository;
     private final MongoModuleRepository moduleRepository;
     private final MongoTemplate mongoTemplate;
-    private final MongoSearchOptions searchOptions;
     private final Environment environment;
-    private final AxonEventRepository axonEventRepository;
 
     @Autowired
     public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository,
                                            MongoModuleRepository moduleRepository,
                                            MongoTemplate mongoTemplate,
-                                           MongoSearchOptions searchOptions,
-                                           Environment environment,
-                                           AxonEventRepository axonEventRepository) {
+                                           Environment environment) {
         this.technoRepository = technoRepository;
         this.moduleRepository = moduleRepository;
         this.mongoTemplate = mongoTemplate;
-        this.searchOptions = searchOptions;
         this.environment = environment;
-        this.axonEventRepository = axonEventRepository;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (isProfileActive(environment, MONGO)) {
-            ensureCaseInsensitivity(mongoTemplate, TECHNO_COLLECTION_NAME);
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO_COLLECTION_NAME);
         }
     }
 
@@ -255,7 +247,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         String name = values.length >= 1 ? values[0] : "";
         String version = values.length >= 2 ? values[1] : "";
 
-        Pageable pageable = PageRequest.of(0, searchOptions.getTechnoSearchMaxResults());
+        Pageable pageable = PageRequest.of(0, query.getSize());
         return technoRepository.findAllByKeyNameLikeAndKeyVersionLike(name, version, pageable)
                 .stream()
                 .map(TechnoDocument::toTechnoView)
@@ -281,7 +273,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             Set<TemplateContainer.Key> technoKeys = technos.stream().map(TemplateContainer::getKey).collect(Collectors.toSet());
             Set<TemplateContainer.Key> retrievedTechnoKeys = technoDocs.stream().map(TechnoDocument::getDomainKey).collect(Collectors.toSet());
             technoKeys.removeAll(retrievedTechnoKeys);
-            throw new NotFoundException("Techno not found among " + technos.size() + " requested by module " + moduleKey.getNamespaceWithoutPrefix() +  ", no techno was found in repository for the following keys: " + technoKeys);
+            throw new NotFoundException("Techno not found among " + technos.size() + " requested by module " + moduleKey.getNamespaceWithoutPrefix() + ", no techno was found in repository for the following keys: " + technoKeys);
         }
         return technoDocs;
     }

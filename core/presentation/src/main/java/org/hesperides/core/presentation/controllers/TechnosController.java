@@ -164,19 +164,20 @@ public class TechnosController extends AbstractController {
     @ApiOperation("Deprecated - Use GET /technos/perform_search instead")
     @PostMapping("/perform_search")
     @Deprecated
-    public ResponseEntity<List<TechnoIO>> postSearch(@ApiParam("Format: name (+ version)")
+    public ResponseEntity<List<TechnoIO>> postSearch(@ApiParam(value = "Format: name (+ version)", required = true)
                                                      @RequestParam final String terms) {
-        return search(terms);
+        return search(terms, 0);
     }
 
     @ApiOperation("Search for technos")
     @GetMapping("/perform_search")
-    public ResponseEntity<List<TechnoIO>> search(@ApiParam("Format: name (+ version)")
-                                                 @RequestParam final String terms) {
+    public ResponseEntity<List<TechnoIO>> search(@ApiParam(value = "Format: name (+ version)", required = true)
+                                                 @RequestParam final String terms,
+                                                 @RequestParam(required = false) final Integer size) {
 
         log.debug("search technos {}", terms);
 
-        List<TechnoView> technoViews = technoUseCases.search(terms);
+        List<TechnoView> technoViews = technoUseCases.search(terms, size);
         List<TechnoIO> technoOutputs = Optional.ofNullable(technoViews)
                 .orElseGet(Collections::emptyList)
                 .stream()

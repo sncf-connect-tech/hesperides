@@ -49,8 +49,8 @@ public class TechnoQueries extends AxonQueries {
         return querySyncOptional(new GetTechnoQuery(technoKey), TechnoView.class);
     }
 
-    public List<TechnoView> search(String input) {
-        return querySyncList(new SearchTechnosQuery(input), TechnoView.class);
+    public List<TechnoView> search(String input, int size) {
+        return querySyncList(new SearchTechnosQuery(input, size), TechnoView.class);
     }
 
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key technoKey) {

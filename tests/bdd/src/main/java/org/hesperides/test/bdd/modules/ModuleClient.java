@@ -57,15 +57,19 @@ public class ModuleClient {
     }
 
     public ResponseEntity search(String terms) {
-        return this.search(terms, ModuleIO[].class);
+        return this.search(terms, 0);
     }
 
-    public ResponseEntity search(String terms, Class responseType) {
-        return restTemplate.postForEntity("/modules/perform_search?terms=" + terms, null, responseType);
+    public ResponseEntity search(String terms, int size) {
+        return this.search(terms, size, ModuleIO[].class);
+    }
+
+    public ResponseEntity search(String terms, Integer size, Class responseType) {
+        return restTemplate.getForEntity("/modules/perform_search?terms=" + terms + "&size=" + size, responseType);
     }
 
     public ResponseEntity singleSearch(String terms, Class responseType) {
-        return restTemplate.postForEntity("/modules/search?terms=" + terms, null, responseType);
+        return restTemplate.getForEntity("/modules/search?terms=" + terms, responseType);
     }
 
     public ResponseEntity get(ModuleIO moduleInput, String versionType, Class responseType) {
