@@ -18,8 +18,7 @@ Feature: Search technos
     When I search for a techno that does not exist
     Then an empty list is returned
 
-
-  Scenario: search for limited existing technos
+  Scenario: search for a limited number of existing technos
     Given a list of 12 technos
-    When I search for some of those technos, limiting the number of results to 12
+    When I search for some of those technos, limiting the number of results to 100
     Then the list of techno results is limited to 12 items

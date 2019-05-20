@@ -46,7 +46,7 @@ Feature: Search modules
     When I search for the working copy version of this single module
     Then I get the working copy version of this module
 
-  Scenario: search for limited existing modules
+  Scenario: search for a limited existing modules
     Given a list of 12 modules
-    When I search for some of those modules, limiting the number of results to 12
+    When I search for some of those modules, limiting the number of results to 100
     Then the list of module results is limited to 12 items
