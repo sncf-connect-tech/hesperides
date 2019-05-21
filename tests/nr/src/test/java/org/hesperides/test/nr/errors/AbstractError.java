@@ -38,7 +38,7 @@ public abstract class AbstractError {
         log.warn("****** {} ******", errorType);
         log.warn("Latest url: " + latestUri);
         log.warn("Testing url: " + testingUri);
-        log.warn(diff.getMessage());
+        log.warn(message);
         log.warn("");
     }
 }

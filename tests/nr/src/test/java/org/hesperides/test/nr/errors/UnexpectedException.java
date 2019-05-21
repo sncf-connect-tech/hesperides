@@ -20,8 +20,18 @@
  */
 package org.hesperides.test.nr.errors;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
+@EqualsAndHashCode(callSuper = true)
 public class UnexpectedException extends AbstractError {
+
+    public UnexpectedException(String latestUri, String testingUri, String message) {
+        super(latestUri, testingUri, message);
+    }
+
+    public void log() {
+        super.log("Exception");
+    }
 }
