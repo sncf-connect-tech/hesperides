@@ -49,20 +49,22 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public PlatformAggregate(CreatePlatformCommand command) {
-        //TODO Logs
         // Initialise le versionId de la plateforme et l'identifiant et le propertiesPath des modules de la plateforme
         Platform platform = command.getPlatform()
                 .validateDeployedModulesDistinctIds()
                 .initializeVersionId()
                 .fillDeployedModulesMissingIds();
-
-        apply(new PlatformCreatedEvent(UUID.randomUUID().toString(), platform, command.getUser().getName()));
+        String newUuid = UUID.randomUUID().toString();
+        log.debug("PlatformAggregate constructor - platformId: %s - key: %s - versionId: %s - user: %s",
+                newUuid, command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
+        apply(new PlatformCreatedEvent(newUuid, platform, command.getUser().getName()));
     }
 
 
     @CommandHandler
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
-
+        log.debug("onUpdatePlatformCommand - platformId: %s - key: %s - versionId: %s - user: %s",
+                command.getPlatformId(), command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
         Platform platform = command.getPlatform()
                 .validateVersionId(versionId)
                 .validateDeployedModulesDistinctIds()
@@ -74,11 +76,15 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onDeletePlatformCommand(DeletePlatformCommand command) {
+        log.debug("onDeletePlatformCommand - platformId: %s - user: %s",
+                command.getPlatformId(), command.getUser());
         apply(new PlatformDeletedEvent(command.getPlatformId(), command.getPlatformKey(), command.getUser().getName()));
     }
 
     @CommandHandler
     public void onUpdatePlatformModulePropertiesCommand(UpdatePlatformModulePropertiesCommand command) {
+        log.debug("onUpdatePlatformModulePropertiesCommand - platformId: %s - versionId: %s - user: %s",
+                command.getPlatformId(), command.getPlatformVersionId(), command.getUser());
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
@@ -92,6 +98,8 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onUpdatePlatformPropertiesCommand(UpdatePlatformPropertiesCommand command) {
+        log.debug("onUpdatePlatformPropertiesCommand - platformId: %s - versionId: %s - user: %s",
+                command.getPlatformId(), command.getPlatformVersionId(), command.getUser());
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
@@ -104,6 +112,8 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onRestoreDeletedPlatformCommand(RestoreDeletedPlatformCommand command) {
+        log.debug("onRestoreDeletedPlatformCommand - platformId: %s - user: %s",
+                command.getPlatformId(), command.getUser());
         apply(new RestoreDeletedPlatformEvent(
                 command.getPlatformId(),
                 command.getUser().getName()));
@@ -113,32 +123,37 @@ public class PlatformAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
+        log.debug("onPlatformCreatedEvent - platformId: %s - key: %s - versionId: %s - user: %s",
+                event.getPlatformId(), event.getPlatformKey(), event.getPlatform().getVersionId(), event.getUser());
         this.id = event.getPlatformId();
-        this.key = event.getPlatform().getKey();
+        this.key = event.getPlatformKey();
         this.versionId = event.getPlatform().getVersionId();
-        log.debug("Plateform created");
     }
 
     @EventSourcingHandler
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
+        log.debug("onPlatformCreatedEvent - platformId: %s - key: %s - versionId: %s - user: %s",
+                event.getPlatformId(), event.getPlatformKey(), event.getPlatform().getVersionId(), event.getUser());
         this.versionId = event.getPlatform().getVersionId();
-        log.debug("Platform updated");
     }
 
     @EventSourcingHandler
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
-        log.debug("Platform deleted");
+        log.debug("onPlatformDeletedEvent - platformId: %s - key: %s - user: %s",
+                event.getPlatformId(), event.getPlatformKey(), event.getUser());
     }
 
     @EventSourcingHandler
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
+        log.debug("onPlatformModulePropertiesUpdatedEvent - platformId: %s - versionId: %s - user: %s",
+                event.getPlatformId(), event.getPlatformVersionId(), event.getUser());
         this.versionId = event.getPlatformVersionId();
-        log.debug("Plaform module {} updated with properties {}", event.getPropertiesPath(), event.getValuedProperties());
     }
 
     @EventSourcingHandler
     public void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event) {
+        log.debug("onPlatformPropertiesUpdatedEvent - platformId: %s - versionId: %s - user: %s",
+                event.getPlatformId(), event.getPlatformVersionId(), event.getUser());
         this.versionId = event.getPlatformVersionId();
-        log.debug("Plaform updated with properties {}", event.getValuedProperties());
     }
 }
