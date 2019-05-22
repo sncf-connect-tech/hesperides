@@ -267,6 +267,7 @@ public class PlatformsController extends AbstractController {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
+
         return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
     }
 

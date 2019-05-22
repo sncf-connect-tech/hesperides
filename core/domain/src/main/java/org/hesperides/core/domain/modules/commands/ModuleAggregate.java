@@ -38,59 +38,57 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public ModuleAggregate(CreateModuleCommand command) {
-        log.debug("Applying create module command...");
-
         Module module = command.getModule()
                 .validateTemplates()
                 .initializeVersionId();
-
-        apply(new ModuleCreatedEvent(UUID.randomUUID().toString(), module, command.getUser().getName()));
+        String newUuid = UUID.randomUUID().toString();
+        log.debug("ModuleAggregate constructor - moduleId: %s - key: %s - versionId: %s - user: %s",
+                newUuid, command.getModule().getKey().getNamespaceWithoutPrefix(), command.getModule().getVersionId(), command.getUser());
+        apply(new ModuleCreatedEvent(newUuid, module, command.getUser().getName()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onUpdateModuleTechnosCommand(UpdateModuleTechnosCommand command) {
-        log.debug("Applying update module command...");
-
+        log.debug("onUpdateModuleTechnosCommand - moduleId: %s - key: %s - versionId: %s - user: %s",
+                command.getModuleId(), command.getModule().getKey().getNamespaceWithoutPrefix(), command.getModule().getVersionId(), command.getUser());
         Module module = command.getModule()
                 .validateIsWorkingCopy()
                 .validateVersionId(versionId)
                 .incrementVersiondId();
-
         apply(new ModuleTechnosUpdatedEvent(command.getModuleId(), module.getTechnos(), module.getVersionId(), command.getUser().getName()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteModuleCommand(DeleteModuleCommand command) {
-        log.debug("Applying delete module command...");
+        log.debug("onUpdateModuleTechnosCommand - moduleId: %s - user: %s",
+                command.getModuleId(), command.getUser());
         apply(new ModuleDeletedEvent(command.getModuleId(), command.getUser().getName()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onCreateTemplateCommand(CreateTemplateCommand command) {
-        log.debug("Applying create template command...");
-
+        log.debug("onCreateTemplateCommand - moduleId: %s - key: %s - templateName: %s - user: %s",
+                command.getModuleId(), command.getModuleKey(), command.getTemplate().getName(), command.getUser());
         Template template = command.getTemplate()
                 .validateNameNotTaken(templates, key)
                 .validateProperties()
                 .initializeVersionId();
-
         apply(new TemplateCreatedEvent(command.getModuleId(), command.getModuleKey(), template, command.getUser().getName()));
     }
 
     @CommandHandler
     @SuppressWarnings("unused")
     public void onUpdateTemplateCommand(UpdateTemplateCommand command) {
-        log.debug("Applying update template command...");
-
+        log.debug("onUpdateTemplateCommand - moduleId: %s - key: %s - templateName: %s - user: %s",
+                command.getModuleId(), command.getModuleKey(), command.getTemplate().getName(), command.getUser());
         Template template = command.getTemplate()
                 .validateExistingName(templates, key)
                 .validateVersionId(getExpectedVersionId(command))
                 .validateProperties()
                 .incrementVersionId();
-
         apply(new TemplateUpdatedEvent(command.getModuleId(), command.getModuleKey(), template, command.getUser().getName()));
     }
 
@@ -101,6 +99,8 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteTemplateCommand(DeleteTemplateCommand command) {
+        log.debug("onDeleteTemplateCommand - moduleId: %s - key: %s - templateName: %s - user: %s",
+                command.getModuleId(), command.getModuleKey(), command.getTemplateName(), command.getUser());
         // Si le template n'existe pas, cette commande n'a pas d'effet de bord
         if (!this.templates.containsKey(command.getTemplateName())) {
             throw new TemplateNotFoundException(key, command.getTemplateName());
@@ -113,43 +113,49 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
+        log.debug("onModuleCreatedEvent - moduleId: %s - key: %s - versionId: %s - user: %s",
+                event.getModuleId(), event.getModule().getKey(), event.getModule().getVersionId(), event.getUser());
         this.id = event.getModuleId();
         this.key = event.getModule().getKey();
         this.versionId = event.getModule().getVersionId();
         event.getModule().getTemplates().forEach(template ->
             this.templates.put(template.getName(), template)
         );
-        log.debug("module créé. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
+        log.debug("onModuleTechnosUpdatedEvent - moduleId: %s - versionId: %s - user: %s",
+                event.getModuleId(), event.getVersionId(), event.getUser());
         this.versionId = event.getVersionId();
-        log.debug("module mis à jour. (aggregate is live ? {})", isLive());
     }
 
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
-        log.debug("module supprimé. (aggregate is live ? {})", isLive());
+        log.debug("onModuleDeletedEvent - moduleId: %s - user: %s",
+                event.getModuleId(), event.getUser());
     }
 
     @EventSourcingHandler
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
+        log.debug("onTemplateCreatedEvent - moduleId: %s - key: %s - templateName: %s - user: %s",
+                event.getModuleId(), event.getModuleKey(), event.getTemplate().getName(), event.getUser());
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
-        log.debug("Template crée. ");
     }
 
     @EventSourcingHandler
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
+        log.debug("onTemplateCreatedEvent - moduleId: %s - key: %s - templateName: %s - user: %s",
+                event.getModuleId(), event.getModuleKey(), event.getTemplate().getName(), event.getUser());
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
-        log.debug("Template mis à jour. ");
     }
 
     @EventSourcingHandler
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
+        log.debug("onTemplateCreatedEvent - moduleId: %s - key: %s - templateName: %s - user: %s",
+                event.getModuleId(), event.getModuleKey(), event.getTemplateName(), event.getUser());
         this.templates.remove(event.getTemplateName());
-        log.debug("Template supprimé");
     }
 }
