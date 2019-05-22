@@ -35,8 +35,16 @@
         }
     </style>
 </head>
-
 <body>
+
+<h3 id="location-warning" style="display: none; background-color: red; color: white; font-family: 'Comic Sans MS'">
+    To avoid authentication bugs (401), please use the fully qualified domain name.
+</h3>
+<script>
+    if (!window.location.host.toString().includes('.')) {
+        document.getElementById("location-warning").style.display = 'block';
+    }
+</script>
 
 <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0">
     <defs>
@@ -77,6 +85,6 @@
 <script src="webjars/springfox-swagger-ui/swagger-ui-bundle.js?v=@VERSION@"></script>
 <script src="webjars/springfox-swagger-ui/swagger-ui-standalone-preset.js?v=@VERSION@"></script>
 <script src="webjars/springfox-swagger-ui/springfox.js?v=@VERSION@"></script>
-</body>
 
+</body>
 </html>
