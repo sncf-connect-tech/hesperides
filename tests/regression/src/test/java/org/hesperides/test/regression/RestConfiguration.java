@@ -40,28 +40,24 @@ import java.util.stream.Collectors;
 @Configuration
 public class RestConfiguration {
 
+    @Value("${regressionTest.username}")
+    private String username;
+    @Value("${regressionTest.password}")
+    private String password;
+
     @Value("${regressionTest.latest.url}")
     private String latestUrl;
-    @Value("${regressionTest.latest.username}")
-    private String latestUsername;
-    @Value("${regressionTest.latest.password}")
-    private String latestPassword;
-
     @Value("${regressionTest.testing.url}")
     private String testingUrl;
-    @Value("${regressionTest.testing.username}")
-    private String testingUsername;
-    @Value("${regressionTest.testing.password}")
-    private String testingPassword;
 
     @Bean("latestRestTemplate")
     public RestTemplate latestRestTemplate() {
-        return restTemplate(latestUsername, latestPassword);
+        return restTemplate(username, password);
     }
 
     @Bean("testingRestTemplate")
     public RestTemplate testingRestTemplate() {
-        return restTemplate(testingUsername, testingPassword);
+        return restTemplate(username, password);
     }
 
     private RestTemplate restTemplate(String username, String password) {

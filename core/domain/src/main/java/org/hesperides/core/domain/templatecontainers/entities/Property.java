@@ -1,6 +1,5 @@
 package org.hesperides.core.domain.templatecontainers.entities;
 
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Value
-@EqualsAndHashCode(callSuper = false)
 public class Property extends AbstractProperty {
 
     String mustacheContent;

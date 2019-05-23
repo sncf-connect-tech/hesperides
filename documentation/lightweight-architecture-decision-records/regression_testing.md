@@ -18,15 +18,11 @@ les modules et les plateformes entre la version N et la version N+1, sur un mêm
 
 ## Paramètres
 
-    # Paramètres de la version N
+    # Paramètres de connexion
+    REGRESSIONTEST_USERNAME
+    REGRESSIONTEST_PASSWORD
     REGRESSIONTEST_LATEST_URL
-    REGRESSIONTEST_LATEST_USERNAME
-    REGRESSIONTEST_LATEST_PASSWORD
-    
-    # Paramètres de la version N+1
     REGRESSIONTEST_TESTING_URL
-    REGRESSIONTEST_TESTING_USERNAME
-    REGRESSIONTEST_TESTING_PASSWORD
     
     # Entités à tester
     REGRESSIONTEST_VALIDATE_TECHNOS (default: true)
