@@ -8,9 +8,10 @@
         </encoder>
     </appender>
 
-    <logger name="org.springframework.web" level="INFO"/>
-
     <root level="${LOG_LEVEL}">
         <appender-ref ref="STDOUT"/>
     </root>
+
+    <logger name="org.springframework.web" level="INFO"/>
+
 </configuration>

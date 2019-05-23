@@ -23,7 +23,7 @@ package org.hesperides.test.regression.validation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.presentation.PresentationConfiguration;
 import org.hesperides.test.regression.RegressionLogs;
-import org.hesperides.test.regression.config.RestConfiguration;
+import org.hesperides.test.regression.RestConfiguration;
 import org.hesperides.test.regression.errors.Diff;
 import org.hesperides.test.regression.errors.UnexpectedException;
 import org.junit.Assert;

@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.regression.config;
+package org.hesperides.test.regression;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

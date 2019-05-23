@@ -41,7 +41,6 @@
         <mongo-java-server.version>1.9.8</mongo-java-server.version>
         <gson.version>2.8.5</gson.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <jsonassert.version>1.5.0</jsonassert.version>
         <junit.version>4.12</junit.version>
         <junit-jupiter-api.version>5.0.3</junit-jupiter-api.version>
         <liquibase.version>3.6.1</liquibase.version>
@@ -274,11 +273,6 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.skyscreamer</groupId>
-                <artifactId>jsonassert</artifactId>
-                <version>${jsonassert.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

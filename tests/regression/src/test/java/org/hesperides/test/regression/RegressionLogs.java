@@ -22,40 +22,40 @@ package org.hesperides.test.regression;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.test.regression.config.RegressionSettings;
 import org.hesperides.test.regression.errors.AbstractError;
 import org.hesperides.test.regression.errors.Diff;
 import org.hesperides.test.regression.errors.UnexpectedException;
 import org.hesperides.test.regression.validation.ModulesValidation;
 import org.hesperides.test.regression.validation.PlatformsValidation;
 import org.hesperides.test.regression.validation.TechnosValidation;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class RegressionLogs {
 
-    @Autowired
-    private RegressionSettings regressionSettings;
+    @Value("${regressionTest.logWhileTesting}")
+    private boolean logWhileTesting;
 
     private List<Diff> diffs = new ArrayList<>();
     private List<UnexpectedException> exceptions = new ArrayList<>();
 
     public void logAndSaveDiff(Diff diff) {
-        if (regressionSettings.logWhileTesting()) {
+        if (logWhileTesting) {
             logDiff(diff);
         }
         diffs.add(diff);
     }
 
     public void logAndSaveException(UnexpectedException exception) {
-        if (regressionSettings.logWhileTesting()) {
+        if (logWhileTesting) {
             logException(exception);
         }
         exceptions.add(exception);
@@ -74,23 +74,16 @@ public class RegressionLogs {
     }
 
     private void logErrors(List<? extends AbstractError> errors, String logMessage) {
-        List<String> distinctKeys = getDistinctKeys(errors);
-        distinctKeys.forEach(entityKey -> {
-            List<AbstractError> entityDiffs = errors.stream().filter(error -> error.getEntityKey().equals(entityKey)).collect(Collectors.toList());
-            log.warn(logMessage, entityDiffs.size(), entityKey);
-            entityDiffs.forEach(this::logError);
+        Map<String, List<AbstractError>> errorsGroupedByKeys = getErrorsGroupedByKeys(errors);
+        errorsGroupedByKeys.keySet().forEach(entityKey -> {
+            List<AbstractError> entityErrors = errorsGroupedByKeys.get(entityKey);
+            log.warn(logMessage, entityErrors.size(), entityKey);
+            entityErrors.forEach(this::logError);
         });
     }
 
-    private List<String> getDistinctKeys(List<? extends AbstractError> errors) {
-        return getDistinctKeys(errors, null);
-    }
-
-    private List<String> getDistinctKeys(List<? extends AbstractError> errors, String keyPrefix) {
-        return errors.stream()
-                .map(AbstractError::getEntityKey)
-                .filter(entityKey -> StringUtils.isEmpty(keyPrefix) || entityKey.startsWith(keyPrefix))
-                .distinct().sorted().collect(Collectors.toList());
+    private Map<String, List<AbstractError>> getErrorsGroupedByKeys(List<? extends AbstractError> errors) {
+        return errors.stream().collect(Collectors.groupingBy(AbstractError::getEntityKey));
     }
 
     private void logError(AbstractError error) {
@@ -118,17 +111,33 @@ public class RegressionLogs {
         log.warn("************** STATS ***************");
         log.warn("{} endpoint(s) with diff", diffs.size());
         log.warn("{} endpoint(s) with exception", exceptions.size());
-        log.warn("{} entitie(s) with at least one diff", getDistinctKeys(diffs).size());
-        log.warn("{} entitie(s) with at least one exception", getDistinctKeys(exceptions).size());
+        log.warn("{} entitie(s) with at least one diff", countDistinctEntities(diffs));
+        log.warn("{} entitie(s) with at least one exception", countDistinctEntities(exceptions));
         log.warn("************************************");
-        log.warn("{} techno(s) with at least one diffs", getDistinctKeys(diffs, TechnosValidation.TECHNO_KEY_PREFIX).size());
-        log.warn("{} module(s) with at least one diffs", getDistinctKeys(diffs, ModulesValidation.MODULE_KEY_PREFIX).size());
-        log.warn("{} platform(s) with at least one diffs", getDistinctKeys(diffs, PlatformsValidation.PLATFORM_KEY_PREFIX).size());
+        log.warn("{} techno(s) with at least one diff", countDistinctEntities(diffs, TechnosValidation.TECHNO_KEY_PREFIX));
+        log.warn("{} module(s) with at least one diff", countDistinctEntities(diffs, ModulesValidation.MODULE_KEY_PREFIX));
+        log.warn("{} platform(s) with at least one diff", countDistinctEntities(diffs, PlatformsValidation.PLATFORM_KEY_PREFIX));
+        log.warn("************************************");
+        log.warn("{} techno(s) with at least one exception", countDistinctEntities(exceptions, TechnosValidation.TECHNO_KEY_PREFIX));
+        log.warn("{} module(s) with at least one exception", countDistinctEntities(exceptions, ModulesValidation.MODULE_KEY_PREFIX));
+        log.warn("{} platform(s) with at least one exception", countDistinctEntities(exceptions, PlatformsValidation.PLATFORM_KEY_PREFIX));
         log.warn("************************************");
         log.warn("");
     }
 
-    boolean hasDiffsOrException() {
+    private long countDistinctEntities(List<? extends AbstractError> errors) {
+        return countDistinctEntities(errors, null);
+    }
+
+    private long countDistinctEntities(List<? extends AbstractError> errors, String keyPrefix) {
+        return getErrorsGroupedByKeys(errors)
+                .keySet()
+                .stream()
+                .filter(entityKey -> StringUtils.isEmpty(keyPrefix) || entityKey.startsWith(keyPrefix))
+                .count();
+    }
+
+    boolean hasDiffsOrExceptions() {
         return !CollectionUtils.isEmpty(diffs) || !CollectionUtils.isEmpty(exceptions);
     }
 

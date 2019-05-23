@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,6 +40,13 @@ public class RegressionTests {
     static class NRContextConfiguration {
     }
 
+    @Value("${regressionTest.validate.technos}")
+    private boolean validateTechnos;
+    @Value("${regressionTest.validate.modules}")
+    private boolean validateModules;
+    @Value("${regressionTest.validate.platforms}")
+    private boolean validatePlatforms;
+
     @Autowired
     TechnosValidation technosValidation;
     @Autowired
@@ -50,11 +58,17 @@ public class RegressionTests {
 
     @Test
     public void launch() {
-        technosValidation.validate();
-        modulesValidation.validate();
-        platformsValidation.validate();
+        if (validateTechnos) {
+            technosValidation.validate();
+        }
+        if (validateModules) {
+            modulesValidation.validate();
+        }
+        if (validatePlatforms) {
+            platformsValidation.validate();
+        }
 
-        if (regressionLogs.hasDiffsOrException()) {
+        if (regressionLogs.hasDiffsOrExceptions()) {
             regressionLogs.logDiffs();
             regressionLogs.logExceptions();
             regressionLogs.logStats();
