@@ -41,6 +41,30 @@ public class PlatformsController extends AbstractController {
         this.platformUseCases = platformUseCases;
     }
 
+    @GetMapping("")
+    @ApiOperation("Get applications")
+    public ResponseEntity<List<SearchResultOutput>> getApplications() {
+        List<SearchApplicationResultView> apps = platformUseCases.listApplications();
+
+        List<SearchResultOutput> appsOutput = apps.stream()
+                .distinct()
+                .map(SearchResultOutput::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(appsOutput);
+    }
+
+    @GetMapping("/{application_name}")
+    @ApiOperation("Get application")
+    public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
+                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
+
+        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
+        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
+
+        return ResponseEntity.ok(applicationOutput);
+    }
+
     @PostMapping("/{application_name}/platforms")
     @ApiOperation("Create platform")
     @Deprecated
@@ -139,17 +163,6 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(platformOutput);
     }
 
-    @GetMapping("/{application_name}")
-    @ApiOperation("Get application")
-    public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
-                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
-
-        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
-
-        return ResponseEntity.ok(applicationOutput);
-    }
-
     @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
     @ApiOperation("Get properties with the given path in a platform")
     public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") final String applicationName,
@@ -178,19 +191,6 @@ public class PlatformsController extends AbstractController {
         List<ModulePlatformsOutput> modulePlatformsOutputs = ModulePlatformsOutput.fromViews(modulePlatformViews);
 
         return ResponseEntity.ok(modulePlatformsOutputs);
-    }
-
-    @GetMapping("")
-    @ApiOperation("Get applications")
-    public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> apps = platformUseCases.listApplications();
-
-        List<SearchResultOutput> appsOutput = apps.stream()
-                .distinct()
-                .map(SearchResultOutput::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(appsOutput);
     }
 
     @ApiOperation("Deprecated - Use GET /applications/perform_search instead")

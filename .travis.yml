@@ -34,7 +34,7 @@ jobs:
     before_script:
     - sudo touch /var/log/hesperides.log
     - sudo chown travis /var/log/hesperides.log
-    script: ./mvnw test -pl '!tests/integration' -Dcucumber.options='--tags ~@integ-test-only'
+    script: ./mvnw test -pl '!tests/integration' -pl '!tests/regression' -Dcucumber.options='--tags ~@integ-test-only'
   - stage: test
     env: INTEGRATION TESTS
     before_script:
