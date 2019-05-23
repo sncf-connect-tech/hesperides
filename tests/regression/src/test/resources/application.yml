@@ -1,0 +1,14 @@
+regressionTest:
+  activate: ${REGRESSIONTEST_ACTIVATE:false}
+  log:
+    whileTesting: ${REGRESSIONTEST_LOG_WHILETESTING:false}
+    endpoints: ${REGRESSIONTEST_LOG_ENDPOINTS:false}
+  latest:
+    url: ${REGRESSIONTEST_LATEST_URL}
+    username: ${REGRESSIONTEST_LATEST_USERNAME}
+    password: ${REGRESSIONTEST_LATEST_PASSWORD}
+  testing:
+    url: ${REGRESSIONTEST_TESTING_URL}
+    username: ${REGRESSIONTEST_TESTING_USERNAME}
+    password: ${REGRESSIONTEST_TESTING_PASSWORD}
+      

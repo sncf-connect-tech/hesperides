@@ -18,13 +18,14 @@
  *
  *
  */
-package org.hesperides.test.nr.validation;
+package org.hesperides.test.regression.validation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.presentation.PresentationConfiguration;
-import org.hesperides.test.nr.NRConfiguration;
-import org.hesperides.test.nr.errors.Diff;
-import org.hesperides.test.nr.errors.UnexpectedException;
+import org.hesperides.test.regression.RegressionConfiguration;
+import org.hesperides.test.regression.RegressionLogs;
+import org.hesperides.test.regression.errors.Diff;
+import org.hesperides.test.regression.errors.UnexpectedException;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,74 +33,67 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 public abstract class AbstractValidation {
 
-    private static List<Diff> diffs = new ArrayList<>();
-    private static List<UnexpectedException> exceptions = new ArrayList<>();
-
     @Autowired
-    private NRConfiguration nrConfiguration;
+    private RegressionConfiguration regressionConfiguration;
+    @Autowired
+    private RegressionLogs regressionLogs;
     @Autowired
     private RestTemplate latestRestTemplate;
     @Autowired
     private RestTemplate testingRestTemplate;
 
-    private void logDiffs() {
-        log.warn("{} endpoint diffs", diffs.size());
-        diffs.forEach(Diff::log);
+    protected void testEndpoint(String entityKey, String restEndpoint, Class responseType, Object... endpointVariables) {
+        testEndpointAndGetResult(entityKey, restEndpoint, responseType, endpointVariables);
     }
 
-    private void logUnexpectedExceptions() {
-        log.warn("{} unexpected exceptions", exceptions.size());
-        diffs.forEach(Diff::log);
+    protected void testFileEndpoint(String entityKey, String restEndpoint) {
+        testEndpointAndGetResult(entityKey, true, restEndpoint, String.class);
     }
 
-//    private void test(String restEndpoint, Object... endpointVariables) {
-//        test(restEndpoint, String.class, endpointVariables);
-//    }
-
-    void test(String restEndpoint, Class responseType, Object... endpointVariables) {
-        test(restEndpoint, false, responseType, endpointVariables);
+    protected <T> Optional<T> testEndpointAndGetResult(String entityKey, String restEndpoint, Class<T> responseType, Object... endpointVariables) {
+        return testEndpointAndGetResult(entityKey, false, restEndpoint, responseType, endpointVariables);
     }
 
-    void test(String restEndpoint, boolean isFileUrl, Class responseType, Object... endpointVariables) {
-        testAndGetResult(restEndpoint, isFileUrl, responseType, endpointVariables);
-    }
+    private <T> Optional<T> testEndpointAndGetResult(String entityKey, boolean isFileUrl, String restEndpoint, Class<T> responseType, Object... endpointVariables) {
 
-    <T> Optional<T> testAndGetResult(String restEndpoint, Class<T> responseType, Object... endpointVariables) {
-        return testAndGetResult(restEndpoint, false, responseType, endpointVariables);
-    }
-
-    private <T> Optional<T> testAndGetResult(String restEndpoint, boolean isFileUrl, Class<T> responseType, Object... endpointVariables) {
-
-        String latestUri = nrConfiguration.getLatestUri(restEndpoint);
-        String testingUri = nrConfiguration.getTestingUri(restEndpoint);
+        String latestUri = regressionConfiguration.getLatestUri(restEndpoint);
+        String testingUri = regressionConfiguration.getTestingUri(restEndpoint);
 
         String readableLatestUri = getReadableUri(isFileUrl, latestUri, endpointVariables, latestRestTemplate);
         String readableTestingUri = getReadableUri(isFileUrl, testingUri, endpointVariables, testingRestTemplate);
-        log.debug("Testing endpoint " + readableLatestUri);
+
+        if (regressionConfiguration.logEndpoints()) {
+            log.debug("Testing endpoint " + readableLatestUri);
+        }
 
         Optional<T> result = Optional.empty();
         try {
             ResponseEntity<String> latestResult = getResult(latestRestTemplate, isFileUrl, String.class, latestUri, endpointVariables);
             ResponseEntity<String> testingResult = getResult(testingRestTemplate, isFileUrl, String.class, testingUri, endpointVariables);
 
+            Diff diff = null;
             try {
                 Assert.assertEquals(latestResult.getStatusCode(), testingResult.getStatusCode());
                 Assert.assertEquals(latestResult.getBody(), testingResult.getBody());
-                result = Optional.of(PresentationConfiguration.gson().fromJson(latestResult.getBody(), responseType));
-
             } catch (Throwable t) {
-                logAndSaveDiff(new Diff(readableLatestUri, readableTestingUri, t.getMessage()));
+                diff = new Diff(entityKey, readableLatestUri, readableTestingUri, t.getMessage());
+            }
+
+            if (diff != null) {
+                regressionLogs.logAndSaveDiff(diff);
+            } else {
+                result = responseType.equals(String.class)
+                        ? (Optional<T>) Optional.ofNullable(latestResult.getBody())
+                        : Optional.of(PresentationConfiguration.gson().fromJson(latestResult.getBody(), responseType));
             }
 
         } catch (Throwable t) {
-            logAndSaveException(new UnexpectedException(readableLatestUri, readableTestingUri, t.getMessage()));
+            regressionLogs.logAndSaveException(new UnexpectedException(entityKey, readableLatestUri, readableTestingUri, t.getMessage()));
         }
         return result;
     }
@@ -118,15 +112,5 @@ public abstract class AbstractValidation {
         } catch (URISyntaxException e) {
             throw new RuntimeException("Impossible de convertir l'url encodée " + url);
         }
-    }
-
-    private static void logAndSaveDiff(Diff diff) {
-        diff.log();
-        diffs.add(diff);
-    }
-
-    private static void logAndSaveException(UnexpectedException exception) {
-        exception.log();
-        exceptions.add(exception);
     }
 }

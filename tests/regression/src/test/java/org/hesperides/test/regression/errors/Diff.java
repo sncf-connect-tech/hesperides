@@ -18,20 +18,16 @@
  *
  *
  */
-package org.hesperides.test.nr.errors;
+package org.hesperides.test.regression.errors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class UnexpectedException extends AbstractError {
+public class Diff extends AbstractError {
 
-    public UnexpectedException(String latestUri, String testingUri, String message) {
-        super(latestUri, testingUri, message);
-    }
-
-    public void log() {
-        super.log("Exception");
+    public Diff(String entityKey, String latestUri, String testingUri, String message) {
+        super(entityKey, latestUri, testingUri, message);
     }
 }

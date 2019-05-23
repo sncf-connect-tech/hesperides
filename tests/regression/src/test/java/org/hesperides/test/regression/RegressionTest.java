@@ -18,22 +18,26 @@
  *
  *
  */
-package org.hesperides.test.nr;
+package org.hesperides.test.regression;
 
-import lombok.extern.slf4j.Slf4j;
-import org.hesperides.test.nr.validation.ModulesValidation;
-import org.hesperides.test.nr.validation.PlatformsValidation;
-import org.hesperides.test.nr.validation.TechnosValidation;
+import org.hesperides.test.regression.validation.ModulesValidation;
+import org.hesperides.test.regression.validation.PlatformsValidation;
+import org.hesperides.test.regression.validation.TechnosValidation;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {NRConfiguration.class})
-@Slf4j
-public class NRTest {
+@ContextConfiguration(classes = RegressionTest.NRContextConfiguration.class)
+public class RegressionTest {
+
+    @ComponentScan({"org.hesperides.test.regression"})
+    static class NRContextConfiguration {
+    }
 
     @Autowired
     TechnosValidation technosValidation;
@@ -41,16 +45,27 @@ public class NRTest {
     ModulesValidation modulesValidation;
     @Autowired
     PlatformsValidation platformsValidation;
+    @Autowired
+    private RegressionLogs regressionLogs;
+    @Autowired
+    private RegressionConfiguration regressionConfiguration;
 
     @Test
     public void launch() {
-        technosValidation.validate();
-        modulesValidation.validate();
-        platformsValidation.validate();
+        if (regressionConfiguration.activateTests()) {
 
-        //TODO Logs, stats et logs par entité
+            technosValidation.validate();
+//            modulesValidation.validate();
+//            platformsValidation.validate();
 
-//        logDiffs();
-//        logUnexpectedExceptions();
+            if (regressionLogs.hasDiffsOrException()) {
+                regressionLogs.logDiffs();
+                regressionLogs.logExceptions();
+                regressionLogs.logStats();
+                Assert.fail();
+            } else {
+                regressionLogs.logSuccess();
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.nr.errors;
+package org.hesperides.test.regression.errors;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractError {
 
+    String entityKey;
     String latestUri;
     String testingUri;
     String message;

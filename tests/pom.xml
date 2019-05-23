@@ -17,8 +17,8 @@
     <modules>
         <module>bdd</module>
         <module>integration</module>
-        <module>nr</module>
         <module>perfs</module>
+        <module>regression</module>
     </modules>
 
 </project>

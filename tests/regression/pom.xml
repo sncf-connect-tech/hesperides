@@ -10,7 +10,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>nr</artifactId>
+    <artifactId>regression</artifactId>
     <!--<packaging>jar</packaging>-->
 
     <dependencies>
@@ -45,5 +45,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.nr;
+package org.hesperides.test.regression;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,23 +38,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-public class NRConfiguration {
+public class RegressionConfiguration {
 
-    @Value("${nr.latest.url}")
+    @Value("${regressionTest.activate}")
+    private boolean ACTIVATE;
+
+    @Value("${regressionTest.log.whileTesting}")
+    private boolean LOG_WHILE_TESTING;
+    @Value("${regressionTest.log.endpoints}")
+    private boolean LOG_ENDPOINTS;
+
+    @Value("${regressionTest.latest.url}")
     private String LATEST_URL;
-    @Value("${nr.latest.username}")
+    @Value("${regressionTest.latest.username}")
     private String LATEST_USERNAME;
-    @Value("${nr.latest.password}")
+    @Value("${regressionTest.latest.password}")
     private String LATEST_PASSWORD;
 
-    @Value("${nr.testing.url}")
+    @Value("${regressionTest.testing.url}")
     private String TESTING_URL;
-    @Value("${nr.testing.username}")
+    @Value("${regressionTest.testing.username}")
     private String TESTING_USERNAME;
-    @Value("${nr.testing.password}")
+    @Value("${regressionTest.testing.password}")
     private String TESTING_PASSWORD;
 
-    @Value("${nr.front.url}")
+    @Value("${regressionTest.front.url}")
     private String FRONT_URL;
 
     @Bean("latestRestTemplate")
@@ -101,7 +109,15 @@ public class NRConfiguration {
         return TESTING_URL + "/rest/" + endpoint;
     }
 
-    public String getFrontUri(String endpoint) {
-        return FRONT_URL + "/#/" + endpoint;
+    boolean activateTests() {
+        return ACTIVATE;
+    }
+
+    boolean logWhileTesting() {
+        return LOG_WHILE_TESTING;
+    }
+
+    public boolean logEndpoints() {
+        return LOG_ENDPOINTS;
     }
 }
