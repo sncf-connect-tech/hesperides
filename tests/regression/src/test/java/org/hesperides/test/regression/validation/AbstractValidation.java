@@ -43,9 +43,7 @@ public abstract class AbstractValidation {
     @Autowired
     private RegressionLogs regressionLogs;
     @Autowired
-    private RestTemplate latestRestTemplate;
-    @Autowired
-    private RestTemplate testingRestTemplate;
+    private RestTemplate restTemplate;
 
     protected void testEndpoint(String entityKey, String restEndpoint, Class responseType, Object... endpointVariables) {
         testEndpointAndGetResult(entityKey, restEndpoint, responseType, endpointVariables);
@@ -64,15 +62,15 @@ public abstract class AbstractValidation {
         String latestUri = restConfiguration.getLatestUri(restEndpoint);
         String testingUri = restConfiguration.getTestingUri(restEndpoint);
 
-        String readableLatestUri = getReadableUri(isFileUrl, latestUri, endpointVariables, latestRestTemplate);
-        String readableTestingUri = getReadableUri(isFileUrl, testingUri, endpointVariables, testingRestTemplate);
+        String readableLatestUri = getReadableUri(isFileUrl, latestUri, endpointVariables);
+        String readableTestingUri = getReadableUri(isFileUrl, testingUri, endpointVariables);
 
         log.debug("Testing endpoint " + readableLatestUri);
 
         Optional<T> result = Optional.empty();
         try {
-            ResponseEntity<String> latestResult = getResult(latestRestTemplate, isFileUrl, String.class, latestUri, endpointVariables);
-            ResponseEntity<String> testingResult = getResult(testingRestTemplate, isFileUrl, String.class, testingUri, endpointVariables);
+            ResponseEntity<String> latestResult = getResult(isFileUrl, latestUri, endpointVariables);
+            ResponseEntity<String> testingResult = getResult(isFileUrl, testingUri, endpointVariables);
 
             Assert.assertEquals(latestResult.getStatusCode(), testingResult.getStatusCode());
             Assert.assertEquals(latestResult.getBody(), testingResult.getBody());
@@ -89,12 +87,12 @@ public abstract class AbstractValidation {
         return result;
     }
 
-    private static String getReadableUri(boolean isFileUrl, String uri, Object[] endpointVariables, RestTemplate restTemplate) {
+    private String getReadableUri(boolean isFileUrl, String uri, Object[] endpointVariables) {
         return isFileUrl ? uri : restTemplate.getUriTemplateHandler().expand(uri, endpointVariables).toString();
     }
 
-    private static <T> ResponseEntity<T> getResult(RestTemplate restTemplate, boolean isFileUrl, Class<T> responseType, String uri, Object[] endpointVariables) {
-        return isFileUrl ? restTemplate.getForEntity(urlDecode(uri), responseType) : restTemplate.getForEntity(uri, responseType, endpointVariables);
+    private <T> ResponseEntity<T> getResult(boolean isFileUrl, String uri, Object[] endpointVariables) {
+        return isFileUrl ? restTemplate.getForEntity(urlDecode(uri), (Class<T>) String.class) : restTemplate.getForEntity(uri, (Class<T>) String.class, endpointVariables);
     }
 
     private static URI urlDecode(String url) {

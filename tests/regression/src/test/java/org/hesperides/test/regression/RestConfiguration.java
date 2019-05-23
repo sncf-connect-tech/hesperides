@@ -50,17 +50,8 @@ public class RestConfiguration {
     @Value("${regressionTest.testing.url}")
     private String testingUrl;
 
-    @Bean("latestRestTemplate")
-    public RestTemplate latestRestTemplate() {
-        return restTemplate(username, password);
-    }
-
-    @Bean("testingRestTemplate")
-    public RestTemplate testingRestTemplate() {
-        return restTemplate(username, password);
-    }
-
-    private RestTemplate restTemplate(String username, String password) {
+    @Bean
+    public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> converters = restTemplate
                 .getMessageConverters()
