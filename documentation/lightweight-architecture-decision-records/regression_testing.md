@@ -15,3 +15,24 @@ l'application existante. Par exemple, quand on touchera au modèle de propriét�
 
 Le principe reste le même : comparer les résultats des endpoints GET sur les technos,
 les modules et les plateformes entre la version la version en test et la version de production.
+
+## Paramètres
+
+    # Paramètres de la version actuelle
+    REGRESSIONTEST_LATEST_URL
+    REGRESSIONTEST_LATEST_USERNAME
+    REGRESSIONTEST_LATEST_PASSWORD
+    
+    # Paramètres de la version en test
+    REGRESSIONTEST_TESTING_URL
+    REGRESSIONTEST_TESTING_USERNAME
+    REGRESSIONTEST_TESTING_PASSWORD
+    
+    # Activation des tests de non-régression (par défaut à false)
+    REGRESSIONTEST_ACTIVATE
+    
+    # Logs pendant le déroulement des tests, en plus des logs de fin (par défaut à false)
+    REGRESSIONTEST_LOG_WHILETESTING
+    
+    # Logs des endpoints appelés (par défaut à false)
+    REGRESSIONTEST_LOG_ENDPOINTS
