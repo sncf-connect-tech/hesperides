@@ -32,8 +32,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = RegressionTest.NRContextConfiguration.class)
-public class RegressionTest {
+@ContextConfiguration(classes = RegressionTests.NRContextConfiguration.class)
+public class RegressionTests {
 
     @ComponentScan({"org.hesperides.test.regression"})
     static class NRContextConfiguration {
@@ -55,8 +55,8 @@ public class RegressionTest {
         if (regressionConfiguration.activateTests()) {
 
             technosValidation.validate();
-//            modulesValidation.validate();
-//            platformsValidation.validate();
+            modulesValidation.validate();
+            platformsValidation.validate();
 
             if (regressionLogs.hasDiffsOrException()) {
                 regressionLogs.logDiffs();
