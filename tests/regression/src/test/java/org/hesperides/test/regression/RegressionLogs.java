@@ -22,6 +22,7 @@ package org.hesperides.test.regression;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.test.regression.config.RegressionSettings;
 import org.hesperides.test.regression.errors.AbstractError;
 import org.hesperides.test.regression.errors.Diff;
 import org.hesperides.test.regression.errors.UnexpectedException;
@@ -41,33 +42,33 @@ import java.util.stream.Collectors;
 public class RegressionLogs {
 
     @Autowired
-    private RegressionConfiguration regressionConfiguration;
+    private RegressionSettings regressionSettings;
 
     private List<Diff> diffs = new ArrayList<>();
     private List<UnexpectedException> exceptions = new ArrayList<>();
 
     public void logAndSaveDiff(Diff diff) {
-        if (regressionConfiguration.logWhileTesting()) {
+        if (regressionSettings.logWhileTesting()) {
             logDiff(diff);
         }
         diffs.add(diff);
     }
 
     public void logAndSaveException(UnexpectedException exception) {
-        if (regressionConfiguration.logWhileTesting()) {
+        if (regressionSettings.logWhileTesting()) {
             logException(exception);
         }
         exceptions.add(exception);
     }
 
     void logDiffs() {
-        log.warn("*************** DIFFS ***************", diffs.size() > 0 ? "ALL" : "NO");
+        log.warn("************** DIFFS ***************");
         log.warn("");
-        logErrors(diffs, "{} diff(s) for entity \"{}\":");
+        logErrors(diffs, "{} diff(s) for \"{}\":");
     }
 
     void logExceptions() {
-        log.warn("************ EXCEPTIONS ************", exceptions.size() > 0 ? "ALL" : "NO");
+        log.warn("************ EXCEPTIONS ************");
         log.warn("");
         logErrors(exceptions, "{} exception(s) while testing \"{}\":");
     }

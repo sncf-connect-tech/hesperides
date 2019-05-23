@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.regression;
+package org.hesperides.test.regression.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -38,41 +38,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-public class RegressionConfiguration {
-
-    @Value("${regressionTest.activate}")
-    private boolean ACTIVATE;
-
-    @Value("${regressionTest.log.whileTesting}")
-    private boolean LOG_WHILE_TESTING;
-    @Value("${regressionTest.log.endpoints}")
-    private boolean LOG_ENDPOINTS;
+public class RestConfiguration {
 
     @Value("${regressionTest.latest.url}")
-    private String LATEST_URL;
+    private String latestUrl;
     @Value("${regressionTest.latest.username}")
-    private String LATEST_USERNAME;
+    private String latestUsername;
     @Value("${regressionTest.latest.password}")
-    private String LATEST_PASSWORD;
+    private String latestPassword;
 
     @Value("${regressionTest.testing.url}")
-    private String TESTING_URL;
+    private String testingUrl;
     @Value("${regressionTest.testing.username}")
-    private String TESTING_USERNAME;
+    private String testingUsername;
     @Value("${regressionTest.testing.password}")
-    private String TESTING_PASSWORD;
-
-    @Value("${regressionTest.front.url}")
-    private String FRONT_URL;
+    private String testingPassword;
 
     @Bean("latestRestTemplate")
     public RestTemplate latestRestTemplate() {
-        return restTemplate(LATEST_USERNAME, LATEST_PASSWORD);
+        return restTemplate(latestUsername, latestPassword);
     }
 
     @Bean("testingRestTemplate")
     public RestTemplate testingRestTemplate() {
-        return restTemplate(TESTING_USERNAME, TESTING_PASSWORD);
+        return restTemplate(testingUsername, testingPassword);
     }
 
     private RestTemplate restTemplate(String username, String password) {
@@ -102,22 +91,10 @@ public class RegressionConfiguration {
     }
 
     public String getLatestUri(String endpoint) {
-        return LATEST_URL + "/rest/" + endpoint;
+        return latestUrl + "/rest/" + endpoint;
     }
 
     public String getTestingUri(String endpoint) {
-        return TESTING_URL + "/rest/" + endpoint;
-    }
-
-    boolean activateTests() {
-        return ACTIVATE;
-    }
-
-    boolean logWhileTesting() {
-        return LOG_WHILE_TESTING;
-    }
-
-    public boolean logEndpoints() {
-        return LOG_ENDPOINTS;
+        return testingUrl + "/rest/" + endpoint;
     }
 }

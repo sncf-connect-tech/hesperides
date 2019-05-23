@@ -47,25 +47,20 @@ public class RegressionTests {
     PlatformsValidation platformsValidation;
     @Autowired
     private RegressionLogs regressionLogs;
-    @Autowired
-    private RegressionConfiguration regressionConfiguration;
 
     @Test
     public void launch() {
-        if (regressionConfiguration.activateTests()) {
+        technosValidation.validate();
+        modulesValidation.validate();
+        platformsValidation.validate();
 
-            technosValidation.validate();
-            modulesValidation.validate();
-            platformsValidation.validate();
-
-            if (regressionLogs.hasDiffsOrException()) {
-                regressionLogs.logDiffs();
-                regressionLogs.logExceptions();
-                regressionLogs.logStats();
-                Assert.fail();
-            } else {
-                regressionLogs.logSuccess();
-            }
+        if (regressionLogs.hasDiffsOrException()) {
+            regressionLogs.logDiffs();
+            regressionLogs.logExceptions();
+            regressionLogs.logStats();
+            Assert.fail();
+        } else {
+            regressionLogs.logSuccess();
         }
     }
 }

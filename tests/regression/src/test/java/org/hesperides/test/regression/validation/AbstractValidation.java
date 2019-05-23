@@ -22,8 +22,8 @@ package org.hesperides.test.regression.validation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.presentation.PresentationConfiguration;
-import org.hesperides.test.regression.RegressionConfiguration;
 import org.hesperides.test.regression.RegressionLogs;
+import org.hesperides.test.regression.config.RestConfiguration;
 import org.hesperides.test.regression.errors.Diff;
 import org.hesperides.test.regression.errors.UnexpectedException;
 import org.junit.Assert;
@@ -39,7 +39,7 @@ import java.util.Optional;
 public abstract class AbstractValidation {
 
     @Autowired
-    private RegressionConfiguration regressionConfiguration;
+    private RestConfiguration restConfiguration;
     @Autowired
     private RegressionLogs regressionLogs;
     @Autowired
@@ -61,37 +61,28 @@ public abstract class AbstractValidation {
 
     private <T> Optional<T> testEndpointAndGetResult(String entityKey, boolean isFileUrl, String restEndpoint, Class<T> responseType, Object... endpointVariables) {
 
-        String latestUri = regressionConfiguration.getLatestUri(restEndpoint);
-        String testingUri = regressionConfiguration.getTestingUri(restEndpoint);
+        String latestUri = restConfiguration.getLatestUri(restEndpoint);
+        String testingUri = restConfiguration.getTestingUri(restEndpoint);
 
         String readableLatestUri = getReadableUri(isFileUrl, latestUri, endpointVariables, latestRestTemplate);
         String readableTestingUri = getReadableUri(isFileUrl, testingUri, endpointVariables, testingRestTemplate);
 
-        if (regressionConfiguration.logEndpoints()) {
-            log.debug("Testing endpoint " + readableLatestUri);
-        }
+        log.debug("Testing endpoint " + readableLatestUri);
 
         Optional<T> result = Optional.empty();
         try {
             ResponseEntity<String> latestResult = getResult(latestRestTemplate, isFileUrl, String.class, latestUri, endpointVariables);
             ResponseEntity<String> testingResult = getResult(testingRestTemplate, isFileUrl, String.class, testingUri, endpointVariables);
 
-            Diff diff = null;
-            try {
-                Assert.assertEquals(latestResult.getStatusCode(), testingResult.getStatusCode());
-                Assert.assertEquals(latestResult.getBody(), testingResult.getBody());
-            } catch (Throwable t) {
-                diff = new Diff(entityKey, readableLatestUri, readableTestingUri, t.getMessage());
-            }
+            Assert.assertEquals(latestResult.getStatusCode(), testingResult.getStatusCode());
+            Assert.assertEquals(latestResult.getBody(), testingResult.getBody());
 
-            if (diff != null) {
-                regressionLogs.logAndSaveDiff(diff);
-            } else {
-                result = responseType.equals(String.class)
-                        ? (Optional<T>) Optional.ofNullable(latestResult.getBody())
-                        : Optional.of(PresentationConfiguration.gson().fromJson(latestResult.getBody(), responseType));
-            }
+            result = responseType.equals(String.class)
+                    ? (Optional<T>) Optional.ofNullable(latestResult.getBody())
+                    : Optional.of(PresentationConfiguration.gson().fromJson(latestResult.getBody(), responseType));
 
+        } catch (AssertionError e) {
+            regressionLogs.logAndSaveDiff(new Diff(entityKey, readableLatestUri, readableTestingUri, e.getMessage()));
         } catch (Throwable t) {
             regressionLogs.logAndSaveException(new UnexpectedException(entityKey, readableLatestUri, readableTestingUri, t.getMessage()));
         }
@@ -103,10 +94,10 @@ public abstract class AbstractValidation {
     }
 
     private static <T> ResponseEntity<T> getResult(RestTemplate restTemplate, boolean isFileUrl, Class<T> responseType, String uri, Object[] endpointVariables) {
-        return isFileUrl ? restTemplate.getForEntity(decode(uri), responseType) : restTemplate.getForEntity(uri, responseType, endpointVariables);
+        return isFileUrl ? restTemplate.getForEntity(urlDecode(uri), responseType) : restTemplate.getForEntity(uri, responseType, endpointVariables);
     }
 
-    private static URI decode(String url) {
+    private static URI urlDecode(String url) {
         try {
             return new URI(url);
         } catch (URISyntaxException e) {
