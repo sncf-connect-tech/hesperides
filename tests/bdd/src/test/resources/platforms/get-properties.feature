@@ -24,6 +24,12 @@ Feature: Get properties
     When I get the platform properties for this module
     Then the platform properties are successfully retrieved
 
+  Scenario: get properties of a platform with an incorrect version type
+    And an existing module with properties
+    And an existing platform with this module and valued properties
+    When I try to get the platform properties for this module with an incorrect version type
+    Then the request is rejected with a bad request error
+
   Scenario: get platform global properties
     Given an existing platform with global properties
     When I get the global properties of this platform

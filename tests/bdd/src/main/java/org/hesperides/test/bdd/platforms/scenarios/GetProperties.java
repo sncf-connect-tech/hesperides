@@ -69,12 +69,15 @@ public class GetProperties extends HesperidesScenario implements En {
 
     public GetProperties() {
 
-        When("^(?:when )?I get the platform properties for this module( at a specific time in the past)?$", (String withTimestamp) -> {
+        When("^(?:when )?I( try to)? get the platform properties for this module( at a specific time in the past)?( with an incorrect version type)?$", (String tryTo, String withTimestamp, String withIncorrectVersionType) -> {
             Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 timestamp = platformHistory.getFirstPlatformTimestamp();
             }
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp);
+            if (StringUtils.isNotEmpty(withIncorrectVersionType)) {
+                moduleBuilder.withVersionType("TOTO");
+            }
+            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class));
         });
 
         When("^I get the global properties of this platform$", () -> {

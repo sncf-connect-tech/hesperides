@@ -173,17 +173,17 @@ public class PlatformClient {
     }
 
     public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath) {
-        return getProperties(platform, propertiesPath, null);
+        return getProperties(platform, propertiesPath, null, PropertiesIO.class);
     }
 
-    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath, Long timestamp) {
+    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath, Long timestamp, Class responseType) {
         String url = "/applications/{application_name}/platforms/{platform_name}/properties?path={properties_path}";
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }
         return restTemplate.getForEntity(
                 url,
-                PropertiesIO.class,
+                responseType,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);
