@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-05-27
 ### Fixed
 
-- 404 en cas de _version type_ invalide dans /properties?path= [Lucas Cimon]
+- 404 en cas de _version type_ invalide dans /properties?path= (#656) [Lucas Cimon]
 
 
 
