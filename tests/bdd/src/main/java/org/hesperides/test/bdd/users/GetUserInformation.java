@@ -39,7 +39,5 @@ public class GetUserInformation extends HesperidesScenario implements En {
             assertEquals("with".equals(withTechRole), map.get("techUser"));
             assertEquals("with".equals(withProdRole), map.get("prodUser"));
         });
-
-        Then("^the request is rejected with an unauthorized error$", this::assertUnauthorized);
     }
 }

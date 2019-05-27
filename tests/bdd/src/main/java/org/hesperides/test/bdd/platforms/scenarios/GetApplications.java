@@ -23,6 +23,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -40,7 +41,12 @@ public class GetApplications extends HesperidesScenario implements En {
 
     public GetApplications() {
 
-        When("^I( try to)? get the platform application( with parameter hide_platform set to true)?$", (String tryTo, String withHidePlatform) -> {
+        When("^I( try to)? get the applications list$", (String tryTo) -> {
+            testContext.responseEntity = platformClient.getApplications(
+                    getResponseType(tryTo, SearchResultOutput[].class));
+        });
+
+        When("^I( try to)? get the application details( with parameter hide_platform set to true)?$", (String tryTo, String withHidePlatform) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
             testContext.responseEntity = platformClient.getApplication(
                     platformBuilder.buildInput(),

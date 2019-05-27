@@ -51,7 +51,7 @@ public class SearchApplications extends HesperidesScenario implements En {
             testContext.responseEntity = platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class));
         });
 
-        Then("^the application search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
+        Then("^the application (?:list|search result) contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK();
             List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) testContext.getResponseBody());
             assertEquals(nbEntries.intValue(), result.size());

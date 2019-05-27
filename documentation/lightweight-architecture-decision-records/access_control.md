@@ -33,22 +33,25 @@ Ajout de 3 champs dans la réponse.
   "username": "...",
   "prodUser": false,
   "techUser": false,
-  "ad_groups": ["GG_XX", "GG_YY"],
-  "flat_ad_groups": ["GG_XX", "GG_YY", "GG_ZZ"],
-  "authorities": ["AAA_PROD_USER", "BBB_PROD_USER"]
+  "prod_groups": ["GG_XX", "GG_YY", "GG_ZZ"]
 }
 ```
 
+Ici `prod_groups` inclus tous les groupes AD contenant l'utilisateur, directement ou transitivement.
+
 **Error**: `401` si les _credentials_ de l'utilisateur sont invalides.
 
+**Note**: ces informations ne sont pas stockées côté Hesperides, l'_ActiveDirectory_ est consulté à chaque appel.
+Cependant un cache avec TTL de 5min est configuré pour limiter la charge sur ce serveur.
+
 ### GET /applications/$APP
-Ajout d'un champ `ad_groups` dans la réponse + cette ressource ne doit pas nécessiter d'autentification.
+Ajout d'un champ `prod_groups` dans la réponse.
 
 **Output**: 
 ```
 {
     "name": "AAA",
-    "ad_groups": ["GG_XX", "GG_YY", "GG_ZZ"],
+    "prod_groups": ["GG_XX", "GG_YY", "GG_ZZ"],
     "platforms: [ ... ]
 }
 ```
@@ -56,11 +59,14 @@ Ajout d'un champ `ad_groups` dans la réponse + cette ressource ne doit pas néc
 ### GET /applications/$APP?with_passwords_count=true
 Ajout de ce _query parameter_.
 
+**Besoin** : pouvoir identifier les plateformes nommées "PRDx" contenant des mots de passes,
+mais non classifiées comme "production".
+
 **Output**:
 ```
 {
     "name": "AAA",
-    "ad_groups": ["GG_XX", "GG_YY", "GG_ZZ"],
+    "prod_groups": ["GG_XX", "GG_YY", "GG_ZZ"],
     "platforms: [{
         "name": "PRD1",
         "production": true,
@@ -69,8 +75,8 @@ Ajout de ce _query parameter_.
 }
 ```
 
-### POST/PUT /applications/$APP
-Doit permettre l'inclusion du champ `ad_groups` lors de la création / mise à jour.
+### PUT /applications/$APP
+Permet de mettre à jour `prod_groups`.
 
-En termes de règles "métier", lors d'un `PUT`, le champ `ad_groups` ne peut être modifié que s'il est vide
-OU que l'utilisateur effectuant l'appel appartient a l'un de ces groupes. Sinon : `401`.
+**Droits de modification des `prod_groups`**: ce champ ne peut être modifié que lorsqu'il est initialement vide
+OU que l'utilisateur effectuant la modification appartient a l'un des `prod_groups`. Dans le cas contraire, une `401` est retournée.

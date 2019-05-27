@@ -25,6 +25,8 @@ public class CommonSteps extends HesperidesScenario implements En {
 
         Then("^the request is rejected with an internal error$", this::assertInternalServerError);
 
+        Then("^the request is rejected with an unauthorized error$", this::assertUnauthorized);
+
         Then("^an empty list is returned$", () -> {
             assertOK();
             assertEquals(0, getBodyAsArray().length);
