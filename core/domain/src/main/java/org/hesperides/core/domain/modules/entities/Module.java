@@ -97,7 +97,15 @@ public class Module extends TemplateContainer {
             if (parts.length < 3) {
                 throw new IllegalArgumentException("Too short properties path: " + propertiesPath);
             }
-            VersionType versionType = parts[parts.length - 1].toUpperCase().equals("RELEASE") ? VersionType.release : VersionType.workingcopy;
+            String lowercaseVersionType = parts[parts.length - 1].toLowerCase();
+            VersionType versionType;
+            if (VersionType.workingcopy.toString().equals(lowercaseVersionType)) {
+                versionType = VersionType.workingcopy;
+            } else if (VersionType.release.toString().equals(lowercaseVersionType)){
+                versionType = VersionType.release;
+            } else {
+                throw new IllegalArgumentException("Invalid version type, must be WORKINGCOPY or RELEASE : " + parts[parts.length - 1]);
+            }
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
         }
     }
