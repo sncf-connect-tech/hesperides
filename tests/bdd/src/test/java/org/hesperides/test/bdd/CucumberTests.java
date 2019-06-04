@@ -26,7 +26,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class CucumberTests {
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
-    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
+    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, "test"}) // "test" => pick up application-test.yml
     @Configuration
     @ContextConfiguration
     public static class SpringUnitTests {

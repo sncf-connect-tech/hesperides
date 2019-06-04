@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hesperides.test.bdd.commons.AuthCredentialsConfig.LAMBDA_TEST_PROFILE;
 import static org.junit.Assert.assertEquals;
 
 public class CommonSteps extends HesperidesScenario implements En {
@@ -18,6 +20,14 @@ public class CommonSteps extends HesperidesScenario implements En {
 
     public CommonSteps() {
         Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
+
+        Given("^a user belonging to prod group (.+)(?:, itself in group (.+))?$", (String prodGroupName, String parentGroupName) -> {
+            if (isNotEmpty(parentGroupName)) {
+                // TODO: Ensure prodGroupDN is in group parentGroupName
+            }
+            // TODO: Ensure LAMBDA_TEST_PROFILE is in group prodGroupDN
+            setAuthUserRole(LAMBDA_TEST_PROFILE);
+        });
 
         Then("^the resource is not found$", this::assertNotFound);
 
@@ -40,7 +50,7 @@ public class CommonSteps extends HesperidesScenario implements En {
 
     public void setAuthUserRole(String authRole) {
         // Note: we erase ALL interceptors here by simplicity, because we know only the BasicAuth one is used in this app
-        restTemplate.setInterceptors(Collections.singletonList(testContext.getBasicAuthInterceptorForUser(defaultIfEmpty(authRole, "lambda"))));
+        restTemplate.setInterceptors(Collections.singletonList(testContext.authCredentialsConfig.getBasicAuthInterceptorForTestProfile(defaultIfEmpty(authRole, LAMBDA_TEST_PROFILE))));
     }
 
     public void ensureUserAuthIsSet() {

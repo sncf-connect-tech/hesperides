@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
+import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @RunWith(Cucumber.class)
@@ -22,7 +23,7 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.integration"})
 public class CucumberIntegTests {
 
-    @ActiveProfiles(profiles = {MONGO})
+    @ActiveProfiles(profiles = {MONGO, NOLDAP, "test"}) // "test" => pick up application-test.yml*-
     @ContextConfiguration(classes = {IntegTestConfig.class, IntegTestHttpConfig.class})
     @Configuration
     public static class SpringIntegTests {

@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Api(tags = "8. Users and versions", description = " ")
+@Api(tags = "9. Users and versions", description = " ")
 @RequestMapping("/users")
 @RestController
 public class UsersController extends AbstractController {
@@ -73,8 +73,9 @@ public class UsersController extends AbstractController {
 
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("username", currentUser.getName());
-        userInfo.put("prodUser", currentUser.isProd());
-        userInfo.put("techUser", currentUser.isTech());
+        userInfo.put("prodUser", currentUser.isProd()); // déprécié, utiliser plutôt .authorities
+        userInfo.put("techUser", currentUser.isTech()); // déprécié, utiliser plutôt .authorities
+        userInfo.put("authorities", authentication.getAuthorities());
 
         return ResponseEntity.ok(userInfo);
     }

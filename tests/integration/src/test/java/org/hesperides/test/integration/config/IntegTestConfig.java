@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import static org.springframework.context.annotation.ComponentScan.Filter;
 
 @Configuration
-@PropertySource("application-test.properties")
+@PropertySource("application-integ-test.properties")
 @ComponentScan(basePackages = {"org.hesperides.test.bdd"})
 @ComponentScan(basePackages = {"org.hesperides.core.infrastructure.mongo"},
         excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SnapshotConfiguration.class})})

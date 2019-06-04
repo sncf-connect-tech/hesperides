@@ -18,7 +18,7 @@ import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 
 @Slf4j
-@Api(tags = "4. Files", description = " ")
+@Api(tags = "5. Files", description = " ")
 @RequestMapping("/files")
 @RestController
 public class FilesController extends AbstractController {

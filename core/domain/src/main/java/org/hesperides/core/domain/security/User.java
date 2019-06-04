@@ -21,12 +21,13 @@ public class User {
         return new User(authentication.getName(), isProd(authentication.getAuthorities()), isTech(authentication.getAuthorities()));
     }
 
+    // TODO: refacto pour gérer les authorities IS_PROD / APP
     private static boolean isProd(Collection<? extends GrantedAuthority> authorities) {
-        return hasAuthority(authorities, UserRole.PROD);
+        return hasAuthority(authorities, UserRole.GLOBAL_IS_PROD);
     }
 
     private static boolean isTech(Collection<? extends GrantedAuthority> authorities) {
-        return hasAuthority(authorities, UserRole.TECH);
+        return hasAuthority(authorities, UserRole.GLOBAL_IS_TECH);
     }
 
     private static boolean hasAuthority(Collection<? extends GrantedAuthority> authorities, String userRole) {

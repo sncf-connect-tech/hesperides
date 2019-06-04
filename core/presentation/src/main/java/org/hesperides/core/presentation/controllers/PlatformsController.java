@@ -8,11 +8,16 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.domain.platforms.queries.views.*;
+import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
+import org.hesperides.core.domain.platforms.queries.views.PlatformView;
+import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.presentation.io.platforms.*;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +30,10 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
-@Api(tags = "3. Platforms", description = " ")
+@Api(tags = "4. Platforms", description = " ")
 @RequestMapping("/applications")
 @RestController
 public class PlatformsController extends AbstractController {
@@ -39,30 +43,6 @@ public class PlatformsController extends AbstractController {
     @Autowired
     public PlatformsController(PlatformUseCases platformUseCases) {
         this.platformUseCases = platformUseCases;
-    }
-
-    @GetMapping("")
-    @ApiOperation("Get applications")
-    public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> apps = platformUseCases.listApplications();
-
-        List<SearchResultOutput> appsOutput = apps.stream()
-                .distinct()
-                .map(SearchResultOutput::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(appsOutput);
-    }
-
-    @GetMapping("/{application_name}")
-    @ApiOperation("Get application")
-    public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
-                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
-
-        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
-
-        return ResponseEntity.ok(applicationOutput);
     }
 
     @PostMapping("/{application_name}/platforms")
@@ -191,29 +171,6 @@ public class PlatformsController extends AbstractController {
         List<ModulePlatformsOutput> modulePlatformsOutputs = ModulePlatformsOutput.fromViews(modulePlatformViews);
 
         return ResponseEntity.ok(modulePlatformsOutputs);
-    }
-
-    @ApiOperation("Deprecated - Use GET /applications/perform_search instead")
-    @PostMapping("/perform_search")
-    @Deprecated
-    public ResponseEntity<List<SearchResultOutput>> postSearchApplications(@RequestParam("name") String applicationName) {
-        return searchApplications(applicationName);
-    }
-
-    @ApiOperation("Search applications")
-    @GetMapping("/perform_search")
-    public ResponseEntity<List<SearchResultOutput>> searchApplications(@RequestParam("name") String applicationName) {
-
-        List<SearchApplicationResultView> searchApplicationResultViews = platformUseCases.searchApplications(defaultString(applicationName, ""));
-
-        List<SearchResultOutput> searchResultOutputs = Optional.ofNullable(searchApplicationResultViews)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .distinct()
-                .map(SearchResultOutput::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(searchResultOutputs);
     }
 
     @ApiOperation("Deprecated - Use GET /applications/platforms/perform_search instead")

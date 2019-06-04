@@ -33,8 +33,8 @@ ldap:
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:5000}
   readTimeout: ${LDAP_READ_TIMEOUT:5000}
-  prodGroupName: ${LDAP_PROD_GROUP_NAME}
-  techGroupName: ${LDAP_TECH_GROUP_NAME}
+  prodGroupDN: ${LDAP_PROD_GROUP_DN}
+  techGroupDN: ${LDAP_TECH_GROUP_DN}
 
 logging:
   file: /var/log/hesperides.log
@@ -43,9 +43,11 @@ logging:
     org.axonframework.queryhandling.responsetypes.MultipleInstancesResponseType: WARN
     org.hesperides.core:
       application.files.FileValuationContext: ${FILE_VALUATION_LOG_LEVEL:INFO}
-      domain.templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
-      core.domain.modules.commands.ModuleAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
-      core.domain.platforms.commands.PlatformAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
+      domain:
+        modules.commands.ModuleAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
+        platforms.commands.PlatformAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
+        templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
+      infrastructure.security.LdapAuthenticationProvider: ${LDAP_AUTH_PROVIDER_LOG_LEVEL:INFO}
     org.springframework:
       data.mongodb.core.MongoTemplate: ${MONGO_QUERIES_LOG_LEVEL:INFO}
       # On ne logue pas les nombreux "Ignoring PartialResultException"

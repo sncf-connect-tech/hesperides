@@ -20,9 +20,11 @@
  */
 package org.hesperides.core.infrastructure.security;
 
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.UserRole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextOperations;
@@ -38,14 +40,12 @@ import org.springframework.security.ldap.authentication.AbstractLdapAuthenticati
 import org.springframework.stereotype.Component;
 
 import javax.naming.*;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.commons.spring.SpringProfiles.LDAP;
@@ -61,12 +61,12 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
      */
     private static final String LDAP_MATCHING_RULE_IN_CHAIN_OID = "1.2.840.113556.1.4.1941";
 
+    @Autowired
+    private Gson gson;
+    @Autowired
     private LdapConfiguration ldapConfiguration;
 
-    public LdapAuthenticationProvider(final LdapConfiguration ldapConfiguration) {
-        this.ldapConfiguration = ldapConfiguration;
-    }
-
+    @Override
     @Cacheable(cacheNames = "users", key = "#authentication.principal")
     public Authentication authenticate(Authentication authentication)
             throws org.springframework.security.core.AuthenticationException {
@@ -75,15 +75,11 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
     @Override
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
-        String username = auth.getName();
-        String password = (String) auth.getCredentials();
-        DirContext ctx = buildSearchContext(username, password);
-        return searchUser(ctx, username);
+        DirContext ctx = buildSearchContext(auth.getName(), (String) auth.getCredentials());
+        return searchUser(ctx, auth.getName());
     }
 
     private DirContext buildSearchContext(final String username, final String password) {
-        DirContext context;
-
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -95,99 +91,141 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         env.put(Context.SECURITY_CREDENTIALS, password);
 
         try {
-            context = new InitialLdapContext(env, null);
-        } catch (AuthenticationException | OperationNotSupportedException e) {
-//            handleBindException(bindPrincipal, e);
-            throw badCredentials(e);
+            DirContext dirContext = new InitialLdapContext(env, null);
+            // ici dirContext ne contient que des infos relatives au serveur avec lequel la connexion vient d'être établie
+            if (log.isDebugEnabled()) { // on évite ce traitement si ce n'est pas nécessaire
+                log.debug("[buildSearchContext] dirContext: {}", gson.toJson(attributesToNative(dirContext.getAttributes("").getAll())));
+            }
+            return dirContext;
+        } catch (AuthenticationException | OperationNotSupportedException cause) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "LdapAuthenticationProvider.badCredentials", "Bad credentials"), cause);
         } catch (NamingException e) {
+            log.error(e.getExplanation() + (e.getCause() != null ? (" : " + e.getCause().getMessage()) : ""));
             throw LdapUtils.convertLdapException(e);
         }
-        return context;
     }
 
     private DirContextOperations searchUser(final DirContext ctx, final String username) {
-        DirContextOperations dirContextOperations;
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        String searchFilter = ldapConfiguration.getSearchFilterForUsername(username);
         try {
-            SearchControls searchControls = new SearchControls();
-            searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            String searchFilter = String.format("(%s=%s)", ldapConfiguration.getUsernameAttribute(), username);
-
+            // L'objet retourné est directement passé à loadUserAuthorities par la classe parente:
             // Durant cet appel SpringSecurityLdapTemplate logue parfois des "Ignoring PartialResultException"
-            dirContextOperations = SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx,
+            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx,
                     searchControls, ldapConfiguration.getUserSearchBase(), searchFilter,
                     new Object[]{username});
-        } catch (NamingException e) {
-            throw badCredentials(e);
+        } catch (NamingException cause) {
+            throw new BadCredentialsException(messages.getMessage(
+                    "LdapAuthenticationProvider.badCredentials", "Bad credentials"), cause);
         } finally {
             LdapUtils.closeContext(ctx);
         }
-        return dirContextOperations;
-    }
-
-    private BadCredentialsException badCredentials(Throwable cause) {
-        return (BadCredentialsException) badCredentials().initCause(cause);
-    }
-
-    private BadCredentialsException badCredentials() {
-        return new BadCredentialsException(messages.getMessage(
-                "LdapAuthenticationProvider.badCredentials", "Bad credentials"));
     }
 
     @Override
     protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        DirContext context = buildSearchContext(username, password);
-        if (!isBlank(ldapConfiguration.getProdGroupName()) && hasGroup(context, ldapConfiguration.getProdGroupName(), userData.getNameInNamespace())) {
-            authorities.add(new SimpleGrantedAuthority(UserRole.PROD));
+        // ici userData contient la grappe LDAP correspondant à l'utilisateur
+        String userDN = userData.getNameInNamespace();
+        log.debug("[loadUserAuthorities] userDN: {}", userDN);
+        if (log.isDebugEnabled()) { // on évite ce traitement si ce n'est pas nécessaire
+            try {
+                log.debug("[loadUserAuthorities] userData: {}", gson.toJson(attributesToNative(userData.getAttributes("").getAll())));
+            } catch (NamingException e) {
+                log.debug("[loadUserAuthorities] NamingException raised while serializing userData.attributes: {}", e);
+            }
         }
-        if (!isBlank(ldapConfiguration.getTechGroupName()) && hasGroup(context, ldapConfiguration.getTechGroupName(), userData.getNameInNamespace())) {
-            authorities.add(new SimpleGrantedAuthority(UserRole.TECH));
+        List<GrantedAuthority> authorities = extractGroupAuthoritiesRecursivelyWithCache(userData);
+        // TODO: call MongoDB to find what PROD_APP authorities match those groups + add corresponding SimpleGrantedAuthority
+        // TODO: remove the calls to hasGroup() below and just check the groupAuthorities for GLOBAL_IS_PROD / GLOBAL_IS_TECH
+        DirContext context = buildSearchContext(username, password);
+        if (!isBlank(ldapConfiguration.getProdGroupDN()) && hasGroup(context, ldapConfiguration.getProdGroupDN(), userDN)) {
+            authorities.add(new SimpleGrantedAuthority(UserRole.GLOBAL_IS_PROD));
+        }
+        if (!isBlank(ldapConfiguration.getTechGroupDN()) && hasGroup(context, ldapConfiguration.getTechGroupDN(), userDN)) {
+            authorities.add(new SimpleGrantedAuthority(UserRole.GLOBAL_IS_TECH));
         }
         return authorities;
     }
 
-    /**
-     * Méthode reprise telle qu'elle du legacy pour reproduire à l'identique la gestion des rôles.
-     */
-    private boolean hasGroup(DirContext context, String groupName, String userDN) {
+    private boolean hasGroup(DirContext context, String groupDN, String userDN) {
+        log.debug("[hasGroup] groupDN: {}", groupDN);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+        String memberOfSearch = String.format("(memberOf:%s:=%s)", LDAP_MATCHING_RULE_IN_CHAIN_OID, groupDN);
         try {
-            String groupSearch = String.format("(CN=%s)", groupName);
-            SearchControls searchControls = new SearchControls();
-            searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-            NamingEnumeration<SearchResult> groupResults = context.search(ldapConfiguration.getRoleSearchBase(), groupSearch, searchControls);
-
-            SearchResult groupSearchResult;
-            if (groupResults.hasMoreElements()) {
-                groupSearchResult = groupResults.nextElement();
-                if (groupResults.hasMoreElements()) {
-                    log.error("Expected to find only one group for " + ldapConfiguration.getProdGroupName() + " but found more results");
-                    return false;
-                }
-
-            } else {
-                log.error("Unable to find group {}", ldapConfiguration.getProdGroupName());
-                return false;
+            // Search recursively to see if user is member of this group
+            // We search memberOf the prod group using user DN as base DN
+            // We should have one result if the user belongs to the group -> the user itself
+            NamingEnumeration<SearchResult> searchResults = context.search(userDN, memberOfSearch, searchControls);
+            boolean hasResults = searchResults.hasMore();
+            if (log.isDebugEnabled()) { // on évite ce traitement si ce n'est pas nécessaire
+                log.debug("[hasGroup] searchResults: {}", gson.toJson(searchResultToNative(searchResults)));
             }
-
-            //Search recursively to see if user is member of this group
-            //We search memberOf the prod group using user DN as base DN
-            //We should have one result if the user belongs to the group -> the user itself
-            String groupDN = groupSearchResult.getNameInNamespace();
-            searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
-            String memberOfSearch = String.format("(memberOf:%s:=%s)", LDAP_MATCHING_RULE_IN_CHAIN_OID, groupDN);
-
-            NamingEnumeration<SearchResult> memberOfSearchResults = context.search(userDN, memberOfSearch, searchControls);
-
-            if (memberOfSearchResults.hasMore()) {
-                return true;
-            } else {
-                return false;
-            }
-
+            return hasResults;
         } catch (NamingException e) {
-            log.error(e.getExplanation());
+            log.error(e.getExplanation() + (e.getCause() != null ? (" : " + e.getCause().getMessage()) : ""));
+            return false;
         }
-        return false;
+    }
+
+    private static List<GrantedAuthority> extractGroupAuthoritiesRecursivelyWithCache(DirContextOperations userData) {
+        List<GrantedAuthority> groupAuthorities = new ArrayList<>();
+        for (String groupDN : extractDirectParentGroups(userData)) {
+            groupAuthorities.add(new LdapGroupGrantedAuthority(groupDN, 1));
+        }
+        // TODO: recurse with cache
+        return groupAuthorities;
+    }
+
+    private static List<String> extractDirectParentGroups(DirContextOperations userData) {
+        try {
+            Attribute memberOf = userData.getAttributes("").get("memberOf");
+            List<String> groupsDNs = new ArrayList<>();
+            for (int i = 0; i < memberOf.size(); i++) {
+                groupsDNs.add((String) memberOf.get(i));
+            }
+            return groupsDNs;
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*****************************************************************/
+    /**************** Pretty-printing debug methods ******************/
+    /*****************************************************************/
+
+    // ATTENTION: cette méthode CONSOMME l'énumération searchResults, elle a donc un effet de bord
+    private static List<Map<String, Object>> searchResultToNative(NamingEnumeration<SearchResult> searchResults) throws NamingException {
+        List<Map<String, Object>> output = new ArrayList<>();
+        while (searchResults.hasMore()) {
+            output.add(attributesToNative(searchResults.next().getAttributes().getAll()));
+        }
+        return output;
+    }
+
+    // ATTENTION: cette méthode CONSOMME l'énumération attributes, elle a donc un effet de bord
+    private static Map<String, Object> attributesToNative(NamingEnumeration<? extends Attribute> attributes) throws NamingException {
+        Map<String, Object> output = new HashMap<>();
+        while (attributes.hasMore()) {
+            Attribute attribute = attributes.next();
+            output.put(attribute.getID(), attributeValueToNative(attribute));
+        }
+        return output;
+    }
+
+    private static Object attributeValueToNative(Attribute attribute) throws NamingException {
+        if (attribute.getID().equals("thumbnailPhoto")) { // integer array value, too long to display
+            return "<OMITTED>";
+        }
+        if (attribute.size() == 1) {
+            return attribute.get();
+        }
+        List<Object> attrs = new ArrayList<>();
+        for (int i = 0; i < attribute.size(); i++) {
+            attrs.add(attribute.get(i));
+        }
+        return attrs;
     }
 }

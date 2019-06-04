@@ -5,6 +5,7 @@ import org.hesperides.test.bdd.commons.DebuggableRestTemplate;
 import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;

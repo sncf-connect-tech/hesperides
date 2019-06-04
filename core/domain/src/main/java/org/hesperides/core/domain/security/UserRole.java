@@ -21,6 +21,6 @@
 package org.hesperides.core.domain.security;
 
 public class UserRole {
-    public static final String PROD = "ROLE_PROD";
-    public static final String TECH = "ROLE_TECH";
+    public static final String GLOBAL_IS_PROD = "GLOBAL_IS_PROD";
+    public static final String GLOBAL_IS_TECH = "GLOBAL_IS_TECH";
 }

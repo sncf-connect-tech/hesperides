@@ -24,6 +24,10 @@ public class GetUserInformation extends HesperidesScenario implements En {
             testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
         });
 
+        Then("^the group (.+) appears in the \"prod_groups\" response fields$", (String groupName) ->
+                {}
+        );
+
         When("^(?:the user log out|the user re-send valid credentials)$", () ->
             testContext.responseEntity = restTemplate.getForEntity("/users/auth?logout=true", String.class)
         );

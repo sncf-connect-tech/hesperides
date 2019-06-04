@@ -33,7 +33,7 @@ import static org.hesperides.commons.spring.SpringProfiles.LDAP;
 
 @Profile(LDAP)
 @Component
-@ConfigurationProperties("ldap")
+@ConfigurationProperties(prefix = "ldap")
 @Getter
 @Setter
 @Validated
@@ -46,6 +46,9 @@ public class LdapConfiguration {
     private String usernameAttribute;
     private String connectTimeout;
     private String readTimeout;
-    private String prodGroupName;
-    private String techGroupName;
+    private String prodGroupDN;
+    private String techGroupDN;
+    String getSearchFilterForUsername(String username) {
+        return String.format("(%s=%s)", usernameAttribute, username);
+    }
 }
