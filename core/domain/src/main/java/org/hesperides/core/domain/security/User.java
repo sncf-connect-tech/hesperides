@@ -13,20 +13,19 @@ import java.util.Collection;
 @Value
 public class User {
 
+    // TODO: refacto pour gérer les authorities IS_PROD / APP
     String name;
-    boolean isProd;
-    boolean isTech;
+    boolean isGlobalProd;
+    boolean isGlobalTech;
 
     public static User fromAuthentication(Authentication authentication) {
-        return new User(authentication.getName(), isProd(authentication.getAuthorities()), isTech(authentication.getAuthorities()));
+        return new User(authentication.getName(), isGlobalProd(authentication.getAuthorities()), isGlobalTech(authentication.getAuthorities()));
     }
-
-    // TODO: refacto pour gérer les authorities IS_PROD / APP
-    private static boolean isProd(Collection<? extends GrantedAuthority> authorities) {
+    private static boolean isGlobalProd(Collection<? extends GrantedAuthority> authorities) {
         return hasAuthority(authorities, UserRole.GLOBAL_IS_PROD);
     }
 
-    private static boolean isTech(Collection<? extends GrantedAuthority> authorities) {
+    private static boolean isGlobalTech(Collection<? extends GrantedAuthority> authorities) {
         return hasAuthority(authorities, UserRole.GLOBAL_IS_TECH);
     }
 

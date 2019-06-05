@@ -21,6 +21,7 @@
 package org.hesperides.core.domain.security;
 
 public class UserRole {
-    public static final String GLOBAL_IS_PROD = "GLOBAL_IS_PROD";
-    public static final String GLOBAL_IS_TECH = "GLOBAL_IS_TECH";
+    // Le préfixe "ROLE_" indique qu'il s'agit d'un rôle au sens spring-security
+    public static final String GLOBAL_IS_PROD = "ROLE_GLOBAL_IS_PROD";
+    public static final String GLOBAL_IS_TECH = "ROLE_GLOBAL_IS_TECH";
 }

@@ -35,6 +35,10 @@ public class AuthCredentialsConfig {
     @Getter
     private String prodUserPassword = "password";
 
+    @Setter
+    @Getter
+    private String lambdaUserParentGroupDN;
+
     public BasicAuthenticationInterceptor getBasicAuthInterceptorForTestProfile(String testProfile) {
         return new BasicAuthenticationInterceptor(getUsernameForTestProfile(testProfile),
                                                   getPasswordForTestProfile(testProfile));

@@ -9,7 +9,16 @@ import org.springframework.stereotype.Component;
 @Scope("cucumber-glue") // Create and destroy bean on each scenario test
 public class TestContext {
     @Autowired
+    public
     AuthCredentialsConfig authCredentialsConfig;
+
+    String authRole = null;
+    String getUsername() {
+        return authCredentialsConfig.getUsernameForTestProfile(authRole);
+    }
+    String getPassword() {
+        return authCredentialsConfig.getPasswordForTestProfile(authRole);
+    }
 
     public ResponseEntity responseEntity;
 

@@ -53,7 +53,7 @@ Or just launch the application with those Spring Profiles: noldap, fake_mongo
 
 Build the whole project:
  
-    mvnw package
+    mvn package
 
 Build Docker image
 

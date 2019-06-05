@@ -148,3 +148,25 @@ Deux caches sont mis en place au niveau de la gestions des `authorities` :
 Malgré ces caches, comme Hesperides est _stateless_ et qu'aucune information relative à l'utilisateur n'est stockée en base de données,
 l'_ActiveDirectory_ est toujours consulté au moins une fois par connexion d'utilisateur.
 
+
+## Tests
+
+Comme les tests BDD validant ce fonctionnement dépendent de l'utilisation d'un serveur ActiveDirectory,
+nous avons tagué ces tests en `@require-real-ad`, et ils ne sont pas exécutés avec les autres tests Cucumber par défaut.
+
+Pour lancer ces tests, il vous faudra définir les variables d'environnement suivantes :
+
+    LDAP_URL
+    LDAP_DOMAIN
+    LDAP_USER_SEARCH_BASE
+    LDAP_ROLE_SEARCH_BASE
+    LDAP_PROD_GROUP_DN
+    LDAP_TECH_GROUP_DN
+
+Ainsi que les paramètres suivants :
+
+    -Dauth.lambdaUserName=...
+    -Dauth.lambdaUserPassword=...
+    -Dauth.lambdaUserParentGroupDN=...
+    -Dauth.prodUserName=...
+    -Dauth.prodUserPassword=...

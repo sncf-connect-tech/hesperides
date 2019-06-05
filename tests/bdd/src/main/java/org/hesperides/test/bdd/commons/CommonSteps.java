@@ -1,32 +1,39 @@
 package org.hesperides.test.bdd.commons;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.infrastructure.security.LdapAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.HashSet;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hesperides.test.bdd.commons.AuthCredentialsConfig.LAMBDA_TEST_PROFILE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 public class CommonSteps extends HesperidesScenario implements En {
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private TestContext testContext;
+    @Autowired(required = false)
+    private LdapAuthenticationProvider ldapAuthenticationProvider;
 
     public CommonSteps() {
         Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
 
-        Given("^a user belonging to prod group (.+)(?:, itself in group (.+))?$", (String prodGroupName, String parentGroupName) -> {
-            if (isNotEmpty(parentGroupName)) {
-                // TODO: Ensure prodGroupDN is in group parentGroupName
-            }
-            // TODO: Ensure LAMBDA_TEST_PROFILE is in group prodGroupDN
+        Given("^a user belonging to A_GROUP$", () -> {
             setAuthUserRole(LAMBDA_TEST_PROFILE);
+            assertNotNull("Bean not autowired, probably because profile NOLDAP is in use", ldapAuthenticationProvider);
+            HashSet<String> userGroupsDNs = ldapAuthenticationProvider.getUserGroupsDN(
+                    testContext.getUsername(),
+                    testContext.getPassword());
+            assertThat(userGroupsDNs, hasItems(testContext.authCredentialsConfig.getLambdaUserParentGroupDN()));
         });
 
         Then("^the resource is not found$", this::assertNotFound);
@@ -51,6 +58,7 @@ public class CommonSteps extends HesperidesScenario implements En {
     public void setAuthUserRole(String authRole) {
         // Note: we erase ALL interceptors here by simplicity, because we know only the BasicAuth one is used in this app
         restTemplate.setInterceptors(Collections.singletonList(testContext.authCredentialsConfig.getBasicAuthInterceptorForTestProfile(defaultIfEmpty(authRole, LAMBDA_TEST_PROFILE))));
+        testContext.authRole = authRole;
     }
 
     public void ensureUserAuthIsSet() {

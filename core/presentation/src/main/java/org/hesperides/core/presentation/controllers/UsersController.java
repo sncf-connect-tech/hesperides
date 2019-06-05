@@ -73,8 +73,8 @@ public class UsersController extends AbstractController {
 
         Map<String, Object> userInfo = new HashMap<>();
         userInfo.put("username", currentUser.getName());
-        userInfo.put("prodUser", currentUser.isProd()); // déprécié, utiliser plutôt .authorities
-        userInfo.put("techUser", currentUser.isTech()); // déprécié, utiliser plutôt .authorities
+        userInfo.put("prodUser", currentUser.isGlobalProd()); // déprécié, utiliser plutôt .authorities
+        userInfo.put("techUser", currentUser.isGlobalTech()); // déprécié, utiliser plutôt .authorities
         userInfo.put("authorities", authentication.getAuthorities());
 
         return ResponseEntity.ok(userInfo);

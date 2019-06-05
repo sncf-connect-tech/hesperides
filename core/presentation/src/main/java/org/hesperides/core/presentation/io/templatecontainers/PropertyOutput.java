@@ -31,7 +31,6 @@ public class PropertyOutput {
     @JsonProperty("fields")
     Set<PropertyOutput> properties;
 
-
     /**
      * Comme par défaut on sérialise les champs à null pour être iso-legacy
      * mais que le legacy exclue le champ `fields` lorsqu'il n'est pas renseigné,

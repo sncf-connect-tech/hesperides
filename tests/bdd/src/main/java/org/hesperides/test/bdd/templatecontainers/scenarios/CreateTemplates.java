@@ -63,7 +63,6 @@ public class CreateTemplates extends HesperidesScenario implements En {
         });
 
         Given("^an existing template$", () -> {
-            //TODO Générifier ou bouger dans module
             testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
             assertCreated();
         });

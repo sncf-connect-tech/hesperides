@@ -90,7 +90,6 @@ class TechnoAggregate implements Serializable {
 
     /*** EVENT HANDLERS ***/
 
-    //TODO Logs plus précis (avec données ?)
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
