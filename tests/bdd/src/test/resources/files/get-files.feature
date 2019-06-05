@@ -106,3 +106,11 @@ Feature: Get instance or module files
     And I update this platform, adding this module in logical group "group-2"
     When I get the module files in the logical group "group-2"
     Then the files are successfully retrieved
+
+  #issue-662
+  Scenario: get files should not escape HTML in the location URLs
+    Given a module template to create
+    And an existing module with this template
+    And an existing platform with this module
+    When I try to get the module files
+    Then the JSON output does not contain escaped characters
