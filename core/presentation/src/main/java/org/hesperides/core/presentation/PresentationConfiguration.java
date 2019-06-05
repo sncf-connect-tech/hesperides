@@ -73,6 +73,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
     @Bean
     public static Gson gson() {
         return new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
