@@ -26,7 +26,10 @@ import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -64,29 +67,5 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
                 .stream()
                 .map(ValuedPropertyIO::new)
                 .collect(Collectors.toSet());
-    }
-
-    // `equals` et `hashCode` sont surchargés afin de reproduire le comportement du legacy qui est :
-    // une propriété valorisée doit être unique par son nom, lorsqu'on utilise un `Set`,
-    // c'est-à-dire lorsqu'on veut récupérer la liste des propriétés valorisées d'un module déployé
-    // => org.hesperides.core.presentation.io.platforms.properties.PropertiesIO
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.getName());
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        boolean equals;
-        if (this == object) {
-            equals = true;
-        } else if (object == null || getClass() != object.getClass()) {
-            equals = false;
-        } else {
-            final ValuedPropertyIO otherProperty = (ValuedPropertyIO) object;
-            equals = Objects.equals(this.getName(), otherProperty.getName());
-        }
-        return equals;
     }
 }
