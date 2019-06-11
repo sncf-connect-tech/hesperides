@@ -11,7 +11,7 @@
 
 Hesperides is an open source tool generating content from a template file (using mustache) in a given environment.
 
-Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesperides frontend.
+The frontend interface is hosted here: https://github.com/voyages-sncf-technologies/hesperides-gui
 
 
 ## Installation
