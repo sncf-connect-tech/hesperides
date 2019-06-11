@@ -9,7 +9,7 @@ Feature: Get platforms
     When I get the platform detail
     Then the platform detail is successfully retrieved
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: get the detail of an existing platform with the wrong letter case
     Given an existing platform
     When I get the platform detail with the wrong letter case

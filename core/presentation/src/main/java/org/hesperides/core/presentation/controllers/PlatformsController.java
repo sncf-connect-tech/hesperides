@@ -2,6 +2,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
@@ -104,6 +105,8 @@ public class PlatformsController extends AbstractController {
     @PutMapping("/{application_name}/platforms")
     public ResponseEntity<PlatformIO> updatePlatform(Authentication authentication,
                                                      @PathVariable("application_name") final String applicationName,
+                                                     @ApiParam(value = "Copie les propriétés du module déployé de la plateforme source avec l'ID correspondant. " +
+                                                             "Si ce module ne contient pas de propriétés, à défaut on utilise les propriétés du module avec le même properties_path.")
                                                      @RequestParam(value = "copyPropertiesForUpgradedModules", required = false) final Boolean copyPropertiesForUpgradedModules,
                                                      @Valid @RequestBody final PlatformIO platformInput) {
 

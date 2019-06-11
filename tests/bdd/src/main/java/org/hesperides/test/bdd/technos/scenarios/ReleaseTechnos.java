@@ -60,7 +60,6 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
 
         Then("^the techno release is rejected with a not found error$", () -> {
             assertNotFound();
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
 
         Then("^the techno release is rejected with a conflict error$", () -> {

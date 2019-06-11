@@ -25,7 +25,9 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Value
 @AllArgsConstructor
@@ -35,6 +37,7 @@ public class ApplicationOutput {
     String name;
     @NotEmpty
     List<PlatformIO> platforms;
+    Map<String, List<String>> authorities = new HashMap<>();
 
     public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules) {
         this.name = applicationView.getName();

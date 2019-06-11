@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.security;
 
+import org.hesperides.core.domain.security.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -31,8 +32,8 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("tech").password("{noop}password").roles("TECH")
-                .and().withUser("prod").password("{noop}password").roles("PROD")
+                .withUser("tech").password("{noop}password").authorities(UserRole.GLOBAL_IS_TECH)
+                .and().withUser("prod").password("{noop}password").authorities(UserRole.GLOBAL_IS_PROD)
                 .and().withUser("user").password("{noop}password").roles("USER");
     }
 }

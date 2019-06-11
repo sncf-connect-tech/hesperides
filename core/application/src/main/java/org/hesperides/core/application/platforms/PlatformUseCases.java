@@ -46,7 +46,7 @@ public class PlatformUseCases {
     }
 
     public String createPlatform(Platform platform, User user) {
-        if (platform.isProductionPlatform() && !user.isProd()) {
+        if (platform.isProductionPlatform() && !user.isGlobalProd()) {
             throw new ForbiddenOperationException("Creating a production platform is reserved to production role");
         }
         if (queries.platformExists(platform.getKey())) {
@@ -61,7 +61,7 @@ public class PlatformUseCases {
         }
         PlatformView existingPlatform = queries.getOptionalPlatform(existingPlatformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(existingPlatformKey));
-        if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.isProd()) {
+        if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.isGlobalProd()) {
             throw new ForbiddenOperationException("Creating a platform from a production platform is reserved to production role");
         }
         List<DeployedModule> deployedModules = DeployedModuleView.toDomainDeployedModules(existingPlatform.getActiveDeployedModules());
@@ -102,7 +102,7 @@ public class PlatformUseCases {
     public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
         PlatformView existingPlatform = queries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        if (!user.isProd()) {
+        if (!user.isGlobalProd()) {
             if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {
                 throw new ForbiddenOperationException("Updating a production platform is reserved to production role");
             }
@@ -116,7 +116,7 @@ public class PlatformUseCases {
     public void deletePlatform(Platform.Key platformKey, User user) {
         PlatformView platform = queries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        if (platform.isProductionPlatform() && !user.isProd()) {
+        if (platform.isProductionPlatform() && !user.isGlobalProd()) {
             throw new ForbiddenOperationException("Deleting a production platform is reserved to production role");
         }
         commands.deletePlatform(platform.getId(), platformKey, user);
@@ -176,7 +176,7 @@ public class PlatformUseCases {
             // surtout si c'est pour refaire une requête pour récupérer les propriétés
             // => Créer une requête isProductionPlatform ou réutiliser la plateforme
             // pour récupérer les propriétés
-            if (platform.isProductionPlatform() && !user.isProd()) {
+            if (platform.isProductionPlatform() && !user.isGlobalProd()) {
                 properties = AbstractValuedPropertyView.hidePasswordProperties(properties, modulePropertiesModel);
             }
         }

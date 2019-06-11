@@ -1,5 +1,5 @@
 language: java
-jdk: oraclejdk8
+jdk: openjdk8
 sudo: required
 service:
 - docker
@@ -28,15 +28,15 @@ jobs:
   - stage: build
     env: BUILD WITHOUT TEST
     install: echo Not performing default install step
-    script: ./mvnw clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
+    script: mvn clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
   - stage: test
     env: CUCUMBER TESTS
     before_script:
     - sudo touch /var/log/hesperides.log
     - sudo chown travis /var/log/hesperides.log
-    script: ./mvnw test -pl '!tests/integration' -pl '!tests/regression' -Dcucumber.options='--tags ~@integ-test-only'
+    script: mvn test -pl '!tests/activedirectory-integration,!tests/mongo-integration,!tests/regression'
   - stage: test
-    env: INTEGRATION TESTS
+    env: MONGO INTEGRATION TESTS
     before_script:
     - sudo service mongod start
     - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
@@ -44,9 +44,9 @@ jobs:
     - sleep 15  # waiting for MongoDB to start up
     # On crée les collections MongoDB avec leurs collations:
     - mongo projection_repository mongo_create_collections.js
-    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
+    - mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
     - sleep 20  # waiting for the SpringBoot app to start up
-    - ./mvnw -pl tests/integration verify -P integration-test
+    - mvn -pl tests/mongo-integration verify
   - stage: test
     env: STRESS TESTS
     before_script:
@@ -56,7 +56,7 @@ jobs:
     - sleep 15  # waiting for MongoDB to start up
     # On crée les collections MongoDB avec leurs collations:
     - mongo projection_repository mongo_create_collections.js
-    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
+    - mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
     - sleep 20  # waiting for the SpringBoot app to start up
     - cd tests/perfs
     # Warm up:
@@ -71,7 +71,7 @@ jobs:
     - openssl aes-256-cbc -K $encrypted_2ec9da69c070_key -iv $encrypted_2ec9da69c070_iv
       -in ./.travis/codesigning.asc.enc -out ./.travis/codesigning.asc -d
     - gpg --import ./.travis/codesigning.asc
-    script: "./mvnw deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml"
+    script: mvn deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml
 notifications:
   webhooks: https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
   email: false

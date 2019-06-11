@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
@@ -22,13 +23,15 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(Cucumber.class)
 @CucumberOptions(
         features = "src/test/resources",
-        glue = {"classpath:org.hesperides.test.bdd"})
+        glue = {"classpath:org.hesperides.test.bdd"},
+        tags = {"~@require-real-mongo", "~@require-real-ad"}) // comma in tag = OR, comma between tags = AND
 public class CucumberTests {
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
-    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, "test"}) // "test" => pick up application-test.yml
+    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
     @Configuration
     @ContextConfiguration
+    @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException
     public static class SpringUnitTests {
         @Autowired
         private TestContextCleaner testContextCleaner;

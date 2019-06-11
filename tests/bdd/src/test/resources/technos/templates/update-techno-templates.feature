@@ -33,8 +33,6 @@ Feature: Update techno templates
     When I try to update this techno template
     Then the techno template update is rejected with a not found error
 
-    #TODO Différencier outdated version et ?
-
   Scenario: Update a template with an invalid content
     Given an existing techno
     And the template has an invalid property
@@ -46,4 +44,3 @@ Feature: Update techno templates
      And a template to update
      When I update this techno template
      Then the techno template is successfully updated
-

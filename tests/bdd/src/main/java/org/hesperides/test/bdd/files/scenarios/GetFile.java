@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.files.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
@@ -38,6 +39,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView.OBFUSCATED_PASSWORD_VALUE;
 import static org.junit.Assert.assertEquals;
@@ -92,9 +94,13 @@ public class GetFile extends HesperidesScenario implements En {
             assertEquals(expectedOutput, defaultString(actualOutput, ""));
         });
 
-        Then("^there are obfuscated password properties in the(?: initial)? file$", () -> {
+        Then("^there are( no)? obfuscated password properties in the(?: initial)? file$", (String no) -> {
             String actualOutput = (String) testContext.getResponseBody();
-            assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
+            if (StringUtils.isBlank(no)) {
+                assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
+            } else {
+                assertThat(actualOutput, not(containsString(OBFUSCATED_PASSWORD_VALUE)));
+            }
         });
     }
 

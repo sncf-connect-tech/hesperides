@@ -37,16 +37,18 @@ Feature: Restrict actions on prod platforms to prod users
     When I try to delete this platform
     Then a 403 error is returned, blaming "Deleting a production platform is reserved to production role"
 
-#  Scenario: do not restrict prod platform update for per-app prod users
-#    Given an user member of "GG_XX"
-#    And an application with prod groups "GG_XX"
-#    And an existing prod platform
-#    When I update this platform
-#    Then the platform is successfully updated
-#
-#  Scenario: do not restrict prod platform deletion for per-app prod users
-#    Given an user member of "GG_XX"
-#    And an application with prod groups "GG_XX"
-#    And an existing prod platform
-#    When I delete this platform
-#    Then the platform is successfully deleted
+  @require-real-ad
+  Scenario: do not restrict prod platform update for per-app prod users
+    Given a user belonging to A_GROUP
+    And an application with prod group A_GROUP
+    And an existing prod platform
+    When I update this platform
+    Then the platform is successfully updated
+
+  @require-real-ad
+  Scenario: do not restrict prod platform deletion for per-app prod users
+    Given a user belonging to A_GROUP
+    And an application with prod group A_GROUP
+    And an existing prod platform
+    When I delete this platform
+    Then the platform is successfully deleted
