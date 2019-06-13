@@ -25,6 +25,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- /manage/mappings - close #414. [Lucas Cimon]
+
+
+
 ## 2019-06-13
 ### Fixed
 
