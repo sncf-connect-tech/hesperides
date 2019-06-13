@@ -31,8 +31,10 @@ public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever 
         try {
             Attribute memberOf = attributes.get("memberOf");
             HashSet<String> groupsDNs = new HashSet<>();
-            for (int i = 0; i < memberOf.size(); i++) {
-                groupsDNs.add((String) memberOf.get(i));
+            if (memberOf != null) {
+                for (int i = 0; i < memberOf.size(); i++) {
+                    groupsDNs.add((String) memberOf.get(i));
+                }
             }
             return groupsDNs;
         } catch (NamingException e) {
