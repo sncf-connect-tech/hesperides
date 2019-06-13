@@ -100,11 +100,16 @@ public class PropertyBuilder {
     }
 
     public PropertyOutput build() {
-        Set<PropertyOutput> properties = this.properties == null ? null : this.properties
-                .stream()
-                .map(PropertyBuilder::build)
-                .collect(Collectors.toSet());
-        return new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, properties);
+        PropertyOutput property;
+        if (properties == null) {
+            property = new PropertyOutput(name, isRequired, comment, defaultValue, pattern, isPassword, null);
+        } else {
+            Set<PropertyOutput> childProperties = properties.stream()
+                    .map(PropertyBuilder::build)
+                    .collect(Collectors.toSet());
+            property = new PropertyOutput(name, false, null, null, null, false, childProperties);
+        }
+        return property;
     }
 
     public String toString() {

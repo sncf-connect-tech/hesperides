@@ -7,7 +7,6 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +27,6 @@ public class CopyModules extends HesperidesScenario implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
-    @Autowired
-    private TechnoBuilder technoBuilder;
 
     public CopyModules() {
 
