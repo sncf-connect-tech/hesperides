@@ -47,12 +47,17 @@ public class PropertyOutput {
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(src);
             jsonObject.remove("fields");
             if (src.getProperties() != null) {
+                // Cas d'une propriété itérable : seuls les champs "name" & "fields" ont du sens
                 JsonArray jsonArray = new JsonArray();
                 for (PropertyOutput propertyOutput : src.getProperties()) {
-                    // Récursivité
                     jsonArray.add(context.serialize(propertyOutput, PropertyOutput.class));
                 }
                 jsonObject.add("fields", jsonArray);
+                jsonObject.remove("required");
+                jsonObject.remove("comment");
+                jsonObject.remove("defaultValue");
+                jsonObject.remove("pattern");
+                jsonObject.remove("password");
             }
             return jsonObject;
         }

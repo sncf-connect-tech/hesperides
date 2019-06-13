@@ -25,6 +25,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2019-06-13
+### Fixed
+
+- Il est désormais possible de fournir un template_name pour les GET/DELETE via Swagger - close #639 (#671) [Lucas Cimon]
+
+
+
 ## 2019-06-05
 ### Fixed
 
