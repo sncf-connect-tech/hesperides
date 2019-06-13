@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-06-05
 ### Fixed
 
-- Les caractères HTML échappés dans le JSON de la sortie de GET /files posent problème - close #662. [Lucas Cimon]
+- Les caractères HTML échappés dans le JSON de la sortie de GET /files posent problème - close #662 (#663) [Lucas Cimon]
 
 
 

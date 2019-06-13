@@ -1,6 +1,8 @@
 package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
@@ -59,6 +61,9 @@ public class ModuleTemplatesController extends AbstractController {
 
     @GetMapping("/{module_type}/templates/**")
     @ApiOperation("Get template bundled in a module")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "template_name", required = true, dataType = "string", paramType = "path"),
+    })
     public ResponseEntity<TemplateIO> getTemplate(@PathVariable("module_name") final String moduleName,
                                                   @PathVariable("module_version") final String moduleVersion,
                                                   @PathVariable("module_type") final TemplateContainer.VersionType moduleVersionType,
@@ -71,24 +76,6 @@ public class ModuleTemplatesController extends AbstractController {
                 .orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName));
 
         return ResponseEntity.ok(templateOutput);
-    }
-
-    /**
-     * permet d'extraire la PathVariable "templateName", qui contient des slashes, à partir de l'URI de service : "getTemplateInWorkingCopy"
-     *
-     * @param request requête envoyée au service "getTemplateInWorkingCopy"
-     * @return le nom du template comportant des slashs
-     */
-    private String extractFilePath(HttpServletRequest request) {
-        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        AntPathMatcher apm = new AntPathMatcher();
-        path = apm.extractPathWithinPattern(bestMatchPattern, path);
-        try {
-            return URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     @PostMapping("/workingcopy/templates")
@@ -127,16 +114,35 @@ public class ModuleTemplatesController extends AbstractController {
         return ResponseEntity.ok(templateOutput);
     }
 
-    @DeleteMapping("/workingcopy/templates/{template_name:.+}")
+    @DeleteMapping("/workingcopy/templates/**")
     @ApiOperation("Delete template in the working copy of a version")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "template_name", required = true, dataType = "string", paramType = "path"),
+    })
     public ResponseEntity deleteTemplateInWorkingCopy(Authentication authentication,
                                                       @PathVariable("module_name") final String moduleName,
                                                       @PathVariable("module_version") final String moduleVersion,
-                                                      @PathVariable("template_name") final String templateName) {
+                                                      HttpServletRequest request) {
 
+        String templateName = extractFilePath(request);
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         this.moduleUseCases.deleteTemplate(moduleKey, templateName, fromAuthentication(authentication));
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Permet d'extraire la PathVariable "templateName", qui peut contenir des slashes.
+     */
+    private static String extractFilePath(HttpServletRequest request) {
+        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        AntPathMatcher apm = new AntPathMatcher();
+        path = apm.extractPathWithinPattern(bestMatchPattern, path);
+        try {
+            return URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
