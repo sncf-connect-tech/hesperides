@@ -1,11 +1,9 @@
 package org.hesperides.core.presentation;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
+import org.apache.catalina.core.StandardWrapper;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
@@ -72,7 +70,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public static Gson gson() {
-        return new GsonBuilder()
+        GsonBuilder gsonBuilder = new GsonBuilder()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
@@ -87,12 +85,21 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                         // Plus de doc sur le sujet: https://www.baeldung.com/gson-exclude-fields-serialization
                         return field.getDeclaredType().getTypeName().equals("java.lang.Class<?>");
                     }
+
                     @Override
                     public boolean shouldSkipClass(Class<?> clazz) {
                         return false;
                     }
                 })
-                .create();
+                // On doit exclure ces classes de la désérialization pour éviter une boucle circulaire infinie
+                // lorsqu'on requête /rest/manage/mappings (cf. #414)
+                // et dans ce cas une ExclusionStrategy ne fonctionne pas (bug connu de Gson) :
+                .registerTypeAdapter(StandardWrapper.class, (JsonSerializer<StandardWrapper>) (src, typeOfSrc, context) -> null);
+        try {
+            // idem, mais comme cette classe est package-private, impossible de l'importer directement :
+            gsonBuilder.registerTypeAdapter(Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedContext"), (JsonSerializer) (src, typeOfSrc, context) -> null);
+        } catch (ClassNotFoundException e) {}
+        return gsonBuilder.create();
     }
 
     // Configuration des tags multi-dimensionnels Prometheus
