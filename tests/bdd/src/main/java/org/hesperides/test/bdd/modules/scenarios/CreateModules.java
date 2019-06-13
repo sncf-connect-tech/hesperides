@@ -41,7 +41,7 @@ public class CreateModules extends HesperidesScenario implements En {
 
         Given("^an existing module" +
                 "(?: named \"([^\"]*)\")?" +
-                "( (?:and|with) (?:a|this) template)?" +
+                "( (?:and|with) (?:a|this) template(?: with a \"/\" in the title)?)?" +
                 "( (?:and|with) properties)?" +
                 "( (?:and|with) password properties)?" +
                 "( (?:and|with) global properties)?" +
@@ -61,7 +61,9 @@ public class CreateModules extends HesperidesScenario implements En {
             if (StringUtils.isEmpty(withTemplate) || !withTemplate.contains("this")) {
                 templateBuilder.reset();
             }
-
+            if (StringUtils.isNotEmpty(withTemplate) && withTemplate.contains("\"/\" in the title")) {
+                templateBuilder.withName("a/template");
+            }
             if (StringUtils.isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
