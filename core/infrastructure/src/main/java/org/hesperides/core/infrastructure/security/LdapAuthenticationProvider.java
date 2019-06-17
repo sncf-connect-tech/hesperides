@@ -45,6 +45,7 @@ import org.springframework.security.ldap.authentication.AbstractLdapAuthenticati
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.naming.*;
 import javax.naming.directory.*;
 import javax.naming.ldap.InitialLdapContext;
@@ -59,17 +60,22 @@ import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNR
 @Profile(LDAP)
 @Component
 @Slf4j
-public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider {
+public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider, LDAPUserSearcher {
 
     private static final String USERS_AUTHENTICATION_CACHE_NAME = "users-authentication";
     public static final String AUTHORIZATION_GROUPS_TREE_CACHE_NAME = "authorization-groups-tree";
 
+    @Resource
+    private LDAPUserSearcher self;
     @Autowired
     private Gson gson; // nécessaire uniquement pour les logs DEBUG
     @Autowired
     private LdapConfiguration ldapConfiguration;
     @Autowired
     private CacheManager cacheManager;
+    // Pour débuguer le contenus des caches:
+    //   Evaluate Expression: cacheManager.ehcaches.get(USERS_AUTHENTICATION_CACHE_NAME).compoundStore.map
+    //   Evaluate Expression: cacheManager.ehcaches.get(AUTHORIZATION_GROUPS_TREE_CACHE_NAME).compoundStore.map
     private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever;
 
     @PostConstruct
@@ -78,7 +84,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     }
 
     @Override
-    @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME, key = "#authentication.principal")
     public Authentication authenticate(Authentication authentication)
             throws org.springframework.security.core.AuthenticationException {
         return super.authenticate(authentication);
@@ -87,10 +92,13 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Override
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
         DirContext dirContext = buildSearchContext(auth.getName(), (String) auth.getCredentials());
-        return searchUser(dirContext, auth.getName());
+        // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
+        return self.searchUser(dirContext, auth.getName());
     }
 
-    private DirContextOperations searchUser(final DirContext dirContext, final String username) {
+    @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME, key = "#username")
+    // Note: en cas d'exception levée dans cette méthode, rien ne sera mis en cache
+    public DirContextOperations searchUser(final DirContext dirContext, final String username) {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         String searchFilter = ldapConfiguration.getSearchFilterForUsername(username);
@@ -180,7 +188,8 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     // Public for testing
     public HashSet<String> getUserGroupsDN(String username, String password) {
         DirContext dirContext = this.buildSearchContext(username, password);
-        DirContextAdapter dirContextAdapter = (DirContextAdapter)searchUser(dirContext, username);
+        // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
+        DirContextAdapter dirContextAdapter = (DirContextAdapter)self.searchUser(dirContext, username);
         Attributes attributes;
         try {
             attributes = dirContextAdapter.getAttributes("");
