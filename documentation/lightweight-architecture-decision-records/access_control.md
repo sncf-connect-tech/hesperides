@@ -23,19 +23,20 @@ nous intégrons dans Hesperides un mécanisme d'[ACLs](https://fr.wikipedia.org/
 <!-- tocstop -->
 
 ## Besoin fonctionnel
-- associer des droits de lecture & édition par plateforme, et y lier les restrictions d'accès aux **mots de passe** sur les plateformes de **production**
-- s'intégrer avec un annuaire _Active Directory_ et à des normes de nommage de groupes pré-existantes
+
+- Associer des droits de lecture & édition par plateforme, et y lier les restrictions d'accès aux **mots de passe** sur les plateformes de **production**
+- S'intégrer avec un annuaire _Active Directory_ et à des normes de nommage de groupes pré-existantes
 (incluant des cas de sous-groupes, avec transmissions de droits correspondants)
-- déléguer la gestion des droits aux utilisateurs, pour les rendre autonomes
+- Déléguer la gestion des droits aux utilisateurs, pour les rendre autonomes
 
 
 ## Design
 
-Globalement, l'ajout de ces fonctionnalités entraine quelques ajouts structurels :
-- à chaque plateforme est associé un "privilège" Spring Boot (`authority`) : `${APP}_PROD_USER`
-- une nouvelle collection dans la base de données fait le lien entre `${APP}_PROD_USER` et groupes _Active Directory_
-- de nouvelles ressources dans le _endpoint_ `/users`, détaillées ci-dessous
-- à chaque appel aux ressources `/platforms`, `/files` & `/users` ces privilèges sont consultés pour déterminer les opérations autorisées,
+Globalement, l'ajout de ces fonctionnalités entraîne quelques ajouts structurels :
+- À chaque plateforme est associé un "privilège" Spring Boot (`authority`) : `${APP}_PROD_USER`
+- Une nouvelle collection dans la base de données fait le lien entre `${APP}_PROD_USER` et groupes _Active Directory_
+- De nouvelles ressources dans le _endpoint_ `/users`, détaillées ci-dessous
+- À chaque appel aux ressources `/platforms`, `/files` & `/users` ces privilèges sont consultés pour déterminer les opérations autorisées,
 et si les mots de passes doivent être obfusqués
 
 ![](ACLs-pseudo-UML.png)
@@ -44,11 +45,12 @@ et si les mots de passes doivent être obfusqués
 ## Ressources REST
 
 ### GET /users/auth
+
 Ajout de 3 champs dans la réponse.
 
-**Input**: le _login_ de l'utilisateur (pour l'instant via la `Basic Auth`)
+**Input** : le _login_ de l'utilisateur (pour l'instant via la `Basic Auth`)
 
-**Output** nominal: la liste exhaustive des groupes ActiveDirectory auxquels l'utilisateur appartient, et la liste des applications où il a des droits de prod
+**Output** nominal : la liste exhaustive des groupes ActiveDirectory auxquels l'utilisateur appartient, et la liste des applications où il a des droits de prod
 ```
 {
   "username": "...",
@@ -65,17 +67,18 @@ Ajout de 3 champs dans la réponse.
 ```
 
 Ici les `authorities` sont issues de la gestion de rôles de [Spring Boot](https://www.baeldung.com/role-and-privilege-for-spring-security-registration).
-Elles sont de 3 types :
-- **globales** : en reprennant les rôles historiques `GLOBAL_IS_PROD` (`= prodUser`) & `GLOBAL_IS_TECH` (`= techUser`)
-- **par application** : les nouveaux privilèges `${APP}_PROD_USER`
-- **groupes ActiveDirectory indicatifs**, incluant les groupes parents et tous les ancêtres
+Ils sont déclinés en 3 types :
+- Les rôles globaux à toutes les applications : `prodUser` (`GLOBAL_IS_PROD`) et `techUser` (`GLOBAL_IS_TECH`)
+- Les nouveaux privilèges : correspondent à la liste des applications sur lesquelles l'utilisateur a les droits de prod (`${APP}_PROD_USER`)
+- Les groupes Active Directory auxquels l'utilisateur appartient : ils sont à titre indicatif et incluent les groupes parents ainsi que leurs ancêtres
 
-**Error**: `401` si les _credentials_ de l'utilisateur sont invalides.
+**Error** : `401` si les _credentials_ de l'utilisateur sont invalides.
 
 ### GET /applications/$APP
+
 Ajout d'un champ `authorities` dans la réponse.
 
-**Output**: 
+**Output** : 
 ```
 {
     "name": "ABC",
@@ -86,13 +89,16 @@ Ajout d'un champ `authorities` dans la réponse.
 }
 ```
 
+Ici, les `authorities` représentent les groupes AD qui donnent les droits de prod sur les plateformes de l'application.
+
 ### GET /applications/$APP?with_passwords_count=true
+
 Ajout de ce _query parameter_.
 
 **Besoin** : pouvoir identifier les plateformes nommées "PRDx" contenant des mots de passes,
-mais non classifiées comme "production".
+mais non signalées comme "production".
 
-**Output**:
+**Output** :
 ```
 {
     "name": "ABC",
@@ -108,14 +114,29 @@ mais non classifiées comme "production".
 ```
 
 ### PUT /applications/$APP
-Permet de mettre à jour la propriété `authorities` d'une application.
 
-**Droits de modification des `authorities`**: ce champ ne peut être modifié uniquement si l'utilisateur effectuant la modification :
+Permet de mettre à jour la propriété `authorities` d'une application et le flag `production` d'une plateforme.
+
+**Droits de modification des `authorities`** : ce champ peut être modifié uniquement si l'utilisateur effectuant la modification :
 - a les droits "prod" globaux
 - appartient a l'un des groupes dans `authorities`.
 
 Dans le cas contraire, une `403` est retournée.
 
+**Input** :
+```
+{
+    "name": "ABC",
+    "authorities": {
+        "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
+    },
+    "platforms: [{
+        "name": "PRD1",
+        "production": true,
+        "passwordsCount": 0 // Sera ignoré en input
+    }, ... ]
+}
+```
 
 ## Détails notables d'implémentation
 

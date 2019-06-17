@@ -75,9 +75,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     private LdapConfiguration ldapConfiguration;
     @Autowired
     private CacheManager cacheManager;
-    private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever; // Pourquoi pas Autowired ?
-    @Autowired
-    private AuthorizationProjectionRepository authorizationProjectionRepository;
     // Pour débuguer le contenus des caches:
     //   Evaluate Expression: cacheManager.ehcaches.get(USERS_AUTHENTICATION_CACHE_NAME).compoundStore.map
     //   Evaluate Expression: cacheManager.ehcaches.get(AUTHORIZATION_GROUPS_TREE_CACHE_NAME).compoundStore.map
@@ -198,9 +195,8 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     // Public for testing
     public HashSet<String> getUserGroupsDN(String username, String password) {
         DirContext dirContext = this.buildSearchContext(username, password);
-        DirContextAdapter dirContextAdapter = (DirContextAdapter) searchUser(dirContext, username);
         // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
-        DirContextAdapter dirContextAdapter = (DirContextAdapter)self.searchUser(dirContext, username);
+        DirContextAdapter dirContextAdapter = (DirContextAdapter) self.searchUser(dirContext, username);
         Attributes attributes;
         try {
             attributes = dirContextAdapter.getAttributes("");
