@@ -38,7 +38,7 @@ import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAM
 @Repository
 public class MongoModuleProjectionRepository implements ModuleProjectionRepository {
 
-    private MongoModuleRepository moduleRepository;
+    private final MongoModuleRepository moduleRepository;
     private final MongoTechnoProjectionRepository technoProjectionRepository;
     private final MongoTemplate mongoTemplate;
     private final Environment environment;

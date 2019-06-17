@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import org.hesperides.core.domain.security.AuthenticationProvider;
+import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.UserRole;
 import org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever;
 import org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority;
@@ -50,6 +51,7 @@ import javax.naming.directory.*;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.commons.spring.SpringProfiles.LDAP;
@@ -62,7 +64,7 @@ import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNR
 public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider {
 
     private static final String USERS_AUTHENTICATION_CACHE_NAME = "users-authentication";
-    public static final String AUTHORIZATION_GROUPS_TREE_CACHE_NAME = "authorization-groups-tree";
+    private static final String AUTHORIZATION_GROUPS_TREE_CACHE_NAME = "authorization-groups-tree";
 
     @Autowired
     private Gson gson; // nécessaire uniquement pour les logs DEBUG
@@ -70,7 +72,9 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     private LdapConfiguration ldapConfiguration;
     @Autowired
     private CacheManager cacheManager;
-    private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever;
+    private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever; // Pourquoi pas Autowired ?
+    @Autowired
+    private AuthorizationProjectionRepository authorizationProjectionRepository;
 
     @PostConstruct
     void init() {
@@ -147,8 +151,11 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
                 log.debug("[loadUserAuthorities] NamingException raised while serializing userData.attributes: {}", e);
             }
         }
-        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter)userData);
+        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData);
+
         // TODO: call MongoDB to find what PROD_APP authorities match those groups + add corresponding SimpleGrantedAuthority
+        authorizationProjectionRepository.getApplicationsForAuthorities(groupAuthorities.stream().map(LdapGroupAuthority::getAuthority).collect(Collectors.toList()));
+
         Set<GrantedAuthority> authorities = new HashSet<>(groupAuthorities);
         String prodGroupDN = ldapConfiguration.getProdGroupDN();
         if (!isBlank(prodGroupDN) && containDN(groupAuthorities, prodGroupDN)) {
@@ -180,7 +187,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     // Public for testing
     public HashSet<String> getUserGroupsDN(String username, String password) {
         DirContext dirContext = this.buildSearchContext(username, password);
-        DirContextAdapter dirContextAdapter = (DirContextAdapter)searchUser(dirContext, username);
+        DirContextAdapter dirContextAdapter = (DirContextAdapter) searchUser(dirContext, username);
         Attributes attributes;
         try {
             attributes = dirContextAdapter.getAttributes("");
