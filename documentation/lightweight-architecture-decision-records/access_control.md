@@ -110,8 +110,11 @@ mais non classifiées comme "production".
 ### PUT /applications/$APP
 Permet de mettre à jour la propriété `authorities` d'une application.
 
-**Droits de modification des `authorities`**: ce champ ne peut être modifié que lorsqu'il est initialement vide
-OU que l'utilisateur effectuant la modification appartient a l'un des groupes dans `authorities`. Dans le cas contraire, une `401` est retournée.
+**Droits de modification des `authorities`**: ce champ ne peut être modifié uniquement si l'utilisateur effectuant la modification :
+- a les droits "prod" globaux
+- appartient a l'un des groupes dans `authorities`.
+
+Dans le cas contraire, une `403` est retournée.
 
 
 ## Détails notables d'implémentation
