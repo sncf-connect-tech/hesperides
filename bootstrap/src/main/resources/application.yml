@@ -65,7 +65,10 @@ logging:
 # - /manage/loggers
 # - /manage/heapdump
 # - /manage/threaddump
-# - /manage/metrics -> /manage/metrics/cache.size & more
+# - /manage/metrics
+#   ex: /manage/metrics/cache.gets?tag=name:authorization-groups-tree&tag=result:hit
+#   cf. https://github.com/micrometer-metrics/micrometer/blob/master/micrometer-core/src/main/java/io/micrometer/core/instrument/binder/cache/CacheMeterBinder.java#L49
+#   cf. http://blog.davidvassallo.me/2018/03/13/drill-down-into-spring-boot-actuator-metrics/
 # - /manage/scheduledtasks
 # - /manage/httptrace
 management:

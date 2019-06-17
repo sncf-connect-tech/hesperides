@@ -26,10 +26,11 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localhost:8080/rest/manage/health || exit 1
 
-# -XX:+ExitOnOutOfMemoryError // an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
-# -XX:+HeapDumpOnOutOfMemoryError // get a heap dump when the app crashes
+# -XX:+ExitOnOutOfMemoryError : an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
+# -XX:+HeapDumpOnOutOfMemoryError : get a heap dump when the app crashes
+# -XX:-OmitStackTraceInFastThrow : avoid missing stacktraces cf. https://plumbr.io/blog/java/on-a-quest-for-missing-stacktraces
 CMD ["/usr/bin/java", \
-     "-XX:+ExitOnOutOfMemoryError", "-XX:+HeapDumpOnOutOfMemoryError", \
+     "-XX:+ExitOnOutOfMemoryError", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:-OmitStackTraceInFastThrow", \
      "-Xms2g", "-Xmx4g", \
      "-jar", "/hesperides.jar" \
 ]
