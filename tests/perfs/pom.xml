@@ -13,7 +13,7 @@
     <artifactId>perfs</artifactId>
 
     <properties>
-        <gatling.version>2.1.7</gatling.version>
+        <gatling.version>2.2.4</gatling.version>
     </properties>
 
     <dependencies>
