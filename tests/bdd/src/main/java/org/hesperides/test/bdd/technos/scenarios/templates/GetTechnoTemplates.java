@@ -38,16 +38,14 @@ import static org.junit.Assert.assertEquals;
 
 public class GetTechnoTemplates extends HesperidesScenario implements En {
 
+    private static int nbTemplates = 12;
     @Autowired
     private TechnoClient technoClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-
     private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
-
-    private static int nbTemplates = 12;
 
     public GetTechnoTemplates() {
 

@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 @Component
 public class TechnosValidation extends AbstractValidation {
 
+    public static final String TECHNO_KEY_PREFIX = "techno";
     private static final String GET_TECHNO_NAMES = "technos";
     private static final String GET_TECHNO_VERSIONS = "technos/{name}";
     private static final String GET_TECHNO_TYPES = "technos/{name}/{version}";
@@ -41,8 +42,6 @@ public class TechnosValidation extends AbstractValidation {
     private static final String GET_TECHNO_TEMPLATES = "technos/{name}/{version}/{type}/templates";
     private static final String GET_TECHNO_TEMPLATE_DETAIL = "technos/{name}/{version}/{type}/templates/{template_name}";
     private static final String GET_MODULES_USING_TECHNO = "modules/using_techno/{name}/{version}/{type}";
-
-    public static final String TECHNO_KEY_PREFIX = "techno";
 
     public void validate() {
         // On commence par récupérer la liste des noms de technos pour récupérer leur versions,

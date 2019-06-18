@@ -32,7 +32,7 @@ public class GetUserInformation extends HesperidesScenario implements En {
 
         Then("^(.+) is listed in the user authorities$", (String authority) -> {
             assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
-            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>)getBodyAsMap().get("authorities"));
+            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>) getBodyAsMap().get("authorities"));
             if (authority.equals("A_GROUP")) {
                 authority = extractCN(authCredentialsConfig.getLambdaUserParentGroupDN());
             }

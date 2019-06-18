@@ -39,16 +39,14 @@ import static org.junit.Assert.assertEquals;
 
 public class GetModuleTemplates extends HesperidesScenario implements En {
 
+    private static int nbTemplates = 12;
     @Autowired
     private ModuleClient moduleClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-
     private List<TemplateBuilder> expectedTemplates = new ArrayList<>();
-
-    private static int nbTemplates = 12;
 
     public GetModuleTemplates() {
 

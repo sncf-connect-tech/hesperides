@@ -77,7 +77,7 @@ public class GetApplications extends HesperidesScenario implements En {
 
         Then("^(.+) is listed in the application authorities", (String authority) -> {
             ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
-            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>)actualApplication.getAuthorities());
+            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>) actualApplication.getAuthorities());
             if (authority.equals("A_GROUP")) {
                 authority = extractCN(authCredentialsConfig.getLambdaUserParentGroupDN());
             }

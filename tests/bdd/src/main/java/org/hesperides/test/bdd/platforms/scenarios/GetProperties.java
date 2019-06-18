@@ -115,14 +115,14 @@ public class GetProperties extends HesperidesScenario implements En {
         Then("^the( initial)? platform( global)? properties are successfully retrieved$", (String initial, String global) -> {
             assertOK();
             PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformProperties() : platformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
-            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
+            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
             assertEquals(expectedProperties, actualProperties);
         });
 
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
             testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
-            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
+            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             assertTrue(matchingProperty.isPresent());
             assertEquals(expectedValue, matchingProperty.get().getValue());
@@ -131,7 +131,7 @@ public class GetProperties extends HesperidesScenario implements En {
         Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
             testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
-            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
+            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             assertFalse(matchingProperty.isPresent());
         });

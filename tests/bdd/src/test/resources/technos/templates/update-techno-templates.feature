@@ -39,8 +39,8 @@ Feature: Update techno templates
     When I try to update this techno template
     Then the techno template update is rejected with a bad request error
 
-   Scenario: update an existing template in a techno and check the new versionID
-     Given an existing techno
-     And a template to update
-     When I update this techno template
-     Then the techno template is successfully updated
+  Scenario: update an existing template in a techno and check the new versionID
+    Given an existing techno
+    And a template to update
+    When I update this techno template
+    Then the techno template is successfully updated

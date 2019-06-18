@@ -12,9 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.util.Arrays;
 
-import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
-import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
-import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Constants.*;
 
 @Configuration
 public class DbCleaner {
@@ -27,7 +25,7 @@ public class DbCleaner {
     private MongoClient mongoClientEventStore;
 
     public void wipeOutCollections() {
-        for(String collection : Arrays.asList(MODULE_COLLECTION_NAME, PLATFORM_COLLECTION_NAME, TECHNO_COLLECTION_NAME)) {
+        for (String collection : Arrays.asList(MODULE_COLLECTION_NAME, PLATFORM_COLLECTION_NAME, TECHNO_COLLECTION_NAME)) {
             mongoTemplateProjectionRepo.getCollection(collection).deleteMany(new Document());
         }
         new DefaultMongoTemplate(mongoClientEventStore).eventCollection().deleteMany(new Document());

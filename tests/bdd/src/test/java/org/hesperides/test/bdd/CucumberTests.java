@@ -27,6 +27,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         tags = {"~@require-real-mongo", "~@require-real-ad"}) // comma in tag = OR, comma between tags = AND
 public class CucumberTests {
 
+    public static void main(String[] args) {
+        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
+        JUnitCore.main("CucumberTests");
+    }
+
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP})
     @Configuration
@@ -37,15 +42,11 @@ public class CucumberTests {
         private TestContextCleaner testContextCleaner;
         @Autowired
         private DbCleaner dbCleaner;
+
         @Before
         public void cleanUp() {
             testContextCleaner.reset();
             dbCleaner.wipeOutCollections();
         }
-    }
-
-    public static void main(String[] args) {
-        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
-        JUnitCore.main("CucumberTests");
     }
 }

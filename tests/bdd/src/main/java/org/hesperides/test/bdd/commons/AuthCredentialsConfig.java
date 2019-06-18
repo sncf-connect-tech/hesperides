@@ -41,7 +41,7 @@ public class AuthCredentialsConfig {
 
     public BasicAuthenticationInterceptor getBasicAuthInterceptorForTestProfile(String testProfile) {
         return new BasicAuthenticationInterceptor(getUsernameForTestProfile(testProfile),
-                                                  getPasswordForTestProfile(testProfile));
+                getPasswordForTestProfile(testProfile));
     }
 
     public String getUsernameForTestProfile(String testProfile) {

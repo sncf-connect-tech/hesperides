@@ -36,16 +36,16 @@ public class HesperidesScenario {
     @Autowired
     protected AuthCredentialsConfig authCredentialsConfig;
 
+    public static Class getResponseType(String tryTo, Class defaultResponseType) {
+        return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
+    }
+
     protected <T> T[] getBodyAsArray() {
         return ((ResponseEntity<T[]>) testContext.getResponseEntity()).getBody();
     }
 
     protected Map getBodyAsMap() {
         return ((ResponseEntity<Map>) testContext.getResponseEntity()).getBody();
-    }
-
-    public static Class getResponseType(String tryTo, Class defaultResponseType) {
-        return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
     }
 
     public void assertOK() {

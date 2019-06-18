@@ -1,13 +1,11 @@
 package process
 
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
-
 object Platforms {
 
   val create = exec(http("createPlatform")
     .post("/applications/${applicationName}/platforms")
-    .body(StringBody("""{
+    .body(StringBody(
+      """{
         "application_name": "${applicationName}",
         "application_version": "${applicationVersion}",
         "modules": [],
@@ -19,7 +17,8 @@ object Platforms {
 
   val addModule = exec(http("addModuleToPlatform")
     .put("/applications/${applicationName}/platforms")
-    .body(StringBody("""{
+    .body(StringBody(
+      """{
         "application_name": "${applicationName}",
         "application_version": "${applicationVersion}",
         "modules": [
@@ -42,7 +41,8 @@ object Platforms {
     .post("/applications/${applicationName}/platforms/${platformName}/properties")
     .queryParam("platform_vid", 2)
     .queryParam("path", "#")
-    .body(StringBody("""{
+    .body(StringBody(
+      """{
         "iterable_properties": [],
         "key_value_properties": [
           {
@@ -57,7 +57,8 @@ object Platforms {
     .post("/applications/${applicationName}/platforms/${platformName}/properties")
     .queryParam("platform_vid", 3)
     .queryParam("path", "${modulePath}#${moduleName}#${moduleVersion}#WORKINGCOPY")
-    .body(StringBody("""{
+    .body(StringBody(
+      """{
         "iterable_properties": [],
         "key_value_properties": [
           {

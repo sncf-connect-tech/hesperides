@@ -29,8 +29,8 @@ import java.util.Map;
 @Component
 public class ApplicationBuilder {
 
-    private String applicationName;
     Map<String, List<String>> authorities = new HashMap<>();
+    private String applicationName;
 
     public ApplicationBuilder() {
         reset();
