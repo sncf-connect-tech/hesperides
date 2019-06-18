@@ -31,9 +31,9 @@ import static org.assertj.core.api.Assertions.fail;
 public class CreateApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private ApplicationClient appClient;
+    private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder appBuilder;
+    private ApplicationBuilder applicationBuilder;
 
     public CreateApplications() {
 

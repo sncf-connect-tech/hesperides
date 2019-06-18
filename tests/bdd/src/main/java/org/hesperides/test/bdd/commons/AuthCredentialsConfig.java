@@ -10,9 +10,9 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 @ConfigurationProperties(prefix = "auth")
 public class AuthCredentialsConfig {
     // Ces valeurs sont employées dans les tests.feature BDD :
-    static final String LAMBDA_TEST_PROFILE = "lambda";
-    static final String TECH_TEST_PROFILE = "tech";
-    static final String PROD_TEST_PROFILE = "prod";
+    public static final String LAMBDA_TEST_PROFILE = "lambda";
+    private static final String TECH_TEST_PROFILE = "tech";
+    private static final String PROD_TEST_PROFILE = "prod";
 
     @Setter
     @Getter

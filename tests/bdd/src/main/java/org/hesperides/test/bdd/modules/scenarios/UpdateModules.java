@@ -30,7 +30,7 @@ public class UpdateModules extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? update this module$", (String tryTo) -> {
-            testContext.responseEntity = moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
+            testContext.setResponseEntity(moduleClient.update(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class)));
         });
 
         Then("^the module is successfully updated$", () -> {

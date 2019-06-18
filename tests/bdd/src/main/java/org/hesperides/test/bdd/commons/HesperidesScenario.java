@@ -33,13 +33,15 @@ public class HesperidesScenario {
 
     @Autowired
     protected TestContext testContext;
+    @Autowired
+    protected AuthCredentialsConfig authCredentialsConfig;
 
     protected <T> T[] getBodyAsArray() {
-        return ((ResponseEntity<T[]>) testContext.responseEntity).getBody();
+        return ((ResponseEntity<T[]>) testContext.getResponseEntity()).getBody();
     }
 
     protected Map getBodyAsMap() {
-        return ((ResponseEntity<Map>) testContext.responseEntity).getBody();
+        return ((ResponseEntity<Map>) testContext.getResponseEntity()).getBody();
     }
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
@@ -47,38 +49,38 @@ public class HesperidesScenario {
     }
 
     public void assertOK() {
-        assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
     }
 
     public void assertCreated() {
-        assertEquals(HttpStatus.CREATED, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CREATED, testContext.getResponseStatusCode());
     }
 
     public void assertNotFound() {
-        assertEquals(HttpStatus.NOT_FOUND, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, testContext.getResponseStatusCode());
     }
 
     public void assertConflict() {
-        assertEquals(HttpStatus.CONFLICT, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, testContext.getResponseStatusCode());
     }
 
-    public void assertMethodNotAllowed() {
-        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, testContext.responseEntity.getStatusCode());
+    protected void assertMethodNotAllowed() {
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, testContext.getResponseStatusCode());
     }
 
     public void assertBadRequest() {
-        assertEquals(HttpStatus.BAD_REQUEST, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, testContext.getResponseStatusCode());
     }
 
-    public void assertUnauthorized() {
-        assertEquals(HttpStatus.UNAUTHORIZED, testContext.responseEntity.getStatusCode());
+    void assertUnauthorized() {
+        assertEquals(HttpStatus.UNAUTHORIZED, testContext.getResponseStatusCode());
     }
 
-    public void assertNoContent() {
-        assertEquals(HttpStatus.NO_CONTENT, testContext.responseEntity.getStatusCode());
+    protected void assertNoContent() {
+        assertEquals(HttpStatus.NO_CONTENT, testContext.getResponseStatusCode());
     }
 
-    public void assertInternalServerError() {
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.responseEntity.getStatusCode());
+    protected void assertInternalServerError() {
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.getResponseStatusCode());
     }
 }

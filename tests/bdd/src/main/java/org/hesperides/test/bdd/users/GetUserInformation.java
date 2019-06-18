@@ -27,29 +27,29 @@ public class GetUserInformation extends HesperidesScenario implements En {
     public GetUserInformation() {
 
         When("^I get the current user information$", () -> {
-            testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
+            testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", Map.class));
         });
 
         Then("^(.+) is listed in the user authorities$", (String authority) -> {
-            assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
+            assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
             List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>)getBodyAsMap().get("authorities"));
             if (authority.equals("A_GROUP")) {
-                authority = extractCN(testContext.authCredentialsConfig.getLambdaUserParentGroupDN());
+                authority = extractCN(authCredentialsConfig.getLambdaUserParentGroupDN());
             }
             assertThat(authorities, hasItems(authority));
         });
 
         When("^(?:the user log out|the user re-send valid credentials)$", () ->
-                testContext.responseEntity = restTemplate.getForEntity("/users/auth?logout=true", String.class)
+                testContext.setResponseEntity(restTemplate.getForEntity("/users/auth?logout=true", String.class))
         );
 
         Then("^login is successful$", () ->
-                assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode())
+                assertEquals(HttpStatus.OK, testContext.getResponseStatusCode())
         );
 
         Then("^user information is returned, (with|without) tech role and (with|without) prod role$",
                 (String withTechRole, String withProdRole) -> {
-                    assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
+                    assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
                     Map body = getBodyAsMap();
                     assertEquals("with".equals(withTechRole), body.get("techUser"));
                     assertEquals("with".equals(withProdRole), body.get("prodUser"));

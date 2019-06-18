@@ -32,7 +32,7 @@ import static org.hesperides.core.infrastructure.Constants.AUTHORIZATION_COLLECT
 @Data
 @Document(collection = AUTHORIZATION_COLLECTION_NAME)
 @NoArgsConstructor
-public class ApplicationAuthoritiesDocument {
+public class AuthorizationDocument {
     @Id
     private String application;
     private List<String> authorities;

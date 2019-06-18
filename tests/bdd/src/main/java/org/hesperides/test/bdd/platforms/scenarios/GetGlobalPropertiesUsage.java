@@ -68,7 +68,7 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
         });
 
         When("^I get this platform global properties usage$", () -> {
-            testContext.responseEntity = platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput());
+            testContext.setResponseEntity(platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput()));
         });
 
         Then("^the platform global properties usage is successfully retrieved$", () -> {
@@ -85,7 +85,7 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
                 }
             });
 
-            Map<String, Set<GlobalPropertyUsageOutput>> actualProperties = ((ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>>)testContext.responseEntity).getBody();
+            Map<String, Set<GlobalPropertyUsageOutput>> actualProperties = ((ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>>) testContext.getResponseEntity()).getBody();
             Assert.assertEquals(expectedProperties, actualProperties);
         });
     }

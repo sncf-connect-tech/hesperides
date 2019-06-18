@@ -44,9 +44,9 @@ import static org.junit.Assert.assertThat;
 public class GetApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private ApplicationClient appClient;
+    private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder appBuilder;
+    private ApplicationBuilder applicationBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
 
@@ -55,17 +55,17 @@ public class GetApplications extends HesperidesScenario implements En {
     public GetApplications() {
 
         When("^I( try to)? get the applications list$", (String tryTo) -> {
-            testContext.responseEntity = appClient.getApplications(
-                    getResponseType(tryTo, SearchResultOutput[].class));
+            testContext.setResponseEntity(applicationClient.getApplications(
+                    getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
         When("^I( try to)? get the application details( with parameter hide_platform set to true)?( requesting the passwords count)?$", (String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
             assertNull("TODO", requestingThePasswordsCount);
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
-            testContext.responseEntity = appClient.getApplication(
-                    appBuilder.getApplicationName(),
+            testContext.setResponseEntity(applicationClient.getApplication(
+                    applicationBuilder.getApplicationName(),
                     hidePlatform,
-                    getResponseType(tryTo, ApplicationOutput.class));
+                    getResponseType(tryTo, ApplicationOutput.class)));
         });
 
         Then("^the application is successfully retrieved", () -> {
@@ -79,7 +79,7 @@ public class GetApplications extends HesperidesScenario implements En {
             ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
             List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>)actualApplication.getAuthorities());
             if (authority.equals("A_GROUP")) {
-                authority = extractCN(testContext.authCredentialsConfig.getLambdaUserParentGroupDN());
+                authority = extractCN(authCredentialsConfig.getLambdaUserParentGroupDN());
             }
             assertThat(authorities, hasItems(authority));
         });

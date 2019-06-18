@@ -37,7 +37,6 @@ import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -77,11 +76,11 @@ public class GetProperties extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withIncorrectVersionType)) {
                 moduleBuilder.withVersionType("TOTO");
             }
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class));
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class)));
         });
 
         When("^I get the global properties of this platform$", () -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), "#"));
         });
 
         Then("^the platform property values are(?: also)? copied$", () -> {
@@ -121,7 +120,7 @@ public class GetProperties extends HesperidesScenario implements En {
         });
 
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
             PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
@@ -130,7 +129,7 @@ public class GetProperties extends HesperidesScenario implements En {
         });
 
         Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
             PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();

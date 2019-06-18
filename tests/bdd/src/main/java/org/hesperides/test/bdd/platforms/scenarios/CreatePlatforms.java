@@ -28,7 +28,7 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableProperty
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
-import org.hesperides.test.bdd.commons.CommonSteps;
+import org.hesperides.test.bdd.authorizations.AuthorizationSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
@@ -44,7 +44,6 @@ import java.util.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -61,7 +60,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
-    private CommonSteps commonSteps;
+    private AuthorizationSteps authorizationSteps;
 
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
@@ -93,7 +92,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(isProd)) {
             platformBuilder.withIsProductionPlatform(true);
-            commonSteps.setAuthUserRole("prod");
+            authorizationSteps.setAuthUserRole("prod");
         }
 
         if (isNotEmpty(platformName)) {
@@ -113,8 +112,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             platformBuilder.incrementDeployedModuleIds();
         }
-        commonSteps.ensureUserAuthIsSet();
-        testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
+        authorizationSteps.ensureUserAuthIsSet();
+        testContext.setResponseEntity(platformClient.create(platformBuilder.buildInput()));
         assertOK();
 
         if (isNotEmpty(withValuedProperties)) {
@@ -345,14 +344,16 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? create this platform$", (String tryTo) -> {
-            testContext.responseEntity = platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class));
+            testContext.setResponseEntity(
+                    platformClient.create(platformBuilder.buildInput(), getResponseType(tryTo, PlatformIO.class))
+            );
         });
 
         Given("^an existing platform with this module in version (.+) and the property \"([^\"]*)\" valued accordingly$", (String version, String propertyName) -> {
             moduleBuilder.withVersion(version);
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             platformBuilder.incrementDeployedModuleIds();
-            testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
+            testContext.setResponseEntity(platformClient.create(platformBuilder.buildInput()));
             assertOK();
             platformBuilder.withProperty(propertyName, version);
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
@@ -369,7 +370,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (isNotEmpty(toNonProd)) {
                 newPlatform.withIsProductionPlatform(false);
             }
-            testContext.responseEntity = platformClient.copy(existingPlatform, newPlatform.buildInput(), isNotEmpty(withoutInstancesAndProperties), getResponseType(tryTo, PlatformIO.class));
+            testContext.setResponseEntity(platformClient.copy(existingPlatform, newPlatform.buildInput(), isNotEmpty(withoutInstancesAndProperties), getResponseType(tryTo, PlatformIO.class)));
             platformBuilder.withPlatformName(newName);
             platformBuilder.withVersionId(1);
         });
@@ -394,20 +395,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
-            assertEquals(HttpStatus.valueOf(httpCode), testContext.responseEntity.getStatusCode());
+            assertEquals(HttpStatus.valueOf(httpCode), testContext.getResponseStatusCode());
             assertThat((String) testContext.getResponseBody(), containsString(message));
         });
 
-        Then("^the platform creation fails with an already exist error$", () -> {
-            assertConflict();
-        });
+        Then("^the platform creation fails with an already exist error$", this::assertConflict);
 
-        Then("^the platform copy fails with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the platform copy fails with a not found error$", this::assertNotFound);
 
-        Then("^the platform copy fails with an already exist error$", () -> {
-            assertConflict();
-        });
+        Then("^the platform copy fails with an already exist error$", this::assertConflict);
     }
 }

@@ -48,7 +48,7 @@ public class SearchApplications extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? search for the application \"(.*?)\"", (String tryTo, String applicationName) -> {
-            testContext.responseEntity = platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class));
+            testContext.setResponseEntity(platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
         Then("^the application (?:list|search result) contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
@@ -63,8 +63,6 @@ public class SearchApplications extends HesperidesScenario implements En {
             assertEquals(applicationName, result.get(0).getName());
         });
 
-        Then("^the application search is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the application search is rejected with a bad request error$", this::assertBadRequest);
     }
 }

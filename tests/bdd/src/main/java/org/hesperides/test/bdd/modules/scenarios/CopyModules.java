@@ -45,7 +45,7 @@ public class CopyModules extends HesperidesScenario implements En {
             if (!isBlank(unknownSrcVersion)) {
                 moduleBuilder.withVersion(null);
             }
-            testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, ModuleIO.class));
+            testContext.setResponseEntity(copy("1.0.1", getResponseType(tryTo, ModuleIO.class)));
         });
 
         Given("^a copy of this module in version (.+)$", (String version) -> {
@@ -59,7 +59,7 @@ public class CopyModules extends HesperidesScenario implements En {
         });
 
         When("^I try to create a copy of this module, using the same key$", () -> {
-            testContext.responseEntity = copy(moduleBuilder.build().getVersion(), String.class);
+            testContext.setResponseEntity(copy(moduleBuilder.build().getVersion(), String.class));
         });
 
         Then("^the module is successfully duplicated$", () -> {
@@ -85,7 +85,7 @@ public class CopyModules extends HesperidesScenario implements En {
         });
 
         Then("^the model of the module is the same$", () -> {
-            testContext.responseEntity = moduleClient.getModel(moduleBuilder.build(), ModelOutput.class);
+            testContext.setResponseEntity(moduleClient.getModel(moduleBuilder.build(), ModelOutput.class));
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
             ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();

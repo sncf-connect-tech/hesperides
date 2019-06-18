@@ -25,32 +25,32 @@ public class SearchModules extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(wrongCase)) {
                 input = input.toUpperCase();
             }
-            testContext.responseEntity = moduleClient.search(input);
+            testContext.setResponseEntity(moduleClient.search(input));
         });
 
         When("^I search for some of those modules(?:, limiting the number of results to (\\d+))?$", (String nbResults) -> {
             Integer size = StringUtils.isEmpty(nbResults) ? 0 : Integer.valueOf(nbResults);
-            testContext.responseEntity = moduleClient.search("new-module", size);
+            testContext.setResponseEntity(moduleClient.search("new-module", size));
         });
 
         When("^I search for a module that does not exist$", () -> {
-            testContext.responseEntity = moduleClient.search("nope");
+            testContext.setResponseEntity(moduleClient.search("nope"));
         });
 
         When("^I try to search for a module with no search terms$", () -> {
-            testContext.responseEntity = moduleClient.search("", 0, String.class);
+            testContext.setResponseEntity(moduleClient.search("", 0, String.class));
         });
 
         When("^I search for a single module using only the name and version of this module$", () -> {
-            testContext.responseEntity = moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion(), ModuleIO.class);
+            testContext.setResponseEntity(moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion(), ModuleIO.class));
         });
 
         When("^I search for the released version of this single module$", () -> {
-            testContext.responseEntity = moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " false", ModuleIO.class);
+            testContext.setResponseEntity(moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " false", ModuleIO.class));
         });
 
         When("^I search for the working copy version of this single module$", () -> {
-            testContext.responseEntity = moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " true", ModuleIO.class);
+            testContext.setResponseEntity(moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " true", ModuleIO.class));
         });
 
         Then("^the module is found$", () -> {

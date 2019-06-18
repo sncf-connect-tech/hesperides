@@ -21,7 +21,7 @@ public class SearchPlatforms extends HesperidesScenario implements En {
 
         When("^I( try to)? search for the platform \"([^\"]*)\" in the application \"([^\"]*)\"$", (
                 String tryTo, String platformName, String applicationName) -> {
-            testContext.responseEntity = platformClient.search(applicationName, platformName, getResponseType(tryTo, SearchResultOutput[].class));
+            testContext.setResponseEntity(platformClient.search(applicationName, platformName, getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
         Then("^the platform search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {

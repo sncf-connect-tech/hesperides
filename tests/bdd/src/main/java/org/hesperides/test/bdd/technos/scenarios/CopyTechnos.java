@@ -29,11 +29,11 @@ public class CopyTechnos extends HesperidesScenario implements En {
     public CopyTechnos() {
 
         When("^I( try to)? create a copy of this techno$", (String tryTo) -> {
-            testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, TechnoIO.class));
+            testContext.setResponseEntity(copy("1.0.1", getResponseType(tryTo, TechnoIO.class)));
         });
 
         When("^I try to create a copy of this techno, using the same key$", () -> {
-            testContext.responseEntity = copy(technoBuilder.build().getVersion(), String.class);
+            testContext.setResponseEntity(copy(technoBuilder.build().getVersion(), String.class));
         });
 
         Then("^the techno is successfully duplicated$", () -> {
@@ -55,7 +55,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
         });
 
         Then("^the model of the techno is the same$", () -> {
-            testContext.responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
+            testContext.setResponseEntity(technoClient.getModel(technoBuilder.build(), ModelOutput.class));
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
             ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
@@ -67,13 +67,9 @@ public class CopyTechnos extends HesperidesScenario implements En {
             assertTrue(technoOutput.getIsWorkingCopy());
         });
 
-        Then("^the techno copy is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno copy is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the techno copy is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the techno copy is rejected with a conflict error$", this::assertConflict);
     }
 
     private ResponseEntity copy(String newVersion, Class responseType) {

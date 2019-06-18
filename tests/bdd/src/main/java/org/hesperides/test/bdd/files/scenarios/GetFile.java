@@ -73,7 +73,7 @@ public class GetFile extends HesperidesScenario implements En {
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
-            testContext.responseEntity = fileClient.getFile(
+            testContext.setResponseEntity(fileClient.getFile(
                     platform.getApplicationName(),
                     platform.getPlatformName(),
                     modulePath,
@@ -84,7 +84,7 @@ public class GetFile extends HesperidesScenario implements En {
                     module.getIsWorkingCopy(),
                     moduleBuilder.getNamespace(),
                     simulate,
-                    HesperidesScenario.getResponseType(tryTo, String.class));
+                    HesperidesScenario.getResponseType(tryTo, String.class)));
         });
 
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {

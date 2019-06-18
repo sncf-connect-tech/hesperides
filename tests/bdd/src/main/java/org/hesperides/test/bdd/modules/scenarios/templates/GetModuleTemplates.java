@@ -76,11 +76,11 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the list of templates of this module$", (String tryTo) -> {
-            testContext.responseEntity = moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
+            testContext.setResponseEntity(moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class)));
         });
 
         When("^I( try to)? get this template in this module( using an url-encoded template name)?$", (String tryTo, String urlEncodedtemplateName) -> {
-            testContext.responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class), StringUtils.isNotEmpty(urlEncodedtemplateName));
+            testContext.setResponseEntity(moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class), StringUtils.isNotEmpty(urlEncodedtemplateName)));
         });
 
         Then("^a list of all the templates of the module is returned$", () -> {

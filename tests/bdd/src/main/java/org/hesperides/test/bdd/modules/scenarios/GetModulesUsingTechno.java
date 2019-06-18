@@ -47,7 +47,7 @@ public class GetModulesUsingTechno extends HesperidesScenario implements En {
     public GetModulesUsingTechno() {
 
         When("^I get the modules using this techno$", () -> {
-            testContext.responseEntity = moduleClient.getModulesUsingTechno(technoBuilder.build());
+            testContext.setResponseEntity(moduleClient.getModulesUsingTechno(technoBuilder.build()));
         });
 
         Then("^the modules using this techno are successfully retrieved", () -> {

@@ -69,7 +69,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withoutVersion)) {
                 moduleBuilder.withVersion("");
             }
-            testContext.responseEntity = moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class));
+            testContext.setResponseEntity(moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class)));
             moduleBuilder.withVersionType(TemplateContainerHelper.RELEASE);
         });
 

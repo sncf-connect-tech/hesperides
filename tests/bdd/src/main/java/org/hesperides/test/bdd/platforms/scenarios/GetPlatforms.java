@@ -23,7 +23,6 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -57,7 +56,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {
                 platformInput = new PlatformBuilder().withPlatformName(platformBuilder.getPlatformName().toUpperCase()).buildInput();
             }
-            testContext.responseEntity = platformClient.get(platformInput, timestamp, getResponseType(tryTo, PlatformIO.class));
+            testContext.setResponseEntity(platformClient.get(platformInput, timestamp, getResponseType(tryTo, PlatformIO.class)));
         });
 
         Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {

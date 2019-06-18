@@ -25,8 +25,8 @@ import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 
-public interface MongoApplicationAuthoritiesRepository extends MongoRepository<ApplicationAuthoritiesDocument, String> {
+public interface MongoAuthorizationRepository extends MongoRepository<AuthorizationDocument, String> {
 
     @Query(value = "{ 'authorities' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
-    List<ApplicationAuthoritiesDocument> findApplicationsWithAuthorities(List<String> authorities);
+    List<AuthorizationDocument> findApplicationsWithAuthorities(List<String> authorities);
 }

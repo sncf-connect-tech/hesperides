@@ -120,7 +120,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         if (StringUtils.isNotEmpty(toProd)) {
             platformBuilder.withIsProductionPlatform(true);
         }
-        testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class));
+        testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class)));
         platformHistory.addPlatform();
         platformBuilder.incrementVersionId();
     }
@@ -130,12 +130,12 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             Arrays.stream(versions.split(", ")).forEach(version -> {
                 platformBuilder.setDeployedModulesVersion(version);
                 moduleBuilder.withVersion(version); // to update the properties path
-                testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class);
+                testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class));
                 assertOK();
                 platformBuilder.incrementVersionId();
                 if (StringUtils.isNotEmpty(propertyName)) {
                     platformBuilder.setProperty(propertyName, version);
-                    testContext.responseEntity = platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+                    testContext.setResponseEntity(platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath()));
                     assertOK();
                     platformBuilder.incrementVersionId();
                 }
@@ -160,7 +160,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform has (?:no more|zero) modules$", () -> {
-            PlatformIO platform = (PlatformIO) testContext.responseEntity.getBody();
+            PlatformIO platform = (PlatformIO) testContext.getResponseBody();
             assertThat(platform.getDeployedModules(), is(empty()));
         });
 

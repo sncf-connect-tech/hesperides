@@ -29,11 +29,11 @@ public class GetEvents extends HesperidesScenario implements En {
     public GetEvents() {
 
         When("^I( try to)? get the events of this module$", (String tryTo) -> {
-            testContext.responseEntity = getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class));
+            testContext.setResponseEntity(getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class)));
         });
 
         When("^I( try to)? get the events of this platform$", (String tryTo) -> {
-            testContext.responseEntity = getPlatformEvents(platformBuilder.buildInput(), getResponseType(tryTo, EventOutput[].class));
+            testContext.setResponseEntity(getPlatformEvents(platformBuilder.buildInput(), getResponseType(tryTo, EventOutput[].class)));
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {

@@ -29,17 +29,17 @@ import java.util.stream.Collectors;
 public class MongoAuthorizationProjectionRepository implements AuthorizationProjectionRepository {
 
     @Autowired
-    private final MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository;
+    private final MongoAuthorizationRepository authorizationRepository;
 
-    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository) {
-        this.applicationAuthoritiesRepository = applicationAuthoritiesRepository;
+    public MongoAuthorizationProjectionRepository(MongoAuthorizationRepository authorizationRepository) {
+        this.authorizationRepository = authorizationRepository;
     }
 
     @Override
     public List<String> getApplicationsForAuthorities(List<String> authorities) {
-        return applicationAuthoritiesRepository.findApplicationsWithAuthorities(authorities)
+        return authorizationRepository.findApplicationsWithAuthorities(authorities)
                 .stream()
-                .map(ApplicationAuthoritiesDocument::getApplication)
+                .map(AuthorizationDocument::getApplication)
                 .collect(Collectors.toList());
     }
 }

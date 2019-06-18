@@ -7,8 +7,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.assertEquals;
-
 public class GetTechnosTypes extends HesperidesScenario implements En {
 
     @Autowired
@@ -20,7 +18,7 @@ public class GetTechnosTypes extends HesperidesScenario implements En {
 
         When("^I get the techno types$", () -> {
             TechnoIO techno = technoBuilder.build();
-            testContext.responseEntity = technoClient.getTypes(techno.getName(), techno.getVersion());
+            testContext.setResponseEntity(technoClient.getTypes(techno.getName(), techno.getVersion()));
         });
     }
 }

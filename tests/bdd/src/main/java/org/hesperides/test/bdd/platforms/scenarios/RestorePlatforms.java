@@ -42,7 +42,7 @@ public class RestorePlatforms extends HesperidesScenario implements En {
             if (isNotBlank(withDifferentPlatformCase)) {
                 platformBuilder.withPlatformName(platformBuilder.getPlatformName().toLowerCase());
             }
-            testContext.responseEntity = platformClient.restore(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class));
+            testContext.setResponseEntity(platformClient.restore(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
         });
     }
 }

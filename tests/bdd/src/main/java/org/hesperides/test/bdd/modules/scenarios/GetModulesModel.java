@@ -18,9 +18,7 @@ import java.util.Set;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class GetModulesModel extends HesperidesScenario implements En {
 
@@ -38,7 +36,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
     public GetModulesModel() {
 
         Given("^an existing module with iterable properties$", () -> {
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
 
             propertyBuilder.reset().withName("module-foo").withProperty(new PropertyBuilder().withName("module-bar"));
@@ -49,7 +47,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with iterable-ception$", () -> {
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
 
             propertyBuilder.reset().withName("module-foo").withProperty(new PropertyBuilder().withName("module-bar").withProperty(new PropertyBuilder().withName("module-foobar")));
@@ -60,7 +58,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with properties with the same name and comment but different default values in multiple templates$", () -> {
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
 
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("b");
@@ -84,7 +82,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with properties with the same name but different comments in two templates$", () -> {
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
 
             propertyBuilder.reset().withName("foo").withComment("comment-a");
@@ -114,7 +112,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the model of this module$", (String tryTo) -> {
-            testContext.responseEntity = moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class));
+            testContext.setResponseEntity(moduleClient.getModel(moduleBuilder.build(), getResponseType(tryTo, ModelOutput.class)));
         });
 
         Then("^the model of this module contains the(?: updated)? properties$", () -> {

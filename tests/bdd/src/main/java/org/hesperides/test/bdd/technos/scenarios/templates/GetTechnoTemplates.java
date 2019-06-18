@@ -69,11 +69,11 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
+            testContext.setResponseEntity(technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class)));
         });
 
         When("^I( try to)? get this template in this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.setResponseEntity(technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
         });
 
         Then("^a list of all the templates of the techno is returned$", () -> {
