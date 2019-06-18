@@ -25,7 +25,6 @@ import org.hesperides.core.infrastructure.security.LdapAuthenticationProvider;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,9 +36,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class AuthorizationSteps extends HesperidesScenario implements En {
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Autowired(required = false)
     private LdapAuthenticationProvider ldapAuthenticationProvider;
@@ -55,6 +51,10 @@ public class AuthorizationSteps extends HesperidesScenario implements En {
                     testContext.getUsername(),
                     testContext.getPassword());
             assertThat(userGroupsDNs, hasItems(authCredentialsConfig.getLambdaUserParentGroupDN()));
+        });
+
+        Given("^a user that does not belong to any group$", () -> {
+
         });
     }
 

@@ -9,7 +9,6 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasProperty;
@@ -19,8 +18,6 @@ import static org.junit.Assert.assertThat;
 
 public class GetEvents extends HesperidesScenario implements En {
 
-    @Autowired
-    private RestTemplate restTemplate;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
