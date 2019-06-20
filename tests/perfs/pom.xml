@@ -12,23 +12,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>perfs</artifactId>
 
-    <properties>
-        <gatling.version>2.2.4</gatling.version>
-    </properties>
-
     <dependencies>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-            <version>2.11.12</version>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Gatling dependencies -->
         <dependency>
             <groupId>io.gatling.highcharts</groupId>
             <artifactId>gatling-charts-highcharts</artifactId>
-            <version>${gatling.version}</version>
+            <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -47,15 +36,9 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>net.alchim31.maven</groupId>
-                        <artifactId>scala-maven-plugin</artifactId>
-                        <version>3.2.2</version>
-                    </plugin>
-
-                    <plugin>
                         <groupId>io.gatling</groupId>
                         <artifactId>gatling-maven-plugin</artifactId>
-                        <version>${gatling.version}</version>
+                        <version>3.0.2</version>
                         <executions>
                             <execution>
                                 <phase>test</phase>

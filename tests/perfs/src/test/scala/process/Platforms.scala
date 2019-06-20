@@ -14,7 +14,7 @@ object Platforms {
         "platform_name": "${platformName}",
         "production": false,
         "version_id": 0
-      }""")).asJSON
+      }""")).asJson
     .check(status.is(200)))
 
   val addModule = exec(http("addModuleToPlatform")
@@ -35,7 +35,7 @@ object Platforms {
         "platform_name": "${platformName}",
         "production": false,
         "version_id": 1
-      }""")).asJSON
+      }""")).asJson
     .check(status.is(200)))
 
   val addGlobalProperty = exec(http("addGlobalropertyToPlatform")
@@ -50,7 +50,7 @@ object Platforms {
             "value": "${propertyValue}"
           }
         ]
-      }""")).asJSON
+      }""")).asJson
     .check(status.is(200)))
 
   val addModuleProperty = exec(http("addModulePropertyToPlatform")
@@ -65,7 +65,7 @@ object Platforms {
             "value": "${propertyValue}"
           }
         ]
-      }""")).asJSON
+      }""")).asJson
     .check(status.is(200)))
 
   val get = exec(http("getPlatform")
