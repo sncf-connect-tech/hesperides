@@ -17,7 +17,7 @@ object Config {
   val auth = getProperty("auth", "tech:password").split(":")
 
   val httpConf = http
-    .baseURL(baseUrl)
+    .baseUrl(baseUrl)
     .userAgentHeader("Gatling")
     .basicAuth(auth(0), auth(1))
     .disableCaching
