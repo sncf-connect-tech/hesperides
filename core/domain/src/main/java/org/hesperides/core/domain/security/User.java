@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * représente un utilisateur d'hesperide.
@@ -13,14 +14,22 @@ import java.util.Collection;
 @Value
 public class User {
 
-    // TODO: refacto pour gérer les authorities IS_PROD / APP
     String name;
     boolean isGlobalProd;
     boolean isGlobalTech;
+    List<String> authorizations;
 
     public static User fromAuthentication(Authentication authentication) {
-        return new User(authentication.getName(), isGlobalProd(authentication.getAuthorities()), isGlobalTech(authentication.getAuthorities()));
+        return new User(authentication.getName(),
+                isGlobalProd(authentication.getAuthorities()),
+                isGlobalTech(authentication.getAuthorities()),
+                getAuthorizations(authentication));
     }
+
+    private static List<String> getAuthorizations(Authentication authentication) {
+        return null;
+    }
+
     private static boolean isGlobalProd(Collection<? extends GrantedAuthority> authorities) {
         return hasAuthority(authorities, UserRole.GLOBAL_IS_PROD);
     }
