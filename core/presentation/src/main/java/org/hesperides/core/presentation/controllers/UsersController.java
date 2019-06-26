@@ -75,7 +75,7 @@ public class UsersController extends AbstractController {
         userInfo.put("username", currentUser.getName());
         userInfo.put("prodUser", currentUser.isGlobalProd()); // déprécié, utiliser plutôt .authorities
         userInfo.put("techUser", currentUser.isGlobalTech()); // déprécié, utiliser plutôt .authorities
-        userInfo.put("authorities", currentUser.getAuthorizations());
+        userInfo.put("authorities", currentUser.getAuthorities());
 
         return ResponseEntity.ok(userInfo);
     }

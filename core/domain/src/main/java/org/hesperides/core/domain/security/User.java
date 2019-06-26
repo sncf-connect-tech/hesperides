@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 /**
  * représente un utilisateur d'hesperide.
@@ -17,16 +17,16 @@ public class User {
     String name;
     boolean isGlobalProd;
     boolean isGlobalTech;
-    List<String> authorizations;
+    Map<String, String> authorities;
 
     public static User fromAuthentication(Authentication authentication) {
         return new User(authentication.getName(),
                 isGlobalProd(authentication.getAuthorities()),
                 isGlobalTech(authentication.getAuthorities()),
-                getAuthorizations(authentication));
+                getAuthorities(authentication));
     }
 
-    private static List<String> getAuthorizations(Authentication authentication) {
+    private static Map<String, String> getAuthorities(Authentication authentication) {
         return null;
     }
 

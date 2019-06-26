@@ -26,6 +26,9 @@ import net.sf.ehcache.CacheManager;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.UserRole;
+import org.hesperides.core.domain.security.authorities.ActiveDirectoryGroup;
+import org.hesperides.core.domain.security.authorities.ApplicationRole;
+import org.hesperides.core.domain.security.authorities.GlobalRole;
 import org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever;
 import org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority;
 import org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap;
@@ -40,7 +43,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
 import org.springframework.stereotype.Component;
@@ -159,20 +161,35 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
                 log.debug("[loadUserAuthorities] NamingException raised while serializing userData.attributes: {}", e);
             }
         }
+
+        Set<GrantedAuthority> authorities = new HashSet<>();
         Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData);
 
-        // TODO: call MongoDB to find what PROD_APP authorities match those groups + add corresponding SimpleGrantedAuthority
-        authorizationProjectionRepository.getApplicationsForAuthorities(groupAuthorities.stream().map(LdapGroupAuthority::getAuthority).collect(Collectors.toList()));
-
-        Set<GrantedAuthority> authorities = new HashSet<>(groupAuthorities);
+        // Rôles globaux
         String prodGroupDN = ldapConfiguration.getProdGroupDN();
         if (!isBlank(prodGroupDN) && containDN(groupAuthorities, prodGroupDN)) {
-            authorities.add(new SimpleGrantedAuthority(UserRole.GLOBAL_IS_PROD));
+            authorities.add(new GlobalRole(UserRole.GLOBAL_IS_PROD));
         }
         String techGroupDN = ldapConfiguration.getTechGroupDN();
         if (!isBlank(techGroupDN) && containDN(groupAuthorities, techGroupDN)) {
-            authorities.add(new SimpleGrantedAuthority(UserRole.GLOBAL_IS_TECH));
+            authorities.add(new GlobalRole(UserRole.GLOBAL_IS_TECH));
         }
+
+        final List<String> ldapGroupAuthorities = groupAuthorities.stream().map(LdapGroupAuthority::getAuthority).collect(Collectors.toList());
+
+        // Rôles associés aux groupes AD
+        ldapGroupAuthorities.stream()
+                .map(ActiveDirectoryGroup::new)
+                .forEach(authorities::add);
+
+        // Applications avec droits de prod
+        authorizationProjectionRepository
+                .getApplicationsForAuthorities(ldapGroupAuthorities)
+                .stream()
+                .map(ApplicationRole::new)
+                .forEach(authorities::add);
+
+
         return authorities;
     }
 
