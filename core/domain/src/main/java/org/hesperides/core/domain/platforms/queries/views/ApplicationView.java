@@ -26,8 +26,6 @@ import java.util.List;
 
 @Value
 public class ApplicationView {
-
     String name;
     List<PlatformView> platforms;
-
 }

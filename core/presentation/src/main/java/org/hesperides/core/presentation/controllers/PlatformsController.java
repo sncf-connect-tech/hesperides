@@ -16,6 +16,7 @@ import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -44,14 +45,14 @@ public class PlatformsController extends AbstractController {
     @GetMapping("")
     @ApiOperation("Get applications")
     public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> apps = platformUseCases.listApplications();
+        List<SearchApplicationResultView> applications = platformUseCases.getApplicationNames();
 
-        List<SearchResultOutput> appsOutput = apps.stream()
+        List<SearchResultOutput> applicationOutputs = applications.stream()
                 .distinct()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(appsOutput);
+        return ResponseEntity.ok(applicationOutputs);
     }
 
     @GetMapping("/{application_name}")
@@ -284,6 +285,19 @@ public class PlatformsController extends AbstractController {
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
 
         return ResponseEntity.ok(new PropertiesIO(propertyViews));
-
     }
+
+    @ApiOperation("Get all applications, their platforms and their modules (cached 24h)")
+    @GetMapping("/platforms")
+    @Cacheable("AllApplications")
+    public ResponseEntity<List<ApplicationOutput>> getAllApplications() {
+
+        final List<ApplicationOutput> applications = platformUseCases.getAllApplications()
+                .stream()
+                .map(application -> new ApplicationOutput(application, false))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(applications);
+    }
+
 }
