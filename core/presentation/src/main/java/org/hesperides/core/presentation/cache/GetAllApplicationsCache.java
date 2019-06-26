@@ -21,6 +21,7 @@
 package org.hesperides.core.presentation.cache;
 
 import com.google.common.cache.CacheBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -38,13 +39,16 @@ import java.util.concurrent.TimeUnit;
 @EnableCaching
 public class GetAllApplicationsCache extends CachingConfigurerSupport {
 
+    @Value("${hesperides.cache.get-all-applications}")
+    private int cacheDurationInHours;
+
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager() {
             @Override
             protected Cache createConcurrentMapCache(final String name) {
                 return new ConcurrentMapCache("AllApplications", CacheBuilder.newBuilder()
-                        .expireAfterWrite(24, TimeUnit.HOURS)
+                        .expireAfterWrite(cacheDurationInHours, TimeUnit.HOURS)
                         .build()
                         .asMap(),
                         false);
