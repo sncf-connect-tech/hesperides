@@ -1,6 +1,5 @@
 application:
   version: @project.version@
-  build.time:
 
 # /info actuator endpoint:
 info:

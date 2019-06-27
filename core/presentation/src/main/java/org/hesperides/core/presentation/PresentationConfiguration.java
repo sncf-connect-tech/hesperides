@@ -1,6 +1,8 @@
 package org.hesperides.core.presentation;
 
 import com.google.gson.*;
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import org.apache.catalina.core.StandardWrapper;
@@ -12,6 +14,7 @@ import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTags;
 import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -34,6 +37,7 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Configuration
 @EnableWebMvc
+@EnableAspectJAutoProxy
 public class PresentationConfiguration implements WebMvcConfigurer {
 
     @Autowired
@@ -100,6 +104,13 @@ public class PresentationConfiguration implements WebMvcConfigurer {
             gsonBuilder.registerTypeAdapter(Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedContext"), (JsonSerializer) (src, typeOfSrc, context) -> null);
         } catch (ClassNotFoundException e) {}
         return gsonBuilder.create();
+    }
+
+    // "Applying TimedAspect makes @Timed usable on any arbitrary method"
+    // FROM: https://micrometer.io/docs/concepts
+    @Bean
+    TimedAspect timedAspect(MeterRegistry registry) {
+        return new TimedAspect(registry);
     }
 
     // Configuration des tags multi-dimensionnels Prometheus

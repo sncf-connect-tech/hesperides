@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.mongo.platforms;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.AnnotationEventListenerAdapter;
@@ -94,6 +95,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         PlatformDocument platformDocument = new PlatformDocument(event.getPlatformId(), event.getPlatform());
         // Il arrive que les propriétés d'un module déployé ne soient pas valorisées par la suite,
@@ -107,12 +109,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         minimalPlatformRepository.deleteById(event.getPlatformId());
     }
 
     @EventHandler
     @Override
+    @Timed
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
         /*
          * Architecturalement parlant, ce code est placé ici à cause de la nécessité de rejouer
@@ -140,6 +144,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
         // Tranformation des propriétés du domaine en documents
         final List<AbstractValuedPropertyDocument> abstractValuedProperties = AbstractValuedPropertyDocument.fromAbstractDomainInstances(event.getValuedProperties());
@@ -182,6 +187,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event) {
 
         // Transform the properties into documents
@@ -206,6 +212,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public PlatformView onRestoreDeletedPlatformEvent(RestoreDeletedPlatformEvent event) {
         PlatformDocument platformDocument = getPlatformAtPointInTime(event.getPlatformId(), null);
         platformDocument.getActiveDeployedModules()
@@ -220,6 +227,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<String> onGetPlatformIdFromKeyQuery(GetPlatformIdFromKeyQuery query) {
         PlatformKeyDocument keyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository
@@ -229,6 +237,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<String> onGetPlatformIdFromEvents(GetPlatformIdFromEvents query) {
         // On recherche dans TOUS les événements un PlatformEventWithPayload ayant la bonne clef.
         // On se protège en terme de perfs en n'effectuant cette recherche que sur les 7 derniers jours.
@@ -249,12 +258,14 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<PlatformView> onGetPlatformByIdQuery(GetPlatformByIdQuery query) {
         return minimalPlatformRepository.findById(query.getPlatformId()).map(PlatformDocument::toPlatformView);
     }
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<PlatformView> onGetPlatformByKeyQuery(GetPlatformByKeyQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.findOptionalByKey(platformKeyDocument)
@@ -262,12 +273,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     }
 
     @QueryHandler
+    @Override
+    @Timed
     public PlatformView onGetPlatformAtPointInTimeQuery(GetPlatformAtPointInTimeQuery query) {
         return getPlatformAtPointInTime(query.getPlatformId(), query.getTimestamp()).toPlatformView();
     }
 
     @QueryHandler
     @Override
+    @Timed
     public Boolean onPlatformExistsByKeyQuery(PlatformExistsByKeyQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.existsByKey(platformKeyDocument);
@@ -275,6 +289,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
         List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query.getApplicationName());
         return Optional.ofNullable(CollectionUtils.isEmpty(platformDocuments) ? null
@@ -283,13 +298,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query) {
-
         TemplateContainer.Key moduleKey = query.getModuleKey();
         List<PlatformDocument> platformDocuments = platformRepository
                 .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
                         moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
-
         return Optional.ofNullable(platformDocuments)
                 .map(List::stream)
                 .orElse(Stream.empty())
@@ -299,10 +313,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<SearchApplicationResultView> onListApplicationsQuery(ListApplicationsQuery query) {
-
         List<PlatformDocument> platformDocuments = platformRepository.listApplicationNames();
-
         return Optional.ofNullable(platformDocuments)
                 .map(List::stream)
                 .orElse(Stream.empty())
@@ -312,11 +325,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query) {
-
         List<PlatformDocument> platformDocuments = platformRepository
                 .findAllByKeyApplicationNameLike(query.getApplicationName());
-
         return Optional.ofNullable(platformDocuments)
                 .map(List::stream)
                 .orElse(Stream.empty())
@@ -326,15 +338,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query) {
-
         String platformName = StringUtils.defaultString(query.getPlatformName(), "");
-
         List<PlatformDocument> platformDocuments =
                 platformRepository.findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(
                         query.getApplicationName(),
                         platformName);
-
         return Optional.ofNullable(platformDocuments)
                 .map(List::stream)
                 .orElse(Stream.empty())
@@ -344,6 +354,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query) {
         PlatformDocument platformDocument;
         if (query.getTimestamp() >= 0) {
@@ -367,6 +378,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final Optional<PlatformDocument> platformDocument = platformRepository
@@ -383,6 +395,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<ValuedPropertyView> onGetGlobalPropertiesQuery(final GetGlobalPropertiesQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         return platformRepository.findGlobalPropertiesByPlatformKey(platformKeyDocument)
@@ -391,7 +404,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .orElseGet(Collections::emptyList);
     }
 
+    @QueryHandler
     @Override
+    @Timed
     public Boolean onDeployedModuleExistsQuery(DeployedModuleExistsQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         Module.Key moduleKey = query.getModuleKey();
@@ -403,7 +418,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 query.getModulePath());
     }
 
+    @QueryHandler
     @Override
+    @Timed
     public Boolean onInstanceExistsQuery(InstanceExistsQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         Module.Key moduleKey = query.getModuleKey();
