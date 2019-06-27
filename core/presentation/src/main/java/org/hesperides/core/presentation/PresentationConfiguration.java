@@ -1,8 +1,12 @@
 package org.hesperides.core.presentation;
 
 import com.google.gson.*;
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
+import io.sentry.spring.SentryExceptionResolver;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.StandardWrapper;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
@@ -10,12 +14,15 @@ import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTags;
 import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
@@ -34,6 +41,8 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Configuration
 @EnableWebMvc
+@EnableAspectJAutoProxy
+@Slf4j
 public class PresentationConfiguration implements WebMvcConfigurer {
 
     @Autowired
@@ -100,6 +109,20 @@ public class PresentationConfiguration implements WebMvcConfigurer {
             gsonBuilder.registerTypeAdapter(Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedContext"), (JsonSerializer) (src, typeOfSrc, context) -> null);
         } catch (ClassNotFoundException e) {}
         return gsonBuilder.create();
+    }
+
+    @Bean
+    @ConditionalOnProperty("SENTRY_DSN") // environment variable
+    public HandlerExceptionResolver sentryExceptionResolver() {
+        log.info("Creating a SentryExceptionResolver as HandlerExceptionResolver");
+        return new SentryExceptionResolver();
+    }
+
+    // "Applying TimedAspect makes @Timed usable on any arbitrary method"
+    // FROM: https://micrometer.io/docs/concepts
+    @Bean
+    TimedAspect timedAspect(MeterRegistry registry) {
+        return new TimedAspect(registry);
     }
 
     // Configuration des tags multi-dimensionnels Prometheus

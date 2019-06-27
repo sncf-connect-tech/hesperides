@@ -1,6 +1,7 @@
 package org.hesperides.core.infrastructure.mongo.modules;
 
 import com.mongodb.client.DistinctIterable;
+import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.exceptions.NotFoundException;
@@ -65,6 +66,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
         List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getModule().getTechnos(), event.getModule().getKey());
         ModuleDocument moduleDocument = new ModuleDocument(event.getModuleId(), event.getModule(), technoDocuments);
@@ -74,6 +76,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
@@ -89,6 +92,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
         moduleRepository.deleteById(event.getModuleId());
     }
@@ -97,6 +101,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<String> onGetModuleIdFromKeyQuery(GetModuleIdFromKeyQuery query) {
         KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
         return moduleRepository
@@ -106,6 +111,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<ModuleView> onGetModuleByIdQuery(GetModuleByIdQuery query) {
         return moduleRepository.findOptionalById(query.getModuleId())
                 .map(ModuleDocument::toModuleView);
@@ -113,6 +119,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<ModuleView> onGetModuleByKeyQuery(GetModuleByKeyQuery query) {
         KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
 
@@ -122,6 +129,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Boolean onModuleExistsQuery(ModuleExistsQuery query) {
         KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
         return moduleRepository.existsByKey(moduleKey);
@@ -129,6 +137,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
         final DistinctIterable<String> iterable = mongoTemplate.getCollection(MODULE_COLLECTION_NAME).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
@@ -136,6 +145,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetModuleVersionTypesQuery(GetModuleVersionTypesQuery query) {
         return moduleRepository.findKeysByNameAndVersion(query.getModuleName(), query.getModuleVersion())
                 .stream()
@@ -147,6 +157,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetModuleVersionsQuery(GetModuleVersionsQuery query) {
         return moduleRepository.findVersionsByKeyName(query.getModuleName())
                 .stream()
@@ -157,6 +168,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<ModuleView> onSearchModulesQuery(SearchModulesQuery query) {
         String[] values = query.getInput().split(" ");
         String name = values.length > 0 ? values[0] : "";
@@ -171,6 +183,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<AbstractPropertyView> onGetModulePropertiesQuery(GetModulePropertiesQuery query) {
         KeyDocument moduleKey = new KeyDocument(query.getModuleKey());
         return moduleRepository.findPropertiesByModuleKey(moduleKey)
@@ -179,7 +192,9 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .orElseGet(Collections::emptyList);
     }
 
+    @QueryHandler
     @Override
+    @Timed
     public List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query) {
         List<KeyDocument> modulesKeys = query.getModulesKeys()
                 .stream()
@@ -192,7 +207,9 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .collect(Collectors.toList());
     }
 
+    @QueryHandler
     @Override
+    @Timed
     public List<TechnoModuleView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosId(query.getTechnoId());
         return moduleDocuments

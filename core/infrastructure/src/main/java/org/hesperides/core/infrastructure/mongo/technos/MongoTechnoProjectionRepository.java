@@ -21,6 +21,7 @@
 package org.hesperides.core.infrastructure.mongo.technos;
 
 import com.mongodb.client.DistinctIterable;
+import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.exceptions.NotFoundException;
@@ -88,12 +89,15 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onTechnoCreatedEvent(TechnoCreatedEvent event) {
         TechnoDocument technoDocument = new TechnoDocument(event.getTechnoId(), event.getTechno());
         technoDocument.extractPropertiesAndSave(technoRepository);
     }
 
+    @EventHandler
     @Override
+    @Timed
     public void onTechnoDeletedEvent(TechnoDeletedEvent event) {
         removeReferencesAndUpdateProperties(event.getTechnoId());
         technoRepository.deleteById(event.getTechnoId());
@@ -112,6 +116,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onTemplateAddedToTechnoEvent(TemplateAddedToTechnoEvent event) {
         Optional<TechnoDocument> optTechnoDocument = technoRepository.findById(event.getTechnoId());
         if (!optTechnoDocument.isPresent()) {
@@ -127,6 +132,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onTechnoTemplateUpdatedEvent(TechnoTemplateUpdatedEvent event) {
         Optional<TechnoDocument> optTechnoDocument = technoRepository.findById(event.getTechnoId());
         if (!optTechnoDocument.isPresent()) {
@@ -141,6 +147,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @EventHandler
     @Override
+    @Timed
     public void onTechnoTemplateDeletedEvent(TechnoTemplateDeletedEvent event) {
         Optional<TechnoDocument> optTechnoDocument = technoRepository.findById(event.getTechnoId());
         if (!optTechnoDocument.isPresent()) {
@@ -166,6 +173,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<String> onGetTechnoIdFromKeyQuery(GetTechnoIdFromKeyQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         return technoRepository
@@ -175,6 +183,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Boolean onTechnoExistsQuery(TechnoExistsQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         return technoRepository.existsByKey(keyDocument);
@@ -182,6 +191,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetTechnosNameQuery(GetTechnosNameQuery query) {
         final DistinctIterable<String> iterable = mongoTemplate.getCollection(TECHNO_COLLECTION_NAME).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
@@ -189,6 +199,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetTechnoVersionTypesQuery(GetTechnoVersionTypesQuery query) {
         return technoRepository.findKeysByNameAndVersion(query.getTechnoName(), query.getTechnoVersion())
                 .stream()
@@ -200,6 +211,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<String> onGetTechnoVersionsQuery(GetTechnoVersionsQuery query) {
         return technoRepository.findVersionsByKeyName(query.getTechnoName())
                 .stream()
@@ -210,6 +222,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<TemplateView> onGetTemplateQuery(GetTemplateQuery query) {
         TemplateContainer.Key technoKey = query.getTechnoKey();
         return technoRepository.findTemplateByTechnoKeyAndTemplateName(new KeyDocument(technoKey), query.getTemplateName())
@@ -222,6 +235,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<TemplateView> onGetTemplatesQuery(GetTemplatesQuery query) {
         TemplateContainer.Key technoKey = query.getTechnoKey();
         return technoRepository.findTemplatesByTechnoKey(new KeyDocument(technoKey))
@@ -234,6 +248,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<TechnoView> onGetTechnoQuery(GetTechnoQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         return technoRepository.findOptionalTechnoByKey(keyDocument)
@@ -242,6 +257,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<TechnoView> onSearchTechnosQuery(SearchTechnosQuery query) {
         String[] values = query.getInput().split(" ");
         String name = values.length >= 1 ? values[0] : "";
@@ -256,6 +272,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
+    @Timed
     public List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query) {
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         TechnoDocument technoDocument = technoRepository.findPropertiesByTechnoKey(keyDocument);
