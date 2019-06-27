@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -81,7 +82,7 @@ public class GetApplications extends HesperidesScenario implements En {
 
         Then("^all the applications are retrieved with their platforms and their modules$", () -> {
             assertOK();
-            List<ApplicationOutput> actualApplications = Arrays.asList((ApplicationOutput[]) testContext.getResponseBody());
+            List<ApplicationOutput> actualApplications = ((AllApplicationsDetailOutput) testContext.getResponseBody()).getApplications();
             assertEquals(expectedApplications, actualApplications);
         });
     }

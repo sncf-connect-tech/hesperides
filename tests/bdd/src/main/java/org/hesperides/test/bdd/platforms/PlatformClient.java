@@ -205,7 +205,7 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public ResponseEntity<ApplicationOutput[]> getAllApplications() {
-        return restTemplate.getForEntity("/applications/platforms", ApplicationOutput[].class);
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplications() {
+        return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 }
