@@ -66,6 +66,7 @@
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+        <sentry.version>1.7.16</sentry.version>
     </properties>
 
     <dependencies>
@@ -74,6 +75,11 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring</artifactId>
+            <version>${sentry.version}</version>
         </dependency>
         <!-- AspectJ est nécessaire pour utiliser le TimedAspect de micrometer : -->
         <dependency>
