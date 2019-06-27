@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 @EnableCaching
 public class GetAllApplicationsCache extends CachingConfigurerSupport {
 
-    @Value("${hesperides.cache.get-all-applications}")
+    @Value("${hesperides.cache.get-all-applications.duration-in-hours}")
     private int cacheDurationInHours;
 
     @Bean

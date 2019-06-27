@@ -26,14 +26,16 @@ import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class GetApplications extends HesperidesScenario implements En {
 
@@ -41,20 +43,21 @@ public class GetApplications extends HesperidesScenario implements En {
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
-    private List<ApplicationOutput> expectedApplications;
+    private List<ApplicationOutput> expectedApplications = new ArrayList<>();
 
     private boolean hidePlatform;
 
     public GetApplications() {
 
-        Given("^a list of applications with platforms and modules?$", () -> {
-            final DeployedModuleIO deployedModuleIO = new DeployedModuleIO(1L, "name", "version", true, "#path", "", Collections.emptyList());
-
+        Given("^a list of applications with platforms and this module$", () -> {
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             Arrays.asList("ABC", "DEF", "GHI").forEach(applicationName -> {
-                final PlatformIO platform = new PlatformIO("DEV", applicationName, "1", true, Arrays.asList(deployedModuleIO), 1L);
-                platformClient.create(platform);
-                expectedApplications.add(new ApplicationOutput(applicationName, Arrays.asList(platform)));
+                platformBuilder.withApplicationName(applicationName);
+                platformClient.create(platformBuilder.buildInput());
+                expectedApplications.add(platformBuilder.buildApplicationOutput(false));
             });
 
         });
@@ -71,16 +74,38 @@ public class GetApplications extends HesperidesScenario implements En {
             testContext.responseEntity = platformClient.getAllApplications();
         });
 
-        Then("^the application is successfully retrieved", () -> {
+        Then("^the application is successfully retrieved$", () -> {
             assertOK();
             ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
             ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
-            Assert.assertEquals(expectedApplication, actualApplication);
+            assertEquals(expectedApplication, actualApplication);
         });
 
-        Then("^all the applications are retrieved with their platforms and their modules", () -> {
+        Then("^all the applications are retrieved with their platforms and their modules$", () -> {
             assertOK();
-            Assert.assertEquals(expectedApplications, testContext.getResponseBody());
+            List<ApplicationOutput> actualApplications = Arrays.asList((ApplicationOutput[]) testContext.getResponseBody());
+
+            for (int i = 0; i < expectedApplications.size(); i++) {
+                ApplicationOutput expectedApplication = expectedApplications.get(i);
+                ApplicationOutput actualApplication = actualApplications.get(i);
+                assertEquals(expectedApplication.getName(), actualApplication.getName());
+
+                for (int j = 0; j < expectedApplication.getPlatforms().size(); j++) {
+                    PlatformIO expectedPlatform = expectedApplication.getPlatforms().get(j);
+                    PlatformIO actualPlatform = actualApplication.getPlatforms().get(j);
+                    assertEquals(expectedPlatform.getApplicationName(), actualPlatform.getApplicationName());
+                    assertEquals(expectedPlatform.getPlatformName(), actualPlatform.getPlatformName());
+                    assertEquals(expectedPlatform.getIsProductionPlatform(), actualPlatform.getIsProductionPlatform());
+
+                    for (int k = 0; k < expectedPlatform.getDeployedModules().size(); k++) {
+                        DeployedModuleIO expectedModule = expectedPlatform.getDeployedModules().get(k);
+                        DeployedModuleIO actualModule = actualPlatform.getDeployedModules().get(k);
+                        assertEquals(expectedModule.getName(), actualModule.getName());
+                        assertEquals(expectedModule.getVersion(), actualModule.getVersion());
+                        assertEquals(expectedModule.getIsWorkingCopy(), actualModule.getIsWorkingCopy());
+                    }
+                }
+            }
         });
     }
 }
