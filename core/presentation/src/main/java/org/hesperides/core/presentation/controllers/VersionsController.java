@@ -39,16 +39,19 @@ public class VersionsController extends AbstractController {
     @Value("${application.version}")
     private String version;
 
-    @Value("${application.build.time}")
-    private String buildTime;
-
     @ApiOperation("Get backend API version")
     @GetMapping
     public ResponseEntity<Map<String, String>> getVersions() {
 
         Map<String, String> propertiesMap = new HashMap<>();
         propertiesMap.put("version", version);
-        propertiesMap.put("build_time", buildTime);
+        propertiesMap.put("BUILD_TIME", System.getenv("BUILD_TIME"));
+        propertiesMap.put("GIT_BRANCH", System.getenv("GIT_BRANCH"));
+        propertiesMap.put("GIT_COMMIT", System.getenv("GIT_COMMIT"));
+        propertiesMap.put("GIT_COMMIT_MSG", System.getenv("GIT_COMMIT_MSG"));
+        propertiesMap.put("GIT_TAG", System.getenv("GIT_TAG"));
+        propertiesMap.put("url_to_github_commit", "https://github.com/voyages-sncf-technologies/hesperides/commit/" + System.getenv("GIT_COMMIT"));
+        propertiesMap.put("url_to_github_changelog", "https://github.com/voyages-sncf-technologies/hesperides/blob/master/CHANGELOG.md#" + System.getenv("GIT_TAG"));
 
         return ResponseEntity.ok(propertiesMap);
     }

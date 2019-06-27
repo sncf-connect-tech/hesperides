@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-06-20
 ### Fixed
 
-- Stress tests en upgradant gatling-maven-plugin. [Lucas Cimon]
+- Pour modules/perform_search, en cas de match exact, il est toujours inclus en 1er résultat - cf. #595 & Fix: stress tests en upgradant gatling-maven-plugin (#676) [Lucas Cimon]
 
 
 
