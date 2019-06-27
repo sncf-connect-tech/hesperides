@@ -37,9 +37,11 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableCaching
-public class GetAllApplicationsCache extends CachingConfigurerSupport {
+public class GetAllApplicationsCacheConfiguration extends CachingConfigurerSupport {
 
-    @Value("${hesperides.cache.get-all-applications.duration-in-hours}")
+    public static final String CACHE_NAME = "AllApplications";
+
+    @Value("${hesperides.cache.get-all-applications-detail.duration-in-hours}")
     private int cacheDurationInHours;
 
     @Bean
@@ -47,7 +49,7 @@ public class GetAllApplicationsCache extends CachingConfigurerSupport {
         return new ConcurrentMapCacheManager() {
             @Override
             protected Cache createConcurrentMapCache(final String name) {
-                return new ConcurrentMapCache("AllApplications", CacheBuilder.newBuilder()
+                return new ConcurrentMapCache(CACHE_NAME, CacheBuilder.newBuilder()
                         .expireAfterWrite(cacheDurationInHours, TimeUnit.HOURS)
                         .build()
                         .asMap(),

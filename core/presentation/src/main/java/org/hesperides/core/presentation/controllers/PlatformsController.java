@@ -12,6 +12,7 @@ import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
 import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -23,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -289,15 +292,20 @@ public class PlatformsController extends AbstractController {
 
     @ApiOperation("Get all applications, their platforms and their modules (cached 24h)")
     @GetMapping("/platforms")
-    @Cacheable("AllApplications")
-    public ResponseEntity<List<ApplicationOutput>> getAllApplications() {
+    @Cacheable(GetAllApplicationsCacheConfiguration.CACHE_NAME)
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
 
-        final List<ApplicationOutput> applications = platformUseCases.getAllApplications()
+        TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df.setTimeZone(utcTimeZone);
+        String nowAsIso = df.format(new Date());
+
+        final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail()
                 .stream()
                 .map(application -> new ApplicationOutput(application, false))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(applications);
+        return ResponseEntity.ok(new AllApplicationsDetailOutput(nowAsIso, applications));
     }
 
 }

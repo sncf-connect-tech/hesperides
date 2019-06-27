@@ -271,7 +271,7 @@ public class PlatformUseCases {
         return queries.getOptionalPlatform(platformId).get();
     }
 
-    public List<ApplicationView> getAllApplications() {
-        return queries.getAllApplications();
+    public List<ApplicationView> getAllApplicationsDetail() {
+        return queries.getAllApplicationsDetail();
     }
 }

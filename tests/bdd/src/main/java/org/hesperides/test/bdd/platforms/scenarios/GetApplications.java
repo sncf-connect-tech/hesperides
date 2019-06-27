@@ -23,8 +23,6 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
@@ -84,28 +82,7 @@ public class GetApplications extends HesperidesScenario implements En {
         Then("^all the applications are retrieved with their platforms and their modules$", () -> {
             assertOK();
             List<ApplicationOutput> actualApplications = Arrays.asList((ApplicationOutput[]) testContext.getResponseBody());
-
-            for (int i = 0; i < expectedApplications.size(); i++) {
-                ApplicationOutput expectedApplication = expectedApplications.get(i);
-                ApplicationOutput actualApplication = actualApplications.get(i);
-                assertEquals(expectedApplication.getName(), actualApplication.getName());
-
-                for (int j = 0; j < expectedApplication.getPlatforms().size(); j++) {
-                    PlatformIO expectedPlatform = expectedApplication.getPlatforms().get(j);
-                    PlatformIO actualPlatform = actualApplication.getPlatforms().get(j);
-                    assertEquals(expectedPlatform.getApplicationName(), actualPlatform.getApplicationName());
-                    assertEquals(expectedPlatform.getPlatformName(), actualPlatform.getPlatformName());
-                    assertEquals(expectedPlatform.getIsProductionPlatform(), actualPlatform.getIsProductionPlatform());
-
-                    for (int k = 0; k < expectedPlatform.getDeployedModules().size(); k++) {
-                        DeployedModuleIO expectedModule = expectedPlatform.getDeployedModules().get(k);
-                        DeployedModuleIO actualModule = actualPlatform.getDeployedModules().get(k);
-                        assertEquals(expectedModule.getName(), actualModule.getName());
-                        assertEquals(expectedModule.getVersion(), actualModule.getVersion());
-                        assertEquals(expectedModule.getIsWorkingCopy(), actualModule.getIsWorkingCopy());
-                    }
-                }
-            }
+            assertEquals(expectedApplications, actualApplications);
         });
     }
 }

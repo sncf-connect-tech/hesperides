@@ -117,7 +117,7 @@ public class PlatformQueries extends AxonQueries {
         return querySync(new InstanceExistsQuery(platformKey, moduleKey, modulePath, instanceName), Boolean.class);
     }
 
-    public List<ApplicationView> getAllApplications() {
-        return querySyncList(new GetAllApplicationsQuery(), ApplicationView.class);
+    public List<ApplicationView> getAllApplicationsDetail() {
+        return querySyncList(new GetAllApplicationsDetailQuery(), ApplicationView.class);
     }
 }

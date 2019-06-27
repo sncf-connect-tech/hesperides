@@ -437,9 +437,9 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     @Timed
-    public List<ApplicationView> onGetAllApplicationsQuery(GetAllApplicationsQuery query) {
+    public List<ApplicationView> onGetAllApplicationsDetailQuery(GetAllApplicationsDetailQuery query) {
 
-        return Optional.ofNullable(platformRepository.listApplications())
+        return Optional.ofNullable(platformRepository.findAll())
                 .map(List::stream)
                 .orElse(Stream.empty())
                 .map(PlatformDocument::toPlatformView)

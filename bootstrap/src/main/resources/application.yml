@@ -24,8 +24,8 @@ hesperides:
   security:
     auth-whitelist: ${AUTH_WHITELIST:/versions|/manage/**|/swagger-resources/|/swagger-ui.html|/v2/api-docs|/webjars/**}
   cache:
-    get-all-applications:
-      duration-in-hours: ${GET_ALL_APPLICATIONS_CACHE_DURATION_IN_HOURS:24}
+    get-all-applications-detail:
+      duration-in-hours: ${GET_ALL_APPLICATIONS_DETAIL_CACHE_DURATION_IN_HOURS:1}
 
 ldap:
   url: ${LDAP_URL}
