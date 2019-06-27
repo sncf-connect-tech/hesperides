@@ -11,7 +11,7 @@ if [ "$DOCKER_USER" != "" ] && [ "$DOCKER_PASS" != "" ]; then
         export TAG=$(echo $TRAVIS_BRANCH | sed -e 's/\//_/g' -e 's/\#//g' -e 's/\-/_/g')
     fi
     docker build -t hesperides/hesperides:$TAG --label git_commit=$TRAVIS_COMMIT --label date=$(date +%F) \
-        --build-arg BUILD_TIME=$(date +%FT%T) --build-arg GIT_TAG=$(date +%F) --build-arg GIT_BRANCH=$TRAVIS_BRANCH --build-arg GIT_COMMIT=$TRAVIS_COMMIT --build-arg GIT_COMMIT_MSG=$TRAVIS_COMMIT_MESSAGE .
+        --build-arg BUILD_TIME=$(date +%FT%T) --build-arg GIT_TAG=$(date +%F) --build-arg GIT_BRANCH=$TRAVIS_BRANCH --build-arg GIT_COMMIT=$TRAVIS_COMMIT --build-arg GIT_COMMIT_MSG="$TRAVIS_COMMIT_MESSAGE" .
     echo "✓ Docker image built"
     docker push hesperides/hesperides:$TAG
     echo "✓ Docker image pushed to public hub with version $TAG"
