@@ -45,6 +45,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
 import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
@@ -314,7 +315,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     @Timed
-    public List<SearchApplicationResultView> onListApplicationsQuery(ListApplicationsQuery query) {
+    public List<SearchApplicationResultView> onGetApplicationNamesQuery(GetApplicationNamesQuery query) {
         List<PlatformDocument> platformDocuments = platformRepository.listApplicationNames();
         return Optional.ofNullable(platformDocuments)
                 .map(List::stream)
@@ -431,6 +432,23 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 moduleKey.isWorkingCopy(),
                 query.getModulePath(),
                 query.getInstanceName());
+    }
+
+    @QueryHandler
+    @Override
+    @Timed
+    public List<ApplicationView> onGetAllApplicationsDetailQuery(GetAllApplicationsDetailQuery query) {
+
+        return Optional.ofNullable(platformRepository.findAll())
+                .map(List::stream)
+                .orElse(Stream.empty())
+                .map(PlatformDocument::toPlatformView)
+                .collect(groupingBy(PlatformView::getApplicationName))
+                .entrySet()
+                .stream()
+                .map(entry -> new ApplicationView(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
     }
 
     private PlatformDocument getPlatformAtPointInTime(String platformId, Long timestamp) {

@@ -18,14 +18,14 @@
  *
  *
  */
-package org.hesperides.core.domain.platforms.queries.views;
+package org.hesperides.core.presentation.io.platforms;
 
 import lombok.Value;
 
 import java.util.List;
 
 @Value
-public class ApplicationView {
-    String name;
-    List<PlatformView> platforms;
+public class AllApplicationsDetailOutput {
+    String generated;
+    List<ApplicationOutput> applications;
 }

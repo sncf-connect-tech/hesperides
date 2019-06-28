@@ -131,18 +131,18 @@ public class PlatformUseCases {
         return queries.getPlatformsUsingModule(moduleKey);
     }
 
-    public List<SearchApplicationResultView> listApplications() {
-        return queries.listApplications();
+    public List<SearchApplicationResultView> getApplicationNames() {
+        return queries.getApplicationNames();
     }
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
-        List<SearchApplicationResultView> apps;
+        List<SearchApplicationResultView> applications;
         if (isBlank(applicationName)) {
-            apps = queries.listApplications();
+            applications = queries.getApplicationNames();
         } else {
-            apps = queries.searchApplications(applicationName);
+            applications = queries.searchApplications(applicationName);
         }
-        return apps;
+        return applications;
     }
 
     public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
@@ -269,5 +269,9 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
         commands.restoreDeletedPlatform(platformId, user);
         return queries.getOptionalPlatform(platformId).get();
+    }
+
+    public List<ApplicationView> getAllApplicationsDetail() {
+        return queries.getAllApplicationsDetail();
     }
 }

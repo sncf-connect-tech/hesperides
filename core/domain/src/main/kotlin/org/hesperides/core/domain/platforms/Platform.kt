@@ -39,7 +39,7 @@ data class GetPlatformAtPointInTimeQuery(val platformId: String, val timestamp: 
 data class PlatformExistsByKeyQuery(val platformKey: Platform.Key)
 data class GetApplicationByNameQuery(val applicationName: String)
 data class GetPlatformsUsingModuleQuery(val moduleKey: Module.Key)
-class ListApplicationsQuery
+class GetApplicationNamesQuery
 data class SearchApplicationsQuery(val applicationName: String)
 data class SearchPlatformsQuery(val applicationName: String, val platformName: String? = null)
 data class GetDeployedModulePropertiesQuery(val platformId: String, val propertiesPath: String, val timestamp: Long) // timestamp == -1 => no timestamp
@@ -47,3 +47,4 @@ data class GetGlobalPropertiesQuery(val platformKey: Platform.Key)
 data class GetInstancesModelQuery(val platformKey: Platform.Key, val propertiesPath: String)
 data class DeployedModuleExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String)
 data class InstanceExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String, val instanceName: String)
+class GetAllApplicationsDetailQuery

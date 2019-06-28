@@ -19,3 +19,9 @@ Feature: Get applications
     Given a platform that doesn't exist
     When I try to get the platform application
     Then the resource is not found
+
+  Scenario: get all applications
+    Given an existing module
+    And a list of applications with platforms and this module
+    When I get the list of all applications
+    Then all the applications are retrieved with their platforms and their modules
