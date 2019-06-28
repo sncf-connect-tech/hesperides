@@ -290,7 +290,7 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(new PropertiesIO(propertyViews));
     }
 
-    @ApiOperation("Get all applications, their platforms and their modules (cached 24h)")
+    @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
     @GetMapping("/platforms")
     @Cacheable(GetAllApplicationsCacheConfiguration.CACHE_NAME)
     public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
