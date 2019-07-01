@@ -21,7 +21,7 @@
 package org.hesperides.core.application.authorizations;
 
 import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
-import org.hesperides.core.domain.security.queries.ApplicationAuthoritiesQueries;
+import org.hesperides.core.domain.security.queries.AuthorizationQueries;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -31,17 +31,17 @@ import java.util.Map;
 @Component
 public class AuthorizationUseCases {
 
-    private final ApplicationAuthoritiesQueries applicationAuthoritiesQueries;
+    private final AuthorizationQueries authorizationQueries;
 
-    public AuthorizationUseCases(ApplicationAuthoritiesQueries applicationAuthoritiesQueries) {
-        this.applicationAuthoritiesQueries = applicationAuthoritiesQueries;
+    public AuthorizationUseCases(AuthorizationQueries authorizationQueries) {
+        this.authorizationQueries = authorizationQueries;
     }
 
     public Map<String, List<String>> getApplicationAuthorities(String applicationName) {
         Map<String, List<String>> applicationAuthorities = new HashMap<>();
 
         String applicationProdRole = applicationName + ApplicationRole.PROD_USER_SUFFIX;
-        applicationAuthorities.put(applicationProdRole, applicationAuthoritiesQueries.getApplicationAuthorities(applicationName));
+        applicationAuthorities.put(applicationProdRole, authorizationQueries.getApplicationAuthorities(applicationName));
 
         return applicationAuthorities;
     }

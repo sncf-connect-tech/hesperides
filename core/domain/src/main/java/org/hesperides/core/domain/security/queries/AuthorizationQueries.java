@@ -28,9 +28,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class ApplicationAuthoritiesQueries extends AxonQueries {
+public class AuthorizationQueries extends AxonQueries {
 
-    protected ApplicationAuthoritiesQueries(QueryGateway queryGateway) {
+    protected AuthorizationQueries(QueryGateway queryGateway) {
         super(queryGateway);
     }
 

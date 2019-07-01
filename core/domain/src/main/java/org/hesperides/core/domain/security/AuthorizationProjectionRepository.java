@@ -25,7 +25,7 @@ import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
 
 import java.util.List;
 
-public interface ApplicationAuthoritiesProjectionRepository {
+public interface AuthorizationProjectionRepository {
 
     List<String> getApplicationsForAuthorities(List<String> authorities);
 

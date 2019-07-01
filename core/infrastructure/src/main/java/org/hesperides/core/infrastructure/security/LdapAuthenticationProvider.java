@@ -23,8 +23,8 @@ package org.hesperides.core.infrastructure.security;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
-import org.hesperides.core.domain.security.ApplicationAuthoritiesProjectionRepository;
 import org.hesperides.core.domain.security.AuthenticationProvider;
+import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.entities.authorities.ActiveDirectoryGroup;
 import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
 import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
@@ -81,7 +81,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     //   Evaluate Expression: cacheManager.ehcaches.get(AUTHORIZATION_GROUPS_TREE_CACHE_NAME).compoundStore.map
     private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever; // Pourquoi pas Autowired ?
     @Autowired
-    private ApplicationAuthoritiesProjectionRepository applicationAuthoritiesProjectionRepository;
+    private AuthorizationProjectionRepository authorizationProjectionRepository;
 
     @PostConstruct
     void init() {
@@ -182,7 +182,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
                 .forEach(authorities::add);
 
         // Applications avec droits de prod
-        applicationAuthoritiesProjectionRepository
+        authorizationProjectionRepository
                 .getApplicationsForAuthorities(ldapGroupAuthorities)
                 .stream()
                 .map(ApplicationRole::new)

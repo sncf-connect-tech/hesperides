@@ -22,7 +22,7 @@ package org.hesperides.core.infrastructure.mongo.authorizations;
 
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
-import org.hesperides.core.domain.security.ApplicationAuthoritiesProjectionRepository;
+import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -36,12 +36,12 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
-public class MongoApplicationAuthoritiesProjectionRepository implements ApplicationAuthoritiesProjectionRepository {
+public class MongoAuthorizationProjectionRepository implements AuthorizationProjectionRepository {
 
     @Autowired
     private final MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository;
 
-    public MongoApplicationAuthoritiesProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository) {
+    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository) {
         this.applicationAuthoritiesRepository = applicationAuthoritiesRepository;
     }
 
