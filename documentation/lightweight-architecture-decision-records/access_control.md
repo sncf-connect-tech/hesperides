@@ -56,13 +56,10 @@ Ajout de 3 champs dans la réponse.
   "username": "...",
   "prodUser": true,
   "techUser": false,
-  "authorities": [
-    {"role": "GLOBAL_IS_PROD"},
-    {"role": "ABC_PROD_USER"},
-    {"role": "DEF_PROD_USER"},
-    {"groupCN": "GG_XX"},
-    {"groupCN": "GG_YY"}
-  ]
+  "authorities": {
+    "roles": ["GLOBAL_IS_PROD", "ABC_PROD_USER", "DEF_PROD_USER"],
+    "groups": ["GG_XX", "GG_YY"]
+  }
 }
 ```
 

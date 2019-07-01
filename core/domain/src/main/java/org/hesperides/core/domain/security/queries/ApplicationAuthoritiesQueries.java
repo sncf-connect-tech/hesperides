@@ -18,22 +18,23 @@
  *
  *
  */
-package org.hesperides.core.infrastructure.mongo.authorizations;
+package org.hesperides.core.domain.security.queries;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.axonframework.queryhandling.QueryGateway;
+import org.hesperides.commons.axon.AxonQueries;
+import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.hesperides.core.infrastructure.Constants.AUTHORIZATION_COLLECTION_NAME;
+@Component
+public class ApplicationAuthoritiesQueries extends AxonQueries {
 
-@Data
-@Document(collection = AUTHORIZATION_COLLECTION_NAME)
-@NoArgsConstructor
-public class AuthorizationDocument {
-    @Id
-    private String application;
-    private List<String> authorities;
+    protected ApplicationAuthoritiesQueries(QueryGateway queryGateway) {
+        super(queryGateway);
+    }
+
+    public List<String> getApplicationAuthorities(String applicationName) {
+        return querySyncList(new GetApplicationAuthoritiesQuery(applicationName), String.class);
+    }
 }

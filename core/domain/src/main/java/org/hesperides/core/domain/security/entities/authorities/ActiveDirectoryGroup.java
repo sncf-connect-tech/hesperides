@@ -18,15 +18,20 @@
  *
  *
  */
-package org.hesperides.core.infrastructure.mongo.authorizations;
+package org.hesperides.core.domain.security.entities.authorities;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.util.List;
+public class ActiveDirectoryGroup implements GrantedAuthority {
 
-public interface MongoAuthorizationRepository extends MongoRepository<AuthorizationDocument, String> {
+    private final String authority;
 
-    @Query(value = "{ 'authorities' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
-    List<AuthorizationDocument> findApplicationsWithAuthorities(List<String> authorities);
+    public ActiveDirectoryGroup(String authority) {
+        this.authority = authority;
+    }
+
+    @Override
+    public String getAuthority() {
+        return authority;
+    }
 }

@@ -8,7 +8,7 @@ import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.modules.queries.TechnoModuleView;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.core.domain.technos.queries.TechnoQueries;

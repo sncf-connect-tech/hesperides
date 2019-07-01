@@ -1,16 +1,16 @@
-package org.hesperides.core.domain.security;
+package org.hesperides.core.domain.security.entities;
 
 
 import lombok.Value;
-import org.hesperides.core.domain.security.authorities.ActiveDirectoryGroup;
-import org.hesperides.core.domain.security.authorities.ApplicationRole;
-import org.hesperides.core.domain.security.authorities.GlobalRole;
+import org.hesperides.core.domain.security.entities.authorities.ActiveDirectoryGroup;
+import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
+import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * représente un utilisateur d'hesperide.
@@ -18,44 +18,19 @@ import java.util.Map;
 @Value
 public class User {
 
-    private static final String KEY_ROLE = "role";
-    private static final String KEY_GROUP = "groupCN";
-
     String name;
     boolean isGlobalProd;
     boolean isGlobalTech;
-    Map<String, String> customAuthorities;
+    List<String> roles;
+    List<String> groups;
 
     public static User fromAuthentication(Authentication authentication) {
         final Collection<? extends GrantedAuthority> springAuthorities = authentication.getAuthorities();
         return new User(authentication.getName(),
                 isGlobalProd(springAuthorities),
                 isGlobalTech(springAuthorities),
-                getCustomAuthorities(springAuthorities));
-    }
-
-    /**
-     * Retourne les "authorities" sous forme de Map :
-     * [
-     * {"role": "GLOBAL_IS_PROD"},
-     * {"role": "ABC_PROD_USER"},
-     * {"role": "DEF_PROD_USER"},
-     * {"groupCN": "GG_XX"},
-     * {"groupCN": "GG_YY"}
-     * ]
-     */
-    private static Map<String, String> getCustomAuthorities(Collection<? extends GrantedAuthority> springAuthorities) {
-        Map<String, String> authorities = new HashMap<>();
-        if (springAuthorities != null) {
-            springAuthorities.forEach(springAuthority -> {
-                if (springAuthority instanceof GlobalRole || springAuthority instanceof ApplicationRole) {
-                    authorities.put(KEY_ROLE, springAuthority.getAuthority());
-                } else if (springAuthority instanceof ActiveDirectoryGroup) {
-                    authorities.put(KEY_GROUP, springAuthority.getAuthority());
-                }
-            });
-        }
-        return authorities;
+                getRoles(springAuthorities),
+                getGroups(springAuthorities));
     }
 
     private static boolean isGlobalProd(Collection<? extends GrantedAuthority> authorities) {
@@ -77,5 +52,19 @@ public class User {
             }
         }
         return hasAuthority;
+    }
+
+    private static List<String> getRoles(Collection<? extends GrantedAuthority> springAuthorities) {
+        return springAuthorities.stream()
+                .filter(springAuthority -> springAuthority instanceof GlobalRole || springAuthority instanceof ApplicationRole)
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+    }
+
+    private static List<String> getGroups(Collection<? extends GrantedAuthority> springAuthorities) {
+        return springAuthorities.stream()
+                .filter(springAuthority -> springAuthority instanceof ActiveDirectoryGroup)
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
     }
 }

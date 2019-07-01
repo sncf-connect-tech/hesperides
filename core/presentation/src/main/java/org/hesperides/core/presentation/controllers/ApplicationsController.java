@@ -3,20 +3,19 @@ package org.hesperides.core.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.hesperides.core.application.authorizations.AuthorizationUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,10 +28,12 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 public class ApplicationsController extends AbstractController {
 
     private final PlatformUseCases platformUseCases;
+    private final AuthorizationUseCases authorizationUseCases;
 
     @Autowired
-    public ApplicationsController(PlatformUseCases platformUseCases) {
+    public ApplicationsController(PlatformUseCases platformUseCases, AuthorizationUseCases authorizationUseCases) {
         this.platformUseCases = platformUseCases;
+        this.authorizationUseCases = authorizationUseCases;
     }
 
     @GetMapping("")
@@ -54,7 +55,8 @@ public class ApplicationsController extends AbstractController {
                                                             @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
 
         ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
+        Map<String, List<String>> applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName);
+        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules), applicationAuthorities);
 
         return ResponseEntity.ok(applicationOutput);
     }

@@ -18,20 +18,18 @@
  *
  *
  */
-package org.hesperides.core.domain.security.authorities;
+package org.hesperides.core.domain.security;
 
-import org.springframework.security.core.GrantedAuthority;
+import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
 
-public class ActiveDirectoryGroup implements GrantedAuthority {
+import java.util.List;
 
-    private final String authority;
+public interface ApplicationAuthoritiesProjectionRepository {
 
-    public ActiveDirectoryGroup(String authority) {
-        this.authority = authority;
-    }
+    List<String> getApplicationsForAuthorities(List<String> authorities);
 
-    @Override
-    public String getAuthority() {
-        return authority;
-    }
+    @QueryHandler
+    List<String> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query);
+
 }

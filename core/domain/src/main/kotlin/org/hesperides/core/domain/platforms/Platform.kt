@@ -5,8 +5,8 @@ import org.hesperides.core.domain.modules.entities.Module
 import org.hesperides.core.domain.platforms.entities.Platform
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty
-import org.hesperides.core.domain.security.User
 import org.hesperides.core.domain.security.UserEvent
+import org.hesperides.core.domain.security.entities.User
 
 // Command
 

@@ -18,11 +18,22 @@
  *
  *
  */
-package org.hesperides.core.domain.security;
+package org.hesperides.core.infrastructure.mongo.authorizations;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-public interface AuthorizationProjectionRepository {
+import static org.hesperides.core.infrastructure.Constants.AUTHORIZATION_COLLECTION_NAME;
 
-    List<String> getApplicationsForAuthorities(List<String> authorities);
+@Data
+@Document(collection = AUTHORIZATION_COLLECTION_NAME)
+@NoArgsConstructor
+public class ApplicationAuthoritiesDocument {
+    @Id
+    private String application;
+    private List<String> authorities;
 }

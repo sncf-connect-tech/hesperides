@@ -30,7 +30,7 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.modules.queries.TechnoModuleView;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
+import static org.hesperides.core.domain.security.entities.User.fromAuthentication;
 
 @Slf4j
 @Api(tags = "1. Modules", description = " ", position = 1)

@@ -18,13 +18,13 @@
  *
  *
  */
-package org.hesperides.core.domain.security.authorities;
+package org.hesperides.core.domain.security.entities.authorities;
 
 import org.springframework.security.core.GrantedAuthority;
 
 public class ApplicationRole implements GrantedAuthority {
 
-    private static final String PROD_USER_SUFFIX = "_PROD_USER";
+    public static final String PROD_USER_SUFFIX = "_PROD_USER";
 
     private final String authority;
 

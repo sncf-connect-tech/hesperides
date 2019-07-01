@@ -40,7 +40,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
+import static org.hesperides.core.domain.security.entities.User.fromAuthentication;
 
 @Slf4j
 @Api(tags = "7. Techno templates", description = " ")

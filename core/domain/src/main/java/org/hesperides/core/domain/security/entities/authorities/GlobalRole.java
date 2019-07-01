@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.core.domain.security.authorities;
+package org.hesperides.core.domain.security.entities.authorities;
 
 import org.springframework.security.core.GrantedAuthority;
 

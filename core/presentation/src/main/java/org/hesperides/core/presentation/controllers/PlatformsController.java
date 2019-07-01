@@ -31,7 +31,7 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
+import static org.hesperides.core.domain.security.entities.User.fromAuthentication;
 
 @Slf4j
 @Api(tags = "4. Platforms", description = " ")

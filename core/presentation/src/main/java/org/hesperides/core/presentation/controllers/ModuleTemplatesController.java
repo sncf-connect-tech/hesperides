@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
+import static org.hesperides.core.domain.security.entities.User.fromAuthentication;
 
 @Api(tags = "2. Module templates", description = " ")
 @RequestMapping("/modules/{module_name}/{module_version}")

@@ -1,8 +1,8 @@
 package org.hesperides.core.domain.technos
 
 import org.axonframework.commandhandling.TargetAggregateIdentifier
-import org.hesperides.core.domain.security.User
 import org.hesperides.core.domain.security.UserEvent
+import org.hesperides.core.domain.security.entities.User
 import org.hesperides.core.domain.technos.entities.Techno
 import org.hesperides.core.domain.templatecontainers.entities.Template
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer

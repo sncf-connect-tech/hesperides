@@ -11,9 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Permet de regrouper les queries
- */
 @Component
 public class ModuleQueries extends AxonQueries {
 

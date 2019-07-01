@@ -4,7 +4,7 @@ import org.hesperides.core.domain.modules.commands.ModuleCommands;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.junit.Test;
@@ -17,7 +17,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
-import java.util.HashMap;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -48,7 +47,7 @@ public class ModuleUseCasesTest {
         given(moduleQueries.moduleExists(any())).willReturn(true);
         given(moduleCommands.createModule(any(), any())).willReturn(any());
 
-        useCases.createWorkingCopy(module, new User("robert", true, true, new HashMap<>()));
+        useCases.createWorkingCopy(module, new User("robert", true, true, Collections.emptyList(), Collections.emptyList()));
     }
 
     @Test
@@ -60,6 +59,6 @@ public class ModuleUseCasesTest {
         given(moduleQueries.moduleExists(any())).willReturn(false);
         given(moduleCommands.createModule(any(), any())).willReturn(any());
 
-        useCases.createWorkingCopy(module, new User("robert", true, true, new HashMap<>()));
+        useCases.createWorkingCopy(module, new User("robert", true, true, Collections.emptyList(), Collections.emptyList()));
     }
 }
