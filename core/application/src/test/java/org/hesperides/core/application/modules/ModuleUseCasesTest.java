@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -47,7 +48,7 @@ public class ModuleUseCasesTest {
         given(moduleQueries.moduleExists(any())).willReturn(true);
         given(moduleCommands.createModule(any(), any())).willReturn(any());
 
-        useCases.createWorkingCopy(module, new User("robert", true, true, Collections.emptyList()));
+        useCases.createWorkingCopy(module, new User("robert", true, true, new HashMap<>()));
     }
 
     @Test
@@ -59,6 +60,6 @@ public class ModuleUseCasesTest {
         given(moduleQueries.moduleExists(any())).willReturn(false);
         given(moduleCommands.createModule(any(), any())).willReturn(any());
 
-        useCases.createWorkingCopy(module, new User("robert", true, true, Collections.emptyList()));
+        useCases.createWorkingCopy(module, new User("robert", true, true, new HashMap<>()));
     }
 }

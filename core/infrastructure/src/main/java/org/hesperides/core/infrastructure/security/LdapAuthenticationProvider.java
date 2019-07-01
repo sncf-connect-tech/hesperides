@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
-import org.hesperides.core.domain.security.UserRole;
 import org.hesperides.core.domain.security.authorities.ActiveDirectoryGroup;
 import org.hesperides.core.domain.security.authorities.ApplicationRole;
 import org.hesperides.core.domain.security.authorities.GlobalRole;
@@ -168,11 +167,11 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         // Rôles globaux
         String prodGroupDN = ldapConfiguration.getProdGroupDN();
         if (!isBlank(prodGroupDN) && containDN(groupAuthorities, prodGroupDN)) {
-            authorities.add(new GlobalRole(UserRole.GLOBAL_IS_PROD));
+            authorities.add(new GlobalRole(GlobalRole.IS_PROD));
         }
         String techGroupDN = ldapConfiguration.getTechGroupDN();
         if (!isBlank(techGroupDN) && containDN(groupAuthorities, techGroupDN)) {
-            authorities.add(new GlobalRole(UserRole.GLOBAL_IS_TECH));
+            authorities.add(new GlobalRole(GlobalRole.IS_TECH));
         }
 
         final List<String> ldapGroupAuthorities = groupAuthorities.stream().map(LdapGroupAuthority::getAuthority).collect(Collectors.toList());
@@ -188,7 +187,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
                 .stream()
                 .map(ApplicationRole::new)
                 .forEach(authorities::add);
-
 
         return authorities;
     }
