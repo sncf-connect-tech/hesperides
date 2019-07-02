@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +37,8 @@ import java.util.Map;
 @RequestMapping("/versions")
 @RestController
 public class VersionsController extends AbstractController {
+
+    private static String APPLICATION_BOOT_TIME = (new SimpleDateFormat("yyyy-MM-dd'_'HH:mm:ss")).format(new Date());
 
     @Value("${application.version}")
     private String version;
@@ -45,6 +49,7 @@ public class VersionsController extends AbstractController {
 
         Map<String, String> propertiesMap = new HashMap<>();
         propertiesMap.put("version", version);
+        propertiesMap.put("APPLICATION_BOOT_TIME", APPLICATION_BOOT_TIME);
         propertiesMap.put("BUILD_TIME", System.getenv("BUILD_TIME"));
         propertiesMap.put("GIT_BRANCH", System.getenv("GIT_BRANCH"));
         propertiesMap.put("GIT_COMMIT", System.getenv("GIT_COMMIT"));
