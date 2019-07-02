@@ -7,7 +7,7 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
@@ -179,12 +179,10 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .orElseGet(Collections::emptyList);
     }
 
+    @QueryHandler
     @Override
     public List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query) {
-        List<KeyDocument> modulesKeys = query.getModulesKeys()
-                .stream()
-                .map(KeyDocument::new)
-                .collect(Collectors.toList());
+        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
 
         return moduleRepository.findPropertiesByKeyIn(modulesKeys)
                 .stream()
@@ -192,13 +190,35 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
                 .collect(Collectors.toList());
     }
 
+    @QueryHandler
     @Override
-    public List<TechnoModuleView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
+    public List<KeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosId(query.getTechnoId());
         return moduleDocuments
                 .stream()
                 .map(ModuleDocument::getKey)
-                .map(KeyDocument::toTechnoModuleView)
+                .map(KeyDocument::toKeyView)
+                .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public Integer onCountPasswordQuery(CountPasswordsQuery query) {
+        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
+        return moduleRepository.countPasswordsInModules(modulesKeys);
+    }
+
+    @QueryHandler
+    @Override
+    public List<KeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query) {
+        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
+        return moduleRepository.findTechnoKeysInModules(modulesKeys)
+                .stream()
+                .map(ModuleDocument::getTechnos)
+                .flatMap(List::stream)
+                .map(TechnoDocument::getKey)
+                .map(KeyDocument::toKeyView)
+                .distinct()
                 .collect(Collectors.toList());
     }
 }

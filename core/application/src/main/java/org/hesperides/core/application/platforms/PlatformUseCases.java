@@ -18,8 +18,11 @@ import org.hesperides.core.domain.platforms.queries.views.properties.AbstractVal
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.technos.entities.Techno;
+import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +40,14 @@ public class PlatformUseCases {
     private final PlatformCommands commands;
     private final PlatformQueries queries;
     private final ModuleQueries moduleQueries;
+    private final TechnoQueries technoQueries;
 
     @Autowired
-    public PlatformUseCases(PlatformCommands commands, PlatformQueries queries, final ModuleQueries moduleQueries) {
+    public PlatformUseCases(PlatformCommands commands, PlatformQueries queries, final ModuleQueries moduleQueries, TechnoQueries technoQueries) {
         this.commands = commands;
         this.queries = queries;
         this.moduleQueries = moduleQueries;
+        this.technoQueries = technoQueries;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -269,5 +274,21 @@ public class PlatformUseCases {
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
         commands.restoreDeletedPlatform(platformId, user);
         return queries.getOptionalPlatform(platformId).get();
+    }
+
+    public Integer countModulesAndTehnosPasswords(ApplicationView applicationView) {
+        List<Module.Key> moduleKeys = applicationView.getPlatforms()
+                .stream()
+                .map(PlatformView::getDeployedModules)
+                .flatMap(List::stream)
+                .map(DeployedModuleView::getModuleKey)
+                .distinct()
+                .collect(Collectors.toList());
+        Integer modulePasswordCount = moduleQueries.countPasswords(moduleKeys);
+
+        List<KeyView> technosKeys = moduleQueries.getDistinctTechnoKeysInModules(moduleKeys);
+        Integer technoPasswordCount = technoQueries.countPasswords(Techno.Key.fromViews(technosKeys));
+
+        return modulePasswordCount + technoPasswordCount;
     }
 }

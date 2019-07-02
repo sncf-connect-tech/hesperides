@@ -52,11 +52,13 @@ public class ApplicationsController extends AbstractController {
     @GetMapping("/{application_name}")
     @ApiOperation("Get application")
     public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
-                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
+                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules,
+                                                            @RequestParam(value = "with_password_count", required = false) final Boolean withPasswordCount) {
 
         ApplicationView applicationView = platformUseCases.getApplication(applicationName);
         Map<String, List<String>> applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules), applicationAuthorities);
+        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTehnosPasswords(applicationView) : null;
+        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules), applicationAuthorities, passwordCount);
 
         return ResponseEntity.ok(applicationOutput);
     }

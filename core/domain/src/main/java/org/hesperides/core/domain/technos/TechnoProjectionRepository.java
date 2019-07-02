@@ -79,4 +79,7 @@ public interface TechnoProjectionRepository {
 
     @QueryHandler
     List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query);
+
+    @QueryHandler
+    Integer onCountPasswordsQuery(CountPasswordsQuery query);
 }

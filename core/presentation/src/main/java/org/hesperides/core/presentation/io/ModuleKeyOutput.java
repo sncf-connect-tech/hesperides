@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
-public class TechnoModulesOutput {
+public class ModuleKeyOutput {
 
     @SerializedName("module_name")
     @JsonProperty("module_name")
@@ -46,18 +46,18 @@ public class TechnoModulesOutput {
     @JsonProperty("working_copy")
     Boolean isWorkingCopy;
 
-    public TechnoModulesOutput(TechnoModuleView technoModuleView) {
-        this.moduleName = technoModuleView.getModuleName();
-        this.moduleVersion = technoModuleView.getModuleVersion();
-        this.isWorkingCopy = technoModuleView.getIsWorkingCopy();
+    public ModuleKeyOutput(KeyView keyView) {
+        this.moduleName = keyView.getName();
+        this.moduleVersion = keyView.getVersion();
+        this.isWorkingCopy = keyView.getIsWorkingCopy();
     }
 
-    public static List<TechnoModulesOutput> fromViews(List<TechnoModuleView> technoModuleViews) {
-        return Optional.ofNullable(technoModuleViews)
+    public static List<ModuleKeyOutput> fromViews(List<KeyView> keyViews) {
+        return Optional.ofNullable(keyViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .sorted(Comparator.comparing(TechnoModuleView::getModuleName))
-                .map(TechnoModulesOutput::new)
+                .sorted(Comparator.comparing(KeyView::getName))
+                .map(ModuleKeyOutput::new)
                 .collect(Collectors.toList());
     }
 }

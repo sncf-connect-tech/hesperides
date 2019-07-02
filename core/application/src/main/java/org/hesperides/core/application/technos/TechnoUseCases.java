@@ -3,7 +3,7 @@ package org.hesperides.core.application.technos;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.commands.TechnoCommands;
 import org.hesperides.core.domain.technos.entities.Techno;
@@ -65,9 +65,9 @@ public class TechnoUseCases {
         if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
         }
-        List<TechnoModuleView> technoModulesViews = moduleQueries.getModulesUsingTechno(technoId.get());
-        if (!technoModulesViews.isEmpty()) {
-            throw new UndeletableTechnoInUseException(technoKey, technoModulesViews);
+        List<KeyView> technoModuleKeys = moduleQueries.getModulesUsingTechno(technoId.get());
+        if (!technoModuleKeys.isEmpty()) {
+            throw new UndeletableTechnoInUseException(technoKey, technoModuleKeys);
         }
         commands.deleteTechno(technoId.get(), user);
     }

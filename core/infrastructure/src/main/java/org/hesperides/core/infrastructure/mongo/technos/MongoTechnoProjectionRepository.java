@@ -42,6 +42,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -260,6 +261,13 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         KeyDocument keyDocument = new KeyDocument(query.getTechnoKey());
         TechnoDocument technoDocument = technoRepository.findPropertiesByTechnoKey(keyDocument);
         return AbstractPropertyDocument.toViews(technoDocument.getProperties());
+    }
+
+    @QueryHandler
+    @Override
+    public Integer onCountPasswordsQuery(CountPasswordsQuery query) {
+        List<KeyDocument> technoKeys = KeyDocument.fromModelKeys(query.getTechnoKeys());
+        return technoRepository.countPasswordsInTechnos(technoKeys);
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos, TemplateContainer.Key moduleKey) {

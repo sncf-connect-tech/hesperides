@@ -7,7 +7,7 @@ import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
@@ -219,7 +219,7 @@ public class ModuleUseCases {
         return queries.getPropertiesModel(moduleKey);
     }
 
-    public List<TechnoModuleView> getModulesUsingTechno(Techno.Key technoKey) {
+    public List<KeyView> getModulesUsingTechno(Techno.Key technoKey) {
         Optional<String> optTechnoId = technoQueries.getOptionalTechnoId(technoKey);
         if (!optTechnoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);

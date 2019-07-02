@@ -21,7 +21,7 @@
 package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.TechnoModulesOutput;
+import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,11 +47,11 @@ public class ModuleHistory {
         modules.add(moduleBuilder.build());
     }
 
-    public List<TechnoModulesOutput> buildTechnoModules() {
+    public List<ModuleKeyOutput> buildTechnoModules() {
         return Optional.ofNullable(modules)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(module -> new TechnoModulesOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
+                .map(module -> new ModuleKeyOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
                 .collect(Collectors.toList());
     }
 }

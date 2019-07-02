@@ -22,7 +22,7 @@ package org.hesperides.test.regression.validation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.TechnoModulesOutput;
+import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
@@ -79,7 +79,7 @@ public class TechnosValidation extends AbstractValidation {
         testEndpoint(technoKey, GET_TECHNO_DETAIL, TechnoIO.class, technoName, technoVersion, technoType);
         testEndpoint(technoKey, GET_TECHNO_MODEL, ModelOutput.class, technoName, technoVersion, technoType);
         testTechnoTemplates(technoKey, technoName, technoVersion, technoType);
-        testEndpoint(technoKey, GET_MODULES_USING_TECHNO, TechnoModulesOutput[].class, technoName, technoVersion, technoType);
+        testEndpoint(technoKey, GET_MODULES_USING_TECHNO, ModuleKeyOutput[].class, technoName, technoVersion, technoType);
     }
 
     private void testTechnoTemplates(String technoKey, String technoName, String technoVersion, String technoType) {

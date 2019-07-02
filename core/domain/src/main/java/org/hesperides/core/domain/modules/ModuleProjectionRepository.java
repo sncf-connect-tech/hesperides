@@ -4,9 +4,8 @@ import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
-import org.hesperides.core.domain.platforms.GetPlatformsUsingModuleQuery;
-import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 
 import java.util.List;
@@ -58,5 +57,11 @@ public interface ModuleProjectionRepository {
     List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query);
 
     @QueryHandler
-    List<TechnoModuleView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query);
+    List<KeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query);
+
+    @QueryHandler
+    Integer onCountPasswordQuery(CountPasswordsQuery query);
+
+    @QueryHandler
+    List<KeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query);
 }

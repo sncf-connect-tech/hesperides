@@ -42,4 +42,7 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     @Query(value = "{ 'key.name' : ?0 }", fields = "{ 'key.version' : 1 }")
     List<TechnoDocument> findVersionsByKeyName(String technoName);
+
+    @Query(count = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
+    Integer countPasswordsInTechnos(List<KeyDocument> technoKeys);
 }
