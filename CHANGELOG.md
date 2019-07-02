@@ -25,6 +25,20 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2019-06-28
+### Fixed
+
+- #675 Get all applications (#682) [Thomas L'Hostis]
+
+
+
+## 2019-06-27
+### Added
+
+- Support Sentry (#681) [Lucas Cimon]
+
+
+
 ## 2019-06-20
 ### Fixed
 
