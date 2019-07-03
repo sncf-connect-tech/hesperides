@@ -139,8 +139,6 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                 tags.add(Tag.of("query", defaultString(request.getQueryString())));
                 tags.add(WebMvcTags.exception(exception));
                 tags.add(WebMvcTags.status(response));
-                tags.add(WebMvcTags.outcome(response));
-                tags.add(Tag.of("user-agent", defaultString(request.getHeader("User-Agent"))));
                 return tags;
             }
 
