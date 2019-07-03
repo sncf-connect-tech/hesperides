@@ -39,8 +39,7 @@ HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl --fail http://localh
 
 # -XX:+ExitOnOutOfMemoryError // an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
 # -XX:+HeapDumpOnOutOfMemoryError // get a heap dump when the app crashes
-CMD ["/usr/bin/java", \
-     "-XX:+ExitOnOutOfMemoryError", "-XX:+HeapDumpOnOutOfMemoryError", \
-     "-Xms2g", "-Xmx4g", \
-     "-jar", "/hesperides.jar" \
-]
+CMD /usr/bin/java $JAVA_OPTS \
+     -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError \
+     -Xms2g -Xmx4g \
+     -jar /hesperides.jar

@@ -1,0 +1,9 @@
+logging.level:
+  org.hesperides.core:
+    application.files.FileValuationContext: DEBUG
+    domain:
+      templatecontainers.entities.AbstractProperty: DEBUG
+      modules.commands.ModuleAggregate: DEBUG
+      platforms.commands.PlatformAggregate: DEBUG
+  org.springframework:
+    data.mongodb.core.MongoTemplate: DEBUG

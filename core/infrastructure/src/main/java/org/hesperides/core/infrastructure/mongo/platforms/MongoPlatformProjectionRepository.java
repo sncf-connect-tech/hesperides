@@ -303,7 +303,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     public List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query) {
         TemplateContainer.Key moduleKey = query.getModuleKey();
         List<PlatformDocument> platformDocuments = platformRepository
-                .findAllByDeployedModulesNameAndDeployedModulesVersionAndDeployedModulesIsWorkingCopy(
+                .findPlatformsUsingModule(
                         moduleKey.getName(), moduleKey.getVersion(), moduleKey.isWorkingCopy());
         return Optional.ofNullable(platformDocuments)
                 .map(List::stream)

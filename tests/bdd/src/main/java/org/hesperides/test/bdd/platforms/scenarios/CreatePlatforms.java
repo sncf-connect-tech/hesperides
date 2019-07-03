@@ -44,7 +44,6 @@ import java.util.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -66,6 +65,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
             "( with this module)?" +
+            "( with two modules : one with the same name and one with the same version)?" +
             "(?: in logical group \"([^\"]*)\")?" +
             "( (?:and|with) an instance)?" +
             "( (?:and|with) valued properties)?" +
@@ -79,6 +79,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public void givenAnExistingPlatform(String isProd,
                                         String platformName,
                                         String withThisModule,
+                                        String withTwoModulesOneWithTheSameNameAndOneWithTheSameVersion,
                                         String logicalGroup,
                                         String withAnInstance,
                                         String withValuedProperties,
@@ -89,6 +90,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                                         String withGlobalPropertiesAsInstanceValues,
                                         String withInstanceValueNamed,
                                         String withFilenameLocationValues) {
+        platformBuilder.reset();
         moduleBuilder.setLogicalGroup(logicalGroup);
 
         if (isNotEmpty(isProd)) {
@@ -112,6 +114,21 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             platformBuilder.incrementDeployedModuleIds();
+        }
+        if (isNotEmpty(withTwoModulesOneWithTheSameNameAndOneWithTheSameVersion)) {
+            String origName = moduleBuilder.getName();
+            String origVersion = moduleBuilder.getVersion();
+            moduleBuilder.withName(origName + "2");
+            moduleBuilder.withVersion(origVersion);
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            platformBuilder.incrementDeployedModuleIds();
+            moduleBuilder.withName(origName);
+            moduleBuilder.withVersion(origVersion + "-SNAPSHOT");
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            platformBuilder.incrementDeployedModuleIds();
+            // On restaure les noms & versions :
+            moduleBuilder.withName(origName);
+            moduleBuilder.withVersion(origVersion);
         }
         commonSteps.ensureUserAuthIsSet();
         testContext.responseEntity = platformClient.create(platformBuilder.buildInput());
