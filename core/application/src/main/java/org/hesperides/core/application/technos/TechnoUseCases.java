@@ -3,7 +3,6 @@ package org.hesperides.core.application.technos;
 import org.hesperides.core.domain.modules.exceptions.DuplicateModuleException;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.commands.TechnoCommands;
 import org.hesperides.core.domain.technos.entities.Techno;
@@ -15,6 +14,7 @@ import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,14 +31,14 @@ public class TechnoUseCases {
 
     private static final int DEFAULT_NB_SEARCH_RESULTS = 10;
 
-    private final TechnoCommands commands;
-    private final TechnoQueries queries;
+    private final TechnoCommands technoCommands;
+    private final TechnoQueries technoQueries;
     private final ModuleQueries moduleQueries;
 
     @Autowired
-    public TechnoUseCases(TechnoCommands commands, TechnoQueries queries, ModuleQueries moduleQueries) {
-        this.commands = commands;
-        this.queries = queries;
+    public TechnoUseCases(TechnoCommands technoCommands, TechnoQueries technoQueries, ModuleQueries moduleQueries) {
+        this.technoCommands = technoCommands;
+        this.technoQueries = technoQueries;
         this.moduleQueries = moduleQueries;
     }
 
@@ -52,16 +52,16 @@ public class TechnoUseCases {
      */
     public void addTemplate(TemplateContainer.Key technoKey, Template template, User user) {
 
-        String technoId = queries.getOptionalTechnoId(technoKey)
+        String technoId = technoQueries.getOptionalTechnoId(technoKey)
                 .orElseGet(() -> {
                     Techno techno = new Techno(technoKey, Collections.emptyList());
-                    return commands.createTechno(techno, user);
+                    return technoCommands.createTechno(techno, user);
                 });
-        commands.addTemplate(technoId, template, user);
+        technoCommands.addTemplate(technoId, template, user);
     }
 
     public void deleteTechno(TemplateContainer.Key technoKey, User user) {
-        Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
+        Optional<String> technoId = technoQueries.getOptionalTechnoId(technoKey);
         if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
         }
@@ -69,47 +69,47 @@ public class TechnoUseCases {
         if (!technoModuleKeys.isEmpty()) {
             throw new UndeletableTechnoInUseException(technoKey, technoModuleKeys);
         }
-        commands.deleteTechno(technoId.get(), user);
+        technoCommands.deleteTechno(technoId.get(), user);
     }
 
     public void updateTemplateInWorkingCopy(TemplateContainer.Key technoKey, Template template, User user) {
-        Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
+        Optional<String> technoId = technoQueries.getOptionalTechnoId(technoKey);
         if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
         }
-        commands.updateTemplate(technoId.get(), template, user);
+        technoCommands.updateTemplate(technoId.get(), template, user);
     }
 
     public void deleteTemplate(TemplateContainer.Key technoKey, String templateName, User user) {
-        Optional<String> technoId = queries.getOptionalTechnoId(technoKey);
+        Optional<String> technoId = technoQueries.getOptionalTechnoId(technoKey);
         if (!technoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);
         }
-        commands.deleteTemplate(technoId.get(), templateName, user);
+        technoCommands.deleteTemplate(technoId.get(), templateName, user);
     }
 
     public Optional<TemplateView> getTemplate(TemplateContainer.Key technoKey, String templateName) {
-        if (!queries.technoExists(technoKey)) {
+        if (!technoQueries.technoExists(technoKey)) {
             throw new TechnoNotFoundException(technoKey);
         }
-        return queries.getTemplate(technoKey, templateName);
+        return technoQueries.getTemplate(technoKey, templateName);
     }
 
     public List<TemplateView> getTemplates(TemplateContainer.Key technoKey) {
         List<TemplateView> templates = Collections.emptyList();
-        if (queries.technoExists(technoKey)) {
-            templates = queries.getTemplates(technoKey);
+        if (technoQueries.technoExists(technoKey)) {
+            templates = technoQueries.getTemplates(technoKey);
         }
         return templates;
     }
 
     public TechnoView releaseTechno(TemplateContainer.Key existingTechnoKey, User user) {
         TemplateContainer.Key newTechnoKey = new Techno.Key(existingTechnoKey.getName(), existingTechnoKey.getVersion(), TemplateContainer.VersionType.release);
-        if (queries.technoExists(newTechnoKey)) {
+        if (technoQueries.technoExists(newTechnoKey)) {
             throw new DuplicateTechnoException(newTechnoKey);
         }
 
-        Optional<TechnoView> optionalTechnoView = queries.getOptionalTechno(existingTechnoKey);
+        Optional<TechnoView> optionalTechnoView = technoQueries.getOptionalTechno(existingTechnoKey);
         if (!optionalTechnoView.isPresent()) {
             throw new TechnoNotFoundException(existingTechnoKey);
         }
@@ -117,37 +117,37 @@ public class TechnoUseCases {
         Techno existingTechno = optionalTechnoView.get().toDomainInstance();
         Techno technoRelease = new Techno(newTechnoKey, existingTechno.getTemplates());
 
-        commands.createTechno(technoRelease, user);
-        return queries.getOptionalTechno(newTechnoKey).get();
+        technoCommands.createTechno(technoRelease, user);
+        return technoQueries.getOptionalTechno(newTechnoKey).get();
     }
 
     public Optional<TechnoView> getTechno(TemplateContainer.Key technoKey) {
-        return queries.getOptionalTechno(technoKey);
+        return technoQueries.getOptionalTechno(technoKey);
     }
 
     public List<String> getTechnosName() {
-        return queries.getTechnosName();
+        return technoQueries.getTechnosName();
     }
 
     public List<String> getTechnoVersions(String technoName) {
-        return queries.getTechnoVersions(technoName);
+        return technoQueries.getTechnoVersions(technoName);
     }
 
     public List<String> getTechnoTypes(String technoName, String technoVersion) {
-        return queries.getTechnoTypes(technoName, technoVersion);
+        return technoQueries.getTechnoTypes(technoName, technoVersion);
     }
 
     public List<TechnoView> search(String input, Integer providedSize) {
         int size = providedSize != null && providedSize > 0 ? providedSize : DEFAULT_NB_SEARCH_RESULTS;
-        return queries.search(input, size);
+        return technoQueries.search(input, size);
     }
 
     public TechnoView createWorkingCopyFrom(TemplateContainer.Key existingTechnoKey, TemplateContainer.Key newTechnoKey, User user) {
-        if (queries.technoExists(newTechnoKey)) {
+        if (technoQueries.technoExists(newTechnoKey)) {
             throw new DuplicateModuleException(newTechnoKey);
         }
 
-        Optional<TechnoView> optionalTechnoView = queries.getOptionalTechno(existingTechnoKey);
+        Optional<TechnoView> optionalTechnoView = technoQueries.getOptionalTechno(existingTechnoKey);
         if (!optionalTechnoView.isPresent()) {
             throw new ModuleNotFoundException(existingTechnoKey);
         }
@@ -155,14 +155,14 @@ public class TechnoUseCases {
         Techno existingTechno = optionalTechnoView.get().toDomainInstance();
         Techno newTechno = new Techno(newTechnoKey, existingTechno.getTemplates());
 
-        commands.createTechno(newTechno, user);
-        return queries.getOptionalTechno(newTechnoKey).get();
+        technoCommands.createTechno(newTechno, user);
+        return technoQueries.getOptionalTechno(newTechnoKey).get();
     }
 
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key technoKey) {
         List<AbstractPropertyView> properties = Collections.emptyList();
-        if (queries.technoExists(technoKey)) {
-            properties = queries.getProperties(technoKey);
+        if (technoQueries.technoExists(technoKey)) {
+            properties = technoQueries.getProperties(technoKey);
         }
         return properties;
     }

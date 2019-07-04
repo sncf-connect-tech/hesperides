@@ -9,9 +9,6 @@ import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * permet de regrouper les envois de commandes.
- */
 @Component
 public class ModuleCommands {
 

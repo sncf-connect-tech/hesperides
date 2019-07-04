@@ -7,12 +7,15 @@ import org.hesperides.core.application.authorizations.AuthorizationUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -84,5 +87,14 @@ public class ApplicationsController extends AbstractController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(searchResultOutputs);
+    }
+
+    @ApiOperation("Update authorities of an application")
+    @PutMapping("/{application_name}/authorities")
+    public ResponseEntity updateAuthorities(Authentication authentication,
+                                            @PathVariable("application_name") final String applicationName,
+                                            @Valid @RequestBody final ApplicationAuthoritiesInput applicationAuthoritiesInput) {
+        authorizationUseCases.updateApplicationAuthorities(applicationName, applicationAuthoritiesInput.getAuthorities());
+        return ResponseEntity.ok().build();
     }
 }

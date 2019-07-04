@@ -20,6 +20,9 @@
  */
 package org.hesperides.core.application.authorizations;
 
+import org.hesperides.core.domain.platforms.commands.PlatformCommands;
+import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
+import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
 import org.hesperides.core.domain.security.queries.AuthorizationQueries;
 import org.springframework.stereotype.Component;
@@ -32,9 +35,13 @@ import java.util.Map;
 public class AuthorizationUseCases {
 
     private final AuthorizationQueries authorizationQueries;
+    private final PlatformQueries platformQueries;
+    private final PlatformCommands platformCommands;
 
-    public AuthorizationUseCases(AuthorizationQueries authorizationQueries) {
+    public AuthorizationUseCases(AuthorizationQueries authorizationQueries, PlatformQueries platformQueries, PlatformCommands platformCommands) {
         this.authorizationQueries = authorizationQueries;
+        this.platformQueries = platformQueries;
+        this.platformCommands = platformCommands;
     }
 
     public Map<String, List<String>> getApplicationAuthorities(String applicationName) {
@@ -44,5 +51,12 @@ public class AuthorizationUseCases {
         applicationAuthorities.put(applicationProdRole, authorizationQueries.getApplicationAuthorities(applicationName));
 
         return applicationAuthorities;
+    }
+
+    public void updateApplicationAuthorities(String applicationName, Map<String, List<String>> authorities) {
+        if (platformQueries.applicationExists(applicationName)) {
+            throw new ApplicationNotFoundException(applicationName);
+        }
+
     }
 }

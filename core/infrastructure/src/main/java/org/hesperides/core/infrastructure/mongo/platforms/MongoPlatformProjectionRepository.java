@@ -416,6 +416,11 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 query.getInstanceName());
     }
 
+    @Override
+    public Boolean onApplicationExistsQuery(ApplicationExistsQuery query) {
+        return platformRepository.existsByKeyApplicationName(query.getApplicationName());
+    }
+
     private PlatformDocument getPlatformAtPointInTime(String platformId, Long timestamp) {
         DomainEventStream eventStream = eventStorageEngine.readEvents(platformId).filter(domainEventMessage ->
                 (timestamp == null || domainEventMessage.getTimestamp().toEpochMilli() < timestamp)

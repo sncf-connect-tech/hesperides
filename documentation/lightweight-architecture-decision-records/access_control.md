@@ -110,7 +110,7 @@ mais non signalées comme "production".
 }
 ```
 
-### PUT /applications/$APP
+### PUT /applications/$APP/authorities
 
 Permet de mettre à jour la propriété `authorities` d'une application et le flag `production` d'une plateforme.
 
