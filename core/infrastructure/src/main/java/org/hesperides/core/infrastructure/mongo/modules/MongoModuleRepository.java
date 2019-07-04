@@ -1,6 +1,5 @@
 package org.hesperides.core.infrastructure.mongo.modules;
 
-import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +55,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(count = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
     Integer countPasswordsInModules(List<KeyDocument> modulesKeys);
 
-    @Query(value = "{ 'key' : { $in: ?0 }", fields = "{ 'technos.key' : 1 }")
+    @Query(value = "{ 'key' : { $in: ?0 } }", fields = "{ 'technos.key' : 1 }")
     List<ModuleDocument> findTechnoKeysInModules(List<KeyDocument> modulesKeys);
 }

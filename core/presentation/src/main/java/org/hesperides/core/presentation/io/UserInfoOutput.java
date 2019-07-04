@@ -39,7 +39,7 @@ public class UserInfoOutput {
         this.username = currentUser.getName();
         this.prodUser = currentUser.isGlobalProd();
         this.techUser = currentUser.isGlobalTech();
-        this.authorities = new AuthoritiesOutput(currentUser.getRoles(), currentUser.getGroups());
+        this.authorities = new AuthoritiesOutput(currentUser.getRoles(), currentUser.getGroupAuthorities());
     }
 
     @Value

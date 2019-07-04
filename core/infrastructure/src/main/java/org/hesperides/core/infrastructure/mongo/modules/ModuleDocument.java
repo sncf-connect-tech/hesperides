@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.MODULE;
 
 @Data
-@Document(collection = MODULE_COLLECTION_NAME)
+@Document(collection = MODULE)
 @NoArgsConstructor
 public class ModuleDocument {
 

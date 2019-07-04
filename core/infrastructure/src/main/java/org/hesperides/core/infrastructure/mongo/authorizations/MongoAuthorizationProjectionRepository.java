@@ -20,44 +20,80 @@
  */
 package org.hesperides.core.infrastructure.mongo.authorizations;
 
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesCreatedEvent;
+import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesUpdatedEvent;
 import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
+import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
+import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Collections.APPLICATION_AUTHORITIES;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoAuthorizationProjectionRepository implements AuthorizationProjectionRepository {
 
-    @Autowired
     private final MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository;
+    private final MongoTemplate mongoTemplate;
+    private final Environment environment;
 
-    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository) {
+    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository, MongoTemplate mongoTemplate, Environment environment) {
         this.applicationAuthoritiesRepository = applicationAuthoritiesRepository;
+        this.mongoTemplate = mongoTemplate;
+        this.environment = environment;
+    }
+
+    @PostConstruct
+    private void ensureIndexCaseInsensitivity() {
+        if (isProfileActive(environment, MONGO)) {
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, APPLICATION_AUTHORITIES);
+        }
+    }
+
+    /*** EVENT HANDLERS ***/
+
+    @EventHandler
+    @Override
+    public void onApplicationAuthoritiesCreatedEvent(ApplicationAuthoritiesCreatedEvent event) {
+        ApplicationAuthoritiesDocument applicationAuthoritiesDocument = new ApplicationAuthoritiesDocument(event.getId(), event.getApplicationAuthorities());
+        applicationAuthoritiesRepository.save(applicationAuthoritiesDocument);
+    }
+
+    @EventHandler
+    @Override
+    public void onApplicationAuthoritiesUpdatedEvent(ApplicationAuthoritiesUpdatedEvent event) {
+        ApplicationAuthoritiesDocument applicationAuthoritiesDocument = new ApplicationAuthoritiesDocument(event.getId(), event.getApplicationAuthorities());
+        applicationAuthoritiesRepository.save(applicationAuthoritiesDocument);
+    }
+
+    /*** QUERY HANDLERS ***/
+
+    @QueryHandler
+    @Override
+    public Optional<ApplicationAuthoritiesView> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query) {
+        return applicationAuthoritiesRepository.findByApplicationName(query.getApplicationName())
+                .map(ApplicationAuthoritiesDocument::toView);
     }
 
     @Override
     public List<String> getApplicationsForAuthorities(List<String> authorities) {
         return applicationAuthoritiesRepository.findApplicationsWithAuthorities(authorities)
                 .stream()
-                .map(ApplicationAuthoritiesDocument::getApplication)
+                .map(ApplicationAuthoritiesDocument::getApplicationName)
                 .collect(Collectors.toList());
-    }
-
-    @QueryHandler
-    @Override
-    public List<String> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query) {
-        return applicationAuthoritiesRepository.findByApplication(query.getApplicationName())
-                .map(ApplicationAuthoritiesDocument::getAuthorities)
-                .orElse(Collections.emptyList());
     }
 }

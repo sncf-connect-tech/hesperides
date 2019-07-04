@@ -39,10 +39,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.TECHNO;
 
 @Data
-@Document(collection = TECHNO_COLLECTION_NAME)
+@Document(collection = TECHNO)
 @NoArgsConstructor
 public class TechnoDocument {
     @Id

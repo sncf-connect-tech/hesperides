@@ -23,9 +23,10 @@ package org.hesperides.core.domain.security.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
+import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Optional;
 
 @Component
 public class AuthorizationQueries extends AxonQueries {
@@ -34,7 +35,7 @@ public class AuthorizationQueries extends AxonQueries {
         super(queryGateway);
     }
 
-    public List<String> getApplicationAuthorities(String applicationName) {
-        return querySyncList(new GetApplicationAuthoritiesQuery(applicationName), String.class);
+    public Optional<ApplicationAuthoritiesView> getApplicationAuthorities(String applicationName) {
+        return querySyncOptional(new GetApplicationAuthoritiesQuery(applicationName), ApplicationAuthoritiesView.class);
     }
 }

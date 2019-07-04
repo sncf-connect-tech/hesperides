@@ -7,6 +7,8 @@ import org.hesperides.core.application.authorizations.AuthorizationUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,10 +59,14 @@ public class ApplicationsController extends AbstractController {
                                                             @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules,
                                                             @RequestParam(value = "with_password_count", required = false) final Boolean withPasswordCount) {
 
-        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        Map<String, List<String>> applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName);
-        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTehnosPasswords(applicationView) : null;
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules), applicationAuthorities, passwordCount);
+        ApplicationView application = platformUseCases.getApplication(applicationName);
+        ApplicationAuthoritiesView applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName);
+        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTehnosPasswords(application) : null;
+
+        ApplicationOutput applicationOutput = new ApplicationOutput(application,
+                Boolean.TRUE.equals(hidePlatformsModules),
+                applicationAuthorities.getAuthorities(),
+                passwordCount);
 
         return ResponseEntity.ok(applicationOutput);
     }
@@ -94,7 +99,10 @@ public class ApplicationsController extends AbstractController {
     public ResponseEntity updateAuthorities(Authentication authentication,
                                             @PathVariable("application_name") final String applicationName,
                                             @Valid @RequestBody final ApplicationAuthoritiesInput applicationAuthoritiesInput) {
-        authorizationUseCases.updateApplicationAuthorities(applicationName, applicationAuthoritiesInput.getAuthorities());
+        authorizationUseCases.createOrUpdateApplicationAuthorities(
+                applicationName,
+                applicationAuthoritiesInput.getAuthorities(),
+                User.fromAuthentication(authentication));
         return ResponseEntity.ok().build();
     }
 }

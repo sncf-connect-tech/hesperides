@@ -7,9 +7,9 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
@@ -32,7 +32,7 @@ import java.util.stream.StreamSupport;
 import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.MODULE;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -57,7 +57,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (isProfileActive(environment, MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, MODULE_COLLECTION_NAME);
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, MODULE);
         }
     }
 
@@ -130,7 +130,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
-        final DistinctIterable<String> iterable = mongoTemplate.getCollection(MODULE_COLLECTION_NAME).distinct("key.name", String.class);
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection(MODULE).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 

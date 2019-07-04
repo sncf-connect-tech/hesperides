@@ -22,18 +22,32 @@ package org.hesperides.core.infrastructure.mongo.authorizations;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hesperides.core.domain.security.entities.ApplicationAuthorities;
+import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 
-import static org.hesperides.core.infrastructure.Constants.AUTHORIZATION_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.APPLICATION_AUTHORITIES;
 
 @Data
-@Document(collection = AUTHORIZATION_COLLECTION_NAME)
+@Document(collection = APPLICATION_AUTHORITIES)
 @NoArgsConstructor
 public class ApplicationAuthoritiesDocument {
     @Id
-    private String application;
-    private List<String> authorities;
+    private String id;
+    private String applicationName;
+    private Map<String, List<String>> authorities;
+
+    public ApplicationAuthoritiesDocument(String id, ApplicationAuthorities applicationAuthorities) {
+        this.id = id;
+        this.applicationName = applicationAuthorities.getApplicationName();
+        this.authorities = applicationAuthorities.getAuthorities();
+    }
+
+    ApplicationAuthoritiesView toView() {
+        return new ApplicationAuthoritiesView(id, applicationName, authorities);
+    }
 }

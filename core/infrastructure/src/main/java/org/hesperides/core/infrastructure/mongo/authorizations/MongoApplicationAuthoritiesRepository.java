@@ -38,5 +38,5 @@ public interface MongoApplicationAuthoritiesRepository extends MongoRepository<A
     @Query(value = "{ 'authorities' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
     List<ApplicationAuthoritiesDocument> findApplicationsWithAuthorities(List<String> authorities);
 
-    Optional<ApplicationAuthoritiesDocument> findByApplication(String applicationName);
+    Optional<ApplicationAuthoritiesDocument> findByApplicationName(String applicationName);
 }

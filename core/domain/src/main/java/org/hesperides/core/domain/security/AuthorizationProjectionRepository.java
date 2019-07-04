@@ -20,16 +20,30 @@
  */
 package org.hesperides.core.domain.security;
 
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesCreatedEvent;
+import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesUpdatedEvent;
 import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
+import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AuthorizationProjectionRepository {
 
-    List<String> getApplicationsForAuthorities(List<String> authorities);
+    /*** EVENT HANDLERS ***/
+
+    @EventHandler
+    void onApplicationAuthoritiesCreatedEvent(ApplicationAuthoritiesCreatedEvent event);
+
+    @EventHandler
+    void onApplicationAuthoritiesUpdatedEvent(ApplicationAuthoritiesUpdatedEvent event);
+
+    /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    List<String> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query);
+    Optional<ApplicationAuthoritiesView> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query);
 
+    List<String> getApplicationsForAuthorities(List<String> authorities);
 }

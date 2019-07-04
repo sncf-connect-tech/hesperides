@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.PLATFORM;
 
 @Slf4j
 @Profile({MONGO, FAKE_MONGO})
@@ -86,7 +86,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (environment != null && isProfileActive(environment, MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, PLATFORM_COLLECTION_NAME);
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, PLATFORM);
         }
     }
 

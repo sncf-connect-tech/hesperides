@@ -20,43 +20,67 @@
  */
 package org.hesperides.core.application.authorizations;
 
-import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
+import org.hesperides.core.domain.security.commands.AuthorizationCommands;
+import org.hesperides.core.domain.security.entities.ApplicationAuthorities;
+import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.security.exceptions.ApplicationAuthoritiesNotFoundException;
+import org.hesperides.core.domain.security.exceptions.CreateAuthoritiesForbiddenException;
+import org.hesperides.core.domain.security.exceptions.UpdateAuthoritiesForbiddenException;
 import org.hesperides.core.domain.security.queries.AuthorizationQueries;
+import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class AuthorizationUseCases {
 
     private final AuthorizationQueries authorizationQueries;
+    private final AuthorizationCommands authorizationCommands;
     private final PlatformQueries platformQueries;
-    private final PlatformCommands platformCommands;
 
-    public AuthorizationUseCases(AuthorizationQueries authorizationQueries, PlatformQueries platformQueries, PlatformCommands platformCommands) {
+    public AuthorizationUseCases(AuthorizationQueries authorizationQueries, AuthorizationCommands authorizationCommands, PlatformQueries platformQueries) {
         this.authorizationQueries = authorizationQueries;
+        this.authorizationCommands = authorizationCommands;
         this.platformQueries = platformQueries;
-        this.platformCommands = platformCommands;
     }
 
-    public Map<String, List<String>> getApplicationAuthorities(String applicationName) {
-        Map<String, List<String>> applicationAuthorities = new HashMap<>();
-
-        String applicationProdRole = applicationName + ApplicationRole.PROD_USER_SUFFIX;
-        applicationAuthorities.put(applicationProdRole, authorizationQueries.getApplicationAuthorities(applicationName));
-
-        return applicationAuthorities;
+    public ApplicationAuthoritiesView getApplicationAuthorities(String applicationName) {
+        return authorizationQueries.getApplicationAuthorities(applicationName)
+                .orElseThrow(() -> new ApplicationAuthoritiesNotFoundException(applicationName));
+//        Map<String, List<String>> applicationAuthorities = new HashMap<>();
+//
+//        String applicationProdRole = applicationName + ApplicationRole.PROD_USER_SUFFIX;
+//        applicationAuthorities.put(applicationProdRole, authorizationQueries.getApplicationAuthorities(applicationName));
+//
+//        return new ApplicationAuthoritiesView();
     }
 
-    public void updateApplicationAuthorities(String applicationName, Map<String, List<String>> authorities) {
+    public void createOrUpdateApplicationAuthorities(String applicationName, Map<String, List<String>> authorities, User user) {
         if (platformQueries.applicationExists(applicationName)) {
             throw new ApplicationNotFoundException(applicationName);
         }
 
+        final ApplicationAuthorities providedApplicationAuthorities = new ApplicationAuthorities(applicationName, authorities);
+
+        final Optional<ApplicationAuthoritiesView> existingApplicationAuthorities = authorizationQueries.getApplicationAuthorities(applicationName);
+        if (existingApplicationAuthorities.isPresent()) {
+            // Pour mettre à jour cette ACL, l'utilisateur doit avoir les droits
+            // de prod ou appartenir à l'un des groupes AD de l'application
+            if (!user.isGlobalProd() && user.hasAtLeastOneAuthority(authorities)) {
+                throw new UpdateAuthoritiesForbiddenException(applicationName);
+            }
+            authorizationCommands.updateApplicationAuthorities(existingApplicationAuthorities.get().getId(), providedApplicationAuthorities, user);
+        } else {
+            // L'utilisateur doit avoir les droits de prod pour créer cette ACL
+            if (!user.isGlobalProd()) {
+                throw new CreateAuthoritiesForbiddenException(applicationName);
+            }
+            authorizationCommands.createApplicationAuthorities(providedApplicationAuthorities, user);
+        }
     }
 }

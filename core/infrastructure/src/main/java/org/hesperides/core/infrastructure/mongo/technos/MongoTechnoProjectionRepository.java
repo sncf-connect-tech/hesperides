@@ -42,7 +42,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -56,7 +55,7 @@ import java.util.stream.StreamSupport;
 import static org.hesperides.commons.spring.HasProfile.isProfileActive;
 import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.TECHNO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -81,7 +80,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (isProfileActive(environment, MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO_COLLECTION_NAME);
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO);
         }
     }
 
@@ -184,7 +183,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @QueryHandler
     @Override
     public List<String> onGetTechnosNameQuery(GetTechnosNameQuery query) {
-        final DistinctIterable<String> iterable = mongoTemplate.getCollection(TECHNO_COLLECTION_NAME).distinct("key.name", String.class);
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection(TECHNO).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 
