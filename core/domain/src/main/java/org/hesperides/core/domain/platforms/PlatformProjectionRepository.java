@@ -61,7 +61,7 @@ public interface PlatformProjectionRepository {
     List<ModulePlatformView> onGetPlatformUsingModuleQuery(GetPlatformsUsingModuleQuery query);
 
     @QueryHandler
-    List<SearchApplicationResultView> onListApplicationsQuery(ListApplicationsQuery query);
+    List<SearchApplicationResultView> onGetApplicationNamesQuery(GetApplicationNamesQuery query);
 
     @QueryHandler
     List<SearchApplicationResultView> onSearchApplicationsQuery(SearchApplicationsQuery query);
@@ -80,4 +80,7 @@ public interface PlatformProjectionRepository {
 
     @QueryHandler
     Boolean onInstanceExistsQuery(InstanceExistsQuery query);
+
+    @QueryHandler
+    List<ApplicationView> onGetAllApplicationsDetailQuery(GetAllApplicationsDetailQuery query);
 }

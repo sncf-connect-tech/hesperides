@@ -1,7 +1,6 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -16,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class CreateModules extends HesperidesScenario implements En {
@@ -41,7 +42,7 @@ public class CreateModules extends HesperidesScenario implements En {
 
         Given("^an existing module" +
                 "(?: named \"([^\"]*)\")?" +
-                "( (?:and|with) (?:a|this) template)?" +
+                "( (?:and|with) (?:a|this) template(?: with a \"/\" in the title)?)?" +
                 "( (?:and|with) properties)?" +
                 "( (?:and|with) password properties)?" +
                 "( (?:and|with) global properties)?" +
@@ -53,16 +54,18 @@ public class CreateModules extends HesperidesScenario implements En {
                 String withGlobalProperties,
                 String withThisTechno) -> {
 
-            if (StringUtils.isNotEmpty(moduleName)) {
+            if (isNotEmpty(moduleName)) {
                 moduleBuilder.reset();
                 moduleBuilder.withName(moduleName);
             }
 
-            if (StringUtils.isEmpty(withTemplate) || !withTemplate.contains("this")) {
+            if (isEmpty(withTemplate) || !withTemplate.contains("this")) {
                 templateBuilder.reset();
             }
-
-            if (StringUtils.isNotEmpty(withThisTechno)) {
+            if (isNotEmpty(withTemplate) && withTemplate.contains("\"/\" in the title")) {
+                templateBuilder.withName("a/template");
+            }
+            if (isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
 
@@ -71,19 +74,19 @@ public class CreateModules extends HesperidesScenario implements En {
             assertCreated();
             moduleBuilder.withVersionId(1);
 
-            if (StringUtils.isNotEmpty(withProperties)) {
+            if (isNotEmpty(withProperties)) {
                 addPropertyToBuilders("module-foo");
                 addPropertyToBuilders("module-bar");
             }
-            if (StringUtils.isNotEmpty(withPasswordProperties)) {
+            if (isNotEmpty(withPasswordProperties)) {
                 addPropertyToBuilders("module-fuzz", true);
             }
 
-            if (StringUtils.isNotEmpty(withGlobalProperties)) {
+            if (isNotEmpty(withGlobalProperties)) {
                 addPropertyToBuilders("global-module-foo");
                 addPropertyToBuilders("global-module-bar");
             }
-            if (StringUtils.isNotEmpty(withTemplate) || StringUtils.isNotEmpty(withProperties) || StringUtils.isNotEmpty(withGlobalProperties)) {
+            if (isNotEmpty(withTemplate) || isNotEmpty(withProperties) || isNotEmpty(withGlobalProperties)) {
                 moduleBuilder.withTemplate(templateBuilder.build());
                 moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
             }
@@ -100,14 +103,18 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         Given("^a list of( \\d+)? modules( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
-            Integer modulesToCreateCount = StringUtils.isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
+            Integer modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
             for (int i = 0; i < modulesToCreateCount; i++) {
-                if (StringUtils.isNotEmpty(withDifferentNames)) {
+                if (isNotEmpty(withDifferentNames)) {
                     moduleBuilder.withName("new-module-" + i);
                 } else {
                     moduleBuilder.withName("new-module");
                 }
-                moduleBuilder.withVersion("0.0." + (i + 1));
+                if (i == 0) {
+                    moduleBuilder.withVersion("0.0.1");
+                } else {
+                    moduleBuilder.withVersion("0.0.1" + i);
+                }
                 testContext.responseEntity = moduleClient.create(moduleBuilder.build());
                 assertCreated();
             }
@@ -122,13 +129,13 @@ public class CreateModules extends HesperidesScenario implements En {
                 String withDifferentCase,
                 String withoutVersionType) -> {
             moduleBuilder.reset();
-            if (StringUtils.isNotEmpty(withDifferentCase)) {
+            if (isNotEmpty(withDifferentCase)) {
                 moduleBuilder.withName(moduleBuilder.getName().toUpperCase());
             }
-            if (StringUtils.isNotEmpty(withThisTechno)) {
+            if (isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
-            if (StringUtils.isNotEmpty(withoutVersionType)) {
+            if (isNotEmpty(withoutVersionType)) {
                 moduleBuilder.withVersionType(null);
             }
         });

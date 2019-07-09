@@ -30,10 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 abstract class AbstractController {
 
-//    final protected <E, T> Response entityWithConverterOrNotFound(final Optional<T> optional, ResponseConverter<T, E> converter) {
-//        return optional.map(t -> Response.ok(converter.convert(t)).build()).orElseThrow(() -> new MissingResourceException("Requested entity is missing"));
-//    }
-
     /**
      * Check if char is lower space.
      *

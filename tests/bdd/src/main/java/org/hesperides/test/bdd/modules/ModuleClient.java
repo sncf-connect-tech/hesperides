@@ -186,14 +186,22 @@ public class ModuleClient {
         }
     }
 
-    public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return restTemplate.exchange("/modules/{name}/{version}/{type}/templates/" + templateName,
-                HttpMethod.DELETE,
-                null,
-                responseType,
-                urlEncodeUtf8(moduleInput.getName()),
-                urlEncodeUtf8(moduleInput.getVersion()),
-                TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
+    public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType, boolean urlEncodeTemplateName) {
+        DefaultUriBuilderFactory.EncodingMode defaultEncodingMode = defaultUriBuilderFactory.getEncodingMode();
+        try {
+            if (!urlEncodeTemplateName) {
+                defaultUriBuilderFactory.setEncodingMode(NONE);
+            }
+            return restTemplate.exchange("/modules/{name}/{version}/{type}/templates/" + templateName,
+                    HttpMethod.DELETE,
+                    null,
+                    responseType,
+                    urlEncodeUtf8(moduleInput.getName()),
+                    urlEncodeUtf8(moduleInput.getVersion()),
+                    TemplateContainerHelper.getVersionType(moduleInput.getIsWorkingCopy()));
+        } finally {
+            defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
+        }
     }
 
     public ResponseEntity<String[]> getNames() {

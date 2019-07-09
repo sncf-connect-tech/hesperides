@@ -18,14 +18,19 @@
  *
  *
  */
-package org.hesperides.core.domain.platforms.queries.views;
+package org.hesperides.commons;
 
-import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
+@Slf4j
+public class VersionIdLogger {
 
-@Value
-public class ApplicationView {
-    String name;
-    List<PlatformView> platforms;
+    public static void log(boolean isBeforeEvent, String aggregateType, String aggregateId, Long aggregateVersionId, Long entityVersionId) {
+        String message = isBeforeEvent ? "Before" : "After";
+        message += " event, " + aggregateType + " aggregate, id: " + aggregateId + ",  versionId: " + aggregateVersionId;
+        if (entityVersionId != null) {
+            message += ", entity versionId: " + entityVersionId;
+        }
+        log.debug(message);
+    }
 }

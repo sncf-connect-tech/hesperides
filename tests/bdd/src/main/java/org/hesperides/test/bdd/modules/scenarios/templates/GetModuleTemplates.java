@@ -60,11 +60,6 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
             }
         });
 
-        Given("^a template in this module$", () -> {
-            templateBuilder.withName("a-new-template");
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
-        });
-
         Given("^a template that doesn't exist in this module$", () -> {
             templateBuilder.withName("nope");
         });

@@ -1,11 +1,12 @@
 package org.hesperides.core.presentation;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.core.StandardWrapper;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
@@ -14,6 +15,7 @@ import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTags;
 import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -36,6 +38,8 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Configuration
 @EnableWebMvc
+@EnableAspectJAutoProxy
+@Slf4j
 public class PresentationConfiguration implements WebMvcConfigurer {
 
     @Autowired
@@ -72,7 +76,8 @@ public class PresentationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public static Gson gson() {
-        return new GsonBuilder()
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
@@ -86,37 +91,21 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                         // Plus de doc sur le sujet: https://www.baeldung.com/gson-exclude-fields-serialization
                         return field.getDeclaredType().getTypeName().equals("java.lang.Class<?>");
                     }
+
                     @Override
                     public boolean shouldSkipClass(Class<?> clazz) {
                         return false;
                     }
                 })
-                .create();
+                // On doit exclure ces classes de la désérialization pour éviter une boucle circulaire infinie
+                // lorsqu'on requête /rest/manage/mappings (cf. #414)
+                // et dans ce cas une ExclusionStrategy ne fonctionne pas (bug connu de Gson) :
+                .registerTypeAdapter(StandardWrapper.class, (JsonSerializer<StandardWrapper>) (src, typeOfSrc, context) -> null);
+        try {
+            // idem, mais comme cette classe est package-private, impossible de l'importer directement :
+            gsonBuilder.registerTypeAdapter(Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedContext"), (JsonSerializer) (src, typeOfSrc, context) -> null);
+        } catch (ClassNotFoundException e) {}
+        return gsonBuilder.create();
     }
 
-    // Configuration des tags multi-dimensionnels Prometheus
-    // Inspiré de org.springframework.boot.actuate.metrics.web.servlet.DefaultWebMvcTagsProvider
-    @Bean
-    public WebMvcTagsProvider webMvcTagsProvider() {
-        return new WebMvcTagsProvider() {
-            @Override
-            public Iterable<Tag> getTags(HttpServletRequest request, HttpServletResponse response, Object handler, Throwable exception) {
-                List<Tag> tags = new ArrayList<>();
-                tags.add(WebMvcTags.method(request));
-                tags.add(WebMvcTags.uri(request, response));
-                tags.add(Tag.of("path", request.getRequestURI()));
-                tags.add(Tag.of("query", defaultString(request.getQueryString())));
-                tags.add(WebMvcTags.exception(exception));
-                tags.add(WebMvcTags.status(response));
-                tags.add(WebMvcTags.outcome(response));
-                tags.add(Tag.of("user-agent", defaultString(request.getHeader("User-Agent"))));
-                return tags;
-            }
-
-            @Override
-            public Iterable<Tag> getLongRequestTags(HttpServletRequest request, Object handler) {
-                return Tags.of(WebMvcTags.method(request), WebMvcTags.uri(request, null));
-            }
-        };
-    }
 }

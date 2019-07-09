@@ -5,7 +5,6 @@ Feature: Delete module templates
 
   Scenario: delete an existing template in a module
     Given an existing module with a template
-    And a template in this module
     When I delete this module template
     Then the module template is successfully deleted
 
@@ -24,3 +23,13 @@ Feature: Delete module templates
     Given a module that doesn't exist
     When I try to delete this module template
     Then the module template delete is rejected with a not found error
+
+  Scenario: delete a template with a slash within the title
+    Given an existing module with a template with a "/" in the title
+    When I delete this module template
+    Then the module template is successfully deleted
+
+  Scenario: delete a template with a url-encoded slash within the title
+    Given an existing module with a template with a "/" in the title
+    When I delete this module template using an url-encoded template name
+    Then the module template is successfully deleted
