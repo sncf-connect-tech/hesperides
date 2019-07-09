@@ -4,10 +4,9 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.stereotype.Component;
 
@@ -69,15 +68,15 @@ public class ModuleQueries extends AxonQueries {
         return querySyncList(new GetModulesSimplePropertiesQuery(modulesKeys), ModuleSimplePropertiesView.class);
     }
 
-    public List<KeyView> getModulesUsingTechno(String technoId) {
-        return querySyncList(new GetModulesUsingTechnoQuery(technoId), KeyView.class);
+    public List<TemplateContainerKeyView> getModulesUsingTechno(String technoId) {
+        return querySyncList(new GetModulesUsingTechnoQuery(technoId), TemplateContainerKeyView.class);
     }
 
     public Integer countPasswords(List<Module.Key> moduleKeys) {
         return querySync(new CountPasswordsQuery(moduleKeys), Integer.class);
     }
 
-    public List<KeyView> getDistinctTechnoKeysInModules(List<Module.Key> moduleKeys) {
-        return querySyncList(new GetDistinctTechnoKeysInModulesQuery(moduleKeys), KeyView.class);
+    public List<TemplateContainerKeyView> getDistinctTechnoKeysInModules(List<Module.Key> moduleKeys) {
+        return querySyncList(new GetDistinctTechnoKeysInModulesQuery(moduleKeys), TemplateContainerKeyView.class);
     }
 }

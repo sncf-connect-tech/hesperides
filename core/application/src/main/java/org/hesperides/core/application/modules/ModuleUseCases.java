@@ -14,7 +14,7 @@ import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -219,7 +219,7 @@ public class ModuleUseCases {
         return moduleQueries.getPropertiesModel(moduleKey);
     }
 
-    public List<KeyView> getModulesUsingTechno(Techno.Key technoKey) {
+    public List<TemplateContainerKeyView> getModulesUsingTechno(Techno.Key technoKey) {
         Optional<String> optTechnoId = technoQueries.getOptionalTechnoId(technoKey);
         if (!optTechnoId.isPresent()) {
             throw new TechnoNotFoundException(technoKey);

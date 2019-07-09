@@ -22,7 +22,7 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -286,7 +286,7 @@ public class PlatformUseCases {
                 .collect(Collectors.toList());
         Integer modulePasswordCount = moduleQueries.countPasswords(moduleKeys);
 
-        List<KeyView> technosKeys = moduleQueries.getDistinctTechnoKeysInModules(moduleKeys);
+        List<TemplateContainerKeyView> technosKeys = moduleQueries.getDistinctTechnoKeysInModules(moduleKeys);
         Integer technoPasswordCount = technoQueries.countPasswords(Techno.Key.fromViews(technosKeys));
 
         return modulePasswordCount + technoPasswordCount;

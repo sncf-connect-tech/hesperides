@@ -9,7 +9,7 @@ import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
@@ -192,7 +192,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
-    public List<KeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
+    public List<TemplateContainerKeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosId(query.getTechnoId());
         return moduleDocuments
                 .stream()
@@ -210,7 +210,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
-    public List<KeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query) {
+    public List<TemplateContainerKeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query) {
         List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
         return moduleRepository.findTechnoKeysInModules(modulesKeys)
                 .stream()

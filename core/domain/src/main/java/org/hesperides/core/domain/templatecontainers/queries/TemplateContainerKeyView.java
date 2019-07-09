@@ -4,7 +4,7 @@ import lombok.Value;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 @Value
-public class KeyView {
+public class TemplateContainerKeyView {
 
     String name;
     String version;

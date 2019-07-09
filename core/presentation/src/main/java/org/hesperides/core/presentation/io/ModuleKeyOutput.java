@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,17 +46,17 @@ public class ModuleKeyOutput {
     @JsonProperty("working_copy")
     Boolean isWorkingCopy;
 
-    public ModuleKeyOutput(KeyView keyView) {
+    public ModuleKeyOutput(TemplateContainerKeyView keyView) {
         this.moduleName = keyView.getName();
         this.moduleVersion = keyView.getVersion();
         this.isWorkingCopy = keyView.getIsWorkingCopy();
     }
 
-    public static List<ModuleKeyOutput> fromViews(List<KeyView> keyViews) {
+    public static List<ModuleKeyOutput> fromViews(List<TemplateContainerKeyView> keyViews) {
         return Optional.ofNullable(keyViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .sorted(Comparator.comparing(KeyView::getName))
+                .sorted(Comparator.comparing(TemplateContainerKeyView::getName))
                 .map(ModuleKeyOutput::new)
                 .collect(Collectors.toList());
     }

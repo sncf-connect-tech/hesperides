@@ -29,11 +29,11 @@ import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.templatecontainers.queries.KeyView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
@@ -265,7 +265,7 @@ public class ModulesController extends AbstractController {
                                                                        @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType) {
 
         Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
-        List<KeyView> moduleKeys = moduleUseCases.getModulesUsingTechno(technoKey);
+        List<TemplateContainerKeyView> moduleKeys = moduleUseCases.getModulesUsingTechno(technoKey);
         List<ModuleKeyOutput> moduleKeyOutputs = ModuleKeyOutput.fromViews(moduleKeys);
 
         return ResponseEntity.ok(moduleKeyOutputs);
