@@ -276,7 +276,7 @@ public class PlatformUseCases {
         return platformQueries.getOptionalPlatform(platformId).get();
     }
 
-    public Integer countModulesAndTehnosPasswords(ApplicationView applicationView) {
+    public Integer countModulesAndTechnosPasswords(ApplicationView applicationView) {
         List<Module.Key> moduleKeys = applicationView.getPlatforms()
                 .stream()
                 .map(PlatformView::getDeployedModules)

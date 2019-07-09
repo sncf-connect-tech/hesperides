@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -60,12 +61,14 @@ public class ApplicationsController extends AbstractController {
                                                             @RequestParam(value = "with_password_count", required = false) final Boolean withPasswordCount) {
 
         ApplicationView application = platformUseCases.getApplication(applicationName);
-        ApplicationAuthoritiesView applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName);
-        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTehnosPasswords(application) : null;
+        Map<String, List<String>> applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName)
+                .map(ApplicationAuthoritiesView::getAuthorities)
+                .orElse(Collections.emptyMap());
+        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTechnosPasswords(application) : null;
 
         ApplicationOutput applicationOutput = new ApplicationOutput(application,
                 Boolean.TRUE.equals(hidePlatformsModules),
-                applicationAuthorities.getAuthorities(),
+                applicationAuthorities,
                 passwordCount);
 
         return ResponseEntity.ok(applicationOutput);

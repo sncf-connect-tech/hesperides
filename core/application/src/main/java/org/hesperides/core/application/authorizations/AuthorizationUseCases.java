@@ -25,7 +25,6 @@ import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.security.commands.AuthorizationCommands;
 import org.hesperides.core.domain.security.entities.ApplicationAuthorities;
 import org.hesperides.core.domain.security.entities.User;
-import org.hesperides.core.domain.security.exceptions.ApplicationAuthoritiesNotFoundException;
 import org.hesperides.core.domain.security.exceptions.CreateAuthoritiesForbiddenException;
 import org.hesperides.core.domain.security.exceptions.UpdateAuthoritiesForbiddenException;
 import org.hesperides.core.domain.security.queries.AuthorizationQueries;
@@ -49,15 +48,8 @@ public class AuthorizationUseCases {
         this.platformQueries = platformQueries;
     }
 
-    public ApplicationAuthoritiesView getApplicationAuthorities(String applicationName) {
-        return authorizationQueries.getApplicationAuthorities(applicationName)
-                .orElseThrow(() -> new ApplicationAuthoritiesNotFoundException(applicationName));
-//        Map<String, List<String>> applicationAuthorities = new HashMap<>();
-//
-//        String applicationProdRole = applicationName + ApplicationRole.PROD_USER_SUFFIX;
-//        applicationAuthorities.put(applicationProdRole, authorizationQueries.getApplicationAuthorities(applicationName));
-//
-//        return new ApplicationAuthoritiesView();
+    public Optional<ApplicationAuthoritiesView> getApplicationAuthorities(String applicationName) {
+        return authorizationQueries.getApplicationAuthorities(applicationName);
     }
 
     public void createOrUpdateApplicationAuthorities(String applicationName, Map<String, List<String>> authorities, User user) {
@@ -69,14 +61,15 @@ public class AuthorizationUseCases {
 
         final Optional<ApplicationAuthoritiesView> existingApplicationAuthorities = authorizationQueries.getApplicationAuthorities(applicationName);
         if (existingApplicationAuthorities.isPresent()) {
-            // Pour mettre à jour cette ACL, l'utilisateur doit avoir les droits
-            // de prod ou appartenir à l'un des groupes AD de l'application
+            // L'utilisateur doit avoir les droits de prod ou appartenir à l'un
+            // des groupes AD de l'application pour modifier ses "authorities"
             if (!user.isGlobalProd() && user.hasAtLeastOneAuthority(authorities)) {
                 throw new UpdateAuthoritiesForbiddenException(applicationName);
             }
             authorizationCommands.updateApplicationAuthorities(existingApplicationAuthorities.get().getId(), providedApplicationAuthorities, user);
         } else {
-            // L'utilisateur doit avoir les droits de prod pour créer cette ACL
+            // L'utilisateur doit avoir les droits de prod pour
+            // créer les authorities de cette application
             if (!user.isGlobalProd()) {
                 throw new CreateAuthoritiesForbiddenException(applicationName);
             }

@@ -6,7 +6,7 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
     And an authenticated lambda user
     When I get the platform properties for this module
     Then the password property values are obfuscated
-    Then the non-password property values are not obfuscated
+    And the non-password property values are not obfuscated
 
   Scenario: restrict access to password properties on prod platforms when requesting valuated files
     Given an existing module with a template and password properties
