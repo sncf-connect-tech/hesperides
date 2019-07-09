@@ -15,5 +15,6 @@ import static org.springframework.context.annotation.ComponentScan.Filter;
 @ComponentScan(basePackages = {"org.hesperides.test.bdd"})
 @ComponentScan(basePackages = {"org.hesperides.core.infrastructure.mongo"},
         excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SnapshotConfiguration.class})})
+@ComponentScan(basePackages = {"org.hesperides.commons"})
 public class IntegTestConfig {
 }

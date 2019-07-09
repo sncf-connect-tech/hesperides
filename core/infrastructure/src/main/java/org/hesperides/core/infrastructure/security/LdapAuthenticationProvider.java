@@ -169,7 +169,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
         final List<String> ldapGroupAuthorities = groupAuthorities.stream().map(LdapGroupAuthority::getAuthority).collect(Collectors.toList());
 
-        // Rôles associés aux groupes AD
+        // Rôles associés aux groupes Active Directory
         ldapGroupAuthorities.stream()
                 .map(ActiveDirectoryGroup::new)
                 .forEach(authorities::add);

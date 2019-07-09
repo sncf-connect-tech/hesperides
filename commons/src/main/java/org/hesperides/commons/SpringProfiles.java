@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-public final class SpringProfiles {
+public class SpringProfiles {
 
     public static final String MONGO = "mongo";
     public static final String FAKE_MONGO = "fake_mongo";
