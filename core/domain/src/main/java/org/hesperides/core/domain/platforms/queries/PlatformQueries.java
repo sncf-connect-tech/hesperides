@@ -67,7 +67,7 @@ public class PlatformQueries extends AxonQueries {
             return queryGateway.query(new GetPlatformAtPointInTimeQuery(platformId, timestamp), PlatformView.class).get();
         } catch (ExecutionException | InterruptedException error) {
             if (error.getCause() instanceof InexistantPlatformAtTimeException) {
-                throw (InexistantPlatformAtTimeException)error.getCause();
+                throw (InexistantPlatformAtTimeException) error.getCause();
             }
             throw new QueryExecutionException(error.getMessage(), error);
         }

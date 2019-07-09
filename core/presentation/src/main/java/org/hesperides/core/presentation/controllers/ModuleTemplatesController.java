@@ -30,7 +30,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-
 @Api(tags = "2. Module templates", description = " ")
 @RequestMapping("/modules/{module_name}/{module_version}")
 @RestController

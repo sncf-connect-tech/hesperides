@@ -26,13 +26,10 @@ import org.hesperides.core.domain.platforms.entities.properties.IterableValuedPr
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.IterablePropertyItemView.toDomainIterablePropertyItems;
 
@@ -56,7 +53,7 @@ public class IterableValuedPropertyView extends AbstractValuedPropertyView {
 
     @Override
     protected Optional<AbstractValuedPropertyView> excludePropertyWithOnlyDefaultValue(AbstractPropertyView iterablePropertyModel) {
-        List<AbstractPropertyView> propertiesModel = iterablePropertyModel == null ? null : ((IterablePropertyView)iterablePropertyModel).getProperties();
+        List<AbstractPropertyView> propertiesModel = iterablePropertyModel == null ? null : ((IterablePropertyView) iterablePropertyModel).getProperties();
         List<IterablePropertyItemView> items = iterablePropertyItems.stream()
                 .map(item -> item.excludePropertyWithOnlyDefaultValue(propertiesModel))
                 .collect(Collectors.toList());

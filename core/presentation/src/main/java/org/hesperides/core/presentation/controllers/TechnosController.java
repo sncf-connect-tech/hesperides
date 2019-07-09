@@ -48,7 +48,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-
 @Slf4j
 @Api(tags = "6. Technos", description = " ")
 @RequestMapping({"/templates/packages", "/technos"})

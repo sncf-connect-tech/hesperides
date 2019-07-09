@@ -21,8 +21,8 @@
 package org.hesperides.test.regression.validation;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.ModuleKeyOutput;
+import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;

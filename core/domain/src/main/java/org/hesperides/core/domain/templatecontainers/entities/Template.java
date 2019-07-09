@@ -37,7 +37,7 @@ public class Template {
     private List<AbstractProperty> extractPropertiesFromStringContent(String fileName, String fieldName, String string) {
         try {
             return AbstractProperty.extractPropertiesFromStringContent(string);
-        } catch (IllegalArgumentException|MustacheException illegalArgException) {
+        } catch (IllegalArgumentException | MustacheException illegalArgException) {
             throw new InvalidTemplateException(templateContainerKey.toString(), fileName, fieldName, illegalArgException);
         }
     }

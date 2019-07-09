@@ -21,8 +21,8 @@
 package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.ModuleKeyOutput;
+import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;

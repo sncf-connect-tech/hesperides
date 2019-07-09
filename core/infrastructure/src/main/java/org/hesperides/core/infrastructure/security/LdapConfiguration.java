@@ -48,6 +48,7 @@ public class LdapConfiguration {
     private String readTimeout;
     private String prodGroupDN;
     private String techGroupDN;
+
     String getSearchFilterForUsername(String username) {
         return String.format("(%s=%s)", usernameAttribute, username);
     }

@@ -31,7 +31,9 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocum
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Data

@@ -47,12 +47,14 @@ public class MongoProjectionRepositoryConfiguration {
     }
 
     @Bean
-    @Primary // mongoDbFactory in org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration require it in datamigration
+    @Primary
+    // mongoDbFactory in org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration require it in datamigration
     public MongoClient projectionMongoClient(MongoClientURI projectionMongoClientUri) {
         return new MongoClient(projectionMongoClientUri);
     }
 
-    @Bean({MONGO_TEMPLATE_BEAN_NAME, "mongoTemplate"}) // un Bean nommé mongoTemplate est requis pour les repos SpringData
+    @Bean({MONGO_TEMPLATE_BEAN_NAME, "mongoTemplate"})
+    // un Bean nommé mongoTemplate est requis pour les repos SpringData
     public MongoTemplate projectionMongoTemplate(MongoClient projectionMongoClient, MongoClientURI projectionMongoClientUri) {
         return new MongoTemplate(projectionMongoClient, projectionMongoClientUri.getDatabase());
     }

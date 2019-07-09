@@ -101,7 +101,7 @@ public class Module extends TemplateContainer {
             VersionType versionType;
             if (VersionType.workingcopy.toString().equals(lowercaseVersionType)) {
                 versionType = VersionType.workingcopy;
-            } else if (VersionType.release.toString().equals(lowercaseVersionType)){
+            } else if (VersionType.release.toString().equals(lowercaseVersionType)) {
                 versionType = VersionType.release;
             } else {
                 throw new IllegalArgumentException("Invalid version type, must be WORKINGCOPY or RELEASE : " + parts[parts.length - 1]);

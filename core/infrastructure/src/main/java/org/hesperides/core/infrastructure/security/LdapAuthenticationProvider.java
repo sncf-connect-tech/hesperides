@@ -40,7 +40,6 @@ import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
@@ -86,12 +85,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @PostConstruct
     void init() {
         cachedParentLdapGroupAuthorityRetriever = new CachedParentLdapGroupAuthorityRetriever(cacheManager.getCache(AUTHORIZATION_GROUPS_TREE_CACHE_NAME));
-    }
-
-    @Override
-    public Authentication authenticate(Authentication authentication)
-            throws org.springframework.security.core.AuthenticationException {
-        return super.authenticate(authentication);
     }
 
     @Override

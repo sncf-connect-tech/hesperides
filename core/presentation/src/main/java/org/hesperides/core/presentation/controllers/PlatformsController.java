@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-
 @Slf4j
 @Api(tags = "4. Platforms", description = " ")
 @RequestMapping("/applications")

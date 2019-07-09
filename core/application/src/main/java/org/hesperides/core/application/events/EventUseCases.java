@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,7 +75,7 @@ public class EventUseCases {
         TemplateContainer.VersionType versionType;
         try {
             versionType = TemplateContainer.VersionType.fromMinimizedForm(matcher.group(2));
-        } catch(InvalidParameterException e) {
+        } catch (InvalidParameterException e) {
             throw new IllegalArgumentException(INVALID_STREAM_NAME_ERROR_MSG);
         }
         return new Module.Key(moduleName, matcher.group(1), versionType);

@@ -34,10 +34,12 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{}", fields = "{ 'key.applicationName' : 1 }")
     List<PlatformDocument> listApplicationNames();
 
-    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' } }") // case-insensitive
+    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' } }")
+        // case-insensitive
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
-    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' }, 'key.platformName': { '$regex' : ?1, '$options' : 'i' } }") // case-insensitive
+    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' }, 'key.platformName': { '$regex' : ?1, '$options' : 'i' } }")
+        // case-insensitive
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
     // Pour les 3 prochaines requêtes, nous utilisons `$gt: 0` car `$ne: 0` ne retournait pas de résultat
