@@ -23,14 +23,11 @@ package org.hesperides.commons;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Logs {
+public class VersionIdLogger {
 
-    public static void logVersionId(Long aggregateVersionId) {
-        logVersionId(aggregateVersionId, null);
-    }
-
-    public static void logVersionId(Long aggregateVersionId, Long entityVersionId) {
-        String message = "aggregate versionId: " + aggregateVersionId;
+    public static void log(boolean isBeforeEvent, String aggregateType, String aggregateId, Long aggregateVersionId, Long entityVersionId) {
+        String message = isBeforeEvent ? "Before" : "After";
+        message += " event, " + aggregateType + " aggregate, id: " + aggregateId + ",  versionId: " + aggregateVersionId;
         if (entityVersionId != null) {
             message += ", entity versionId: " + entityVersionId;
         }

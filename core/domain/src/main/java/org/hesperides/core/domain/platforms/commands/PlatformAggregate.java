@@ -26,7 +26,7 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.commons.Logs;
+import org.hesperides.commons.VersionIdLogger;
 import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -58,7 +58,7 @@ public class PlatformAggregate implements Serializable {
         String newUuid = UUID.randomUUID().toString();
         log.debug("PlatformAggregate constructor - platformId: %s - key: %s - versionId: %s - user: %s",
                 newUuid, command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
-        logVersionId(command.getPlatform().getVersionId());
+        logBeforeEventVersionId(command.getPlatform().getVersionId());
         apply(new PlatformCreatedEvent(newUuid, platform, command.getUser().getName()));
     }
 
@@ -67,7 +67,7 @@ public class PlatformAggregate implements Serializable {
     public void onUpdatePlatformCommand(UpdatePlatformCommand command) {
         log.debug("onUpdatePlatformCommand - platformId: %s - key: %s - versionId: %s - user: %s",
                 command.getPlatformId(), command.getPlatform().getKey(), command.getPlatform().getVersionId(), command.getUser());
-        logVersionId(command.getPlatform().getVersionId());
+        logBeforeEventVersionId(command.getPlatform().getVersionId());
         Platform platform = command.getPlatform()
                 .validateVersionId(versionId)
                 .validateDeployedModulesDistinctIds()
@@ -80,7 +80,7 @@ public class PlatformAggregate implements Serializable {
     public void onDeletePlatformCommand(DeletePlatformCommand command) {
         log.debug("onDeletePlatformCommand - platformId: %s - user: %s",
                 command.getPlatformId(), command.getUser());
-        logVersionId();
+        logBeforeEventVersionId();
         apply(new PlatformDeletedEvent(command.getPlatformId(), command.getPlatformKey(), command.getUser().getName()));
     }
 
@@ -88,7 +88,7 @@ public class PlatformAggregate implements Serializable {
     public void onUpdatePlatformModulePropertiesCommand(UpdatePlatformModulePropertiesCommand command) {
         log.debug("onUpdatePlatformModulePropertiesCommand - platformId: %s - versionId: %s - user: %s",
                 command.getPlatformId(), command.getPlatformVersionId(), command.getUser());
-        logVersionId(command.getPlatformVersionId());
+        logBeforeEventVersionId(command.getPlatformVersionId());
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
@@ -104,7 +104,7 @@ public class PlatformAggregate implements Serializable {
     public void onUpdatePlatformPropertiesCommand(UpdatePlatformPropertiesCommand command) {
         log.debug("onUpdatePlatformPropertiesCommand - platformId: %s - versionId: %s - user: %s",
                 command.getPlatformId(), command.getPlatformVersionId(), command.getUser());
-        logVersionId(command.getPlatformVersionId());
+        logBeforeEventVersionId(command.getPlatformVersionId());
         if (command.getPlatformVersionId() != versionId) {
             throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
         }
@@ -119,7 +119,7 @@ public class PlatformAggregate implements Serializable {
     public void onRestoreDeletedPlatformCommand(RestoreDeletedPlatformCommand command) {
         log.debug("onRestoreDeletedPlatformCommand - platformId: %s - user: %s",
                 command.getPlatformId(), command.getUser());
-        logVersionId();
+        logBeforeEventVersionId();
         apply(new RestoreDeletedPlatformEvent(
                 command.getPlatformId(),
                 command.getUser().getName()));
@@ -131,7 +131,7 @@ public class PlatformAggregate implements Serializable {
     public void onPlatformCreatedEvent(PlatformCreatedEvent event) {
         log.debug("onPlatformCreatedEvent - platformId: %s - key: %s - versionId: %s - user: %s",
                 event.getPlatformId(), event.getPlatformKey(), event.getPlatform().getVersionId(), event.getUser());
-        logVersionId(event.getPlatform().getVersionId());
+        logAfterEventVersionId(event.getPlatform().getVersionId());
         this.id = event.getPlatformId();
         this.key = event.getPlatformKey();
         this.versionId = event.getPlatform().getVersionId();
@@ -141,7 +141,7 @@ public class PlatformAggregate implements Serializable {
     public void onPlatformUpdatedEvent(PlatformUpdatedEvent event) {
         log.debug("onPlatformCreatedEvent - platformId: %s - key: %s - versionId: %s - user: %s",
                 event.getPlatformId(), event.getPlatformKey(), event.getPlatform().getVersionId(), event.getUser());
-        logVersionId(event.getPlatform().getVersionId());
+        logAfterEventVersionId(event.getPlatform().getVersionId());
         this.versionId = event.getPlatform().getVersionId();
     }
 
@@ -149,14 +149,14 @@ public class PlatformAggregate implements Serializable {
     public void onPlatformDeletedEvent(PlatformDeletedEvent event) {
         log.debug("onPlatformDeletedEvent - platformId: %s - key: %s - user: %s",
                 event.getPlatformId(), event.getPlatformKey(), event.getUser());
-        logVersionId();
+        logAfterEventVersionId();
     }
 
     @EventSourcingHandler
     public void onPlatformModulePropertiesUpdatedEvent(PlatformModulePropertiesUpdatedEvent event) {
         log.debug("onPlatformModulePropertiesUpdatedEvent - platformId: %s - versionId: %s - user: %s",
                 event.getPlatformId(), event.getPlatformVersionId(), event.getUser());
-        logVersionId(event.getPlatformVersionId());
+        logAfterEventVersionId(event.getPlatformVersionId());
         this.versionId = event.getPlatformVersionId();
     }
 
@@ -164,15 +164,27 @@ public class PlatformAggregate implements Serializable {
     public void onPlatformPropertiesUpdatedEvent(PlatformPropertiesUpdatedEvent event) {
         log.debug("onPlatformPropertiesUpdatedEvent - platformId: %s - versionId: %s - user: %s",
                 event.getPlatformId(), event.getPlatformVersionId(), event.getUser());
-        logVersionId(event.getPlatformVersionId());
+        logAfterEventVersionId(event.getPlatformVersionId());
         this.versionId = event.getPlatformVersionId();
     }
 
-    private void logVersionId() {
-        logVersionId(null);
+    private void logBeforeEventVersionId() {
+        logBeforeEventVersionId(null);
     }
 
-    private void logVersionId(Long entityVersionId) {
-        Logs.logVersionId(versionId, entityVersionId);
+    private void logBeforeEventVersionId(Long entityVersionId) {
+        logVersionId(true, entityVersionId);
+    }
+
+    private void logAfterEventVersionId() {
+        logAfterEventVersionId(null);
+    }
+
+    private void logAfterEventVersionId(Long entityVersionId) {
+        logVersionId(false, entityVersionId);
+    }
+
+    private void logVersionId(boolean isBeforeEvent, Long entityVersionId) {
+        VersionIdLogger.log(isBeforeEvent, "platform", id, versionId, entityVersionId);
     }
 }
