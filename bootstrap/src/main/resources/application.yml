@@ -46,7 +46,7 @@ logging:
       axonframework.queryhandling.responsetypes.MultipleInstancesResponseType: WARN
       hesperides:
         commons:
-          VersionIdLogger: ${VERSION_ID_LOG_LEVEL:DEBUG}
+          VersionIdLogger: ${VERSION_ID_LOG_LEVEL:INFO}
         core:
           application.files.FileValuationContext: ${FILE_VALUATION_LOG_LEVEL:INFO}
           domain.templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
