@@ -10,11 +10,13 @@ import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResul
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
+import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
+import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,6 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
@@ -44,7 +49,7 @@ public class ApplicationsController extends AbstractController {
     @GetMapping("")
     @ApiOperation("Get applications")
     public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> apps = platformUseCases.listApplications();
+        List<SearchApplicationResultView> apps = platformUseCases.getApplicationNames();
 
         List<SearchResultOutput> appsOutput = apps.stream()
                 .distinct()
@@ -107,5 +112,23 @@ public class ApplicationsController extends AbstractController {
                 applicationAuthoritiesInput.getAuthorities(),
                 User.fromAuthentication(authentication));
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
+    @GetMapping("/platforms")
+    @Cacheable(GetAllApplicationsCacheConfiguration.CACHE_NAME)
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
+
+        TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df.setTimeZone(utcTimeZone);
+        String nowAsIso = df.format(new Date());
+
+        final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail()
+                .stream()
+                .map(application -> new ApplicationOutput(application, false))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new AllApplicationsDetailOutput(nowAsIso, applications));
     }
 }

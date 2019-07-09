@@ -24,6 +24,7 @@ import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -41,7 +42,9 @@ public class PlatformView {
     List<ValuedPropertyView> globalProperties;
 
     public Stream<DeployedModuleView> getActiveDeployedModules() {
-        return deployedModules.stream().filter(deployedModule -> deployedModule.getId() > 0);
+        return Optional.ofNullable(deployedModules)
+                .orElse(Collections.emptyList())
+                .stream().filter(deployedModule -> deployedModule.getId() != null && deployedModule.getId() > 0);
     }
 
     public Optional<DeployedModuleView> getDeployedModule(String modulePath, Module.Key moduleKey) {

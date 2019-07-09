@@ -11,7 +11,7 @@ object Modules {
       "working_copy": true,
       "technos": [],
       "version_id": 0
-    }""")).asJSON
+    }""")).asJson
     .check(status.is(201)))
 
   val addTemplate = exec(http("addTemplateToModule")
@@ -24,7 +24,7 @@ object Modules {
       "content": "${templateContent}{{${propertyName}}}${templateContent}",
       "rights": {},
       "version_id": 0
-    }""")).asJSON
+    }""")).asJson
     .check(status.is(201)))
 
   val get = exec(http("getWorkingcopyModule")

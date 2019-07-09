@@ -22,15 +22,19 @@ package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.applications.ApplicationBuilder;
 import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.junit.Assert;
+import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +43,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.extractCN;
 import static org.hesperides.test.bdd.users.GetUserInformation.extractAuthoritiesValues;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class GetApplications extends HesperidesScenario implements En {
@@ -49,10 +54,30 @@ public class GetApplications extends HesperidesScenario implements En {
     private ApplicationBuilder applicationBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformClient platformClient;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
+
+    private List<ApplicationOutput> expectedApplications = new ArrayList<>();
 
     private boolean hidePlatform;
 
     public GetApplications() {
+
+        Given("^a list of applications with platforms and this module$", () -> {
+            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            Arrays.asList("ABC", "DEF", "GHI").forEach(applicationName -> {
+                platformBuilder.withApplicationName(applicationName);
+                platformClient.create(platformBuilder.buildInput());
+                expectedApplications.add(platformBuilder.buildApplicationOutput(false));
+            });
+
+        });
+
+        When("^I get the list of all applications?$", () -> {
+            testContext.responseEntity = applicationClient.getAllApplications();
+        });
 
         When("^I( try to)? get the applications list$", (String tryTo) -> {
             testContext.setResponseEntity(applicationClient.getApplications(
@@ -68,11 +93,17 @@ public class GetApplications extends HesperidesScenario implements En {
                     getResponseType(tryTo, ApplicationOutput.class)));
         });
 
+        Then("^all the applications are retrieved with their platforms and their modules$", () -> {
+            assertOK();
+            List<ApplicationOutput> actualApplications = ((AllApplicationsDetailOutput) testContext.getResponseBody()).getApplications();
+            assertEquals(expectedApplications, actualApplications);
+        });
+
         Then("^the application is successfully retrieved", () -> {
             assertOK();
             ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
             ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
-            Assert.assertEquals(expectedApplication, actualApplication);
+            assertEquals(expectedApplication, actualApplication);
         });
 
         Then("^(.+) is listed in the application authorities", (String authority) -> {

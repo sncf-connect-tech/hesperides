@@ -11,14 +11,6 @@ Dans le cas d'Hesperides, nous recommendons l'utilisation d'un cluster de 2 noeu
 La configuration du client Mongo se fait via les variables d'environnement `EVENT_STORE_MONGO_URI` && `PROJECTION_REPOSITORY_MONGO_URI`
 qui contiennent la liste des noeuds du cluster à utiliser et les options de connexion à employer.
 
-## Write concern
-
-_cf._ <https://docs.mongodb.com/manual/reference/write-concern/>
-
-Nous recommendons l'emploi de ces paramètres de connexion :
-
-    ?maxPoolSize=10&maxIdleTimeMS=2000&w=2&j=true&wtimeout=5000
-
 ## Consultation des options de connexion
 
 Un _HealthIndicator_ Spring Boot expose ces informations dans un endpoint HTTP:

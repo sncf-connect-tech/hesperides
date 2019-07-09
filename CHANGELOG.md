@@ -25,7 +25,44 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-07-02
+### Added
+
+- APPLICATION_BOOT_TIME to /versions + removed BUILD_TIME from SENTRY_TAGS as it had an invalid format (#686) [Lucas Cimon]
+
+
+
+## 2019-06-28
+### Fixed
+
+- #675 Get all applications (#682) [Thomas L'Hostis]
+
+
+
+## 2019-06-27
+### Added
+
+- Support Sentry (#681) [Lucas Cimon]
+
+
+
+## 2019-06-20
+### Fixed
+
+- Pour modules/perform_search, en cas de match exact, il est toujours inclus en 1er résultat - cf. #595 & Fix: stress tests en upgradant gatling-maven-plugin (#676) [Lucas Cimon]
+
+
+
+## 2019-06-13
+### Fixed
+
+- /manage/mappings - close #414 (#673) [Lucas Cimon]
+
+- Il est désormais possible de fournir un template_name pour les GET/DELETE via Swagger - close #639 (#671) [Lucas Cimon]
+
+
+
+## 2019-06-05
 ### Fixed
 
 - Handling case of null memberOf in ParentGroupsDNRetrieverFromLdap (#666) [Lucas Cimon]

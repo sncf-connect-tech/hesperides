@@ -89,8 +89,8 @@ public class PlatformQueries extends AxonQueries {
         return querySyncList(new GetPlatformsUsingModuleQuery(moduleKey), ModulePlatformView.class);
     }
 
-    public List<SearchApplicationResultView> listApplications() {
-        return querySyncList(new ListApplicationsQuery(), SearchApplicationResultView.class);
+    public List<SearchApplicationResultView> getApplicationNames() {
+        return querySyncList(new GetApplicationNamesQuery(), SearchApplicationResultView.class);
     }
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
@@ -119,5 +119,9 @@ public class PlatformQueries extends AxonQueries {
 
     public boolean applicationExists(String applicationName) {
         return querySync(new ApplicationExistsQuery(applicationName), Boolean.class);
+    }
+
+    public List<ApplicationView> getAllApplicationsDetail() {
+        return querySyncList(new GetAllApplicationsDetailQuery(), ApplicationView.class);
     }
 }

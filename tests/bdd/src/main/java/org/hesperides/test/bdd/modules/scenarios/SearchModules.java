@@ -9,6 +9,9 @@ import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 
 public class SearchModules extends HesperidesScenario implements En {
@@ -21,7 +24,7 @@ public class SearchModules extends HesperidesScenario implements En {
     public SearchModules() {
 
         When("^I search for one specific module( using the wrong case)?$", (String wrongCase) -> {
-            String input = "new-module 0.0.3";
+            String input = "new-module 0.0.13";
             if (StringUtils.isNotEmpty(wrongCase)) {
                 input = input.toUpperCase();
             }
@@ -39,6 +42,10 @@ public class SearchModules extends HesperidesScenario implements En {
 
         When("^I try to search for a module with no search terms$", () -> {
             testContext.setResponseEntity(moduleClient.search("", 0, String.class));
+        });
+
+        When("^I search for modules, using an existing module name and version?$", () -> {
+            testContext.responseEntity = moduleClient.search("new-module 0.0.1 true");
         });
 
         When("^I search for a single module using only the name and version of this module$", () -> {
@@ -79,6 +86,12 @@ public class SearchModules extends HesperidesScenario implements En {
             ModuleIO expectedModule = moduleBuilder.withVersionType(TemplateContainerHelper.RELEASE).build();
             ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
+        });
+
+        Then("^the first module in the results is this module$", () -> {
+            assertOK();
+            ModuleIO[] returnedModules = getBodyAsArray();
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getNamespaceWithoutPrefix(), "new-module#0.0.1#WORKINGCOPY");
         });
     }
 }

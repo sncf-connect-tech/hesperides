@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.infrastructure.mongo.modules;
 
+import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.exceptions.NotFoundException;
@@ -56,6 +57,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
@@ -69,6 +71,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
@@ -82,6 +85,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @EventHandler
     @Override
+    @Timed
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
         Optional<ModuleDocument> optModuleDocument = moduleRepository.findById(event.getModuleId());
         if (!optModuleDocument.isPresent()) {
@@ -96,6 +100,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public Optional<TemplateView> onGetTemplateByNameQuery(GetTemplateByNameQuery query) {
         String templateName = query.getTemplateName();
         return moduleRepository.findByKeyAndTemplateName(new KeyDocument(query.getModuleKey()), templateName)
@@ -108,6 +113,7 @@ public class MongoTemplateProjectionRepository implements TemplateProjectionRepo
 
     @QueryHandler
     @Override
+    @Timed
     public List<TemplateView> onGetModuleTemplatesQuery(GetModuleTemplatesQuery query) {
         TemplateContainer.Key moduleKey = query.getModuleKey();
         return moduleRepository.findTemplatesByModuleKey(new KeyDocument(moduleKey))

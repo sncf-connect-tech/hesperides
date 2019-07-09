@@ -101,6 +101,12 @@ public class GetFiles extends HesperidesScenario implements En {
             assertEquals(expectedFiles, actualOutput);
         });
 
+        Then("^the JSON output does not contain escaped characters$", () -> {
+            assertOK();
+            String actualOutput = (String) testContext.responseEntity.getBody();
+            assertThat(actualOutput, not(containsString("\\u003")));
+        });
+
         Then("^the file location is \"([^\"]*)\"$", (String expectedLocation) -> {
             assertOK();
             List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());

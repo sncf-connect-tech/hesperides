@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
@@ -39,7 +40,7 @@ public class DeleteModuleTemplates extends HesperidesScenario implements En {
 
     public DeleteModuleTemplates() {
 
-        When("^I( try to)? delete this module template$", (String tryTo) -> {
+        When("^I( try to)? delete this module template( using an url-encoded template name)?$", (String tryTo, String urlEncodeTemplateName) -> {
             testContext.setResponseEntity(moduleClient.deleteTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class)));
         });
 

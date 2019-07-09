@@ -136,18 +136,18 @@ public class PlatformUseCases {
         return platformQueries.getPlatformsUsingModule(moduleKey);
     }
 
-    public List<SearchApplicationResultView> listApplications() {
-        return platformQueries.listApplications();
+    public List<SearchApplicationResultView> getApplicationNames() {
+        return platformQueries.getApplicationNames();
     }
 
     public List<SearchApplicationResultView> searchApplications(String applicationName) {
-        List<SearchApplicationResultView> apps;
+        List<SearchApplicationResultView> applications;
         if (isBlank(applicationName)) {
-            apps = platformQueries.listApplications();
+            applications = platformQueries.getApplicationNames();
         } else {
-            apps = platformQueries.searchApplications(applicationName);
+            applications = platformQueries.searchApplications(applicationName);
         }
-        return apps;
+        return applications;
     }
 
     public List<SearchPlatformResultView> searchPlatforms(String applicationName, String platformName) {
@@ -290,5 +290,9 @@ public class PlatformUseCases {
         Integer technoPasswordCount = technoQueries.countPasswords(Techno.Key.fromViews(technosKeys));
 
         return modulePasswordCount + technoPasswordCount;
+    }
+
+    public List<ApplicationView> getAllApplicationsDetail() {
+        return queries.getAllApplicationsDetail();
     }
 }

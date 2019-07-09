@@ -164,7 +164,17 @@ public class ModuleUseCases {
 
     public List<ModuleView> search(String input, Integer providedSize) {
         int size = providedSize != null && providedSize > 0 ? providedSize : DEFAULT_NB_SEARCH_RESULTS;
-        return moduleQueries.search(input, size);
+        List<ModuleView> matchingModules = moduleQueries.search(input, size);
+        // On insère un éventuel module ayant exactement ce numéro de version en 1ère position - cf. issue #595 & BDD correspondant :
+        Optional<ModuleView> exactMatch = searchSingle(input);
+        if (exactMatch.isPresent() && matchingModules.stream().noneMatch(m -> input.equals(formatAsInput(m.toDomainInstance().getKey())))) {
+            matchingModules.set(0, exactMatch.get());
+        }
+        return matchingModules;
+    }
+
+    private static String formatAsInput(TemplateContainer.Key moduleKey) {
+        return moduleKey.getName() + " " + moduleKey.getVersion() + " " + (moduleKey.isWorkingCopy() ? "true" : "false");
     }
 
     public Optional<ModuleView> searchSingle(String input) {

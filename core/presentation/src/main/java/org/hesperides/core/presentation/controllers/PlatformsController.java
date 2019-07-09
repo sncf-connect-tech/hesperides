@@ -244,6 +244,5 @@ public class PlatformsController extends AbstractController {
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
 
         return ResponseEntity.ok(new PropertiesIO(propertyViews));
-
     }
 }

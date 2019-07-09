@@ -1,6 +1,5 @@
 application:
   version: @project.version@
-  build.time:
 
 # /info actuator endpoint:
 info:
@@ -24,6 +23,9 @@ server:
 hesperides:
   security:
     auth-whitelist: ${AUTH_WHITELIST:/versions|/manage/**|/swagger-resources/|/swagger-ui.html|/v2/api-docs|/webjars/**}
+  cache:
+    get-all-applications-detail:
+      duration-in-hours: ${GET_ALL_APPLICATIONS_DETAIL_CACHE_DURATION_IN_HOURS:1}
 
 ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
   url: ${LDAP_URL:}
@@ -40,19 +42,22 @@ logging:
   file: /var/log/hesperides.log
   level:
     root: INFO
-    org.axonframework.queryhandling.responsetypes.MultipleInstancesResponseType: WARN
-    org.hesperides.core:
-      application.files.FileValuationContext: ${FILE_VALUATION_LOG_LEVEL:INFO}
-      domain:
-        modules.commands.ModuleAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
-        platforms.commands.PlatformAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
-        templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
-      infrastructure.security.LdapAuthenticationProvider: ${LDAP_AUTH_PROVIDER_LOG_LEVEL:INFO}
-    org.springframework:
-      data.mongodb.core.MongoTemplate: ${MONGO_QUERIES_LOG_LEVEL:INFO}
-      # On ne logue pas les nombreux "Ignoring PartialResultException"
-      # dus aux champs referrals ignorés, cf. https://docs.spring.io/spring-ldap/docs/2.3.2.RELEASE/reference/#ldaptemplate-configuration
-      security.ldap.SpringSecurityLdapTemplate: WARN
+    org:
+      axonframework.queryhandling.responsetypes.MultipleInstancesResponseType: WARN
+      hesperides:
+        commons.VersionIdLogger: ${VERSION_ID_LOG_LEVEL:INFO}
+        core:
+          application.files.FileValuationContext: ${FILE_VALUATION_LOG_LEVEL:INFO}
+          domain:
+            templatecontainers.entities.AbstractProperty: ${PROPERTY_AGGREGATION_LOG_LEVEL:INFO}
+            modules.commands.ModuleAggregate: ${AGGREGATES_LOG_LEVEL:INFO}
+            platforms.commands.PlatformAggregate: ${AGGREGATES_LOG_LEVEL:INFO
+          infrastructure.security.LdapAuthenticationProvider: ${LDAP_AUTH_PROVIDER_LOG_LEVEL:INFO}
+      springframework:
+        data.mongodb.core.MongoTemplate: ${MONGO_QUERIES_LOG_LEVEL:INFO}
+        # On ne logue pas les nombreux "Ignoring PartialResultException"
+        # dus aux champs referrals ignorés, cf. https://docs.spring.io/spring-ldap/docs/2.3.2.RELEASE/reference/#ldaptemplate-configuration
+        security.ldap.SpringSecurityLdapTemplate: WARN
 
 # Access it: http://localhost:8080/rest/manage
 # Includes but does not limit to:
@@ -88,3 +93,5 @@ management:
 
 swagger:
   host: ${SWAGGER_HOST:}
+
+sentry.ignored-exceptions: ${SENTRY_IGNORED_EXCEPTIONS:,}

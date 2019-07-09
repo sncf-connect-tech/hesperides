@@ -41,7 +41,7 @@ public class CreateApplications extends HesperidesScenario implements En {
             fail("TODO");
         });
 
-        Given("^an application ?(.+)? with prod groups? (.+)", (String appName, String groupCNs) -> {
+        Given("^an application ?(.+)? with prod groups? (.+)", (String applicationName, String groupCNs) -> {
             fail("TODO");
         });
     }

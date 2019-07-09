@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.mongo.eventstores;
 
+import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.events.EventRepository;
@@ -28,6 +29,7 @@ public class AxonEventRepository implements EventRepository {
 
     @QueryHandler
     @Override
+    @Timed
     public List<EventView> onGetEventsStream(final GenericEventsByStreamQuery query) {
         return getEventViews(query.getAggregateId());
     }
