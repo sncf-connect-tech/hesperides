@@ -76,12 +76,12 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     private LdapConfiguration ldapConfiguration;
     @Autowired
     private CacheManager cacheManager;
+    @Autowired
+    private AuthorizationProjectionRepository authorizationProjectionRepository;
     // Pour débuguer le contenus des caches:
     //   Evaluate Expression: cacheManager.ehcaches.get(USERS_AUTHENTICATION_CACHE_NAME).compoundStore.map
     //   Evaluate Expression: cacheManager.ehcaches.get(AUTHORIZATION_GROUPS_TREE_CACHE_NAME).compoundStore.map
-    private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever; // Pourquoi pas Autowired ?
-    @Autowired
-    private AuthorizationProjectionRepository authorizationProjectionRepository;
+    private CachedParentLdapGroupAuthorityRetriever cachedParentLdapGroupAuthorityRetriever;
 
     @PostConstruct
     void init() {

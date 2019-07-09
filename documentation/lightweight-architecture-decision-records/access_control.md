@@ -135,6 +135,7 @@ Dans le cas contraire, une `403` est retournée.
 }
 ```
 
+
 ## Détails notables d'implémentation
 
 ### Algorithme de collecte des _authorities_
