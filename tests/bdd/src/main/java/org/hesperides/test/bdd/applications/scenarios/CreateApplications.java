@@ -31,9 +31,9 @@ import static org.assertj.core.api.Assertions.fail;
 public class CreateApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private ApplicationClient appClient;
+    private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder appBuilder;
+    private ApplicationBuilder applicationBuilder;
 
     public CreateApplications() {
 
@@ -41,7 +41,7 @@ public class CreateApplications extends HesperidesScenario implements En {
             fail("TODO");
         });
 
-        Given("^an application ?(.+)? with prod groups? (.+)", (String appName, String groupCNs) -> {
+        Given("^an application ?(.+)? with prod groups? (.+)", (String applicationName, String groupCNs) -> {
             fail("TODO");
         });
     }

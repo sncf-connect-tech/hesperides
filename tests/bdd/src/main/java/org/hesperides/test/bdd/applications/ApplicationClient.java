@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.applications;
 
+import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -35,11 +36,15 @@ public class ApplicationClient {
         return restTemplate.getForEntity("/applications", responseType);
     }
 
-    public ResponseEntity getApplication(String appName, boolean hidePlatform, Class responseType) {
+    public ResponseEntity getApplication(String applicationName, boolean hidePlatform, Class responseType) {
         return restTemplate.getForEntity(
                 "/applications/{application_name}?hide_platform={hide_platform}",
                 responseType,
-                appName,
+                applicationName,
                 hidePlatform);
+    }
+
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplications() {
+        return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 }

@@ -15,20 +15,19 @@ import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultVi
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
-import org.hesperides.core.presentation.io.platforms.*;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,30 +44,6 @@ public class PlatformsController extends AbstractController {
     @Autowired
     public PlatformsController(PlatformUseCases platformUseCases) {
         this.platformUseCases = platformUseCases;
-    }
-
-    @GetMapping("")
-    @ApiOperation("Get applications")
-    public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> applications = platformUseCases.getApplicationNames();
-
-        List<SearchResultOutput> applicationOutputs = applications.stream()
-                .distinct()
-                .map(SearchResultOutput::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(applicationOutputs);
-    }
-
-    @GetMapping("/{application_name}")
-    @ApiOperation("Get application")
-    public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
-                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
-
-        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
-
-        return ResponseEntity.ok(applicationOutput);
     }
 
     @PostMapping("/{application_name}/platforms")
@@ -270,23 +245,4 @@ public class PlatformsController extends AbstractController {
 
         return ResponseEntity.ok(new PropertiesIO(propertyViews));
     }
-
-    @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
-    @GetMapping("/platforms")
-    @Cacheable(GetAllApplicationsCacheConfiguration.CACHE_NAME)
-    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
-
-        TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        df.setTimeZone(utcTimeZone);
-        String nowAsIso = df.format(new Date());
-
-        final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail()
-                .stream()
-                .map(application -> new ApplicationOutput(application, false))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new AllApplicationsDetailOutput(nowAsIso, applications));
-    }
-
 }
