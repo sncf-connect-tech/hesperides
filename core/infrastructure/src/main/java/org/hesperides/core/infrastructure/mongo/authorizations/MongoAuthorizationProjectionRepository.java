@@ -22,6 +22,7 @@ package org.hesperides.core.infrastructure.mongo.authorizations;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesCreatedEvent;
 import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesUpdatedEvent;
 import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
@@ -29,7 +30,6 @@ import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -38,9 +38,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.commons.spring.HasProfile.isProfileActive;
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.Collections.APPLICATION_AUTHORITIES;
 
 @Profile({MONGO, FAKE_MONGO})
@@ -49,17 +48,19 @@ public class MongoAuthorizationProjectionRepository implements AuthorizationProj
 
     private final MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository;
     private final MongoTemplate mongoTemplate;
-    private final Environment environment;
+    private final SpringProfiles springProfiles;
 
-    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository, MongoTemplate mongoTemplate, Environment environment) {
+    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository,
+                                                  MongoTemplate mongoTemplate,
+                                                  SpringProfiles springProfiles) {
         this.applicationAuthoritiesRepository = applicationAuthoritiesRepository;
         this.mongoTemplate = mongoTemplate;
-        this.environment = environment;
+        this.springProfiles = springProfiles;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
-        if (isProfileActive(environment, MONGO)) {
+        if (springProfiles.isActive(MONGO)) {
             MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, APPLICATION_AUTHORITIES);
         }
     }

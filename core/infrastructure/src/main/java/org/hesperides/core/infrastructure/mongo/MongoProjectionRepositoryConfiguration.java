@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Configuration
 @Profile(MONGO)

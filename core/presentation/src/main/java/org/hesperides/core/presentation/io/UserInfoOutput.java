@@ -35,7 +35,7 @@ public class UserInfoOutput {
     AuthoritiesOutput authorities;
 
     public UserInfoOutput(Authentication authentication) {
-        User currentUser = User.fromAuthentication(authentication);
+        User currentUser = new User(authentication);
         this.username = currentUser.getName();
         this.prodUser = currentUser.isGlobalProd();
         this.techUser = currentUser.isGlobalTech();

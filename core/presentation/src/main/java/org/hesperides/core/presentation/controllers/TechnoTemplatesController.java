@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.technos.TechnoUseCases;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -40,7 +41,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.entities.User.fromAuthentication;
+
 
 @Slf4j
 @Api(tags = "7. Techno templates", description = " ")
@@ -64,7 +65,7 @@ public class TechnoTemplatesController extends AbstractController {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(technoKey);
-        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, fromAuthentication(authentication));
+        technoUseCases.updateTemplateInWorkingCopy(technoKey, template, new User(authentication));
 
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, template.getName())
                 .map(TemplateIO::new)
@@ -96,7 +97,7 @@ public class TechnoTemplatesController extends AbstractController {
                                                       @PathVariable("template_name") final String templateName) {
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        this.technoUseCases.deleteTemplate(technoKey, templateName, fromAuthentication(authentication));
+        this.technoUseCases.deleteTemplate(technoKey, templateName, new User(authentication));
 
         return ResponseEntity.ok().build();
     }

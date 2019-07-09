@@ -56,7 +56,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.hesperides.commons.spring.SpringProfiles.LDAP;
+import static org.hesperides.commons.SpringProfiles.LDAP;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.containDN;
 import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap.extractDirectParentGroupsDN;
 

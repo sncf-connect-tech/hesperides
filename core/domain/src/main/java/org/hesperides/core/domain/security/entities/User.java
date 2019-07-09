@@ -1,6 +1,7 @@
 package org.hesperides.core.domain.security.entities;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.security.entities.authorities.ActiveDirectoryGroup;
 import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * représente un utilisateur d'hesperide.
  */
 @Value
+@AllArgsConstructor
 public class User {
 
     String name;
@@ -27,13 +29,13 @@ public class User {
     List<String> roles;
     List<String> groupAuthorities;
 
-    public static User fromAuthentication(Authentication authentication) {
+    public User(Authentication authentication) {
         final Collection<? extends GrantedAuthority> springAuthorities = authentication.getAuthorities();
-        return new User(authentication.getName(),
-                isGlobalProd(springAuthorities),
-                isGlobalTech(springAuthorities),
-                getRoles(springAuthorities),
-                getGroupAuthorities(springAuthorities));
+        this.name = authentication.getName();
+        this.isGlobalProd = isGlobalProd(springAuthorities);
+        this.isGlobalTech = isGlobalTech(springAuthorities);
+        this.roles = getRoles(springAuthorities);
+        this.groupAuthorities = getGroupAuthorities(springAuthorities);
     }
 
     private static boolean isGlobalProd(Collection<? extends GrantedAuthority> authorities) {

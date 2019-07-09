@@ -18,13 +18,28 @@
  *
  *
  */
-package org.hesperides.commons.spring;
+package org.hesperides.commons;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+
+@Component
 public final class SpringProfiles {
-    public static final String FAKE_MONGO = "fake_mongo";
-    public static final String GRAPHITE = "graphite";
-    public static final String LDAP = "ldap";
+
     public static final String MONGO = "mongo";
+    public static final String FAKE_MONGO = "fake_mongo";
+    public static final String LDAP = "ldap";
     public static final String NOLDAP = "noldap";
+    public static final String GRAPHITE = "graphite";
     public static final String SPRING_BOOT_ADMIN = "sba";
+
+    @Autowired
+    private Environment environment;
+
+    public boolean isActive(String profile) {
+        return Arrays.asList(environment.getActiveProfiles()).contains(profile);
+    }
 }

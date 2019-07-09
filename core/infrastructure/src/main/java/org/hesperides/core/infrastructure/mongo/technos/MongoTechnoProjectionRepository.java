@@ -24,6 +24,7 @@ import com.mongodb.client.DistinctIterable;
 import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.technos.entities.Techno;
@@ -39,7 +40,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -53,9 +53,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.hesperides.commons.spring.HasProfile.isProfileActive;
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 import static org.hesperides.core.infrastructure.Collections.TECHNO;
 
 @Profile({MONGO, FAKE_MONGO})
@@ -65,22 +64,22 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     private final MongoTechnoRepository technoRepository;
     private final MongoModuleRepository moduleRepository;
     private final MongoTemplate mongoTemplate;
-    private final Environment environment;
+    private final SpringProfiles springProfiles;
 
     @Autowired
     public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository,
                                            MongoModuleRepository moduleRepository,
                                            MongoTemplate mongoTemplate,
-                                           Environment environment) {
+                                           SpringProfiles springProfiles) {
         this.technoRepository = technoRepository;
         this.moduleRepository = moduleRepository;
         this.mongoTemplate = mongoTemplate;
-        this.environment = environment;
+        this.springProfiles = springProfiles;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
-        if (isProfileActive(environment, MONGO)) {
+        if (springProfiles.isActive(MONGO)) {
             MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO);
         }
     }

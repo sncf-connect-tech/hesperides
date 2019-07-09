@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.entities.User.fromAuthentication;
+
 
 @Slf4j
 @Api(tags = "1. Modules", description = " ", position = 1)
@@ -75,7 +75,7 @@ public class ModulesController extends AbstractController {
         log.info("createWorkingCopy {}", moduleInput.toString());
 
         String moduleId;
-        User currentUser = fromAuthentication(authentication);
+        User currentUser = new User(authentication);
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
                 && isFromWorkingCopy == null) {
@@ -105,7 +105,7 @@ public class ModulesController extends AbstractController {
         log.info("Updating module workingcopy {}", moduleInput.toString());
 
         Module module = moduleInput.toDomainInstance();
-        moduleUseCases.updateModuleTechnos(module, fromAuthentication(authentication));
+        moduleUseCases.updateModuleTechnos(module, new User(authentication));
         ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
                 .map(ModuleIO::new)
                 .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
@@ -175,7 +175,7 @@ public class ModulesController extends AbstractController {
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
-        moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
+        moduleUseCases.deleteModule(moduleKey, new User(authentication));
 
         return ResponseEntity.ok().build();
     }
@@ -192,7 +192,7 @@ public class ModulesController extends AbstractController {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
-        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromAuthentication(authentication));
+        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, new User(authentication));
         ModuleIO moduleOutput = new ModuleIO(moduleView);
 
         return ResponseEntity.ok(moduleOutput);

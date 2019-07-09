@@ -16,8 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.LDAP;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.LDAP;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(Cucumber.class)

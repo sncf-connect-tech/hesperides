@@ -103,7 +103,7 @@ public class GetFiles extends HesperidesScenario implements En {
 
         Then("^the JSON output does not contain escaped characters$", () -> {
             assertOK();
-            String actualOutput = (String) testContext.responseEntity.getBody();
+            String actualOutput = (String) testContext.getResponseBody();
             assertThat(actualOutput, not(containsString("\\u003")));
         });
 

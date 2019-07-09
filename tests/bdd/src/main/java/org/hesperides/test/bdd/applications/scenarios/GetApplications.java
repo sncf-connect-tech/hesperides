@@ -76,7 +76,7 @@ public class GetApplications extends HesperidesScenario implements En {
         });
 
         When("^I get the list of all applications?$", () -> {
-            testContext.responseEntity = applicationClient.getAllApplications();
+            testContext.setResponseEntity(applicationClient.getAllApplications());
         });
 
         When("^I( try to)? get the applications list$", (String tryTo) -> {

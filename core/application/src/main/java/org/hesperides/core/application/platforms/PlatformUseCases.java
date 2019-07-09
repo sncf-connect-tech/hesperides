@@ -293,6 +293,6 @@ public class PlatformUseCases {
     }
 
     public List<ApplicationView> getAllApplicationsDetail() {
-        return queries.getAllApplicationsDetail();
+        return platformQueries.getAllApplicationsDetail();
     }
 }

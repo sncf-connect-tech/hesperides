@@ -9,21 +9,18 @@ import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
-import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
 import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
+import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -49,14 +46,14 @@ public class ApplicationsController extends AbstractController {
     @GetMapping("")
     @ApiOperation("Get applications")
     public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> apps = platformUseCases.getApplicationNames();
+        List<SearchApplicationResultView> applications = platformUseCases.getApplicationNames();
 
-        List<SearchResultOutput> appsOutput = apps.stream()
+        List<SearchResultOutput> applicationOutputs = applications.stream()
                 .distinct()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(appsOutput);
+        return ResponseEntity.ok(applicationOutputs);
     }
 
     @GetMapping("/{application_name}")
@@ -110,7 +107,7 @@ public class ApplicationsController extends AbstractController {
         authorizationUseCases.createOrUpdateApplicationAuthorities(
                 applicationName,
                 applicationAuthoritiesInput.getAuthorities(),
-                User.fromAuthentication(authentication));
+                new User(authentication));
         return ResponseEntity.ok().build();
     }
 
@@ -126,7 +123,7 @@ public class ApplicationsController extends AbstractController {
 
         final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail()
                 .stream()
-                .map(application -> new ApplicationOutput(application, false))
+                .map(application -> new ApplicationOutput(application, false, Collections.emptyMap(), null))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new AllApplicationsDetailOutput(nowAsIso, applications));

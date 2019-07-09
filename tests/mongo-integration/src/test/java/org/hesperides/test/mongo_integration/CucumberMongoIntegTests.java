@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
+import static org.hesperides.commons.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.NOLDAP;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(

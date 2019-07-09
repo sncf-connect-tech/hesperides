@@ -31,7 +31,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.net.InetSocketAddress;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration.MONGO_TEMPLATE_BEAN_NAME;
 
 @Configuration
