@@ -45,28 +45,30 @@ public class AuthCredentialsConfig {
     }
 
     public String getUsernameForTestProfile(String testProfile) {
+        String username;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            return lambdaUserName;
+            username = lambdaUserName;
+        } else if (TECH_TEST_PROFILE.equals(testProfile)) {
+            username = techUserName;
+        } else if (PROD_TEST_PROFILE.equals(testProfile)) {
+            username = prodUserName;
+        } else {
+            throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
-        if (TECH_TEST_PROFILE.equals(testProfile)) {
-            return techUserName;
-        }
-        if (PROD_TEST_PROFILE.equals(testProfile)) {
-            return prodUserName;
-        }
-        throw new IllegalArgumentException("Unknown test profile: " + testProfile);
+        return username;
     }
 
     public String getPasswordForTestProfile(String testProfile) {
+        String username;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            return lambdaUserPassword;
+            username = lambdaUserPassword;
+        } else if (TECH_TEST_PROFILE.equals(testProfile)) {
+            username = techUserPassword;
+        } else if (PROD_TEST_PROFILE.equals(testProfile)) {
+            username = prodUserPassword;
+        } else {
+            throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
-        if (TECH_TEST_PROFILE.equals(testProfile)) {
-            return techUserPassword;
-        }
-        if (PROD_TEST_PROFILE.equals(testProfile)) {
-            return prodUserPassword;
-        }
-        throw new IllegalArgumentException("Unknown test profile: " + testProfile);
+        return username;
     }
 }
