@@ -25,13 +25,6 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
-### Added
-
-- APPLICATION_BOOT_TIME to /versions + removed BUILD_TIME from SENTRY_TAGS as it had an invalid format. [Lucas Cimon]
-
-
-
 ## 2019-07-02
 ### Added
 

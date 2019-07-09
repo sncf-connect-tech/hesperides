@@ -1,4 +1,4 @@
-package org.hesperides.core.infrastructure.graphite;
+package org.hesperides.core.infrastructure.monitoring;
 
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
@@ -18,7 +18,7 @@ import static org.hesperides.commons.spring.SpringProfiles.GRAPHITE;
 @Configuration
 @Profile(GRAPHITE)
 @Slf4j
-public class MetricsConfiguration {
+public class GraphiteMetricsConfiguration {
 
     @Value("${metrics.graphite.host}")
     private String graphiteHost;
@@ -34,7 +34,7 @@ public class MetricsConfiguration {
 
     private final MetricRegistry registry;
 
-    public MetricsConfiguration() {
+    public GraphiteMetricsConfiguration() {
         this.registry = new MetricRegistry();
     }
 
