@@ -85,3 +85,5 @@ management:
 
 swagger:
   host: ${SWAGGER_HOST:}
+
+sentry.ignored-exceptions: ${SENTRY_IGNORED_EXCEPTIONS:,}

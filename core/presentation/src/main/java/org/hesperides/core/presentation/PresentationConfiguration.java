@@ -5,7 +5,6 @@ import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
-import io.sentry.spring.SentryExceptionResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.StandardWrapper;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
@@ -14,7 +13,6 @@ import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTags;
 import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -22,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
@@ -111,41 +108,4 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         return gsonBuilder.create();
     }
 
-    @Bean
-    @ConditionalOnProperty("SENTRY_DSN") // environment variable
-    public HandlerExceptionResolver sentryExceptionResolver() {
-        log.info("Creating a SentryExceptionResolver as HandlerExceptionResolver");
-        return new SentryExceptionResolver();
-    }
-
-    // "Applying TimedAspect makes @Timed usable on any arbitrary method"
-    // FROM: https://micrometer.io/docs/concepts
-    @Bean
-    TimedAspect timedAspect(MeterRegistry registry) {
-        return new TimedAspect(registry);
-    }
-
-    // Configuration des tags multi-dimensionnels Prometheus
-    // Inspiré de org.springframework.boot.actuate.metrics.web.servlet.DefaultWebMvcTagsProvider
-    @Bean
-    public WebMvcTagsProvider webMvcTagsProvider() {
-        return new WebMvcTagsProvider() {
-            @Override
-            public Iterable<Tag> getTags(HttpServletRequest request, HttpServletResponse response, Object handler, Throwable exception) {
-                List<Tag> tags = new ArrayList<>();
-                tags.add(WebMvcTags.method(request));
-                tags.add(WebMvcTags.uri(request, response));
-                tags.add(Tag.of("path", request.getRequestURI()));
-                tags.add(Tag.of("query", defaultString(request.getQueryString())));
-                tags.add(WebMvcTags.exception(exception));
-                tags.add(WebMvcTags.status(response));
-                return tags;
-            }
-
-            @Override
-            public Iterable<Tag> getLongRequestTags(HttpServletRequest request, Object handler) {
-                return Tags.of(WebMvcTags.method(request), WebMvcTags.uri(request, null));
-            }
-        };
-    }
 }
