@@ -25,7 +25,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         features = "../bdd/src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.activedirectory_integration"},
         tags = {"@require-real-ad,@auth-related"})
-public class CucumberADIntegTests {
+public class CucumberActiveDirectoryIntegTests {
 
     public static void main(String[] args) {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");

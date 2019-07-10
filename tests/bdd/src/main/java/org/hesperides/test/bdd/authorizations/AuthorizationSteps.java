@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hesperides.test.bdd.commons.AuthCredentialsConfig.LAMBDA_TEST_PROFILE;
 import static org.junit.Assert.assertNotNull;
@@ -44,7 +45,7 @@ public class AuthorizationSteps extends HesperidesScenario implements En {
 
         Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
 
-        Given("^a user belonging to A_GROUP$", () -> {
+        Given("^a user belonging to a given group", () -> {
             setAuthUserRole(LAMBDA_TEST_PROFILE);
             assertNotNull("Bean not autowired, probably because profile NOLDAP is in use", ldapAuthenticationProvider);
             HashSet<String> userGroupsDNs = ldapAuthenticationProvider.getUserGroupsDN(
@@ -54,7 +55,11 @@ public class AuthorizationSteps extends HesperidesScenario implements En {
         });
 
         Given("^a user that does not belong to any group$", () -> {
+            fail("TODO");
+        });
 
+        Then("^the user is retrieved without any group$", () -> {
+            fail("TODO");
         });
     }
 

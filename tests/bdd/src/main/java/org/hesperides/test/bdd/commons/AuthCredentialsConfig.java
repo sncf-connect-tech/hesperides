@@ -15,25 +15,19 @@ public class AuthCredentialsConfig {
     public static final String PROD_TEST_PROFILE = "prod";
 
     @Setter
-    @Getter
-    private String lambdaUserName = "user";
+    private String lambdaUsername = "user";
     @Setter
-    @Getter
-    private String lambdaUserPassword = "password";
+    private String lambdaPassword = "password";
 
     @Setter
-    @Getter
-    private String techUserName = "tech";
+    private String techUsername = "tech";
     @Setter
-    @Getter
-    private String techUserPassword = "password";
+    private String techPassword = "password";
 
     @Setter
-    @Getter
-    private String prodUserName = "prod";
+    private String prodUsername = "prod";
     @Setter
-    @Getter
-    private String prodUserPassword = "password";
+    private String prodPassword = "password";
 
     @Setter
     @Getter
@@ -47,11 +41,11 @@ public class AuthCredentialsConfig {
     public String getUsernameForTestProfile(String testProfile) {
         String username;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            username = lambdaUserName;
+            username = lambdaUsername;
         } else if (TECH_TEST_PROFILE.equals(testProfile)) {
-            username = techUserName;
+            username = techUsername;
         } else if (PROD_TEST_PROFILE.equals(testProfile)) {
-            username = prodUserName;
+            username = prodUsername;
         } else {
             throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
@@ -61,11 +55,11 @@ public class AuthCredentialsConfig {
     public String getPasswordForTestProfile(String testProfile) {
         String username;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            username = lambdaUserPassword;
+            username = lambdaPassword;
         } else if (TECH_TEST_PROFILE.equals(testProfile)) {
-            username = techUserPassword;
+            username = techPassword;
         } else if (PROD_TEST_PROFILE.equals(testProfile)) {
-            username = prodUserPassword;
+            username = prodPassword;
         } else {
             throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
