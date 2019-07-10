@@ -20,9 +20,7 @@ server:
     enabled: true
     mime-types: application/json
 
-hesperides:
-  security.auth-whitelist: ${AUTH_WHITELIST:/versions|/manage/**|/swagger-resources/|/swagger-ui.html|/v2/api-docs|/webjars/**}
-  cache.get-all-applications-detail.duration-in-hours: ${GET_ALL_APPLICATIONS_DETAIL_CACHE_DURATION_IN_HOURS:1}
+hesperides.security.auth-whitelist: ${AUTH_WHITELIST:/versions|/manage/**|/swagger-resources/|/swagger-ui.html|/v2/api-docs|/webjars/**}
 
 ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
   url: ${LDAP_URL:}
@@ -88,7 +86,6 @@ management:
       exposure:
         include: '*'
 
-swagger:
-  host: ${SWAGGER_HOST:}
+swagger.host: ${SWAGGER_HOST:}
 
 sentry.ignored-exceptions: ${SENTRY_IGNORED_EXCEPTIONS:,}

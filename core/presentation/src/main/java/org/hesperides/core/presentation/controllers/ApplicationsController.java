@@ -9,7 +9,6 @@ import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
-import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
@@ -113,7 +112,7 @@ public class ApplicationsController extends AbstractController {
 
     @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
     @GetMapping("/platforms")
-    @Cacheable(GetAllApplicationsCacheConfiguration.CACHE_NAME)
+    @Cacheable("all-applications-detail")
     public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
 
         TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");

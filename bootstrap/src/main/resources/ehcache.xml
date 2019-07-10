@@ -18,4 +18,11 @@
            diskPersistent="false"
            eternal="false"
            overflowToDisk="false"/>
+    <cache name="all-applications-detail"
+           maxElementsInMemory="1"
+           timeToLiveSeconds="3600"
+           memoryStoreEvictionPolicy="LRU"
+           diskPersistent="false"
+           eternal="false"
+           overflowToDisk="false"/>
 </ehcache>
