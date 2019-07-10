@@ -52,8 +52,8 @@ public class AuthorizationUseCases {
         return authorizationQueries.getApplicationAuthorities(applicationName);
     }
 
-    public void createOrUpdateApplicationAuthorities(String applicationName, Map<String, List<String>> authorities, User user) {
-        if (platformQueries.applicationExists(applicationName)) {
+    public void setApplicationAuthorities(String applicationName, Map<String, List<String>> authorities, User user) {
+        if (!platformQueries.applicationExists(applicationName)) {
             throw new ApplicationNotFoundException(applicationName);
         }
 

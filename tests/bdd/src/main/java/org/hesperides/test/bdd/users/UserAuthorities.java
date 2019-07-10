@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.bdd.authorizations;
+package org.hesperides.test.bdd.users;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.infrastructure.security.LdapAuthenticationProvider;
@@ -36,12 +36,12 @@ import static org.hesperides.test.bdd.commons.AuthCredentialsConfig.LAMBDA_TEST_
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class AuthorizationSteps extends HesperidesScenario implements En {
+public class UserAuthorities extends HesperidesScenario implements En {
 
     @Autowired(required = false)
     private LdapAuthenticationProvider ldapAuthenticationProvider;
 
-    public AuthorizationSteps() {
+    public UserAuthorities() {
 
         Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
 

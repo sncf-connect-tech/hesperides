@@ -2,7 +2,6 @@ package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.test.bdd.authorizations.AuthorizationSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
@@ -11,6 +10,7 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
+import org.hesperides.test.bdd.users.UserAuthorities;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class CreateModules extends HesperidesScenario implements En {
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
-    private AuthorizationSteps authorizationSteps;
+    private UserAuthorities userAuthorities;
 
     public CreateModules() {
 
@@ -69,7 +69,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
 
-            authorizationSteps.ensureUserAuthIsSet();
+            userAuthorities.ensureUserAuthIsSet();
             testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
             moduleBuilder.withVersionId(1);
@@ -141,7 +141,7 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with this template content?$", (String templateContent) -> {
-            authorizationSteps.ensureUserAuthIsSet();
+            userAuthorities.ensureUserAuthIsSet();
             testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
             templateBuilder.setContent(templateContent);

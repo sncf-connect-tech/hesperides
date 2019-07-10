@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.applications;
 
+import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -27,21 +28,43 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ApplicationBuilder {
+public class ApplicationAuthoritiesBuilder {
 
-    Map<String, List<String>> authorities = new HashMap<>();
     private String applicationName;
+    private Map<String, List<String>> authorities;
 
-    public ApplicationBuilder() {
+    public ApplicationAuthoritiesBuilder() {
         reset();
     }
 
-    public ApplicationBuilder reset() {
+    public ApplicationAuthoritiesBuilder reset() {
         applicationName = "test-application";
+        authorities = new HashMap<>();
         return this;
     }
 
     public String getApplicationName() {
         return applicationName;
+    }
+
+    public void withApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public void withAuthorities(List<String> authorities) {
+        String authoritiesKey = applicationName + "_PROD_USER";
+        if (this.authorities.containsKey(authoritiesKey)) {
+            this.authorities.get(authoritiesKey).addAll(authorities);
+        } else {
+            this.authorities.put(applicationName + "_PROD_USER", authorities);
+        }
+    }
+
+    public ApplicationAuthoritiesInput buildInput() {
+        return new ApplicationAuthoritiesInput(authorities);
+    }
+
+    public Map<String, List<String>> getAuthorities() {
+        return authorities;
     }
 }

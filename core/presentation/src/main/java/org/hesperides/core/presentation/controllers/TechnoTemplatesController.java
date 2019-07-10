@@ -75,7 +75,7 @@ public class TechnoTemplatesController extends AbstractController {
     }
 
     @GetMapping("/{techno_name}/{techno_version}/{techno_type}/templates/{template_name:.+}")
-    @ApiOperation("Get template's details")
+    @ApiOperation("Get template's detail")
     public ResponseEntity<TemplateIO> getTemplate(@PathVariable("techno_name") final String technoName,
                                                   @PathVariable("techno_version") final String technoVersion,
                                                   @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType,

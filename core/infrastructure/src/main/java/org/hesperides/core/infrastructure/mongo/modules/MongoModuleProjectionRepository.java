@@ -82,7 +82,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
             throw new NotFoundException("Module not found - update impossible - module ID: " + event.getModuleId());
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
-        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos(), moduleDocument.getDomainKey());
+        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(
+                event.getTechnos(), moduleDocument.getDomainKey());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
 
@@ -226,13 +227,13 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     public List<TemplateContainerKeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query) {
         List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
-        return moduleRepository.findTechnoKeysInModules(modulesKeys)
+        List<String> technoIds = moduleRepository.findTechnoIdsInModules(modulesKeys)
                 .stream()
                 .map(ModuleDocument::getTechnos)
                 .flatMap(List::stream)
-                .map(TechnoDocument::getKey)
-                .map(KeyDocument::toKeyView)
+                .map(TechnoDocument::getId)
                 .distinct()
                 .collect(Collectors.toList());
+        return technoProjectionRepository.getTechnoKeysForTechnoIds(technoIds);
     }
 }

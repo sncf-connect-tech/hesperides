@@ -21,21 +21,21 @@
 package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.test.bdd.applications.ApplicationBuilder;
+import org.hesperides.test.bdd.applications.ApplicationAuthoritiesBuilder;
 import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.fail;
 
-public class UpdateApplications extends HesperidesScenario implements En {
+public class UpdateApplicationAuthorities extends HesperidesScenario implements En {
 
     @Autowired
     private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder applicationBuilder;
+    private ApplicationAuthoritiesBuilder applicationAuthoritiesBuilder;
 
-    public UpdateApplications() {
+    public UpdateApplicationAuthorities() {
 
         When("^I add the authority (.+) to the application", (String groupCN) -> {
             fail("TODO");

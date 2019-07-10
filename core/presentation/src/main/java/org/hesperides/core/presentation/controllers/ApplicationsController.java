@@ -103,7 +103,7 @@ public class ApplicationsController extends AbstractController {
     public ResponseEntity updateAuthorities(Authentication authentication,
                                             @PathVariable("application_name") final String applicationName,
                                             @Valid @RequestBody final ApplicationAuthoritiesInput applicationAuthoritiesInput) {
-        authorizationUseCases.createOrUpdateApplicationAuthorities(
+        authorizationUseCases.setApplicationAuthorities(
                 applicationName,
                 applicationAuthoritiesInput.getAuthorities(),
                 new User(authentication));

@@ -273,6 +273,10 @@ public class PlatformBuilder {
         return isProductionPlatform;
     }
 
+    public String getApplicationName() {
+        return applicationName;
+    }
+
     @Value
     public static class Property {
         String name;

@@ -28,7 +28,6 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableProperty
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
-import org.hesperides.test.bdd.authorizations.AuthorizationSteps;
 import org.hesperides.test.bdd.commons.AuthCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -36,6 +35,7 @@ import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.test.bdd.users.UserAuthorities;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -61,7 +61,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
-    private AuthorizationSteps authorizationSteps;
+    private UserAuthorities userAuthorities;
 
     public CreatePlatforms() {
 
@@ -299,7 +299,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(isProd)) {
             platformBuilder.withIsProductionPlatform(true);
-            authorizationSteps.setAuthUserRole(AuthCredentialsConfig.PROD_TEST_PROFILE);
+            userAuthorities.setAuthUserRole(AuthCredentialsConfig.PROD_TEST_PROFILE);
         }
 
         if (isNotEmpty(platformName)) {
@@ -319,7 +319,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             platformBuilder.incrementDeployedModuleIds();
         }
-        authorizationSteps.ensureUserAuthIsSet();
+        userAuthorities.ensureUserAuthIsSet();
         testContext.setResponseEntity(platformClient.create(platformBuilder.buildInput()));
         assertOK();
 

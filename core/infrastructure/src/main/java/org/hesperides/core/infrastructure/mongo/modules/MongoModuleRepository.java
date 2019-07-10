@@ -55,6 +55,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(count = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
     Integer countPasswordsInModules(List<KeyDocument> modulesKeys);
 
-    @Query(value = "{ 'key' : { $in: ?0 } }", fields = "{ 'technos.key' : 1 }")
-    List<ModuleDocument> findTechnoKeysInModules(List<KeyDocument> modulesKeys);
+    @Query(value = "{ 'key' : { $in: ?0 } }", fields = "{ 'technos.id' : 1 }")
+    List<ModuleDocument> findTechnoIdsInModules(List<KeyDocument> modulesKeys);
 }

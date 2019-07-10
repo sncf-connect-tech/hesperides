@@ -45,4 +45,7 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     @Query(count = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
     Integer countPasswordsInTechnos(List<KeyDocument> technoKeys);
+
+    @Query(value = "{ '_id' : { $in: ?0 } }", fields = "{ 'key' : 1 }")
+    List<TechnoDocument> findKeysByIdsIn(List<String> technoIds);
 }

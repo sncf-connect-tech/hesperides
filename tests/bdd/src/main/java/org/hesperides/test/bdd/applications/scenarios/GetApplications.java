@@ -22,23 +22,24 @@ package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.test.bdd.applications.ApplicationBuilder;
+import org.hesperides.test.bdd.applications.ApplicationAuthoritiesBuilder;
 import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertNull;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.extractCN;
@@ -51,7 +52,7 @@ public class GetApplications extends HesperidesScenario implements En {
     @Autowired
     private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder applicationBuilder;
+    private ApplicationAuthoritiesBuilder applicationAuthoritiesBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
@@ -84,13 +85,15 @@ public class GetApplications extends HesperidesScenario implements En {
                     getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
-        When("^I( try to)? get the application details( with parameter hide_platform set to true)?( requesting the passwords count)?$", (String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
-            assertNull("TODO", requestingThePasswordsCount);
+        When("^I( try to)? get the application details( with parameter hide_platform set to true)?( requesting the passwords count)?$", (
+                String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
-            testContext.setResponseEntity(applicationClient.getApplication(
-                    applicationBuilder.getApplicationName(),
+            final ResponseEntity responseEntity = applicationClient.getApplication(
+                    applicationAuthoritiesBuilder.getApplicationName(),
                     hidePlatform,
-                    getResponseType(tryTo, ApplicationOutput.class)));
+                    StringUtils.isNotEmpty(requestingThePasswordsCount),
+                    getResponseType(tryTo, ApplicationOutput.class));
+            testContext.setResponseEntity(responseEntity);
         });
 
         Then("^all the applications are retrieved with their platforms and their modules$", () -> {
@@ -115,8 +118,9 @@ public class GetApplications extends HesperidesScenario implements En {
             assertThat(authorities, hasItems(authority));
         });
 
-        Then("^the password count of the platform is greater than (\\d+)", (Integer count) -> {
-            fail("TODO");
+        Then("^the platform has at least (\\d+) password$", (Integer count) -> {
+            final Integer actualPasswordCount = ((ApplicationOutput) testContext.getResponseBody()).getPasswordCount();
+            Assertions.assertThat(actualPasswordCount).isGreaterThanOrEqualTo(count);
         });
 
         Then("^the application exact authorities are: (.+)", (String groupCNs) -> {
@@ -125,6 +129,12 @@ public class GetApplications extends HesperidesScenario implements En {
 
         Then("^the application now has 0 authorities", () -> {
             fail("TODO");
+        });
+
+        Then("^the application details contains these authorities", () -> {
+            final Map<String, List<String>> expectedAuthorities = applicationAuthoritiesBuilder.getAuthorities();
+            final Map<String, List<String>> actualAuthorities = ((ApplicationOutput) testContext.getResponseBody()).getAuthorities();
+            assertEquals(expectedAuthorities, actualAuthorities);
         });
     }
 }

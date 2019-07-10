@@ -31,6 +31,7 @@ import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
@@ -299,5 +300,13 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             throw new NotFoundException("Techno not found among " + technos.size() + " requested by module " + moduleKey.getNamespaceWithoutPrefix() + ", no techno was found in repository for the following keys: " + technoKeys);
         }
         return technoDocs;
+    }
+
+    public List<TemplateContainerKeyView> getTechnoKeysForTechnoIds(List<String> technoIds) {
+        return technoRepository.findKeysByIdsIn(technoIds)
+                .stream()
+                .map(TechnoDocument::getKey)
+                .map(KeyDocument::toKeyView)
+                .collect(Collectors.toList());
     }
 }

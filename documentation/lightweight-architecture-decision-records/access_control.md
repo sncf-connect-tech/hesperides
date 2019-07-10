@@ -123,15 +123,9 @@ Dans le cas contraire, une `403` est retournée.
 **Input** :
 ```
 {
-    "name": "ABC",
     "authorities": {
         "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
-    },
-    "platforms: [{
-        "name": "PRD1",
-        "production": true,
-        "passwordsCount": 0 // Sera ignoré en input
-    }, ... ]
+    }
 }
 ```
 
