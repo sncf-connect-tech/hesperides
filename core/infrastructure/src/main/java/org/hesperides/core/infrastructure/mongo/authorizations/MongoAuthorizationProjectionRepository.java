@@ -92,6 +92,7 @@ public class MongoAuthorizationProjectionRepository implements AuthorizationProj
 
     @Override
     public List<String> getApplicationsForAuthorities(List<String> authorities) {
+        final List<ApplicationAuthoritiesDocument> all = applicationAuthoritiesRepository.findAll();
         return applicationAuthoritiesRepository.findApplicationsWithAuthorities(authorities)
                 .stream()
                 .map(ApplicationAuthoritiesDocument::getApplicationName)

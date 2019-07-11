@@ -35,7 +35,8 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 @Repository
 public interface MongoApplicationAuthoritiesRepository extends MongoRepository<ApplicationAuthoritiesDocument, String> {
 
-    @Query(value = "{ 'authorities' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
+    @Query(value = "{ 'authorities.value' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
+        // requêt mauvaise
     List<ApplicationAuthoritiesDocument> findApplicationsWithAuthorities(List<String> authorities);
 
     Optional<ApplicationAuthoritiesDocument> findByApplicationName(String applicationName);

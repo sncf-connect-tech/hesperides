@@ -109,6 +109,7 @@ public class ApplicationsController extends AbstractController {
                 applicationName,
                 applicationAuthoritiesInput.getAuthorities(),
                 new User(authentication));
+        final Optional<ApplicationAuthoritiesView> applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName);
         return ResponseEntity.ok().build();
     }
 

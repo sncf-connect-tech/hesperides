@@ -24,7 +24,7 @@ public class LdapGroupAuthority implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return this.groupCN;
+        return this.groupDN; // Est-ce qu'on veut utiliser le CN ou le DN
     }
 
     public static boolean containDN(Set<LdapGroupAuthority> groupDNs, String dn) {
