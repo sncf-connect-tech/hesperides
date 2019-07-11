@@ -18,6 +18,19 @@ Feature: Restrict actions on prod platforms to prod users
     When I try to update this platform
     Then a 403 error is returned, blaming "Updating a production platform is reserved to production role"
 
+  #issue-693
+  Scenario: restrict prod platform properties update
+    Given an existing module with this template content
+      """
+      {{ a-property }}
+      """
+    And an existing prod platform with this module
+    And an authenticated lambda user
+    When I try to save these properties
+      | name       | value   |
+      | a-property | a-value |
+    Then a 403 error is returned, blaming "Setting properties of a production platform is reserved to production role"
+
   Scenario: restrict non-prod platform update to prod
     Given an existing platform
     And an authenticated lambda user
