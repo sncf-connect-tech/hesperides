@@ -50,7 +50,6 @@ import javax.annotation.Resource;
 import javax.naming.*;
 import javax.naming.directory.*;
 import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapName;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -155,7 +154,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData);
+        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData, buildSearchContext(username, password));
 
         // Rôles globaux
         String prodGroupDN = ldapConfiguration.getProdGroupDN();
@@ -184,8 +183,8 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         return authorities;
     }
 
-    private Set<LdapGroupAuthority> extractGroupAuthoritiesRecursivelyWithCache(DirContextAdapter userData) {
-        cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(new ParentGroupsDNRetrieverFromLdap(userData));
+    private Set<LdapGroupAuthority> extractGroupAuthoritiesRecursivelyWithCache(DirContextAdapter userData, DirContext dirContext) {
+        cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(new ParentGroupsDNRetrieverFromLdap(dirContext, ldapConfiguration));
         Set<LdapGroupAuthority> groupAuthorities = new HashSet<>();
         Attributes attributes;
         try {
@@ -212,20 +211,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
             throw LdapUtils.convertLdapException(e);
         }
         return extractDirectParentGroupsDN(attributes);
-    }
-
-    // Public for testing
-    public HashSet<String> getParentGroupsDN(String username, String password, String dn) {
-        DirContext dirContext = this.buildSearchContext(username, password);
-        DirContextAdapter dirContextAdapter;
-        try {
-            dirContextAdapter = new DirContextAdapter(dirContext.getAttributes(""), new LdapName(dn),
-                    new LdapName(dirContext.getNameInNamespace()));
-        } catch (NamingException e) {
-            throw LdapUtils.convertLdapException(e);
-        }
-        ParentGroupsDNRetrieverFromLdap parentGroupsDNRetriever = new ParentGroupsDNRetrieverFromLdap(dirContextAdapter);
-        return parentGroupsDNRetriever.retrieveParentGroupsDN(dn);
     }
 
     /*****************************************************************/

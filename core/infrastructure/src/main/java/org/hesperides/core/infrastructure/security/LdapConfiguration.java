@@ -49,7 +49,7 @@ public class LdapConfiguration {
     private String prodGroupDN;
     private String techGroupDN;
 
-    String getSearchFilterForUsername(String username) {
+    public String getSearchFilterForUsername(String username) {
         return String.format("(%s=%s)", usernameAttribute, username);
     }
 }

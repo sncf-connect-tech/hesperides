@@ -11,7 +11,7 @@ import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthor
 
 public class CachedParentLdapGroupAuthorityRetriever {
 
-    static final int MAX_RECURSION = 10; // arbitraire, existe pour éviter tout risque de boucle infinie
+    static final int MAX_RECURSION = 100; // arbitraire, existe pour éviter tout risque de boucle infinie
 
     private final Cache cache;
     private ParentGroupsDNRetriever parentGroupsDNRetriever;
