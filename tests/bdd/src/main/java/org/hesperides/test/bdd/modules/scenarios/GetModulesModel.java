@@ -118,14 +118,14 @@ public class GetModulesModel extends HesperidesScenario implements En {
         Then("^the model of this module contains the(?: updated)? properties$", () -> {
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
+            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the model of this module contains the property with the same name and comment$", () -> {
             assertOK();
             PropertyOutput expectedProperty = getFirstProperty(modelBuilder.build());
-            PropertyOutput actualProperty = getFirstProperty((ModelOutput) testContext.getResponseBody());
+            PropertyOutput actualProperty = getFirstProperty(testContext.getResponseBody(ModelOutput.class));
             assertEquals(expectedProperty.getName(), actualProperty.getName());
             assertEquals(expectedProperty.getComment(), actualProperty.getComment());
             assertEquals(expectedProperty.getDefaultValue(), actualProperty.getDefaultValue());
@@ -133,7 +133,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
 
         Then("^the model of this module lists (\\d+) propert(?:y|ies)$", (Integer propertyCount) -> {
             assertOK();
-            Set<PropertyOutput> actualProperties = ((ModelOutput) testContext.getResponseBody()).getProperties();
+            Set<PropertyOutput> actualProperties = testContext.getResponseBody(ModelOutput.class).getProperties();
             assertThat(actualProperties, hasSize(propertyCount));
         });
 
@@ -143,7 +143,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
                         "(?: and(?: has)? a default value of \"([^\"]+)\")?",
                 (String propertyName, String isRequiredPassword, String comment, String defaultValue) -> {
                     assertOK();
-                    Set<PropertyOutput> actualProperties = ((ModelOutput) testContext.getResponseBody()).getProperties();
+                    Set<PropertyOutput> actualProperties = testContext.getResponseBody(ModelOutput.class).getProperties();
                     PropertyOutput matchingPropertyModel = actualProperties.stream().filter(p -> p.getName().equals(propertyName)).findAny().orElse(null);
                     assertNotNull(matchingPropertyModel);
                     if (isNotBlank(isRequiredPassword)) {
@@ -165,7 +165,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         Then("^the model of this module doesn't contain the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
+            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
             assertEquals(expectedModel, actualModel);
         });
     }

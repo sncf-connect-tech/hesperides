@@ -1,16 +1,18 @@
 @require-real-ad
 Feature: Get user authorities
 
-  Scenario: retrieve a user authorities
-    Given a user belonging to A_GROUP
+  Scenario: retrieve a user's authority groups
+    Given a user belonging to a given authority group
     When I get the current user information
-    Then A_GROUP is listed in the user authorities
+    Then the given group is listed under the user authority groups
 
-  Scenario: retrieve authorities associated with an application
-    Given a user belonging to A_GROUP
-    And an application APP with prod group A_GROUP
+  @wip
+  Scenario: retrieve authority groups associated with an application
+    Given an authenticated prod user
+    And an application ABC associated with the given authority group
+    And a user belonging to a given authority group
     When I get the current user information
-    Then PROD_APP is listed in the user authorities
+    Then ABC_PROD_USER is listed under the user authority roles
 
   #issue-667
   Scenario: retrieve a user that has no authorities

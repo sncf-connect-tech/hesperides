@@ -18,15 +18,15 @@ public class TestContext {
 
 
     public String getUsername() {
-        return authCredentialsConfig.getUsernameForTestProfile(authorizationRole);
+        return authCredentialsConfig.getTestProfileUsername(authorizationRole);
     }
 
     public String getPassword() {
-        return authCredentialsConfig.getPasswordForTestProfile(authorizationRole);
+        return authCredentialsConfig.getTestProfilePassword(authorizationRole);
     }
 
-    public Object getResponseBody() {
-        return responseEntity.getBody();
+    public <R> R getResponseBody(Class<R> responseType) {
+        return responseType.cast(responseEntity.getBody());
     }
 
     public void setAuthorizationRole(String authorizationRole) {

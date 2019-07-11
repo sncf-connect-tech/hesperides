@@ -62,17 +62,17 @@ public class GetPlatforms extends HesperidesScenario implements En {
         Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {
             assertOK();
             PlatformIO expectedPlatform = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformState() : platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^there is (\\d+) module on this(?: new)? platform$", (Integer moduleCount) -> {
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             assertThat(actualPlatform.getDeployedModules(), hasSize(moduleCount));
         });
 
         Then("^there are (\\d+) instances$", (Integer expectedCount) -> {
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             int instancesCount = actualPlatform.getDeployedModules().stream()
                     .mapToInt(deployedModule -> deployedModule.getInstances().size())
                     .sum();

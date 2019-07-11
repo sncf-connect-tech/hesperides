@@ -31,14 +31,14 @@ public class AuthCredentialsConfig {
 
     @Setter
     @Getter
-    private String lambdaUserParentGroupDN;
+    private String lambdaParentGroupDN;
 
     public BasicAuthenticationInterceptor getBasicAuthInterceptorForTestProfile(String testProfile) {
-        return new BasicAuthenticationInterceptor(getUsernameForTestProfile(testProfile),
-                getPasswordForTestProfile(testProfile));
+        return new BasicAuthenticationInterceptor(getTestProfileUsername(testProfile),
+                getTestProfilePassword(testProfile));
     }
 
-    public String getUsernameForTestProfile(String testProfile) {
+    public String getTestProfileUsername(String testProfile) {
         String username;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
             username = lambdaUsername;
@@ -52,17 +52,17 @@ public class AuthCredentialsConfig {
         return username;
     }
 
-    public String getPasswordForTestProfile(String testProfile) {
-        String username;
+    public String getTestProfilePassword(String testProfile) {
+        String password;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            username = lambdaPassword;
+            password = lambdaPassword;
         } else if (TECH_TEST_PROFILE.equals(testProfile)) {
-            username = techPassword;
+            password = techPassword;
         } else if (PROD_TEST_PROFILE.equals(testProfile)) {
-            username = prodPassword;
+            password = prodPassword;
         } else {
             throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
-        return username;
+        return password;
     }
 }

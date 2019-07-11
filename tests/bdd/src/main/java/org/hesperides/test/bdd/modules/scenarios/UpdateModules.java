@@ -36,7 +36,7 @@ public class UpdateModules extends HesperidesScenario implements En {
         Then("^the module is successfully updated$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleBuilder.withVersionId(2).build();
-            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
             assertEquals(expectedModule, actualModule);
         });
 

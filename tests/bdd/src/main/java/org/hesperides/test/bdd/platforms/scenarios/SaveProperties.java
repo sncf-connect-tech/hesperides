@@ -71,7 +71,7 @@ public class SaveProperties extends HesperidesScenario implements En {
         Then("^the properties are successfully saved$", () -> {
             assertOK();
             PropertiesIO expectedProperties = propertiesIO;
-            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedProperties, actualProperties);
         });
     }

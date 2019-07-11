@@ -50,7 +50,7 @@ public class ApplicationClient {
         return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 
-    public void updateAuthorities(String applicationName, ApplicationAuthoritiesInput authorities) {
+    public void setAuthorities(String applicationName, ApplicationAuthoritiesInput authorities) {
         restTemplate.put("/applications/{application_name}/authorities", authorities, applicationName);
     }
 }

@@ -98,28 +98,28 @@ public class GetApplications extends HesperidesScenario implements En {
 
         Then("^all the applications are retrieved with their platforms and their modules$", () -> {
             assertOK();
-            List<ApplicationOutput> actualApplications = ((AllApplicationsDetailOutput) testContext.getResponseBody()).getApplications();
+            List<ApplicationOutput> actualApplications = testContext.getResponseBody(AllApplicationsDetailOutput.class).getApplications();
             assertEquals(expectedApplications, actualApplications);
         });
 
         Then("^the application is successfully retrieved", () -> {
             assertOK();
             ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
-            ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
+            ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
             assertEquals(expectedApplication, actualApplication);
         });
 
         Then("^(.+) is listed in the application authorities", (String authority) -> {
-            ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
+            ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
             List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>) actualApplication.getAuthorities());
             if (authority.equals("A_GROUP")) {
-                authority = extractCN(authCredentialsConfig.getLambdaUserParentGroupDN());
+                authority = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
             }
             assertThat(authorities, hasItems(authority));
         });
 
         Then("^the platform has at least (\\d+) password$", (Integer count) -> {
-            final Integer actualPasswordCount = ((ApplicationOutput) testContext.getResponseBody()).getPasswordCount();
+            final Integer actualPasswordCount = testContext.getResponseBody(ApplicationOutput.class).getPasswordCount();
             Assertions.assertThat(actualPasswordCount).isGreaterThanOrEqualTo(count);
         });
 
@@ -131,9 +131,9 @@ public class GetApplications extends HesperidesScenario implements En {
             fail("TODO");
         });
 
-        Then("^the application details contains these authorities", () -> {
+        Then("^the application details contains these authority groups", () -> {
             final Map<String, List<String>> expectedAuthorities = applicationAuthoritiesBuilder.getAuthorities();
-            final Map<String, List<String>> actualAuthorities = ((ApplicationOutput) testContext.getResponseBody()).getAuthorities();
+            final Map<String, List<String>> actualAuthorities = testContext.getResponseBody(ApplicationOutput.class).getAuthorities();
             assertEquals(expectedAuthorities, actualAuthorities);
         });
     }

@@ -26,13 +26,13 @@ public class SearchPlatforms extends HesperidesScenario implements En {
 
         Then("^the platform search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) testContext.getResponseBody());
+            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
             assertEquals(nbEntries.intValue(), result.size());
         });
 
         Then("^the platform \"([^\"]*)\" is found$", (String platformName) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) testContext.getResponseBody());
+            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
             assertEquals(platformName, result.get(0).getName());
         });
 

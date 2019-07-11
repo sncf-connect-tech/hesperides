@@ -250,7 +250,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             }
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             Assert.assertEquals(expectedPlatform, actualPlatform);
             if (isNotEmpty(expectedModulePath)) {
                 Assert.assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
@@ -259,7 +259,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
             assertEquals(HttpStatus.valueOf(httpCode), testContext.getResponseStatusCode());
-            assertThat((String) testContext.getResponseBody(), containsString(message));
+            assertThat(testContext.getResponseBody(String.class), containsString(message));
         });
 
         Then("^the platform creation fails with an already exist error$", this::assertConflict);

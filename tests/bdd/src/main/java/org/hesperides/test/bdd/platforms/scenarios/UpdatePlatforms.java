@@ -76,7 +76,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         Then("^the platform is successfully updated$", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             assertEquals(expectedPlatform, actualPlatform);
         });
 
@@ -90,7 +90,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform has (?:no more|zero) modules$", () -> {
-            PlatformIO platform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO platform = testContext.getResponseBody(PlatformIO.class);
             assertThat(platform.getDeployedModules(), is(empty()));
         });
 

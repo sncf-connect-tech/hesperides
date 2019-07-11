@@ -175,7 +175,7 @@ public class CreateModules extends HesperidesScenario implements En {
         Then("^the module is successfully created$", () -> {
             assertCreated();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
             assertEquals(expectedModule, actualModule);
         });
 

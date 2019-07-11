@@ -98,11 +98,13 @@ public class ApplicationsController extends AbstractController {
         return ResponseEntity.ok(searchResultOutputs);
     }
 
-    @ApiOperation("Update authorities of an application")
+
+    @ApiOperation("Update the authorities of an application")
     @PutMapping("/{application_name}/authorities")
-    public ResponseEntity updateAuthorities(Authentication authentication,
-                                            @PathVariable("application_name") final String applicationName,
-                                            @Valid @RequestBody final ApplicationAuthoritiesInput applicationAuthoritiesInput) {
+    public ResponseEntity setAuthorities(Authentication authentication,
+                                         @PathVariable("application_name") final String applicationName,
+                                         @Valid @RequestBody final ApplicationAuthoritiesInput applicationAuthoritiesInput) {
+
         authorizationUseCases.setApplicationAuthorities(
                 applicationName,
                 applicationAuthoritiesInput.getAuthorities(),

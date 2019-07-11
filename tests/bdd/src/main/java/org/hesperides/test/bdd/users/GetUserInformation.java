@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.users;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.presentation.io.UserInfoOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.springframework.http.HttpStatus;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.extractCN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -19,16 +20,20 @@ public class GetUserInformation extends HesperidesScenario implements En {
     public GetUserInformation() {
 
         When("^I get the current user information$", () -> {
-            testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", Map.class));
+            testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", UserInfoOutput.class));
         });
 
-        Then("^(.+) is listed in the user authorities$", (String authority) -> {
+        Then("^the given group is listed under the user authority groups$", () -> {
             assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
-            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>) getBodyAsMap().get("authorities"));
-            if (authority.equals("A_GROUP")) {
-                authority = extractCN(authCredentialsConfig.getLambdaUserParentGroupDN());
-            }
-            assertThat(authorities, hasItems(authority));
+            String expectedAuthorityGroup = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
+            List<String> actualAuthorityGroups = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getGroups();
+            assertThat(actualAuthorityGroups, hasItem(expectedAuthorityGroup));
+        });
+
+        Then("^(.+) is listed under the user authority roles$", (String expectedAuthorityRole) -> {
+            assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
+            List<String> actualAuthorityRoles = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getRoles();
+            assertThat(actualAuthorityRoles, hasItem(expectedAuthorityRole));
         });
 
         When("^(?:the user log out|the user re-send valid credentials)$", () ->

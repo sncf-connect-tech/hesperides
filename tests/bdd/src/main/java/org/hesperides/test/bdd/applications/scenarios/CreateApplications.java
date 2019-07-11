@@ -30,6 +30,7 @@ import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.fail;
@@ -51,15 +52,24 @@ public class CreateApplications extends HesperidesScenario implements En {
             fail("TODO");
         });
 
-        Given("^an application ?(.+)? with authorities", (String applicationName, DataTable data) -> {
+        Given("^an application ?(.+)? associated with the following authority groups", (String applicationName, DataTable data) -> {
             final List<String> authorities = data.asList(String.class);
-            if (StringUtils.isNotEmpty(applicationName)) {
-                platformBuilder.withApplicationName(applicationName);
-            }
-            platformClient.create(platformBuilder.buildInput());
-            applicationAuthoritiesBuilder.withApplicationName(platformBuilder.getApplicationName());
-            applicationAuthoritiesBuilder.withAuthorities(authorities);
-            applicationClient.updateAuthorities(applicationAuthoritiesBuilder.getApplicationName(), applicationAuthoritiesBuilder.buildInput());
+            createPlatformAndSetApplicationAuthorities(applicationName, authorities);
         });
+
+        Given("^an application ?(.+)? associated with the given authority group$", (String applicationName) -> {
+            final String givenAuthorityGroup = authCredentialsConfig.getLambdaParentGroupDN();
+            createPlatformAndSetApplicationAuthorities(applicationName, Collections.singletonList(givenAuthorityGroup));
+        });
+    }
+
+    private void createPlatformAndSetApplicationAuthorities(String applicationName, List<String> authorities) {
+        if (StringUtils.isNotEmpty(applicationName)) {
+            platformBuilder.withApplicationName(applicationName);
+        }
+        platformClient.create(platformBuilder.buildInput());
+        applicationAuthoritiesBuilder.withApplicationName(platformBuilder.getApplicationName());
+        applicationAuthoritiesBuilder.withAuthorities(authorities);
+        applicationClient.setAuthorities(applicationAuthoritiesBuilder.getApplicationName(), applicationAuthoritiesBuilder.buildInput());
     }
 }

@@ -53,13 +53,13 @@ public class SearchApplications extends HesperidesScenario implements En {
 
         Then("^the application (?:list|search result) contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) testContext.getResponseBody());
+            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
             assertEquals(nbEntries.intValue(), result.size());
         });
 
         Then("^the application \"(.*?)\" is found$", (String applicationName) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList((SearchResultOutput[]) testContext.getResponseBody());
+            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
             assertEquals(applicationName, result.get(0).getName());
         });
 
