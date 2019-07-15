@@ -2,6 +2,11 @@ package conf
 
 import java.lang.System._
 
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+
+import scala.concurrent.duration.{Duration, FiniteDuration}
+
 object Config {
 
   val baseUrl = getProperty("baseUrl", "http://localhost:8080/rest")

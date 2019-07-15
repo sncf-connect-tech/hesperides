@@ -1,5 +1,9 @@
 package scenario
 
+import feeder.Feeders
+import io.gatling.core.Predef._
+import process.{Events, Modules, Platforms}
+
 object Generic {
 
   val modules = scenario("Creation / modification / consultation / suppression de modules")

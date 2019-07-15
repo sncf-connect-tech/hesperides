@@ -1,5 +1,8 @@
 package process
 
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+
 object Platforms {
 
   val create = exec(http("createPlatform")
