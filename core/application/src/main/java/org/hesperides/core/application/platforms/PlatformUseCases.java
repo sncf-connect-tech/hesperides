@@ -277,16 +277,16 @@ public class PlatformUseCases {
     }
 
     public Integer countModulesAndTechnosPasswords(ApplicationView applicationView) {
-        List<Module.Key> moduleKeys = applicationView.getPlatforms()
+        List<Module.Key> distinctModuleKeys = applicationView.getPlatforms()
                 .stream()
                 .map(PlatformView::getDeployedModules)
                 .flatMap(List::stream)
                 .map(DeployedModuleView::getModuleKey)
                 .distinct()
                 .collect(Collectors.toList());
-        Integer modulePasswordCount = moduleQueries.countPasswords(moduleKeys);
+        Integer modulePasswordCount = moduleQueries.countPasswords(distinctModuleKeys);
 
-        List<TemplateContainerKeyView> technosKeys = moduleQueries.getDistinctTechnoKeysInModules(moduleKeys);
+        List<TemplateContainerKeyView> technosKeys = moduleQueries.getDistinctTechnoKeysInModules(distinctModuleKeys);
         Integer technoPasswordCount = technoQueries.countPasswords(Techno.Key.fromViews(technosKeys));
 
         return modulePasswordCount + technoPasswordCount;

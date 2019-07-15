@@ -32,7 +32,7 @@ nous intégrons dans Hesperides un mécanisme d'[ACLs](https://fr.wikipedia.org/
 
 ## Design
 
-Globalement, l'ajout de ces fonctionnalités entraîne quelques ajouts structurels :
+Globalement, l'ajout de ces fonctionnalités entraîne quelques modifications structurelles :
 - À chaque plateforme est associé un "privilège" Spring Boot (`authority`) : `${APP}_PROD_USER`
 - Une nouvelle collection dans la base de données fait le lien entre `${APP}_PROD_USER` et groupes _Active Directory_
 - De nouvelles ressources dans le _endpoint_ `/users`, détaillées ci-dessous
@@ -79,14 +79,14 @@ Ajout d'un champ `authorities` dans la réponse.
 ```
 {
     "name": "ABC",
-    "authorities": {
+    "directory_groups": {
         "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
     },
     "platforms: [ ... ]
 }
 ```
 
-Ici, les `authorities` représentent les groupes AD qui donnent les droits de prod sur les plateformes de l'application.
+Ici, le paramètre `directory_groups` représentent les groupes AD qui donnent les droits de prod sur les plateformes de l'application.
 
 ### GET /applications/$APP?with_passwords_count=true
 
@@ -99,7 +99,7 @@ mais non catégorisées comme "production".
 ```
 {
     "name": "ABC",
-    "authorities": {
+    "directory_groups": {
         "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
     },
     "platforms: [{
@@ -112,18 +112,18 @@ mais non catégorisées comme "production".
 
 ### PUT /applications/$APP/authorities
 
-Permet de mettre à jour la propriété `authorities` d'une application et le flag `production` d'une plateforme.
+Permet de mettre à jour la propriété `directory_groups` d'une application.
 
-**Droits de modification des `authorities`** : ce champ peut être modifié uniquement si l'utilisateur effectuant la modification :
+**Droits de modification des `directory_groups`** : ce champ peut être modifié uniquement si l'utilisateur effectuant la modification :
 - a les droits "prod" globaux
-- appartient a l'un des groupes dans `authorities`.
+- appartient a l'un des groupes dans `directory_groups`.
 
 Dans le cas contraire, une `403` est retournée.
 
 **Input** :
 ```
 {
-    "authorities": {
+    "directory_groups": {
         "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
     }
 }
@@ -144,7 +144,7 @@ Cette approche n'étant donc plus envisageable en terme de charge générée sur
 pour minimiser ce nombre d'appels Hesperides va désormais collecter la liste de tous les groupes parents de l'utilisateur,
 transitivement et avec un cache.
 
-Voici donc le nouvel algorithme de collecte des `authorities` par connexion d'utilisateur :
+Voici donc le nouvel algorithme de collecte des `directory_groups` par connexion d'utilisateur :
 1. un appel systématique à l'ActiveDirectory pour récupérer la liste des groupes directement parents, via une requête `memberOf`.
 2. on résoud la liste exhaustive des groupes parents en bénéficiant d'un cache, générant entre 0 et `N` appels
 (avec `N` la profondeur maximum de l'arbre des groupes parents, et donc très peu élevé).
@@ -156,9 +156,9 @@ Une seule requête est nécessaire.
 
 ### Caches
 
-Deux caches sont mis en place au niveau de la gestions des `authorities` :
+Deux caches sont mis en place au niveau de la gestions des `directory_groups` :
 
-- par utilisateur, ses `authorities` sont mémorisées dans un cache avec TTL de 5 minutes et comme clef son _login_
+- par utilisateur, ses `directory_groups` sont mémorisées dans un cache avec TTL de 5 minutes et comme clef son _login_
 - globalement, l'arbre des dépendances entre groupes ActiveDirectory étant mis en cache, avec pour chaque groupe un TTL de 1 heure
 
 Malgré ces caches, comme Hesperides est _stateless_ et qu'aucune information relative à l'utilisateur n'est stockée en base de données,
