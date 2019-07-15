@@ -5,7 +5,7 @@ services:
   hesperides:
     build:
       context: ..
-      dockerfile: ../Dockerfile
+      dockerfile: Dockerfile
     image: hesperides:latest
     ports:
       - "8080:8080"
