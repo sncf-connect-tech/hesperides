@@ -46,7 +46,7 @@ public class ApplicationClient {
                 withPasswordCount);
     }
 
-    public ResponseEntity<AllApplicationsDetailOutput> getAllApplications() {
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
         return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 

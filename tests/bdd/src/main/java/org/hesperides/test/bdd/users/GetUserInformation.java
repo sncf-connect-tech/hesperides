@@ -44,13 +44,13 @@ public class GetUserInformation extends HesperidesScenario implements En {
                 assertEquals(HttpStatus.OK, testContext.getResponseStatusCode())
         );
 
-        Then("^user information is returned, (with|without) tech role and (with|without) prod role$",
-                (String withTechRole, String withProdRole) -> {
-                    assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
-                    Map body = getBodyAsMap();
-                    assertEquals("with".equals(withTechRole), body.get("techUser"));
-                    assertEquals("with".equals(withProdRole), body.get("prodUser"));
-                });
+        Then("^user information is returned, (with|without) tech role and (with|without) prod role$", (
+                String withTechRole, String withProdRole) -> {
+            assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
+            final UserInfoOutput actualUserInfo = testContext.getResponseBody(UserInfoOutput.class);
+            assertEquals("with".equals(withTechRole), actualUserInfo.getTechUser());
+            assertEquals("with".equals(withProdRole), actualUserInfo.getProdUser());
+        });
     }
 
     public static List<String> extractAuthoritiesValues(List<Map<String, String>> authorities) {

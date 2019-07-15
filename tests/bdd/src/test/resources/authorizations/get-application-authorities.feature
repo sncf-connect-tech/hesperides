@@ -1,3 +1,4 @@
+@require-real-ad
 Feature: Get application authorities
 
   Background:

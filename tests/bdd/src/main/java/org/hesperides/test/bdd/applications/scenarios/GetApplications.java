@@ -76,16 +76,16 @@ public class GetApplications extends HesperidesScenario implements En {
 
         });
 
-        When("^I get the list of all applications?$", () -> {
-            testContext.setResponseEntity(applicationClient.getAllApplications());
+        When("^I get all the applications detail$", () -> {
+            testContext.setResponseEntity(applicationClient.getAllApplicationsDetail());
         });
 
-        When("^I( try to)? get the applications list$", (String tryTo) -> {
+        When("^I( try to)? get the applications name", (String tryTo) -> {
             testContext.setResponseEntity(applicationClient.getApplications(
                     getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
-        When("^I( try to)? get the application details( with parameter hide_platform set to true)?( requesting the passwords count)?$", (
+        When("^I( try to)? get the application detail( with parameter hide_platform set to true)?( requesting the passwords count)?$", (
                 String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
             final ResponseEntity responseEntity = applicationClient.getApplication(
