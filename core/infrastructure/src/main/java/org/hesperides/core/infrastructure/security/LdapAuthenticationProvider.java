@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
-import org.hesperides.core.domain.security.entities.authorities.ActiveDirectoryGroup;
 import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
+import org.hesperides.core.domain.security.entities.authorities.DirectoryGroup;
 import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
 import org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever;
 import org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority;
@@ -170,12 +170,12 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
         // Rôles associés aux groupes Active Directory
         ldapGroupAuthorities.stream()
-                .map(ActiveDirectoryGroup::new)
+                .map(DirectoryGroup::new)
                 .forEach(authorities::add);
 
         // Applications avec droits de prod
         authorizationProjectionRepository
-                .getApplicationsForAuthorities(ldapGroupAuthorities)
+                .getApplicationsWithDirectoryGroups(ldapGroupAuthorities)
                 .stream()
                 .map(ApplicationRole::new)
                 .forEach(authorities::add);

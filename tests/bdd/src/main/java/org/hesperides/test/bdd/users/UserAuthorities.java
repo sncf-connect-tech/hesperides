@@ -45,7 +45,7 @@ public class UserAuthorities extends HesperidesScenario implements En {
 
         Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
 
-        Given("^a user belonging to a given authority group", () -> {
+        Given("^a user belonging to a given directory group", () -> {
             setAuthUserRole(LAMBDA_TEST_PROFILE);
             assertNotNull("Bean not autowired, probably because profile NOLDAP is in use", ldapAuthenticationProvider);
             HashSet<String> userGroupsDNs = ldapAuthenticationProvider.getUserGroupsDN(

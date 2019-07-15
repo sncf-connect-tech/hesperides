@@ -22,8 +22,8 @@ package org.hesperides.core.domain.security.exceptions;
 
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 
-public class CreateAuthoritiesForbiddenException extends ForbiddenOperationException {
-    public CreateAuthoritiesForbiddenException(String applicationName) {
-        super("You're not allowed to create the authorities for the application " + applicationName);
+public class CreateDirectoryGroupsForbiddenException extends ForbiddenOperationException {
+    public CreateDirectoryGroupsForbiddenException(String applicationName) {
+        super("You're not allowed to create the directory groups for the application " + applicationName);
     }
 }

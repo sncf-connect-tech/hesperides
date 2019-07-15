@@ -22,32 +22,32 @@ package org.hesperides.core.infrastructure.mongo.authorizations;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hesperides.core.domain.security.entities.ApplicationAuthorities;
-import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
+import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.hesperides.core.infrastructure.Collections.APPLICATION_AUTHORITIES;
+import static org.hesperides.core.infrastructure.Collections.APPLICATION_DIRECTORY_GROUPS;
 
 @Data
-@Document(collection = APPLICATION_AUTHORITIES)
+@Document(collection = APPLICATION_DIRECTORY_GROUPS)
 @NoArgsConstructor
-public class ApplicationAuthoritiesDocument {
+public class ApplicationDirectoryGroupsDocument {
     @Id
     private String id;
     private String applicationName;
-    private Map<String, List<String>> authorities;
+    private Map<String, List<String>> directoryGroups;
 
-    public ApplicationAuthoritiesDocument(String id, ApplicationAuthorities applicationAuthorities) {
+    public ApplicationDirectoryGroupsDocument(String id, ApplicationDirectoryGroups applicationDirectoryGroups) {
         this.id = id;
-        this.applicationName = applicationAuthorities.getApplicationName();
-        this.authorities = applicationAuthorities.getAuthorities();
+        this.applicationName = applicationDirectoryGroups.getApplicationName();
+        this.directoryGroups = applicationDirectoryGroups.getDirectoryGroups();
     }
 
-    ApplicationAuthoritiesView toView() {
-        return new ApplicationAuthoritiesView(id, applicationName, authorities);
+    ApplicationDirectoryGroupsView toView() {
+        return new ApplicationDirectoryGroupsView(id, applicationName, directoryGroups);
     }
 }

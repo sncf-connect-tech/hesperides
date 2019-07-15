@@ -22,8 +22,8 @@ package org.hesperides.core.domain.security.exceptions;
 
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 
-public class UpdateAuthoritiesForbiddenException extends ForbiddenOperationException {
-    public UpdateAuthoritiesForbiddenException(String applicationName) {
-        super("You're not allowed to update the authorities for the application " + applicationName);
+public class UpdateDirectoryGroupsForbiddenException extends ForbiddenOperationException {
+    public UpdateDirectoryGroupsForbiddenException(String applicationName) {
+        super("You're not allowed to update the directory groups for the application " + applicationName);
     }
 }

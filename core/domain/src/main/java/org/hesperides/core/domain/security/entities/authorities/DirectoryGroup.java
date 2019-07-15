@@ -22,11 +22,11 @@ package org.hesperides.core.domain.security.entities.authorities;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class ActiveDirectoryGroup implements GrantedAuthority {
+public class DirectoryGroup implements GrantedAuthority {
 
     private final String authority;
 
-    public ActiveDirectoryGroup(String authority) {
+    public DirectoryGroup(String authority) {
         this.authority = authority;
     }
 

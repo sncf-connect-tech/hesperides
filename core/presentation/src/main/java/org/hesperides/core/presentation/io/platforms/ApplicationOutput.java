@@ -36,13 +36,13 @@ public class ApplicationOutput {
     String name;
     @NotEmpty
     List<PlatformIO> platforms;
-    Map<String, List<String>> authorities;
+    Map<String, List<String>> directoryGroups;
     Integer passwordCount;
 
-    public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules, Map<String, List<String>> authorities, Integer passwordCount) {
+    public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules, Map<String, List<String>> directoryGroups, Integer passwordCount) {
         this.name = applicationView.getName();
         this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms(), hidePlatformsModules);
-        this.authorities = authorities;
+        this.directoryGroups = directoryGroups;
         this.passwordCount = passwordCount;
     }
 }

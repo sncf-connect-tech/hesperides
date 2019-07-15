@@ -26,6 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 @Value
-public class ApplicationAuthoritiesInput {
-    Map<String, List<String>> authorities;
+public class ApplicationDirectoryGroupsInput {
+    Map<String, List<String>> directoryGroups;
 }

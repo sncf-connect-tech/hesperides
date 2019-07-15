@@ -23,10 +23,10 @@ public class GetUserInformation extends HesperidesScenario implements En {
             testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", UserInfoOutput.class));
         });
 
-        Then("^the given group is listed under the user authority groups$", () -> {
+        Then("^the given group is listed under the user directory groups$", () -> {
             assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
             String expectedAuthorityGroup = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
-            List<String> actualAuthorityGroups = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getGroups();
+            List<String> actualAuthorityGroups = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getDirectoryGroups();
             assertThat(actualAuthorityGroups, hasItem(expectedAuthorityGroup));
         });
 
@@ -53,8 +53,8 @@ public class GetUserInformation extends HesperidesScenario implements En {
         });
     }
 
-    public static List<String> extractAuthoritiesValues(List<Map<String, String>> authorities) {
-        return authorities.stream()
+    public static List<String> extractDirectoryGroupsValues(List<Map<String, String>> directoryGroups) {
+        return directoryGroups.stream()
                 .map(Map::values)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

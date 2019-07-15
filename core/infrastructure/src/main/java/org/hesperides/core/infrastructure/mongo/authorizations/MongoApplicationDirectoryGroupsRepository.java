@@ -33,11 +33,11 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
-public interface MongoApplicationAuthoritiesRepository extends MongoRepository<ApplicationAuthoritiesDocument, String> {
+public interface MongoApplicationDirectoryGroupsRepository extends MongoRepository<ApplicationDirectoryGroupsDocument, String> {
 
-    @Query(value = "{ 'authorities.value' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
+    @Query(value = "{ 'directoryGroups.value' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
         // requêt mauvaise
-    List<ApplicationAuthoritiesDocument> findApplicationsWithAuthorities(List<String> authorities);
+    List<ApplicationDirectoryGroupsDocument> findApplicationsWithDirectoryGroups(List<String> directoryGroups);
 
-    Optional<ApplicationAuthoritiesDocument> findByApplicationName(String applicationName);
+    Optional<ApplicationDirectoryGroupsDocument> findByApplicationName(String applicationName);
 }

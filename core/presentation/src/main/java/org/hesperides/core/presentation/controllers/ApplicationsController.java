@@ -3,14 +3,14 @@ package org.hesperides.core.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.hesperides.core.application.authorizations.AuthorizationUseCases;
+import org.hesperides.core.application.authorizations.ApplicationDirectoryGroupsUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
 import org.hesperides.core.domain.security.entities.User;
-import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
-import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
+import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +34,12 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 public class ApplicationsController extends AbstractController {
 
     private final PlatformUseCases platformUseCases;
-    private final AuthorizationUseCases authorizationUseCases;
+    private final ApplicationDirectoryGroupsUseCases applicationDirectoryGroupsUseCases;
 
     @Autowired
-    public ApplicationsController(PlatformUseCases platformUseCases, AuthorizationUseCases authorizationUseCases) {
+    public ApplicationsController(PlatformUseCases platformUseCases, ApplicationDirectoryGroupsUseCases applicationDirectoryGroupsUseCases) {
         this.platformUseCases = platformUseCases;
-        this.authorizationUseCases = authorizationUseCases;
+        this.applicationDirectoryGroupsUseCases = applicationDirectoryGroupsUseCases;
     }
 
     @GetMapping("")
@@ -62,14 +62,14 @@ public class ApplicationsController extends AbstractController {
                                                             @RequestParam(value = "with_password_count", required = false) final Boolean withPasswordCount) {
 
         ApplicationView application = platformUseCases.getApplication(applicationName);
-        Map<String, List<String>> applicationAuthorities = authorizationUseCases.getApplicationAuthorities(applicationName)
-                .map(ApplicationAuthoritiesView::getAuthorities)
+        Map<String, List<String>> applicationDirectoryGroups = applicationDirectoryGroupsUseCases.getApplicationDirectoryGroups(applicationName)
+                .map(ApplicationDirectoryGroupsView::getDirectoryGroups)
                 .orElse(Collections.emptyMap());
         Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTechnosPasswords(application) : null;
 
         ApplicationOutput applicationOutput = new ApplicationOutput(application,
                 Boolean.TRUE.equals(hidePlatformsModules),
-                applicationAuthorities,
+                applicationDirectoryGroups,
                 passwordCount);
 
         return ResponseEntity.ok(applicationOutput);
@@ -99,15 +99,15 @@ public class ApplicationsController extends AbstractController {
     }
 
 
-    @ApiOperation("Update the authorities of an application")
-    @PutMapping("/{application_name}/authorities")
-    public ResponseEntity setAuthorities(Authentication authentication,
-                                         @PathVariable("application_name") final String applicationName,
-                                         @Valid @RequestBody final ApplicationAuthoritiesInput applicationAuthoritiesInput) {
+    @ApiOperation("Update the directory groups of an application")
+    @PutMapping("/{application_name}/directory_groups")
+    public ResponseEntity setDirectoryGroups(Authentication authentication,
+                                             @PathVariable("application_name") final String applicationName,
+                                             @Valid @RequestBody final ApplicationDirectoryGroupsInput applicationDirectoryGroupsInput) {
 
-        authorizationUseCases.setApplicationAuthorities(
+        applicationDirectoryGroupsUseCases.setApplicationDirectoryGroups(
                 applicationName,
-                applicationAuthoritiesInput.getAuthorities(),
+                applicationDirectoryGroupsInput.getDirectoryGroups(),
                 new User(authentication));
 
         return ResponseEntity.ok().build();

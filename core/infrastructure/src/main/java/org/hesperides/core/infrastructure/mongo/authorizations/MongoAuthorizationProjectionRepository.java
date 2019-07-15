@@ -23,11 +23,11 @@ package org.hesperides.core.infrastructure.mongo.authorizations;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.commons.SpringProfiles;
-import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesCreatedEvent;
-import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesUpdatedEvent;
-import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
+import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsCreatedEvent;
+import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsUpdatedEvent;
+import org.hesperides.core.domain.authorizations.GetApplicationDirectoryGroupsQuery;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
-import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -40,20 +40,20 @@ import java.util.stream.Collectors;
 
 import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 import static org.hesperides.commons.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Collections.APPLICATION_AUTHORITIES;
+import static org.hesperides.core.infrastructure.Collections.APPLICATION_DIRECTORY_GROUPS;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoAuthorizationProjectionRepository implements AuthorizationProjectionRepository {
 
-    private final MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository;
+    private final MongoApplicationDirectoryGroupsRepository applicationDirectoryGroupsRepository;
     private final MongoTemplate mongoTemplate;
     private final SpringProfiles springProfiles;
 
-    public MongoAuthorizationProjectionRepository(MongoApplicationAuthoritiesRepository applicationAuthoritiesRepository,
+    public MongoAuthorizationProjectionRepository(MongoApplicationDirectoryGroupsRepository applicationDirectoryGroupsRepository,
                                                   MongoTemplate mongoTemplate,
                                                   SpringProfiles springProfiles) {
-        this.applicationAuthoritiesRepository = applicationAuthoritiesRepository;
+        this.applicationDirectoryGroupsRepository = applicationDirectoryGroupsRepository;
         this.mongoTemplate = mongoTemplate;
         this.springProfiles = springProfiles;
     }
@@ -61,7 +61,7 @@ public class MongoAuthorizationProjectionRepository implements AuthorizationProj
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
         if (springProfiles.isActive(MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, APPLICATION_AUTHORITIES);
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, APPLICATION_DIRECTORY_GROUPS);
         }
     }
 
@@ -69,33 +69,32 @@ public class MongoAuthorizationProjectionRepository implements AuthorizationProj
 
     @EventHandler
     @Override
-    public void onApplicationAuthoritiesCreatedEvent(ApplicationAuthoritiesCreatedEvent event) {
-        ApplicationAuthoritiesDocument applicationAuthoritiesDocument = new ApplicationAuthoritiesDocument(event.getId(), event.getApplicationAuthorities());
-        applicationAuthoritiesRepository.save(applicationAuthoritiesDocument);
+    public void onApplicationDirectoryGroupsCreatedEvent(ApplicationDirectoryGroupsCreatedEvent event) {
+        ApplicationDirectoryGroupsDocument applicationDirectoryGroupsDocument = new ApplicationDirectoryGroupsDocument(event.getId(), event.getApplicationDirectoryGroups());
+        applicationDirectoryGroupsRepository.save(applicationDirectoryGroupsDocument);
     }
 
     @EventHandler
     @Override
-    public void onApplicationAuthoritiesUpdatedEvent(ApplicationAuthoritiesUpdatedEvent event) {
-        ApplicationAuthoritiesDocument applicationAuthoritiesDocument = new ApplicationAuthoritiesDocument(event.getId(), event.getApplicationAuthorities());
-        applicationAuthoritiesRepository.save(applicationAuthoritiesDocument);
+    public void onApplicationDirectoryGroupsUpdatedEvent(ApplicationDirectoryGroupsUpdatedEvent event) {
+        ApplicationDirectoryGroupsDocument applicationDirectoryGroupsDocument = new ApplicationDirectoryGroupsDocument(event.getId(), event.getApplicationDirectoryGroups());
+        applicationDirectoryGroupsRepository.save(applicationDirectoryGroupsDocument);
     }
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
     @Override
-    public Optional<ApplicationAuthoritiesView> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query) {
-        return applicationAuthoritiesRepository.findByApplicationName(query.getApplicationName())
-                .map(ApplicationAuthoritiesDocument::toView);
+    public Optional<ApplicationDirectoryGroupsView> onGetApplicationDirectoryGroupsQuery(GetApplicationDirectoryGroupsQuery query) {
+        return applicationDirectoryGroupsRepository.findByApplicationName(query.getApplicationName())
+                .map(ApplicationDirectoryGroupsDocument::toView);
     }
 
     @Override
-    public List<String> getApplicationsForAuthorities(List<String> authorities) {
-        final List<ApplicationAuthoritiesDocument> all = applicationAuthoritiesRepository.findAll();
-        return applicationAuthoritiesRepository.findApplicationsWithAuthorities(authorities)
+    public List<String> getApplicationsWithDirectoryGroups(List<String> directoryGroups) {
+        return applicationDirectoryGroupsRepository.findApplicationsWithDirectoryGroups(directoryGroups)
                 .stream()
-                .map(ApplicationAuthoritiesDocument::getApplicationName)
+                .map(ApplicationDirectoryGroupsDocument::getApplicationName)
                 .collect(Collectors.toList());
     }
 }

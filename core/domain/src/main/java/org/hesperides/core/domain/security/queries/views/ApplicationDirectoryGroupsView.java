@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.core.domain.security.entities;
+package org.hesperides.core.domain.security.queries.views;
 
 import lombok.Value;
 
@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 @Value
-public class ApplicationAuthorities {
+public class ApplicationDirectoryGroupsView {
+    String id;
     String applicationName;
-    Map<String, List<String>> authorities;
+    Map<String, List<String>> directoryGroups;
 }

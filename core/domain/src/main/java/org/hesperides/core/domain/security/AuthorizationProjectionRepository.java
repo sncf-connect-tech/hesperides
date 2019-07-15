@@ -22,10 +22,10 @@ package org.hesperides.core.domain.security;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesCreatedEvent;
-import org.hesperides.core.domain.authorizations.ApplicationAuthoritiesUpdatedEvent;
-import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
-import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
+import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsCreatedEvent;
+import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsUpdatedEvent;
+import org.hesperides.core.domain.authorizations.GetApplicationDirectoryGroupsQuery;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,15 +35,15 @@ public interface AuthorizationProjectionRepository {
     /*** EVENT HANDLERS ***/
 
     @EventHandler
-    void onApplicationAuthoritiesCreatedEvent(ApplicationAuthoritiesCreatedEvent event);
+    void onApplicationDirectoryGroupsCreatedEvent(ApplicationDirectoryGroupsCreatedEvent event);
 
     @EventHandler
-    void onApplicationAuthoritiesUpdatedEvent(ApplicationAuthoritiesUpdatedEvent event);
+    void onApplicationDirectoryGroupsUpdatedEvent(ApplicationDirectoryGroupsUpdatedEvent event);
 
     /*** QUERY HANDLERS ***/
 
     @QueryHandler
-    Optional<ApplicationAuthoritiesView> getApplicationAuthoritiesQuery(GetApplicationAuthoritiesQuery query);
+    Optional<ApplicationDirectoryGroupsView> onGetApplicationDirectoryGroupsQuery(GetApplicationDirectoryGroupsQuery query);
 
-    List<String> getApplicationsForAuthorities(List<String> authorities);
+    List<String> getApplicationsWithDirectoryGroups(List<String> directoryGroups);
 }

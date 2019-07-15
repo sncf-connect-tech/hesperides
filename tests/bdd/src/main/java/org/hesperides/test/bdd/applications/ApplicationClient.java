@@ -21,7 +21,7 @@
 package org.hesperides.test.bdd.applications;
 
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
-import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
+import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ public class ApplicationClient {
         return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 
-    public void setAuthorities(String applicationName, ApplicationAuthoritiesInput authorities) {
-        restTemplate.put("/applications/{application_name}/authorities", authorities, applicationName);
+    public void setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {
+        restTemplate.put("/applications/{application_name}/directory_groups", applicationDirectoryGroups, applicationName);
     }
 }

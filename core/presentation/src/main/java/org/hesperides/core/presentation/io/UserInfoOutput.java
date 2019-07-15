@@ -39,12 +39,12 @@ public class UserInfoOutput {
         this.username = currentUser.getName();
         this.prodUser = currentUser.isGlobalProd();
         this.techUser = currentUser.isGlobalTech();
-        this.authorities = new AuthoritiesOutput(currentUser.getRoles(), currentUser.getGroupAuthorities());
+        this.authorities = new AuthoritiesOutput(currentUser.getRoles(), currentUser.getDirectoryGroups());
     }
 
     @Value
     public static class AuthoritiesOutput {
         List<String> roles;
-        List<String> groups;
+        List<String> directoryGroups;
     }
 }

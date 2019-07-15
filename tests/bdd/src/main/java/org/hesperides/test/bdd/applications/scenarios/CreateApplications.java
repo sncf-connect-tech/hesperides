@@ -23,8 +23,8 @@ package org.hesperides.test.bdd.applications.scenarios;
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.test.bdd.applications.ApplicationAuthoritiesBuilder;
 import org.hesperides.test.bdd.applications.ApplicationClient;
+import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -44,32 +44,34 @@ public class CreateApplications extends HesperidesScenario implements En {
     @Autowired
     private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationAuthoritiesBuilder applicationAuthoritiesBuilder;
+    private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
     public CreateApplications() {
 
-        Given("^an application without prod authorities", () -> {
+        Given("^an application without directory groups", () -> {
             fail("TODO");
         });
 
-        Given("^an application ?(.+)? associated with the following authority groups", (String applicationName, DataTable data) -> {
-            final List<String> authorities = data.asList(String.class);
-            createPlatformAndSetApplicationAuthorities(applicationName, authorities);
+        Given("^an application ?(.+)? associated with the following directory groups", (String applicationName, DataTable data) -> {
+            final List<String> directoryGroups = data.asList(String.class);
+            createPlatformAndSetApplicationDirectoryGroups(applicationName, directoryGroups);
         });
 
-        Given("^an application ?(.+)? associated with the given authority group$", (String applicationName) -> {
-            final String givenAuthorityGroup = authCredentialsConfig.getLambdaParentGroupDN();
-            createPlatformAndSetApplicationAuthorities(applicationName, Collections.singletonList(givenAuthorityGroup));
+        Given("^an application ?(.+)? associated with the given directory group$", (String applicationName) -> {
+            final String givenDirectoryGroup = authCredentialsConfig.getLambdaParentGroupDN();
+            createPlatformAndSetApplicationDirectoryGroups(applicationName, Collections.singletonList(givenDirectoryGroup));
         });
     }
 
-    private void createPlatformAndSetApplicationAuthorities(String applicationName, List<String> authorities) {
+    private void createPlatformAndSetApplicationDirectoryGroups(String applicationName, List<String> directoryGroups) {
         if (StringUtils.isNotEmpty(applicationName)) {
             platformBuilder.withApplicationName(applicationName);
         }
         platformClient.create(platformBuilder.buildInput());
-        applicationAuthoritiesBuilder.withApplicationName(platformBuilder.getApplicationName());
-        applicationAuthoritiesBuilder.withAuthorities(authorities);
-        applicationClient.setAuthorities(applicationAuthoritiesBuilder.getApplicationName(), applicationAuthoritiesBuilder.buildInput());
+        applicationDirectoryGroupsBuilder.withApplicationName(platformBuilder.getApplicationName());
+        applicationDirectoryGroupsBuilder.withDirectoryGroups(directoryGroups);
+        applicationClient.setApplicationDirectoryGroups(
+                applicationDirectoryGroupsBuilder.getApplicationName(),
+                applicationDirectoryGroupsBuilder.buildInput());
     }
 }

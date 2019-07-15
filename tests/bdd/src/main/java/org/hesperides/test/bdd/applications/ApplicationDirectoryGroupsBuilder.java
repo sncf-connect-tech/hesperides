@@ -20,7 +20,7 @@
  */
 package org.hesperides.test.bdd.applications;
 
-import org.hesperides.core.presentation.io.platforms.ApplicationAuthoritiesInput;
+import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -28,18 +28,18 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ApplicationAuthoritiesBuilder {
+public class ApplicationDirectoryGroupsBuilder {
 
     private String applicationName;
-    private Map<String, List<String>> authorities;
+    private Map<String, List<String>> directoryGroups;
 
-    public ApplicationAuthoritiesBuilder() {
+    public ApplicationDirectoryGroupsBuilder() {
         reset();
     }
 
-    public ApplicationAuthoritiesBuilder reset() {
+    public ApplicationDirectoryGroupsBuilder reset() {
         applicationName = "test-application";
-        authorities = new HashMap<>();
+        directoryGroups = new HashMap<>();
         return this;
     }
 
@@ -51,20 +51,20 @@ public class ApplicationAuthoritiesBuilder {
         this.applicationName = applicationName;
     }
 
-    public void withAuthorities(List<String> authorities) {
-        String authoritiesKey = applicationName + "_PROD_USER";
-        if (this.authorities.containsKey(authoritiesKey)) {
-            this.authorities.get(authoritiesKey).addAll(authorities);
+    public void withDirectoryGroups(List<String> directoryGroups) {
+        String directoryGroupsKey = applicationName + "_PROD_USER";
+        if (this.directoryGroups.containsKey(directoryGroupsKey)) {
+            this.directoryGroups.get(directoryGroupsKey).addAll(directoryGroups);
         } else {
-            this.authorities.put(applicationName + "_PROD_USER", authorities);
+            this.directoryGroups.put(applicationName + "_PROD_USER", directoryGroups);
         }
     }
 
-    public ApplicationAuthoritiesInput buildInput() {
-        return new ApplicationAuthoritiesInput(authorities);
+    public ApplicationDirectoryGroupsInput buildInput() {
+        return new ApplicationDirectoryGroupsInput(directoryGroups);
     }
 
-    public Map<String, List<String>> getAuthorities() {
-        return authorities;
+    public Map<String, List<String>> getDirectoryGroups() {
+        return directoryGroups;
     }
 }

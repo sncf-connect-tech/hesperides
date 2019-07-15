@@ -67,7 +67,7 @@ Ici les `authorities` sont issues de la gestion de rôles de [Spring Boot](https
 Ils sont déclinés en 3 types :
 - Les rôles globaux à toutes les applications : `prodUser` (`GLOBAL_IS_PROD`) et `techUser` (`GLOBAL_IS_TECH`)
 - Les nouveaux privilèges : correspondent à la liste des applications sur lesquelles l'utilisateur a les droits de prod (`${APP}_PROD_USER`)
-- Les groupes Active Directory auxquels l'utilisateur appartient : ils sont à titre indicatif et incluent les groupes parents ainsi que leurs ancêtres
+- Les groupes Active Directory auxquels l'utilisateur appartient : ils apparaissent à titre indicatif et incluent les groupes parents ainsi que leurs ancêtres
 
 **Error** : `401` si les _credentials_ de l'utilisateur sont invalides.
 
@@ -93,7 +93,7 @@ Ici, les `authorities` représentent les groupes AD qui donnent les droits de pr
 Ajout de ce _query parameter_.
 
 **Besoin** : pouvoir identifier les plateformes nommées "PRDx" contenant des mots de passes,
-mais non signalées comme "production".
+mais non catégorisées comme "production".
 
 **Output** :
 ```

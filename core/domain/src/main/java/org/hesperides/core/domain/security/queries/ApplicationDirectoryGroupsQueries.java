@@ -22,20 +22,20 @@ package org.hesperides.core.domain.security.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
-import org.hesperides.core.domain.authorizations.GetApplicationAuthoritiesQuery;
-import org.hesperides.core.domain.security.queries.views.ApplicationAuthoritiesView;
+import org.hesperides.core.domain.authorizations.GetApplicationDirectoryGroupsQuery;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
-public class AuthorizationQueries extends AxonQueries {
+public class ApplicationDirectoryGroupsQueries extends AxonQueries {
 
-    protected AuthorizationQueries(QueryGateway queryGateway) {
+    protected ApplicationDirectoryGroupsQueries(QueryGateway queryGateway) {
         super(queryGateway);
     }
 
-    public Optional<ApplicationAuthoritiesView> getApplicationAuthorities(String applicationName) {
-        return querySyncOptional(new GetApplicationAuthoritiesQuery(applicationName), ApplicationAuthoritiesView.class);
+    public Optional<ApplicationDirectoryGroupsView> getApplicationDirectoryGroups(String applicationName) {
+        return querySyncOptional(new GetApplicationDirectoryGroupsQuery(applicationName), ApplicationDirectoryGroupsView.class);
     }
 }
