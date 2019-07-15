@@ -18,10 +18,12 @@
  *
  *
  */
-package org.hesperides.core.domain.security;
+package org.hesperides.core.domain.security.exceptions;
 
-public class UserRole {
-    // Le préfixe "ROLE_" indique qu'il s'agit d'un rôle au sens spring-security
-    public static final String GLOBAL_IS_PROD = "ROLE_GLOBAL_IS_PROD";
-    public static final String GLOBAL_IS_TECH = "ROLE_GLOBAL_IS_TECH";
+import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
+
+public class UpdateDirectoryGroupsForbiddenException extends ForbiddenOperationException {
+    public UpdateDirectoryGroupsForbiddenException(String applicationName) {
+        super("You're not allowed to update the directory groups for the application " + applicationName);
+    }
 }

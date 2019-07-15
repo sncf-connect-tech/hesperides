@@ -1,63 +1,60 @@
 package org.hesperides.test.bdd.users;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.presentation.io.UserInfoOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.commons.TestContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.extractCN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class GetUserInformation extends HesperidesScenario implements En {
 
-    @Autowired
-    private TestContext testContext;
-    @Autowired
-    private RestTemplate restTemplate;
-
     public GetUserInformation() {
 
         When("^I get the current user information$", () -> {
-            testContext.responseEntity = restTemplate.getForEntity("/users/auth", Map.class);
+            testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", UserInfoOutput.class));
         });
 
-        Then("^(.+) is listed in the user authorities$", (String authority) -> {
-            assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
-            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>)getBodyAsMap().get("authorities"));
-            if (authority.equals("A_GROUP")) {
-                authority = extractCN(testContext.authCredentialsConfig.getLambdaUserParentGroupDN());
-            }
-            assertThat(authorities, hasItems(authority));
+        Then("^the given group is listed under the user directory groups$", () -> {
+            assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
+            String expectedAuthorityGroup = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
+            List<String> actualAuthorityGroups = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getDirectoryGroups();
+            assertThat(actualAuthorityGroups, hasItem(expectedAuthorityGroup));
+        });
+
+        Then("^(.+) is listed under the user authority roles$", (String expectedAuthorityRole) -> {
+            assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
+            List<String> actualAuthorityRoles = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getRoles();
+            assertThat(actualAuthorityRoles, hasItem(expectedAuthorityRole));
         });
 
         When("^(?:the user log out|the user re-send valid credentials)$", () ->
-                testContext.responseEntity = restTemplate.getForEntity("/users/auth?logout=true", String.class)
+                testContext.setResponseEntity(restTemplate.getForEntity("/users/auth?logout=true", String.class))
         );
 
         Then("^login is successful$", () ->
-                assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode())
+                assertEquals(HttpStatus.OK, testContext.getResponseStatusCode())
         );
 
-        Then("^user information is returned, (with|without) tech role and (with|without) prod role$",
-                (String withTechRole, String withProdRole) -> {
-                    assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
-                    Map body = getBodyAsMap();
-                    assertEquals("with".equals(withTechRole), body.get("techUser"));
-                    assertEquals("with".equals(withProdRole), body.get("prodUser"));
-                });
+        Then("^user information is returned, (with|without) tech role and (with|without) prod role$", (
+                String withTechRole, String withProdRole) -> {
+            assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
+            final UserInfoOutput actualUserInfo = testContext.getResponseBody(UserInfoOutput.class);
+            assertEquals("with".equals(withTechRole), actualUserInfo.getTechUser());
+            assertEquals("with".equals(withProdRole), actualUserInfo.getProdUser());
+        });
     }
 
-    public static List<String> extractAuthoritiesValues(List<Map<String, String>> authorities) {
-        return authorities.stream()
+    public static List<String> extractDirectoryGroupsValues(List<Map<String, String>> directoryGroups) {
+        return directoryGroups.stream()
                 .map(Map::values)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

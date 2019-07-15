@@ -25,7 +25,6 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +36,13 @@ public class ApplicationOutput {
     String name;
     @NotEmpty
     List<PlatformIO> platforms;
-    Map<String, List<String>> authorities = new HashMap<>();
+    Map<String, List<String>> directoryGroups;
+    Integer passwordCount;
 
-    public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules) {
+    public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules, Map<String, List<String>> directoryGroups, Integer passwordCount) {
         this.name = applicationView.getName();
         this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms(), hidePlatformsModules);
+        this.directoryGroups = directoryGroups;
+        this.passwordCount = passwordCount;
     }
 }

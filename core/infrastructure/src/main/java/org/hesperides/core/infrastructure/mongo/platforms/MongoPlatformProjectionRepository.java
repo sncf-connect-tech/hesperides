@@ -12,6 +12,7 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.messaging.MessageDecorator;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
@@ -32,7 +33,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -46,10 +46,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.hesperides.commons.spring.HasProfile.isProfileActive;
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Collections.PLATFORM;
 
 @Slf4j
 @Profile({MONGO, FAKE_MONGO})
@@ -58,37 +57,40 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     private MinimalPlatformRepository minimalPlatformRepository;
     private final MongoPlatformRepository platformRepository;
-    private final MongoModuleRepository mongoModuleRepository;
+    private final MongoModuleRepository moduleRepository;
     private final EventStorageEngine eventStorageEngine;
     private final MongoTemplate mongoTemplate;
-    private final Environment environment;
+    private final SpringProfiles springProfiles;
 
     private int numberOfArchivedModuleVersions = 0;
 
     @Autowired
-    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository, MongoModuleRepository mongoModuleRepository,
-                                             EventStorageEngine eventStorageEngine, MongoTemplate mongoTemplate, Environment environment) {
+    public MongoPlatformProjectionRepository(MongoPlatformRepository platformRepository,
+                                             MongoModuleRepository moduleRepository,
+                                             EventStorageEngine eventStorageEngine,
+                                             MongoTemplate mongoTemplate,
+                                             SpringProfiles springProfiles) {
         this.minimalPlatformRepository = platformRepository;
         this.platformRepository = platformRepository;
-        this.mongoModuleRepository = mongoModuleRepository;
+        this.moduleRepository = moduleRepository;
         this.eventStorageEngine = eventStorageEngine;
         this.mongoTemplate = mongoTemplate;
-        this.environment = environment;
+        this.springProfiles = springProfiles;
     }
 
     private MongoPlatformProjectionRepository(MinimalPlatformRepository minimalPlatformRepository) {
         this.minimalPlatformRepository = minimalPlatformRepository;
         this.platformRepository = null;
-        this.mongoModuleRepository = null;
+        this.moduleRepository = null;
         this.eventStorageEngine = null;
         this.mongoTemplate = null;
-        this.environment = null;
+        this.springProfiles = null;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
-        if (environment != null && isProfileActive(environment, MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, PLATFORM_COLLECTION_NAME);
+        if (springProfiles != null && springProfiles.isActive(MONGO)) {
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, PLATFORM);
         }
     }
 
@@ -169,7 +171,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
 
     private void completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
                                                        DeployedModuleDocument deployedModuleDocument) {
-        if (mongoModuleRepository == null) {
+        if (moduleRepository == null) {
             // Cas du InmemoryPlatformRepository
             deployedModuleDocument.setValuedProperties(abstractValuedProperties);
             return;
@@ -179,7 +181,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // (ex: {{prop | @required}} => "prop | @required")
         Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
         KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
-        List<AbstractPropertyDocument> modulePropertiesModel = mongoModuleRepository
+        List<AbstractPropertyDocument> modulePropertiesModel = moduleRepository
                 .findPropertiesByModuleKey(moduleKeyDocument)
                 .map(ModuleDocument::getProperties)
                 .orElseGet(Collections::emptyList);
@@ -432,6 +434,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 moduleKey.isWorkingCopy(),
                 query.getModulePath(),
                 query.getInstanceName());
+    }
+
+    @Override
+    @Timed
+    public Boolean onApplicationExistsQuery(ApplicationExistsQuery query) {
+        return platformRepository.existsByKeyApplicationName(query.getApplicationName());
     }
 
     @QueryHandler

@@ -75,7 +75,7 @@ public class GetFiles extends HesperidesScenario implements En {
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
-            testContext.responseEntity = fileClient.getFiles(
+            testContext.setResponseEntity(fileClient.getFiles(
                     platform.getApplicationName(),
                     platform.getPlatformName(),
                     modulePath,
@@ -84,7 +84,7 @@ public class GetFiles extends HesperidesScenario implements En {
                     instanceName,
                     module.getIsWorkingCopy(),
                     simulate,
-                    HesperidesScenario.getResponseType(tryTo, InstanceFileOutput[].class));
+                    HesperidesScenario.getResponseType(tryTo, InstanceFileOutput[].class)));
 
             expectedFiles = new ArrayList<>();
             technoBuilder.getTemplates().forEach(template -> {
@@ -103,7 +103,7 @@ public class GetFiles extends HesperidesScenario implements En {
 
         Then("^the JSON output does not contain escaped characters$", () -> {
             assertOK();
-            String actualOutput = (String) testContext.responseEntity.getBody();
+            String actualOutput = testContext.getResponseBody(String.class);
             assertThat(actualOutput, not(containsString("\\u003")));
         });
 

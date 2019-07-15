@@ -21,27 +21,27 @@
 package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.test.bdd.applications.ApplicationBuilder;
 import org.hesperides.test.bdd.applications.ApplicationClient;
+import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.fail;
 
-public class UpdateApplications extends HesperidesScenario implements En {
+public class UpdateApplicationDirectoryGroups extends HesperidesScenario implements En {
 
     @Autowired
     private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder applicationBuilder;
+    private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
-    public UpdateApplications() {
+    public UpdateApplicationDirectoryGroups() {
 
-        When("^I add the authority (.+) to the application", (String groupCN) -> {
+        When("^I add the directory group (.+) to the application", (String groupCN) -> {
             fail("TODO");
         });
 
-        When("^I remove all authorities on the application", () -> {
+        When("^I remove all directory groups on the application", () -> {
             fail("TODO");
         });
     }

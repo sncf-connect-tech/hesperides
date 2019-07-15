@@ -5,8 +5,8 @@ import org.hesperides.core.domain.modules.entities.Module
 import org.hesperides.core.domain.platforms.entities.Platform
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty
-import org.hesperides.core.domain.security.User
 import org.hesperides.core.domain.security.UserEvent
+import org.hesperides.core.domain.security.entities.User
 
 // Command
 
@@ -47,4 +47,5 @@ data class GetGlobalPropertiesQuery(val platformKey: Platform.Key)
 data class GetInstancesModelQuery(val platformKey: Platform.Key, val propertiesPath: String)
 data class DeployedModuleExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String)
 data class InstanceExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String, val instanceName: String)
+data class ApplicationExistsQuery(val applicationName: String)
 class GetAllApplicationsDetailQuery

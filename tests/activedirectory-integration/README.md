@@ -4,6 +4,6 @@ They use the BDD _features_ defined in the `tests/bdd` module and tagged `@requi
 
 ## Execution
 
-    mvn verify -pl tests/activedirectory-integration -Dauth.lambdaUserName=... -Dauth.lambdaUserPassword=... -Dauth.lambdaUserParentGroupDN=... \
-                                                     -Dauth.prodUserName=... -Dauth.prodUserPassword=... \
+    mvn verify -pl tests/activedirectory-integration -Dauth.lambdaUsername=... -Dauth.lambdaPassword=... -Dauth.lambdaParentGroupDN=... \
+                                                     -Dauth.prodUsername=... -Dauth.prodPassword=... \
                                                      -Djavax.net.ssl.trustStore=.../path/to/certificates/trustore

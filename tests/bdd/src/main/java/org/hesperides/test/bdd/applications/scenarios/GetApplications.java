@@ -22,27 +22,28 @@ package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.test.bdd.applications.ApplicationBuilder;
 import org.hesperides.test.bdd.applications.ApplicationClient;
+import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertNull;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.extractCN;
-import static org.hesperides.test.bdd.users.GetUserInformation.extractAuthoritiesValues;
+import static org.hesperides.test.bdd.users.GetUserInformation.extractDirectoryGroupsValues;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -51,7 +52,7 @@ public class GetApplications extends HesperidesScenario implements En {
     @Autowired
     private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder applicationBuilder;
+    private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
@@ -75,56 +76,65 @@ public class GetApplications extends HesperidesScenario implements En {
 
         });
 
-        When("^I get the list of all applications?$", () -> {
-            testContext.responseEntity = applicationClient.getAllApplications();
+        When("^I get all the applications detail$", () -> {
+            testContext.setResponseEntity(applicationClient.getAllApplicationsDetail());
         });
 
-        When("^I( try to)? get the applications list$", (String tryTo) -> {
-            testContext.responseEntity = applicationClient.getApplications(
-                    getResponseType(tryTo, SearchResultOutput[].class));
+        When("^I( try to)? get the applications name", (String tryTo) -> {
+            testContext.setResponseEntity(applicationClient.getApplications(
+                    getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
-        When("^I( try to)? get the application details( with parameter hide_platform set to true)?( requesting the passwords count)?$", (String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
-            assertNull("TODO", requestingThePasswordsCount);
+        When("^I( try to)? get the application detail( with parameter hide_platform set to true)?( requesting the passwords count)?$", (
+                String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
-            testContext.responseEntity = applicationClient.getApplication(
-                    applicationBuilder.getApplicationName(),
+            final ResponseEntity responseEntity = applicationClient.getApplication(
+                    applicationDirectoryGroupsBuilder.getApplicationName(),
                     hidePlatform,
+                    StringUtils.isNotEmpty(requestingThePasswordsCount),
                     getResponseType(tryTo, ApplicationOutput.class));
+            testContext.setResponseEntity(responseEntity);
         });
 
         Then("^all the applications are retrieved with their platforms and their modules$", () -> {
             assertOK();
-            List<ApplicationOutput> actualApplications = ((AllApplicationsDetailOutput) testContext.getResponseBody()).getApplications();
+            List<ApplicationOutput> actualApplications = testContext.getResponseBody(AllApplicationsDetailOutput.class).getApplications();
             assertEquals(expectedApplications, actualApplications);
         });
 
         Then("^the application is successfully retrieved", () -> {
             assertOK();
             ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
-            ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
+            ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
             assertEquals(expectedApplication, actualApplication);
         });
 
-        Then("^(.+) is listed in the application authorities", (String authority) -> {
-            ApplicationOutput actualApplication = (ApplicationOutput) testContext.getResponseBody();
-            List<String> authorities = extractAuthoritiesValues((List<Map<String, String>>)actualApplication.getAuthorities());
-            if (authority.equals("A_GROUP")) {
-                authority = extractCN(testContext.authCredentialsConfig.getLambdaUserParentGroupDN());
+        Then("^(.+) is listed in the application directory groups", (String directoryGroup) -> {
+            ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
+            List<String> directoryGroups = extractDirectoryGroupsValues((List<Map<String, String>>) actualApplication.getDirectoryGroups());
+            if (directoryGroup.equals("A_GROUP")) {
+                directoryGroup = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
             }
-            assertThat(authorities, hasItems(authority));
+            assertThat(directoryGroups, hasItems(directoryGroup));
         });
 
-        Then("^the password count of the platform is greater than (\\d+)", (Integer count) -> {
+        Then("^the platform has at least (\\d+) password$", (Integer count) -> {
+            final Integer actualPasswordCount = testContext.getResponseBody(ApplicationOutput.class).getPasswordCount();
+            Assertions.assertThat(actualPasswordCount).isGreaterThanOrEqualTo(count);
+        });
+
+        Then("^the application exact directory groups are: (.+)", (String groupCNs) -> {
             fail("TODO");
         });
 
-        Then("^the application exact authorities are: (.+)", (String groupCNs) -> {
+        Then("^the application now has 0 directory groups", () -> {
             fail("TODO");
         });
 
-        Then("^the application now has 0 authorities", () -> {
-            fail("TODO");
+        Then("^the application details contains these directory groups", () -> {
+            final Map<String, List<String>> expectedDirectoryGroups = applicationDirectoryGroupsBuilder.getDirectoryGroups();
+            final Map<String, List<String>> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups();
+            assertEquals(expectedDirectoryGroups, actualDirectoryGroups);
         });
     }
 }

@@ -7,7 +7,8 @@ object Modules {
 
   val create = exec(http("createWorkingcopyModule")
     .post("/modules")
-    .body(StringBody("""{
+    .body(StringBody(
+      """{
       "name": "${moduleName}",
       "version": "${moduleVersion}",
       "working_copy": true,
@@ -18,7 +19,8 @@ object Modules {
 
   val addTemplate = exec(http("addTemplateToModule")
     .post("/modules/${moduleName}/${moduleVersion}/workingcopy/templates")
-    .body(StringBody("""{
+    .body(StringBody(
+      """{
       "name": "${templateName}",
       "filename": "${templateName}",
       "location": "${templateDir}",

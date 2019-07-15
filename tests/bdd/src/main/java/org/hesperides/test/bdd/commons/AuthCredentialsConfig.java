@@ -10,63 +10,59 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 @ConfigurationProperties(prefix = "auth")
 public class AuthCredentialsConfig {
     // Ces valeurs sont employées dans les tests.feature BDD :
-    static final String LAMBDA_TEST_PROFILE = "lambda";
-    static final String TECH_TEST_PROFILE = "tech";
-    static final String PROD_TEST_PROFILE = "prod";
+    public static final String LAMBDA_TEST_PROFILE = "lambda";
+    private static final String TECH_TEST_PROFILE = "tech";
+    public static final String PROD_TEST_PROFILE = "prod";
+
+    @Setter
+    private String lambdaUsername = "user";
+    @Setter
+    private String lambdaPassword = "password";
+
+    @Setter
+    private String techUsername = "tech";
+    @Setter
+    private String techPassword = "password";
+
+    @Setter
+    private String prodUsername = "prod";
+    @Setter
+    private String prodPassword = "password";
 
     @Setter
     @Getter
-    private String lambdaUserName = "user";
-    @Setter
-    @Getter
-    private String lambdaUserPassword = "password";
-
-    @Setter
-    @Getter
-    private String techUserName = "tech";
-    @Setter
-    @Getter
-    private String techUserPassword = "password";
-
-    @Setter
-    @Getter
-    private String prodUserName = "prod";
-    @Setter
-    @Getter
-    private String prodUserPassword = "password";
-
-    @Setter
-    @Getter
-    private String lambdaUserParentGroupDN;
+    private String lambdaParentGroupDN;
 
     public BasicAuthenticationInterceptor getBasicAuthInterceptorForTestProfile(String testProfile) {
-        return new BasicAuthenticationInterceptor(getUsernameForTestProfile(testProfile),
-                                                  getPasswordForTestProfile(testProfile));
+        return new BasicAuthenticationInterceptor(getTestProfileUsername(testProfile),
+                getTestProfilePassword(testProfile));
     }
 
-    public String getUsernameForTestProfile(String testProfile) {
+    public String getTestProfileUsername(String testProfile) {
+        String username;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            return lambdaUserName;
+            username = lambdaUsername;
+        } else if (TECH_TEST_PROFILE.equals(testProfile)) {
+            username = techUsername;
+        } else if (PROD_TEST_PROFILE.equals(testProfile)) {
+            username = prodUsername;
+        } else {
+            throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
-        if (TECH_TEST_PROFILE.equals(testProfile)) {
-            return techUserName;
-        }
-        if (PROD_TEST_PROFILE.equals(testProfile)) {
-            return prodUserName;
-        }
-        throw new IllegalArgumentException("Unknown test profile: " + testProfile);
+        return username;
     }
 
-    public String getPasswordForTestProfile(String testProfile) {
+    public String getTestProfilePassword(String testProfile) {
+        String password;
         if (LAMBDA_TEST_PROFILE.equals(testProfile)) {
-            return lambdaUserPassword;
+            password = lambdaPassword;
+        } else if (TECH_TEST_PROFILE.equals(testProfile)) {
+            password = techPassword;
+        } else if (PROD_TEST_PROFILE.equals(testProfile)) {
+            password = prodPassword;
+        } else {
+            throw new IllegalArgumentException("Unknown test profile: " + testProfile);
         }
-        if (TECH_TEST_PROFILE.equals(testProfile)) {
-            return techUserPassword;
-        }
-        if (PROD_TEST_PROFILE.equals(testProfile)) {
-            return prodUserPassword;
-        }
-        throw new IllegalArgumentException("Unknown test profile: " + testProfile);
+        return password;
     }
 }

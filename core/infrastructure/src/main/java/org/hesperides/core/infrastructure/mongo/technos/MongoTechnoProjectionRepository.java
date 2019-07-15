@@ -24,12 +24,14 @@ import com.mongodb.client.DistinctIterable;
 import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.modules.ModuleDocument;
@@ -39,7 +41,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.TemplateDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -53,10 +54,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.hesperides.commons.spring.HasProfile.isProfileActive;
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Constants.TECHNO_COLLECTION_NAME;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Collections.TECHNO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -65,23 +65,23 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     private final MongoTechnoRepository technoRepository;
     private final MongoModuleRepository moduleRepository;
     private final MongoTemplate mongoTemplate;
-    private final Environment environment;
+    private final SpringProfiles springProfiles;
 
     @Autowired
     public MongoTechnoProjectionRepository(MongoTechnoRepository technoRepository,
                                            MongoModuleRepository moduleRepository,
                                            MongoTemplate mongoTemplate,
-                                           Environment environment) {
+                                           SpringProfiles springProfiles) {
         this.technoRepository = technoRepository;
         this.moduleRepository = moduleRepository;
         this.mongoTemplate = mongoTemplate;
-        this.environment = environment;
+        this.springProfiles = springProfiles;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
-        if (isProfileActive(environment, MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO_COLLECTION_NAME);
+        if (springProfiles.isActive(MONGO)) {
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, TECHNO);
         }
     }
 
@@ -193,7 +193,7 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
     @Override
     @Timed
     public List<String> onGetTechnosNameQuery(GetTechnosNameQuery query) {
-        final DistinctIterable<String> iterable = mongoTemplate.getCollection(TECHNO_COLLECTION_NAME).distinct("key.name", String.class);
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection(TECHNO).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 
@@ -279,6 +279,13 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
         return AbstractPropertyDocument.toViews(technoDocument.getProperties());
     }
 
+    @QueryHandler
+    @Override
+    public Integer onCountPasswordsQuery(CountPasswordsQuery query) {
+        List<KeyDocument> technoKeys = KeyDocument.fromModelKeys(query.getTechnoKeys());
+        return technoRepository.countPasswordsInTechnos(technoKeys);
+    }
+
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos, TemplateContainer.Key moduleKey) {
         technos = Optional.ofNullable(technos).orElseGet(Collections::emptyList);
         List<TechnoDocument> technoDocs = technoRepository.findAllByKeyIn(technos.stream()
@@ -293,5 +300,13 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
             throw new NotFoundException("Techno not found among " + technos.size() + " requested by module " + moduleKey.getNamespaceWithoutPrefix() + ", no techno was found in repository for the following keys: " + technoKeys);
         }
         return technoDocs;
+    }
+
+    public List<TemplateContainerKeyView> getTechnoKeysForTechnoIds(List<String> technoIds) {
+        return technoRepository.findKeysByIdsIn(technoIds)
+                .stream()
+                .map(TechnoDocument::getKey)
+                .map(KeyDocument::toKeyView)
+                .collect(Collectors.toList());
     }
 }

@@ -35,7 +35,7 @@ public class PropertyOutput {
      * Comme par défaut on sérialise les champs à null pour être iso-legacy
      * mais que le legacy exclue le champ `fields` lorsqu'il n'est pas renseigné,
      * on l'exclue ici manuellement.
-     *
+     * <p>
      * De plus, le serializer ne gère pas la récursivité nativement
      * donc on la gère à la main.
      */

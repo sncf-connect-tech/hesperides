@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
@@ -33,52 +34,56 @@ public class HesperidesScenario {
 
     @Autowired
     protected TestContext testContext;
-
-    protected <T> T[] getBodyAsArray() {
-        return ((ResponseEntity<T[]>) testContext.responseEntity).getBody();
-    }
-
-    protected Map getBodyAsMap() {
-        return ((ResponseEntity<Map>) testContext.responseEntity).getBody();
-    }
+    @Autowired
+    protected RestTemplate restTemplate;
+    @Autowired
+    protected AuthCredentialsConfig authCredentialsConfig;
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
         return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
     }
 
+    protected <T> T[] getBodyAsArray() {
+        return ((ResponseEntity<T[]>) testContext.getResponseEntity()).getBody();
+    }
+
+    protected Map getBodyAsMap() {
+        return ((ResponseEntity<Map>) testContext.getResponseEntity()).getBody();
+    }
+
     public void assertOK() {
-        assertEquals(HttpStatus.OK, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
     }
 
     public void assertCreated() {
-        assertEquals(HttpStatus.CREATED, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CREATED, testContext.getResponseStatusCode());
     }
 
     public void assertNotFound() {
-        assertEquals(HttpStatus.NOT_FOUND, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, testContext.getResponseStatusCode());
     }
 
     public void assertConflict() {
-        assertEquals(HttpStatus.CONFLICT, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, testContext.getResponseStatusCode());
     }
 
-    public void assertMethodNotAllowed() {
-        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, testContext.responseEntity.getStatusCode());
+    protected void assertMethodNotAllowed() {
+        assertEquals(HttpStatus.METHOD_NOT_ALLOWED, testContext.getResponseStatusCode());
     }
 
     public void assertBadRequest() {
-        assertEquals(HttpStatus.BAD_REQUEST, testContext.responseEntity.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, testContext.getResponseStatusCode());
     }
 
-    public void assertUnauthorized() {
-        assertEquals(HttpStatus.UNAUTHORIZED, testContext.responseEntity.getStatusCode());
+    void assertUnauthorized() {
+        assertEquals(HttpStatus.UNAUTHORIZED, testContext.getResponseStatusCode());
     }
 
-    public void assertNoContent() {
-        assertEquals(HttpStatus.NO_CONTENT, testContext.responseEntity.getStatusCode());
+    protected void assertNoContent() {
+        assertEquals(HttpStatus.NO_CONTENT, testContext.getResponseStatusCode());
     }
 
-    public void assertInternalServerError() {
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.responseEntity.getStatusCode());
+    protected void assertInternalServerError() {
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, testContext.getResponseStatusCode());
     }
 }

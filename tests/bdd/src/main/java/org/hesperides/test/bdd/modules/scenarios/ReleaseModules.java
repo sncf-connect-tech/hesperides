@@ -69,7 +69,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withoutVersion)) {
                 moduleBuilder.withVersion("");
             }
-            testContext.responseEntity = moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class));
+            testContext.setResponseEntity(moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class)));
             moduleBuilder.withVersionType(TemplateContainerHelper.RELEASE);
         });
 
@@ -80,7 +80,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
                 expectedModuleBuilder.withVersion(releasedModuleVersion);
             }
             ModuleIO expectedModule = expectedModuleBuilder.build();
-            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
             assertEquals(expectedModule, actualModule);
 
             // Compare les templates de la module d'origine avec ceux de la module en mode release

@@ -20,29 +20,58 @@
  */
 package org.hesperides.test.bdd.applications.scenarios;
 
+import cucumber.api.DataTable;
 import cucumber.api.java8.En;
-import org.hesperides.test.bdd.applications.ApplicationBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.applications.ApplicationClient;
+import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.fail;
 
 public class CreateApplications extends HesperidesScenario implements En {
 
     @Autowired
+    private PlatformClient platformClient;
+    @Autowired
+    private PlatformBuilder platformBuilder;
+    @Autowired
     private ApplicationClient applicationClient;
     @Autowired
-    private ApplicationBuilder applicationBuilder;
+    private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
     public CreateApplications() {
 
-        Given("^an application without prod authorities", () -> {
+        Given("^an application without directory groups", () -> {
             fail("TODO");
         });
 
-        Given("^an application ?(.+)? with prod groups? (.+)", (String applicationName, String groupCNs) -> {
-            fail("TODO");
+        Given("^an application ?(.+)? associated with the following directory groups", (String applicationName, DataTable data) -> {
+            final List<String> directoryGroups = data.asList(String.class);
+            createPlatformAndSetApplicationDirectoryGroups(applicationName, directoryGroups);
         });
+
+        Given("^an application ?(.+)? associated with the given directory group$", (String applicationName) -> {
+            final String givenDirectoryGroup = authCredentialsConfig.getLambdaParentGroupDN();
+            createPlatformAndSetApplicationDirectoryGroups(applicationName, Collections.singletonList(givenDirectoryGroup));
+        });
+    }
+
+    private void createPlatformAndSetApplicationDirectoryGroups(String applicationName, List<String> directoryGroups) {
+        if (StringUtils.isNotEmpty(applicationName)) {
+            platformBuilder.withApplicationName(applicationName);
+        }
+        platformClient.create(platformBuilder.buildInput());
+        applicationDirectoryGroupsBuilder.withApplicationName(platformBuilder.getApplicationName());
+        applicationDirectoryGroupsBuilder.withDirectoryGroups(directoryGroups);
+        applicationClient.setApplicationDirectoryGroups(
+                applicationDirectoryGroupsBuilder.getApplicationName(),
+                applicationDirectoryGroupsBuilder.buildInput());
     }
 }

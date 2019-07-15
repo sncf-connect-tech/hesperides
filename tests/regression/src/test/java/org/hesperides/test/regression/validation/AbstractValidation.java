@@ -45,15 +45,23 @@ public abstract class AbstractValidation {
     @Autowired
     private RestTemplate restTemplate;
 
-    protected void testEndpoint(String entityKey, String restEndpoint, Class responseType, Object... endpointVariables) {
+    private static URI urlDecode(String url) {
+        try {
+            return new URI(url);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Impossible de convertir l'url encodée " + url);
+        }
+    }
+
+    void testEndpoint(String entityKey, String restEndpoint, Class responseType, Object... endpointVariables) {
         testEndpointAndGetResult(entityKey, restEndpoint, responseType, endpointVariables);
     }
 
-    protected void testFileEndpoint(String entityKey, String restEndpoint) {
+    void testFileEndpoint(String entityKey, String restEndpoint) {
         testEndpointAndGetResult(entityKey, true, restEndpoint, String.class);
     }
 
-    protected <T> Optional<T> testEndpointAndGetResult(String entityKey, String restEndpoint, Class<T> responseType, Object... endpointVariables) {
+    <T> Optional<T> testEndpointAndGetResult(String entityKey, String restEndpoint, Class<T> responseType, Object... endpointVariables) {
         return testEndpointAndGetResult(entityKey, false, restEndpoint, responseType, endpointVariables);
     }
 
@@ -93,13 +101,5 @@ public abstract class AbstractValidation {
 
     private <T> ResponseEntity<T> getResult(boolean isFileUrl, String uri, Object[] endpointVariables) {
         return isFileUrl ? restTemplate.getForEntity(urlDecode(uri), (Class<T>) String.class) : restTemplate.getForEntity(uri, (Class<T>) String.class, endpointVariables);
-    }
-
-    private static URI urlDecode(String url) {
-        try {
-            return new URI(url);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Impossible de convertir l'url encodée " + url);
-        }
     }
 }

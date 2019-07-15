@@ -29,7 +29,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
 
-import static org.hesperides.commons.spring.SpringProfiles.LDAP;
+import static org.hesperides.commons.SpringProfiles.LDAP;
 
 @Profile(LDAP)
 @Component
@@ -48,7 +48,8 @@ public class LdapConfiguration {
     private String readTimeout;
     private String prodGroupDN;
     private String techGroupDN;
-    String getSearchFilterForUsername(String username) {
+
+    public String getSearchFilterForUsername(String username) {
         return String.format("(%s=%s)", usernameAttribute, username);
     }
 }

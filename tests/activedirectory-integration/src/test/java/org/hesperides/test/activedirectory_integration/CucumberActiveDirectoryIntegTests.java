@@ -16,8 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.LDAP;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.LDAP;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(Cucumber.class)
@@ -25,7 +25,12 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         features = "../bdd/src/test/resources",
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.activedirectory_integration"},
         tags = {"@require-real-ad,@auth-related"})
-public class CucumberADIntegTests {
+public class CucumberActiveDirectoryIntegTests {
+
+    public static void main(String[] args) {
+        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
+        JUnitCore.main("CucumberADIntegTests");
+    }
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, LDAP})
@@ -37,15 +42,11 @@ public class CucumberADIntegTests {
         private TestContextCleaner testContextCleaner;
         @Autowired
         private DbCleaner dbCleaner;
+
         @Before
         public void cleanUp() {
             testContextCleaner.reset();
             dbCleaner.wipeOutCollections();
         }
-    }
-
-    public static void main(String[] args) {
-        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
-        JUnitCore.main("CucumberADIntegTests");
     }
 }

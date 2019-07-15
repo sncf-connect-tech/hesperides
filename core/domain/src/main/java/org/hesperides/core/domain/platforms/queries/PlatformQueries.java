@@ -67,7 +67,7 @@ public class PlatformQueries extends AxonQueries {
             return queryGateway.query(new GetPlatformAtPointInTimeQuery(platformId, timestamp), PlatformView.class).get();
         } catch (ExecutionException | InterruptedException error) {
             if (error.getCause() instanceof InexistantPlatformAtTimeException) {
-                throw (InexistantPlatformAtTimeException)error.getCause();
+                throw (InexistantPlatformAtTimeException) error.getCause();
             }
             throw new QueryExecutionException(error.getMessage(), error);
         }
@@ -115,6 +115,10 @@ public class PlatformQueries extends AxonQueries {
 
     public boolean instanceExists(Platform.Key platformKey, Module.Key moduleKey, String modulePath, String instanceName) {
         return querySync(new InstanceExistsQuery(platformKey, moduleKey, modulePath, instanceName), Boolean.class);
+    }
+
+    public boolean applicationExists(String applicationName) {
+        return querySync(new ApplicationExistsQuery(applicationName), Boolean.class);
     }
 
     public List<ApplicationView> getAllApplicationsDetail() {

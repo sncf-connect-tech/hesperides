@@ -55,6 +55,56 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private PlatformHistory platformHistory;
 
+    public UpdatePlatforms() {
+        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)(?: updating the value of the \"([^\"]+)\" property accordingly)?$", (String versions, String propertyName) -> {
+            Arrays.stream(versions.split(", ")).forEach(version -> {
+                platformBuilder.setDeployedModulesVersion(version);
+                moduleBuilder.withVersion(version); // to update the properties path
+                testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class));
+                assertOK();
+                platformBuilder.incrementVersionId();
+                if (StringUtils.isNotEmpty(propertyName)) {
+                    platformBuilder.setProperty(propertyName, version);
+                    testContext.setResponseEntity(platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath()));
+                    assertOK();
+                    platformBuilder.incrementVersionId();
+                }
+                platformHistory.addPlatform();
+            });
+        });
+
+        Then("^the platform is successfully updated$", () -> {
+            assertOK();
+            PlatformIO expectedPlatform = platformBuilder.buildOutput();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
+            assertEquals(expectedPlatform, actualPlatform);
+        });
+
+        Then("^the platform property model includes this instance property$", () -> {
+            InstancesModelOutput model = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            List<String> actualPropertyNames = model.getInstanceProperties()
+                    .stream()
+                    .map(InstancesModelOutput.InstancePropertyOutput::getName)
+                    .collect(Collectors.toList());
+            assertThat(actualPropertyNames, contains("instance-module-foo"));
+        });
+
+        Then("^the platform has (?:no more|zero) modules$", () -> {
+            PlatformIO platform = testContext.getResponseBody(PlatformIO.class);
+            assertThat(platform.getDeployedModules(), is(empty()));
+        });
+
+        Then("^the platform(?: still)? has (\\d+) global properties$", (Integer count) -> {
+            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+            assertThat(properties.getValuedProperties(), hasSize(count));
+        });
+
+        Then("^the platform has no module valued properties$", () -> {
+            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            assertThat(properties.getValuedProperties(), is(empty()));
+        });
+    }
+
     @When("^I( try to)? update this platform" +
             "(, (?:adding|removing) this module)?" +
             "(?: in logical group \"([^\"]*)\")?" +
@@ -120,58 +170,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         if (StringUtils.isNotEmpty(toProd)) {
             platformBuilder.withIsProductionPlatform(true);
         }
-        testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class));
+        testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class)));
         platformHistory.addPlatform();
         platformBuilder.incrementVersionId();
-    }
-
-    public UpdatePlatforms() {
-        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)(?: updating the value of the \"([^\"]+)\" property accordingly)?$", (String versions, String propertyName) -> {
-            Arrays.stream(versions.split(", ")).forEach(version -> {
-                platformBuilder.setDeployedModulesVersion(version);
-                moduleBuilder.withVersion(version); // to update the properties path
-                testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class);
-                assertOK();
-                platformBuilder.incrementVersionId();
-                if (StringUtils.isNotEmpty(propertyName)) {
-                    platformBuilder.setProperty(propertyName, version);
-                    testContext.responseEntity = platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-                    assertOK();
-                    platformBuilder.incrementVersionId();
-                }
-                platformHistory.addPlatform();
-            });
-        });
-
-        Then("^the platform is successfully updated$", () -> {
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
-            assertEquals(expectedPlatform, actualPlatform);
-        });
-
-        Then("^the platform property model includes this instance property$", () -> {
-            InstancesModelOutput model = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            List<String> actualPropertyNames = model.getInstanceProperties()
-                    .stream()
-                    .map(InstancesModelOutput.InstancePropertyOutput::getName)
-                    .collect(Collectors.toList());
-            assertThat(actualPropertyNames, contains("instance-module-foo"));
-        });
-
-        Then("^the platform has (?:no more|zero) modules$", () -> {
-            PlatformIO platform = (PlatformIO) testContext.responseEntity.getBody();
-            assertThat(platform.getDeployedModules(), is(empty()));
-        });
-
-        Then("^the platform(?: still)? has (\\d+) global properties$", (Integer count) -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
-            assertThat(properties.getValuedProperties(), hasSize(count));
-        });
-
-        Then("^the platform has no module valued properties$", () -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            assertThat(properties.getValuedProperties(), is(empty()));
-        });
     }
 }

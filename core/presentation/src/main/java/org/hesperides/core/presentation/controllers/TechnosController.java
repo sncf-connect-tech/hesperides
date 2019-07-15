@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.technos.TechnoUseCases;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.exception.TechnoNotFoundException;
 import org.hesperides.core.domain.technos.queries.TechnoView;
@@ -46,7 +47,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api(tags = "6. Technos", description = " ")
@@ -71,7 +71,7 @@ public class TechnosController extends AbstractController {
         log.info("Add a template to a techno working copy {} {}", technoName, technoVersion);
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), fromAuthentication(authentication));
+        technoUseCases.addTemplate(technoKey, templateInput.toDomainInstance(technoKey), new User(authentication));
         TemplateIO templateOutput = technoUseCases.getTemplate(technoKey, templateInput.getName())
                 .map(TemplateIO::new)
                 .orElseThrow(() -> new TemplateNotFoundException(technoKey, templateInput.getName()));
@@ -140,7 +140,7 @@ public class TechnosController extends AbstractController {
         log.info("deleteTechno {} {} {}", technoName, technoVersion, versionType);
 
         TemplateContainer.Key technoKey = new Techno.Key(technoName, technoVersion, versionType);
-        technoUseCases.deleteTechno(technoKey, fromAuthentication(authentication));
+        technoUseCases.deleteTechno(technoKey, new User(authentication));
 
         return ResponseEntity.ok().build();
     }
@@ -154,7 +154,7 @@ public class TechnosController extends AbstractController {
         log.info("releaseTechno {} {}", technoName, technoVersion);
 
         TemplateContainer.Key existingTechnoKey = new Techno.Key(technoName, technoVersion, TemplateContainer.VersionType.workingcopy);
-        TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, fromAuthentication(authentication));
+        TechnoView technoView = technoUseCases.releaseTechno(existingTechnoKey, new User(authentication));
         TechnoIO technoOutput = new TechnoIO(technoView);
 
         URI releasedTechnoLocation = technoView.toDomainInstance().getKey().getURI();
@@ -199,7 +199,7 @@ public class TechnosController extends AbstractController {
 
         TemplateContainer.Key existingTechnoKey = new Techno.Key(fromTechnoName, fromTechnoVersion, TemplateContainer.getVersionType(isFromWorkingCopy));
         TemplateContainer.Key newTechnoKey = new Techno.Key(technoInput.getName(), technoInput.getVersion(), TemplateContainer.VersionType.workingcopy);
-        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, newTechnoKey, fromAuthentication(authentication));
+        TechnoView technoView = technoUseCases.createWorkingCopyFrom(existingTechnoKey, newTechnoKey, new User(authentication));
         TemplateContainer.Key createdTechnoKey = technoView.toDomainInstance().getKey();
         TechnoIO technoOutput = new TechnoIO(technoView);
         return ResponseEntity.created(createdTechnoKey.getURI()).body(technoOutput);

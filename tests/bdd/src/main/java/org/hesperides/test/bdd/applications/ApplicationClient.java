@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.applications;
 
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
+import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -36,15 +37,20 @@ public class ApplicationClient {
         return restTemplate.getForEntity("/applications", responseType);
     }
 
-    public ResponseEntity getApplication(String applicationName, boolean hidePlatform, Class responseType) {
+    public ResponseEntity getApplication(String applicationName, boolean hidePlatform, boolean withPasswordCount, Class responseType) {
         return restTemplate.getForEntity(
-                "/applications/{application_name}?hide_platform={hide_platform}",
+                "/applications/{application_name}?hide_platform={hide_platform}&with_password_count={with_password_count}",
                 responseType,
                 applicationName,
-                hidePlatform);
+                hidePlatform,
+                withPasswordCount);
     }
 
-    public ResponseEntity<AllApplicationsDetailOutput> getAllApplications() {
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
         return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
+    }
+
+    public void setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {
+        restTemplate.put("/applications/{application_name}/directory_groups", applicationDirectoryGroups, applicationName);
     }
 }

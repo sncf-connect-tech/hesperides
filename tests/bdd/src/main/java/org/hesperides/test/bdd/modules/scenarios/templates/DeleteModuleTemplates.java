@@ -41,12 +41,16 @@ public class DeleteModuleTemplates extends HesperidesScenario implements En {
     public DeleteModuleTemplates() {
 
         When("^I( try to)? delete this module template( using an url-encoded template name)?$", (String tryTo, String urlEncodeTemplateName) -> {
-            testContext.responseEntity = moduleClient.deleteTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, ResponseEntity.class), StringUtils.isNotEmpty(urlEncodeTemplateName));
+            testContext.setResponseEntity(moduleClient.deleteTemplate(
+                    templateBuilder.build().getName(),
+                    moduleBuilder.build(),
+                    getResponseType(tryTo, ResponseEntity.class),
+                    StringUtils.isNotEmpty(urlEncodeTemplateName)));
         });
 
         Then("^the module template is successfully deleted$", () -> {
             assertNoContent();
-            testContext.responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), String.class);
+            testContext.setResponseEntity(moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), String.class));
             assertNotFound();
         });
 

@@ -4,13 +4,14 @@ import com.mongodb.client.DistinctIterable;
 import io.micrometer.core.annotation.Timed;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
 import org.hesperides.core.infrastructure.mongo.technos.MongoTechnoProjectionRepository;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
@@ -18,7 +19,6 @@ import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPrope
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,35 +30,34 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.hesperides.commons.spring.HasProfile.isProfileActive;
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
-import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
+import static org.hesperides.core.infrastructure.Collections.MODULE;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
 public class MongoModuleProjectionRepository implements ModuleProjectionRepository {
 
-    private MongoModuleRepository moduleRepository;
+    private final MongoModuleRepository moduleRepository;
     private final MongoTechnoProjectionRepository technoProjectionRepository;
     private final MongoTemplate mongoTemplate;
-    private final Environment environment;
+    private final SpringProfiles springProfiles;
 
     @Autowired
     public MongoModuleProjectionRepository(MongoModuleRepository moduleRepository,
                                            MongoTechnoProjectionRepository technoProjectionRepository,
                                            MongoTemplate mongoTemplate,
-                                           Environment environment) {
+                                           SpringProfiles springProfiles) {
         this.moduleRepository = moduleRepository;
         this.technoProjectionRepository = technoProjectionRepository;
         this.mongoTemplate = mongoTemplate;
-        this.environment = environment;
+        this.springProfiles = springProfiles;
     }
 
     @PostConstruct
     private void ensureIndexCaseInsensitivity() {
-        if (isProfileActive(environment, MONGO)) {
-            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, MODULE_COLLECTION_NAME);
+        if (springProfiles.isActive(MONGO)) {
+            MongoProjectionRepositoryConfiguration.ensureCaseInsensitivity(mongoTemplate, MODULE);
         }
     }
 
@@ -83,7 +82,8 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
             throw new NotFoundException("Module not found - update impossible - module ID: " + event.getModuleId());
         }
         ModuleDocument moduleDocument = optModuleDocument.get();
-        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(event.getTechnos(), moduleDocument.getDomainKey());
+        List<TechnoDocument> technoDocuments = technoProjectionRepository.getTechnoDocumentsFromDomainInstances(
+                event.getTechnos(), moduleDocument.getDomainKey());
         moduleDocument.setTechnos(technoDocuments);
         moduleDocument.setVersionId(event.getVersionId());
 
@@ -139,7 +139,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     @Timed
     public List<String> onGetModulesNameQuery(GetModulesNameQuery query) {
-        final DistinctIterable<String> iterable = mongoTemplate.getCollection(MODULE_COLLECTION_NAME).distinct("key.name", String.class);
+        final DistinctIterable<String> iterable = mongoTemplate.getCollection(MODULE).distinct("key.name", String.class);
         return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
     }
 
@@ -196,10 +196,7 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @Override
     @Timed
     public List<ModuleSimplePropertiesView> onGetModulesSimplePropertiesQuery(GetModulesSimplePropertiesQuery query) {
-        List<KeyDocument> modulesKeys = query.getModulesKeys()
-                .stream()
-                .map(KeyDocument::new)
-                .collect(Collectors.toList());
+        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
 
         return moduleRepository.findPropertiesByKeyIn(modulesKeys)
                 .stream()
@@ -210,12 +207,33 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
     @QueryHandler
     @Override
     @Timed
-    public List<TechnoModuleView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
+    public List<TemplateContainerKeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query) {
         List<ModuleDocument> moduleDocuments = moduleRepository.findAllByTechnosId(query.getTechnoId());
         return moduleDocuments
                 .stream()
                 .map(ModuleDocument::getKey)
-                .map(KeyDocument::toTechnoModuleView)
+                .map(KeyDocument::toKeyView)
                 .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    public Integer onCountPasswordQuery(CountPasswordsQuery query) {
+        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
+        return moduleRepository.countPasswordsInModules(modulesKeys);
+    }
+
+    @QueryHandler
+    @Override
+    public List<TemplateContainerKeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query) {
+        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
+        List<String> technoIds = moduleRepository.findTechnoIdsInModules(modulesKeys)
+                .stream()
+                .map(ModuleDocument::getTechnos)
+                .flatMap(List::stream)
+                .map(TechnoDocument::getId)
+                .distinct()
+                .collect(Collectors.toList());
+        return technoProjectionRepository.getTechnoKeysForTechnoIds(technoIds);
     }
 }

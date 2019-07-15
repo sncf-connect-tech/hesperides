@@ -183,21 +183,21 @@ databaseChangeLog:
         - createIndex:
             tableName: association_value_entry
             columns:
-            - column:
-                name: saga_type
-                type: varchar(255)
-            - column:
-                name: association_key
-                type: varchar(255)
-            - column:
-                name: association_value
-                type: varchar(255)
+              - column:
+                  name: saga_type
+                  type: varchar(255)
+              - column:
+                  name: association_key
+                  type: varchar(255)
+              - column:
+                  name: association_value
+                  type: varchar(255)
         - createIndex:
             tableName: association_value_entry
             columns:
-            - column:
-                name: saga_id
-                type: varchar(255)
-            - column:
-                name: saga_type
-                type: varchar(255)
+              - column:
+                  name: saga_id
+                  type: varchar(255)
+              - column:
+                  name: saga_type
+                  type: varchar(255)

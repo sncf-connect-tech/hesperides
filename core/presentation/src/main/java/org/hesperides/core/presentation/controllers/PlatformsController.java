@@ -14,6 +14,7 @@ import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
@@ -31,7 +32,6 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api(tags = "4. Platforms", description = " ")
@@ -70,12 +70,12 @@ public class PlatformsController extends AbstractController {
 
         String platformId;
         if (StringUtils.isBlank(fromApplication) && StringUtils.isBlank(fromPlatform)) {
-            platformId = platformUseCases.createPlatform(newPlatform, fromAuthentication(authentication));
+            platformId = platformUseCases.createPlatform(newPlatform, new User(authentication));
         } else {
             checkQueryParameterNotEmpty("from_application", fromApplication);
             checkQueryParameterNotEmpty("from_platform", fromPlatform);
             Platform.Key existingPlatformKey = new Platform.Key(fromApplication, fromPlatform);
-            platformId = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, copyInstancesAndProperties, fromAuthentication(authentication));
+            platformId = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, copyInstancesAndProperties, new User(authentication));
         }
 
         PlatformView platformView = platformUseCases.getPlatform(platformId);
@@ -115,7 +115,7 @@ public class PlatformsController extends AbstractController {
         platformUseCases.updatePlatform(platformKey,
                 platformInput.toDomainInstance(),
                 Boolean.TRUE.equals(copyPropertiesForUpgradedModules), // on traite le cas `null`
-                fromAuthentication(authentication)
+                new User(authentication)
         );
 
         final ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.OK);
@@ -130,7 +130,7 @@ public class PlatformsController extends AbstractController {
                                          @PathVariable("platform_name") final String platformName) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        platformUseCases.deletePlatform(platformKey, fromAuthentication(authentication));
+        platformUseCases.deletePlatform(platformKey, new User(authentication));
 
         return ResponseEntity.ok().build();
     }
@@ -141,7 +141,7 @@ public class PlatformsController extends AbstractController {
                                                       @PathVariable("application_name") final String applicationName,
                                                       @PathVariable("platform_name") final String platformName) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        PlatformView platformView = platformUseCases.restoreDeletedPlatform(platformKey, fromAuthentication(authentication));
+        PlatformView platformView = platformUseCases.restoreDeletedPlatform(platformKey, new User(authentication));
         PlatformIO platformOutput = new PlatformIO(platformView);
         return ResponseEntity.ok(platformOutput);
     }
@@ -226,7 +226,7 @@ public class PlatformsController extends AbstractController {
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
 
         return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
     }
@@ -241,7 +241,7 @@ public class PlatformsController extends AbstractController {
                                                        @Valid @RequestBody final PropertiesIO properties) {
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, new User(authentication));
 
         return ResponseEntity.ok(new PropertiesIO(propertyViews));
     }

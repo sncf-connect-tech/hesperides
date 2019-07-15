@@ -18,30 +18,22 @@
  *
  *
  */
-package org.hesperides.test.bdd.applications;
+package org.hesperides.core.domain.security.entities.authorities;
 
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public class ApplicationRole implements GrantedAuthority {
 
-@Component
-public class ApplicationBuilder {
+    public static final String PROD_USER_SUFFIX = "_PROD_USER";
 
-    private String applicationName;
-    Map<String, List<String>> authorities = new HashMap<>();
+    private final String authority;
 
-    public ApplicationBuilder() {
-        reset();
+    public ApplicationRole(String authority) {
+        this.authority = authority + PROD_USER_SUFFIX;
     }
 
-    public ApplicationBuilder reset() {
-        applicationName = "test-application";
-        return this;
-    }
-
-    public String getApplicationName() {
-        return applicationName;
+    @Override
+    public String getAuthority() {
+        return authority;
     }
 }

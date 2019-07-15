@@ -3,18 +3,23 @@ package org.hesperides.core.presentation.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.hesperides.core.application.authorizations.ApplicationDirectoryGroupsUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
-import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
+import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
+import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,32 +34,43 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 public class ApplicationsController extends AbstractController {
 
     private final PlatformUseCases platformUseCases;
+    private final ApplicationDirectoryGroupsUseCases applicationDirectoryGroupsUseCases;
 
     @Autowired
-    public ApplicationsController(PlatformUseCases platformUseCases) {
+    public ApplicationsController(PlatformUseCases platformUseCases, ApplicationDirectoryGroupsUseCases applicationDirectoryGroupsUseCases) {
         this.platformUseCases = platformUseCases;
+        this.applicationDirectoryGroupsUseCases = applicationDirectoryGroupsUseCases;
     }
 
     @GetMapping("")
     @ApiOperation("Get applications")
     public ResponseEntity<List<SearchResultOutput>> getApplications() {
-        List<SearchApplicationResultView> apps = platformUseCases.getApplicationNames();
+        List<SearchApplicationResultView> applications = platformUseCases.getApplicationNames();
 
-        List<SearchResultOutput> appsOutput = apps.stream()
+        List<SearchResultOutput> applicationOutputs = applications.stream()
                 .distinct()
                 .map(SearchResultOutput::new)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(appsOutput);
+        return ResponseEntity.ok(applicationOutputs);
     }
 
     @GetMapping("/{application_name}")
     @ApiOperation("Get application")
     public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
-                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules) {
+                                                            @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules,
+                                                            @RequestParam(value = "with_password_count", required = false) final Boolean withPasswordCount) {
 
-        ApplicationView applicationView = platformUseCases.getApplication(applicationName);
-        ApplicationOutput applicationOutput = new ApplicationOutput(applicationView, Boolean.TRUE.equals(hidePlatformsModules));
+        ApplicationView application = platformUseCases.getApplication(applicationName);
+        Map<String, List<String>> applicationDirectoryGroups = applicationDirectoryGroupsUseCases.getApplicationDirectoryGroups(applicationName)
+                .map(ApplicationDirectoryGroupsView::getDirectoryGroups)
+                .orElse(Collections.emptyMap());
+        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTechnosPasswords(application) : null;
+
+        ApplicationOutput applicationOutput = new ApplicationOutput(application,
+                Boolean.TRUE.equals(hidePlatformsModules),
+                applicationDirectoryGroups,
+                passwordCount);
 
         return ResponseEntity.ok(applicationOutput);
     }
@@ -82,9 +98,24 @@ public class ApplicationsController extends AbstractController {
         return ResponseEntity.ok(searchResultOutputs);
     }
 
+
+    @ApiOperation("Update the directory groups of an application")
+    @PutMapping("/{application_name}/directory_groups")
+    public ResponseEntity setDirectoryGroups(Authentication authentication,
+                                             @PathVariable("application_name") final String applicationName,
+                                             @Valid @RequestBody final ApplicationDirectoryGroupsInput applicationDirectoryGroupsInput) {
+
+        applicationDirectoryGroupsUseCases.setApplicationDirectoryGroups(
+                applicationName,
+                applicationDirectoryGroupsInput.getDirectoryGroups(),
+                new User(authentication));
+
+        return ResponseEntity.ok().build();
+    }
+
     @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
     @GetMapping("/platforms")
-    @Cacheable(GetAllApplicationsCacheConfiguration.CACHE_NAME)
+    @Cacheable("all-applications-detail")
     public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
 
         TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
@@ -94,7 +125,7 @@ public class ApplicationsController extends AbstractController {
 
         final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail()
                 .stream()
-                .map(application -> new ApplicationOutput(application, false))
+                .map(application -> new ApplicationOutput(application, false, Collections.emptyMap(), null))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new AllApplicationsDetailOutput(nowAsIso, applications));

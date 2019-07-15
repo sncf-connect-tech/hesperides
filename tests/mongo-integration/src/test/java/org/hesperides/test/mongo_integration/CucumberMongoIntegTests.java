@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.NOLDAP;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
@@ -23,6 +23,10 @@ import static org.hesperides.commons.spring.SpringProfiles.MONGO;
         glue = {"classpath:org.hesperides.test.bdd", "classpath:org.hesperides.test.mongo_integration"},
         tags = "~@require-real-ad")
 public class CucumberMongoIntegTests {
+
+    public static void main(String[] args) {
+        JUnitCore.main("CucumberMongoIntegTests");
+    }
 
     @ActiveProfiles(profiles = {MONGO, NOLDAP})
     @ContextConfiguration(classes = {IntegTestConfig.class, IntegTestHttpConfig.class})
@@ -32,14 +36,11 @@ public class CucumberMongoIntegTests {
         private TestContextCleaner testContextCleaner;
         @Autowired
         private DbCleaner dbCleaner;
+
         @Before
         public void cleanUp() {
             testContextCleaner.reset();
             dbCleaner.wipeOutCollections();
         }
-    }
-
-    public static void main(String[] args) {
-        JUnitCore.main("CucumberMongoIntegTests");
     }
 }

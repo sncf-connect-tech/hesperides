@@ -18,13 +18,12 @@
  *
  *
  */
-package org.hesperides.commons.spring;
+package org.hesperides.core.domain.security.exceptions;
 
-public final class SpringProfiles {
-    public static final String FAKE_MONGO = "fake_mongo";
-    public static final String GRAPHITE = "graphite";
-    public static final String LDAP = "ldap";
-    public static final String MONGO = "mongo";
-    public static final String NOLDAP = "noldap";
-    public static final String SPRING_BOOT_ADMIN = "sba";
+import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
+
+public class CreateDirectoryGroupsForbiddenException extends ForbiddenOperationException {
+    public CreateDirectoryGroupsForbiddenException(String applicationName) {
+        super("You're not allowed to create the directory groups for the application " + applicationName);
+    }
 }

@@ -33,6 +33,11 @@ public class IntegTestHttpConfig {
     private Integer proxyPort;
 
     @Bean
+    public static Gson gson() {
+        return PresentationConfiguration.gson();
+    }
+
+    @Bean
     public DefaultUriBuilderFactory defaultUriBuilderFactory() {
         return new DefaultUriBuilderFactory(remoteBaseUrl);
     }
@@ -50,11 +55,6 @@ public class IntegTestHttpConfig {
             httpClientBuilder.setProxy(new HttpHost(proxyHost, proxyPort));
         }
         return httpClientBuilder.build();
-    }
-
-    @Bean
-    public static Gson gson() {
-        return PresentationConfiguration.gson();
     }
 
     @Bean

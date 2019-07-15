@@ -23,19 +23,20 @@ nous intégrons dans Hesperides un mécanisme d'[ACLs](https://fr.wikipedia.org/
 <!-- tocstop -->
 
 ## Besoin fonctionnel
-- associer des droits de lecture & édition par plateforme, et y lier les restrictions d'accès aux **mots de passe** sur les plateformes de **production**
-- s'intégrer avec un annuaire _Active Directory_ et à des normes de nommage de groupes pré-existantes
+
+- Associer des droits de lecture & édition par plateforme, et y lier les restrictions d'accès aux **mots de passe** sur les plateformes de **production**
+- S'intégrer avec un annuaire _Active Directory_ et à des normes de nommage de groupes pré-existantes
 (incluant des cas de sous-groupes, avec transmissions de droits correspondants)
-- déléguer la gestion des droits aux utilisateurs, pour les rendre autonomes
+- Déléguer la gestion des droits aux utilisateurs, pour les rendre autonomes
 
 
 ## Design
 
-Globalement, l'ajout de ces fonctionnalités entraine quelques ajouts structurels :
-- à chaque plateforme est associé un "privilège" Spring Boot (`authority`) : `${APP}_PROD_USER`
-- une nouvelle collection dans la base de données fait le lien entre `${APP}_PROD_USER` et groupes _Active Directory_
-- de nouvelles ressources dans le _endpoint_ `/users`, détaillées ci-dessous
-- à chaque appel aux ressources `/platforms`, `/files` & `/users` ces privilèges sont consultés pour déterminer les opérations autorisées,
+Globalement, l'ajout de ces fonctionnalités entraîne quelques modifications structurelles :
+- À chaque plateforme est associé un "privilège" Spring Boot (`authority`) : `${APP}_PROD_USER`
+- Une nouvelle collection dans la base de données fait le lien entre `${APP}_PROD_USER` et groupes _Active Directory_
+- De nouvelles ressources dans le _endpoint_ `/users`, détaillées ci-dessous
+- À chaque appel aux ressources `/platforms`, `/files` & `/users` ces privilèges sont consultés pour déterminer les opérations autorisées,
 et si les mots de passes doivent être obfusqués
 
 ![](ACLs-pseudo-UML.png)
@@ -44,59 +45,61 @@ et si les mots de passes doivent être obfusqués
 ## Ressources REST
 
 ### GET /users/auth
+
 Ajout de 3 champs dans la réponse.
 
-**Input**: le _login_ de l'utilisateur (pour l'instant via la `Basic Auth`)
+**Input** : le _login_ de l'utilisateur (pour l'instant via la `Basic Auth`)
 
-**Output** nominal: la liste exhaustive des groupes ActiveDirectory auxquels l'utilisateur appartient, et la liste des applications où il a des droits de prod
+**Output** nominal : la liste exhaustive des groupes ActiveDirectory auxquels l'utilisateur appartient, et la liste des applications où il a des droits de prod
 ```
 {
   "username": "...",
   "prodUser": true,
   "techUser": false,
-  "authorities": [
-    {"role": "GLOBAL_IS_PROD"},
-    {"role": "ABC_PROD_USER"},
-    {"role": "DEF_PROD_USER"},
-    {"groupCN": "GG_XX"},
-    {"groupCN": "GG_YY"}
-  ]
+  "authorities": {
+    "roles": ["GLOBAL_IS_PROD", "ABC_PROD_USER", "DEF_PROD_USER"],
+    "groups": ["GG_XX", "GG_YY"]
+  }
 }
 ```
 
 Ici les `authorities` sont issues de la gestion de rôles de [Spring Boot](https://www.baeldung.com/role-and-privilege-for-spring-security-registration).
-Elles sont de 3 types :
-- **globales** : en reprennant les rôles historiques `GLOBAL_IS_PROD` (`= prodUser`) & `GLOBAL_IS_TECH` (`= techUser`)
-- **par application** : les nouveaux privilèges `${APP}_PROD_USER`
-- **groupes ActiveDirectory indicatifs**, incluant les groupes parents et tous les ancêtres
+Ils sont déclinés en 3 types :
+- Les rôles globaux à toutes les applications : `prodUser` (`GLOBAL_IS_PROD`) et `techUser` (`GLOBAL_IS_TECH`)
+- Les nouveaux privilèges : correspondent à la liste des applications sur lesquelles l'utilisateur a les droits de prod (`${APP}_PROD_USER`)
+- Les groupes Active Directory auxquels l'utilisateur appartient : ils apparaissent à titre indicatif et incluent les groupes parents ainsi que leurs ancêtres
 
-**Error**: `401` si les _credentials_ de l'utilisateur sont invalides.
+**Error** : `401` si les _credentials_ de l'utilisateur sont invalides.
 
 ### GET /applications/$APP
+
 Ajout d'un champ `authorities` dans la réponse.
 
-**Output**: 
+**Output** : 
 ```
 {
     "name": "ABC",
-    "authorities": {
+    "directory_groups": {
         "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
     },
     "platforms: [ ... ]
 }
 ```
 
+Ici, le paramètre `directory_groups` représentent les groupes AD qui donnent les droits de prod sur les plateformes de l'application.
+
 ### GET /applications/$APP?with_passwords_count=true
+
 Ajout de ce _query parameter_.
 
 **Besoin** : pouvoir identifier les plateformes nommées "PRDx" contenant des mots de passes,
-mais non classifiées comme "production".
+mais non catégorisées comme "production".
 
-**Output**:
+**Output** :
 ```
 {
     "name": "ABC",
-    "authorities": {
+    "directory_groups": {
         "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
     },
     "platforms: [{
@@ -107,14 +110,24 @@ mais non classifiées comme "production".
 }
 ```
 
-### PUT /applications/$APP
-Permet de mettre à jour la propriété `authorities` d'une application.
+### PUT /applications/$APP/authorities
 
-**Droits de modification des `authorities`**: ce champ ne peut être modifié uniquement si l'utilisateur effectuant la modification :
+Permet de mettre à jour la propriété `directory_groups` d'une application.
+
+**Droits de modification des `directory_groups`** : ce champ peut être modifié uniquement si l'utilisateur effectuant la modification :
 - a les droits "prod" globaux
-- appartient a l'un des groupes dans `authorities`.
+- appartient a l'un des groupes dans `directory_groups`.
 
 Dans le cas contraire, une `403` est retournée.
+
+**Input** :
+```
+{
+    "directory_groups": {
+        "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
+    }
+}
+```
 
 
 ## Détails notables d'implémentation
@@ -131,7 +144,7 @@ Cette approche n'étant donc plus envisageable en terme de charge générée sur
 pour minimiser ce nombre d'appels Hesperides va désormais collecter la liste de tous les groupes parents de l'utilisateur,
 transitivement et avec un cache.
 
-Voici donc le nouvel algorithme de collecte des `authorities` par connexion d'utilisateur :
+Voici donc le nouvel algorithme de collecte des `directory_groups` par connexion d'utilisateur :
 1. un appel systématique à l'ActiveDirectory pour récupérer la liste des groupes directement parents, via une requête `memberOf`.
 2. on résoud la liste exhaustive des groupes parents en bénéficiant d'un cache, générant entre 0 et `N` appels
 (avec `N` la profondeur maximum de l'arbre des groupes parents, et donc très peu élevé).
@@ -143,9 +156,9 @@ Une seule requête est nécessaire.
 
 ### Caches
 
-Deux caches sont mis en place au niveau de la gestions des `authorities` :
+Deux caches sont mis en place au niveau de la gestions des `directory_groups` :
 
-- par utilisateur, ses `authorities` sont mémorisées dans un cache avec TTL de 5 minutes et comme clef son _login_
+- par utilisateur, ses `directory_groups` sont mémorisées dans un cache avec TTL de 5 minutes et comme clef son _login_
 - globalement, l'arbre des dépendances entre groupes ActiveDirectory étant mis en cache, avec pour chaque groupe un TTL de 1 heure
 
 Malgré ces caches, comme Hesperides est _stateless_ et qu'aucune information relative à l'utilisateur n'est stockée en base de données,

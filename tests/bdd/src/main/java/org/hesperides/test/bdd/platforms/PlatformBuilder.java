@@ -180,7 +180,7 @@ public class PlatformBuilder {
 
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
         PlatformIO platform = hidePlatform ? buildOutputWithoutModules() : buildOutput();
-        return new ApplicationOutput(applicationName, Arrays.asList(platform));
+        return new ApplicationOutput(applicationName, Arrays.asList(platform), Collections.emptyMap(), null);
     }
 
     public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
@@ -271,6 +271,10 @@ public class PlatformBuilder {
 
     public Boolean getIsProductionPlatform() {
         return isProductionPlatform;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 
     @Value

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -34,10 +34,12 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{}", fields = "{ 'key.applicationName' : 1 }")
     List<PlatformDocument> listApplicationNames();
 
-    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' } }") // case-insensitive
+    // case-insensitive
+    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' } }")
     List<PlatformDocument> findAllByKeyApplicationNameLike(String input);
 
-    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' }, 'key.platformName': { '$regex' : ?1, '$options' : 'i' } }") // case-insensitive
+    // case-insensitive
+    @Query(value = "{ 'key.applicationName': { '$regex' : ?0, '$options' : 'i' }, 'key.platformName': { '$regex' : ?1, '$options' : 'i' } }")
     List<PlatformDocument> findAllByKeyApplicationNameLikeAndKeyPlatformNameLike(String applicationName, String platformName);
 
     // Pour les 3 prochaines requêtes, nous utilisons `$gt: 0` car `$ne: 0` ne retournait pas de résultat
@@ -52,4 +54,6 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
 
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalProperties' : 1 }")
     Optional<PlatformDocument> findGlobalPropertiesByPlatformKey(PlatformKeyDocument platformKeyDocument);
+
+    boolean existsByKeyApplicationName(String applicationName);
 }

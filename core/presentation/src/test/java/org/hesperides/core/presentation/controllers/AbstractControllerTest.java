@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.presentation.controllers;
 
+import org.hesperides.core.application.authorizations.ApplicationDirectoryGroupsUseCases;
 import org.hesperides.core.application.events.EventUseCases;
 import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.modules.ModuleUseCases;
@@ -42,4 +43,6 @@ public abstract class AbstractControllerTest {
     protected EventUseCases eventUseCases;
     @MockBean
     protected FileUseCases fileUseCases;
+    @MockBean
+    protected ApplicationDirectoryGroupsUseCases applicationDirectoryGroupsUseCases;
 }

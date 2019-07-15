@@ -72,14 +72,14 @@ public class CreateTechnos extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? create this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.setResponseEntity(technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
         });
 
         Then("^the techno is successfully created$", () -> {
             assertCreated();
             String expectedNamespace = technoBuilder.getNamespace();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
+            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
 

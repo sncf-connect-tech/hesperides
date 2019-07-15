@@ -21,7 +21,7 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.TechnoModulesOutput;
+import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
@@ -47,13 +47,13 @@ public class GetModulesUsingTechno extends HesperidesScenario implements En {
     public GetModulesUsingTechno() {
 
         When("^I get the modules using this techno$", () -> {
-            testContext.responseEntity = moduleClient.getModulesUsingTechno(technoBuilder.build());
+            testContext.setResponseEntity(moduleClient.getModulesUsingTechno(technoBuilder.build()));
         });
 
         Then("^the modules using this techno are successfully retrieved", () -> {
             assertOK();
-            List<TechnoModulesOutput> expectedModules = moduleHistory.buildTechnoModules();
-            List<TechnoModulesOutput> actualModules = Arrays.asList(getBodyAsArray());
+            List<ModuleKeyOutput> expectedModules = moduleHistory.buildTechnoModules();
+            List<ModuleKeyOutput> actualModules = Arrays.asList(getBodyAsArray());
             Assert.assertEquals(expectedModules, actualModules);
         });
     }

@@ -22,7 +22,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.presentation.io.UserInfoOutput;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Api(tags = "9. Users and versions", description = " ")
@@ -69,14 +67,6 @@ public class UsersController extends AbstractController {
             }
         }
 
-        User currentUser = User.fromAuthentication(authentication);
-
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("username", currentUser.getName());
-        userInfo.put("prodUser", currentUser.isGlobalProd()); // déprécié, utiliser plutôt .authorities
-        userInfo.put("techUser", currentUser.isGlobalTech()); // déprécié, utiliser plutôt .authorities
-        userInfo.put("authorities", authentication.getAuthorities());
-
-        return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok(new UserInfoOutput(authentication));
     }
 }
