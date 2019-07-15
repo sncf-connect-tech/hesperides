@@ -1,4 +1,6 @@
-
+import _root_.scenario.Generic
+import conf.Config
+import io.gatling.core.Predef.{Simulation, _}
 
 class HesperidesApi extends Simulation {
   setUp(
