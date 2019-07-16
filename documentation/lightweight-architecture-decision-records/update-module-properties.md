@@ -2,69 +2,53 @@
 
 ## Résumé du besoin
 
-L'idée est de permettre la modification des valorisations des propriétés d'un module de manière indépendente.
+Permettre la modification des valorisations des propriétés d'un module déployé de manière indépendante.
 
 ## Objectif
 
-Pour faire simple, il faut permettre aux utlisateurs de pouvoir modifier simultanément plusieurs modules distincts sur une même plateforme.
+Permettre aux utlisateurs de modifier simultanément plusieurs modules distincts sur une même plateforme.
 
 ## Limitations
 
 On ne pourra pas modifier simultanément le même module déployé (avec un path identique).
-Cela provoque un conflit détecté via le version_id.
 
-## Comment on veut faire ?
+## Solution
 
-* Nouveau version_id au niveau du module déployé
+Créer un nouveau version_id au niveau du module déployé.
 
-### Modification des propriétés d'un module (nouveau endpoint)
+### Modification des propriétés d'un module
+
+Nouveau endpoint :
+
+    PUT /applications/{application_name}/platforms/{platform_name}/deployed_modules/properties?path={request_parameter}
 
 * Vérifier le version_id de ce module et l'incrémenter
 * Incrémenter le version_id de la platforme mais ne pas le vérifier
 * Mettre à jour les propriétés
 
-    PUT /applications/xxx/platforms/abc/deployed_module/properties?path=###
-
-    {
-	"deployed_module_version_id": 1,
-  "key_value_properties": [
-    {
-      "value": "PhpRedis",
-      "name": "vsc_redis_interface"
-    },
-    {
-      "value": "7d940810-3a69-4482-b646-d8d5ce35082d",
-      "name": "vsc_api_expedia_header_key"
-    }
-	],
-  "iterable_properties": [
-    {
-      "iterable_valorisation_items": [
+```
+{
+    "deployed_module_version_id": 1,
+    "key_value_properties": [
         {
-          "title": "",
-          "values": [
-            {
-              "value": "vslcms{{platform.env}}{{platform.id}}",
-              "name": "username"
-            },
-            {
-              "value": "Gra7JKzu4FH9s",
-              "name": "mysql_slave.password"
-            }
-          ]
+            "value": "key1",
+            "name": "value1"
         },
-      "name": "mysql_slaves"
-    }
-  ]
+        ...    
+    ],
+    "iterable_properties": [
+        ...
+    ]
 }
+```
 
-### Impacts IO
+### Impacts
 
-POST properties => vérifie le version_id de la plateforme mais pas celui du deployed module, puis appelle le put
-GET properties => Ajoute le version_id du deployed_module
-
-Renommer ces 2 endpoints (deprecated etc.) et les tests
-
-Créer un sous-groupes swagger Deployed modules
-
-Impacter le front et communiquer client pour le deprecated 
+* `POST properties` : vérifier le version_id de la plateforme mais pas celui du deployed module puis appeler le `PUT`
+* `GET properties` : ajouter le champ `deployed_module_version_id`
+* Passer ces 2 endpoints en Deprecated et rediriger vers les nouveaux endpoints contenant `.../deployed_modules/properties...`
+* Mettre à jour les tests fonctionnels, notamment `PlatformClient`
+* Créer un Controller `DeployedModulesController` et un sous-groupe Swagger `Deployed modules`
+* Impacter le front
+* Communiquer le Deprecated et la nouvelle ressource aux utilisateurs
+* Impacter la sharedLib ? 
