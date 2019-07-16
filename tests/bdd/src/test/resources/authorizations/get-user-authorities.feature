@@ -6,7 +6,6 @@ Feature: Get user authorities
     When I get the current user information
     Then the given group is listed under the user directory groups
 
-  @wip
   Scenario: retrieve directory groups associated with an application
     Given an authenticated prod user
     And an application ABC associated with the given directory group

@@ -11,3 +11,5 @@ package org.hesperides.core.domain.security
  * lors de la déserialisation via Gson des events
  */
 open class UserEvent(@Transient open val user: String)
+
+data class GetUserQuery(val username: String)

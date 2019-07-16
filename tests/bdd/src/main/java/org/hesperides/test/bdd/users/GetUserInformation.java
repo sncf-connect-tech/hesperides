@@ -23,6 +23,14 @@ public class GetUserInformation extends HesperidesScenario implements En {
             testContext.setResponseEntity(restTemplate.getForEntity("/users/auth", UserInfoOutput.class));
         });
 
+        When("^I get user information about another prod user$", () -> {
+            testContext.setResponseEntity(restTemplate.getForEntity("/users/" + authCredentialsConfig.getProdUsername(), UserInfoOutput.class));
+        });
+
+        When("^I get user information about a non-existing user$", () -> {
+            testContext.setResponseEntity(restTemplate.getForEntity("/users/inexistant", String.class));
+        });
+
         Then("^the given group is listed under the user directory groups$", () -> {
             assertEquals(HttpStatus.OK, testContext.getResponseStatusCode());
             String expectedAuthorityGroup = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
