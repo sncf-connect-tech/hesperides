@@ -36,3 +36,31 @@ mais il est possible de compléter cette configuration via des variables d'envir
     SENTRY_ENVIRONMENT=PRD1
     SENTRY_IGNORED_EXCEPTIONS=PlatformNotFoundException,TemplateNotFoundException
     JAVA_OPTS=-Dsentry.stacktrace.app.packages=org.hesperides -Dsentry.http.proxy.host=my-proxt-host -Dsentry.http.proxy.port=80
+
+Nous vous recommandons de filtrer les erreurs conventionnelles correspondant à des codes HTTP 4XX via l'interface de Sentry :
+
+![](sentry-error-message-filter.png)
+
+    ApplicationNotFoundException*
+    PlatformNotFoundException*
+    ModuleNotFoundException*
+    TechnoNotFoundException*
+    TemplateNotFoundException*
+    DeployedModuleNotFoundException*
+    InstanceNotFoundException*
+    InexistantPlatformAtTimeException*
+    UnreplayablePlatformEventsException*
+    DuplicateDeployedModuleIdException*
+    DuplicateModuleException*
+    DuplicatePlatformException*
+    DuplicateTechnoException*
+    OutOfDateVersionException*
+    IllegalArgumentException*
+    MissingServletRequestParameterException*
+    UpdateReleaseException*
+    InvalidPropertyValorisationException*
+    InvalidTemplateException*
+    ForbiddenOperationException*
+    AccessDeniedException*
+    RequiredPropertyNotValorisedException*
+    MethodArgumentNotValidException*

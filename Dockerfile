@@ -45,3 +45,9 @@ CMD ["/usr/bin/java", \
      "-Xms2g", "-Xmx4g", \
      "-jar", "/hesperides.jar" \
 ]
+# -XX:+ExitOnOutOfMemoryError // an OutOfMemoryError will often leave the JVM in an inconsistent state. Terminating the JVM will allow it to be restarted by an external process manager
+# -XX:+HeapDumpOnOutOfMemoryError // get a heap dump when the app crashes
+CMD /usr/bin/java $JAVA_OPTS \
+     -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError \
+     -Xms2g -Xmx4g \
+     -jar /hesperides.jar

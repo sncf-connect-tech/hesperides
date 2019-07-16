@@ -1,7 +1,10 @@
 package org.hesperides.core.infrastructure.monitoring;
 
 import io.sentry.Sentry;
+import io.sentry.event.helper.BasicRemoteAddressResolver;
+import io.sentry.event.helper.RemoteAddressResolver;
 import io.sentry.event.interfaces.ExceptionInterface;
+import io.sentry.event.interfaces.UserInterface;
 import io.sentry.servlet.SentryServletRequestListener;
 import io.sentry.spring.SentryExceptionResolver;
 import io.sentry.spring.SentryServletContextInitializer;
@@ -10,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
@@ -24,6 +29,8 @@ import static org.springframework.util.StringUtils.split;
 @Configuration
 @Slf4j
 public class SentryConfiguration {
+
+    private final RemoteAddressResolver remoteAddressResolver = new BasicRemoteAddressResolver();
 
     @Value("#{'${sentry.ignored-exceptions}'.split(',')}")
     private String[] ignoredExceptions;
@@ -50,6 +57,9 @@ public class SentryConfiguration {
             eventBuilder.withTag("application", extractApplication(request.getRequestURI()));
             eventBuilder.withTag("uri", defaultString(getMatchingPattern(request)));
             eventBuilder.withTag("query", defaultString(request.getQueryString()));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            eventBuilder.withSentryInterface(new UserInterface(null, authentication.getName(),
+                    remoteAddressResolver.getRemoteAddress(request), null), true);
         });
         log.info("Creating a SentryExceptionResolver as HandlerExceptionResolver - Ignored exceptions: {}", ignoredExceptions);
         return new SentryExceptionResolver();
@@ -57,7 +67,7 @@ public class SentryConfiguration {
 
     @Bean
     @ConditionalOnProperty("SENTRY_DSN") // only if environment variable exists
-    public SentryServletContextInitializer sentryServletContextInitializer() {
+    public static SentryServletContextInitializer sentryServletContextInitializer() {
         // Needed for SentryServletRequestListener.getServletRequest() to work
         return new SentryServletContextInitializer();
     }

@@ -67,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param ex "not found" failure
      * @return entitiy
      */
-    @ExceptionHandler({InexistantPlatformAtTimeException.class, NotFoundException.class})
+    @ExceptionHandler({NotFoundException.class})
     public ResponseEntity handleNotFound(Exception ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }

@@ -219,9 +219,13 @@ public class PlatformUseCases {
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final User user) {
-        Optional<String> platformId = platformQueries.getOptionalPlatformId(platformKey);
-        if (!platformId.isPresent()) {
+        Optional<PlatformView> optPlatform = queries.getOptionalPlatform(platformKey);
+        if (!optPlatform.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
+        }
+        PlatformView platform = optPlatform.get();
+        if (platform.isProductionPlatform() && !user.isProd()) {
+            throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
         if (ROOT_PATH.equals(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
@@ -229,14 +233,14 @@ public class PlatformUseCases {
             if (valuedProperties.size() != abstractValuedProperties.size()) {
                 throw new IllegalArgumentException("Global properties should always be valued properties");
             }
-            platformCommands.savePlatformProperties(platformId.get(), platformVersionId, valuedProperties, user);
+            commands.savePlatformProperties(platform.getId(), platformVersionId, valuedProperties, user);
         } else {
             final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
             validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey, platformKey);
-            platformCommands.saveModulePropertiesInPlatform(platformId.get(), propertiesPath, platformVersionId, abstractValuedProperties, user);
+            commands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
         return getValuedProperties(platformKey, propertiesPath, user);

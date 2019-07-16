@@ -26,11 +26,14 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class GetPlatformsUsingModule extends HesperidesScenario implements En {
 
@@ -51,7 +54,13 @@ public class GetPlatformsUsingModule extends HesperidesScenario implements En {
             assertOK();
             List<ModulePlatformsOutput> expectedPlatforms = platformHistory.buildModulePlatforms();
             List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(getBodyAsArray());
-            Assert.assertEquals(expectedPlatforms, actualPlatforms);
+            assertEquals(expectedPlatforms, actualPlatforms);
+        });
+
+        Then("^a single platform is retrieved", () -> {
+            assertOK();
+            List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(getBodyAsArray());
+            assertThat(actualPlatforms, hasSize(1));
         });
     }
 }
