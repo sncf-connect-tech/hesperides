@@ -9,6 +9,7 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
@@ -22,6 +23,7 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -213,6 +215,23 @@ public class PlatformsController extends AbstractController {
                                 !globalPropertyUsage.isRemovedFromTemplate(),
                                 globalPropertyUsage.getPropertiesPath()))
                         .collect(Collectors.toSet()))));
+    }
+
+    @ApiOperation("Get properties diff with the given paths in given platforms")
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties/diff")
+    public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(Authentication authentication,
+                                                                  @PathVariable("application_name") final String fromApplicationName,
+                                                                  @PathVariable("platform_name") final String fromPlatformName,
+                                                                  @RequestParam("path") final String fromPropertiesPath,
+                                                                  @RequestParam("to_application") final String toApplicationName,
+                                                                  @RequestParam("to_platform") final String toPlatformName,
+                                                                  @RequestParam("to_path") final String toPropertiesPath,
+                                                                  @RequestParam(value= "timestamp", required = false) final Long timestamp) {
+        Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
+        Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
+
+        PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(fromPlatformKey, fromPropertiesPath, toPlatformKey, toPropertiesPath, timestamp, fromAuthentication(authentication));
+        return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
     }
 
     @ApiOperation("Get properties with the given path in a platform")

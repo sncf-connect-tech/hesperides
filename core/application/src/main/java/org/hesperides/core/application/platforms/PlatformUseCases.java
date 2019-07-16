@@ -12,6 +12,7 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.exceptions.*;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -238,11 +239,27 @@ public class PlatformUseCases {
         return platformQueries.searchPlatforms(applicationName, platformName);
     }
 
-    private List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
+    public PropertiesDiff getPropertiesDiff(final Platform.Key fromPlatformKey, final String fromPropertiesPath, final Platform.Key toPlatformKey, final String toPropertiesPath, final User user) {
+        return getPropertiesDiff(fromPlatformKey, fromPropertiesPath, toPlatformKey, toPropertiesPath, null, user);
+    }
+
+    public PropertiesDiff getPropertiesDiff(final Platform.Key fromPlatformKey, final String fromPropertiesPath, final Platform.Key toPlatformKey, final String toPropertiesPath, final Long timestamp, final User user) {
+        List<AbstractValuedPropertyView> fromPlatformPropertiesViews = getValuedProperties(fromPlatformKey, fromPropertiesPath, timestamp, user, false);
+        List<AbstractValuedPropertyView> toPlatformPropertiesViews = getValuedProperties(toPlatformKey, toPropertiesPath, timestamp, user, false);
+        List<AbstractValuedProperty> fromPlatformProperties = AbstractValuedPropertyView.toDomainAbstractValuedProperties(fromPlatformPropertiesViews);
+        List<AbstractValuedProperty> toPlatformProperties = AbstractValuedPropertyView.toDomainAbstractValuedProperties(toPlatformPropertiesViews);
+        return AbstractValuedProperty.diff(fromPlatformProperties, toPlatformProperties);
+    }
+
+    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         return getValuedProperties(platformKey, propertiesPath, null, user);
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
+        return getValuedProperties(platformKey, propertiesPath, timestamp, user, false);
+    }
+
+    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user, final boolean excludePropertiesWithOnlyDefaultValue) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
@@ -258,8 +275,10 @@ public class PlatformUseCases {
 
             properties = platformQueries.getDeployedModuleProperties(platform.getId(), propertiesPath, timestamp);
 
-            // On exclue les propriétés non valorisées ayant une valeur par défaut
-            properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
+            if (excludePropertiesWithOnlyDefaultValue) {
+                // On exclue les propriétés non valorisées ayant une valeur par défaut
+                properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
+            }
 
             // Pas besoin de récupérer la plateforme entière juste pour ce test
             // surtout si c'est pour refaire une requête pour récupérer les propriétés

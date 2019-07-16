@@ -322,7 +322,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
-        Given("^the platform has these valued properties$", (DataTable data) -> {
+        Given("^the platform(?: \"([^\"]+)\")? has these valued properties$", (String platformName, DataTable data) -> {
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
@@ -424,7 +428,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             Assert.assertEquals(expectedPlatform, actualPlatform);
             if (isNotEmpty(expectedModulePath)) {
-                Assert.assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
+                assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
             }
         });
 

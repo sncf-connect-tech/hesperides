@@ -51,7 +51,12 @@ public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
     public IterableValuedPropertyIO(IterableValuedPropertyView iterableValuedPropertyView) {
         super(iterableValuedPropertyView.getName());
-        this.iterablePropertyItems = IterablePropertyItemIO.fromIterablePropertyItem(iterableValuedPropertyView.getIterablePropertyItems());
+        this.iterablePropertyItems = IterablePropertyItemIO.fromIterablePropertyItemsViews(iterableValuedPropertyView.getIterablePropertyItems());
+    }
+
+    public IterableValuedPropertyIO(IterableValuedProperty iterableValuedProperty) {
+        super(iterableValuedProperty.getName());
+        this.iterablePropertyItems = IterablePropertyItemIO.fromIterablePropertyItems(iterableValuedProperty.getItems());
     }
 
     public static Set<IterableValuedPropertyIO> fromIterableValuedPropertyViews(final List<IterableValuedPropertyView> iterableValuedPropertyViews) {

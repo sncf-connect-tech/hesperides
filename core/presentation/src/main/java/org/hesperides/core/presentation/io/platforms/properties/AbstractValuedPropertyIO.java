@@ -23,6 +23,9 @@ package org.hesperides.core.presentation.io.platforms.properties;
 import com.google.gson.*;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -44,6 +47,26 @@ public abstract class AbstractValuedPropertyIO {
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
                 .collect(Collectors.toList());
+    }
+
+    public static List<AbstractValuedPropertyIO> fromAbstractValuedProperties(List<AbstractValuedProperty> abstractValuedProperties) {
+        return abstractValuedProperties.stream().map(AbstractValuedPropertyIO::fromAbstractValuedProperty).collect(Collectors.toList());
+    }
+
+    public static Set<AbstractValuedPropertyIO> fromAbstractValuedProperties(Set<AbstractValuedProperty> abstractValuedProperties) {
+        return Optional.ofNullable(abstractValuedProperties)
+                .orElseGet(Collections::emptySet)
+                .stream()
+                .map(AbstractValuedPropertyIO::fromAbstractValuedProperty)
+                .collect(Collectors.toSet());
+    }
+
+    public static AbstractValuedPropertyIO fromAbstractValuedProperty(AbstractValuedProperty abstractValuedProperty){
+        if (abstractValuedProperty instanceof ValuedProperty) {
+            return new ValuedPropertyIO((ValuedProperty)abstractValuedProperty);
+        } else {
+            return new IterableValuedPropertyIO((IterableValuedProperty) abstractValuedProperty);
+        }
     }
 
     /**

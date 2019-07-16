@@ -56,7 +56,20 @@ public class IterablePropertyItemIO {
         this.abstractValuedProperties.addAll(iterableValuedProperties);
     }
 
-    public static List<IterablePropertyItemIO> fromIterablePropertyItem(final List<IterablePropertyItemView> iterablePropertyItems) {
+    public IterablePropertyItemIO(final IterablePropertyItem iterablePropertyItem) {
+        this.title = iterablePropertyItem.getTitle();
+        this.abstractValuedProperties = new HashSet<>(AbstractValuedPropertyIO.fromAbstractValuedProperties(iterablePropertyItem.getAbstractValuedProperties()));
+    }
+
+    public static List<IterablePropertyItemIO> fromIterablePropertyItemsViews(final List<IterablePropertyItemView> iterablePropertyItems) {
+        return Optional.ofNullable(iterablePropertyItems)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(IterablePropertyItemIO::new)
+                .collect(Collectors.toList());
+    }
+
+    public static List<IterablePropertyItemIO> fromIterablePropertyItems(final List<IterablePropertyItem> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
                 .orElseGet(Collections::emptyList)
                 .stream()
