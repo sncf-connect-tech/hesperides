@@ -37,6 +37,19 @@ Feature: Restrict actions on prod platforms to prod users
     When I try to delete this platform
     Then a 403 error is returned, blaming "Deleting a production platform is reserved to production role"
 
+  #issue-693
+  Scenario: restrict prod platform properties update
+    Given an existing module with this template content
+      """
+      {{ a-property }}
+      """
+    And an existing prod platform with this module
+    And an authenticated lambda user
+    When I try to save these properties
+      | name       | value   |
+      | a-property | a-value |
+    Then a 403 error is returned, blaming "Setting properties of a production platform is reserved to production role"
+
   @require-real-ad
   Scenario: do not restrict prod platform update for per-app prod users
     Given a user belonging to A_GROUP
