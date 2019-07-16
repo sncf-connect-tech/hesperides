@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
-import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.security.User.fromAuthentication;
 
@@ -48,6 +44,8 @@ public class DeployedModulesController extends AbstractController {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getDeployedModuleVersionId(), fromAuthentication(authentication));
 
-        return ResponseEntity.ok(new PropertiesIO(propertyViews));
+        //TODO récupérer le version id
+
+        return ResponseEntity.ok(new PropertiesIO(0L, propertyViews));
     }
 }

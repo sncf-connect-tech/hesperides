@@ -335,7 +335,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Given("^the platform has these global properties$", (DataTable data) -> {
             List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(globalProperties), Collections.emptySet()));
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(0L, new HashSet<>(globalProperties), Collections.emptySet()));
             platformBuilder.incrementVersionId();
         });
 

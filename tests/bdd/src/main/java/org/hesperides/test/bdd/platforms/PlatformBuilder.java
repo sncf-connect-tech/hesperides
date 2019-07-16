@@ -108,6 +108,7 @@ public class PlatformBuilder {
         deployedModules = deployedModules.stream()
                 .map(deployedModule -> new DeployedModuleIO(
                         deployedModule.getId() + 1,
+                        deployedModule.getVersionId(),
                         deployedModule.getName(),
                         deployedModule.getVersion(),
                         deployedModule.getIsWorkingCopy(),
@@ -122,6 +123,7 @@ public class PlatformBuilder {
         deployedModules = deployedModules.stream()
                 .map(deployedModule -> new DeployedModuleIO(
                         deployedModule.getId(),
+                        deployedModule.getVersionId(),
                         deployedModule.getName(),
                         version,
                         deployedModule.getIsWorkingCopy(),
@@ -139,7 +141,7 @@ public class PlatformBuilder {
         } else if (logicalGroup != null) {
             modulePath = "#" + logicalGroup;
         }
-        deployedModules.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
+        deployedModules.add(new DeployedModuleIO(0L, 0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
         return this;
     }
 
@@ -172,7 +174,7 @@ public class PlatformBuilder {
         } else {
             AtomicLong moduleId = new AtomicLong();
             modules = deployedModules.stream().map(module ->
-                    new DeployedModuleIO(moduleId.incrementAndGet(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
+                    new DeployedModuleIO(moduleId.incrementAndGet(), 0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
             ).collect(Collectors.toList());
         }
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
@@ -226,6 +228,7 @@ public class PlatformBuilder {
 
     public PropertiesIO getPropertiesIO(boolean isGlobal) {
         return new PropertiesIO(
+                0L,
                 new HashSet<>(getValuedProperties(isGlobal)),
                 new HashSet<>(iterableProperties));
     }

@@ -64,7 +64,7 @@ public class SaveProperties extends HesperidesScenario implements En {
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
-            propertiesIO = new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet());
+            propertiesIO = new PropertiesIO(0L, new HashSet<>(valuedProperties), Collections.emptySet());
             testContext.responseEntity = platformClient.saveProperties(
                     platformBuilder.buildInput(),
                     propertiesIO,

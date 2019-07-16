@@ -69,7 +69,6 @@ public class PropertiesIO {
     }
 
     public PropertiesIO(Long deployedModuleVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
-
         this.deployedModuleVersionId = deployedModuleVersionId;
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
