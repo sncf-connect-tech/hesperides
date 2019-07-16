@@ -48,6 +48,6 @@ public class PlatformTest {
     }
 
     private DeployedModule buildDeployedModuleWithId(Long id) {
-        return new DeployedModule(id, null, null, true, null, null, null, null);
+        return new DeployedModule(id, DeployedModule.INIT_DEPLOYED_MODULE_VERSION_ID, null, null, true, null, null, null, null);
     }
 }

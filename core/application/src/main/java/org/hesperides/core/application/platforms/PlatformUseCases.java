@@ -2,6 +2,7 @@ package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
+import org.hesperides.core.domain.modules.ModuleExistsQuery;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -149,6 +150,14 @@ public class PlatformUseCases {
         return queries.searchPlatforms(applicationName, platformName);
     }
 
+    public Long getDeployedModuleVersionId(final Platform.Key platformKey, final String propertiesPath, final User user) {
+        return getDeployedModuleVersionId(platformKey, propertiesPath, null, user);
+    }
+
+    public Long getDeployedModuleVersionId(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
+        return queries.getDeployedModuleVersionId(queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey)), propertiesPath, timestamp);
+    }
+
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         return getValuedProperties(platformKey, propertiesPath, null, user);
     }
@@ -214,6 +223,15 @@ public class PlatformUseCases {
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
                                                            final User user) {
+        return saveProperties(platformKey, propertiesPath,platformVersionId,abstractValuedProperties,null, user);
+    }
+
+    public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
+                                                           final String propertiesPath,
+                                                           final Long platformVersionId,
+                                                           final List<AbstractValuedProperty> abstractValuedProperties,
+                                                           final Long moduleDeployedVersionId,
+                                                           final User user) {
         Optional<PlatformView> optPlatform = queries.getOptionalPlatform(platformKey);
         if (!optPlatform.isPresent()) {
             throw new PlatformNotFoundException(platformKey);
@@ -235,7 +253,7 @@ public class PlatformUseCases {
                 throw new ModuleNotFoundException(moduleKey);
             }
             validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey, platformKey);
-            commands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, abstractValuedProperties, user);
+            commands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, moduleDeployedVersionId, abstractValuedProperties, user);
         }
 
         return getValuedProperties(platformKey, propertiesPath, user);

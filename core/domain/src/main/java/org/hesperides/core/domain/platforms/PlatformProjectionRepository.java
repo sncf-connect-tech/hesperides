@@ -70,6 +70,9 @@ public interface PlatformProjectionRepository {
     List<SearchPlatformResultView> onSearchPlatformsQuery(SearchPlatformsQuery query);
 
     @QueryHandler
+    Long onGetDeployedModuleVersionIdQuery(GetDeployedModuleVersionIdQuery query);
+
+    @QueryHandler
     List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query);
 
     @QueryHandler

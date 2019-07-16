@@ -63,6 +63,7 @@ public class RandomPlatformViewGenerator {
         List<InstanceView> instances = genInstances(dpProfile.avgInstanceCount, dpProfile.avgInstancePropertiesCount);
         return new DeployedModuleView(
                 nextLong(),
+                1L,
                 name,
                 version,
                 true,

@@ -11,6 +11,7 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.queries.views.*;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
+import org.hesperides.core.domain.security.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.cache.GetAllApplicationsCacheConfiguration;
 import org.hesperides.core.presentation.io.platforms.*;
@@ -270,9 +271,11 @@ public class PlatformsController extends AbstractController {
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
+        User user = fromAuthentication(authentication);
 
-        return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, user);
+
+        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getDeployedModuleVersionId(platformKey, propertiesPath, timestamp, user), abstractValuedPropertyViews));
     }
 
     @ApiOperation("Save properties in a platform with the given path")
@@ -285,9 +288,11 @@ public class PlatformsController extends AbstractController {
                                                        @Valid @RequestBody final PropertiesIO properties) {
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, fromAuthentication(authentication));
+        User user = fromAuthentication(authentication);
 
-        return ResponseEntity.ok(new PropertiesIO(propertyViews));
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, user);
+
+        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getDeployedModuleVersionId(platformKey, propertiesPath, user), propertyViews));
     }
 
     @ApiOperation("Get all applications, their platforms and their modules (with a cache)")

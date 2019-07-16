@@ -42,6 +42,12 @@ import java.util.Set;
 public class PropertiesIO {
 
     @NotNull
+    @SerializedName("deployed_modules_version_id")
+    @JsonProperty("deployed_modules_version_id")
+    @Valid
+    Long deployedModuleVersionId;
+
+    @NotNull
     @SerializedName("key_value_properties")
     @JsonProperty("key_value_properties")
     @Valid
@@ -62,7 +68,9 @@ public class PropertiesIO {
         return properties;
     }
 
-    public PropertiesIO(List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+    public PropertiesIO(Long deployedModuleVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+
+        this.deployedModuleVersionId = deployedModuleVersionId;
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
