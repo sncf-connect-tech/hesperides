@@ -73,9 +73,9 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Autowired
     private LdapConfiguration ldapConfiguration;
     @Autowired
-    private CacheManager cacheManager;
-    @Autowired
     private AuthorizationProjectionRepository authorizationProjectionRepository;
+    @Autowired
+    private CacheManager cacheManager;
     // Pour débuguer le contenus des caches:
     //   Evaluate Expression: cacheManager.ehcaches.get(USERS_AUTHENTICATION_CACHE_NAME).compoundStore.map
     //   Evaluate Expression: cacheManager.ehcaches.get(AUTHORIZATION_GROUPS_TREE_CACHE_NAME).compoundStore.map
@@ -88,7 +88,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
     @Override
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
-        DirContext dirContext = buildSearchContext(auth.getName(), (String) auth.getCredentials());
+        DirContext dirContext = buildSearchContext(auth);
         // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
         return self.searchUser(dirContext, auth.getName());
     }
@@ -113,7 +113,13 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         }
     }
 
-    private DirContext buildSearchContext(final String username, final String password) {
+    DirContext buildSearchContext(UsernamePasswordAuthenticationToken auth) {
+        String username = auth.getName();
+        String password = (String) auth.getCredentials();
+        return buildSearchContext(username, password);
+    }
+
+    private DirContext buildSearchContext(String username, String password) {
         Hashtable<String, String> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

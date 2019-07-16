@@ -30,8 +30,11 @@ public class User {
     List<String> directoryGroups;
 
     public User(Authentication authentication) {
-        final Collection<? extends GrantedAuthority> springAuthorities = authentication.getAuthorities();
-        this.name = authentication.getName();
+        this(authentication.getName(), authentication.getAuthorities());
+    }
+
+    public User(String username, Collection<? extends GrantedAuthority> springAuthorities) {
+        this.name = username;
         this.isGlobalProd = isGlobalProd(springAuthorities);
         this.isGlobalTech = isGlobalTech(springAuthorities);
         this.roles = getRoles(springAuthorities);

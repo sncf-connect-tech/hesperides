@@ -67,5 +67,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder authManagerBuilder) {
         authManagerBuilder.authenticationProvider(authenticationProvider);
+        authManagerBuilder.eraseCredentials(false); // Nécessaire pour LdapUserInfoRepository
     }
 }

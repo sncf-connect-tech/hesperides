@@ -25,6 +25,7 @@ public class AuthCredentialsConfig {
     private String techPassword = "password";
 
     @Setter
+    @Getter
     private String prodUsername = "prod";
     @Setter
     private String prodPassword = "password";

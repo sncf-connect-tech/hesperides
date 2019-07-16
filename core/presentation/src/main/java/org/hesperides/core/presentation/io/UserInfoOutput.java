@@ -35,11 +35,14 @@ public class UserInfoOutput {
     AuthoritiesOutput authorities;
 
     public UserInfoOutput(Authentication authentication) {
-        User currentUser = new User(authentication);
-        this.username = currentUser.getName();
-        this.prodUser = currentUser.isGlobalProd();
-        this.techUser = currentUser.isGlobalTech();
-        this.authorities = new AuthoritiesOutput(currentUser.getRoles(), currentUser.getDirectoryGroups());
+        this(new User(authentication));
+    }
+
+    public UserInfoOutput(User user) {
+        this.username = user.getName();
+        this.prodUser = user.isGlobalProd();
+        this.techUser = user.isGlobalTech();
+        this.authorities = new AuthoritiesOutput(user.getRoles(), user.getDirectoryGroups());
     }
 
     @Value

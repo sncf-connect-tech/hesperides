@@ -22,15 +22,15 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hesperides.core.application.users.UserUseCases;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.UserInfoOutput;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,12 +40,25 @@ import java.util.Set;
 @RestController
 public class UsersController extends AbstractController {
 
+    private final UserUseCases userUseCases;
     private final Set<String> loggedOutUsers = new HashSet<>();
+
+    @Autowired
+    public UsersController(UserUseCases userUseCases) {
+        this.userUseCases = userUseCases;
+    }
+
+    @ApiOperation("Retrieve information about a known user.")
+    @GetMapping("/{username}")
+    public ResponseEntity getUserInfo(@PathVariable final String username) {
+        final User user = userUseCases.getUser(username);
+        return ResponseEntity.ok(new UserInfoOutput(user));
+    }
 
     @ApiOperation("Authenticates users. It returns useful information about the authenticated user.")
     @GetMapping("/auth")
-    public ResponseEntity getUserInfo(Authentication authentication,
-                                      @RequestParam(value = "logout", required = false) final Boolean logout) {
+    public ResponseEntity getCurrentUserInfo(Authentication authentication,
+                                             @RequestParam(value = "logout", required = false) final Boolean logout) {
 
         if (Boolean.TRUE.equals(logout)) {
             /*

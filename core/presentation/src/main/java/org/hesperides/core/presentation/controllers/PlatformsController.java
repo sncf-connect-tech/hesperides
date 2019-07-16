@@ -136,7 +136,7 @@ public class PlatformsController extends AbstractController {
     }
 
     @PostMapping("/{application_name}/platforms/{platform_name}/restore")
-    @ApiOperation("Restore platform")
+    @ApiOperation("Restore a deleted platform")
     public ResponseEntity<PlatformIO> restorePlatform(Authentication authentication,
                                                       @PathVariable("application_name") final String applicationName,
                                                       @PathVariable("platform_name") final String platformName) {
