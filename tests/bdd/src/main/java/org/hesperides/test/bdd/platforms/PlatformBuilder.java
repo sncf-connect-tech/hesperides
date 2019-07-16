@@ -106,28 +106,28 @@ public class PlatformBuilder {
 
     public void incrementDeployedModuleIds() {
         deployedModules = deployedModules.stream()
-                .map(dm -> new DeployedModuleIO(
-                        dm.getId() + 1,
-                        dm.getName(),
-                        dm.getVersion(),
-                        dm.getIsWorkingCopy(),
-                        dm.getModulePath(),
-                        dm.getPropertiesPath(),
-                        dm.getInstances()
+                .map(deployedModule -> new DeployedModuleIO(
+                        deployedModule.getId() + 1,
+                        deployedModule.getName(),
+                        deployedModule.getVersion(),
+                        deployedModule.getIsWorkingCopy(),
+                        deployedModule.getModulePath(),
+                        deployedModule.getPropertiesPath(),
+                        deployedModule.getInstances()
                 ))
                 .collect(Collectors.toList());
     }
 
     public void setDeployedModulesVersion(String version) {
         deployedModules = deployedModules.stream()
-                .map(dm -> new DeployedModuleIO(
-                        dm.getId(),
-                        dm.getName(),
+                .map(deployedModule -> new DeployedModuleIO(
+                        deployedModule.getId(),
+                        deployedModule.getName(),
                         version,
-                        dm.getIsWorkingCopy(),
-                        dm.getModulePath(),
-                        dm.getPropertiesPath(),
-                        dm.getInstances()
+                        deployedModule.getIsWorkingCopy(),
+                        deployedModule.getModulePath(),
+                        deployedModule.getPropertiesPath(),
+                        deployedModule.getInstances()
                 ))
                 .collect(Collectors.toList());
     }

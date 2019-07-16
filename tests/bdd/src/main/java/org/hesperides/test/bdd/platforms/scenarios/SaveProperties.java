@@ -23,9 +23,11 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import lombok.Value;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,21 +44,12 @@ public class SaveProperties extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private ModuleHistory moduleHistory;
 
     private PropertiesIO propertiesIO;
 
     public SaveProperties() {
-
-        When("^I( try to)? save these properties?$", (String tryTo, DataTable data) -> {
-            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
-            propertiesIO = new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet());
-            testContext.responseEntity = platformClient.saveProperties(
-                    platformBuilder.buildInput(),
-                    propertiesIO,
-                    moduleBuilder.getPropertiesPath(),
-                    getResponseType(tryTo, PropertiesIO.class));
-        });
 
         Given("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
@@ -68,12 +61,55 @@ public class SaveProperties extends HesperidesScenario implements En {
                     getResponseType(tryTo, PropertiesIO.class));
         });
 
+        When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
+            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
+            propertiesIO = new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet());
+            testContext.responseEntity = platformClient.saveProperties(
+                    platformBuilder.buildInput(),
+                    propertiesIO,
+                    moduleBuilder.getPropertiesPath(),
+                    getResponseType(tryTo, PropertiesIO.class));
+        });
+
+        When("^I update the properties of those modules one after the other using the same platform version_id$", () -> {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                testContext.responseEntity = platformClient.updateProperties(
+                        platformBuilder.buildInput(),
+                        propertiesIO,
+                        moduleBuilder.getPropertiesPath(),
+                        PropertiesIO.class);
+            });
+        });
+
+        When("^I update the module properties and then the platform using the same platform version_id$", () -> {
+            final PlatformIO platformInput = platformBuilder.buildInput();
+            platformClient.updateProperties(
+                    platformInput,
+                    propertiesIO,
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            testContext.responseEntity = platformClient.update(platformInput, false, String.class);
+        });
+
+        When("^I update the properties of this module twice with the same deployed module version_id$", () -> {
+            for (int i = 0; i < 2; i++) {
+                testContext.responseEntity = platformClient.updateProperties(
+                        platformBuilder.buildInput(),
+                        propertiesIO,
+                        moduleBuilder.getPropertiesPath(),
+                        PropertiesIO.class);
+            }
+        });
+
         Then("^the properties are successfully saved$", () -> {
             assertOK();
             PropertiesIO expectedProperties = propertiesIO;
             PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
             assertEquals(expectedProperties, actualProperties);
         });
+
+        Then("^the properties update is rejected with a conflict error$", this::assertConflict);
     }
 
     /**
@@ -81,7 +117,7 @@ public class SaveProperties extends HesperidesScenario implements En {
      * contenant les colonnes "iterable", "bloc", "name", "value"
      * en une liste de IterableValuedPropertyIO.
      */
-    public static List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
+    static List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
         Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
         // Première étape : transformer la datatable en map
         // pour mutualiser les données

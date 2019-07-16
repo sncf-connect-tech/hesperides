@@ -109,3 +109,23 @@ Feature: Save properties
       | name     | value |
       | property | value |
     Then the properties are successfully saved
+
+  Scenario: save properties of 2 modules of the same platform simultaneously
+    Given an existing module named "toto"
+    And an existing module named "tata"
+    And an existing platform with those modules
+    When I update the properties of those modules one after the other using the same platform version_id
+    Then the properties are successfully saved
+    And the platform version_id is incremented twice
+
+  Scenario: reject a platform update that has had a property update
+    Given an existing module
+    And an existing platform with this module
+    When I update the module properties and then the platform using the same platform version_id
+    Then the platform update is rejected with a conflict error
+
+  Scenario: reject updating properties of the same module concurrently
+    Given an existing module
+    And an existing platform with this module
+    When I update the properties of this module twice with the same deployed module version_id
+    Then the properties update is rejected with a conflict error

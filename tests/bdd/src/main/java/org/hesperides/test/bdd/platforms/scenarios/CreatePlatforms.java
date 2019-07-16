@@ -31,6 +31,7 @@ import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO
 import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -58,6 +59,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private ModuleHistory moduleHistory;
+    @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
     private CommonSteps commonSteps;
@@ -65,6 +68,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
             "( with this module)?" +
+            "( with those modules)?" +
             "( with two modules : one with the same name and one with the same version)?" +
             "(?: in logical group \"([^\"]*)\")?" +
             "( (?:and|with) an instance)?" +
@@ -79,6 +83,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public void givenAnExistingPlatform(String isProd,
                                         String platformName,
                                         String withThisModule,
+                                        String withThoseModules,
                                         String withTwoModulesOneWithTheSameNameAndOneWithTheSameVersion,
                                         String logicalGroup,
                                         String withAnInstance,
@@ -115,6 +120,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             platformBuilder.incrementDeployedModuleIds();
         }
+
+        if (isNotEmpty(withThoseModules)) {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+                platformBuilder.incrementDeployedModuleIds();
+            });
+        }
+
         if (isNotEmpty(withTwoModulesOneWithTheSameNameAndOneWithTheSameVersion)) {
             String origName = moduleBuilder.getName();
             String origVersion = moduleBuilder.getVersion();

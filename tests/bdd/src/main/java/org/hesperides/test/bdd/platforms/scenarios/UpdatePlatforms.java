@@ -33,6 +33,7 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -173,5 +174,14 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             assertThat(properties.getValuedProperties(), is(empty()));
         });
+
+        Then("^the platform version_id is incremented twice$", () -> {
+            Long expectedVersionId = platformBuilder.buildOutput().getVersionId() + 2;
+            final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), PlatformIO.class);
+            Long actualVersionId = responseEntity.getBody().getVersionId();
+            assertEquals(expectedVersionId, actualVersionId);
+        });
+
+        Then("^the platform update is rejected with a conflict error$", this::assertConflict);
     }
 }
