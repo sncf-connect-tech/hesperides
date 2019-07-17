@@ -82,6 +82,19 @@ public class SaveProperties extends HesperidesScenario implements En {
             });
         });
 
+        When("^I update the module properties and then the platform global properties$", () -> {
+            platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    propertiesIO,
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    propertiesIO,
+                    "#",
+                    PropertiesIO.class);
+        });
+
         When("^I update the module properties and then the platform using the same platform version_id$", () -> {
             final PlatformIO platformInput = platformBuilder.buildInput();
             platformClient.updateProperties(
