@@ -172,18 +172,18 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         if (mongoModuleRepository == null) {
             // Cas du InmemoryPlatformRepository
             deployedModuleDocument.setValuedProperties(abstractValuedProperties);
-            return;
+        } else {
+            // Récupérer le model du module afin d'attribuer à chaque
+            // propriété valorisée la définition initiale de la propriété
+            // (ex: {{prop | @required}} => "prop | @required")
+            Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
+            KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
+            List<AbstractPropertyDocument> modulePropertiesModel = mongoModuleRepository
+                    .findPropertiesByModuleKey(moduleKeyDocument)
+                    .map(ModuleDocument::getProperties)
+                    .orElseGet(Collections::emptyList);
+            deployedModuleDocument.setValuedProperties(AbstractValuedPropertyDocument.completePropertiesWithMustacheContent(abstractValuedProperties, modulePropertiesModel));
         }
-        // Récupérer le model du module afin d'attribuer à chaque
-        // propriété valorisée la définition initiale de la propriété
-        // (ex: {{prop | @required}} => "prop | @required")
-        Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
-        KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
-        List<AbstractPropertyDocument> modulePropertiesModel = mongoModuleRepository
-                .findPropertiesByModuleKey(moduleKeyDocument)
-                .map(ModuleDocument::getProperties)
-                .orElseGet(Collections::emptyList);
-        deployedModuleDocument.setValuedProperties(AbstractValuedPropertyDocument.completePropertiesWithMustacheContent(abstractValuedProperties, modulePropertiesModel));
     }
 
     @EventHandler
