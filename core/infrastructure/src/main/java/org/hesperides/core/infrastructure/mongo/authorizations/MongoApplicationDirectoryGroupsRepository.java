@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.infrastructure.mongo.authorizations;
 
+import org.hesperides.core.infrastructure.mongo.authorizations.documents.ApplicationDirectoryGroupsDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -35,8 +36,7 @@ import static org.hesperides.commons.SpringProfiles.MONGO;
 @Repository
 public interface MongoApplicationDirectoryGroupsRepository extends MongoRepository<ApplicationDirectoryGroupsDocument, String> {
 
-    @Query(value = "{ 'directoryGroups.value' : { $in: ?0 } }", fields = "{ 'application' : 1 }")
-        // requêt mauvaise
+    @Query(value = "{ 'directoryGroups.values' : { $in: ?0 } }", fields = "{ 'applicationName' : 1 }")
     List<ApplicationDirectoryGroupsDocument> findApplicationsWithDirectoryGroups(List<String> directoryGroups);
 
     Optional<ApplicationDirectoryGroupsDocument> findByApplicationName(String applicationName);

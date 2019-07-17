@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.core.infrastructure.mongo.authorizations;
+package org.hesperides.core.infrastructure.mongo.authorizations.documents;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,7 +28,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.hesperides.core.infrastructure.Collections.APPLICATION_DIRECTORY_GROUPS;
 
@@ -39,15 +38,15 @@ public class ApplicationDirectoryGroupsDocument {
     @Id
     private String id;
     private String applicationName;
-    private Map<String, List<String>> directoryGroups;
+    private List<DirectoryGroupsDocument> directoryGroups;
 
     public ApplicationDirectoryGroupsDocument(String id, ApplicationDirectoryGroups applicationDirectoryGroups) {
         this.id = id;
         this.applicationName = applicationDirectoryGroups.getApplicationName();
-        this.directoryGroups = applicationDirectoryGroups.getDirectoryGroups();
+        this.directoryGroups = DirectoryGroupsDocument.fromMapOfList(applicationDirectoryGroups.getDirectoryGroups());
     }
 
-    ApplicationDirectoryGroupsView toView() {
-        return new ApplicationDirectoryGroupsView(id, applicationName, directoryGroups);
+    public ApplicationDirectoryGroupsView toView() {
+        return new ApplicationDirectoryGroupsView(id, applicationName, DirectoryGroupsDocument.toMapOfList(directoryGroups));
     }
 }

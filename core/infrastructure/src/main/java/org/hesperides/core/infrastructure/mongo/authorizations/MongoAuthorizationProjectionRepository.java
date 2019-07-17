@@ -29,6 +29,7 @@ import org.hesperides.core.domain.authorizations.GetApplicationDirectoryGroupsQu
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.infrastructure.mongo.MongoProjectionRepositoryConfiguration;
+import org.hesperides.core.infrastructure.mongo.authorizations.documents.ApplicationDirectoryGroupsDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
