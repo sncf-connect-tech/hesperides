@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
@@ -41,11 +42,10 @@ import java.util.Set;
 @AllArgsConstructor
 public class PropertiesIO {
 
-    @NotNull
-    @SerializedName("deployed_modules_version_id")
-    @JsonProperty("deployed_modules_version_id")
+    @SerializedName("properties_version_id")
+    @JsonProperty("properties_version_id")
     @Valid
-    Long deployedModuleVersionId;
+    Long propertiesVersionId;
 
     @NotNull
     @SerializedName("key_value_properties")
@@ -68,13 +68,18 @@ public class PropertiesIO {
         return properties;
     }
 
-    public PropertiesIO(Long deployedModuleVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
-        this.deployedModuleVersionId = deployedModuleVersionId;
+    public PropertiesIO(Long propertiesVersionId, List<AbstractValuedPropertyView> abstractValuedPropertyViews) {
+        this.propertiesVersionId = propertiesVersionId;
 
         final List<ValuedPropertyView> valuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, ValuedPropertyView.class);
         valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
 
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(abstractValuedPropertyViews, IterableValuedPropertyView.class);
         iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
+    }
+
+    // On initialise le propertiesVersionId dans le cas ou il n'est pas fourni (le temps de repassé l'attribut en @NotNull)
+    public Long getPropertiesVersionId() {
+        return propertiesVersionId != null ? propertiesVersionId : DeployedModule.INIT_PROPERTIES_VERSION_ID;
     }
 }

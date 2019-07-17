@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class DeployedModuleDocument {
 
     private Long id;
-    private Long deployedModuleVersionId;
+    private Long propertiesVersionId;
     private String name;
     private String version;
     private boolean isWorkingCopy;
@@ -50,7 +50,7 @@ public class DeployedModuleDocument {
 
     public DeployedModuleDocument(DeployedModule deployedModule) {
         id = deployedModule.getId();
-        deployedModuleVersionId = deployedModule.getDeployedModuleVersionId();
+        propertiesVersionId = deployedModule.getPropertiesVersionId();
         name = deployedModule.getName();
         version = deployedModule.getVersion();
         isWorkingCopy = deployedModule.isWorkingCopy();
@@ -64,7 +64,7 @@ public class DeployedModuleDocument {
     public DeployedModuleView toDeployedModuleView() {
         return new DeployedModuleView(
                 id,
-                deployedModuleVersionId,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,
@@ -93,7 +93,7 @@ public class DeployedModuleDocument {
     }
 
     public DeployedModule toDomainInstance() {
-        return new DeployedModule(id, deployedModuleVersionId, name, version, isWorkingCopy, modulePath,
+        return new DeployedModule(id, propertiesVersionId, name, version, isWorkingCopy, modulePath,
                 AbstractValuedPropertyDocument.toAbstractDomainInstances(valuedProperties),
                 InstanceDocument.toDomainInstances(instances),
                 instancesModel);

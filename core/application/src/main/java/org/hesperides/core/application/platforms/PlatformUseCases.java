@@ -79,6 +79,7 @@ public class PlatformUseCases {
                 newPlatform.isProductionPlatform(),
                 1L,
                 deployedModules,
+                existingPlatform.getGlobalPropertiesVersionId(),
                 globalProperties
         );
         return commands.createPlatform(newFullPlatform, user);
@@ -150,12 +151,20 @@ public class PlatformUseCases {
         return queries.searchPlatforms(applicationName, platformName);
     }
 
-    public Long getDeployedModuleVersionId(final Platform.Key platformKey, final String propertiesPath, final User user) {
-        return getDeployedModuleVersionId(platformKey, propertiesPath, null, user);
+    public Long getPropertiesVersionId(final Platform.Key platformKey, final String propertiesPath) {
+        return getPropertiesVersionId(platformKey, propertiesPath, null);
     }
 
-    public Long getDeployedModuleVersionId(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
-        return queries.getDeployedModuleVersionId(queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey)), propertiesPath, timestamp);
+    public Long getPropertiesVersionId(final Platform.Key platformKey, final String propertiesPath, final Long timestamp) {
+
+        Optional<Long> propertiesVersionId = Optional.empty();
+
+        if (ROOT_PATH.equals(propertiesPath)) {
+            propertiesVersionId = queries.getGlobalPropertiesVersionId(platformKey);
+        } else if (StringUtils.isNotEmpty(propertiesPath)) {
+            propertiesVersionId = Optional.of(queries.getPropertiesVersionId(queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey)), propertiesPath, timestamp));
+        }
+        return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
@@ -222,15 +231,7 @@ public class PlatformUseCases {
                                                            final String propertiesPath,
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
-                                                           final User user) {
-        return saveProperties(platformKey, propertiesPath,platformVersionId,abstractValuedProperties,null, user);
-    }
-
-    public List<AbstractValuedPropertyView> saveProperties(final Platform.Key platformKey,
-                                                           final String propertiesPath,
-                                                           final Long platformVersionId,
-                                                           final List<AbstractValuedProperty> abstractValuedProperties,
-                                                           final Long moduleDeployedVersionId,
+                                                           final Long propertiesVersionId,
                                                            final User user) {
         Optional<PlatformView> optPlatform = queries.getOptionalPlatform(platformKey);
         if (!optPlatform.isPresent()) {
@@ -240,20 +241,23 @@ public class PlatformUseCases {
         if (platform.isProductionPlatform() && !user.isProd()) {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
+
+        Long expectedPropertiesVersionId = getPropertiesVersionId(platformKey, propertiesPath);
+
         if (ROOT_PATH.equals(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
             // Platform properties are global and should always be of type ValuedProperty
             if (valuedProperties.size() != abstractValuedProperties.size()) {
                 throw new IllegalArgumentException("Global properties should always be valued properties");
             }
-            commands.savePlatformProperties(platform.getId(), platformVersionId, valuedProperties, user);
+            commands.savePlatformProperties(platform.getId(), platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user);
         } else {
             final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
             validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey, platformKey);
-            commands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, moduleDeployedVersionId, abstractValuedProperties, user);
+            commands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, abstractValuedProperties, user);
         }
 
         return getValuedProperties(platformKey, propertiesPath, user);

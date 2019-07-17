@@ -35,7 +35,18 @@ public class Platform {
     boolean isProductionPlatform;
     Long versionId;
     List<DeployedModule> deployedModules;
-    private List<ValuedProperty> globalProperties;
+    Long globalPropertiesVersionId;
+    List<ValuedProperty> globalProperties;
+
+    public Platform(Key key, String version, boolean isProductionPlatform, Long versionId, List<DeployedModule> deployedModules, Long globalPropertiesVersionId, List<ValuedProperty> globalProperties) {
+        this.key = key;
+        this.version = version;
+        this.isProductionPlatform = isProductionPlatform;
+        this.versionId = versionId;
+        this.deployedModules = deployedModules;
+        this.globalPropertiesVersionId = globalPropertiesVersionId;
+        this.globalProperties = globalProperties;
+    }
 
     public Key getKey() { // Doit être explicite car employé dans Platform.kt
         return key;
@@ -48,6 +59,7 @@ public class Platform {
                 isProductionPlatform,
                 1L,
                 deployedModules,
+                globalPropertiesVersionId,
                 globalProperties
         );
     }
@@ -77,6 +89,7 @@ public class Platform {
                 isProductionPlatform,
                 versionId + 1,
                 deployedModules,
+                globalPropertiesVersionId,
                 globalProperties
         );
     }
@@ -89,6 +102,7 @@ public class Platform {
                 isProductionPlatform,
                 versionId,
                 DeployedModule.fillMissingIdentifiers(deployedModules),
+                globalPropertiesVersionId,
                 globalProperties
         );
     }

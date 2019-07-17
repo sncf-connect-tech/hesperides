@@ -39,10 +39,10 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 public class DeployedModule {
 
     public static final String DEFAULT_MODULE_PATH = "#";
-    public static final Long INIT_DEPLOYED_MODULE_VERSION_ID = 1L;
+    public static final Long INIT_PROPERTIES_VERSION_ID = 0L;
 
     Long id;
-    Long deployedModuleVersionId;
+    Long propertiesVersionId;
     String name;
     String version;
     boolean isWorkingCopy;
@@ -52,9 +52,9 @@ public class DeployedModule {
     List<Instance> instances;
     List<String> instancesModel; // Liste des noms de propriétés de toutes les instances du module
 
-    public DeployedModule(Long id, Long deployedModuleVersionId, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
+    public DeployedModule(Long id, Long propertiesVersionId, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
         this.id = id;
-        this.deployedModuleVersionId = deployedModuleVersionId;
+        this.propertiesVersionId = propertiesVersionId;
         this.name = name;
         this.version = version;
         this.isWorkingCopy = isWorkingCopy;
@@ -67,7 +67,7 @@ public class DeployedModule {
 
     private DeployedModule(Long newId, DeployedModule other) {
         id = newId;
-        deployedModuleVersionId = INIT_DEPLOYED_MODULE_VERSION_ID; // Nouvel id donc reset du deployed module version id
+        propertiesVersionId = INIT_PROPERTIES_VERSION_ID; // Nouvel id donc reset du properties version id
         name = other.name;
         version = other.version;
         isWorkingCopy = other.isWorkingCopy;
@@ -81,7 +81,7 @@ public class DeployedModule {
     public DeployedModule copyWithoutInstancesNorProperties() {
         return new DeployedModule(
                 id,
-                INIT_DEPLOYED_MODULE_VERSION_ID, // Copie from scratch donc reset du deployed module version id
+                INIT_PROPERTIES_VERSION_ID, // Copie from scratch donc reset du deployed module version id
                 name,
                 version,
                 isWorkingCopy,
@@ -137,7 +137,7 @@ public class DeployedModule {
     public DeployedModule buildInstancesModel(List<ValuedProperty> globalProperties) {
         return new DeployedModule(
                 id,
-                deployedModuleVersionId,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,
@@ -161,7 +161,7 @@ public class DeployedModule {
     public DeployedModule setValuedProperties(List<AbstractValuedProperty> valuedProperties) {
         return new DeployedModule(
                 id,
-                deployedModuleVersionId,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,

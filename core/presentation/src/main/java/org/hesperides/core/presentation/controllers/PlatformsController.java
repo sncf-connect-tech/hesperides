@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -269,30 +270,10 @@ public class PlatformsController extends AbstractController {
                                                             @PathVariable("platform_name") final String platformName,
                                                             @RequestParam("path") final String propertiesPath,
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
-
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        User user = fromAuthentication(authentication);
 
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, user);
-
-        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getDeployedModuleVersionId(platformKey, propertiesPath, timestamp, user), abstractValuedPropertyViews));
-    }
-
-    @ApiOperation("Save properties in a platform with the given path")
-    @PostMapping("/{application_name}/platforms/{platform_name}/properties")
-    public ResponseEntity<PropertiesIO> saveProperties(Authentication authentication,
-                                                       @PathVariable("application_name") final String applicationName,
-                                                       @PathVariable("platform_name") final String platformName,
-                                                       @RequestParam("path") final String propertiesPath,
-                                                       @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @Valid @RequestBody final PropertiesIO properties) {
-        List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
-        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        User user = fromAuthentication(authentication);
-
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, user);
-
-        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getDeployedModuleVersionId(platformKey, propertiesPath, user), propertyViews));
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
+        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));
     }
 
     @ApiOperation("Get all applications, their platforms and their modules (with a cache)")

@@ -16,6 +16,7 @@ import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.commands.PlatformAggregate;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -159,12 +160,22 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
-        platformDocument.getActiveDeployedModules()
-                .filter(deployedModuleDocument -> deployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
-                .findAny().ifPresent(deployedModuleDocument ->
-                completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument)
-        );
+        Optional<DeployedModuleDocument> optionalDeployedModuleDocument =  platformDocument.getActiveDeployedModules()
+                .filter(currentDeployedModuleDocument -> currentDeployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
+                .findAny();
+
+        if (optionalDeployedModuleDocument.isPresent()) {
+            DeployedModuleDocument deployedModuleDocument = optionalDeployedModuleDocument.get();
+
+            updateDeployedModuleVersionId(event.getPropertiesVersionId(), deployedModuleDocument);
+            completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument);
+        }
+
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
+    }
+
+    private void updateDeployedModuleVersionId(Long deployedModuleVersionId, DeployedModuleDocument deployedModuleDocument) {
+        deployedModuleDocument.setPropertiesVersionId(deployedModuleVersionId);
     }
 
     private void completePropertiesWithMustacheContent(List<AbstractValuedPropertyDocument> abstractValuedProperties,
@@ -208,6 +219,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         // Update platform information
         platformDocument.setVersionId(event.getPlatformVersionId());
         platformDocument.setGlobalProperties(valuedProperties);
+        platformDocument.setGlobalPropertiesVersionId(event.getGlobalPropertiesVersionId());
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
 
@@ -356,7 +368,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     @Timed
-    public Long onGetDeployedModuleVersionIdQuery(GetDeployedModuleVersionIdQuery query) {
+    public Long onGetPropertiesVersionIdQuery(GetPropertiesVersionIdQuery query) {
         PlatformDocument platformDocument;
         if (query.getTimestamp() >= 0) {
             // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
@@ -368,12 +380,13 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                     );
         }
 
-        final DeployedModuleDocument deployedModuleDocument = platformDocument
+        final Optional<DeployedModuleDocument> deployedModuleDocument = platformDocument
                 .getActiveDeployedModules()
                 .filter(deployedModule -> deployedModule.getPropertiesPath().equals(query.getPropertiesPath()))
-                .findFirst().orElseThrow(() -> new  NotFoundException("Deployed module not found " + " - platform ID: " + query.getPlatformId() + " - path: " + query.getPropertiesPath()));
+                .findFirst();
 
-        return deployedModuleDocument.getDeployedModuleVersionId();
+        // Dans le cas ou le deployed module n'existe pas on peut renvoyez la valuer d'init (par exemple dans le get des globales)
+        return deployedModuleDocument.isPresent() ? deployedModuleDocument.get().getPropertiesVersionId() : DeployedModule.INIT_PROPERTIES_VERSION_ID;
     }
 
     @QueryHandler
@@ -415,6 +428,15 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                         .orElseGet(Collections::emptyList)
                         .stream())
                 .collect(Collectors.toList());
+    }
+
+    @QueryHandler
+    @Override
+    @Timed
+    public Optional<Long> onGetGlobalPropertiesVersionIdQuery(final GetGlobalPropertiesVersionIdQuery query) {
+        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
+        return platformRepository.findGlobalPropertiesVersionIdByPlatformKey(platformKeyDocument)
+                .map(PlatformDocument::getGlobalPropertiesVersionId);
     }
 
     @QueryHandler

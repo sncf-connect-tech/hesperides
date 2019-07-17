@@ -51,6 +51,7 @@ public class PlatformDocument {
     private boolean isProductionPlatform;
     private Long versionId;
     private List<DeployedModuleDocument> deployedModules;
+    private Long globalPropertiesVersionId;
     private List<ValuedPropertyDocument> globalProperties;
 
     public PlatformDocument(String id, Platform platform) {
@@ -60,6 +61,7 @@ public class PlatformDocument {
         this.isProductionPlatform = platform.isProductionPlatform();
         this.versionId = platform.getVersionId();
         this.deployedModules = DeployedModuleDocument.fromDomainInstances(platform.getDeployedModules());
+        this.globalPropertiesVersionId = platform.getGlobalPropertiesVersionId();
         this.globalProperties = ValuedPropertyDocument.fromDomainInstances(platform.getGlobalProperties());
     }
 
@@ -77,6 +79,7 @@ public class PlatformDocument {
                 isProductionPlatform,
                 DeployedModuleDocument.toDeployedModuleViews(deployedModules),
                 versionId,
+                globalPropertiesVersionId,
                 ValuedPropertyDocument.toValuedPropertyViews(globalProperties)
         );
     }

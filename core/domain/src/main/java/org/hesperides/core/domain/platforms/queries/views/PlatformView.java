@@ -39,6 +39,7 @@ public class PlatformView {
     boolean isProductionPlatform;
     List<DeployedModuleView> deployedModules;
     Long versionId;
+    Long globalPropertiesVersionId;
     List<ValuedPropertyView> globalProperties;
 
     public Stream<DeployedModuleView> getActiveDeployedModules() {
