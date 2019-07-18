@@ -27,13 +27,13 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
-import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
+import org.hesperides.core.domain.exceptions.OutOfDatePropertiesException;
+import org.hesperides.core.domain.exceptions.OutOfDateGlobalPropertiesException;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
@@ -94,7 +94,7 @@ public class PlatformAggregate implements Serializable {
                 command.getPlatformId(), platformVersionId, command.getUser());
         logBeforeEventVersionId(platformVersionId);
 
-        checkVersionIds(platformVersionId, command.getPropertiesVersionId(), command.getExpectedPropertiesVersionId());
+        checkVersionIds(platformVersionId, command.getPropertiesVersionId(), command.getExpectedPropertiesVersionId(), command.getPropertiesPath());
 
         apply(new PlatformModulePropertiesUpdatedEvent(
                 command.getPlatformId(),
@@ -175,20 +175,25 @@ public class PlatformAggregate implements Serializable {
         this.versionId = event.getPlatformVersionId();
     }
 
+
     private void checkVersionIds(Long platformVersionId, Long propertiesVersionId, Long expectedPropertiesVersionId) {
+        checkVersionIds(platformVersionId, propertiesVersionId,expectedPropertiesVersionId, null);
+    }
+
+    private void checkVersionIds(Long platformVersionId, Long propertiesVersionId, Long expectedPropertiesVersionId, String path) {
 
         // Dans le cas ou propertiesVersionId et expectedPropertiesVersionId ont tous les deux la valeurs par défaut, deux possibilités:
         // - L'appel a été fait sans fournir de propertiesVersionId
         // - L'appel a été fait avec une valeur initiale pour le propertiesVersionId
         // Dans les deux cas on est dans une situation d'initialisation, le platformVersionId fourni doit être le bon
         if (propertiesVersionId == DeployedModule.INIT_PROPERTIES_VERSION_ID && expectedPropertiesVersionId == propertiesVersionId && platformVersionId != versionId) {
-            throw new OutOfDateVersionException(versionId, platformVersionId);
+            throw new OutOfDateGlobalPropertiesException(versionId, platformVersionId);
         }
 
         // Dans le cas ou le propertiesVersionId est fourni avec une valeur différente par défaut, on ignore le platformVersionId, en contrepartie, les valeurs
         // expectedPropertiesVersionId et propertiesVersionId doivent être identique afin de s'assurer de la consistance des données
         if (propertiesVersionId != DeployedModule.INIT_PROPERTIES_VERSION_ID && (expectedPropertiesVersionId != propertiesVersionId)) {
-            throw new OutOfDateVersionException(expectedPropertiesVersionId, propertiesVersionId);
+            throw new OutOfDatePropertiesException(path, expectedPropertiesVersionId, propertiesVersionId);
         }
     }
 
