@@ -28,7 +28,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
 import org.hesperides.core.domain.exceptions.OutOfDatePropertiesException;
-import org.hesperides.core.domain.exceptions.OutOfDateGlobalPropertiesException;
+import org.hesperides.core.domain.exceptions.OutOfDatePlatformVersionException;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -187,7 +187,7 @@ public class PlatformAggregate implements Serializable {
         // - L'appel a été fait avec une valeur initiale pour le propertiesVersionId
         // Dans les deux cas on est dans une situation d'initialisation, le platformVersionId fourni doit être le bon
         if (propertiesVersionId == DeployedModule.INIT_PROPERTIES_VERSION_ID && expectedPropertiesVersionId == propertiesVersionId && platformVersionId != versionId) {
-            throw new OutOfDateGlobalPropertiesException(versionId, platformVersionId);
+            throw new OutOfDatePlatformVersionException(versionId, platformVersionId);
         }
 
         // Dans le cas ou le propertiesVersionId est fourni avec une valeur différente par défaut, on ignore le platformVersionId, en contrepartie, les valeurs
