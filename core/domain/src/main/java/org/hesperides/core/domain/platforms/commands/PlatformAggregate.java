@@ -27,7 +27,7 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
-import org.hesperides.core.domain.exceptions.OutOfDateGlobalException;
+import org.hesperides.core.domain.exceptions.OutOfDateGlobalPropertiesException;
 import org.hesperides.core.domain.exceptions.OutOfDatePropertiesException;
 import org.hesperides.core.domain.exceptions.OutOfDatePlatformVersionException;
 import org.hesperides.core.domain.platforms.*;
@@ -195,7 +195,7 @@ public class PlatformAggregate implements Serializable {
         // expectedPropertiesVersionId et propertiesVersionId doivent être identique afin de s'assurer de la consistance des données
         if (propertiesVersionId != DeployedModule.INIT_PROPERTIES_VERSION_ID && (expectedPropertiesVersionId != propertiesVersionId)) {
             if (isGlobal) {
-                throw new OutOfDateGlobalException(versionId, platformVersionId);
+                throw new OutOfDateGlobalPropertiesException(versionId, platformVersionId);
             } else {
                 throw new OutOfDatePropertiesException(path, expectedPropertiesVersionId, propertiesVersionId);
             }
