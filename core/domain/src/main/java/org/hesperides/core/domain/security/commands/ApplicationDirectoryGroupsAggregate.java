@@ -26,7 +26,7 @@ class ApplicationDirectoryGroupsAggregate implements Serializable {
     @AggregateIdentifier
     private String id;
     private String applicationName;
-    private Map<String, List<String>> directoryGroups;
+    private List<String> directoryGroupDNs;
 
     /*** COMMAND HANDLERS ***/
 
@@ -54,13 +54,13 @@ class ApplicationDirectoryGroupsAggregate implements Serializable {
                 event.getId(), event.getApplicationDirectoryGroups().getApplicationName(), event.getUser());
         this.id = event.getId();
         this.applicationName = event.getApplicationDirectoryGroups().getApplicationName();
-        this.directoryGroups = event.getApplicationDirectoryGroups().getDirectoryGroups();
+        this.directoryGroupDNs = event.getApplicationDirectoryGroups().getDirectoryGroupDNs();
     }
 
     @EventSourcingHandler
     public void onApplicationDirectoryGroupsUpdatedEvent(ApplicationDirectoryGroupsUpdatedEvent event) {
         log.debug("onApplicationDirectoryGroupsUpdatedEvent - id: %s - applicationName: %s - user: %s",
                 event.getId(), event.getApplicationDirectoryGroups().getApplicationName(), event.getUser());
-        this.directoryGroups = event.getApplicationDirectoryGroups().getDirectoryGroups();
+        this.directoryGroupDNs = event.getApplicationDirectoryGroups().getDirectoryGroupDNs();
     }
 }

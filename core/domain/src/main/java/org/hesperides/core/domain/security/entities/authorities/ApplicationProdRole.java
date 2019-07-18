@@ -22,13 +22,13 @@ package org.hesperides.core.domain.security.entities.authorities;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class ApplicationRole implements GrantedAuthority {
+public class ApplicationProdRole implements GrantedAuthority {
 
     public static final String PROD_USER_SUFFIX = "_PROD_USER";
 
     private final String authority;
 
-    public ApplicationRole(String authority) {
+    public ApplicationProdRole(String authority) {
         this.authority = authority + PROD_USER_SUFFIX;
     }
 

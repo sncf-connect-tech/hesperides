@@ -18,12 +18,10 @@
  *
  *
  */
-package org.hesperides.core.domain.modules.exceptions;
+package org.hesperides.core.domain.security.exceptions;
 
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-
-public class UpdateReleaseException extends IllegalArgumentException {
-    public UpdateReleaseException(TemplateContainer.Key key) {
-        super("Could not update a released version of a module (key: " + key.getNamespaceWithoutPrefix() + ")");
+public class InvalidDirectoryGroupsException extends IllegalArgumentException {
+    public InvalidDirectoryGroupsException(String msg) {
+        super(msg);
     }
 }

@@ -165,6 +165,17 @@ Malgré ces caches, comme Hesperides est _stateless_ et qu'aucune information re
 l'_ActiveDirectory_ est toujours consulté au moins une fois par connexion d'utilisateur.
 
 
+## Anticipation des évolutions futures
+
+En définissant `directory_groups` comme un tableau associatif dans la couche `presentation`,
+on se garde une porte ouverte pour des évolutions futures relatives à la gestion d'ACLs,
+pour permettre d'en ajouter d'autres par l'avenir sans impacter les clients de l'API REST.
+
+Pour autant, on se contente dans la couche `infrastructure` / collection MongoDB de stocker pour le moment uniquement une liste de `directoryGroupDN`
+pour éviter la redondance d'information au stockage et simplifier la syntaxe des requêtes en base.
+Comme cette collection conservera une taille très modeste, il sera toujours possible et relativement simple de faire évoluer son schéma dans le futur.
+
+
 ## Tests
 
 Comme les tests BDD validant ce fonctionnement dépendent de l'utilisation d'un serveur ActiveDirectory,

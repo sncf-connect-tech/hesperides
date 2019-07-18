@@ -4,5 +4,5 @@ import java.util.HashSet;
 
 public interface ParentGroupsDNRetriever {
 
-    HashSet<String> retrieveParentGroupsDN(String dn);
+    HashSet<String> retrieveParentGroupDNs(String dn);
 }

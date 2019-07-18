@@ -4,7 +4,7 @@ import org.springframework.ldap.core.DirContextOperations;
 
 import javax.naming.directory.DirContext;
 
-public interface LDAPUserSearcher {
+public interface LdapCNSearcher {
 
-    DirContextOperations searchUser(final DirContext dirContext, final String username);
+    DirContextOperations searchCN(final DirContext dirContext, final String username);
 }

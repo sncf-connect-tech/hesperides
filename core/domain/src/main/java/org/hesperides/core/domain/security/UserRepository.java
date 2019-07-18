@@ -22,7 +22,9 @@ package org.hesperides.core.domain.security;
 
 import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.security.queries.views.DirectoryGroupDNsView;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -31,4 +33,7 @@ public interface UserRepository {
 
     @QueryHandler
     Optional<User> onGetUserQuery(GetUserQuery query);
+
+    @QueryHandler
+    DirectoryGroupDNsView onResolveDirectoryGroupCNsQuery(ResolveDirectoryGroupCNsQuery query);
 }
