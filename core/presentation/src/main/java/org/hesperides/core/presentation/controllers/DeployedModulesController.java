@@ -41,12 +41,13 @@ public class DeployedModulesController extends AbstractController {
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
                                                        @Valid @RequestBody final PropertiesIO properties) {
-        return updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties);
+        throw new UnsupportedOperationException();
+        //return updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties);
     }
 
 
     @ApiOperation("Update deployed modules properties")
-    @PostMapping("/{application_name}/platforms/{platform_name}/deployed_modules/properties")
+    @PutMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> updateProperties(Authentication authentication,
                                                        @PathVariable("application_name") final String applicationName,
                                                        @PathVariable("platform_name") final String platformName,

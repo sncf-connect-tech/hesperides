@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 public class DeployedModuleIO {
 
     Long id;
-    Long versionId;
+    Long propertiesVersionId;
     @OnlyPrintableCharacters(subject = "deployedModules.name")
     String name;
     @OnlyPrintableCharacters(subject = "deployedModules.version")
@@ -59,7 +59,7 @@ public class DeployedModuleIO {
 
     public DeployedModuleIO(DeployedModuleView deployedModuleView) {
         id = deployedModuleView.getId();
-        versionId = deployedModuleView.getVersionId();
+        propertiesVersionId = deployedModuleView.getPropertiesVersionId();
         name = deployedModuleView.getName();
         version = deployedModuleView.getVersion();
         isWorkingCopy = deployedModuleView.isWorkingCopy();
@@ -76,7 +76,7 @@ public class DeployedModuleIO {
         // On crée donc une instance de DeployedModule avec ces champs `null`.
         return new DeployedModule(
                 id,
-                versionId,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,

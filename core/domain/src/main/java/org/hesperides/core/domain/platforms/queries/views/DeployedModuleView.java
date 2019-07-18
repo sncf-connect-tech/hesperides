@@ -36,7 +36,7 @@ import static org.hesperides.core.domain.platforms.queries.views.properties.Abst
 public class DeployedModuleView {
 
     Long id;
-    Long versionId;
+    Long propertiesVersionId;
     String name;
     String version;
     boolean isWorkingCopy;
@@ -56,7 +56,7 @@ public class DeployedModuleView {
         // On crée donc une instance de DeployedModule avec ce champ `null`.
         return new DeployedModule(
                 id,
-                versionId,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,

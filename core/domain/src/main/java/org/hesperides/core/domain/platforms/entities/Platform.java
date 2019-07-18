@@ -107,6 +107,18 @@ public class Platform {
         );
     }
 
+    public Platform fillDeployedModulesMissingPropertiesVersionIds(List<DeployedModule> existingDeployedModules) {
+        return new Platform(
+                key,
+                version,
+                isProductionPlatform,
+                versionId,
+                DeployedModule.fillMissingPropertiesVersionIds(existingDeployedModules, deployedModules),
+                globalPropertiesVersionId,
+                globalProperties
+        );
+    }
+
     @Value
     public static class Key {
         String applicationName;

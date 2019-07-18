@@ -24,12 +24,10 @@ import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
+import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,7 +65,20 @@ public class DeployedModule {
 
     private DeployedModule(Long newId, DeployedModule other) {
         id = newId;
-        propertiesVersionId = INIT_PROPERTIES_VERSION_ID; // Nouvel id donc reset du properties version id
+        propertiesVersionId = other.getPropertiesVersionId() != null ? other.getPropertiesVersionId() : INIT_PROPERTIES_VERSION_ID;
+        name = other.name;
+        version = other.version;
+        isWorkingCopy = other.isWorkingCopy;
+        modulePath = other.modulePath;
+        propertiesPath = other.propertiesPath;
+        valuedProperties = other.valuedProperties;
+        instances = other.instances;
+        instancesModel = other.instancesModel;
+    }
+
+    private DeployedModule(DeployedModule other, Long newPropertiesVersionId) {
+        id = other.getId();
+        propertiesVersionId = newPropertiesVersionId;
         name = other.name;
         version = other.version;
         isWorkingCopy = other.isWorkingCopy;
@@ -116,6 +127,26 @@ public class DeployedModule {
             }
         }
         return deployedModulesWithId;
+    }
+
+    static List<DeployedModule> fillMissingPropertiesVersionIds(List<DeployedModule> existingDeployedModules, List<DeployedModule> newDeployedModules) {
+        List<DeployedModule> deployedModulesWithPropertiesVersionIds = Collections.emptyList();
+        if (newDeployedModules != null) {
+            deployedModulesWithPropertiesVersionIds = new ArrayList<>();
+
+            for (DeployedModule deployedModule : newDeployedModules) {
+                final Optional<DeployedModule> existingDeployedModule = existingDeployedModules.stream().filter(
+                        streamDeployedModule -> streamDeployedModule.getId().equals(deployedModule.getId())).findFirst();
+                Long newPropertiesVersionId = deployedModule.getPropertiesVersionId() != null ? deployedModule.getPropertiesVersionId() : INIT_PROPERTIES_VERSION_ID;
+
+                if (deployedModule.getPropertiesVersionId() == null && existingDeployedModule.isPresent()) {
+                    newPropertiesVersionId = existingDeployedModule.get().getPropertiesVersionId();
+                }
+
+                deployedModulesWithPropertiesVersionIds.add(new DeployedModule(deployedModule, newPropertiesVersionId));
+            }
+        }
+        return deployedModulesWithPropertiesVersionIds;
     }
 
     /**

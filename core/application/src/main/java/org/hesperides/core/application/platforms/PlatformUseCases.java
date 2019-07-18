@@ -104,6 +104,9 @@ public class PlatformUseCases {
     public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
         PlatformView existingPlatform = queries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        List<DeployedModule> existingDeployedModule = DeployedModuleView.toDomainDeployedModules(existingPlatform.getDeployedModules().stream());
+        newPlatform = newPlatform.fillDeployedModulesMissingPropertiesVersionIds(existingDeployedModule);
+
         if (!user.isProd()) {
             if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {
                 throw new ForbiddenOperationException("Updating a production platform is reserved to production role");
@@ -162,7 +165,7 @@ public class PlatformUseCases {
         if (ROOT_PATH.equals(propertiesPath)) {
             propertiesVersionId = queries.getGlobalPropertiesVersionId(platformKey);
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
-            propertiesVersionId = Optional.of(queries.getPropertiesVersionId(queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey)), propertiesPath, timestamp));
+            propertiesVersionId = Optional.ofNullable(queries.getPropertiesVersionId(queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey)), propertiesPath, timestamp));
         }
         return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
     }
