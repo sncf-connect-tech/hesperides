@@ -154,6 +154,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withIterableProperties)) {
@@ -169,6 +170,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withIterableCeption)) {
@@ -198,6 +200,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withGlobalProperties)) {
@@ -210,6 +213,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
             platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(true));
             platformBuilder.incrementVersionId();
+            platformBuilder.incrementGlobalPropertiesVersionId();
         }
 
         if (isNotEmpty(withInstanceProperties)) {
@@ -219,6 +223,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withFilenameLocationValues)) {
@@ -226,6 +231,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withProperty("location", "etc");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         platformHistory.addPlatform();
@@ -324,6 +330,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         });
 
         Given("^the platform has these iterable properties$", (DataTable data) -> {
@@ -331,12 +338,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withIterableProperties(iterableProperties);
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         });
 
         Given("^the platform has these global properties$", (DataTable data) -> {
             List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
             platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(0L, new HashSet<>(globalProperties), Collections.emptySet()));
             platformBuilder.incrementVersionId();
+            platformBuilder.incrementGlobalPropertiesVersionId();
         });
 
         Given("^the platform has these instance properties$", (DataTable data) -> {

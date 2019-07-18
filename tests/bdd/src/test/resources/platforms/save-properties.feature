@@ -115,7 +115,7 @@ Feature: Save properties
     And an existing module named "tata"
     And an existing platform with those modules
     When I update the properties of those modules one after the other using the same platform version_id
-    Then the properties are successfully saved
+    Then the properties are successfully saved for those modules
     And the platform version_id is incremented twice
 
   Scenario: save properties of a module and global properties simultaneously
@@ -128,11 +128,15 @@ Feature: Save properties
   Scenario: reject a platform update that has had a property update
     Given an existing module
     And an existing platform with this module
-    When I update the module properties and then the platform using the same platform version_id
+    When I try to update the module properties and then the platform using the same platform version_id
     Then the platform update is rejected with a conflict error
 
   Scenario: reject updating properties of the same module concurrently
     Given an existing module
     And an existing platform with this module
-    When I update the properties of this module twice with the same deployed module version_id
+    When I try to update the properties of this module twice with the same deployed module version_id
     Then the properties update is rejected with a conflict error
+
+  Scenario: an update of a platform after an update of properties should not impact the properties version_id
+
+  Scenario: fail trying update global properties simultaneously

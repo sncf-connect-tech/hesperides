@@ -176,7 +176,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform version_id is incremented twice$", () -> {
-            Long expectedVersionId = platformBuilder.buildOutput().getVersionId() + 2;
+            Long expectedVersionId = platformBuilder.buildOutput().getVersionId();
             final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), PlatformIO.class);
             Long actualVersionId = responseEntity.getBody().getVersionId();
             assertEquals(expectedVersionId, actualVersionId);

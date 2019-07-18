@@ -47,8 +47,6 @@ public class SaveProperties extends HesperidesScenario implements En {
     @Autowired
     private ModuleHistory moduleHistory;
 
-    private PropertiesIO propertiesIO;
-
     public SaveProperties() {
 
         Given("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
@@ -63,63 +61,84 @@ public class SaveProperties extends HesperidesScenario implements En {
 
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
-            propertiesIO = new PropertiesIO(0L, new HashSet<>(valuedProperties), Collections.emptySet());
+            moduleBuilder.withValuedProperties(valuedProperties);
             testContext.responseEntity = platformClient.saveProperties(
                     platformBuilder.buildInput(),
-                    propertiesIO,
+                    moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
                     getResponseType(tryTo, PropertiesIO.class));
+            moduleBuilder.incrementPropertiesVersionId();
         });
 
         When("^I update the properties of those modules one after the other using the same platform version_id$", () -> {
             moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
                 testContext.responseEntity = platformClient.updateProperties(
                         platformBuilder.buildInput(),
-                        propertiesIO,
+                        moduleBuilder.buildPropertiesIO(),
                         moduleBuilder.getPropertiesPath(),
                         PropertiesIO.class);
+                moduleBuilder.incrementPropertiesVersionId();
+                platformBuilder.incrementVersionId();
             });
         });
 
         When("^I update the module properties and then the platform global properties$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
             platformClient.updateProperties(
                     platformBuilder.buildInput(),
-                    propertiesIO,
+                    moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
                     PropertiesIO.class);
+            platformBuilder.incrementVersionId();
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(true));
             testContext.responseEntity = platformClient.updateProperties(
                     platformBuilder.buildInput(),
-                    propertiesIO,
+                    moduleBuilder.buildPropertiesIO(),
                     "#",
                     PropertiesIO.class);
+            moduleBuilder.incrementPropertiesVersionId();
+            platformBuilder.incrementVersionId();
         });
 
-        When("^I update the module properties and then the platform using the same platform version_id$", () -> {
+        When("^I try to update the module properties and then the platform using the same platform version_id$", () -> {
             final PlatformIO platformInput = platformBuilder.buildInput();
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
             platformClient.updateProperties(
                     platformInput,
-                    propertiesIO,
+                    moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
                     PropertiesIO.class);
+            moduleBuilder.incrementPropertiesVersionId();
             testContext.responseEntity = platformClient.update(platformInput, false, String.class);
         });
 
-        When("^I update the properties of this module twice with the same deployed module version_id$", () -> {
+        When("^I try to update the properties of this module twice with the same deployed module version_id$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+            moduleBuilder.incrementPropertiesVersionId();
             for (int i = 0; i < 2; i++) {
                 testContext.responseEntity = platformClient.updateProperties(
                         platformBuilder.buildInput(),
-                        propertiesIO,
+                        moduleBuilder.buildPropertiesIO(),
                         moduleBuilder.getPropertiesPath(),
-                        PropertiesIO.class);
+                        String.class);
             }
         });
 
         Then("^the properties are successfully saved$", () -> {
             assertOK();
-            PropertiesIO expectedProperties = propertiesIO;
+            PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();
             PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
             assertEquals(expectedProperties, actualProperties);
+        });
+
+        Then("^the properties are successfully saved for those modules$", () -> {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+                PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();
+                PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+                assertEquals(expectedProperties, actualProperties);
+            });
         });
 
         Then("^the properties update is rejected with a conflict error$", this::assertConflict);

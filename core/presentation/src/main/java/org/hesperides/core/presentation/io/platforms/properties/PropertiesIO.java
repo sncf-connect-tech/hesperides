@@ -42,7 +42,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class PropertiesIO {
 
-    @NotNull
+    //    @NotNull
     @SerializedName("properties_version_id")
     @JsonProperty("properties_version_id")
     @Valid

@@ -22,14 +22,17 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
@@ -43,6 +46,8 @@ public class GetPlatforms extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     public GetPlatforms() {
 
@@ -62,7 +67,28 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
         Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {
             assertOK();
-            PlatformIO expectedPlatform = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformState() : platformBuilder.buildOutput();
+            PlatformIO expectedPlatform;
+            if (StringUtils.isEmpty(initial)) {
+                expectedPlatform = platformBuilder.buildOutput();
+            } else {
+                expectedPlatform = platformHistory.getInitialPlatformState();
+                expectedPlatform = new PlatformIO(
+                        expectedPlatform.getPlatformName(),
+                        expectedPlatform.getApplicationName(),
+                        expectedPlatform.getVersion(),
+                        expectedPlatform.getIsProductionPlatform(),
+                        expectedPlatform.getDeployedModules().stream().map(deployedModule -> new DeployedModuleIO(
+                                deployedModule.getId(),
+                                moduleBuilder.getPropertiesVersionId(), // Tout ça pour ça, ne fonctionne pas avec plusieurs modules... REFACTORING NECESSAIRE
+                                deployedModule.getName(),
+                                deployedModule.getVersion(),
+                                deployedModule.getIsWorkingCopy(),
+                                deployedModule.getModulePath(),
+                                deployedModule.getPropertiesPath(),
+                                deployedModule.getInstances()))
+                                .collect(Collectors.toList()),
+                        expectedPlatform.getVersionId());
+            }
             PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });

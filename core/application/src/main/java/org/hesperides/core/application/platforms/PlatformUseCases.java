@@ -2,7 +2,6 @@ package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
-import org.hesperides.core.domain.modules.ModuleExistsQuery;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
@@ -165,7 +164,8 @@ public class PlatformUseCases {
         if (ROOT_PATH.equals(propertiesPath)) {
             propertiesVersionId = queries.getGlobalPropertiesVersionId(platformKey);
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
-            propertiesVersionId = Optional.ofNullable(queries.getPropertiesVersionId(queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey)), propertiesPath, timestamp));
+            final String platformId = queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+            propertiesVersionId = Optional.ofNullable(queries.getPropertiesVersionId(platformId, propertiesPath, timestamp));
         }
         return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
     }

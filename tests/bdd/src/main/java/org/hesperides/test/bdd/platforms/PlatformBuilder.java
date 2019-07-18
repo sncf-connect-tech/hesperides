@@ -26,7 +26,9 @@ import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -36,12 +38,16 @@ import java.util.stream.Collectors;
 @Component
 public class PlatformBuilder {
 
+    @Autowired
+    private ModuleBuilder moduleBuilder;
+
     private String platformName;
     private String applicationName;
     private String version;
     private Boolean isProductionPlatform;
     private List<DeployedModuleIO> deployedModules;
     private long versionId;
+    private long globalPropertiesVersionId;
 
     private List<Property> properties;
     private List<IterableValuedPropertyIO> iterableProperties;
@@ -60,6 +66,7 @@ public class PlatformBuilder {
         isProductionPlatform = false;
         deployedModules = new ArrayList<>();
         versionId = 1;
+        globalPropertiesVersionId = 0;
         properties = new ArrayList<>();
         iterableProperties = new ArrayList<>();
         instanceProperties = new HashSet<>();
@@ -108,7 +115,7 @@ public class PlatformBuilder {
         deployedModules = deployedModules.stream()
                 .map(deployedModule -> new DeployedModuleIO(
                         deployedModule.getId() + 1,
-                        deployedModule.getVersionId(),
+                        deployedModule.getPropertiesVersionId(),
                         deployedModule.getName(),
                         deployedModule.getVersion(),
                         deployedModule.getIsWorkingCopy(),
@@ -123,7 +130,7 @@ public class PlatformBuilder {
         deployedModules = deployedModules.stream()
                 .map(deployedModule -> new DeployedModuleIO(
                         deployedModule.getId(),
-                        deployedModule.getVersionId(),
+                        deployedModule.getPropertiesVersionId(),
                         deployedModule.getName(),
                         version,
                         deployedModule.getIsWorkingCopy(),
@@ -141,7 +148,8 @@ public class PlatformBuilder {
         } else if (logicalGroup != null) {
             modulePath = "#" + logicalGroup;
         }
-        deployedModules.add(new DeployedModuleIO(0L, 0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
+        long propertiesVersionId = "#".equals(propertiesPath) ? globalPropertiesVersionId : moduleBuilder.getPropertiesVersionId();
+        deployedModules.add(new DeployedModuleIO(0L, propertiesVersionId, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
         return this;
     }
 
@@ -174,7 +182,8 @@ public class PlatformBuilder {
         } else {
             AtomicLong moduleId = new AtomicLong();
             modules = deployedModules.stream().map(module ->
-                    new DeployedModuleIO(moduleId.incrementAndGet(), 0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
+
+                    new DeployedModuleIO(moduleId.incrementAndGet(), moduleBuilder.getPropertiesVersionId(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
             ).collect(Collectors.toList());
         }
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
@@ -228,7 +237,7 @@ public class PlatformBuilder {
 
     public PropertiesIO getPropertiesIO(boolean isGlobal) {
         return new PropertiesIO(
-                0L,
+                isGlobal ? globalPropertiesVersionId : moduleBuilder.getPropertiesVersionId(),
                 new HashSet<>(getValuedProperties(isGlobal)),
                 new HashSet<>(iterableProperties));
     }
@@ -274,6 +283,10 @@ public class PlatformBuilder {
 
     public Boolean getIsProductionPlatform() {
         return isProductionPlatform;
+    }
+
+    public void incrementGlobalPropertiesVersionId() {
+        globalPropertiesVersionId++;
     }
 
     @Value
