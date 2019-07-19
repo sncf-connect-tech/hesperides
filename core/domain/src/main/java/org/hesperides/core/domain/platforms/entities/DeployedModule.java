@@ -24,7 +24,6 @@ import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.*;
@@ -129,7 +128,7 @@ public class DeployedModule {
         return deployedModulesWithId;
     }
 
-    static List<DeployedModule> fillMissingPropertiesVersionIds(List<DeployedModule> existingDeployedModules, List<DeployedModule> newDeployedModules) {
+    static List<DeployedModule> retrieveExistingOrInitializePropertiesVersionIds(List<DeployedModule> existingDeployedModules, List<DeployedModule> newDeployedModules) {
         List<DeployedModule> deployedModulesWithPropertiesVersionIds = Collections.emptyList();
         if (newDeployedModules != null) {
             deployedModulesWithPropertiesVersionIds = new ArrayList<>();
@@ -137,11 +136,9 @@ public class DeployedModule {
             for (DeployedModule deployedModule : newDeployedModules) {
                 final Optional<DeployedModule> existingDeployedModule = existingDeployedModules.stream().filter(
                         streamDeployedModule -> streamDeployedModule.getId().equals(deployedModule.getId())).findFirst();
-                Long newPropertiesVersionId = deployedModule.getPropertiesVersionId() != null ? deployedModule.getPropertiesVersionId() : INIT_PROPERTIES_VERSION_ID;
-
-                if (deployedModule.getPropertiesVersionId() == null && existingDeployedModule.isPresent()) {
-                    newPropertiesVersionId = existingDeployedModule.get().getPropertiesVersionId();
-                }
+                // Si le module existe déjà, on récupère systématiquement le
+                // properties_version_id existant, sinon on l'initialise
+                Long newPropertiesVersionId = existingDeployedModule.isPresent() ? existingDeployedModule.get().getPropertiesVersionId() : INIT_PROPERTIES_VERSION_ID;
 
                 deployedModulesWithPropertiesVersionIds.add(new DeployedModule(deployedModule, newPropertiesVersionId));
             }

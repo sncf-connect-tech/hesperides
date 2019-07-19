@@ -104,7 +104,7 @@ public class PlatformUseCases {
         PlatformView existingPlatform = queries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
         List<DeployedModule> existingDeployedModule = DeployedModuleView.toDomainDeployedModules(existingPlatform.getDeployedModules().stream());
-        newPlatform = newPlatform.fillDeployedModulesMissingPropertiesVersionIds(existingDeployedModule);
+        newPlatform = newPlatform.retrieveExistingOrInitializePropertiesVersionIds(existingDeployedModule);
 
         if (!user.isProd()) {
             if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {

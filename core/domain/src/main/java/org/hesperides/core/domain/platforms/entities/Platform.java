@@ -107,13 +107,13 @@ public class Platform {
         );
     }
 
-    public Platform fillDeployedModulesMissingPropertiesVersionIds(List<DeployedModule> existingDeployedModules) {
+    public Platform retrieveExistingOrInitializePropertiesVersionIds(List<DeployedModule> existingDeployedModules) {
         return new Platform(
                 key,
                 version,
                 isProductionPlatform,
                 versionId,
-                DeployedModule.fillMissingPropertiesVersionIds(existingDeployedModules, deployedModules),
+                DeployedModule.retrieveExistingOrInitializePropertiesVersionIds(existingDeployedModules, deployedModules),
                 globalPropertiesVersionId,
                 globalProperties
         );
