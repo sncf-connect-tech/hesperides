@@ -134,7 +134,7 @@ Feature: Save properties
   Scenario: reject updating properties of the same module twice with the same version id
     Given an existing module
     And an existing platform with this module
-    When I try to update the properties of this module twice with the same deployed module version_id
+    When I try to update the properties of this module twice with the same properties version_id
     Then the properties update is rejected with a conflict error
 
   Scenario: an update of a platform after an update of properties should not impact the properties version_id
@@ -145,5 +145,6 @@ Feature: Save properties
     Then the properties versionId should stay the same
 
   Scenario: fail trying update global properties simultaneously
-    Given an existing platform with this module in version 1.0 and the property "toto" valued accordingly
-    And I update glob properties
+    Given an existing platform with global properties
+    When I try to update global properties twice with the same global properties version_id
+    Then the properties update is rejected with a conflict error

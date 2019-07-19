@@ -289,6 +289,10 @@ public class PlatformBuilder {
         globalPropertiesVersionId++;
     }
 
+    public long getGlobalPropertiesVersionId() {
+        return globalPropertiesVersionId;
+    }
+
     @Value
     public static class Property {
         String name;

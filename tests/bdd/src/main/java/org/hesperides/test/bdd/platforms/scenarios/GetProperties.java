@@ -37,7 +37,6 @@ import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -92,6 +91,7 @@ public class GetProperties extends HesperidesScenario implements En {
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
             PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+//            platformBuilder.resetGlobalPropertiesVersionId();
             PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });

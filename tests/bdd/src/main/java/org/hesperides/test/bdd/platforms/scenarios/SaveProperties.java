@@ -94,24 +94,6 @@ public class SaveProperties extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
-        When("^I update global properties twice$", () -> {
-            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
-            platformClient.updateProperties(
-                    platformBuilder.buildInput(),
-                    moduleBuilder.buildPropertiesIO(),
-                    moduleBuilder.getPropertiesPath(),
-                    PropertiesIO.class);
-            platformBuilder.incrementVersionId();
-            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(true));
-            testContext.responseEntity = platformClient.updateProperties(
-                    platformBuilder.buildInput(),
-                    moduleBuilder.buildPropertiesIO(),
-                    "#",
-                    PropertiesIO.class);
-            moduleBuilder.incrementPropertiesVersionId();
-            platformBuilder.incrementVersionId();
-        });
-
         When("^I update the module properties and then the platform global properties$", () -> {
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
             platformClient.updateProperties(
@@ -142,16 +124,34 @@ public class SaveProperties extends HesperidesScenario implements En {
             testContext.responseEntity = platformClient.update(platformInput, false, String.class);
         });
 
-        When("^I try to update the properties of this module twice with the same deployed module version_id$", () -> {
+        When("^I try to update the properties of this module twice with the same properties version_id$", () -> {
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
-            moduleBuilder.incrementPropertiesVersionId();
-            for (int i = 0; i < 2; i++) {
-                testContext.responseEntity = platformClient.updateProperties(
-                        platformBuilder.buildInput(),
-                        moduleBuilder.buildPropertiesIO(),
-                        moduleBuilder.getPropertiesPath(),
-                        String.class);
-            }
+//            moduleBuilder.incrementPropertiesVersionId();
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    String.class);
+        });
+
+        When("^I try to update global properties twice with the same global properties version_id$", () -> {
+//            platformBuilder.incrementGlobalPropertiesVersionId();
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
+                    "#",
+                    PropertiesIO.class);
+            assertOK();
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
+                    "#",
+                    String.class);
         });
 
         Then("^the properties are successfully saved$", () -> {

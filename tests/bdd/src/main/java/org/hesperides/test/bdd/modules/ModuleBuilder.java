@@ -36,6 +36,8 @@ import java.util.List;
 @Component
 public class ModuleBuilder {
 
+    private static final long PROPERTIES_VERSION_ID = 0;
+
     private String name;
     private String version;
     private String versionType;
@@ -60,7 +62,7 @@ public class ModuleBuilder {
         templates = new ArrayList<>();
         versionId = 0;
         logicalGroup = null;
-        propertiesVersionId = 0;
+        propertiesVersionId = PROPERTIES_VERSION_ID;
         valuedProperties = new ArrayList<>();
         iterableValuedProperties = new ArrayList<>();
         return this;
@@ -148,6 +150,10 @@ public class ModuleBuilder {
         return logicalGroup;
     }
 
+    public PropertiesIO buildPropertiesIO(long globalPropertiesVersionId) {
+        return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
+    }
+
     public PropertiesIO buildPropertiesIO() {
         return new PropertiesIO(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
     }
@@ -162,5 +168,13 @@ public class ModuleBuilder {
 
     public Long getPropertiesVersionId() {
         return propertiesVersionId;
+    }
+
+    public void resetPropertiesVersionId() {
+        propertiesVersionId = PROPERTIES_VERSION_ID;
+    }
+
+    public void setPropertiesVersionId(long propertiesVersionId) {
+        this.propertiesVersionId = propertiesVersionId;
     }
 }
