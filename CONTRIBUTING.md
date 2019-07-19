@@ -17,7 +17,64 @@ Pour qu'une pull request soit acceptée, il faut :
 La documentation de l'application (choix techniques, architecture, etc.) se trouve dans le dossier [documentation](documentation).
 Le modèle de domaine (`domain-model.mdj`) peut-être ouvert avec l'application StarUML.
 
-## Tests manuellement avec Postman
+## Installation d'un environnement de développement
+
+Pour lancer l'application sur un poste de dev, nous utilisons IntelliJ Ultimate Edition et les plugins suivants :
+
+* Maven
+* Kotlin
+* Lombok
+* Spring Boot
+* Spring Data
+* Spring MVC
+* Spring Security
+* Cucumber for Java
+
+Une fois installés, vous pourrez alors lancer l'application avec les profils Spring **noldap** et **fake_mongo**.
+
+
+*Nous avons rencontré un problème qui empêche l'application de démarrer : le bouton Run se grise après avoir cliqué dessus sans que rien ne se passe.
+Il semblerait que le problème vienne du plugin Gradle, il suffit de le désactiver.
+Si le problème persiste, il faut désactiver tous les plugins d'IntelliJ, et ne réactiver que ceux listés ci-dessus (en acceptant leurs dépendences).*
+
+*Cela semble être un problème de compatibilité de plugins, espérons temporaire.*
+
+### Requirements
+
+ * Java 8 (openjdk, sun)
+
+Choose between:
+
+ * Docker (see docker-compose & `Dockerfile` file)
+
+And :
+
+ * MongoDB
+
+Or just launch the application with those Spring Profiles: `noldap`, `fake_mongo`
+
+### Build
+
+Build the whole project:
+
+    mvnw package
+
+Build Docker image
+
+    docker build . -t hesperides/hesperides
+
+### Run
+
+Some variables are set as environment variables:
+* `SPRING_PROFILES_ACTIVE`
+* `LDAP_URL`
+* `LDAP_DOMAIN`
+* `LDAP_USER_SEARCH_BASE`
+
+See [`boostrap/src/main/resources/application.yml`](https://github.com/voyages-sncf-technologies/hesperides/blob/master/bootstrap/src/main/resources/application.yml)
+
+
+## Tests manuels avec Postman
 
 L'application étant une API REST, nous utilisons Postman pour effectuer des tests manuels.
 Vous pouvez consulter la documentation sur cette [page](documentation/postman/postman.md).
