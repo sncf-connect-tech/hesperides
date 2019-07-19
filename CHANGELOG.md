@@ -28,7 +28,7 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ## _(unreleased)_
 ### Added
 
-- /rest/users/$username - close #695. [Lucas Cimon]
+- /rest/users/$username - close #695 (#698) [Lucas Cimon]
 
 
 ### Fixed

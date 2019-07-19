@@ -13,3 +13,4 @@ package org.hesperides.core.domain.security
 open class UserEvent(@Transient open val user: String)
 
 data class GetUserQuery(val username: String)
+data class ResolveDirectoryGroupCNsQuery(val directoryGroupCNs: List<String>)

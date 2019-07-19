@@ -38,15 +38,15 @@ public class ApplicationDirectoryGroupsDocument {
     @Id
     private String id;
     private String applicationName;
-    private List<DirectoryGroupsDocument> directoryGroups;
+    private List<String> directoryGroupDNs;
 
     public ApplicationDirectoryGroupsDocument(String id, ApplicationDirectoryGroups applicationDirectoryGroups) {
         this.id = id;
         this.applicationName = applicationDirectoryGroups.getApplicationName();
-        this.directoryGroups = DirectoryGroupsDocument.fromMapOfList(applicationDirectoryGroups.getDirectoryGroups());
+        this.directoryGroupDNs = applicationDirectoryGroups.getDirectoryGroupDNs();
     }
 
     public ApplicationDirectoryGroupsView toView() {
-        return new ApplicationDirectoryGroupsView(id, applicationName, DirectoryGroupsDocument.toMapOfList(directoryGroups));
+        return new ApplicationDirectoryGroupsView(id, applicationName, directoryGroupDNs);
     }
 }

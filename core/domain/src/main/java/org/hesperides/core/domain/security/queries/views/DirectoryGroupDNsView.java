@@ -18,12 +18,14 @@
  *
  *
  */
-package org.hesperides.core.domain.modules.exceptions;
+package org.hesperides.core.domain.security.queries.views;
 
-import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import lombok.Value;
 
-public class UpdateReleaseException extends IllegalArgumentException {
-    public UpdateReleaseException(TemplateContainer.Key key) {
-        super("Could not update a released version of a module (key: " + key.getNamespaceWithoutPrefix() + ")");
-    }
+import java.util.List;
+import java.util.Map;
+
+@Value
+public class DirectoryGroupDNsView {
+    List<String> directoryGroupDNs;
 }

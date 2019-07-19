@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
+import org.hesperides.core.domain.security.entities.authorities.ApplicationProdRole;
 import org.hesperides.core.domain.security.entities.authorities.DirectoryGroup;
 import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
 import org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever;
@@ -41,14 +41,16 @@ import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.naming.*;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,18 +58,18 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.commons.SpringProfiles.LDAP;
 import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.containDN;
-import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap.extractDirectParentGroupsDN;
+import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap.extractDirectParentGroupDNs;
 
 @Profile(LDAP)
 @Component
 @Slf4j
-public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider, LDAPUserSearcher {
+public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider, LdapCNSearcher {
 
     private static final String USERS_AUTHENTICATION_CACHE_NAME = "users-authentication";
     private static final String AUTHORIZATION_GROUPS_TREE_CACHE_NAME = "authorization-groups-tree";
 
     @Resource
-    private LDAPUserSearcher self;
+    private LdapCNSearcher self;
     @Autowired
     private Gson gson; // nécessaire uniquement pour les logs DEBUG
     @Autowired
@@ -90,27 +92,21 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
         DirContext dirContext = buildSearchContext(auth);
         // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
-        return self.searchUser(dirContext, auth.getName());
+        // L'objet retourné est directement passé à loadUserAuthorities par la classe parente :
+        try {
+            return self.searchCN(dirContext, auth.getName());
+        } finally {
+            LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
+        }
     }
 
+    @Override
     @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME, key = "#username")
     // Note: en cas d'exception levée dans cette méthode, rien ne sera mis en cache
-    public DirContextOperations searchUser(final DirContext dirContext, final String username) {
-        SearchControls searchControls = new SearchControls();
-        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        String searchFilter = ldapConfiguration.getSearchFilterForUsername(username);
-        try {
-            // L'objet retourné est directement passé à loadUserAuthorities par la classe parente:
-            // Durant cet appel SpringSecurityLdapTemplate logue parfois des "Ignoring PartialResultException"
-            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(dirContext,
-                    searchControls, ldapConfiguration.getUserSearchBase(), searchFilter,
-                    new Object[]{username});
-        } catch (NamingException cause) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "LdapAuthenticationProvider.badCredentials", "Bad credentials"), cause);
-        } finally {
-            LdapUtils.closeContext(dirContext);
-        }
+    public DirContextOperations searchCN(DirContext dirContext, String username) {
+        return ParentGroupsDNRetrieverFromLdap.searchCN(dirContext, username,
+                ldapConfiguration.getUserSearchBase(),
+                ldapConfiguration.getSearchFilterForCN(username));
     }
 
     DirContext buildSearchContext(UsernamePasswordAuthenticationToken auth) {
@@ -160,7 +156,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData, buildSearchContext(username, password));
+        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData, username, password);
 
         // Rôles globaux
         String prodGroupDN = ldapConfiguration.getProdGroupDN();
@@ -183,40 +179,47 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         authorizationProjectionRepository
                 .getApplicationsWithDirectoryGroups(ldapGroupAuthorities)
                 .stream()
-                .map(ApplicationRole::new)
+                .map(ApplicationProdRole::new)
                 .forEach(authorities::add);
 
         return authorities;
     }
 
-    private Set<LdapGroupAuthority> extractGroupAuthoritiesRecursivelyWithCache(DirContextAdapter userData, DirContext dirContext) {
-        cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(new ParentGroupsDNRetrieverFromLdap(dirContext, ldapConfiguration));
-        Set<LdapGroupAuthority> groupAuthorities = new HashSet<>();
+    private Set<LdapGroupAuthority> extractGroupAuthoritiesRecursivelyWithCache(DirContextAdapter userData, String username, String password) {
         Attributes attributes;
         try {
             attributes = userData.getAttributes("");
         } catch (NamingException e) {
             throw LdapUtils.convertLdapException(e);
         }
-        HashSet<String> parentGroupsDN = extractDirectParentGroupsDN(attributes);
-        for (String groupDN : parentGroupsDN) {
-            groupAuthorities.addAll(cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(groupDN));
+        DirContext dirContext = buildSearchContext(username, password);
+        try {
+            cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(new ParentGroupsDNRetrieverFromLdap(dirContext, ldapConfiguration));
+            Set<LdapGroupAuthority> groupAuthorities = new HashSet<>();
+            HashSet<String> parentGroupsDN = extractDirectParentGroupDNs(attributes);
+            for (String groupDN : parentGroupsDN) {
+                groupAuthorities.addAll(cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(groupDN));
+            }
+            return groupAuthorities;
+        } finally {
+            LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
         }
-        return groupAuthorities;
     }
 
     // Public for testing
     public HashSet<String> getUserGroupsDN(String username, String password) {
         DirContext dirContext = this.buildSearchContext(username, password);
         // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
-        DirContextAdapter dirContextAdapter = (DirContextAdapter) self.searchUser(dirContext, username);
+        DirContextAdapter dirContextAdapter = (DirContextAdapter) self.searchCN(dirContext, username);
         Attributes attributes;
         try {
             attributes = dirContextAdapter.getAttributes("");
         } catch (NamingException e) {
             throw LdapUtils.convertLdapException(e);
+        } finally {
+            LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
         }
-        return extractDirectParentGroupsDN(attributes);
+        return extractDirectParentGroupDNs(attributes);
     }
 
     /*****************************************************************/

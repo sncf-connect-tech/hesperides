@@ -20,7 +20,7 @@
  */
 package org.hesperides.core.domain.platforms.exceptions;
 
-public class InvalidPropertyValorisationException extends RuntimeException {
+public class InvalidPropertyValorisationException extends IllegalArgumentException {
 
     public InvalidPropertyValorisationException(String message) {
         super(message);

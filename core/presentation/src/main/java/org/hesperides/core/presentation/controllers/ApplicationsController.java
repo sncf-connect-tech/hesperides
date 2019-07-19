@@ -63,7 +63,7 @@ public class ApplicationsController extends AbstractController {
 
         ApplicationView application = platformUseCases.getApplication(applicationName);
         Map<String, List<String>> applicationDirectoryGroups = applicationDirectoryGroupsUseCases.getApplicationDirectoryGroups(applicationName)
-                .map(ApplicationDirectoryGroupsView::getDirectoryGroups)
+                .map(ApplicationDirectoryGroupsView::getDirectoryGroupCNs)
                 .orElse(Collections.emptyMap());
         Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTechnosPasswords(application) : null;
 

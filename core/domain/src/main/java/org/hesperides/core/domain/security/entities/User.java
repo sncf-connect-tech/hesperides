@@ -3,7 +3,7 @@ package org.hesperides.core.domain.security.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationRole;
+import org.hesperides.core.domain.security.entities.authorities.ApplicationProdRole;
 import org.hesperides.core.domain.security.entities.authorities.DirectoryGroup;
 import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
 import org.springframework.security.core.Authentication;
@@ -64,7 +64,7 @@ public class User {
 
     private static List<String> getRoles(Collection<? extends GrantedAuthority> springAuthorities) {
         return springAuthorities.stream()
-                .filter(springAuthority -> springAuthority instanceof GlobalRole || springAuthority instanceof ApplicationRole)
+                .filter(springAuthority -> springAuthority instanceof GlobalRole || springAuthority instanceof ApplicationProdRole)
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
     }

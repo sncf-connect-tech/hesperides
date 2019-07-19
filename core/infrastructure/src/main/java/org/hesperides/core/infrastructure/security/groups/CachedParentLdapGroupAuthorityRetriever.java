@@ -57,7 +57,7 @@ public class CachedParentLdapGroupAuthorityRetriever {
         HashSet<String> parentGroupDN;
         Element element = cache.get(groupDN);
         if (element == null) { // cache miss
-            parentGroupDN = parentGroupsDNRetriever.retrieveParentGroupsDN(groupDN);
+            parentGroupDN = parentGroupsDNRetriever.retrieveParentGroupDNs(groupDN);
             cache.put(new Element(groupDN, parentGroupDN));
         } else { // cache hit
             parentGroupDN = (HashSet<String>) element.getObjectValue();
