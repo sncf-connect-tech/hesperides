@@ -84,7 +84,7 @@ public class PlatformIO {
                 isProductionPlatform != null ? isProductionPlatform : false,
                 versionId,
                 DeployedModuleIO.toDomainInstances(deployedModules),
-                null,
+                null, // Les propriétés globales ne sont pas présente au niveau des IO de plateforme et donc du payload json de réponse, le domain se charge donc de gérer cela
                 Collections.emptyList()
         );
     }

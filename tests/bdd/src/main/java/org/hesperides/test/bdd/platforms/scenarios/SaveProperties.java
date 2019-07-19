@@ -94,6 +94,24 @@ public class SaveProperties extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
+        When("^I update global properties twice$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+            platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            platformBuilder.incrementVersionId();
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(true));
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    "#",
+                    PropertiesIO.class);
+            moduleBuilder.incrementPropertiesVersionId();
+            platformBuilder.incrementVersionId();
+        });
+
         When("^I update the module properties and then the platform global properties$", () -> {
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
             platformClient.updateProperties(

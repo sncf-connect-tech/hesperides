@@ -40,6 +40,8 @@ import java.util.stream.Stream;
 public class DeployedModuleIO {
 
     Long id;
+    // Pas d'annotation @NotNull afin de garantir de la rétro compatibilité
+    @SerializedName("properties_version_id")
     Long propertiesVersionId;
     @OnlyPrintableCharacters(subject = "deployedModules.name")
     String name;

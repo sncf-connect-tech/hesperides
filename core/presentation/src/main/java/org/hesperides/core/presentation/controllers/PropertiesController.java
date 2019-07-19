@@ -7,6 +7,7 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,19 +21,46 @@ import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 
 @Slf4j
-@Api(tags = "3. Platforms", description = " ")
+@Api(tags = "4. Properties", description = " ")
 @RequestMapping("/applications")
 @RestController
-public class DeployedModulesController extends AbstractController {
+public class PropertiesController extends AbstractController {
 
     private final PlatformUseCases platformUseCases;
 
     @Autowired
-    public DeployedModulesController(PlatformUseCases platformUseCases) {
+    public PropertiesController(PlatformUseCases platformUseCases) {
         this.platformUseCases = platformUseCases;
     }
 
-    @ApiOperation("Save properties in a platform with the given path")
+    @ApiOperation("Get properties with the given path in a platform")
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties")
+    public ResponseEntity<PropertiesIO> getValuedProperties(Authentication authentication,
+                                                            @PathVariable("application_name") final String applicationName,
+                                                            @PathVariable("platform_name") final String platformName,
+                                                            @RequestParam("path") final String propertiesPath,
+                                                            @RequestParam(value = "timestamp", required = false) final Long timestamp) {
+        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
+
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
+        return ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));
+    }
+
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
+    @ApiOperation("Get properties with the given path in a platform")
+    public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") final String applicationName,
+                                                                  @PathVariable("platform_name") final String platform_name,
+                                                                  @RequestParam("path") final String propertiesPath) {
+
+        Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
+
+        List<String> instancesModelView = platformUseCases.getInstancesModel(platformKey, propertiesPath);
+        InstancesModelOutput instancesModelOutput = InstancesModelOutput.fromInstancesModelView(instancesModelView);
+        return ResponseEntity.ok(instancesModelOutput);
+    }
+
+    @Deprecated
+    @ApiOperation("Deprecated - Use PUT /{application_name}/platforms/{platform_name}/properties instead")
     @PostMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> saveProperties(Authentication authentication,
                                                        @PathVariable("application_name") final String applicationName,
@@ -40,12 +68,11 @@ public class DeployedModulesController extends AbstractController {
                                                        @RequestParam("path") final String propertiesPath,
                                                        @RequestParam("platform_vid") final Long platformVersionId,
                                                        @Valid @RequestBody final PropertiesIO properties) {
-//        throw new UnsupportedOperationException();
         return updateProperties(authentication, applicationName, platformName, propertiesPath, platformVersionId, properties);
     }
 
 
-    @ApiOperation("Update deployed modules properties")
+    @ApiOperation("Update deployed modules or global properties")
     @PutMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> updateProperties(Authentication authentication,
                                                        @PathVariable("application_name") final String applicationName,

@@ -160,16 +160,12 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
         platformDocument.setVersionId(event.getPlatformVersionId());
 
         // Modification des propriétés du module dans la plateforme
-        Optional<DeployedModuleDocument> optionalDeployedModuleDocument =  platformDocument.getActiveDeployedModules()
+        platformDocument.getActiveDeployedModules()
                 .filter(currentDeployedModuleDocument -> currentDeployedModuleDocument.getPropertiesPath().equals(event.getPropertiesPath()))
-                .findAny();
-
-        if (optionalDeployedModuleDocument.isPresent()) {
-            DeployedModuleDocument deployedModuleDocument = optionalDeployedModuleDocument.get();
-
+                .findAny().ifPresent(deployedModuleDocument -> {
             updateDeployedModuleVersionId(event.getPropertiesVersionId(), deployedModuleDocument);
             completePropertiesWithMustacheContent(abstractValuedProperties, deployedModuleDocument);
-        }
+        });
 
         platformDocument.buildInstancesModelAndSave(minimalPlatformRepository);
     }
@@ -369,16 +365,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     @Timed
     public Long onGetPropertiesVersionIdQuery(GetPropertiesVersionIdQuery query) {
-        PlatformDocument platformDocument;
-        if (query.getTimestamp() >= 0) {
-            // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
-            platformDocument = getPlatformAtPointInTime(query.getPlatformId(), query.getTimestamp());
-        } else {
-            platformDocument = minimalPlatformRepository.findById(query.getPlatformId())
-                    .orElseThrow(() -> new NotFoundException("Platform not found - impossible to get deployed module properties"
-                            + " - platform ID: " + query.getPlatformId() + " - path: " + query.getPropertiesPath())
-                    );
-        }
+        PlatformDocument platformDocument = getExistingPlatformDocument(query.getTimestamp(), query.getPlatformId(), query.getPropertiesPath());
 
         final Optional<DeployedModuleDocument> deployedModuleDocument = platformDocument
                 .getActiveDeployedModules()
@@ -393,16 +380,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     @Timed
     public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query) {
-        PlatformDocument platformDocument;
-        if (query.getTimestamp() >= 0) {
-            // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
-            platformDocument = getPlatformAtPointInTime(query.getPlatformId(), query.getTimestamp());
-        } else {
-            platformDocument = minimalPlatformRepository.findById(query.getPlatformId())
-                    .orElseThrow(() -> new NotFoundException("Platform not found - impossible to get deployed module properties"
-                            + " - platform ID: " + query.getPlatformId() + " - path: " + query.getPropertiesPath())
-                    );
-        }
+        PlatformDocument platformDocument = getExistingPlatformDocument(query.getTimestamp(), query.getPlatformId(), query.getPropertiesPath());
 
         final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
                 .getActiveDeployedModules()
@@ -411,6 +389,20 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .orElseGet(Collections::emptyList);
 
         return AbstractValuedPropertyDocument.toViews(abstractValuedPropertyDocuments);
+    }
+
+    private PlatformDocument getExistingPlatformDocument(Long timestamp, String platformId, String propertiesPath) {
+        PlatformDocument platformDocument;
+        if (timestamp >= 0) {
+            // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
+            platformDocument = getPlatformAtPointInTime(platformId, timestamp);
+        } else {
+            platformDocument = minimalPlatformRepository.findById(platformId)
+                    .orElseThrow(() -> new NotFoundException("Platform not found - impossible to get deployed module properties"
+                            + " - platform ID: " + platformId + " - path: " + propertiesPath)
+                    );
+        }
+        return platformDocument;
     }
 
     @QueryHandler

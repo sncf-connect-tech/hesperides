@@ -22,7 +22,7 @@ Créer un nouveau version_id associé aux propriétés d'un module déployé : `
 
 Nouveau endpoint :
 
-    PUT /applications/{application_name}/platforms/{platform_name}/deployed_modules/properties?path={request_parameter}
+    PUT /applications/{application_name}/platforms/{platform_name}/properties?path={request_parameter}
 
 * Vérifier le `properties_version_id` de ce module et l'incrémenter
 * Incrémenter le `version_id` de la platforme mais ne pas le vérifier
@@ -48,7 +48,7 @@ Nouveau endpoint :
 
 * `POST properties` : vérifier le `version_id` de la plateforme mais pas le `properties_version_id` puis appeler le `PUT`
 * `GET properties` : ajouter le champ `properties_version_id`
-* Passer ces 2 endpoints en Deprecated et rediriger vers les nouveaux endpoints contenant `.../deployed_modules/properties...`
+* Passer ces cet endpoint en Deprecated et rediriger vers le nouveau endpoints en  `PUT`
 * Mettre à jour les tests fonctionnels, notamment `PlatformClient`
 * Créer un Controller `DeployedModulesController` et un sous-groupe Swagger `Deployed modules`
 * Impacter le front

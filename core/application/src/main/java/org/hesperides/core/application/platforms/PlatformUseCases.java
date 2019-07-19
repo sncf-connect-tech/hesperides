@@ -78,7 +78,7 @@ public class PlatformUseCases {
                 newPlatform.isProductionPlatform(),
                 1L,
                 deployedModules,
-                existingPlatform.getGlobalPropertiesVersionId(),
+                DeployedModule.INIT_PROPERTIES_VERSION_ID,
                 globalProperties
         );
         return commands.createPlatform(newFullPlatform, user);

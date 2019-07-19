@@ -42,7 +42,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class PropertiesIO {
 
-    //    @NotNull
+
+    // Annotation @NotNull à remettre en place lorsque le support d'un payload json sans properties_version_id sera officiellement arrêté
     @SerializedName("properties_version_id")
     @JsonProperty("properties_version_id")
     @Valid

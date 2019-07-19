@@ -37,7 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Api(tags = "8. Users and versions", description = " ")
+@Api(tags = "9. Users and versions", description = " ")
 @RequestMapping("/users")
 @RestController
 public class UsersController extends AbstractController {

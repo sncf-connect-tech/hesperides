@@ -38,7 +38,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getAggregateIdentifier() + ": " + ex.getMessage());
     }
 
-    @ExceptionHandler({DuplicateException.class, OutOfDateVersionException.class, UndeletableTechnoInUseException.class, OutOfDatePlatformVersionException.class, OutOfDatePropertiesException.class})
+    @ExceptionHandler({DuplicateException.class, OutOfDateException.class, UndeletableTechnoInUseException.class})
     public ResponseEntity handleConflict(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
