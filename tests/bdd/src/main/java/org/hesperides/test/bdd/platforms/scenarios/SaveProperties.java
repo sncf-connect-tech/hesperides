@@ -83,6 +83,17 @@ public class SaveProperties extends HesperidesScenario implements En {
             });
         });
 
+        When("^I update this module properties$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+            platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            moduleBuilder.incrementPropertiesVersionId();
+            platformBuilder.incrementVersionId();
+        });
+
         When("^I update the module properties and then the platform global properties$", () -> {
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
             platformClient.updateProperties(
@@ -141,7 +152,18 @@ public class SaveProperties extends HesperidesScenario implements En {
             });
         });
 
+        Then("^the properties versionId should stay the same$", () -> {
+
+            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+
+            Long expectedPropertiesVersionId = moduleBuilder.getPropertiesVersionId();
+            Long actualPropertiesVersionId = actualPlatform.getDeployedModules().get(0).getPropertiesVersionId();
+
+            assertEquals(expectedPropertiesVersionId, actualPropertiesVersionId);
+        });
+
         Then("^the properties update is rejected with a conflict error$", this::assertConflict);
+
     }
 
     /**

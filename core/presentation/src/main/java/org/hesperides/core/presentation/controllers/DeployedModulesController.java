@@ -46,7 +46,7 @@ public class DeployedModulesController extends AbstractController {
 
 
     @ApiOperation("Update deployed modules properties")
-    @PutMapping("/{application_name}/platforms/{platform_name}/deployed_modules/properties")
+    @PutMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> updateProperties(Authentication authentication,
                                                        @PathVariable("application_name") final String applicationName,
                                                        @PathVariable("platform_name") final String platformName,

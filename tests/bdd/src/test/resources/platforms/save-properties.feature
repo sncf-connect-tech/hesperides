@@ -138,5 +138,10 @@ Feature: Save properties
     Then the properties update is rejected with a conflict error
 
   Scenario: an update of a platform after an update of properties should not impact the properties version_id
+    Given an existing module
+    And an existing platform with this module
+    And I update this module properties
+    When I update this platform
+    Then the properties versionId should stay the same
 
   Scenario: fail trying update global properties simultaneously
