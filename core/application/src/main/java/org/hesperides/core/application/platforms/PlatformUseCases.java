@@ -13,6 +13,7 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
+import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.exceptions.*;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.platforms.queries.views.*;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.hesperides.core.application.properties.PropertyUseCases.buildPropertyVisitorsSequence;
 
 
 @Component
@@ -49,6 +51,9 @@ public class PlatformUseCases {
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
+
+    public static enum PROPERTIES_WITH_ONLY_DEFAULT_VALUE {INCLUDE, EXCLUDE};
+
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands, PlatformQueries platformQueries, final ModuleQueries moduleQueries, TechnoQueries technoQueries, ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries) {
@@ -239,16 +244,54 @@ public class PlatformUseCases {
         return platformQueries.searchPlatforms(applicationName, platformName);
     }
 
-    public PropertiesDiff getPropertiesDiff(final Platform.Key fromPlatformKey, final String fromPropertiesPath, final Platform.Key toPlatformKey, final String toPropertiesPath, final User user) {
-        return getPropertiesDiff(fromPlatformKey, fromPropertiesPath, toPlatformKey, toPropertiesPath, null, user);
+    public PropertiesDiff getPropertiesDiff(final Platform.Key fromPlatformKey,
+                                            final String fromPropertiesPath,
+                                            final String fromInstanceName,
+                                            final Platform.Key toPlatformKey,
+                                            final String toPropertiesPath,
+                                            final String toInstanceName,
+                                            final Long timestamp,
+                                            final User user) {
+        Module.Key fromModuleKey = Module.Key.fromPropertiesPath(fromPropertiesPath);
+        String fromModulePath = extractModulePathFromPropertiesPath(fromPropertiesPath);
+        if (!queries.deployedModuleExists(fromPlatformKey, fromModuleKey, fromModulePath)) {
+            throw new DeployedModuleNotFoundException(fromPlatformKey, fromModuleKey, fromModulePath);
+        }
+        Module.Key toModuleKey = Module.Key.fromPropertiesPath(toPropertiesPath);
+        String toModulePath = extractModulePathFromPropertiesPath(toPropertiesPath);
+        if (!queries.deployedModuleExists(toPlatformKey, toModuleKey, toModulePath)) {
+            throw new DeployedModuleNotFoundException(toPlatformKey, toModuleKey, toModulePath);
+        }
+
+        PlatformView fromPlatform = queries.getOptionalPlatform(fromPlatformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(fromPlatformKey));
+        PlatformView toPlatform = queries.getOptionalPlatform(toPlatformKey)
+                .orElseThrow(() -> new PlatformNotFoundException(toPlatformKey));
+
+        List<AbstractPropertyView> fromModulePropertiesModels = moduleQueries.getPropertiesModel(fromModuleKey);
+        List<AbstractPropertyView> toModulePropertiesModels = moduleQueries.getPropertiesModel(toModuleKey);
+
+        boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.isProd();
+        boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.isProd();
+
+        PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequence(
+                fromPlatform, fromModulePath, fromModuleKey,
+                fromModulePropertiesModels,
+                fromInstanceName, fromShouldHidePasswordProperties);
+        PropertyVisitorsSequence toPropertyVisitors = buildPropertyVisitorsSequence(
+                toPlatform, toModulePath, toModuleKey,
+                toModulePropertiesModels,
+                toInstanceName, toShouldHidePasswordProperties);
+        return PropertyVisitorsSequence.performDiff(fromPropertyVisitors, toPropertyVisitors);
     }
 
-    public PropertiesDiff getPropertiesDiff(final Platform.Key fromPlatformKey, final String fromPropertiesPath, final Platform.Key toPlatformKey, final String toPropertiesPath, final Long timestamp, final User user) {
-        List<AbstractValuedPropertyView> fromPlatformPropertiesViews = getValuedProperties(fromPlatformKey, fromPropertiesPath, timestamp, user, false);
-        List<AbstractValuedPropertyView> toPlatformPropertiesViews = getValuedProperties(toPlatformKey, toPropertiesPath, timestamp, user, false);
-        List<AbstractValuedProperty> fromPlatformProperties = AbstractValuedPropertyView.toDomainAbstractValuedProperties(fromPlatformPropertiesViews);
-        List<AbstractValuedProperty> toPlatformProperties = AbstractValuedPropertyView.toDomainAbstractValuedProperties(toPlatformPropertiesViews);
-        return AbstractValuedProperty.diff(fromPlatformProperties, toPlatformProperties);
+    private static String extractModulePathFromPropertiesPath(String propertiesPath) {
+        String[] parts = propertiesPath.split("#");
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Too short properties path: " + propertiesPath);
+        }
+        parts = Arrays.copyOfRange(parts, 0, parts.length - 3);
+        return String.join("#", parts);
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
@@ -256,10 +299,10 @@ public class PlatformUseCases {
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
-        return getValuedProperties(platformKey, propertiesPath, timestamp, user, false);
+        return getValuedProperties(platformKey, propertiesPath, timestamp, user, PROPERTIES_WITH_ONLY_DEFAULT_VALUE.EXCLUDE);
     }
 
-    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user, final boolean excludePropertiesWithOnlyDefaultValue) {
+    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user, final PROPERTIES_WITH_ONLY_DEFAULT_VALUE propertiesWithOnlyDefaultValue) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
@@ -275,7 +318,7 @@ public class PlatformUseCases {
 
             properties = platformQueries.getDeployedModuleProperties(platform.getId(), propertiesPath, timestamp);
 
-            if (excludePropertiesWithOnlyDefaultValue) {
+            if (PROPERTIES_WITH_ONLY_DEFAULT_VALUE.EXCLUDE.equals(propertiesWithOnlyDefaultValue)) {
                 // On exclue les propriétés non valorisées ayant une valeur par défaut
                 properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
             }

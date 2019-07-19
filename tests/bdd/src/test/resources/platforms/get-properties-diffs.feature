@@ -1,9 +1,9 @@
+@wip
 Feature: Get properties diffs
 
   Background:
     Given an authenticated user
 
-  @wip
   Scenario: get properties diffs between two platforms with valued properties
     Given an existing module
     And an existing platform named "P1" with this module

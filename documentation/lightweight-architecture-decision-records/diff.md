@@ -40,38 +40,49 @@ nous avons décider d'implémenter la logique de "diff" nous-même sur les class
   "only_left": [
     {
       "name": "appenders.file-rolling-vsctlayout"
-      "iterable_valorisation_items": [
+      "items": [
         {
-          "title": "",
-          "values": [
-            { "name": "appendername", "value": "nom_de_mon_appender" },
-            { "name": "roll.max-index", "value": "1" },
-            { "name": "roll.threshold", "value": "1" },
-            { "name": "filename", "value": "nom_de_mon_fichier" }
-          ]
+          "only_left": [],
+          "only_right": [],
+          "common": [
+            {
+              "name": "appendername",
+              "value": {
+                "finalValue": "alfred",
+                "defaultValue": "henri",
+                "storedValue": "georges"
+              }
+            }
+          ],
+          "differing": []
         }
       ],
     }
   ],
   "only_right": [],
   "common": [
-    { "name": "titi", "value": "version1-titi" }
+    {
+      "name": "partner.version"
+      "value": {
+        "finalValue": "2.0",
+        "defaultValue": null,
+        "storedValue": "2.0"
+      },
+    }
   ],
   "differing": [
+      "name": "overridingTemplateUrl.jsLocation"
     {
-      "left": "version1-tata",
-      "right": "version1-tata-different",
-      "name": "tata"
-    },
-    {
-      "left": "\"{{prout}}\"",
-      "right": "version1-toto-different",
-      "name": "toto"
-    },
-    {
-      "left": "version1-tete",
-      "right": "",
-      "name": "tete"
+      "left": {
+        "finalValue": "//www.oui.sncf/medias-cdn/ccl/USN1/ccl-interface/ccl-interface-uncached-fuse.js",
+        "defaultValue": "//www.oui.sncf/medias-cdn/ccl/PRD/ccl-interface/ccl-interface-uncached-fuse.js",
+        "storedValue": "//www.oui.sncf/medias-cdn/ccl/USN1/ccl-interface/ccl-interface-uncached-fuse.js"
+      },
+      "right": {
+        "finalValue": "//www.oui.sncf/medias-cdn/ccl/USN2/ccl-interface/ccl-interface-uncached-fuse.js",
+        "defaultValue": "//www.oui.sncf/medias-cdn/ccl/PRD/ccl-interface/ccl-interface-uncached-fuse.js",
+        "storedValue": "//www.oui.sncf/medias-cdn/ccl/USN2/ccl-interface/ccl-interface-uncached-fuse.js"
+      },
     }
   ]
 }

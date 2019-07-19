@@ -22,16 +22,10 @@ package org.hesperides.core.domain.platforms.entities.properties;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
-import org.hesperides.core.domain.platforms.entities.properties.diff.AbstractDifferingProperty;
-import org.hesperides.core.domain.platforms.entities.properties.diff.IterableDifferingProperty;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
-import org.hesperides.core.domain.platforms.entities.properties.diff.SimpleDifferingProperty;
-import org.hesperides.core.domain.platforms.exceptions.InvalidDiffSourceException;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
@@ -41,40 +35,6 @@ import static java.util.stream.Collectors.toMap;
 public abstract class AbstractValuedProperty {
     String name;
     //boolean notActiveForThisVersion;
-
-    public static PropertiesDiff diff(List<AbstractValuedProperty> propertiesLeft, List<AbstractValuedProperty> propertiesRight) {
-
-        // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
-        // C'est pour simplifier le diff ensuite.
-        Map<String, AbstractValuedProperty> propertiesLeftPerName = propertiesLeft.stream().collect(toMap(AbstractValuedProperty::getName, property -> property));
-        Map<String, AbstractValuedProperty> propertiesRightPerName = propertiesRight.stream().collect(toMap(AbstractValuedProperty::getName, property -> property));
-
-        // On procède au diff
-        Set<AbstractValuedProperty> onlyLeft = propertiesLeft.stream().filter(property -> !propertiesRightPerName.containsKey(property.getName())).collect(Collectors.toSet());
-        Set<AbstractValuedProperty> onlyRight = propertiesRight.stream().filter(property -> !propertiesLeftPerName.containsKey(property.getName())).collect(Collectors.toSet());
-        Set<AbstractValuedProperty> common = propertiesLeft.stream().filter(propertiesRight::contains).collect(Collectors.toSet());
-        Set<AbstractDifferingProperty> differingProperties = propertiesLeft.stream().filter(property -> propertiesRightPerName.containsKey(property.getName()))
-                .filter(property -> !propertiesRightPerName.get(property.getName()).equals(property))
-                .map(property -> {
-                    if (property instanceof ValuedProperty) {
-                        return new SimpleDifferingProperty(property.getName(), ((ValuedProperty) property).getValue(), ((ValuedProperty) propertiesRightPerName.get(property.getName())).getValue());
-                    } else {
-                        List<IterablePropertyItem> iterablePropertyLeftItems = ((IterableValuedProperty) property).getItems();
-                        List<IterablePropertyItem> iterablePropertyRightItems = ((IterableValuedProperty) propertiesRightPerName.get(property.getName())).getItems();
-                        int maxRange = Math.max(iterablePropertyLeftItems.size(), iterablePropertyRightItems.size());
-                        List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(i -> {
-                            List<AbstractValuedProperty> nestedPropertiesLeft = (i >= iterablePropertyLeftItems.size()) ? Collections.emptyList() : iterablePropertyLeftItems.get(i).getAbstractValuedProperties();
-                            List<AbstractValuedProperty> nestedPropertiesRight = (i >= iterablePropertyRightItems.size()) ? Collections.emptyList() : iterablePropertyRightItems.get(i).getAbstractValuedProperties();
-                            return AbstractValuedProperty.diff(nestedPropertiesLeft, nestedPropertiesRight);
-                        }).collect(Collectors.toList());
-
-                        return new IterableDifferingProperty(property.getName(), propertiesDiffList);
-                    }
-                })
-                .collect(Collectors.toSet());
-
-        return new PropertiesDiff(onlyLeft, onlyRight, common, differingProperties);
-    }
 
     public static <T extends AbstractValuedProperty> List<T> filterAbstractValuedPropertyWithType(List<AbstractValuedProperty> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)

@@ -6,7 +6,5 @@ import lombok.experimental.NonFinal;
 @Value
 @NonFinal
 public abstract class AbstractDifferingProperty {
-
     String name;
-
 }

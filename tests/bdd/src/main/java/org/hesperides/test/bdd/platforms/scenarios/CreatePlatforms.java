@@ -162,12 +162,12 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         if (isNotEmpty(withIterableProperties)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-module-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1")))),
-                            new IterablePropertyItemIO("bloc-module-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2"))))
+                            new IterablePropertyItemIO("bloc-module-1", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1")))),
+                            new IterablePropertyItemIO("bloc-module-2", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2"))))
                     )),
                     new IterableValuedPropertyIO("techno-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-techno-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1")))),
-                            new IterablePropertyItemIO("bloc-techno-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2"))))
+                            new IterablePropertyItemIO("bloc-techno-1", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1")))),
+                            new IterablePropertyItemIO("bloc-techno-2", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2"))))
                     ))
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
@@ -177,22 +177,22 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         if (isNotEmpty(withIterableCeption)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-module-foo-1", new HashSet<>(Arrays.asList(
+                            new IterablePropertyItemIO("bloc-module-foo-1", new ArrayList<>(Arrays.asList(
                                     new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                            new IterablePropertyItemIO("bloc-module-bar-1", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-1", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-1")
                                             ))),
-                                            new IterablePropertyItemIO("bloc-module-bar-2", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-2", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-2")
                                             )))
                                     ))
                             ))),
-                            new IterablePropertyItemIO("bloc-module-foo-2", new HashSet<>(Arrays.asList(
+                            new IterablePropertyItemIO("bloc-module-foo-2", new ArrayList<>(Arrays.asList(
                                     new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                            new IterablePropertyItemIO("bloc-module-bar-1", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-1", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-3")
                                             ))),
-                                            new IterablePropertyItemIO("bloc-module-bar-2", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-2", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-4")
                                             )))
                                     ))
@@ -356,20 +356,20 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Given("^the platform has iterable-ception$", () -> {
             List<IterableValuedPropertyIO> iterableProperties = Arrays.asList(
                     new IterableValuedPropertyIO("a", Arrays.asList(
-                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                     new ValuedPropertyIO("valued_in_a", "value_a"),
                                     new IterableValuedPropertyIO("b", Arrays.asList(
-                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("valued_in_b", "value_b"),
                                                     new IterableValuedPropertyIO("c", Arrays.asList(
-                                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                                     new ValuedPropertyIO("valued_in_c", "value_c")
                                                             )))
                                                     ))
                                             )))
                                     )),
                                     new IterableValuedPropertyIO("d", Arrays.asList(
-                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("valued_in_d", "value_d")
                                             )))
                                     ))

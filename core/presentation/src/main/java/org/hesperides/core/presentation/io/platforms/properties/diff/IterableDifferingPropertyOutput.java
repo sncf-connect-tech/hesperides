@@ -1,23 +1,34 @@
 package org.hesperides.core.presentation.io.platforms.properties.diff;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.entities.properties.diff.IterableDifferingProperty;
+import org.hesperides.core.domain.platforms.entities.properties.visitors.IterablePropertyVisitor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class IterableDifferingPropertyOutput extends AbstractDifferingPropertyOutput {
+class IterableDifferingPropertyOutput extends AbstractDifferingPropertyOutput {
 
-    @SerializedName("differing_items")
-    @JsonProperty("differing_items")
-    List<PropertiesDiffOutput> differingItems;
+    List<PropertiesDiffOutput> items;
 
-    public IterableDifferingPropertyOutput(IterableDifferingProperty iterableDifferingProperty) {
+    IterableDifferingPropertyOutput(IterableDifferingProperty iterableDifferingProperty) {
         super(iterableDifferingProperty.getName());
-        this.differingItems = PropertiesDiffOutput.fromPropertiesDiffs(iterableDifferingProperty.getDifferingItems());
+        this.items = PropertiesDiffOutput.fromPropertiesDiffs(iterableDifferingProperty.getDifferingItems());
+    }
+
+    private IterableDifferingPropertyOutput(String name, List<PropertiesDiffOutput> items) {
+        super(name);
+        this.items = items;
+    }
+
+    static IterableDifferingPropertyOutput onlyCommon(IterablePropertyVisitor propertyVisitor) {
+        return new IterableDifferingPropertyOutput(
+                propertyVisitor.getName(),
+                propertyVisitor.getItems().stream()
+                        .map(PropertiesDiffOutput::onlyCommon)
+                        .collect(Collectors.toList()));
     }
 }

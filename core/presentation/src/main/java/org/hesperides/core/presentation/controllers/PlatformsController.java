@@ -223,14 +223,19 @@ public class PlatformsController extends AbstractController {
                                                                   @PathVariable("application_name") final String fromApplicationName,
                                                                   @PathVariable("platform_name") final String fromPlatformName,
                                                                   @RequestParam("path") final String fromPropertiesPath,
+                                                                  @RequestParam(value = "instance_name", required = false, defaultValue = "") final String fromInstanceName,
                                                                   @RequestParam("to_application") final String toApplicationName,
                                                                   @RequestParam("to_platform") final String toPlatformName,
                                                                   @RequestParam("to_path") final String toPropertiesPath,
+                                                                  @RequestParam(value = "to_instance_name", required = false, defaultValue = "") final String toInstanceName,
                                                                   @RequestParam(value= "timestamp", required = false) final Long timestamp) {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
 
-        PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(fromPlatformKey, fromPropertiesPath, toPlatformKey, toPropertiesPath, timestamp, fromAuthentication(authentication));
+        PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(
+                fromPlatformKey, fromPropertiesPath, fromInstanceName,
+                toPlatformKey, toPropertiesPath, toInstanceName,
+                timestamp, new User(authentication));
         return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
     }
 

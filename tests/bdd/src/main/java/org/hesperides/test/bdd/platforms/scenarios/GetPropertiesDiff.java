@@ -44,15 +44,15 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
         And("the resulting diff match these values", (DataTable data) -> {
             PropertiesDiffOutput actualPropertiesDiff = (PropertiesDiffOutput)testContext.getResponseBody();
 
-            List<String> onlyLeftPropertiesName = actualPropertiesDiff.getOnlyLeft().stream().map(AbstractValuedPropertyIO::getName).collect(Collectors.toList());
+            List<String> onlyLeftPropertiesName = actualPropertiesDiff.getOnlyLeft().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
             List<String> onlyLeftPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("only_left"));
             assertEquals(onlyLeftPropertiesNameExpected, onlyLeftPropertiesName);
 
-            List<String> onlyRightPropertiesName = actualPropertiesDiff.getOnlyRight().stream().map(AbstractValuedPropertyIO::getName).collect(Collectors.toList());
+            List<String> onlyRightPropertiesName = actualPropertiesDiff.getOnlyRight().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
             List<String> onlyRightPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("only_right"));
             assertEquals(onlyRightPropertiesNameExpected, onlyRightPropertiesName);
 
-            List<String> commonPropertiesName = actualPropertiesDiff.getCommon().stream().map(AbstractValuedPropertyIO::getName).collect(Collectors.toList());
+            List<String> commonPropertiesName = actualPropertiesDiff.getCommon().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
             List<String> commonPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("common"));
             assertEquals(commonPropertiesNameExpected, commonPropertiesName);
 

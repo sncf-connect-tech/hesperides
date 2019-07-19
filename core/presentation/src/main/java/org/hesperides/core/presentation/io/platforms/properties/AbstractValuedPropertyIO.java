@@ -40,9 +40,9 @@ public abstract class AbstractValuedPropertyIO {
 
     String name;
 
-    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(Set<AbstractValuedPropertyIO> properties, Class<T> clazz) {
+    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(List<AbstractValuedPropertyIO> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptySet())
+                .orElse(Collections.emptyList())
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
@@ -62,11 +62,14 @@ public abstract class AbstractValuedPropertyIO {
     }
 
     public static AbstractValuedPropertyIO fromAbstractValuedProperty(AbstractValuedProperty abstractValuedProperty){
+        AbstractValuedPropertyIO abstractValuedPropertyIO;
         if (abstractValuedProperty instanceof ValuedProperty) {
-            return new ValuedPropertyIO((ValuedProperty)abstractValuedProperty);
+            abstractValuedPropertyIO = new ValuedPropertyIO((ValuedProperty)abstractValuedProperty);
         } else {
-            return new IterableValuedPropertyIO((IterableValuedProperty) abstractValuedProperty);
+            abstractValuedPropertyIO = new IterableValuedPropertyIO((IterableValuedProperty) abstractValuedProperty);
         }
+
+        return abstractValuedPropertyIO;
     }
 
     /**

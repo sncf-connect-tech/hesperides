@@ -1,7 +1,8 @@
-package org.hesperides.core.application.files;
+package org.hesperides.core.application.properties;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.platforms.queries.views.InstanceView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
@@ -13,16 +14,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+
 @Value
 @Slf4j
-public class FileValuationContext {
+class PropertyValuationContext {
 
     private List<ValuedPropertyView> globalProperties;
     private List<ValuedPropertyView> instanceProperties;
     private List<ValuedPropertyView> predefinedProperties;
     private List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel;
 
-    FileValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel) {
+    PropertyValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel) {
         globalProperties = platform.getGlobalProperties();
         instanceProperties = getInstanceProperties(deployedModule.getInstances(), deployedModule.getInstancesModel(), instanceName);
         predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
@@ -33,7 +36,7 @@ public class FileValuationContext {
         return completeWithContextualProperties(propertyVisitors, true);
     }
 
-    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals) {
+    private PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals) {
         return completeWithContextualProperties(propertyVisitors, withGlobals, false);
     }
 
@@ -75,7 +78,7 @@ public class FileValuationContext {
         String modulePath = deployedModule.getModulePath();
         predefinedProperties.add(new ValuedPropertyView("hesperides.module.path.full", modulePath.replace('#', '/')));
         predefinedProperties.addAll(getPathLogicalGroups(modulePath));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", instanceName));
+        predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", defaultString(instanceName, "")));
         return predefinedProperties;
     }
 
