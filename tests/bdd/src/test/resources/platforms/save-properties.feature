@@ -120,7 +120,7 @@ Feature: Save properties
 
   Scenario: save properties of a module and global properties simultaneously
     Given an existing module
-    And an existing platform with this module and valued properties
+    And an existing platform with this module
     When I update the module properties and then the platform global properties using the same platform version_id
     Then the properties are successfully saved
     And the platform version_id is incremented twice
