@@ -94,13 +94,14 @@ public class SaveProperties extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
-        When("^I update the module properties and then the platform global properties$", () -> {
+        When("^I update the module properties and then the platform global properties using the same platform version_id$", () -> {
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
             platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
                     PropertiesIO.class);
+            assertOK();
             platformBuilder.incrementVersionId();
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(true));
             testContext.responseEntity = platformClient.updateProperties(
@@ -115,11 +116,12 @@ public class SaveProperties extends HesperidesScenario implements En {
         When("^I try to update the module properties and then the platform using the same platform version_id$", () -> {
             final PlatformIO platformInput = platformBuilder.buildInput();
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
-            platformClient.updateProperties(
+            testContext.responseEntity = platformClient.updateProperties(
                     platformInput,
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
                     PropertiesIO.class);
+            assertOK();
             moduleBuilder.incrementPropertiesVersionId();
             testContext.responseEntity = platformClient.update(platformInput, false, String.class);
         });
@@ -132,6 +134,7 @@ public class SaveProperties extends HesperidesScenario implements En {
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
                     PropertiesIO.class);
+            assertOK();
             testContext.responseEntity = platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(),
