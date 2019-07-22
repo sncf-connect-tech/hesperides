@@ -25,10 +25,17 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-07-11
 ### Fixed
 
-- /applications/using_module renvoie seulement les plateformes employant le module avec exactement la version indiquée - close #685. [Lucas Cimon]
+- Implémentation de la restriction sur les modifications de propriétés de plateforme de production (#694) [Lucas Cimon]
+
+
+
+## 2019-07-09
+### Fixed
+
+- /applications/using_module renvoie seulement les plateformes employant le module avec exactement la version indiquée - close #685 (#688) [Lucas Cimon]
 
 
 
