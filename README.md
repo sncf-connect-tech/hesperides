@@ -20,7 +20,12 @@ Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesp
 
 ## Requirements
 
-This Java Spring Boot application uses MongoDB for storage.
+This Java [Spring Boot](https://spring.io/projects/spring-boot) application uses [MongoDB](https://www.mongodb.com) for storage
+and [Axon](https://axoniq.io) to implement event sourcing.
+
+![Logo Spring Boot](documentation/architecture/images/spring-boot-logo.png)
+![Logo MongoDB](documentation/architecture/images/mongodb-logo.png)
+![Logo Axon](documentation/architecture/images/axon-iq-logo.png)
 
 ## Documentation
 

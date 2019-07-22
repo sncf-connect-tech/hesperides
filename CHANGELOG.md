@@ -25,7 +25,7 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-07-22
 ### Fixed
 
 - ModuleAggregate / PlatformAggregate logs + réduction de leur verbosité pour les tests (#707) [Lucas Cimon]
