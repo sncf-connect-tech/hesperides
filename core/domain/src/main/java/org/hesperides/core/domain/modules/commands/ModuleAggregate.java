@@ -42,7 +42,7 @@ class ModuleAggregate implements Serializable {
                 .validateTemplates()
                 .initializeVersionId();
         String newUuid = UUID.randomUUID().toString();
-        log.debug("ModuleAggregate constructor - moduleId: %s - key: %s - versionId: %s - user: %s",
+        log.debug("ModuleAggregate constructor - moduleId: {} - key: {} - versionId: {} - user: {}",
                 newUuid, command.getModule().getKey().getNamespaceWithoutPrefix(), command.getModule().getVersionId(), command.getUser());
         logBeforeEventVersionId(command.getModule().getVersionId());
         apply(new ModuleCreatedEvent(newUuid, module, command.getUser().getName()));
@@ -51,7 +51,7 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onUpdateModuleTechnosCommand(UpdateModuleTechnosCommand command) {
-        log.debug("onUpdateModuleTechnosCommand - moduleId: %s - key: %s - versionId: %s - user: %s",
+        log.debug("onUpdateModuleTechnosCommand - moduleId: {} - key: {} - versionId: {} - user: {}",
                 command.getModuleId(), command.getModule().getKey().getNamespaceWithoutPrefix(), command.getModule().getVersionId(), command.getUser());
         logBeforeEventVersionId(command.getModule().getVersionId());
         Module module = command.getModule()
@@ -64,7 +64,7 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteModuleCommand(DeleteModuleCommand command) {
-        log.debug("onUpdateModuleTechnosCommand - moduleId: %s - user: %s",
+        log.debug("onUpdateModuleTechnosCommand - moduleId: {} - user: {}",
                 command.getModuleId(), command.getUser());
         logBeforeEventVersionId();
         apply(new ModuleDeletedEvent(command.getModuleId(), command.getUser().getName()));
@@ -73,7 +73,7 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onCreateTemplateCommand(CreateTemplateCommand command) {
-        log.debug("onCreateTemplateCommand - moduleId: %s - key: %s - templateName: %s - user: %s",
+        log.debug("onCreateTemplateCommand - moduleId: {} - key: {} - templateName: {} - user: {}",
                 command.getModuleId(), command.getModuleKey(), command.getTemplate().getName(), command.getUser());
         logBeforeEventVersionId();
         Template template = command.getTemplate()
@@ -86,7 +86,7 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onUpdateTemplateCommand(UpdateTemplateCommand command) {
-        log.debug("onUpdateTemplateCommand - moduleId: %s - key: %s - templateName: %s - user: %s",
+        log.debug("onUpdateTemplateCommand - moduleId: {} - key: {} - templateName: {} - user: {}",
                 command.getModuleId(), command.getModuleKey(), command.getTemplate().getName(), command.getUser());
         logBeforeEventVersionId();
         Template template = command.getTemplate()
@@ -104,7 +104,7 @@ class ModuleAggregate implements Serializable {
     @CommandHandler
     @SuppressWarnings("unused")
     public void onDeleteTemplateCommand(DeleteTemplateCommand command) {
-        log.debug("onDeleteTemplateCommand - moduleId: %s - key: %s - templateName: %s - user: %s",
+        log.debug("onDeleteTemplateCommand - moduleId: {} - key: {} - templateName: {} - user: {}",
                 command.getModuleId(), command.getModuleKey(), command.getTemplateName(), command.getUser());
         logBeforeEventVersionId();
         // Si le template n'existe pas, cette commande n'a pas d'effet de bord
@@ -119,7 +119,7 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleCreatedEvent(ModuleCreatedEvent event) {
-        log.debug("onModuleCreatedEvent - moduleId: %s - key: %s - versionId: %s - user: %s",
+        log.debug("onModuleCreatedEvent - moduleId: {} - key: {} - versionId: {} - user: {}",
                 event.getModuleId(), event.getModule().getKey(), event.getModule().getVersionId(), event.getUser());
         logAfterEventVersionId(event.getModule().getVersionId());
         this.id = event.getModuleId();
@@ -133,7 +133,7 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleTechnosUpdatedEvent(ModuleTechnosUpdatedEvent event) {
-        log.debug("onModuleTechnosUpdatedEvent - moduleId: %s - versionId: %s - user: %s",
+        log.debug("onModuleTechnosUpdatedEvent - moduleId: {} - versionId: {} - user: {}",
                 event.getModuleId(), event.getVersionId(), event.getUser());
         logAfterEventVersionId(event.getVersionId());
         this.versionId = event.getVersionId();
@@ -142,14 +142,14 @@ class ModuleAggregate implements Serializable {
     @EventSourcingHandler
     @SuppressWarnings("unused")
     public void onModuleDeletedEvent(ModuleDeletedEvent event) {
-        log.debug("onModuleDeletedEvent - moduleId: %s - user: %s",
+        log.debug("onModuleDeletedEvent - moduleId: {} - user: {}",
                 event.getModuleId(), event.getUser());
         logAfterEventVersionId();
     }
 
     @EventSourcingHandler
     public void onTemplateCreatedEvent(TemplateCreatedEvent event) {
-        log.debug("onTemplateCreatedEvent - moduleId: %s - key: %s - templateName: %s - user: %s",
+        log.debug("onTemplateCreatedEvent - moduleId: {} - key: {} - templateName: {} - user: {}",
                 event.getModuleId(), event.getModuleKey(), event.getTemplate().getName(), event.getUser());
         logAfterEventVersionId();
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
@@ -157,7 +157,7 @@ class ModuleAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onTemplateUpdatedEvent(TemplateUpdatedEvent event) {
-        log.debug("onTemplateCreatedEvent - moduleId: %s - key: %s - templateName: %s - user: %s",
+        log.debug("onTemplateCreatedEvent - moduleId: {} - key: {} - templateName: {} - user: {}",
                 event.getModuleId(), event.getModuleKey(), event.getTemplate().getName(), event.getUser());
         logAfterEventVersionId();
         this.templates.put(event.getTemplate().getName(), event.getTemplate());
@@ -165,7 +165,7 @@ class ModuleAggregate implements Serializable {
 
     @EventSourcingHandler
     public void onTemplateDeletedEvent(TemplateDeletedEvent event) {
-        log.debug("onTemplateCreatedEvent - moduleId: %s - key: %s - templateName: %s - user: %s",
+        log.debug("onTemplateCreatedEvent - moduleId: {} - key: {} - templateName: {} - user: {}",
                 event.getModuleId(), event.getModuleKey(), event.getTemplateName(), event.getUser());
         logAfterEventVersionId();
         this.templates.remove(event.getTemplateName());
