@@ -25,10 +25,10 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-08-13
 ### Added
 
-- Un champ .transforms dans la sortie du /diff permet désormais d'identifier si la valeur d'une propriété est issue d'une globale. [Lucas Cimon]
+- Un champ .transformations dans la sortie du /diff permet désormais d'identifier si la valeur d'une propriété est issue d'une globale (#743) [Lucas Cimon]
 
 
 ### Fixed
