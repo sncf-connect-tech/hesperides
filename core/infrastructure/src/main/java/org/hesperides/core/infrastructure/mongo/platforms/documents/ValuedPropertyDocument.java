@@ -42,7 +42,7 @@ public class ValuedPropertyDocument extends AbstractValuedPropertyDocument {
 
     private String value;
 
-    public ValuedPropertyDocument(String name, String value) {
+    private ValuedPropertyDocument(String name, String value) {
         this.name = name;
         this.value = value;
     }

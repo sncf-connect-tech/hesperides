@@ -21,6 +21,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
+
+import static java.util.Collections.swap;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -163,33 +168,34 @@ public class ModuleUseCases {
     }
 
     public List<ModuleView> search(String input, Integer providedSize) {
+        String searchedModuleName = isNotBlank(input) ? input.split(" ")[0] : "";
         int size = providedSize != null && providedSize > 0 ? providedSize : DEFAULT_NB_SEARCH_RESULTS;
         List<ModuleView> matchingModules = queries.search(input, size);
         // On insère un éventuel module ayant exactement ce numéro de version en 1ère position - cf. issue #595 & BDD correspondant :
-        Optional<ModuleView> exactMatch = searchSingle(input);
-        if (exactMatch.isPresent() && matchingModules.stream().noneMatch(m -> input.equals(formatAsInput(m.toDomainInstance().getKey())))) {
-            matchingModules.set(0, exactMatch.get());
+        Optional<ModuleView> exactVersionMatch = input.contains(" ") ? searchSingle(input) : Optional.empty();
+        if (exactVersionMatch.isPresent() && matchingModules.stream().noneMatch(module -> input.equals(module.getKey().formatAsSearchInput()))) {
+            matchingModules.set(0, exactVersionMatch.get());
+        } else { // En cas de match exact de nom de module, on le positionne en 1er - cf. issue #595 & BDD correspondant :
+            OptionalInt moduleWithExactNameMatchIndex = IntStream.range(0, matchingModules.size())
+                    .filter(index -> matchingModules.get(index).getName().equals(searchedModuleName))
+                    .findAny();
+            if (moduleWithExactNameMatchIndex.isPresent() && moduleWithExactNameMatchIndex.getAsInt() > 0) {
+                // Si un module trouvé a exactement le même nom que recherché, mais n'est pas en 1ère position, on l'y place :
+                swap(matchingModules, 0, moduleWithExactNameMatchIndex.getAsInt());
+            }
         }
         return matchingModules;
     }
 
-    private static String formatAsInput(TemplateContainer.Key moduleKey) {
-        return moduleKey.getName() + " " + moduleKey.getVersion() + " " + (moduleKey.isWorkingCopy() ? "true" : "false");
-    }
-
     public Optional<ModuleView> searchSingle(String input) {
-        String[] values = input.split(" ");
-        String name = values.length > 0 ? values[0] : "";
-        String version = values.length > 1 ? values[1] : "";
-        String workingCopy = values.length > 2 ? values[2] : "";
+        Optional<Module.Key> moduleKey = Module.Key.fromSearchInput(input);
 
         Optional<ModuleView> moduleView;
         // Reproduction du legacy : si le type de version est passé en input ("true" ou "false"),
         // on tente de récupérer le module correspondant. S'il ne l'est pas, on effectue une recherche
         // classique sur nom et la version du module et on récupère la premier résultat.
-        if (StringUtils.isNotEmpty(workingCopy)) {
-            boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
-            moduleView = queries.getOptionalModule(new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)));
+        if (moduleKey.isPresent()) {
+            moduleView = queries.getOptionalModule(moduleKey.get());
         } else {
             List<ModuleView> moduleViews = queries.search(input, DEFAULT_NB_SEARCH_RESULTS);
             moduleView = moduleViews.size() > 0 ? Optional.of(moduleViews.get(0)) : Optional.empty();

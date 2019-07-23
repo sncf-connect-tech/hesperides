@@ -9,8 +9,11 @@ import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
@@ -107,6 +110,23 @@ public class Module extends TemplateContainer {
                 throw new IllegalArgumentException("Invalid version type, must be WORKINGCOPY or RELEASE : " + parts[parts.length - 1]);
             }
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
+        }
+
+        public static Optional<Key> fromSearchInput(String input) {
+            String[] values = input.split(" ");
+            String name = values.length > 0 ? values[0] : "";
+            String version = values.length > 1 ? values[1] : "";
+            String workingCopy = values.length > 2 ? values[2] : "";
+            Optional<Key> result = Optional.empty();
+            if (isNotEmpty(workingCopy)) {
+                boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
+                result = Optional.of(new Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)));
+            }
+            return result;
+        }
+
+        public String formatAsSearchInput() {
+            return getName() + " " + getVersion() + " " + (isWorkingCopy() ? "true" : "false");
         }
     }
 }
