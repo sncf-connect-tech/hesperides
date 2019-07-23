@@ -90,4 +90,8 @@ class PropertyValuationContext {
         }
         return pathLogicalGroups;
     }
+
+    PropertyVisitorsSequence removePreparedProperties(PropertyVisitorsSequence propertyVisitors) {
+        return propertyVisitors.removePropertiesByName(predefinedProperties.stream().map(ValuedPropertyView::getName).collect(Collectors.toSet()));
+    }
 }

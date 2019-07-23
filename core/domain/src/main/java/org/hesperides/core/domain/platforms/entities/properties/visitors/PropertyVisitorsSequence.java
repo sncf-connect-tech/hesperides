@@ -195,6 +195,12 @@ public class PropertyVisitorsSequence {
         return indexPerPropertyName;
     }
 
+    public PropertyVisitorsSequence removePropertiesByName(Set<String> excludedPropertyNames) {
+        return new PropertyVisitorsSequence(properties.stream()
+                .filter(p -> !excludedPropertyNames.contains(p.getName()))
+                .collect(Collectors.toList()));
+    }
+
     /* Applique une fonction récursivement à toutes propriétés, sans provoquer de transformation */
     public void forEach(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
         properties.forEach(property -> property.acceptEither(simpleConsumer, iterableConsumer));

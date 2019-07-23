@@ -30,6 +30,17 @@ public class PropertyUseCases {
                                                                          List<AbstractPropertyView> modulePropertiesModels,
                                                                          String instanceName,
                                                                          boolean shouldHidePasswordProperties) {
+        return buildPropertyVisitorsSequence(platform, modulePath, moduleKey,
+                modulePropertiesModels, instanceName, shouldHidePasswordProperties, false);
+    }
+
+    public static PropertyVisitorsSequence buildPropertyVisitorsSequence(PlatformView platform,
+                                                                         String modulePath,
+                                                                         Module.Key moduleKey,
+                                                                         List<AbstractPropertyView> modulePropertiesModels,
+                                                                         String instanceName,
+                                                                         boolean shouldHidePasswordProperties,
+                                                                         boolean excludePreparedProperties) {
 
         DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey)
                 .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
@@ -44,7 +55,11 @@ public class PropertyUseCases {
         PropertyValuationContext valuationContext = new PropertyValuationContext(platform, deployedModule, instanceName, extraValuedPropertiesWithoutModel);
         PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors);
         // Prépare les propriétés faisant référence à d'autres propriétés, de manière récursive :
-        return preparePropertiesValues(completedPropertyVisitors, valuationContext, 0);
+        propertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext, 0);
+        if (excludePreparedProperties) {
+            propertyVisitors = valuationContext.removePreparedProperties(propertyVisitors);
+        }
+        return propertyVisitors;
     }
 
     private static List<AbstractValuedPropertyView> extractValuedPropertiesWithoutModel(List<AbstractValuedPropertyView> valuedProperties,

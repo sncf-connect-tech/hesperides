@@ -277,11 +277,11 @@ public class PlatformUseCases {
         PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequence(
                 fromPlatform, fromModulePath, fromModuleKey,
                 fromModulePropertiesModels,
-                fromInstanceName, fromShouldHidePasswordProperties);
+                fromInstanceName, fromShouldHidePasswordProperties, true);
         PropertyVisitorsSequence toPropertyVisitors = buildPropertyVisitorsSequence(
                 toPlatform, toModulePath, toModuleKey,
                 toModulePropertiesModels,
-                toInstanceName, toShouldHidePasswordProperties);
+                toInstanceName, toShouldHidePasswordProperties, true);
         return PropertyVisitorsSequence.performDiff(fromPropertyVisitors, toPropertyVisitors);
     }
 
