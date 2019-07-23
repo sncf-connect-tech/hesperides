@@ -7,10 +7,7 @@ import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPrope
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,28 +49,21 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     }
 
     public boolean isValued() {
-        return propertyValue != null;
+        return propertyValue != null && StringUtils.isNotBlank(propertyValue.getValue());
     }
 
     public Optional<String> getValue() {
-        if (propertyValue != null) {
-            return Optional.of(propertyValue.getValue());
-        }
-        return getDefaultValue();
+        return (isValued()) ? Optional.of(propertyValue.getValue()) : getDefaultValue();
     }
 
     public Optional<String> getDefaultValue() {
-        if (propertyModels.size() > 0) {
-            return Optional.ofNullable(propertyModels.get(0).getDefaultValue());
-        }
-        return Optional.empty();
+        return (propertyModels.size() > 0) ? Optional.ofNullable(propertyModels.get(0).getDefaultValue()) : Optional.empty();
     }
 
     public Map<String, String> getMustacheKeyValues() {
         return propertyModels.stream().collect(Collectors.toMap(
                 PropertyView::getMustacheContent,
-                propertyModel -> propertyValue != null && StringUtils.isNotEmpty(propertyValue.getValue())
-                        ? propertyValue.getValue() : propertyModel.getDefaultValue()
+                propertyModel -> propertyValue.getValue()
         ));
     }
 
@@ -103,6 +93,20 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     @Override
     public PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper) {
         return this;
+    }
+
+    @Override
+    public boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue) {
+        boolean isEqual = false;
+        if (getName().equals(propertyVisitor.getName()) && propertyVisitor instanceof SimplePropertyVisitor) {
+            SimplePropertyVisitor visitor = (SimplePropertyVisitor) propertyVisitor;
+            if (compareStoredValue) {
+                isEqual = Objects.equals(getInitialValue(), visitor.getInitialValue());
+            } else {
+                isEqual = Objects.equals(getValue(), visitor.getValue());
+            }
+        }
+        return isEqual;
     }
 
     public SimplePropertyVisitor withValue(String newValue) {

@@ -36,7 +36,7 @@ public class PropertyVisitorsSequence {
         return new PropertyVisitorsSequence(Collections.emptyList());
     }
 
-    public static PropertiesDiff performDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight) {
+    public static PropertiesDiff performDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, boolean compareStoredValues) {
 
         // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
         // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
@@ -58,9 +58,9 @@ public class PropertyVisitorsSequence {
         Set<PropertyVisitor> onlyRight = propertiesRight.stream()
                 .filter(property -> !propertyVisitorsLeftPerName.containsKey(property.getName()))
                 .collect(Collectors.toSet());
-        Set<PropertyVisitor> common = propertiesLeft.stream().filter(propertiesRight::contains).collect(Collectors.toSet());
+        Set<PropertyVisitor> common = propertiesLeft.stream().filter(property -> propertiesRight.contains(property, compareStoredValues)).collect(Collectors.toSet());
         Set<AbstractDifferingProperty> differingProperties = propertiesLeft.stream().filter(property -> propertyVisitorsRightPerName.containsKey(property.getName()))
-                .filter(property -> !propertyVisitorsRightPerName.get(property.getName()).equals(property))
+                .filter(property -> !propertyVisitorsRightPerName.get(property.getName()).equals(property, compareStoredValues))
                 .map(property -> {
                     AbstractDifferingProperty differingProperty;
                     if (property instanceof SimplePropertyVisitor) {
@@ -72,7 +72,7 @@ public class PropertyVisitorsSequence {
                         List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
                             PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? empty() : iterablePropertyLeftItems.get(index);
                             PropertyVisitorsSequence nestedPropertiesRight = (index >= iterablePropertyRightItems.size()) ? empty() : iterablePropertyRightItems.get(index);
-                            return performDiff(nestedPropertiesLeft, nestedPropertiesRight);
+                            return performDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
                         }).collect(Collectors.toList());
                         differingProperty = new IterableDifferingProperty(property.getName(), propertiesDiffList);
                     }
@@ -239,7 +239,12 @@ public class PropertyVisitorsSequence {
         return properties.stream();
     }
 
-    public boolean contains(PropertyVisitor propertyVisitor) {
-        return properties.contains(propertyVisitor);
+    public boolean equals(PropertyVisitorsSequence otherSequence, boolean compareStoredValues) {
+        Map<String, PropertyVisitor> propertyVisitorMap = properties.stream().collect(toMap(PropertyVisitor::getName, property -> property));
+        return (properties.size() == otherSequence.getProperties().size()) && otherSequence.properties.stream().allMatch(p -> p.equals(propertyVisitorMap.get(p.getName()), compareStoredValues));
+    }
+
+    public boolean contains(PropertyVisitor propertyVisitor, boolean compareStoredValues) {
+        return properties.stream().anyMatch(p -> p.equals(propertyVisitor, compareStoredValues));
     }
 }

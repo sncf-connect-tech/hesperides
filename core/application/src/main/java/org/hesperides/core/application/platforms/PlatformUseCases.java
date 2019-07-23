@@ -251,6 +251,7 @@ public class PlatformUseCases {
                                             final String toPropertiesPath,
                                             final String toInstanceName,
                                             final Long timestamp,
+                                            final boolean compareStoredValues,
                                             final User user) {
         Module.Key fromModuleKey = Module.Key.fromPropertiesPath(fromPropertiesPath);
         String fromModulePath = extractModulePathFromPropertiesPath(fromPropertiesPath);
@@ -282,7 +283,7 @@ public class PlatformUseCases {
                 toPlatform, toModulePath, toModuleKey,
                 toModulePropertiesModels,
                 toInstanceName, toShouldHidePasswordProperties, true);
-        return PropertyVisitorsSequence.performDiff(fromPropertyVisitors, toPropertyVisitors);
+        return PropertyVisitorsSequence.performDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
     }
 
     private static String extractModulePathFromPropertiesPath(String propertiesPath) {

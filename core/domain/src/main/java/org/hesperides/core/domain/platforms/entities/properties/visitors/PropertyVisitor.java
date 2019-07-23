@@ -18,4 +18,6 @@ public interface PropertyVisitor {
     PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper);
 
     PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper);
+
+    boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue);
 }

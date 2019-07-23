@@ -32,7 +32,8 @@ public class PropertiesDiffTest {
         // Test
         PropertiesDiff pdiff = PropertyVisitorsSequence.performDiff(
                 new PropertyVisitorsSequence(Arrays.asList(p1pty1, p1pty2, p1pty3)),
-                new PropertyVisitorsSequence(Arrays.asList(p2pty1, p2pty2, p2pty3)));
+                new PropertyVisitorsSequence(Arrays.asList(p2pty1, p2pty2, p2pty3)),
+                false);
         assertEquals(1, pdiff.getOnlyLeft().size());
         assertEquals(1, pdiff.getOnlyRight().size());
         assertEquals(1, pdiff.getCommon().size());
@@ -72,7 +73,8 @@ public class PropertiesDiffTest {
         // Test
         PropertiesDiff pdiff = PropertyVisitorsSequence.performDiff(
                 new PropertyVisitorsSequence(singletonList(platformOneIterablePpty)),
-                new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)));
+                new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)),
+                false);
         assertEquals(1, pdiff.getCommon().size());
     }
 
@@ -100,7 +102,8 @@ public class PropertiesDiffTest {
         // Test
         PropertiesDiff pdiff = PropertyVisitorsSequence.performDiff(
                 new PropertyVisitorsSequence(singletonList(platformOneIterablePpty)),
-                new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)));
+                new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)),
+                false);
         assertEquals(1, pdiff.getDifferingProperties().size());
 
     }
