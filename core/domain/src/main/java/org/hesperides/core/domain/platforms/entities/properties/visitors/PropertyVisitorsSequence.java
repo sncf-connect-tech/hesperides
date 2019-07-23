@@ -37,49 +37,58 @@ public class PropertyVisitorsSequence {
     }
 
     public static PropertiesDiff performDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, boolean compareStoredValues) {
-
-        // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
-        // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
-        Map<String, PropertyVisitor> propertyVisitorsLeftPerName = propertiesLeft.stream().collect(toMap(PropertyVisitor::getName, property -> property));
-        Map<String, PropertyVisitor> propertyVisitorsRightPerName = propertiesRight.stream().collect(toMap(PropertyVisitor::getName, property -> property));
-
         // On procède au diff :
         //  - onlyLeft : la propriété n'est pas présente dans la liste de droite.
         //  - onlyRight : la propriété n'est pas présente dans la liste de gauche.
         //  - common : la propriété est présente dans la liste de droite et sa valeur est la même.
         //  - differing : la propriété est présente dans la liste de droite et sa valeur est différente.
-        // Gestion du diff sur les iterable :
-        //  - maxRange nous permet d'avoir la nombre max d'item entre deux iterable soumis au diff
-        //  - on compare de manière ordonnée les items (/!\ possibilité d'avoir des faux positif dans le cas où l'item est dans les 2 iterable, mais pas dans le même ordre)
-        //  - gestion du diff par recursivité
-        Set<PropertyVisitor> onlyLeft = propertiesLeft.stream()
-                .filter(property -> !propertyVisitorsRightPerName.containsKey(property.getName()))
-                .collect(Collectors.toSet());
-        Set<PropertyVisitor> onlyRight = propertiesRight.stream()
-                .filter(property -> !propertyVisitorsLeftPerName.containsKey(property.getName()))
-                .collect(Collectors.toSet());
-        Set<PropertyVisitor> common = propertiesLeft.stream().filter(property -> propertiesRight.contains(property, compareStoredValues)).collect(Collectors.toSet());
-        Set<AbstractDifferingProperty> differingProperties = propertiesLeft.stream().filter(property -> propertyVisitorsRightPerName.containsKey(property.getName()))
-                .filter(property -> !propertyVisitorsRightPerName.get(property.getName()).equals(property, compareStoredValues))
-                .map(property -> {
-                    AbstractDifferingProperty differingProperty;
-                    if (property instanceof SimplePropertyVisitor) {
-                        differingProperty = new SimpleDifferingProperty(property.getName(), (SimplePropertyVisitor) property, (SimplePropertyVisitor) propertyVisitorsRightPerName.get(property.getName()));
-                    } else {
-                        List<PropertyVisitorsSequence> iterablePropertyLeftItems = ((IterablePropertyVisitor) property).getItems();
-                        List<PropertyVisitorsSequence> iterablePropertyRightItems = ((IterablePropertyVisitor) propertyVisitorsRightPerName.get(property.getName())).getItems();
-                        int maxRange = Math.max(iterablePropertyLeftItems.size(), iterablePropertyRightItems.size());
-                        List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
-                            PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? empty() : iterablePropertyLeftItems.get(index);
-                            PropertyVisitorsSequence nestedPropertiesRight = (index >= iterablePropertyRightItems.size()) ? empty() : iterablePropertyRightItems.get(index);
-                            return performDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
-                        }).collect(Collectors.toList());
-                        differingProperty = new IterableDifferingProperty(property.getName(), propertiesDiffList);
-                    }
-                    return differingProperty;
-                }).collect(Collectors.toSet());
+        Set<PropertyVisitor> onlyLeft = new HashSet<>();
+        Set<PropertyVisitor> onlyRight;
+        Set<AbstractDifferingProperty> common = new HashSet<>();
+        Set<AbstractDifferingProperty> differing = new HashSet<>();
 
-        return new PropertiesDiff(onlyLeft, onlyRight, common, differingProperties);
+        // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
+        // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
+        Map<String, PropertyVisitor> propertyVisitorsRightPerName = propertiesRight.stream().collect(toMap(PropertyVisitor::getName, property -> property));
+        Set<String> visitedLeftPropertyNames = new HashSet<>();
+
+        for (PropertyVisitor leftProperty : propertiesLeft.getProperties()) {
+            PropertyVisitor rightProperty = propertyVisitorsRightPerName.get(leftProperty.getName());
+            if (rightProperty == null) {
+                onlyLeft.add(leftProperty);
+            } else {
+                AbstractDifferingProperty differingProperty = buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues);
+                if (leftProperty.equals(rightProperty, compareStoredValues)) {
+                    common.add(differingProperty);
+                } else {
+                    differing.add(differingProperty);
+                }
+            }
+            visitedLeftPropertyNames.add(leftProperty.getName());
+        }
+        onlyRight = propertiesRight.stream()
+                .filter(property -> !visitedLeftPropertyNames.contains(property.getName()))
+                .collect(Collectors.toSet());
+
+        return new PropertiesDiff(onlyLeft, onlyRight, common, differing);
+    }
+
+    private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, boolean compareStoredValues) {
+        AbstractDifferingProperty differingProperty;
+        if (leftProperty instanceof SimplePropertyVisitor) {
+            differingProperty = new SimpleDifferingProperty(leftProperty.getName(), (SimplePropertyVisitor) leftProperty, (SimplePropertyVisitor) rightProperty);
+        } else {
+            List<PropertyVisitorsSequence> iterablePropertyLeftItems = ((IterablePropertyVisitor) leftProperty).getItems();
+            List<PropertyVisitorsSequence> iterablePropertyRightItems = ((IterablePropertyVisitor) rightProperty).getItems();
+            int maxRange = Math.max(iterablePropertyLeftItems.size(), iterablePropertyRightItems.size());
+            List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
+                PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? empty() : iterablePropertyLeftItems.get(index);
+                PropertyVisitorsSequence nestedPropertiesRight = (index >= iterablePropertyRightItems.size()) ? empty() : iterablePropertyRightItems.get(index);
+                return performDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
+            }).collect(Collectors.toList());
+            differingProperty = new IterableDifferingProperty(leftProperty.getName(), propertiesDiffList);
+        }
+        return differingProperty;
     }
 
     int size() {
@@ -242,9 +251,5 @@ public class PropertyVisitorsSequence {
     public boolean equals(PropertyVisitorsSequence otherSequence, boolean compareStoredValues) {
         Map<String, PropertyVisitor> propertyVisitorMap = properties.stream().collect(toMap(PropertyVisitor::getName, property -> property));
         return (properties.size() == otherSequence.getProperties().size()) && otherSequence.properties.stream().allMatch(p -> p.equals(propertyVisitorMap.get(p.getName()), compareStoredValues));
-    }
-
-    public boolean contains(PropertyVisitor propertyVisitor, boolean compareStoredValues) {
-        return properties.stream().anyMatch(p -> p.equals(propertyVisitor, compareStoredValues));
     }
 }

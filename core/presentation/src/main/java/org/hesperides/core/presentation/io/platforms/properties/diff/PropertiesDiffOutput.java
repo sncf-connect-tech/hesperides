@@ -46,9 +46,7 @@ public class PropertiesDiffOutput {
         this.onlyRight = propertiesDiff.getOnlyRight().stream()
                 .map(AbstractDifferingPropertyOutput::nonDifferingFromPropertyVisitor)
                 .collect(Collectors.toSet());
-        this.common = propertiesDiff.getCommon().stream()
-                .map(AbstractDifferingPropertyOutput::nonDifferingFromPropertyVisitor)
-                .collect(Collectors.toSet());
+        this.common = AbstractDifferingPropertyOutput.fromAbstractDifferingProperties(propertiesDiff.getCommon());
         this.differing = AbstractDifferingPropertyOutput.fromAbstractDifferingProperties(propertiesDiff.getDifferingProperties());
     }
 

@@ -63,7 +63,7 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     public Map<String, String> getMustacheKeyValues() {
         return propertyModels.stream().collect(Collectors.toMap(
                 PropertyView::getMustacheContent,
-                propertyModel -> propertyValue.getValue()
+                propertyModel -> propertyValue != null ? propertyValue.getValue() : getDefaultValue().get()
         ));
     }
 

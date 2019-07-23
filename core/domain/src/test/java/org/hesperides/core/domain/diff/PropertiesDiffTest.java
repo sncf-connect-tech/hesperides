@@ -47,7 +47,7 @@ public class PropertiesDiffTest {
         List<String> onlyRightPropertiesNameExpected = singletonList("property-only-in-p2");
         assertEquals(onlyRightPropertiesNameExpected, onlyRightPropertiesName);
 
-        List<String> commonPropertiesName = pdiff.getCommon().stream().map(PropertyVisitor::getName).collect(Collectors.toList());
+        List<String> commonPropertiesName = pdiff.getCommon().stream().map(AbstractDifferingProperty::getName).collect(Collectors.toList());
         List<String> commonPropertiesNameExpected = singletonList("property-Y-in-p1-and-p2");
         assertEquals(commonPropertiesNameExpected, commonPropertiesName);
 
