@@ -168,7 +168,6 @@ public class ModuleUseCases {
     }
 
     public List<ModuleView> search(String input, Integer providedSize) {
-        String searchedModuleName = isNotBlank(input) ? input.split(" ")[0] : "";
         int size = providedSize != null && providedSize > 0 ? providedSize : DEFAULT_NB_SEARCH_RESULTS;
         List<ModuleView> matchingModules = queries.search(input, size);
         // On insère un éventuel module ayant exactement ce numéro de version en 1ère position - cf. issue #595 & BDD correspondant :
@@ -176,6 +175,10 @@ public class ModuleUseCases {
         if (exactVersionMatch.isPresent() && matchingModules.stream().noneMatch(module -> input.equals(module.getKey().formatAsSearchInput()))) {
             matchingModules.set(0, exactVersionMatch.get());
         } else { // En cas de match exact de nom de module, on le positionne en 1er - cf. issue #595 & BDD correspondant :
+            String searchedModuleName = input.split(" ")[0];
+            // Remarques sur la ligne ci-dessus :
+            // - "input" est garanti "notBlank" par le controller appelant
+            // - l'appel à .split renvoie "inpu" si aucun espace n'estr trouvé dans la chaine de caractères
             OptionalInt moduleWithExactNameMatchIndex = IntStream.range(0, matchingModules.size())
                     .filter(index -> matchingModules.get(index).getName().equals(searchedModuleName))
                     .findAny();
