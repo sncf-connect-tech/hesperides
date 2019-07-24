@@ -6,14 +6,13 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
-import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsCreatedEvent;
-import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsUpdatedEvent;
-import org.hesperides.core.domain.authorizations.CreateApplicationDirectoryGroupsCommand;
-import org.hesperides.core.domain.authorizations.UpdateApplicationDirectoryGroupsCommand;
+import org.hesperides.core.domain.security.ApplicationDirectoryGroupsCreatedEvent;
+import org.hesperides.core.domain.security.ApplicationDirectoryGroupsUpdatedEvent;
+import org.hesperides.core.domain.security.CreateApplicationDirectoryGroupsCommand;
+import org.hesperides.core.domain.security.UpdateApplicationDirectoryGroupsCommand;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;

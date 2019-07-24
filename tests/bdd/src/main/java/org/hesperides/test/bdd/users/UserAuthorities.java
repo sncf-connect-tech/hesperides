@@ -21,18 +21,25 @@
 package org.hesperides.test.bdd.users;
 
 import cucumber.api.java8.En;
+import org.assertj.core.api.Assertions;
+import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.infrastructure.security.LdapAuthenticationProvider;
+import org.hesperides.core.presentation.io.UserInfoOutput;
+import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hesperides.test.bdd.commons.AuthCredentialsConfig.LAMBDA_TEST_PROFILE;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig.LAMBDA_TEST_PROFILE;
+import static org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig.NOGROUP_TEST_PROFILE;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -40,33 +47,47 @@ public class UserAuthorities extends HesperidesScenario implements En {
 
     @Autowired(required = false)
     private LdapAuthenticationProvider ldapAuthenticationProvider;
+    @Autowired
+    private AuthorizationCredentialsConfig authorizationCredentialsConfig;
 
     public UserAuthorities() {
 
         Given("^(?:as )?an? (?:authenticated|known) ?(.*)? user$", this::setAuthUserRole);
 
-        Given("^a user belonging to a given directory group", () -> {
-            setAuthUserRole(LAMBDA_TEST_PROFILE);
-            assertNotNull("Bean not autowired, probably because profile NOLDAP is in use", ldapAuthenticationProvider);
-            HashSet<String> userGroupsDNs = ldapAuthenticationProvider.getUserGroupsDN(
-                    testContext.getUsername(),
-                    testContext.getPassword());
-            assertThat(userGroupsDNs, hasItems(authCredentialsConfig.getLambdaParentGroupDN()));
+        Given("^a (.*)? user belonging to the directory group (.*)?", (String role, String directoryGroup) -> {
+            Set<String> userGroupCNs = setRoleAndReturnUserGroupCNs(role);
+            assertThat(userGroupCNs, hasItems(authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup)));
+        });
+
+        Given("^a (.*)? user not belonging to the directory group (.*)?", (String role, String directoryGroup) -> {
+            Set<String> userGroupCNs = setRoleAndReturnUserGroupCNs(role);
+            assertThat(userGroupCNs, not(hasItem(authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup))));
         });
 
         Given("^a user that does not belong to any group$", () -> {
-            fail("TODO");
+            Set<String> userGroupCNs = setRoleAndReturnUserGroupCNs(NOGROUP_TEST_PROFILE);
+            Assertions.assertThat(userGroupCNs).isEmpty();
+            ;
         });
 
         Then("^the user is retrieved without any group$", () -> {
-            fail("TODO");
+            assertOK();
+            final List<String> directoryGroupCNs = testContext.getResponseBody(UserInfoOutput.class).getAuthorities().getDirectoryGroupCNs();
+            Assertions.assertThat(directoryGroupCNs).isEmpty();
         });
+    }
+
+    private Set<String> setRoleAndReturnUserGroupCNs(String role) {
+        setAuthUserRole(role);
+        assertNotNull("Bean not autowired, probably because profile NOLDAP is in use", ldapAuthenticationProvider);
+        HashSet<String> userGroupsDNs = ldapAuthenticationProvider.getUserGroupsDN(testContext.getUsername(), testContext.getPassword());
+        return userGroupsDNs.stream().map(DirectoryGroupDN::extractCnFromDn).collect(Collectors.toSet());
     }
 
     public void setAuthUserRole(String authorizationRole) {
         // Note: we erase ALL interceptors here by simplicity, because we know only the BasicAuth one is used in this app
         final String testProfile = defaultIfEmpty(authorizationRole, LAMBDA_TEST_PROFILE);
-        restTemplate.setInterceptors(Collections.singletonList(authCredentialsConfig.getBasicAuthInterceptorForTestProfile(testProfile)));
+        restTemplate.setInterceptors(Collections.singletonList(authorizationCredentialsConfig.getBasicAuthInterceptorForTestProfile(testProfile)));
         testContext.setAuthorizationRole(authorizationRole);
     }
 

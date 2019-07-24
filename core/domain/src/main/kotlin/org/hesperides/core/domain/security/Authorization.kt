@@ -1,7 +1,6 @@
-package org.hesperides.core.domain.authorizations
+package org.hesperides.core.domain.security
 
 import org.axonframework.commandhandling.TargetAggregateIdentifier
-import org.hesperides.core.domain.security.UserEvent
 import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups
 import org.hesperides.core.domain.security.entities.User
 
@@ -18,3 +17,4 @@ data class ApplicationDirectoryGroupsUpdatedEvent(val id: String, val applicatio
 // Queries
 
 data class GetApplicationDirectoryGroupsQuery(val applicationName: String)
+data class ResolveDirectoryGroupCNsQuery(val directoryGroupCNs: List<String>)

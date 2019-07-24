@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.security.groups;
 
+import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.infrastructure.security.LdapConfiguration;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -12,8 +13,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import java.util.HashSet;
-
-import static org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups.getCnFromDn;
 
 public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever {
 
@@ -28,7 +27,7 @@ public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever 
     public HashSet<String> retrieveParentGroupDNs(String dn) {
         HashSet<String> parentGroupDNs = new HashSet<>();
         try {
-            String cn = getCnFromDn(dn);
+            String cn = DirectoryGroupDN.extractCnFromDn(dn);
             String base = getBaseFrom(cn, dn);
             String searchFilter = ldapConfiguration.getSearchFilterForCN(cn);
             DirContextOperations dirContextOperations = searchCN(dirContext, cn, base, searchFilter);

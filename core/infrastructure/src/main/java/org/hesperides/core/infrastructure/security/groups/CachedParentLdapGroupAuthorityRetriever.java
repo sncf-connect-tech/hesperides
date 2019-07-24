@@ -7,8 +7,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.containDN;
-
 public class CachedParentLdapGroupAuthorityRetriever {
 
     static final int MAX_RECURSION = 10; // arbitraire, existe pour éviter tout risque de boucle infinie
@@ -24,19 +22,19 @@ public class CachedParentLdapGroupAuthorityRetriever {
         this.parentGroupsDNRetriever = parentGroupsDNRetriever;
     }
 
-    public Set<LdapGroupAuthority> retrieveParentGroups(String initialGroupDN) {
-        Set<LdapGroupAuthority> allParentGroups = new HashSet<>();
+    public Set<String> retrieveParentGroups(String initialGroupDN) {
+        Set<String> allParentGroups = new HashSet<>();
         Set<String> groupDNsAtCurrentLevel = Collections.singleton(initialGroupDN);
         int ancestorLevel;
         for (ancestorLevel = 1; ancestorLevel < MAX_RECURSION; ancestorLevel++) {
             Set<String> groupDNsForNextLevel = new HashSet<>();
             for (String groupDN : groupDNsAtCurrentLevel) {
-                allParentGroups.add(new LdapGroupAuthority(groupDN, ancestorLevel));
+                allParentGroups.add(groupDN);
                 Set<String> parentGroupsDN = getParentGroupsDNFromCacheOrFallback(groupDN);
                 for (String parentGroupDN : parentGroupsDN) {
                     // On ajoute le groupDN dans la liste de ceux à traiter au prochain niveau
                     // s'il n'est pas déjà dans allParentGroups
-                    if (!containDN(allParentGroups, parentGroupDN)) {
+                    if (!allParentGroups.contains(parentGroupDN)) {
                         groupDNsForNextLevel.add(parentGroupDN);
                     }
                 }

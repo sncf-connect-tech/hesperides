@@ -20,13 +20,13 @@
  */
 package org.hesperides.core.presentation.controllers;
 
-import org.hesperides.core.application.authorizations.ApplicationDirectoryGroupsUseCases;
 import org.hesperides.core.application.events.EventUseCases;
 import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
+import org.hesperides.core.application.security.ApplicationDirectoryGroupsUseCases;
+import org.hesperides.core.application.security.UserUseCases;
 import org.hesperides.core.application.technos.TechnoUseCases;
-import org.hesperides.core.application.users.UserUseCases;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;

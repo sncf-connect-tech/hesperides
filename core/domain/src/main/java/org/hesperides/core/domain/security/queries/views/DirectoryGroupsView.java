@@ -18,22 +18,21 @@
  *
  *
  */
-package org.hesperides.core.domain.security.entities.authorities;
+package org.hesperides.core.domain.security.queries.views;
 
-import org.springframework.security.core.GrantedAuthority;
+import lombok.Value;
+import org.springframework.util.CollectionUtils;
 
-public class ApplicationProdRole implements GrantedAuthority {
+import java.util.List;
 
-    public static final String PROD_USER_SUFFIX = "_PROD_USER";
+@Value
+public class DirectoryGroupsView {
+    List<String> unresolvedDirectoryGroupCNs;
+    List<String> ambiguousDirectoryGroupCNs;
+    List<String> directoryGroupDNs;
 
-    private final String authority;
-
-    public ApplicationProdRole(String authority) {
-        this.authority = authority + PROD_USER_SUFFIX;
-    }
-
-    @Override
-    public String getAuthority() {
-        return authority;
+    public boolean hasUnresolvedOrAmbiguousCNs() {
+        return !CollectionUtils.isEmpty(unresolvedDirectoryGroupCNs) ||
+                !CollectionUtils.isEmpty(ambiguousDirectoryGroupCNs);
     }
 }

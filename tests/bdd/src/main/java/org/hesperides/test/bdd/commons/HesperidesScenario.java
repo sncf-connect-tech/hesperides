@@ -37,7 +37,7 @@ public class HesperidesScenario {
     @Autowired
     protected RestTemplate restTemplate;
     @Autowired
-    protected AuthCredentialsConfig authCredentialsConfig;
+    protected AuthorizationCredentialsConfig authorizationCredentialsConfig;
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
         return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
@@ -77,6 +77,10 @@ public class HesperidesScenario {
 
     void assertUnauthorized() {
         assertEquals(HttpStatus.UNAUTHORIZED, testContext.getResponseStatusCode());
+    }
+
+    void assertForbidden() {
+        assertEquals(HttpStatus.FORBIDDEN, testContext.getResponseStatusCode());
     }
 
     protected void assertNoContent() {

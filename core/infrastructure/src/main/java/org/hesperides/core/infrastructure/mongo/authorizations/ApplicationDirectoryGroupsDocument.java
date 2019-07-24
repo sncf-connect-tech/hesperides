@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.core.infrastructure.mongo.authorizations.documents;
+package org.hesperides.core.infrastructure.mongo.authorizations;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

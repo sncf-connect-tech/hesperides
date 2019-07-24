@@ -22,7 +22,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hesperides.core.application.users.UserUseCases;
+import org.hesperides.core.application.security.UserUseCases;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.UserInfoOutput;
 import org.springframework.beans.factory.annotation.Autowired;

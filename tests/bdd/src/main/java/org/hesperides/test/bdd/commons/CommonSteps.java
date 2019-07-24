@@ -16,6 +16,8 @@ public class CommonSteps extends HesperidesScenario implements En {
 
         Then("^the request is rejected with an unauthorized error$", this::assertUnauthorized);
 
+        Then("^the request is rejected with a forbidden error$", this::assertForbidden);
+
         Then("^an empty list is returned$", () -> {
             assertOK();
             assertEquals(0, getBodyAsArray().length);

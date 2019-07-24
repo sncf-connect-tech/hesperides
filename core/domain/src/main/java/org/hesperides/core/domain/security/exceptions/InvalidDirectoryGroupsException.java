@@ -20,8 +20,28 @@
  */
 package org.hesperides.core.domain.security.exceptions;
 
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+
 public class InvalidDirectoryGroupsException extends IllegalArgumentException {
-    public InvalidDirectoryGroupsException(String msg) {
-        super(msg);
+
+    public InvalidDirectoryGroupsException(List<String> unresolvedDirectoryGroupCNs, List<String> ambiguousDirectoryGroupCNs) {
+        super(buildMessage(unresolvedDirectoryGroupCNs, ambiguousDirectoryGroupCNs));
+    }
+
+    public InvalidDirectoryGroupsException(String message) {
+        super(message);
+    }
+
+    private static String buildMessage(List<String> unresolvedDirectoryGroupCNs, List<String> ambiguousDirectoryGroupCNs) {
+        String message = "";
+        if (!CollectionUtils.isEmpty(unresolvedDirectoryGroupCNs)) {
+            message += "Unresolved group CNs: " + String.join(" - ", unresolvedDirectoryGroupCNs);
+        }
+        if (!CollectionUtils.isEmpty(ambiguousDirectoryGroupCNs)) {
+            message += "Ambiguous group CNs: " + String.join(" - ", ambiguousDirectoryGroupCNs);
+        }
+        return message;
     }
 }

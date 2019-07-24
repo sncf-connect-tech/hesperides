@@ -25,7 +25,7 @@ import org.hesperides.core.domain.security.GetUserQuery;
 import org.hesperides.core.domain.security.ResolveDirectoryGroupCNsQuery;
 import org.hesperides.core.domain.security.UserRepository;
 import org.hesperides.core.domain.security.entities.User;
-import org.hesperides.core.domain.security.queries.views.DirectoryGroupDNsView;
+import org.hesperides.core.domain.security.queries.views.DirectoryGroupsView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -36,10 +36,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.naming.directory.DirContext;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.hesperides.commons.SpringProfiles.NOLDAP;
 
@@ -76,16 +76,29 @@ public class LdapUserRepository implements UserRepository {
 
     @QueryHandler
     @Override
-    public DirectoryGroupDNsView onResolveDirectoryGroupCNsQuery(ResolveDirectoryGroupCNsQuery query) {
+    public DirectoryGroupsView onResolveDirectoryGroupCNsQuery(ResolveDirectoryGroupCNsQuery query) {
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         DirContext dirContext = ldapAuthenticationProvider.buildSearchContext(auth);
         try {
-            List<String> directoryGroupDNs = query.getDirectoryGroupCNs().stream().map(groupCN -> {
+
+            List<String> unresolvedDirectoryGroupCNs = new ArrayList<>();
+            List<String> ambiguousDirectoryGroupCNs = new ArrayList<>();
+            List<String> directoryGroupDNs = new ArrayList<>();
+
+            query.getDirectoryGroupCNs().stream().forEach(groupCN -> {
                 // On doit bénéficier du cache durant cet appel :
-                DirContextOperations dirContextOperations = ldapAuthenticationProvider.searchCN(dirContext, groupCN);
-                return dirContextOperations.getNameInNamespace();
-            }).collect(Collectors.toList());
-            return new DirectoryGroupDNsView(directoryGroupDNs);
+                try {
+                    DirContextOperations dirContextOperations = ldapAuthenticationProvider.searchCN(dirContext, groupCN);
+                    directoryGroupDNs.add(dirContextOperations.getNameInNamespace());
+                } catch (IncorrectResultSizeDataAccessException incorrectResultSizeException) {
+                    if (incorrectResultSizeException.getActualSize() == 0) {
+                        unresolvedDirectoryGroupCNs.add(groupCN);
+                    } else if (incorrectResultSizeException.getActualSize() > 1) {
+                        ambiguousDirectoryGroupCNs.add(groupCN);
+                    }
+                }
+            });
+            return new DirectoryGroupsView(unresolvedDirectoryGroupCNs, ambiguousDirectoryGroupCNs, directoryGroupDNs);
         } finally {
             LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
         }
