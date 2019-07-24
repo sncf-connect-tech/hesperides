@@ -44,7 +44,7 @@ public class CachedParentLdapGroupAuthorityRetrieverTest {
     @Test
     public void testWithFailingFallback() throws InterruptedException {
         String dummyGroupDN = "CN=DUMMY";
-        Set<LdapGroupAuthority> expected = Collections.singleton(new LdapGroupAuthority(dummyGroupDN, 1));
+        Set<String> expected = Collections.singleton(dummyGroupDN);
 
         assertEquals(expected, cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(dummyGroupDN));
         assertEquals(0, cache.getStatistics().cacheHitCount());
@@ -66,13 +66,9 @@ public class CachedParentLdapGroupAuthorityRetrieverTest {
     public void testWithSingleParent() {
         String dummyGroupDN = "CN=DUMMY";
         String parentGroupDN = "CN=PARENT";
-        parentGroupsTree.put(dummyGroupDN, new HashSet<>(Arrays.asList(parentGroupDN)));
+        parentGroupsTree.put(dummyGroupDN, new HashSet<>(Collections.singletonList(parentGroupDN)));
 
-        Set<LdapGroupAuthority> expected = new HashSet<>(Arrays.asList(
-                new LdapGroupAuthority(dummyGroupDN, 1),
-                new LdapGroupAuthority(parentGroupDN, 2)
-        ));
-
+        Set<String> expected = new HashSet<>(Arrays.asList(dummyGroupDN, parentGroupDN));
         assertEquals(expected, cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(dummyGroupDN));
     }
 
@@ -83,12 +79,7 @@ public class CachedParentLdapGroupAuthorityRetrieverTest {
         String parentGroupDN2 = "CN=PARENT2";
         parentGroupsTree.put(dummyGroupDN, new HashSet<>(Arrays.asList(parentGroupDN1, parentGroupDN2)));
 
-        Set<LdapGroupAuthority> expected = new HashSet<>(Arrays.asList(
-                new LdapGroupAuthority(dummyGroupDN, 1),
-                new LdapGroupAuthority(parentGroupDN1, 2),
-                new LdapGroupAuthority(parentGroupDN2, 2)
-        ));
-
+        Set<String> expected = new HashSet<>(Arrays.asList(dummyGroupDN, parentGroupDN1, parentGroupDN2));
         assertEquals(expected, cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(dummyGroupDN));
     }
 

@@ -1,32 +1,46 @@
 @require-real-ad
 Feature: Set application prod groups
 
-  Scenario: set prod groups on an application with none
-    Given an authenticated lambda user
-    Given an application without directory groups
-    When I add the directory group A_GROUP to the application
-    Then the application exact directory groups are: A_GROUP
+  Scenario: set prod groups on an application without any directory groups
+    Given an authenticated prod user
+    And an application without directory groups
+    When I add A_PROD_GROUP directory group to the application
+    And I get the application detail
+    Then the application details contains the directory group A_PROD_GROUP
 
   Scenario: as a member of an app prod groups, add a new one
-    Given a user belonging to A_GROUP
-    And an application APP with directory group A_GROUP
-    When I add the directory group ANOTHER_GROUP to the application
-    Then the application exact directory groups are: A_GROUP, ANOTHER_GROUP
+    Given an authenticated prod user
+    And an application associated with the directory group A_PROD_GROUP
+    And a prod user belonging to the directory group A_PROD_GROUP
+    When I add ANOTHER_GROUP directory group to the application
+    And I get the application detail
+    Then the application details contains the directory groups
+      | A_PROD_GROUP  |
+      | ANOTHER_GROUP |
 
   Scenario: without being a member of an app prod groups, try to add a new one
-    Given an authenticated lambda user
-    And an application with directory group A_GROUP
-    When I add the directory group ANOTHER_GROUP to the application
-    Then the request is rejected with an unauthorized error
+    Given an authenticated prod user
+    And an application associated with the directory group A_PROD_GROUP
+    And a lambda user not belonging to the directory group A_PROD_GROUP
+    When I try to add ANOTHER_GROUP directory group to the application
+    Then the request is rejected with a forbidden error
 
   Scenario: as a member of an app prod groups, add an existing one
-    Given a user belonging to A_GROUP
-    And an application with directory groups A_GROUP, ANOTHER_GROUP
-    When I add the directory group ANOTHER_GROUP to the application
-    Then the application exact directory groups are: A_GROUP, ANOTHER_GROUP
+    Given an authenticated prod user
+    And an application associated with the directory groups
+      | A_PROD_GROUP  |
+      | ANOTHER_GROUP |
+    And a prod user belonging to the directory group A_PROD_GROUP
+    When I add ANOTHER_GROUP directory group to the application
+    And I get the application detail
+    Then the application details contains the directory groups
+      | A_PROD_GROUP  |
+      | ANOTHER_GROUP |
 
   Scenario: as a member of an app prod groups, remove all prod groups
-    Given a user belonging to A_GROUP
-    And an application with directory group A_GROUP
+    Given an authenticated prod user
+    And an application ABC associated with the directory group A_PROD_GROUP
+    And a prod user belonging to the directory group A_PROD_GROUP
     When I remove all directory groups on the application
-    Then the application now has 0 directory groups
+    And I get the application detail
+    Then the application details contains no directory groups

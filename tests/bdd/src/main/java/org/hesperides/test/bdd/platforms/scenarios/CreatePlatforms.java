@@ -28,7 +28,7 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableProperty
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
-import org.hesperides.test.bdd.commons.AuthCredentialsConfig;
+import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
@@ -96,7 +96,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(isProd)) {
             platformBuilder.withIsProductionPlatform(true);
-            userAuthorities.setAuthUserRole(AuthCredentialsConfig.PROD_TEST_PROFILE);
+            userAuthorities.setAuthUserRole(AuthorizationCredentialsConfig.PROD_TEST_PROFILE);
         }
 
         if (isNotEmpty(platformName)) {

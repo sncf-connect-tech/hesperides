@@ -18,25 +18,25 @@
  *
  *
  */
-package org.hesperides.core.application.authorizations;
+package org.hesperides.core.application.security;
 
 import org.hesperides.core.domain.platforms.exceptions.ApplicationNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
 import org.hesperides.core.domain.security.commands.ApplicationDirectoryGroupsCommands;
 import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups;
 import org.hesperides.core.domain.security.entities.User;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationProdRole;
+import org.hesperides.core.domain.security.entities.springauthorities.ApplicationProdRole;
 import org.hesperides.core.domain.security.exceptions.CreateDirectoryGroupsForbiddenException;
 import org.hesperides.core.domain.security.exceptions.InvalidDirectoryGroupsException;
 import org.hesperides.core.domain.security.exceptions.UpdateDirectoryGroupsForbiddenException;
 import org.hesperides.core.domain.security.queries.ApplicationDirectoryGroupsQueries;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
+import org.hesperides.core.domain.security.queries.views.DirectoryGroupsView;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -63,13 +63,14 @@ public class ApplicationDirectoryGroupsUseCases {
             throw new ApplicationNotFoundException(applicationName);
         }
 
-        final ApplicationDirectoryGroups providedApplicationDirectoryGroups = validateDirectoryGroups(applicationName, directoryGroups);
+        directoryGroups = removeDuplicatedCNs(directoryGroups);
+        final ApplicationDirectoryGroups providedApplicationDirectoryGroups = validateAndBuildDirectoryGroups(applicationName, directoryGroups);
 
         final Optional<ApplicationDirectoryGroupsView> existingApplicationDirectoryGroups = applicationDirectoryGroupsQueries.getApplicationDirectoryGroups(applicationName);
         if (existingApplicationDirectoryGroups.isPresent()) {
             // L'utilisateur doit avoir les droits de prod ou appartenir à l'un
             // des groupes AD de l'application pour modifier ses "directory groups"
-            if (!user.isGlobalProd() && user.hasAtLeastOneDirectoryGroup(directoryGroups)) {
+            if (!user.isGlobalProd() && !user.hasAtLeastOneDirectoryGroup(existingApplicationDirectoryGroups.get().getDirectoryGroupDNs())) {
                 throw new UpdateDirectoryGroupsForbiddenException(applicationName);
             }
             applicationDirectoryGroupsCommands.updateApplicationDirectoryGroups(
@@ -88,21 +89,25 @@ public class ApplicationDirectoryGroupsUseCases {
         }
     }
 
-    private ApplicationDirectoryGroups validateDirectoryGroups(String applicationName, Map<String, List<String>> directoryGroups) {
+    private Map<String, List<String>> removeDuplicatedCNs(Map<String, List<String>> directoryGroups) {
+        return directoryGroups.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream().distinct().collect(Collectors.toList())
+                ));
+    }
+
+    private ApplicationDirectoryGroups validateAndBuildDirectoryGroups(String applicationName, Map<String, List<String>> directoryGroups) {
         ApplicationProdRole applicationProdRole = new ApplicationProdRole(applicationName);
         if (!directoryGroups.containsKey(applicationProdRole.getAuthority()) || directoryGroups.size() != 1) {
             throw new InvalidDirectoryGroupsException("directory_groups must contain a single key named " + applicationProdRole);
         }
         List<String> directoryGroupCNs = directoryGroups.get(applicationProdRole.getAuthority());
-        List<String> directoryGroupDNs = applicationDirectoryGroupsQueries.resolveDirectoryGroupCNs(directoryGroupCNs).getDirectoryGroupDNs();
-        if (directoryGroupCNs.size() != directoryGroupDNs.size()) {
-            Set<String> nonResolvedDirectoryGroupCNs = directoryGroupDNs.stream()
-                    .map(ApplicationDirectoryGroups::extractCnFromDn)
-                    .filter(Optional::isPresent).map(Optional::get)
-                    .collect(Collectors.toSet());
-            nonResolvedDirectoryGroupCNs.removeAll(directoryGroupCNs);
-            throw new InvalidDirectoryGroupsException("There were some invalid group CNs: " + String.join(" - ", nonResolvedDirectoryGroupCNs));
+
+        final DirectoryGroupsView directoryGroupsView = applicationDirectoryGroupsQueries.resolveDirectoryGroupCNs(directoryGroupCNs);
+        if (directoryGroupsView.hasUnresolvedOrAmbiguousCNs()) {
+            throw new InvalidDirectoryGroupsException(directoryGroupsView.getUnresolvedDirectoryGroupCNs(), directoryGroupsView.getAmbiguousDirectoryGroupCNs());
         }
-        return new ApplicationDirectoryGroups(applicationName, directoryGroupDNs);
+        return new ApplicationDirectoryGroups(applicationName, directoryGroupsView.getDirectoryGroupDNs());
     }
 }

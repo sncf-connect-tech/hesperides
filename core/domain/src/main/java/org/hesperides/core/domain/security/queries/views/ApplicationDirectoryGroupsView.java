@@ -21,38 +21,34 @@
 package org.hesperides.core.domain.security.queries.views;
 
 import lombok.Value;
-import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationProdRole;
+import org.hesperides.core.domain.security.entities.springauthorities.ApplicationProdRole;
+import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups.getCnFromDn;
 
 @Value
 public class ApplicationDirectoryGroupsView {
     String id;
     String applicationName;
-    Map<String, List<String>> directoryGroups;
+    Map<String, List<String>> directoryGroupDNs;
 
     public ApplicationDirectoryGroupsView(String id, String applicationName, List<String> directoryGroupDNs) {
         this.id = id;
         this.applicationName = applicationName;
-        this.directoryGroups = new HashMap<>();
+        this.directoryGroupDNs = new HashMap<>();
         ApplicationProdRole applicationProdRole = new ApplicationProdRole(applicationName);
-        this.directoryGroups.put(applicationProdRole.getAuthority(), directoryGroupDNs);
+        this.directoryGroupDNs.put(applicationProdRole.getAuthority(), directoryGroupDNs);
     }
 
     public Map<String, List<String>> getDirectoryGroupCNs() {
-        return directoryGroups.entrySet().stream()
+        return directoryGroupDNs.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> e.getValue().stream()
-                                .map(ApplicationDirectoryGroups::extractCnFromDn)
-                                .filter(Optional::isPresent).map(Optional::get)
+                        entry -> entry.getValue().stream()
+                                .map(DirectoryGroupDN::extractCnFromDn)
                                 .collect(Collectors.toList())
                 ));
     }

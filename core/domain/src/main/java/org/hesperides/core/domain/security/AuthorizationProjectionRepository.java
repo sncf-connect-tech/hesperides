@@ -22,9 +22,6 @@ package org.hesperides.core.domain.security;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
-import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsCreatedEvent;
-import org.hesperides.core.domain.authorizations.ApplicationDirectoryGroupsUpdatedEvent;
-import org.hesperides.core.domain.authorizations.GetApplicationDirectoryGroupsQuery;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 
 import java.util.List;

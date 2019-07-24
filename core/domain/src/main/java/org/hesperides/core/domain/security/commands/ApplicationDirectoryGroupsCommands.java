@@ -1,8 +1,8 @@
 package org.hesperides.core.domain.security.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.core.domain.authorizations.CreateApplicationDirectoryGroupsCommand;
-import org.hesperides.core.domain.authorizations.UpdateApplicationDirectoryGroupsCommand;
+import org.hesperides.core.domain.security.CreateApplicationDirectoryGroupsCommand;
+import org.hesperides.core.domain.security.UpdateApplicationDirectoryGroupsCommand;
 import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups;
 import org.hesperides.core.domain.security.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;

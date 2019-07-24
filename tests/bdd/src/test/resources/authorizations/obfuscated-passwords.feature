@@ -41,19 +41,20 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
 
   @require-real-ad
   Scenario: do not restrict access to password properties for per-app prod users on prod platforms when requesting valuated properties
-    Given a user belonging to a given directory group
-    And an application associated with the given directory group
+    Given an authenticated prod user
+    And an application ABC associated with the directory group A_PROD_GROUP
+    And a prod user belonging to the directory group A_PROD_GROUP
     And an existing module with a template and properties and password properties
     And an existing prod platform with this module and valued properties
     When I get the platform properties for this module
     Then the password property values are not obfuscated
 
   @require-real-ad
-  Scenario: do not restrict access to password properties for per-app prod users on prod platforms when requesting valuated files
-    Given a user belonging to a given directory group
-    And an application associated with the given directory group
-    Given an existing module with a template and password properties
+  Scenario: do not restrict access to password properties for per-app prod users on prod platforms when requesting a valorised files
+    Given an authenticated prod user
+    And an application ABC associated with the directory group A_PROD_GROUP
+    And a prod user belonging to the directory group A_PROD_GROUP
+    And an existing module with a template and password properties
     And an existing prod platform with this module and valued properties
-    And an authenticated lambda user
     When I get the module template file
     Then there are no obfuscated password properties in the file

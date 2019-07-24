@@ -22,32 +22,10 @@ package org.hesperides.core.domain.security.entities;
 
 import lombok.Value;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Value
 public class ApplicationDirectoryGroups {
     String applicationName;
     List<String> directoryGroupDNs;
-
-    public static String getCnFromDn(String dn) throws InvalidNameException {
-        for (Rdn rdn : new LdapName(dn).getRdns()) {
-            if (rdn.getType().equalsIgnoreCase("CN")) {
-                return (String) rdn.getValue();
-            }
-        }
-        throw new RuntimeException("Can't find CN in DN: " + dn);
-    }
-
-    public static Optional<String> extractCnFromDn(String dn) {
-        try {
-            return Optional.ofNullable(getCnFromDn(dn));
-        } catch (InvalidNameException e) {
-            return Optional.empty();
-        }
-    }
 }

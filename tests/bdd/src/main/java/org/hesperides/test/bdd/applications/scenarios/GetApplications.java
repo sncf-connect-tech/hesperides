@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.applications.scenarios;
 
+import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
@@ -35,17 +36,11 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.extractCN;
-import static org.hesperides.test.bdd.users.GetUserInformation.extractDirectoryGroupsValues;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class GetApplications extends HesperidesScenario implements En {
 
@@ -109,32 +104,31 @@ public class GetApplications extends HesperidesScenario implements En {
             assertEquals(expectedApplication, actualApplication);
         });
 
-        Then("^(.+) is listed in the application directory groups", (String directoryGroup) -> {
-            ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
-            List<String> directoryGroups = extractDirectoryGroupsValues((List<Map<String, String>>) actualApplication.getDirectoryGroups());
-            if (directoryGroup.equals("A_GROUP")) {
-                directoryGroup = extractCN(authCredentialsConfig.getLambdaParentGroupDN());
-            }
-            assertThat(directoryGroups, hasItems(directoryGroup));
-        });
-
         Then("^the platform has at least (\\d+) password$", (Integer count) -> {
             final Integer actualPasswordCount = testContext.getResponseBody(ApplicationOutput.class).getPasswordCount();
             Assertions.assertThat(actualPasswordCount).isGreaterThanOrEqualTo(count);
         });
 
-        Then("^the application exact directory groups are: (.+)", (String groupCNs) -> {
-            fail("TODO");
+        Then("^the application details contains the directory group (.*)?", (String directoryGroupCN) -> {
+            assertDirectoryGroups(Collections.singletonList(directoryGroupCN));
         });
 
-        Then("^the application now has 0 directory groups", () -> {
-            fail("TODO");
+        Then("^the application details contains the directory groups", (DataTable directoryGroupCNs) -> {
+            assertDirectoryGroups(directoryGroupCNs.asList(String.class));
         });
 
-        Then("^the application details contains these directory groups", () -> {
-            final Map<String, List<String>> expectedDirectoryGroups = applicationDirectoryGroupsBuilder.getDirectoryGroups();
-            final Map<String, List<String>> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups();
-            assertEquals(expectedDirectoryGroups, actualDirectoryGroups);
+        Then("^the application details contains no directory groups", () -> {
+            final String directoryGroupsKey = applicationDirectoryGroupsBuilder.getDirectoryGroupsKey();
+            final List<String> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups().get(directoryGroupsKey);
+            assertThat(actualDirectoryGroups).isEmpty();
         });
+    }
+
+    private void assertDirectoryGroups(List<String> directoryGroupCNs) {
+        List<String> realDirectoryGroupCNs = directoryGroupCNs.stream().map(directoryGroupCN ->
+                authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroupCN)).collect(Collectors.toList());
+        final Map<String, List<String>> expectedDirectoryGroups = applicationDirectoryGroupsBuilder.getDirectoryGroups(realDirectoryGroupCNs);
+        final Map<String, List<String>> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups();
+        assertEquals(expectedDirectoryGroups, actualDirectoryGroups);
     }
 }

@@ -25,11 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import org.hesperides.core.domain.security.AuthenticationProvider;
 import org.hesperides.core.domain.security.AuthorizationProjectionRepository;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationProdRole;
-import org.hesperides.core.domain.security.entities.authorities.DirectoryGroup;
-import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
+import org.hesperides.core.domain.security.entities.springauthorities.ApplicationProdRole;
+import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
+import org.hesperides.core.domain.security.entities.springauthorities.GlobalRole;
 import org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever;
-import org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority;
 import org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -53,11 +52,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.hesperides.commons.SpringProfiles.LDAP;
-import static org.hesperides.core.infrastructure.security.groups.LdapGroupAuthority.containDN;
 import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap.extractDirectParentGroupDNs;
 
 @Profile(LDAP)
@@ -156,28 +153,26 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-        Set<LdapGroupAuthority> groupAuthorities = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData, username, password);
+        Set<String> groupDNs = extractGroupAuthoritiesRecursivelyWithCache((DirContextAdapter) userData, username, password);
 
         // Rôles globaux
         String prodGroupDN = ldapConfiguration.getProdGroupDN();
-        if (!isBlank(prodGroupDN) && containDN(groupAuthorities, prodGroupDN)) {
+        if (!isBlank(prodGroupDN) && groupDNs.contains(prodGroupDN)) {
             authorities.add(new GlobalRole(GlobalRole.IS_PROD));
         }
         String techGroupDN = ldapConfiguration.getTechGroupDN();
-        if (!isBlank(techGroupDN) && containDN(groupAuthorities, techGroupDN)) {
+        if (!isBlank(techGroupDN) && groupDNs.contains(techGroupDN)) {
             authorities.add(new GlobalRole(GlobalRole.IS_TECH));
         }
 
-        final List<String> ldapGroupAuthorities = groupAuthorities.stream().map(LdapGroupAuthority::getAuthority).collect(Collectors.toList());
-
         // Rôles associés aux groupes Active Directory
-        ldapGroupAuthorities.stream()
-                .map(DirectoryGroup::new)
+        groupDNs.stream()
+                .map(DirectoryGroupDN::new)
                 .forEach(authorities::add);
 
         // Applications avec droits de prod
         authorizationProjectionRepository
-                .getApplicationsWithDirectoryGroups(ldapGroupAuthorities)
+                .getApplicationsWithDirectoryGroups(new ArrayList<>(groupDNs))
                 .stream()
                 .map(ApplicationProdRole::new)
                 .forEach(authorities::add);
@@ -185,7 +180,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         return authorities;
     }
 
-    private Set<LdapGroupAuthority> extractGroupAuthoritiesRecursivelyWithCache(DirContextAdapter userData, String username, String password) {
+    private Set<String> extractGroupAuthoritiesRecursivelyWithCache(DirContextAdapter userData, String username, String password) {
         Attributes attributes;
         try {
             attributes = userData.getAttributes("");
@@ -195,7 +190,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         DirContext dirContext = buildSearchContext(username, password);
         try {
             cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(new ParentGroupsDNRetrieverFromLdap(dirContext, ldapConfiguration));
-            Set<LdapGroupAuthority> groupAuthorities = new HashSet<>();
+            Set<String> groupAuthorities = new HashSet<>();
             HashSet<String> parentGroupsDN = extractDirectParentGroupDNs(attributes);
             for (String groupDN : parentGroupsDN) {
                 groupAuthorities.addAll(cachedParentLdapGroupAuthorityRetriever.retrieveParentGroups(groupDN));

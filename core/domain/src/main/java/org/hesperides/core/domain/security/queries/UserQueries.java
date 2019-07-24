@@ -4,7 +4,6 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.security.GetUserQuery;
 import org.hesperides.core.domain.security.entities.User;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

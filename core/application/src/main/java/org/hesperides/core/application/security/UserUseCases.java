@@ -1,4 +1,4 @@
-package org.hesperides.core.application.users;
+package org.hesperides.core.application.security;
 
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.exceptions.UserNotFoundException;

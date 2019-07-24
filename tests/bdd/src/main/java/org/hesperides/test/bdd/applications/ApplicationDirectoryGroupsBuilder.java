@@ -23,9 +23,7 @@ package org.hesperides.test.bdd.applications;
 import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class ApplicationDirectoryGroupsBuilder {
@@ -51,20 +49,33 @@ public class ApplicationDirectoryGroupsBuilder {
         this.applicationName = applicationName;
     }
 
-    public void withDirectoryGroups(List<String> directoryGroups) {
-        String directoryGroupsKey = applicationName + "_PROD_USER";
-        if (this.directoryGroups.containsKey(directoryGroupsKey)) {
-            this.directoryGroups.get(directoryGroupsKey).addAll(directoryGroups);
+    public void addDirectoryGroups(List<String> providedDirectoryGroupCNs) {
+        if (directoryGroups.containsKey(getDirectoryGroupsKey())) {
+            List<String> existingDirectoryGroupCNs = directoryGroups.get(getDirectoryGroupsKey());
+            List<String> newDirectoryGroupCNs = new ArrayList<>();
+            newDirectoryGroupCNs.addAll(existingDirectoryGroupCNs);
+            newDirectoryGroupCNs.addAll(providedDirectoryGroupCNs);
+            directoryGroups.put(getDirectoryGroupsKey(), newDirectoryGroupCNs);
         } else {
-            this.directoryGroups.put(applicationName + "_PROD_USER", directoryGroups);
+            directoryGroups.put(getDirectoryGroupsKey(), providedDirectoryGroupCNs);
         }
+    }
+
+    public String getDirectoryGroupsKey() {
+        return applicationName + "_PROD_USER";
     }
 
     public ApplicationDirectoryGroupsInput buildInput() {
         return new ApplicationDirectoryGroupsInput(directoryGroups);
     }
 
-    public Map<String, List<String>> getDirectoryGroups() {
+    public Map<String, List<String>> getDirectoryGroups(List<String> directoryGroupCNs) {
+        Map<String, List<String>> directoryGroups = new HashMap<>();
+        directoryGroups.put(getDirectoryGroupsKey(), directoryGroupCNs);
         return directoryGroups;
+    }
+
+    public void removeDirectoryGroups() {
+        directoryGroups.put(getDirectoryGroupsKey(), Collections.emptyList());
     }
 }

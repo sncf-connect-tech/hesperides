@@ -20,6 +20,8 @@
  */
 package org.hesperides.core.presentation.io;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 import org.hesperides.core.domain.security.entities.User;
 import org.springframework.security.core.Authentication;
@@ -42,12 +44,21 @@ public class UserInfoOutput {
         this.username = user.getName();
         this.prodUser = user.isGlobalProd();
         this.techUser = user.isGlobalTech();
-        this.authorities = new AuthoritiesOutput(user.getRoles(), user.getDirectoryGroups());
+        this.authorities = new AuthoritiesOutput(user);
     }
 
     @Value
     public static class AuthoritiesOutput {
+
         List<String> roles;
-        List<String> directoryGroups;
+
+        @SerializedName("directory_groups")
+        @JsonProperty("directory_groups")
+        List<String> directoryGroupCNs;
+
+        public AuthoritiesOutput(User user) {
+            roles = user.getRoles();
+            directoryGroupCNs = user.getDirectoryGroupCNs();
+        }
     }
 }

@@ -22,10 +22,10 @@ package org.hesperides.core.domain.security.queries;
 
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
-import org.hesperides.core.domain.authorizations.GetApplicationDirectoryGroupsQuery;
+import org.hesperides.core.domain.security.GetApplicationDirectoryGroupsQuery;
 import org.hesperides.core.domain.security.ResolveDirectoryGroupCNsQuery;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
-import org.hesperides.core.domain.security.queries.views.DirectoryGroupDNsView;
+import org.hesperides.core.domain.security.queries.views.DirectoryGroupsView;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class ApplicationDirectoryGroupsQueries extends AxonQueries {
         return querySyncOptional(new GetApplicationDirectoryGroupsQuery(applicationName), ApplicationDirectoryGroupsView.class);
     }
 
-    public DirectoryGroupDNsView resolveDirectoryGroupCNs(List<String> directoryGroups) {
-        return querySync(new ResolveDirectoryGroupCNsQuery(directoryGroups), DirectoryGroupDNsView.class);
+    public DirectoryGroupsView resolveDirectoryGroupCNs(List<String> directoryGroups) {
+        return querySync(new ResolveDirectoryGroupCNsQuery(directoryGroups), DirectoryGroupsView.class);
     }
 }

@@ -52,16 +52,18 @@ Feature: Restrict actions on prod platforms to prod users
 
   @require-real-ad
   Scenario: do not restrict prod platform update for per-app prod users
-    Given a user belonging to A_GROUP
-    And an application with prod group A_GROUP
+    Given an authenticated prod user
+    And an application ABC associated with the directory group A_PROD_GROUP
+    And a prod user belonging to the directory group A_PROD_GROUP
     And an existing prod platform
     When I update this platform
     Then the platform is successfully updated
 
   @require-real-ad
   Scenario: do not restrict prod platform deletion for per-app prod users
-    Given a user belonging to A_GROUP
-    And an application with prod group A_GROUP
+    Given an authenticated prod user
+    And an application ABC associated with the directory group A_PROD_GROUP
+    And a prod user belonging to the directory group A_PROD_GROUP
     And an existing prod platform
     When I delete this platform
     Then the platform is successfully deleted

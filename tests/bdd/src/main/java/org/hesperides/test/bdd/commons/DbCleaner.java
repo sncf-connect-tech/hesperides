@@ -25,7 +25,7 @@ public class DbCleaner {
     private MongoClient mongoClientEventStore;
 
     public void wipeOutCollections() {
-        for (String collection : Arrays.asList(MODULE, PLATFORM, TECHNO)) {
+        for (String collection : Arrays.asList(MODULE, PLATFORM, TECHNO, APPLICATION_DIRECTORY_GROUPS)) {
             mongoTemplateProjectionRepo.getCollection(collection).deleteMany(new Document());
         }
         new DefaultMongoTemplate(mongoClientEventStore).eventCollection().deleteMany(new Document());

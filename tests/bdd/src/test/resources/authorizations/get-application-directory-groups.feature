@@ -5,11 +5,9 @@ Feature: Get application directory groups
     Given an authenticated prod user
 
   Scenario: retrieve directory groups associated with an application
-    Given an application associated with the following directory groups
-      | GG_XX |
-      | GG_YY |
+    Given an application associated with the directory group A_PROD_GROUP
     When I get the application detail
-    Then the application details contains these directory groups
+    Then the application details contains the directory group A_PROD_GROUP
 
   Scenario: retrieve the password count for all platforms of an application
     Given an existing module with a template and properties and password properties

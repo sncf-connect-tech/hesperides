@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.commons;
 
+import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
@@ -38,6 +39,8 @@ public class TestContextCleaner {
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
     public void reset() {
         resetRestTemplateAuthHeader();
@@ -58,5 +61,6 @@ public class TestContextCleaner {
         moduleHistory.reset();
         platformBuilder.reset();
         platformHistory.reset();
+        applicationDirectoryGroupsBuilder.reset();
     }
 }

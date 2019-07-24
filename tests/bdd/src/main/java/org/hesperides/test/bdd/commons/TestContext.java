@@ -14,15 +14,15 @@ public class TestContext {
     private ResponseEntity responseEntity;
 
     @Autowired
-    private AuthCredentialsConfig authCredentialsConfig;
+    private AuthorizationCredentialsConfig authorizationCredentialsConfig;
 
 
     public String getUsername() {
-        return authCredentialsConfig.getTestProfileUsername(authorizationRole);
+        return authorizationCredentialsConfig.getTestProfileUsername(authorizationRole);
     }
 
     public String getPassword() {
-        return authCredentialsConfig.getTestProfilePassword(authorizationRole);
+        return authorizationCredentialsConfig.getTestProfilePassword(authorizationRole);
     }
 
     public <R> R getResponseBody(Class<R> responseType) {

@@ -3,9 +3,9 @@ package org.hesperides.core.domain.security.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import org.hesperides.core.domain.security.entities.authorities.ApplicationProdRole;
-import org.hesperides.core.domain.security.entities.authorities.DirectoryGroup;
-import org.hesperides.core.domain.security.entities.authorities.GlobalRole;
+import org.hesperides.core.domain.security.entities.springauthorities.ApplicationProdRole;
+import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
+import org.hesperides.core.domain.security.entities.springauthorities.GlobalRole;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.CollectionUtils;
@@ -27,7 +27,7 @@ public class User {
     boolean isGlobalProd;
     boolean isGlobalTech;
     List<String> roles;
-    List<String> directoryGroups;
+    List<String> directoryGroupDNs;
 
     public User(Authentication authentication) {
         this(authentication.getName(), authentication.getAuthorities());
@@ -38,7 +38,7 @@ public class User {
         this.isGlobalProd = isGlobalProd(springAuthorities);
         this.isGlobalTech = isGlobalTech(springAuthorities);
         this.roles = getRoles(springAuthorities);
-        this.directoryGroups = getDirectoryGroups(springAuthorities);
+        this.directoryGroupDNs = getDirectoryGroupDNs(springAuthorities);
     }
 
     private static boolean isGlobalProd(Collection<? extends GrantedAuthority> springAuthorities) {
@@ -69,9 +69,9 @@ public class User {
                 .collect(Collectors.toList());
     }
 
-    private static List<String> getDirectoryGroups(Collection<? extends GrantedAuthority> springAuthorities) {
+    private static List<String> getDirectoryGroupDNs(Collection<? extends GrantedAuthority> springAuthorities) {
         return springAuthorities.stream()
-                .filter(springAuthority -> springAuthority instanceof DirectoryGroup)
+                .filter(springAuthority -> springAuthority instanceof DirectoryGroupDN)
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
     }
@@ -80,8 +80,14 @@ public class User {
         boolean hasDirectoryGroup = false;
         if (!CollectionUtils.isEmpty(directoryGroups)) {
             List<String> flatDirectoryGroups = directoryGroups.values().stream().flatMap(List::stream).collect(Collectors.toList());
-            hasDirectoryGroup = !Collections.disjoint(flatDirectoryGroups, this.getDirectoryGroups());
+            hasDirectoryGroup = !Collections.disjoint(flatDirectoryGroups, this.getDirectoryGroupDNs());
         }
         return hasDirectoryGroup;
+    }
+
+    public List<String> getDirectoryGroupCNs() {
+        return directoryGroupDNs.stream()
+                .map(DirectoryGroupDN::extractCnFromDn)
+                .collect(Collectors.toList());
     }
 }
