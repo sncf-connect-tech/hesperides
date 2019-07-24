@@ -48,6 +48,10 @@ public class SearchModules extends HesperidesScenario implements En {
             testContext.responseEntity = moduleClient.search("new-module 0.0.1 true");
         });
 
+        When("^I search for modules, using an existing module name and version$", () -> {
+            testContext.responseEntity = moduleClient.search("new-module 0.0.1");
+        });
+
         When("^I search for modules, using an existing module name$", () -> {
             testContext.responseEntity = moduleClient.search("new-module");
         });
@@ -102,6 +106,13 @@ public class SearchModules extends HesperidesScenario implements En {
             assertOK();
             ModuleIO[] returnedModules = getBodyAsArray();
             assertEquals(returnedModules[0].toDomainInstance().getKey().getName(), "new-module");
+        });
+
+        Then("^the first module in the results has exactly this name and version$", () -> {
+            assertOK();
+            ModuleIO[] returnedModules = getBodyAsArray();
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getName(), "new-module");
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getVersion(), "0.0.1");
         });
     }
 }

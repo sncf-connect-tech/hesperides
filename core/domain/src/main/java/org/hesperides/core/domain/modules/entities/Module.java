@@ -113,16 +113,16 @@ public class Module extends TemplateContainer {
         }
 
         public static Optional<Key> fromSearchInput(String input) {
+            Key result = null;
             String[] values = input.split(" ");
             String name = values.length > 0 ? values[0] : "";
             String version = values.length > 1 ? values[1] : "";
             String workingCopy = values.length > 2 ? values[2] : "";
-            Optional<Key> result = Optional.empty();
-            if (isNotEmpty(workingCopy)) {
+            if (values.length > 1) {
                 boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
-                result = Optional.of(new Key(name, version, TemplateContainer.getVersionType(isWorkingCopy)));
+                result = new Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
             }
-            return result;
+            return Optional.ofNullable(result);
         }
 
         public String formatAsSearchInput() {
