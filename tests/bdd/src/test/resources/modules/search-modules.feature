@@ -59,6 +59,13 @@ Feature: Search modules
     Then the first module in the results is this module
 
   #issue-595
+  Scenario: search for modules an there is an exact name and version match
+    Given a list of 10 modules with different names starting with the same prefix
+    When I search for modules, using an existing module name and version
+    And a list of 10 elements is returned
+    Then the first module in the results has exactly this name and version
+
+  #issue-595
   Scenario: search for modules an there is an exact name match
     Given a list of 10 modules with different names starting with the same prefix
     When I search for modules, using an existing module name

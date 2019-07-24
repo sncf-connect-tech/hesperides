@@ -105,15 +105,15 @@ public class CreateModules extends HesperidesScenario implements En {
         Given("^a list of( \\d+)? modules( with different names(?: starting with the same prefix)?)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
             Integer modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
             for (int i = 0; i < modulesToCreateCount; i++) {
-                // Note: la 2e condition de ce "if" a un rôle important,
-                // il faut créer en dernier le module associé à un "match exact",
+                boolean isLast = i == (modulesToCreateCount - 1);
+                // Note: il faut créer en dernier le module associé à un "match exact",
                 // car par défaut Mongo semble remonter les résultats ordonnés par date de création
-                if (isNotEmpty(withDifferentNames) && i != (modulesToCreateCount - 1)) {
-                    moduleBuilder.withName("new-module-" + i);
-                } else {
+                if (isLast || isEmpty(withDifferentNames)) {
                     moduleBuilder.withName("new-module");
+                } else {
+                    moduleBuilder.withName("new-module-" + i);
                 }
-                if (i == 0) {
+                if (isLast) {
                     moduleBuilder.withVersion("0.0.1");
                 } else {
                     moduleBuilder.withVersion("0.0.1" + i);

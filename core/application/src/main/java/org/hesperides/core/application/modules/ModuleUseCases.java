@@ -22,10 +22,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static java.util.Collections.swap;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Ensemble des cas d'utilisation liés à l'agrégat Module
@@ -172,31 +172,37 @@ public class ModuleUseCases {
         List<ModuleView> matchingModules = queries.search(input, size);
         // On insère un éventuel module ayant exactement ce numéro de version en 1ère position - cf. issue #595 & BDD correspondant :
         Optional<ModuleView> exactVersionMatch = input.contains(" ") ? searchSingle(input) : Optional.empty();
-        if (exactVersionMatch.isPresent() && matchingModules.stream().noneMatch(module -> input.equals(module.getKey().formatAsSearchInput()))) {
-            matchingModules.set(0, exactVersionMatch.get());
-        } else { // En cas de match exact de nom de module, on le positionne en 1er - cf. issue #595 & BDD correspondant :
-            String searchedModuleName = input.split(" ")[0];
-            // Remarques sur la ligne ci-dessus :
-            // - "input" est garanti "notBlank" par le controller appelant
-            // - l'appel à .split renvoie "inpu" si aucun espace n'estr trouvé dans la chaine de caractères
-            OptionalInt moduleWithExactNameMatchIndex = IntStream.range(0, matchingModules.size())
-                    .filter(index -> matchingModules.get(index).getName().equals(searchedModuleName))
-                    .findAny();
-            if (moduleWithExactNameMatchIndex.isPresent() && moduleWithExactNameMatchIndex.getAsInt() > 0) {
-                // Si un module trouvé a exactement le même nom que recherché, mais n'est pas en 1ère position, on l'y place :
-                swap(matchingModules, 0, moduleWithExactNameMatchIndex.getAsInt());
+        if (exactVersionMatch.isPresent()) {
+            ModuleView exactMatchingModule = exactVersionMatch.get();
+            if (!swapExactMatchingModuleInFirstPosition(matchingModules, module -> module.getKey().equals(exactMatchingModule.getKey()))) {
+                matchingModules.set(0, exactMatchingModule);
             }
+        } else { // Cas où il n'y a pas de "exact version match", on remonte en 1èere position tout de même un éventuel "exact name match"
+            // Remarques sur la ligne suivante :
+            // - "input" est garanti "notBlank" par le controller appelant
+            // - l'appel à .split renvoie "input" si aucun espace n'est trouvé dans la chaine de caractères
+            String searchedModuleName = input.split(" ")[0];
+            swapExactMatchingModuleInFirstPosition(matchingModules, module -> module.getName().equals(searchedModuleName));
         }
         return matchingModules;
     }
 
-    public Optional<ModuleView> searchSingle(String input) {
-        Optional<Module.Key> moduleKey = Module.Key.fromSearchInput(input);
+    private static boolean swapExactMatchingModuleInFirstPosition(List<ModuleView> modules, Predicate<ModuleView> isExactModuleMatch) {
+        OptionalInt matchingModuleIndex = IntStream.range(0, modules.size())
+                .filter(index -> isExactModuleMatch.test(modules.get(index)))
+                .findAny();
+        if (matchingModuleIndex.isPresent() && matchingModuleIndex.getAsInt() > 0) {
+            // Si un module trouvé a exactement le même nom que recherché, mais n'est pas en 1ère position, on l'y place :
+            swap(modules, 0, matchingModuleIndex.getAsInt());
+        }
+        return matchingModuleIndex.isPresent();
+    }
 
+    public Optional<ModuleView> searchSingle(String input) {
         Optional<ModuleView> moduleView;
-        // Reproduction du legacy : si le type de version est passé en input ("true" ou "false"),
-        // on tente de récupérer le module correspondant. S'il ne l'est pas, on effectue une recherche
-        // classique sur nom et la version du module et on récupère la premier résultat.
+        // Si une version est passée en input on tente de récupérer le module correspondant.
+        // Sinon on effectue une recherche classique et on récupère la premier résultat.
+        Optional<Module.Key> moduleKey = Module.Key.fromSearchInput(input);
         if (moduleKey.isPresent()) {
             moduleView = queries.getOptionalModule(moduleKey.get());
         } else {
