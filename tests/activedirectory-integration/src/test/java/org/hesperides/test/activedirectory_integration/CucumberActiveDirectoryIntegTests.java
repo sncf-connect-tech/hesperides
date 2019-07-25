@@ -30,6 +30,7 @@ public class CucumberActiveDirectoryIntegTests {
     public static void main(String[] args) {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
         System.setProperty("javax.net.ssl.trustStore", "vsct-hesperides/certificates/trustore");
+        System.out.println("ENV vars:");
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
             System.out.format("%s=%s%n", envName, env.get(envName));
