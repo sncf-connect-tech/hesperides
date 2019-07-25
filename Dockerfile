@@ -1,10 +1,14 @@
 FROM maven:3-jdk-8-alpine
 WORKDIR /usr/local/src
+
+# Maven caching recipe from: https://medium.com/@nieldw/caching-maven-dependencies-in-a-docker-build-dca6ca7ad612
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
 COPY bootstrap bootstrap
 COPY commons commons
 COPY core core
 COPY tests tests
-COPY pom.xml .
 RUN mvn clean package -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 
 
