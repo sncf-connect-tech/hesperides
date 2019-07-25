@@ -7,7 +7,6 @@ import org.hesperides.HesperidesSpringApplication;
 import org.hesperides.test.activedirectory_integration.config.TestConfig;
 import org.hesperides.test.bdd.commons.DbCleaner;
 import org.hesperides.test.bdd.commons.TestContextCleaner;
-import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,8 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import java.util.Map;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
