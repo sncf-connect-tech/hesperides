@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.Map;
 
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.LDAP;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(Cucumber.class)
@@ -38,8 +40,7 @@ public class CucumberActiveDirectoryIntegTests {
     }
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
-    @ActiveProfiles(profiles = {"fake_mongo", "ldap"})
-
+    @ActiveProfiles(profiles = {FAKE_MONGO, LDAP})
     @Configuration
     @ContextConfiguration
     @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException
