@@ -27,20 +27,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         tags = {"@require-real-ad,@auth-related"})
 public class CucumberActiveDirectoryIntegTests {
 
-    public static void main(String[] args) {
-        System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
-        System.setProperty("javax.net.ssl.trustStore", "vsct-hesperides/certificates/trustore");
-        System.out.println("ENV vars:");
-        Map<String, String> env = System.getenv();
-        for (String envName : env.keySet()) {
-            System.out.format("%s=%s%n", envName, env.get(envName));
-        }
-        JUnitCore.main("CucumberADIntegTests");
-    }
-
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
     @ActiveProfiles(profiles = {"fake_mongo", "ldap"})
-
     @Configuration
     @ContextConfiguration
     @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException
