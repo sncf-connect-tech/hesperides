@@ -41,6 +41,7 @@ public class CucumberActiveDirectoryIntegTests {
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
     @ActiveProfiles(profiles = {FAKE_MONGO, LDAP})
+
     @Configuration
     @ContextConfiguration
     @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException
