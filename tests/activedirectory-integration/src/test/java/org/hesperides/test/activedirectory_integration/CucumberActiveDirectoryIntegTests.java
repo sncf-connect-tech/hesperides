@@ -16,6 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.util.Map;
+
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(Cucumber.class)
@@ -27,6 +29,11 @@ public class CucumberActiveDirectoryIntegTests {
 
     public static void main(String[] args) {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
+        System.setProperty("javax.net.ssl.trustStore", "vsct-hesperides/certificates/trustore");
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            System.out.format("%s=%s%n", envName, env.get(envName));
+        }
         JUnitCore.main("CucumberADIntegTests");
     }
 
