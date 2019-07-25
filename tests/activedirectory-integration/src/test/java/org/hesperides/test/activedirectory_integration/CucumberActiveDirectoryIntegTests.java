@@ -37,6 +37,7 @@ public class CucumberActiveDirectoryIntegTests {
 
         @Before
         public void cleanUp() {
+            System.setProperty("javax.net.ssl.trustStore", "vsct-hesperides/certificates/trustore");
             testContextCleaner.reset();
             dbCleaner.wipeOutCollections();
         }
