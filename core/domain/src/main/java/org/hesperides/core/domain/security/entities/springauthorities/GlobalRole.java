@@ -24,8 +24,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 public class GlobalRole implements GrantedAuthority {
 
-    public static final String IS_PROD = "IS_PROD";
-    public static final String IS_TECH = "IS_TECH";
+    public static final String IS_PROD = "GLOBAL_IS_PROD";
+    public static final String IS_TECH = "GLOBAL_IS_TECH";
 
     private final String authority;
 
