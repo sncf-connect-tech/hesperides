@@ -17,10 +17,6 @@
             <groupId>org.hesperides.test</groupId>
             <artifactId>bdd</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.hesperides</groupId>
-            <artifactId>commons</artifactId>
-        </dependency>
 
         <!-- Spring -->
         <dependency>
