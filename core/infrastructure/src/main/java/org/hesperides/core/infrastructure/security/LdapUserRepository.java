@@ -77,10 +77,12 @@ public class LdapUserRepository implements UserRepository {
     @QueryHandler
     @Override
     public DirectoryGroupsView onResolveDirectoryGroupCNsQuery(ResolveDirectoryGroupCNsQuery query) {
+        if (ldapAuthenticationProvider == null) {
+            return DirectoryGroupsView.allUnresolved(query.getDirectoryGroupCNs());
+        }
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         DirContext dirContext = ldapAuthenticationProvider.buildSearchContext(auth);
         try {
-
             List<String> unresolvedDirectoryGroupCNs = new ArrayList<>();
             List<String> ambiguousDirectoryGroupCNs = new ArrayList<>();
             List<String> directoryGroupDNs = new ArrayList<>();

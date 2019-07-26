@@ -25,11 +25,17 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
+import static java.util.Collections.emptyList;
+
 @Value
 public class DirectoryGroupsView {
     List<String> unresolvedDirectoryGroupCNs;
     List<String> ambiguousDirectoryGroupCNs;
     List<String> directoryGroupDNs;
+
+    public static DirectoryGroupsView allUnresolved(List<String> unresolvedDirectoryGroupCNs) {
+        return new DirectoryGroupsView(unresolvedDirectoryGroupCNs, emptyList(), emptyList());
+    }
 
     public boolean hasUnresolvedOrAmbiguousCNs() {
         return !CollectionUtils.isEmpty(unresolvedDirectoryGroupCNs) ||

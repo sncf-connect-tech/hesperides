@@ -22,11 +22,13 @@ package org.hesperides.core.presentation.io.platforms;
 
 import lombok.Value;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
 @Value
 public class ApplicationDirectoryGroupsInput {
     // La clef est une liste de CNs - Ex: "ABC_PROD_USER": ["GG_XX", "GG_ZZ"]
+    @NotNull
     Map<String, List<String>> directoryGroups;
 }

@@ -56,7 +56,7 @@ public class UserInfoOutput {
         @JsonProperty("directory_groups")
         List<String> directoryGroupCNs;
 
-        public AuthoritiesOutput(User user) {
+        AuthoritiesOutput(User user) {
             roles = user.getRoles();
             directoryGroupCNs = user.getDirectoryGroupCNs();
         }

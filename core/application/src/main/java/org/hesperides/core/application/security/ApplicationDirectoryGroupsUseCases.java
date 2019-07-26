@@ -100,7 +100,7 @@ public class ApplicationDirectoryGroupsUseCases {
     private ApplicationDirectoryGroups validateAndBuildDirectoryGroups(String applicationName, Map<String, List<String>> directoryGroups) {
         ApplicationProdRole applicationProdRole = new ApplicationProdRole(applicationName);
         if (!directoryGroups.containsKey(applicationProdRole.getAuthority()) || directoryGroups.size() != 1) {
-            throw new InvalidDirectoryGroupsException("directory_groups must contain a single key named " + applicationProdRole);
+            throw new InvalidDirectoryGroupsException("directoryGroups must contain a single key named " + applicationProdRole.getAuthority());
         }
         List<String> directoryGroupCNs = directoryGroups.get(applicationProdRole.getAuthority());
 

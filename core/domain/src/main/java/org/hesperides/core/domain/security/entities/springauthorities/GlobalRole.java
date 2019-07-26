@@ -27,6 +27,9 @@ public class GlobalRole implements GrantedAuthority {
     public static final String IS_PROD = "GLOBAL_IS_PROD";
     public static final String IS_TECH = "GLOBAL_IS_TECH";
 
+    public static GlobalRole GLOBAL_IS_PROD = new GlobalRole(IS_PROD);
+    public static GlobalRole GLOBAL_IS_TECH = new GlobalRole(IS_TECH);
+
     private final String authority;
 
     public GlobalRole(String authority) {
