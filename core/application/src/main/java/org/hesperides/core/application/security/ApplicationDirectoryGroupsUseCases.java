@@ -58,7 +58,7 @@ public class ApplicationDirectoryGroupsUseCases {
         return applicationDirectoryGroupsQueries.getApplicationDirectoryGroups(applicationName);
     }
 
-    public ApplicationDirectoryGroups setApplicationDirectoryGroups(String applicationName, Map<String, List<String>> directoryGroups, User user) {
+    public void setApplicationDirectoryGroups(String applicationName, Map<String, List<String>> directoryGroups, User user) {
         if (!platformQueries.applicationExists(applicationName)) {
             throw new ApplicationNotFoundException(applicationName);
         }
@@ -87,7 +87,6 @@ public class ApplicationDirectoryGroupsUseCases {
                     providedApplicationDirectoryGroups,
                     user);
         }
-        return providedApplicationDirectoryGroups;
     }
 
     private Map<String, List<String>> removeDuplicatedCNs(Map<String, List<String>> directoryGroups) {

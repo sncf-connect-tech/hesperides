@@ -37,7 +37,7 @@ data class GetPlatformByIdQuery(val platformId: String)
 data class GetPlatformByKeyQuery(val platformKey: Platform.Key)
 data class GetPlatformAtPointInTimeQuery(val platformId: String, val timestamp: Long)
 data class PlatformExistsByKeyQuery(val platformKey: Platform.Key)
-data class GetApplicationByNameQuery(val applicationName: String)
+data class GetApplicationByNameQuery(val applicationName: String, val hidePlatformsModules: Boolean)
 data class GetPlatformsUsingModuleQuery(val moduleKey: Module.Key)
 class GetApplicationNamesQuery
 data class SearchApplicationsQuery(val applicationName: String)

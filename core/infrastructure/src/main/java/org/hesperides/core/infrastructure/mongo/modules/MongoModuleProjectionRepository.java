@@ -7,6 +7,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.hesperides.commons.SpringProfiles;
 import org.hesperides.core.domain.exceptions.NotFoundException;
 import org.hesperides.core.domain.modules.*;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
@@ -218,22 +219,21 @@ public class MongoModuleProjectionRepository implements ModuleProjectionReposito
 
     @QueryHandler
     @Override
-    public Integer onCountPasswordQuery(CountPasswordsQuery query) {
-        List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
-        return moduleRepository.countPasswordsInModules(modulesKeys);
+    @Timed
+    public List<ModuleView> onGetModulesWithinQuery(GetModulesWithinQuery query) {
+        List<KeyDocument> moduleKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
+        return moduleRepository.findModulesWithin(moduleKeys).stream()
+                .map(ModuleDocument::toModuleView)
+                .collect(Collectors.toList());
     }
 
     @QueryHandler
     @Override
-    public List<TemplateContainerKeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query) {
+    @Timed
+    public List<Module.Key> onGetModulesWithPasswordWithinQuery(GetModulesWithPasswordWithinQuery query) {
         List<KeyDocument> modulesKeys = KeyDocument.fromModelKeys(query.getModulesKeys());
-        List<String> technoIds = moduleRepository.findTechnoIdsInModules(modulesKeys)
-                .stream()
-                .map(ModuleDocument::getTechnos)
-                .flatMap(List::stream)
-                .map(TechnoDocument::getId)
-                .distinct()
+        return moduleRepository.findModulesWithPasswordWithin(modulesKeys).stream()
+                .map(ModuleDocument::getDomainKey)
                 .collect(Collectors.toList());
-        return technoProjectionRepository.getTechnoKeysForTechnoIds(technoIds);
     }
 }

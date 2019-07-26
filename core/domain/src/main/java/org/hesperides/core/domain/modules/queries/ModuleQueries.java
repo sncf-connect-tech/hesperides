@@ -72,11 +72,11 @@ public class ModuleQueries extends AxonQueries {
         return querySyncList(new GetModulesUsingTechnoQuery(technoId), TemplateContainerKeyView.class);
     }
 
-    public Integer countPasswords(List<Module.Key> moduleKeys) {
-        return querySync(new CountPasswordsQuery(moduleKeys), Integer.class);
+    public List<ModuleView> getModulesWithin(List<Module.Key> moduleKeys) {
+        return querySyncList(new GetModulesWithinQuery(moduleKeys), ModuleView.class);
     }
 
-    public List<TemplateContainerKeyView> getDistinctTechnoKeysInModules(List<Module.Key> moduleKeys) {
-        return querySyncList(new GetDistinctTechnoKeysInModulesQuery(moduleKeys), TemplateContainerKeyView.class);
+    public List<Module.Key> getModulesWithPasswordWithin(List<Module.Key> moduleKeys) {
+        return querySyncList(new GetModulesWithPasswordWithinQuery(moduleKeys), Module.Key.class);
     }
 }

@@ -35,3 +35,15 @@ Feature: Get platforms
     Given an existing platform named "TEST_1.0"
     When I get the platform detail
     Then the platform detail is successfully retrieved
+
+  Scenario: retrieve the password flag for a platform that has at least one module with a password
+    Given an existing module with a template and properties and password properties
+    And an existing platform with this module
+    When I get the platform detail requesting the password flag
+    Then the platform has the password flag and the flag is set to true
+
+  Scenario: retrieve the password flag for a platform that doesn't have any module with a  password
+    Given an existing module with a template and properties
+    And an existing platform with this module
+    When I get the platform detail requesting the password flag
+    Then the platform has the password flag and the flag is set to false

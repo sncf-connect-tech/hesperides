@@ -43,9 +43,12 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
     @Query(value = "{ 'key.name' : ?0 }", fields = "{ 'key.version' : 1 }")
     List<TechnoDocument> findVersionsByKeyName(String technoName);
 
-    @Query(count = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
-    Integer countPasswordsInTechnos(List<KeyDocument> technoKeys);
+    @Query(exists = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
+    Boolean hasPasswords(List<KeyDocument> technoKeys);
 
     @Query(value = "{ '_id' : { $in: ?0 } }", fields = "{ 'key' : 1 }")
     List<TechnoDocument> findKeysByIdsIn(List<String> technoIds);
+
+    @Query(value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }", fields = "{ 'key' : 1 }")
+    List<TechnoDocument> findTechnosWithPasswordWithin(List<KeyDocument> technoKeys);
 }

@@ -80,14 +80,13 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public ResponseEntity get(PlatformIO platformInput, Class responseType) {
-        return get(platformInput, null, responseType);
-    }
-
-    public ResponseEntity get(PlatformIO platformInput, Long timestamp, Class responseType) {
+    public ResponseEntity get(PlatformIO platformInput, Long timestamp, boolean withPasswordFlag, Class responseType) {
         String url = "/applications/{application_name}/platforms/{platform_name}";
         if (timestamp != null) {
             url += "?timestamp=" + timestamp;
+        }
+        if (withPasswordFlag) {
+            url += "?with_password_info=true";
         }
         return restTemplate.getForEntity(
                 url,

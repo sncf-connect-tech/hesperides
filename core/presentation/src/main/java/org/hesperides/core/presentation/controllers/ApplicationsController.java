@@ -7,9 +7,7 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.application.security.ApplicationDirectoryGroupsUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
-import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups;
 import org.hesperides.core.domain.security.entities.User;
-import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
@@ -28,7 +26,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
-import static org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView.directoryGroupsMapFromAppNameAndList;
 
 @Slf4j
 @Api(tags = "3. Applications", description = " ")
@@ -62,20 +59,14 @@ public class ApplicationsController extends AbstractController {
     @ApiOperation("Get application")
     public ResponseEntity<ApplicationOutput> getApplication(@PathVariable("application_name") final String applicationName,
                                                             @RequestParam(value = "hide_platform", required = false) final Boolean hidePlatformsModules,
-                                                            @RequestParam(value = "with_password_count", required = false) final Boolean withPasswordCount) {
+                                                            @RequestParam(value = "with_password_info", required = false) final Boolean withPasswordFlag) {
 
-        ApplicationView application = platformUseCases.getApplication(applicationName);
-        Map<String, List<String>> applicationDirectoryGroups = applicationDirectoryGroupsUseCases.getApplicationDirectoryGroups(applicationName)
-                .map(ApplicationDirectoryGroupsView::getDirectoryGroupCNs)
-                .orElse(Collections.emptyMap());
-        Integer passwordCount = Boolean.TRUE.equals(withPasswordCount) ? platformUseCases.countModulesAndTechnosPasswords(application) : null;
-
-        ApplicationOutput applicationOutput = new ApplicationOutput(application,
+        ApplicationView application = platformUseCases.getApplication(
+                applicationName,
                 Boolean.TRUE.equals(hidePlatformsModules),
-                applicationDirectoryGroups,
-                passwordCount);
+                Boolean.TRUE.equals(withPasswordFlag));
 
-        return ResponseEntity.ok(applicationOutput);
+        return ResponseEntity.ok(new ApplicationOutput(application));
     }
 
     @ApiOperation("Deprecated - Use GET /applications/perform_search instead")
@@ -108,31 +99,28 @@ public class ApplicationsController extends AbstractController {
                                                                         @PathVariable("application_name") final String applicationName,
                                                                         @Valid @RequestBody final ApplicationDirectoryGroupsInput applicationDirectoryGroupsInput) {
 
-        ApplicationDirectoryGroups appDirectoryGroups = applicationDirectoryGroupsUseCases.setApplicationDirectoryGroups(
+        applicationDirectoryGroupsUseCases.setApplicationDirectoryGroups(
                 applicationName,
                 applicationDirectoryGroupsInput.getDirectoryGroups(),
                 new User(authentication));
 
-        return ResponseEntity.ok(
-                directoryGroupsMapFromAppNameAndList(applicationName,
-                        appDirectoryGroups.getDirectoryGroupDNs().stream()
-                                .map(DirectoryGroupDN::extractCnFromDn)
-                                .collect(Collectors.toList())));
+        ApplicationDirectoryGroupsView applicationDirectoryGroups = applicationDirectoryGroupsUseCases.getApplicationDirectoryGroups(applicationName).get();
+        return ResponseEntity.ok(applicationDirectoryGroups.getDirectoryGroupCNs());
     }
 
     @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
     @GetMapping("/platforms")
     @Cacheable("all-applications-detail")
-    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail(@RequestParam(value = "with_password_info", required = false) final Boolean withPasswordFlag) {
 
         TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         df.setTimeZone(utcTimeZone);
         String nowAsIso = df.format(new Date());
 
-        final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail()
+        final List<ApplicationOutput> applications = platformUseCases.getAllApplicationsDetail(Boolean.TRUE.equals(withPasswordFlag))
                 .stream()
-                .map(application -> new ApplicationOutput(application, false, Collections.emptyMap(), null))
+                .map(ApplicationOutput::new)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new AllApplicationsDetailOutput(nowAsIso, applications));

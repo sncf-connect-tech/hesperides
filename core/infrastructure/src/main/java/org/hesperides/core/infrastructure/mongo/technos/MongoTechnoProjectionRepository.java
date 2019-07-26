@@ -281,9 +281,13 @@ public class MongoTechnoProjectionRepository implements TechnoProjectionReposito
 
     @QueryHandler
     @Override
-    public Integer onCountPasswordsQuery(CountPasswordsQuery query) {
+    @Timed
+    public List<Techno.Key> onGetTechnosWithPasswordWithinQuery(GetTechnosWithPasswordWithinQuery query) {
         List<KeyDocument> technoKeys = KeyDocument.fromModelKeys(query.getTechnoKeys());
-        return technoRepository.countPasswordsInTechnos(technoKeys);
+        return technoRepository.findTechnosWithPasswordWithin(technoKeys).stream()
+                .map(TechnoDocument::getDomainKey)
+                .collect(Collectors.toList());
+
     }
 
     public List<TechnoDocument> getTechnoDocumentsFromDomainInstances(List<Techno> technos, TemplateContainer.Key moduleKey) {

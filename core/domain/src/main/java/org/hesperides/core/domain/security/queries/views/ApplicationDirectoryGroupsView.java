@@ -38,13 +38,13 @@ public class ApplicationDirectoryGroupsView {
     public ApplicationDirectoryGroupsView(String id, String applicationName, List<String> directoryGroupDNs) {
         this.id = id;
         this.applicationName = applicationName;
-        this.directoryGroupDNs = directoryGroupsMapFromAppNameAndList(applicationName, directoryGroupDNs);
+        this.directoryGroupDNs = directoryGroupDNsListToMap(applicationName, directoryGroupDNs);
     }
 
-    public static Map<String, List<String>> directoryGroupsMapFromAppNameAndList(String appName, List<String> directoryGroups) {
+    private static Map<String, List<String>> directoryGroupDNsListToMap(String applicationName, List<String> directoryGroupDNs) {
         Map<String, List<String>> directoryGroupsMap = new HashMap<>();
-        ApplicationProdRole applicationProdRole = new ApplicationProdRole(appName);
-        directoryGroupsMap.put(applicationProdRole.getAuthority(), directoryGroups);
+        ApplicationProdRole applicationProdRole = new ApplicationProdRole(applicationName);
+        directoryGroupsMap.put(applicationProdRole.getAuthority(), directoryGroupDNs);
         return directoryGroupsMap;
     }
 

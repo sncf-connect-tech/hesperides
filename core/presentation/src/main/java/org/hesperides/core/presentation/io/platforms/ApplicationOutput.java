@@ -23,10 +23,13 @@ package org.hesperides.core.presentation.io.platforms;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Value
 @AllArgsConstructor
@@ -37,12 +40,12 @@ public class ApplicationOutput {
     @NotEmpty
     List<PlatformIO> platforms;
     Map<String, List<String>> directoryGroups;
-    Integer passwordCount;
 
-    public ApplicationOutput(ApplicationView applicationView, boolean hidePlatformsModules, Map<String, List<String>> directoryGroups, Integer passwordCount) {
+    public ApplicationOutput(ApplicationView applicationView) {
         this.name = applicationView.getName();
-        this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms(), hidePlatformsModules);
-        this.directoryGroups = directoryGroups;
-        this.passwordCount = passwordCount;
+        this.platforms = PlatformIO.fromPlatformViews(applicationView.getPlatforms());
+        this.directoryGroups = Optional.ofNullable(applicationView.getDirectoryGroups())
+                .map(ApplicationDirectoryGroupsView::getDirectoryGroupCNs)
+                .orElse(Collections.emptyMap());
     }
 }

@@ -71,8 +71,8 @@ public class GetApplications extends HesperidesScenario implements En {
 
         });
 
-        When("^I get all the applications detail$", () -> {
-            testContext.setResponseEntity(applicationClient.getAllApplicationsDetail());
+        When("^I get all the applications detail( requesting the password flag)?$", (String requestingThePasswordFlag) -> {
+            testContext.setResponseEntity(applicationClient.getAllApplicationsDetail(StringUtils.isNotEmpty(requestingThePasswordFlag)));
         });
 
         When("^I( try to)? get the applications name", (String tryTo) -> {
@@ -80,13 +80,13 @@ public class GetApplications extends HesperidesScenario implements En {
                     getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
-        When("^I( try to)? get the application detail( with parameter hide_platform set to true)?( requesting the passwords count)?$", (
-                String tryTo, String withHidePlatform, String requestingThePasswordsCount) -> {
+        When("^I( try to)? get the application detail( with parameter hide_platform set to true)?( requesting the password flag)?$", (
+                String tryTo, String withHidePlatform, String requestingThePasswordFlag) -> {
             hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
             final ResponseEntity responseEntity = applicationClient.getApplication(
                     applicationDirectoryGroupsBuilder.getApplicationName(),
                     hidePlatform,
-                    StringUtils.isNotEmpty(requestingThePasswordsCount),
+                    StringUtils.isNotEmpty(requestingThePasswordFlag),
                     getResponseType(tryTo, ApplicationOutput.class));
             testContext.setResponseEntity(responseEntity);
         });
@@ -104,11 +104,6 @@ public class GetApplications extends HesperidesScenario implements En {
             assertEquals(expectedApplication, actualApplication);
         });
 
-        Then("^the platform has at least (\\d+) password$", (Integer count) -> {
-            final Integer actualPasswordCount = testContext.getResponseBody(ApplicationOutput.class).getPasswordCount();
-            Assertions.assertThat(actualPasswordCount).isGreaterThanOrEqualTo(count);
-        });
-
         Then("^the application details contains the directory group (.*)?", (String directoryGroupCN) -> {
             assertDirectoryGroups(Collections.singletonList(directoryGroupCN));
         });
@@ -121,6 +116,16 @@ public class GetApplications extends HesperidesScenario implements En {
             final String directoryGroupsKey = applicationDirectoryGroupsBuilder.getDirectoryGroupsKey();
             final List<String> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups().get(directoryGroupsKey);
             assertThat(actualDirectoryGroups).isEmpty();
+        });
+
+        Then("^the application platform has the password flag$", () -> {
+            Boolean hasPasswords = testContext.getResponseBody(ApplicationOutput.class).getPlatforms().get(0).getHasPasswords();
+            Assertions.assertThat(hasPasswords).isNotNull();
+        });
+
+        Then("^the applications platforms have the password flag$", () -> {
+            Boolean hasPasswords = testContext.getResponseBody(AllApplicationsDetailOutput.class).getApplications().get(0).getPlatforms().get(0).getHasPasswords();
+            Assertions.assertThat(hasPasswords).isNotNull();
         });
     }
 

@@ -32,7 +32,6 @@ public class RandomPlatformViewGenerator {
                 genDeployedModules(dpProfils),
                 1L,
                 genValuedProperties(avgGlobalsCount, 0)
-
         );
     }
 

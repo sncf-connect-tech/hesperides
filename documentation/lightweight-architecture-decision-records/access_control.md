@@ -14,7 +14,7 @@ nous intégrons dans Hesperides un mécanisme d'[ACLs](https://fr.wikipedia.org/
 - [Ressources REST](#ressources-rest)
     * [GET /users/auth](#get-usersauth)
     * [GET /applications/$APP](#get-applicationsapp)
-    * [GET /applications/$APP?with_passwords_count=true](#get-applicationsappwith_passwords_counttrue)
+    * [GET /applications/$APP?with_password_info=true](#get-applicationsappwith_password_infotrue)
     * [PUT /applications/$APP](#put-applicationsapp)
 - [Détails notables d'implémentation](#details-notables-dimplementation)
     * [Algorithme de collecte des _authorities_](#algorithme-de-collecte-des-_authorities_)
@@ -88,9 +88,13 @@ Ajout d'un champ `authorities` dans la réponse.
 
 Ici, le paramètre `directory_groups` représentent les groupes AD qui donnent les droits de prod sur les plateformes de l'application.
 
-### GET /applications/$APP?with_passwords_count=true
+### GET /applications/$APP?with_password_info=true
 
 Ajout de ce _query parameter_.
+
+_Pour des raisons de performances et de maintenabilité, nous avons décidé de ne retourner
+qu'un flag permettant de savoir si une plateforme contient au moins un module avec un mot de passe
+et non le nombre de mots de passe._
 
 **Besoin** : pouvoir identifier les plateformes nommées "PRDx" contenant des mots de passes,
 mais non catégorisées comme "production".

@@ -23,6 +23,7 @@ package org.hesperides.core.domain.technos.queries;
 import lombok.Value;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 
 import java.util.Collections;
@@ -48,5 +49,9 @@ public class TechnoView {
     public Techno toDomainInstance() {
         TemplateContainer.Key technoKey = new Techno.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return new Techno(technoKey, TemplateView.toDomainInstances(templates, technoKey));
+    }
+
+    public TemplateContainerKeyView getKey() {
+        return new TemplateContainerKeyView(name, version, isWorkingCopy);
     }
 }

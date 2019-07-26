@@ -35,4 +35,4 @@ data class GetTechnoVersionTypesQuery(val technoName: String, val technoVersion:
 data class GetTechnoQuery(val technoKey: TemplateContainer.Key)
 data class SearchTechnosQuery(val input: String, val size: Int)
 data class GetTechnoPropertiesQuery(val technoKey: TemplateContainer.Key)
-data class CountPasswordsQuery(val technoKeys: List<Techno.Key>)
+data class GetTechnosWithPasswordWithinQuery(val technoKeys: List<Techno.Key>)

@@ -58,7 +58,7 @@ public class TechnoQueries extends AxonQueries {
         return querySyncList(new GetTechnoPropertiesQuery(technoKey), AbstractPropertyView.class);
     }
 
-    public Integer countPasswords(List<Techno.Key> technoKeys) {
-        return querySync(new CountPasswordsQuery(technoKeys), Integer.class);
+    public List<Techno.Key> getTechnosWithPasswordWithin(List<Techno.Key> technoKeys) {
+        return querySyncList(new GetTechnosWithPasswordWithinQuery(technoKeys), Techno.Key.class);
     }
 }

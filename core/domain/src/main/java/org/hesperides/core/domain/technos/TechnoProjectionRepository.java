@@ -22,6 +22,7 @@ package org.hesperides.core.domain.technos;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
@@ -81,5 +82,5 @@ public interface TechnoProjectionRepository {
     List<AbstractPropertyView> onGetTechnoPropertiesQuery(GetTechnoPropertiesQuery query);
 
     @QueryHandler
-    Integer onCountPasswordsQuery(CountPasswordsQuery query);
+    List<Techno.Key> onGetTechnosWithPasswordWithinQuery(GetTechnosWithPasswordWithinQuery query);
 }

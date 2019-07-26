@@ -49,7 +49,7 @@ public class DeployedModuleView {
         return new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
     }
 
-    public DeployedModule toDomainDeployedModule() {
+    private DeployedModule toDomainDeployedModule() {
         // L'extraction des propriétés d'instance est systématiquement effectuée
         // par platformDocument.extractInstancePropertiesAndSave dans la couche infratructure.
         // On crée donc une instance de DeployedModule avec ce champ `null`.

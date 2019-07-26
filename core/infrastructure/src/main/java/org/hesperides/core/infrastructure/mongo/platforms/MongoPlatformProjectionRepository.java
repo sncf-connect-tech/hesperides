@@ -294,7 +294,10 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @Override
     @Timed
     public Optional<ApplicationView> onGetApplicationByNameQuery(GetApplicationByNameQuery query) {
-        List<PlatformDocument> platformDocuments = platformRepository.findAllByKeyApplicationName(query.getApplicationName());
+        List<PlatformDocument> platformDocuments = query.getHidePlatformsModules()
+                ? platformRepository.findPlatformsForApplicationAndExcludeModules(query.getApplicationName())
+                : platformRepository.findAllByKeyApplicationName(query.getApplicationName());
+
         return Optional.ofNullable(CollectionUtils.isEmpty(platformDocuments) ? null
                 : PlatformDocument.toApplicationView(query.getApplicationName(), platformDocuments));
     }

@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 import static org.hesperides.commons.SpringProfiles.NOLDAP;
+import static org.hesperides.core.domain.security.entities.springauthorities.GlobalRole.IS_PROD;
+import static org.hesperides.core.domain.security.entities.springauthorities.GlobalRole.IS_TECH;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -32,8 +34,8 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("tech").password("{noop}password").authorities(GlobalRole.GLOBAL_IS_TECH)
-                .and().withUser("prod").password("{noop}password").authorities(GlobalRole.GLOBAL_IS_PROD)
+                .withUser("tech").password("{noop}password").authorities(new GlobalRole(IS_TECH))
+                .and().withUser("prod").password("{noop}password").authorities(new GlobalRole(IS_PROD))
                 .and().withUser("user").password("{noop}password").roles("USER");
     }
 }

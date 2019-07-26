@@ -30,3 +30,15 @@ Feature: Get applications
     And a list of applications with platforms and this module
     When I get all the applications detail
     Then all the applications are retrieved with their platforms and their modules
+
+  Scenario: retrieve the password flag for all platforms of an application
+    Given an existing module with a template and properties and password properties
+    And an existing platform with this module
+    When I get the application detail requesting the password flag
+    Then the application platform has the password flag
+
+  Scenario: retrieve the password flag for all platforms of all applications
+    Given an existing module with a template and properties and password properties
+    And an existing platform with this module
+    When I get all the applications detail requesting the password flag
+    Then the applications platforms have the password flag

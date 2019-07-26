@@ -39,17 +39,17 @@ public class ApplicationClient {
         return restTemplate.getForEntity("/applications", responseType);
     }
 
-    public ResponseEntity getApplication(String applicationName, boolean hidePlatform, boolean withPasswordCount, Class responseType) {
+    public ResponseEntity getApplication(String applicationName, boolean hidePlatform, boolean withPasswordFlag, Class responseType) {
         return restTemplate.getForEntity(
-                "/applications/{application_name}?hide_platform={hide_platform}&with_password_count={with_password_count}",
+                "/applications/{application_name}?hide_platform={hide_platform}&with_password_info={with_password_flag}",
                 responseType,
                 applicationName,
                 hidePlatform,
-                withPasswordCount);
+                withPasswordFlag);
     }
 
-    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail() {
-        return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail(boolean withPasswordFlag) {
+        return restTemplate.getForEntity("/applications/platforms?with_password_info={with_password_flag}", AllApplicationsDetailOutput.class, withPasswordFlag);
     }
 
     public ResponseEntity setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {

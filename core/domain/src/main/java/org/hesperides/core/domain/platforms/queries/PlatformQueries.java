@@ -77,8 +77,8 @@ public class PlatformQueries extends AxonQueries {
         return querySync(new PlatformExistsByKeyQuery(platformKey), Boolean.class);
     }
 
-    public Optional<ApplicationView> getApplication(String applicationName) {
-        return querySyncOptional(new GetApplicationByNameQuery(applicationName), ApplicationView.class);
+    public Optional<ApplicationView> getApplication(String applicationName, boolean hidePlatformsModules) {
+        return querySyncOptional(new GetApplicationByNameQuery(applicationName, hidePlatformsModules), ApplicationView.class);
     }
 
     public List<String> getInstancesModel(final Platform.Key platformKey, final String propertiesPath) {

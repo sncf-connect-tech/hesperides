@@ -6,6 +6,7 @@ import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
+import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.platforms.commands.PlatformCommands;
 import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -18,17 +19,22 @@ import org.hesperides.core.domain.platforms.queries.views.properties.AbstractVal
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.security.queries.ApplicationDirectoryGroupsQueries;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.technos.queries.TechnoQueries;
+import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
@@ -41,13 +47,15 @@ public class PlatformUseCases {
     private final PlatformQueries platformQueries;
     private final ModuleQueries moduleQueries;
     private final TechnoQueries technoQueries;
+    private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
 
     @Autowired
-    public PlatformUseCases(PlatformCommands platformCommands, PlatformQueries platformQueries, final ModuleQueries moduleQueries, TechnoQueries technoQueries) {
+    public PlatformUseCases(PlatformCommands platformCommands, PlatformQueries platformQueries, final ModuleQueries moduleQueries, TechnoQueries technoQueries, ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries) {
         this.platformCommands = platformCommands;
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
         this.technoQueries = technoQueries;
+        this.applicationDirectoryGroupsQueries = applicationDirectoryGroupsQueries;
     }
 
     public String createPlatform(Platform platform, User user) {
@@ -94,8 +102,17 @@ public class PlatformUseCases {
     }
 
     public PlatformView getPlatform(Platform.Key platformKey) {
-        return platformQueries.getOptionalPlatform(platformKey)
+        return getPlatform(platformKey, false);
+    }
+
+    public PlatformView getPlatform(Platform.Key platformKey, boolean withPasswordFlag) {
+        PlatformView platform = platformQueries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        if (withPasswordFlag) {
+            boolean hasPasswords = !CollectionUtils.isEmpty(getPlatformsWithPassword(Collections.singletonList(platform)));
+            platform = platform.withPasswordIndicator(hasPasswords);
+        }
+        return platform;
     }
 
     public PlatformView getPlatformAtPointInTime(Platform.Key platformKey, long timestamp) {
@@ -127,9 +144,76 @@ public class PlatformUseCases {
         platformCommands.deletePlatform(platform.getId(), platformKey, user);
     }
 
-    public ApplicationView getApplication(String applicationName) {
-        return platformQueries.getApplication(applicationName)
+    public ApplicationView getApplication(String applicationName, boolean hidePlatformsModules, boolean withPasswordFlag) {
+        ApplicationView applicationView = platformQueries.getApplication(applicationName, hidePlatformsModules)
                 .orElseThrow(() -> new ApplicationNotFoundException(applicationName));
+
+        Optional<ApplicationDirectoryGroupsView> applicationDirectoryGroups = applicationDirectoryGroupsQueries.getApplicationDirectoryGroups(applicationName);
+        if (applicationDirectoryGroups.isPresent()) {
+            applicationView = applicationView.withDirectoryGoups(applicationDirectoryGroups.get());
+        }
+
+        if (withPasswordFlag) {
+            Set<Platform.Key> platformsWithPassword = getPlatformsWithPassword(applicationView.getPlatforms());
+            applicationView = applicationView.withPasswordIndicator(platformsWithPassword);
+        }
+
+        return applicationView;
+    }
+
+    private Set<Platform.Key> getPlatformsWithPassword(List<PlatformView> platforms) {
+
+        List<Module.Key> allPlatformsModuleKeys = platforms.stream()
+                .map(PlatformView::getDeployedModules)
+                .flatMap(List::stream)
+                .map(DeployedModuleView::getModuleKey)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<ModuleView> allPlatformsModules = moduleQueries.getModulesWithin(allPlatformsModuleKeys);
+        List<Module.Key> modulesWithPassword = moduleQueries.getModulesWithPasswordWithin(allPlatformsModuleKeys);
+
+        List<Techno.Key> allModulesTechnoKeys = allPlatformsModules.stream()
+                // On exclut les modules dont on sait déjà qu'ils contiennent au moins un mot de passe
+                .filter(module -> !modulesWithPassword.contains(module.getKey()))
+                .map(ModuleView::getTechnos)
+                .flatMap(List::stream)
+                .map(TechnoView::getKey)
+                .map(TemplateContainerKeyView::toTechnoKey)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Module.Key, List<Techno.Key>> technoKeysByModuleMap = allPlatformsModules.stream().collect(Collectors.toMap(
+                ModuleView::getKey,
+                module -> module.getTechnos().stream()
+                        .map(TechnoView::getKey)
+                        .map(TemplateContainerKeyView::toTechnoKey)
+                        .distinct()
+                        .collect(Collectors.toList())
+        ));
+
+        List<Techno.Key> technosWithPassword = technoQueries.getTechnosWithPasswordWithin(allModulesTechnoKeys);
+
+        // Récupère la liste des modules ayant au moins une techno contenant un mot de passe
+        // et la concatène avec la liste de modules contenant au moins un mot de passe
+        Set<Module.Key> allModulesWithPassword = Stream.concat(modulesWithPassword.stream(),
+                technoKeysByModuleMap.entrySet().stream()
+                        .filter(entry -> entry.getValue().stream().anyMatch(technosWithPassword::contains))
+                        .map(Map.Entry::getKey))
+                .collect(Collectors.toSet());
+
+        Map<Platform.Key, List<Module.Key>> moduleKeysByPlatformMap = platforms.stream().collect(Collectors.toMap(
+                PlatformView::getPlatformKey,
+                platform -> platform.getDeployedModules().stream()
+                        .map(DeployedModuleView::getModuleKey)
+                        .distinct()
+                        .collect(Collectors.toList())
+        ));
+
+        return moduleKeysByPlatformMap.entrySet().stream()
+                .filter(entry -> entry.getValue().stream().anyMatch(allModulesWithPassword::contains))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     public List<ModulePlatformView> getPlatformsUsingModule(Module.Key moduleKey) {
@@ -154,7 +238,7 @@ public class PlatformUseCases {
         return platformQueries.searchPlatforms(applicationName, platformName);
     }
 
-    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
+    private List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         return getValuedProperties(platformKey, propertiesPath, null, user);
     }
 
@@ -280,23 +364,22 @@ public class PlatformUseCases {
         return platformQueries.getOptionalPlatform(platformId).get();
     }
 
-    public Integer countModulesAndTechnosPasswords(ApplicationView applicationView) {
-        List<Module.Key> distinctModuleKeys = applicationView.getPlatforms()
-                .stream()
-                .map(PlatformView::getDeployedModules)
-                .flatMap(List::stream)
-                .map(DeployedModuleView::getModuleKey)
-                .distinct()
-                .collect(Collectors.toList());
-        Integer modulePasswordCount = moduleQueries.countPasswords(distinctModuleKeys);
+    public List<ApplicationView> getAllApplicationsDetail(boolean withPasswordFlag) {
+        List<ApplicationView> applications = platformQueries.getAllApplicationsDetail();
 
-        List<TemplateContainerKeyView> technosKeys = moduleQueries.getDistinctTechnoKeysInModules(distinctModuleKeys);
-        Integer technoPasswordCount = technoQueries.countPasswords(Techno.Key.fromViews(technosKeys));
+        if (withPasswordFlag) {
+            List<PlatformView> allApplicationsPlatforms = applications.stream()
+                    .map(ApplicationView::getPlatforms)
+                    .flatMap(List::stream)
+                    .distinct()
+                    .collect(Collectors.toList());
 
-        return modulePasswordCount + technoPasswordCount;
-    }
+            Set<Platform.Key> platformsWithPassword = getPlatformsWithPassword(allApplicationsPlatforms);
+            applications = applications.stream()
+                    .map(application -> application.withPasswordIndicator(platformsWithPassword))
+                    .collect(Collectors.toList());
+        }
 
-    public List<ApplicationView> getAllApplicationsDetail() {
-        return platformQueries.getAllApplicationsDetail();
+        return applications;
     }
 }

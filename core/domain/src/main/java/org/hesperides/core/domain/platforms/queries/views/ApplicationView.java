@@ -20,12 +20,32 @@
  */
 package org.hesperides.core.domain.platforms.queries.views;
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 
 import java.util.List;
+import java.util.Set;
 
 @Value
+@AllArgsConstructor
 public class ApplicationView {
     String name;
     List<PlatformView> platforms;
+    ApplicationDirectoryGroupsView directoryGroups;
+
+    public ApplicationView(String name, List<PlatformView> platforms) {
+        this.name = name;
+        this.platforms = platforms;
+        this.directoryGroups = null;
+    }
+
+    public ApplicationView withDirectoryGoups(ApplicationDirectoryGroupsView applicationDirectoryGroups) {
+        return new ApplicationView(name, platforms, applicationDirectoryGroups);
+    }
+
+    public ApplicationView withPasswordIndicator(Set<Platform.Key> platformsWithPassword) {
+        return new ApplicationView(name, PlatformView.setPlatformsWithPasswordIndicator(platforms, platformsWithPassword), directoryGroups);
+    }
 }

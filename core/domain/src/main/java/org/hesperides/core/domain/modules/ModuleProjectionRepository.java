@@ -2,6 +2,7 @@ package org.hesperides.core.domain.modules;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
@@ -59,8 +60,8 @@ public interface ModuleProjectionRepository {
     List<TemplateContainerKeyView> onGetModulesUsingTechnoQuery(GetModulesUsingTechnoQuery query);
 
     @QueryHandler
-    Integer onCountPasswordQuery(CountPasswordsQuery query);
+    List<ModuleView> onGetModulesWithinQuery(GetModulesWithinQuery query);
 
     @QueryHandler
-    List<TemplateContainerKeyView> onGetDistinctTechnoKeysInModulesQuery(GetDistinctTechnoKeysInModulesQuery query);
+    List<Module.Key> onGetModulesWithPasswordWithinQuery(GetModulesWithPasswordWithinQuery query);
 }

@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
@@ -45,7 +46,16 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
     public GetPlatforms() {
 
-        When("^(?:when )?I( try to)? get the platform detail( at a specific time in the past)?( at the time of the EPOCH)?( with the wrong letter case)?$", (String tryTo, String withTimestamp, String withEpochTimestamp, String withWrongLetterCase) -> {
+        When("^(?:when )?I( try to)? get the platform detail" +
+                "( at a specific time in the past)?" +
+                "( at the time of the EPOCH)?" +
+                "( with the wrong letter case)?" +
+                "( requesting the password flag)?$", (
+                String tryTo,
+                String withTimestamp,
+                String withEpochTimestamp,
+                String withWrongLetterCase,
+                String requestingThePasswordFlag) -> {
             Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
                 timestamp = platformHistory.getFirstPlatformTimestamp();
@@ -56,7 +66,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {
                 platformInput = new PlatformBuilder().withPlatformName(platformBuilder.getPlatformName().toUpperCase()).buildInput();
             }
-            testContext.setResponseEntity(platformClient.get(platformInput, timestamp, getResponseType(tryTo, PlatformIO.class)));
+            testContext.setResponseEntity(platformClient.get(platformInput, timestamp, StringUtils.isNotEmpty(requestingThePasswordFlag), getResponseType(tryTo, PlatformIO.class)));
         });
 
         Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {
@@ -77,6 +87,12 @@ public class GetPlatforms extends HesperidesScenario implements En {
                     .mapToInt(deployedModule -> deployedModule.getInstances().size())
                     .sum();
             assertEquals(expectedCount.intValue(), instancesCount);
+        });
+
+        Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
+            Boolean hasPasswords = testContext.getResponseBody(PlatformIO.class).getHasPasswords();
+            Assertions.assertThat(hasPasswords).isNotNull();
+            assertEquals("true".equals(trueOrFalse), hasPasswords);
         });
     }
 }

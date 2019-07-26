@@ -77,7 +77,6 @@ public class PlatformsController extends AbstractController {
             Platform.Key existingPlatformKey = new Platform.Key(fromApplication, fromPlatform);
             platformId = platformUseCases.copyPlatform(newPlatform, existingPlatformKey, copyInstancesAndProperties, new User(authentication));
         }
-
         PlatformView platformView = platformUseCases.getPlatform(platformId);
         PlatformIO platformOutput = new PlatformIO(platformView);
 
@@ -88,15 +87,14 @@ public class PlatformsController extends AbstractController {
     @GetMapping("/{application_name}/platforms/{platform_name:.+}")
     public ResponseEntity<PlatformIO> getPlatform(@PathVariable("application_name") final String applicationName,
                                                   @PathVariable("platform_name") final String platformName,
-                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp) {
+                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp,
+                                                  @RequestParam(value = "with_password_info", required = false) final Boolean withPasswordFlag) {
 
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        PlatformView platformView;
-        if (timestamp != null) {
-            platformView = platformUseCases.getPlatformAtPointInTime(platformKey, timestamp);
-        } else {
-            platformView = platformUseCases.getPlatform(platformKey);
-        }
+        PlatformView platformView = timestamp == null
+                ? platformUseCases.getPlatform(platformKey, Boolean.TRUE.equals(withPasswordFlag))
+                : platformUseCases.getPlatformAtPointInTime(platformKey, timestamp);
+
         PlatformIO platformOutput = new PlatformIO(platformView);
         return ResponseEntity.ok(platformOutput);
     }
