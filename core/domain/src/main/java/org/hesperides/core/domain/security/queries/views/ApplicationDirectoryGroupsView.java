@@ -38,9 +38,14 @@ public class ApplicationDirectoryGroupsView {
     public ApplicationDirectoryGroupsView(String id, String applicationName, List<String> directoryGroupDNs) {
         this.id = id;
         this.applicationName = applicationName;
-        this.directoryGroupDNs = new HashMap<>();
-        ApplicationProdRole applicationProdRole = new ApplicationProdRole(applicationName);
-        this.directoryGroupDNs.put(applicationProdRole.getAuthority(), directoryGroupDNs);
+        this.directoryGroupDNs = directoryGroupsMapFromAppNameAndList(applicationName, directoryGroupDNs);
+    }
+
+    public static Map<String, List<String>> directoryGroupsMapFromAppNameAndList(String appName, List<String> directoryGroups) {
+        Map<String, List<String>> directoryGroupsMap = new HashMap<>();
+        ApplicationProdRole applicationProdRole = new ApplicationProdRole(appName);
+        directoryGroupsMap.put(applicationProdRole.getAuthority(), directoryGroups);
+        return directoryGroupsMap;
     }
 
     public Map<String, List<String>> getDirectoryGroupCNs() {

@@ -7,7 +7,9 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.application.security.ApplicationDirectoryGroupsUseCases;
 import org.hesperides.core.domain.platforms.queries.views.ApplicationView;
 import org.hesperides.core.domain.platforms.queries.views.SearchApplicationResultView;
+import org.hesperides.core.domain.security.entities.ApplicationDirectoryGroups;
 import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
@@ -26,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.hesperides.core.domain.security.queries.views.ApplicationDirectoryGroupsView.directoryGroupsMapFromAppNameAndList;
 
 @Slf4j
 @Api(tags = "3. Applications", description = " ")
@@ -101,16 +104,20 @@ public class ApplicationsController extends AbstractController {
 
     @ApiOperation("Update the directory groups of an application")
     @PutMapping("/{application_name}/directory_groups")
-    public ResponseEntity setDirectoryGroups(Authentication authentication,
-                                             @PathVariable("application_name") final String applicationName,
-                                             @Valid @RequestBody final ApplicationDirectoryGroupsInput applicationDirectoryGroupsInput) {
+    public ResponseEntity<Map<String, List<String>>> setDirectoryGroups(Authentication authentication,
+                                                                        @PathVariable("application_name") final String applicationName,
+                                                                        @Valid @RequestBody final ApplicationDirectoryGroupsInput applicationDirectoryGroupsInput) {
 
-        applicationDirectoryGroupsUseCases.setApplicationDirectoryGroups(
+        ApplicationDirectoryGroups appDirectoryGroups = applicationDirectoryGroupsUseCases.setApplicationDirectoryGroups(
                 applicationName,
                 applicationDirectoryGroupsInput.getDirectoryGroups(),
                 new User(authentication));
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                directoryGroupsMapFromAppNameAndList(applicationName,
+                        appDirectoryGroups.getDirectoryGroupDNs().stream()
+                                .map(DirectoryGroupDN::extractCnFromDn)
+                                .collect(Collectors.toList())));
     }
 
     @ApiOperation("Get all applications, their platforms and their modules (with a cache)")
