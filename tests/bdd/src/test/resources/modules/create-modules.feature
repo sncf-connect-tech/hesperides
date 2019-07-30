@@ -15,7 +15,7 @@ Feature: Create modules
     When I try to create this module
     Then the module creation is rejected with a conflict error
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: forbid creation of a module with a same name but different letter case
     Given an existing module
     And a module to create with the same name and version but different letter case

@@ -38,16 +38,14 @@ import static org.junit.Assert.assertEquals;
 
 public class GetTechnoTemplates extends HesperidesScenario implements En {
 
+    private static int nbTemplates = 12;
     @Autowired
     private TechnoClient technoClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
-
     private List<PartialTemplateIO> expectedPartialTemplates = new ArrayList<>();
-
-    private static int nbTemplates = 12;
 
     public GetTechnoTemplates() {
 
@@ -69,16 +67,16 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
+            testContext.setResponseEntity(technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class)));
         });
 
         When("^I( try to)? get this template in this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+            testContext.setResponseEntity(technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
         });
 
         Then("^a list of all the templates of the techno is returned$", () -> {
             assertOK();
-            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) testContext.getResponseBody());
+            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()
                             .filter(t -> !TemplateBuilder.DEFAULT_NAME.equals(t.getName()))
@@ -88,7 +86,7 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
         Then("^the techno template is successfully returned$", () -> {
             assertOK();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(technoBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
+            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
 

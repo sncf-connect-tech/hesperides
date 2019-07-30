@@ -37,7 +37,6 @@ import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -77,11 +76,11 @@ public class GetProperties extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withIncorrectVersionType)) {
                 moduleBuilder.withVersionType("TOTO");
             }
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class));
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class)));
         });
 
         When("^I get the global properties of this platform$", () -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), "#");
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), "#"));
         });
 
         Then("^the platform property values are(?: also)? copied$", () -> {
@@ -101,7 +100,7 @@ public class GetProperties extends HesperidesScenario implements En {
 
             ModelOutput model = (ModelOutput) moduleClient.getModel(moduleBuilder.build(), ModelOutput.class).getBody();
             Map<String, PropertyOutput> propertyModelsPerName = model.getProperties().stream().collect(Collectors.toMap(PropertyOutput::getName, Function.identity()));
-            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
 
             List<ValuedProperty> actualDomainProperties = toDomainInstances(actualProperties.getValuedProperties());
             List<String> actualPropertyValues = isBlank(selectPasswordProps) ? extractValues(actualDomainProperties) : extractValuesIfPasswordOrNot(actualDomainProperties, propertyModelsPerName, "password ".equals(selectPasswordProps));
@@ -116,23 +115,23 @@ public class GetProperties extends HesperidesScenario implements En {
         Then("^the( initial)? platform( global)? properties are successfully retrieved$", (String initial, String global) -> {
             assertOK();
             PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformProperties() : platformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
-            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedProperties, actualProperties);
         });
 
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
-            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             assertTrue(matchingProperty.isPresent());
             assertEquals(expectedValue, matchingProperty.get().getValue());
         });
 
         Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
-            testContext.responseEntity = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
-            PropertiesIO actualProperties = (PropertiesIO)testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
             assertFalse(matchingProperty.isPresent());
         });

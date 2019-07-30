@@ -62,18 +62,18 @@ public class PlatformIO {
     @SerializedName("version_id")
     @JsonProperty("version_id")
     Long versionId;
+    @SerializedName("has_passwords")
+    @JsonProperty("has_passwords")
+    Boolean hasPasswords;
 
     public PlatformIO(PlatformView platformView) {
-        this(platformView, false);
-    }
-
-    public PlatformIO(PlatformView platformView, boolean hidePlatformsModules) {
         platformName = platformView.getPlatformName();
         applicationName = platformView.getApplicationName();
         version = platformView.getVersion();
         isProductionPlatform = platformView.isProductionPlatform();
-        deployedModules = hidePlatformsModules ? Collections.emptyList() : DeployedModuleIO.fromActiveDeployedModuleViews(platformView.getActiveDeployedModules());
+        deployedModules = DeployedModuleIO.fromActiveDeployedModuleViews(platformView.getActiveDeployedModules());
         versionId = platformView.getVersionId();
+        this.hasPasswords = platformView.getHasPasswords();
     }
 
     public Platform toDomainInstance() {
@@ -87,11 +87,11 @@ public class PlatformIO {
         );
     }
 
-    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews, boolean hidePlatformsModules) {
+    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
         return Optional.ofNullable(platformViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(platformView -> new PlatformIO(platformView, hidePlatformsModules))
+                .map(platformView -> new PlatformIO(platformView))
                 .collect(toList());
     }
 }

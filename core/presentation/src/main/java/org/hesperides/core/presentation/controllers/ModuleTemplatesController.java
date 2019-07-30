@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Api(tags = "2. Module templates", description = " ")
 @RequestMapping("/modules/{module_name}/{module_version}")
@@ -87,7 +87,7 @@ public class ModuleTemplatesController extends AbstractController {
 
         final TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
-        moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
+        moduleUseCases.createTemplateInWorkingCopy(moduleKey, template, new User(authentication));
 
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, template.getName())
                 .map(TemplateIO::new)
@@ -105,7 +105,7 @@ public class ModuleTemplatesController extends AbstractController {
 
         final TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
         Template template = templateInput.toDomainInstance(moduleKey);
-        moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, fromAuthentication(authentication));
+        moduleUseCases.updateTemplateInWorkingCopy(moduleKey, template, new User(authentication));
 
         TemplateIO templateOutput = moduleUseCases.getTemplate(moduleKey, template.getName())
                 .map(TemplateIO::new)
@@ -126,7 +126,7 @@ public class ModuleTemplatesController extends AbstractController {
 
         String templateName = extractFilePath(request);
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, TemplateContainer.VersionType.workingcopy);
-        this.moduleUseCases.deleteTemplate(moduleKey, templateName, fromAuthentication(authentication));
+        this.moduleUseCases.deleteTemplate(moduleKey, templateName, new User(authentication));
 
         return ResponseEntity.noContent().build();
     }

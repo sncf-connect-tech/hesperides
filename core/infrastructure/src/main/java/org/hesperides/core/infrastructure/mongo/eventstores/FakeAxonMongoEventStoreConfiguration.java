@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.net.InetSocketAddress;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
 
 @Configuration
 @Profile(FAKE_MONGO)

@@ -1,7 +1,7 @@
 package org.hesperides.core.domain.technos.commands;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.*;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.Template;

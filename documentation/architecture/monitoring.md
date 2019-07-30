@@ -64,3 +64,4 @@ Nous vous recommandons de filtrer les erreurs conventionnelles correspondant à 
     AccessDeniedException*
     RequiredPropertyNotValorisedException*
     MethodArgumentNotValidException*
+    MustacheException

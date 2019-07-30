@@ -20,7 +20,7 @@ public class GetModulesTypes extends HesperidesScenario implements En {
 
         When("^I get the module types$", () -> {
             ModuleIO module = moduleBuilder.build();
-            testContext.responseEntity = moduleClient.getTypes(module.getName(), module.getVersion());
+            testContext.setResponseEntity(moduleClient.getTypes(module.getName(), module.getVersion()));
         });
 
         Then("^a list containing workingcopy and release is returned$", () -> {

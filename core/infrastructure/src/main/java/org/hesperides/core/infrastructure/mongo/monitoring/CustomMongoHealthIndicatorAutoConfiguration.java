@@ -32,25 +32,24 @@ import java.util.Map;
 // Inspiré de : https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-actuator-autoconfigure/src/main/java/org/springframework/boot/actuate/autoconfigure/mongo/MongoHealthIndicatorAutoConfiguration.java
 @Configuration
 public class CustomMongoHealthIndicatorAutoConfiguration extends
-		CompositeHealthIndicatorConfiguration<CustomMongoHealthIndicator, MongoTemplate> {
+        CompositeHealthIndicatorConfiguration<CustomMongoHealthIndicator, MongoTemplate> {
 
-	@Autowired
-	private Map<String, MongoTemplate> mongoTemplates;
+    @Autowired
+    private Map<String, MongoTemplate> mongoTemplates;
 
-	@Bean(name = "mongoHealthIndicator")
-	public HealthIndicator mongoHealthIndicator() {
-		return createHealthIndicator(this.mongoTemplates);
-	}
+    @Bean(name = "mongoHealthIndicator")
+    public HealthIndicator mongoHealthIndicator() {
+        return createHealthIndicator(this.mongoTemplates);
+    }
 
-	@Bean
-	@ConditionalOnBean(name=AxonMongoEventStoreConfiguration.MONGO_TEMPLATE_BEAN_NAME)
-	public static MongoHealthProbe axonEventStoreRepositoryLatencyProbe(@Qualifier(AxonMongoEventStoreConfiguration.MONGO_TEMPLATE_BEAN_NAME) MongoTemplate mongoTemplate) {
-		return new MongoHealthProbe("axonEventStore", mongoTemplate);
-	}
+    @Bean
+    @ConditionalOnBean(name = AxonMongoEventStoreConfiguration.MONGO_TEMPLATE_BEAN_NAME)
+    public static MongoHealthProbe axonEventStoreRepositoryLatencyProbe(@Qualifier(AxonMongoEventStoreConfiguration.MONGO_TEMPLATE_BEAN_NAME) MongoTemplate mongoTemplate) {
+        return new MongoHealthProbe("axonEventStore", mongoTemplate);
+    }
 
-	@Bean
-	public static MongoHealthProbe mongoProjectionRepositoryLatencyProbe(@Qualifier(MongoProjectionRepositoryConfiguration.MONGO_TEMPLATE_BEAN_NAME) MongoTemplate mongoTemplate) {
-		return new MongoHealthProbe("mongoProjection", mongoTemplate);
-	}
-
+    @Bean
+    public static MongoHealthProbe mongoProjectionRepositoryLatencyProbe(@Qualifier(MongoProjectionRepositoryConfiguration.MONGO_TEMPLATE_BEAN_NAME) MongoTemplate mongoTemplate) {
+        return new MongoHealthProbe("mongoProjection", mongoTemplate);
+    }
 }

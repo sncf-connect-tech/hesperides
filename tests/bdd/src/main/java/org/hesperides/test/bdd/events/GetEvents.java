@@ -9,7 +9,6 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasProperty;
@@ -20,8 +19,6 @@ import static org.junit.Assert.assertThat;
 public class GetEvents extends HesperidesScenario implements En {
 
     @Autowired
-    private RestTemplate restTemplate;
-    @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
@@ -29,21 +26,21 @@ public class GetEvents extends HesperidesScenario implements En {
     public GetEvents() {
 
         When("^I( try to)? get the events of this module$", (String tryTo) -> {
-            testContext.responseEntity = getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class));
+            testContext.setResponseEntity(getModuleEvents(moduleBuilder.build(), getResponseType(tryTo, EventOutput[].class)));
         });
 
         When("^I( try to)? get the events of this platform$", (String tryTo) -> {
-            testContext.responseEntity = getPlatformEvents(platformBuilder.buildInput(), getResponseType(tryTo, EventOutput[].class));
+            testContext.setResponseEntity(getPlatformEvents(platformBuilder.buildInput(), getResponseType(tryTo, EventOutput[].class)));
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {
             assertOK();
-            EventOutput[] events = (EventOutput[]) testContext.getResponseBody();
+            EventOutput[] events = testContext.getResponseBody(EventOutput[].class);
             assertEquals(nbEvents.intValue(), events.length);
         });
 
         Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
-            EventOutput[] events = (EventOutput[]) testContext.getResponseBody();
+            EventOutput[] events = testContext.getResponseBody(EventOutput[].class);
             assertThat(events[index], hasProperty("type", endsWith(eventType)));
         });
     }

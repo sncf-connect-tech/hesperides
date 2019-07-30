@@ -34,11 +34,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.hesperides.core.infrastructure.Constants.PLATFORM_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.PLATFORM;
 
 
 @Data
-@Document(collection = PLATFORM_COLLECTION_NAME)
+@Document(collection = PLATFORM)
 @NoArgsConstructor
 public class PlatformDocument {
 

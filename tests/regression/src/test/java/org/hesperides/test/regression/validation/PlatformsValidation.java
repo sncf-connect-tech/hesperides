@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 @Component
 public class PlatformsValidation extends AbstractValidation {
 
+    public static final String PLATFORM_KEY_PREFIX = "platform";
     private static final String GET_APPLICATIONS = "applications";
     private static final String GET_APPLICATION_DETAIL = "applications/{application}";
     private static final String GET_PLATFORM_DETAIL = "applications/{application}/platforms/{platform}";
@@ -41,7 +42,6 @@ public class PlatformsValidation extends AbstractValidation {
     private static final String GET_GLOBAL_PROPERTIES = "applications/{application}/platforms/{platform}/properties?path=#";
     private static final String GET_PROPERTIES = "applications/{application}/platforms/{platform}/properties?path={properties_path}";
     private static final String GET_INSTANCE_MODEL = "applications/{application}/platforms/{platform}/properties/instance_model?path={properties_path}";
-
     private static final String GET_FILES =
             "files/applications/{application_name}" +
                     "/platforms/{platform_name}" +
@@ -49,9 +49,7 @@ public class PlatformsValidation extends AbstractValidation {
                     "/instances/{instance_name}" +
                     "?isWorkingCopy={is_working_copy}" +
                     "&simulate={simulate}";
-
     private static final String DEFAULT_INSTANCE_NAME = "default";
-    public static final String PLATFORM_KEY_PREFIX = "platform";
 
     public void validate() {
         testApplications();

@@ -22,11 +22,13 @@ package org.hesperides.core.infrastructure.mongo.templatecontainers;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Document
@@ -43,7 +45,13 @@ public class KeyDocument implements Serializable {
         this.isWorkingCopy = key.isWorkingCopy();
     }
 
-    public static TechnoModuleView toTechnoModuleView(KeyDocument moduleKeyDocument) {
-        return new TechnoModuleView(moduleKeyDocument.getName(), moduleKeyDocument.getVersion(), moduleKeyDocument.isWorkingCopy);
+    public static TemplateContainerKeyView toKeyView(KeyDocument keyDocument) {
+        return new TemplateContainerKeyView(keyDocument.getName(), keyDocument.getVersion(), keyDocument.isWorkingCopy());
+    }
+
+    public static List<KeyDocument> fromModelKeys(List<? extends TemplateContainer.Key> keys) {
+        return keys.stream()
+                .map(KeyDocument::new)
+                .collect(Collectors.toList());
     }
 }

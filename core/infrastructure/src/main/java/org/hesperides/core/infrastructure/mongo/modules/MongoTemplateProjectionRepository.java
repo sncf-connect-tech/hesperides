@@ -33,14 +33,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository

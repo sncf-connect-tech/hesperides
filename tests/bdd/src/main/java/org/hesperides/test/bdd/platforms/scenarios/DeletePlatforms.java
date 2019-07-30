@@ -41,7 +41,7 @@ public class DeletePlatforms extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? delete this platform$", (String tryTo) -> {
-            testContext.responseEntity = platformClient.delete(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class));
+            testContext.setResponseEntity(platformClient.delete(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
         });
 
         Then("^the platform is successfully deleted", () -> {

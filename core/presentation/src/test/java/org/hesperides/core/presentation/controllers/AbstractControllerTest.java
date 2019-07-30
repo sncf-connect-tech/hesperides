@@ -24,6 +24,8 @@ import org.hesperides.core.application.events.EventUseCases;
 import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.application.platforms.PlatformUseCases;
+import org.hesperides.core.application.security.ApplicationDirectoryGroupsUseCases;
+import org.hesperides.core.application.security.UserUseCases;
 import org.hesperides.core.application.technos.TechnoUseCases;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,4 +44,8 @@ public abstract class AbstractControllerTest {
     protected EventUseCases eventUseCases;
     @MockBean
     protected FileUseCases fileUseCases;
+    @MockBean
+    protected UserUseCases userUseCases;
+    @MockBean
+    protected ApplicationDirectoryGroupsUseCases applicationDirectoryGroupsUseCases;
 }

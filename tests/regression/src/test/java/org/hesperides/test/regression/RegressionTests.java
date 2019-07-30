@@ -38,23 +38,18 @@ import org.springframework.test.context.junit4.SpringRunner;
         initializers = ConfigFileApplicationContextInitializer.class)
 public class RegressionTests {
 
-    @ComponentScan({"org.hesperides.test.regression"})
-    static class NRContextConfiguration {
-    }
-
-    @Value("${regressionTest.validate.technos}")
-    private boolean validateTechnos;
-    @Value("${regressionTest.validate.modules}")
-    private boolean validateModules;
-    @Value("${regressionTest.validate.platforms}")
-    private boolean validatePlatforms;
-
     @Autowired
     TechnosValidation technosValidation;
     @Autowired
     ModulesValidation modulesValidation;
     @Autowired
     PlatformsValidation platformsValidation;
+    @Value("${regressionTest.validate.technos}")
+    private boolean validateTechnos;
+    @Value("${regressionTest.validate.modules}")
+    private boolean validateModules;
+    @Value("${regressionTest.validate.platforms}")
+    private boolean validatePlatforms;
     @Autowired
     private RegressionLogs regressionLogs;
 
@@ -78,5 +73,9 @@ public class RegressionTests {
         } else {
             regressionLogs.logSuccess();
         }
+    }
+
+    @ComponentScan({"org.hesperides.test.regression"})
+    static class NRContextConfiguration {
     }
 }

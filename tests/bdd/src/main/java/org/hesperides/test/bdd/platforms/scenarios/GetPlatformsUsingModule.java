@@ -47,7 +47,7 @@ public class GetPlatformsUsingModule extends HesperidesScenario implements En {
     public GetPlatformsUsingModule() {
 
         When("^I get the platforms using this module$", () -> {
-            testContext.responseEntity = platformClient.getPlatformsUsingModule(moduleBuilder.build());
+            testContext.setResponseEntity(platformClient.getPlatformsUsingModule(moduleBuilder.build()));
         });
 
         Then("^the platforms using this module are successfully retrieved", () -> {

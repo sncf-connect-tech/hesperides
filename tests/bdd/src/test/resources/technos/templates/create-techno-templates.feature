@@ -41,8 +41,8 @@ Feature: Create techno templates
     And I add this template to the techno
     Then the template is successfully added to the techno
 
-    Scenario: add a template that already exists
-      Given an existing techno
-      And a template to create with the same name as the existing one
-      When I try to add this template to the techno
-      Then the module template creation is rejected with a conflict error
+  Scenario: add a template that already exists
+    Given an existing techno
+    And a template to create with the same name as the existing one
+    When I try to add this template to the techno
+    Then the module template creation is rejected with a conflict error

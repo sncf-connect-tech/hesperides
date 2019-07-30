@@ -18,6 +18,11 @@
             <groupId>org.hesperides</groupId>
             <artifactId>domain</artifactId>
         </dependency>
+        <!-- Commons -->
+        <dependency>
+            <groupId>org.hesperides</groupId>
+            <artifactId>commons</artifactId>
+        </dependency>
 
         <!-- Spring -->
         <dependency>

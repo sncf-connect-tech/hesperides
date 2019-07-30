@@ -13,7 +13,7 @@ public class GetModulesName extends HesperidesScenario implements En {
     public GetModulesName() {
 
         When("^I get the modules name$", () -> {
-            testContext.responseEntity = moduleClient.getNames();
+            testContext.setResponseEntity(moduleClient.getNames());
         });
     }
 }

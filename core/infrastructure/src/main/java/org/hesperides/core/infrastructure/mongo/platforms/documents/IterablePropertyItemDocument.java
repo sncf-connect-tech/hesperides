@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class IterablePropertyItemDocument {
 
-    String title;
+    private String title;
     private List<AbstractValuedPropertyDocument> abstractValuedProperties;
 
     public IterablePropertyItemDocument(final IterablePropertyItem iterablePropertyItem) {

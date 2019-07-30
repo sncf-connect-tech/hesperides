@@ -47,17 +47,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    @ExceptionHandler({
-            IllegalArgumentException.class,
-            UpdateReleaseException.class,
-            InvalidPropertyValorisationException.class,
-            InvalidTemplateException.class})
+    @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler({ForbiddenOperationException.class, AccessDeniedException.class})
-    public ResponseEntity handleUnauthorized(Exception ex) {
+    public ResponseEntity handleForbidden(Exception ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 

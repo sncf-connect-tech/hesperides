@@ -11,7 +11,7 @@
 
 Hesperides is an open source tool generating content from a template file (using mustache) in a given environment.
 
-Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesperides frontend.
+The frontend interface is hosted here: https://github.com/voyages-sncf-technologies/hesperides-gui
 
 
 ## To test the app quickly
@@ -20,6 +20,28 @@ Go to https://github.com/voyages-sncf-technologies/hesperides-gui to handle hesp
 
 ## Requirements
 
+ * Java 8 (openjdk, sun)
+ 
+ Choose between:
+
+ * Docker (see docker-compose & Dockerfile files)
+ 
+ And :
+ 
+ * MongoDB
+
+Or just launch the application with those Spring Profiles: noldap, fake_mongo
+
+## Build
+
+Build the whole project:
+ 
+    mvn package
+
+Build Docker image
+
+    docker build . -t hesperides/hesperides
+    
 This Java [Spring Boot](https://spring.io/projects/spring-boot) application uses [MongoDB](https://www.mongodb.com) for storage
 and [Axon](https://axoniq.io) to implement event sourcing.
 
