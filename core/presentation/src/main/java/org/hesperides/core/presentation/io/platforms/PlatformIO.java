@@ -91,7 +91,7 @@ public class PlatformIO {
         return Optional.ofNullable(platformViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(platformView -> new PlatformIO(platformView))
+                .map(PlatformIO::new)
                 .collect(toList());
     }
 }

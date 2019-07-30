@@ -33,7 +33,8 @@ public class CucumberTests {
     }
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
-    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, "test"})  // Ce dernier profil active la prise en compte du application-test.yml
+    // Ce dernier profil active la prise en compte du application-test.yml
+    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, "test"})
     @Configuration
     @ContextConfiguration
     @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException
