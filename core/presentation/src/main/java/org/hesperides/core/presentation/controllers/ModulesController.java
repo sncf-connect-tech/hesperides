@@ -29,13 +29,13 @@ import org.hesperides.core.application.modules.ModuleUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.TechnoModulesOutput;
+import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 @Slf4j
 @Api(tags = "1. Modules", description = " ", position = 1)
@@ -75,7 +74,7 @@ public class ModulesController extends AbstractController {
         log.info("createWorkingCopy {}", moduleInput.toString());
 
         String moduleId;
-        User currentUser = fromAuthentication(authentication);
+        User currentUser = new User(authentication);
         if (StringUtils.isBlank(fromModuleName)
                 && StringUtils.isBlank(fromModuleVersion)
                 && isFromWorkingCopy == null) {
@@ -105,7 +104,7 @@ public class ModulesController extends AbstractController {
         log.info("Updating module workingcopy {}", moduleInput.toString());
 
         Module module = moduleInput.toDomainInstance();
-        moduleUseCases.updateModuleTechnos(module, fromAuthentication(authentication));
+        moduleUseCases.updateModuleTechnos(module, new User(authentication));
         ModuleIO moduleOutput = moduleUseCases.getModule(module.getKey())
                 .map(ModuleIO::new)
                 .orElseThrow(() -> new ModuleNotFoundException(module.getKey()));
@@ -175,7 +174,7 @@ public class ModulesController extends AbstractController {
         log.info("deleteModule {} {}", moduleName, moduleVersion);
 
         TemplateContainer.Key moduleKey = new Module.Key(moduleName, moduleVersion, moduleVersionType);
-        moduleUseCases.deleteModule(moduleKey, fromAuthentication(authentication));
+        moduleUseCases.deleteModule(moduleKey, new User(authentication));
 
         return ResponseEntity.ok().build();
     }
@@ -192,7 +191,7 @@ public class ModulesController extends AbstractController {
         checkQueryParameterNotEmpty("module_name", moduleName);
         checkQueryParameterNotEmpty("module_version", moduleVersion);
 
-        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, fromAuthentication(authentication));
+        ModuleView moduleView = moduleUseCases.createRelease(moduleName, moduleVersion, releaseVersion, new User(authentication));
         ModuleIO moduleOutput = new ModuleIO(moduleView);
 
         return ResponseEntity.ok(moduleOutput);
@@ -260,14 +259,14 @@ public class ModulesController extends AbstractController {
 
     @ApiOperation("Retrieve modules using techno")
     @GetMapping("/using_techno/{techno_name}/{techno_version}/{techno_type}")
-    public ResponseEntity<List<TechnoModulesOutput>> getModulesUsingTechno(@PathVariable("techno_name") final String technoName,
-                                                                           @PathVariable("techno_version") final String technoVersion,
-                                                                           @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType) {
+    public ResponseEntity<List<ModuleKeyOutput>> getModulesUsingTechno(@PathVariable("techno_name") final String technoName,
+                                                                       @PathVariable("techno_version") final String technoVersion,
+                                                                       @PathVariable("techno_type") final TemplateContainer.VersionType technoVersionType) {
 
         Techno.Key technoKey = new Techno.Key(technoName, technoVersion, technoVersionType);
-        List<TechnoModuleView> technoModulesViews = moduleUseCases.getModulesUsingTechno(technoKey);
-        List<TechnoModulesOutput> technoModulesOutputs = TechnoModulesOutput.fromViews(technoModulesViews);
+        List<TemplateContainerKeyView> moduleKeys = moduleUseCases.getModulesUsingTechno(technoKey);
+        List<ModuleKeyOutput> moduleKeyOutputs = ModuleKeyOutput.fromViews(moduleKeys);
 
-        return ResponseEntity.ok(technoModulesOutputs);
+        return ResponseEntity.ok(moduleKeyOutputs);
     }
 }

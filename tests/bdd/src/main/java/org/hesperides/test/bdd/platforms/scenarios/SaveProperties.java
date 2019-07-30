@@ -51,27 +51,27 @@ public class SaveProperties extends HesperidesScenario implements En {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
             propertiesIO = new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet());
-            testContext.responseEntity = platformClient.saveProperties(
+            testContext.setResponseEntity(platformClient.saveProperties(
                     platformBuilder.buildInput(),
                     propertiesIO,
                     moduleBuilder.getPropertiesPath(),
-                    getResponseType(tryTo, PropertiesIO.class));
+                    getResponseType(tryTo, PropertiesIO.class)));
         });
 
         Given("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
             platformBuilder.withIterableProperties(iterableProperties);
-            testContext.responseEntity = platformClient.saveProperties(
+            testContext.setResponseEntity(platformClient.saveProperties(
                     platformBuilder.buildInput(),
                     platformBuilder.getPropertiesIO(false),
                     moduleBuilder.getPropertiesPath(),
-                    getResponseType(tryTo, PropertiesIO.class));
+                    getResponseType(tryTo, PropertiesIO.class)));
         });
 
         Then("^the properties are successfully saved$", () -> {
             assertOK();
             PropertiesIO expectedProperties = propertiesIO;
-            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedProperties, actualProperties);
         });
     }

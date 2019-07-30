@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 @Component
 public class ModulesValidation extends AbstractValidation {
 
+    public static final String MODULE_KEY_PREFIX = "module";
     private static final String GET_MODULE_NAMES = "modules";
     private static final String GET_MODULE_VERSIONS = "modules/{name}";
     private static final String GET_MODULE_TYPES = "modules/{name}/{version}";
@@ -41,8 +42,6 @@ public class ModulesValidation extends AbstractValidation {
     private static final String GET_MODULE_TEMPLATES = "modules/{name}/{version}/{type}/templates";
     private static final String GET_MODULE_TEMPLATE_DETAIL = "modules/{name}/{version}/{type}/templates/{template_name}";
     private static final String GET_PLATFORMS_USING_MODULE = "applications/using_module/{name}/{version}/{type}";
-
-    public static final String MODULE_KEY_PREFIX = "module";
 
     public void validate() {
         // On commence par récupérer la liste des noms de modules pour récupérer leur versions,

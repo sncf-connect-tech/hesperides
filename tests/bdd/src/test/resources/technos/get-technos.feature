@@ -8,7 +8,7 @@ Feature: Get technos details
     When I get the techno detail
     Then the techno detail is successfully retrieved
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: get the detail of an existing techno with the wrong letter case
     Given an existing techno
     When I get the techno detail with the wrong letter case

@@ -37,14 +37,16 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+            testContext.setResponseEntity(
+                    technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class))
+            );
         });
 
         Then("^the techno is successfully released$", () -> {
             assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersionType(TemplateContainerHelper.RELEASE);
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
+            TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
             assertEquals(expectedTechno, actualTechno);
 
             // Compare les templates de la techno d'origine avec ceux de la techno en mode release
@@ -60,7 +62,6 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
 
         Then("^the techno release is rejected with a not found error$", () -> {
             assertNotFound();
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
         });
 
         Then("^the techno release is rejected with a conflict error$", () -> {

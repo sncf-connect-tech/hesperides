@@ -25,6 +25,15 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## 2019-07-26
+### Fixed
+
+- Ing Maven build. [Lucas Cimon]
+
+- Syntaxe du application.yml pour prendre en compte $AGGREGATES_LOG_LEVEL pour contrôler le niveau de logs de PlatformAggregate. [Lucas Cimon]
+
+
+
 ## 2019-07-22
 ### Fixed
 

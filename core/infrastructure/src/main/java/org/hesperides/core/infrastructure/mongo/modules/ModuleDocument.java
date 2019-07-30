@@ -5,11 +5,9 @@ import lombok.NoArgsConstructor;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.queries.ModuleSimplePropertiesView;
 import org.hesperides.core.domain.modules.queries.ModuleView;
-import org.hesperides.core.domain.modules.queries.TechnoModuleView;
 import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
 import org.hesperides.core.infrastructure.mongo.technos.TechnoDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.KeyDocument;
@@ -20,14 +18,13 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hesperides.core.infrastructure.Constants.MODULE_COLLECTION_NAME;
+import static org.hesperides.core.infrastructure.Collections.MODULE;
 
 @Data
-@Document(collection = MODULE_COLLECTION_NAME)
+@Document(collection = MODULE)
 @NoArgsConstructor
 public class ModuleDocument {
 
@@ -64,22 +61,8 @@ public class ModuleDocument {
     }
 
     public void updateTemplate(TemplateDocument updatedTemplateDocument) {
-        // Solution A
         removeTemplate(updatedTemplateDocument.getName());
         addTemplate(updatedTemplateDocument);
-
-        // Solution B
-        /*setTemplates(templates.stream()
-                .map(existingTemplateDocument -> existingTemplateDocument.getName().equalsIgnoreCase(updatedTemplateDocument.getName()) ? updatedTemplateDocument : existingTemplateDocument)
-                .collect(Collectors.toList()));*/
-
-        // Solution C
-        /*for (int i = 0; i < templates.size(); i++) {
-            if (templates.get(i).getName().equalsIgnoreCase(updatedTemplateDocument.getName())) {
-                templates.set(i, updatedTemplateDocument);
-                break;
-            }
-        }*/
     }
 
     public void removeTemplate(String templateName) {
@@ -94,8 +77,7 @@ public class ModuleDocument {
     private List<AbstractPropertyDocument> extractPropertiesFromTemplatesAndTechnos() {
         List<Template> allTemplates = getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments();
         List<AbstractProperty> abstractProperties = AbstractProperty.extractPropertiesFromTemplates(allTemplates, key.toString());
-        List<AbstractPropertyDocument> abstractPropertyDocuments = AbstractPropertyDocument.fromDomainInstances(abstractProperties);
-        return abstractPropertyDocuments;
+        return AbstractPropertyDocument.fromDomainInstances(abstractProperties);
     }
 
     private List<Template> getDomainTemplatesFromTemplateDocumentsAndTechnoDocuments() {

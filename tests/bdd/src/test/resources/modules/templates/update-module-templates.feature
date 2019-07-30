@@ -32,5 +32,3 @@ Feature: Update module templates
     And a template to update
     When I try to update this module template
     Then the module template update is rejected with a not found error
-
-    #TODO Différencier outdated version et ?

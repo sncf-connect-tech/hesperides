@@ -26,14 +26,14 @@ public class DeleteTechnos extends HesperidesScenario implements En {
     public DeleteTechnos() {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
-            testContext.responseEntity = technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+            testContext.setResponseEntity(technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class)));
             moduleBuilder.removeTechno(technoBuilder.build());
             modelBuilder.removeProperties(technoBuilder.getProperties());
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            testContext.responseEntity = technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class);
+            testContext.setResponseEntity(technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class));
             assertNotFound();
         });
 
@@ -47,9 +47,9 @@ public class DeleteTechnos extends HesperidesScenario implements En {
 
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
-            testContext.responseEntity = technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
+            testContext.setResponseEntity(technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class));
             assertEquals(0, getBodyAsArray().length);
-            testContext.responseEntity = technoClient.getTemplate(technoBuilder.build().getName(), technoBuilder.build(), String.class);
+            testContext.setResponseEntity(technoClient.getTemplate(technoBuilder.build().getName(), technoBuilder.build(), String.class));
             assertNotFound();
         });
 

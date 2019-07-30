@@ -23,13 +23,13 @@ public class GetInstancesModel extends HesperidesScenario implements En {
     public GetInstancesModel() {
 
         When("^I get the instance model$", () -> {
-            testContext.responseEntity = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath());
+            testContext.setResponseEntity(platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
         });
 
         Then("^the instance model is successfully retrieved$", () -> {
             assertOK();
             InstancesModelOutput expectedInstancesModel = platformBuilder.buildInstancesModel();
-            InstancesModelOutput actualInstancesModel = ((ResponseEntity<InstancesModelOutput>) testContext.responseEntity).getBody();
+            InstancesModelOutput actualInstancesModel = ((ResponseEntity<InstancesModelOutput>) testContext.getResponseEntity()).getBody();
             assertEquals(expectedInstancesModel, actualInstancesModel);
         });
     }

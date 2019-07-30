@@ -29,7 +29,7 @@ Feature: Search applications
     When I search for the application ""
     Then the application search result contains 12 entries
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: search for applications is case-insensitive
     Given an application named AVG
     When I search for the application "avg"

@@ -1,6 +1,7 @@
 package org.hesperides.core.application.files;
 
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /* Cette interface a 2 rôles :
  - coupler les modèles de propriétés avec leurs valorisations

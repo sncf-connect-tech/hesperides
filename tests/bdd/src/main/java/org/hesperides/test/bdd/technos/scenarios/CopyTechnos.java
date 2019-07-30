@@ -29,18 +29,18 @@ public class CopyTechnos extends HesperidesScenario implements En {
     public CopyTechnos() {
 
         When("^I( try to)? create a copy of this techno$", (String tryTo) -> {
-            testContext.responseEntity = copy("1.0.1", getResponseType(tryTo, TechnoIO.class));
+            testContext.setResponseEntity(copy("1.0.1", getResponseType(tryTo, TechnoIO.class)));
         });
 
         When("^I try to create a copy of this techno, using the same key$", () -> {
-            testContext.responseEntity = copy(technoBuilder.build().getVersion(), String.class);
+            testContext.setResponseEntity(copy(technoBuilder.build().getVersion(), String.class));
         });
 
         Then("^the techno is successfully duplicated$", () -> {
             assertCreated();
             TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersion("1.0.1");
             TechnoIO expectedTechno = expectedTechnoBuilder.build();
-            TechnoIO actualTechno = (TechnoIO) testContext.getResponseBody();
+            TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
             assertEquals(expectedTechno, actualTechno);
 
             // Vérifie la liste des templates
@@ -55,27 +55,21 @@ public class CopyTechnos extends HesperidesScenario implements En {
         });
 
         Then("^the model of the techno is the same$", () -> {
-            testContext.responseEntity = technoClient.getModel(technoBuilder.build(), ModelOutput.class);
+            testContext.setResponseEntity(technoClient.getModel(technoBuilder.build(), ModelOutput.class));
             assertOK();
             ModelOutput expectedModel = modelBuilder.build();
-            ModelOutput actualModel = (ModelOutput) testContext.getResponseBody();
+            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the version type of the duplicated techno is working copy$", () -> {
-            TechnoIO technoOutput = (TechnoIO) testContext.getResponseBody();
+            TechnoIO technoOutput = testContext.getResponseBody(TechnoIO.class);
             assertTrue(technoOutput.getIsWorkingCopy());
         });
 
-        Then("^the techno copy is rejected with a not found error$", () -> {
-            assertNotFound();
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
-        });
+        Then("^the techno copy is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the techno copy is rejected with a conflict error$", () -> {
-            assertConflict();
-            //TODO Vérifier si on doit renvoyer le même message que dans le legacy et tester le cas échéant
-        });
+        Then("^the techno copy is rejected with a conflict error$", this::assertConflict);
     }
 
     private ResponseEntity copy(String newVersion, Class responseType) {

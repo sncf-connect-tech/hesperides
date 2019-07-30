@@ -3,15 +3,12 @@ package org.hesperides.core.domain.modules.commands;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.hesperides.core.domain.modules.*;
 import org.hesperides.core.domain.modules.entities.Module;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * permet de regrouper les envois de commandes.
- */
 @Component
 public class ModuleCommands {
 

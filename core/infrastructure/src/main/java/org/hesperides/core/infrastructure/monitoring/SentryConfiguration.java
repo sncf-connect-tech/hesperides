@@ -85,6 +85,7 @@ public class SentryConfiguration {
 
     // Copy of WebMvcTags.getMatchingPattern
     private static final String DATA_REST_PATH_PATTERN_ATTRIBUTE = "org.springframework.data.rest.webmvc.RepositoryRestHandlerMapping.EFFECTIVE_REPOSITORY_RESOURCE_LOOKUP_PATH";
+
     private static String getMatchingPattern(HttpServletRequest request) {
         PathPattern dataRestPathPattern = (PathPattern) request
                 .getAttribute(DATA_REST_PATH_PATTERN_ATTRIBUTE);

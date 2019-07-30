@@ -154,7 +154,7 @@ public class PlatformBuilder {
     }
 
     public PlatformIO buildInput() {
-        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, deployedModules, versionId);
+        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, deployedModules, versionId, null);
     }
 
     public PlatformIO buildOutput() {
@@ -175,12 +175,12 @@ public class PlatformBuilder {
                     new DeployedModuleIO(moduleId.incrementAndGet(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
             ).collect(Collectors.toList());
         }
-        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId);
+        return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId, null);
     }
 
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
         PlatformIO platform = hidePlatform ? buildOutputWithoutModules() : buildOutput();
-        return new ApplicationOutput(applicationName, Arrays.asList(platform));
+        return new ApplicationOutput(applicationName, Arrays.asList(platform), Collections.emptyMap());
     }
 
     public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
@@ -271,6 +271,10 @@ public class PlatformBuilder {
 
     public Boolean getIsProductionPlatform() {
         return isProductionPlatform;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 
     @Value
