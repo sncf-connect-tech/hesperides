@@ -104,6 +104,15 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             assertThat(properties.getValuedProperties(), is(empty()));
         });
+
+        Then("^the platform version_id is incremented twice$", () -> {
+            Long expectedVersionId = platformBuilder.buildOutput().getVersionId();
+            final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), null, false, PlatformIO.class);
+            Long actualVersionId = responseEntity.getBody().getVersionId();
+            assertEquals(expectedVersionId, actualVersionId);
+        });
+
+        Then("^the platform update is rejected with a conflict error$", this::assertConflict);
     }
 
     @When("^I( try to)? update this platform" +
@@ -177,64 +186,5 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class)));
         platformHistory.addPlatform();
         platformBuilder.incrementVersionId();
-    }
-
-    public UpdatePlatforms() {
-        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)(?: updating the value of the \"([^\"]+)\" property accordingly)?$", (String versions, String propertyName) -> {
-            Arrays.stream(versions.split(", ")).forEach(version -> {
-                platformBuilder.setDeployedModulesVersion(version);
-                moduleBuilder.withVersion(version); // to update the properties path
-                testContext.responseEntity = platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class);
-                assertOK();
-                platformBuilder.incrementVersionId();
-                if (StringUtils.isNotEmpty(propertyName)) {
-                    platformBuilder.setProperty(propertyName, version);
-                    testContext.responseEntity = platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-                    assertOK();
-                    platformBuilder.incrementVersionId();
-                }
-                platformHistory.addPlatform();
-            });
-        });
-
-        Then("^the platform is successfully updated$", () -> {
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
-            assertEquals(expectedPlatform, actualPlatform);
-        });
-
-        Then("^the platform property model includes this instance property$", () -> {
-            InstancesModelOutput model = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            List<String> actualPropertyNames = model.getInstanceProperties()
-                    .stream()
-                    .map(InstancesModelOutput.InstancePropertyOutput::getName)
-                    .collect(Collectors.toList());
-            assertThat(actualPropertyNames, contains("instance-module-foo"));
-        });
-
-        Then("^the platform has (?:no more|zero) modules$", () -> {
-            PlatformIO platform = (PlatformIO) testContext.responseEntity.getBody();
-            assertThat(platform.getDeployedModules(), is(empty()));
-        });
-
-        Then("^the platform(?: still)? has (\\d+) global properties$", (Integer count) -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
-            assertThat(properties.getValuedProperties(), hasSize(count));
-        });
-
-        Then("^the platform has no module valued properties$", () -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            assertThat(properties.getValuedProperties(), is(empty()));
-        });
-
-        Then("^the platform version_id is incremented twice$", () -> {
-            Long expectedVersionId = platformBuilder.buildOutput().getVersionId();
-            final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), PlatformIO.class);
-            Long actualVersionId = responseEntity.getBody().getVersionId();
-            assertEquals(expectedVersionId, actualVersionId);
-        });
-
-        Then("^the platform update is rejected with a conflict error$", this::assertConflict);
     }
 }

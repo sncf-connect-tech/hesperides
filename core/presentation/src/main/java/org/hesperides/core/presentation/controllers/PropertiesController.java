@@ -7,6 +7,7 @@ import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-
-import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 
 @Slf4j
@@ -42,7 +41,7 @@ public class PropertiesController extends AbstractController {
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
         return ResponseEntity.ok(new PropertiesIO(platformUseCases.getPropertiesVersionId(platformKey, propertiesPath, timestamp), abstractValuedPropertyViews));
     }
 
@@ -75,15 +74,15 @@ public class PropertiesController extends AbstractController {
     @ApiOperation("Update deployed modules or global properties")
     @PutMapping("/{application_name}/platforms/{platform_name}/properties")
     public ResponseEntity<PropertiesIO> updateProperties(Authentication authentication,
-                                                       @PathVariable("application_name") final String applicationName,
-                                                       @PathVariable("platform_name") final String platformName,
-                                                       @RequestParam("path") final String propertiesPath,
-                                                       @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @Valid @RequestBody final PropertiesIO properties) {
+                                                         @PathVariable("application_name") final String applicationName,
+                                                         @PathVariable("platform_name") final String platformName,
+                                                         @RequestParam("path") final String propertiesPath,
+                                                         @RequestParam("platform_vid") final Long platformVersionId,
+                                                         @Valid @RequestBody final PropertiesIO properties) {
         List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), fromAuthentication(authentication));
+        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         final Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
     }

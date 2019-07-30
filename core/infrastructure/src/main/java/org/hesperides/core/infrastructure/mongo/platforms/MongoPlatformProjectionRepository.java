@@ -187,7 +187,7 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
             // (ex: {{prop | @required}} => "prop | @required")
             Module.Key moduleKey = new Module.Key(deployedModuleDocument.getName(), deployedModuleDocument.getVersion(), TemplateContainer.getVersionType(deployedModuleDocument.isWorkingCopy()));
             KeyDocument moduleKeyDocument = new KeyDocument(moduleKey);
-            List<AbstractPropertyDocument> modulePropertiesModel = mongoModuleRepository
+            List<AbstractPropertyDocument> modulePropertiesModel = moduleRepository
                     .findPropertiesByModuleKey(moduleKeyDocument)
                     .map(ModuleDocument::getProperties)
                     .orElseGet(Collections::emptyList);

@@ -250,10 +250,10 @@ public class PlatformUseCases {
         Optional<Long> propertiesVersionId = Optional.empty();
 
         if (Platform.isGlobalPropertiesPath(propertiesPath)) {
-            propertiesVersionId = queries.getGlobalPropertiesVersionId(platformKey);
+            propertiesVersionId = platformQueries.getGlobalPropertiesVersionId(platformKey);
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
-            final String platformId = queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
-            propertiesVersionId = Optional.ofNullable(queries.getPropertiesVersionId(platformId, propertiesPath, timestamp));
+            final String platformId = platformQueries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+            propertiesVersionId = Optional.ofNullable(platformQueries.getPropertiesVersionId(platformId, propertiesPath, timestamp));
         }
         return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
     }

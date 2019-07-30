@@ -22,8 +22,8 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.assertj.core.api.Assertions;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
@@ -97,9 +97,10 @@ public class GetPlatforms extends HesperidesScenario implements En {
                                 deployedModule.getPropertiesPath(),
                                 deployedModule.getInstances()))
                                 .collect(Collectors.toList()),
-                        expectedPlatform.getVersionId());
+                        expectedPlatform.getVersionId(),
+                        null);
             }
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 

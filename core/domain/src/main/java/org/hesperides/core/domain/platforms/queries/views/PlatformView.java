@@ -48,7 +48,15 @@ public class PlatformView {
     List<ValuedPropertyView> globalProperties;
     Boolean hasPasswords;
 
-    public PlatformView(String id, String platformName, String applicationName, String version, boolean isProductionPlatform, List<DeployedModuleView> deployedModules, Long versionId, List<ValuedPropertyView> globalProperties) {
+    public PlatformView(String id,
+                        String platformName,
+                        String applicationName,
+                        String version,
+                        boolean isProductionPlatform,
+                        List<DeployedModuleView> deployedModules,
+                        Long versionId,
+                        Long globalPropertiesVersionId,
+                        List<ValuedPropertyView> globalProperties) {
         this.id = id;
         this.platformName = platformName;
         this.applicationName = applicationName;
@@ -56,6 +64,7 @@ public class PlatformView {
         this.isProductionPlatform = isProductionPlatform;
         this.deployedModules = deployedModules;
         this.versionId = versionId;
+        this.globalPropertiesVersionId = globalPropertiesVersionId;
         this.globalProperties = globalProperties;
         this.hasPasswords = null;
     }
@@ -92,6 +101,7 @@ public class PlatformView {
                 isProductionPlatform,
                 deployedModules,
                 versionId,
+                globalPropertiesVersionId,
                 globalProperties,
                 hasPasswords
         );

@@ -62,22 +62,22 @@ public class SaveProperties extends HesperidesScenario implements En {
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             moduleBuilder.withValuedProperties(valuedProperties);
-            testContext.responseEntity = platformClient.saveProperties(
+            testContext.setResponseEntity(platformClient.saveProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
-                    getResponseType(tryTo, PropertiesIO.class));
+                    getResponseType(tryTo, PropertiesIO.class)));
             moduleBuilder.incrementPropertiesVersionId();
         });
 
         When("^I update the properties of those modules one after the other using the same platform version_id$", () -> {
             moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
                 moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
-                testContext.responseEntity = platformClient.updateProperties(
+                testContext.setResponseEntity(platformClient.updateProperties(
                         platformBuilder.buildInput(),
                         moduleBuilder.buildPropertiesIO(),
                         moduleBuilder.getPropertiesPath(),
-                        PropertiesIO.class);
+                        PropertiesIO.class));
                 moduleBuilder.incrementPropertiesVersionId();
                 platformBuilder.incrementVersionId();
             });
@@ -104,11 +104,11 @@ public class SaveProperties extends HesperidesScenario implements En {
             assertOK();
             platformBuilder.incrementVersionId();
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(true));
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(),
                     "#",
-                    PropertiesIO.class);
+                    PropertiesIO.class));
             moduleBuilder.incrementPropertiesVersionId();
             platformBuilder.incrementVersionId();
         });
@@ -116,53 +116,53 @@ public class SaveProperties extends HesperidesScenario implements En {
         When("^I try to update the module properties and then the platform using the same platform version_id$", () -> {
             final PlatformIO platformInput = platformBuilder.buildInput();
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformInput,
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
-                    PropertiesIO.class);
+                    PropertiesIO.class));
             assertOK();
             moduleBuilder.incrementPropertiesVersionId();
-            testContext.responseEntity = platformClient.update(platformInput, false, String.class);
+            testContext.setResponseEntity(platformClient.update(platformInput, false, String.class));
         });
 
         When("^I try to update the properties of this module twice with the same properties version_id$", () -> {
             moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
 //            moduleBuilder.incrementPropertiesVersionId();
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
-                    PropertiesIO.class);
+                    PropertiesIO.class));
             assertOK();
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(),
                     moduleBuilder.getPropertiesPath(),
-                    String.class);
+                    String.class));
         });
 
         When("^I try to update global properties twice with the same global properties version_id$", () -> {
 //            platformBuilder.incrementGlobalPropertiesVersionId();
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
                     "#",
-                    PropertiesIO.class);
+                    PropertiesIO.class));
             assertOK();
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
                     "#",
-                    String.class);
+                    String.class));
         });
 
         When("^I update this platform's global properties$", () -> {
-            testContext.responseEntity = platformClient.updateProperties(
+            testContext.setResponseEntity(platformClient.updateProperties(
                     platformBuilder.buildInput(),
                     moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
                     "#",
-                    String.class);
+                    String.class));
             assertOK();
         });
 
@@ -183,12 +183,9 @@ public class SaveProperties extends HesperidesScenario implements En {
         });
 
         Then("^the properties versionId should stay the same$", () -> {
-
-            PlatformIO actualPlatform = (PlatformIO) testContext.getResponseBody();
-
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             Long expectedPropertiesVersionId = moduleBuilder.getPropertiesVersionId();
             Long actualPropertiesVersionId = actualPlatform.getDeployedModules().get(0).getPropertiesVersionId();
-
             assertEquals(expectedPropertiesVersionId, actualPropertiesVersionId);
         });
 
