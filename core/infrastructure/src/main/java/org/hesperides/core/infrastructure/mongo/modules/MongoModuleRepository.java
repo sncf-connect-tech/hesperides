@@ -52,9 +52,6 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(value = "{ 'key.name': { '$regex' : ?0, '$options' : 'i' }, 'key.version': { '$regex' : ?1, '$options' : 'i' } }")
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
-    @Query(value = "{ 'key' : { $in: ?0 } }", fields = "{ 'technos.id' : 1 }")
-    List<ModuleDocument> findTechnoIdsInModules(List<KeyDocument> modulesKeys);
-
     @Query(value = "{ 'key' : { $in: ?0 } }")
     List<ModuleDocument> findModulesWithin(List<KeyDocument> modulesKeys);
 

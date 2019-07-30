@@ -9,9 +9,6 @@ import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 
 public class SearchModules extends HesperidesScenario implements En {
@@ -54,18 +51,6 @@ public class SearchModules extends HesperidesScenario implements En {
 
         When("^I search for modules, using an existing module name$", () -> {
             testContext.setResponseEntity(moduleClient.search("new-module"));
-        });
-
-        When("^I search for modules, using an existing module name, version and version type$", () -> {
-            testContext.responseEntity = moduleClient.search("new-module 0.0.1 true");
-        });
-
-        When("^I search for modules, using an existing module name and version$", () -> {
-            testContext.responseEntity = moduleClient.search("new-module 0.0.1");
-        });
-
-        When("^I search for modules, using an existing module name$", () -> {
-            testContext.responseEntity = moduleClient.search("new-module");
         });
 
         When("^I search for a single module using only the name and version of this module$", () -> {
