@@ -21,6 +21,7 @@
 package org.hesperides.core.presentation.io.platforms;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -30,6 +31,7 @@ import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -66,6 +68,22 @@ public class PlatformIO {
     @JsonProperty("has_passwords")
     Boolean hasPasswords;
 
+    /**
+     * Si la propriété hasPasswords est null, cela signifie que cette information
+     * n'a pas été demandée donc on ne la sérialise pas pour ne pas créer de confusion.
+     */
+    public static class Serializer implements JsonSerializer<PlatformIO> {
+        @Override
+        public JsonElement serialize(PlatformIO src, Type typeOfSrc, JsonSerializationContext context) {
+            Gson gson = new GsonBuilder().serializeNulls().create();
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(src);
+            if (src.getHasPasswords() == null) {
+                jsonObject.remove("has_passwords");
+            }
+            return jsonObject;
+        }
+    }
+
     public PlatformIO(PlatformView platformView) {
         platformName = platformView.getPlatformName();
         applicationName = platformView.getApplicationName();
@@ -87,7 +105,7 @@ public class PlatformIO {
         );
     }
 
-    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
+    static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
         return Optional.ofNullable(platformViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
