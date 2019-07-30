@@ -62,7 +62,7 @@ public class PropertyOutput {
         }
     }
 
-    public PropertyOutput(AbstractPropertyView abstractPropertyView) {
+    PropertyOutput(AbstractPropertyView abstractPropertyView) {
         this.name = abstractPropertyView.getName();
 
         if (abstractPropertyView instanceof PropertyView) {

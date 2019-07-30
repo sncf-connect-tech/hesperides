@@ -3,6 +3,7 @@ package org.hesperides.core.presentation;
 import com.google.gson.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.StandardWrapper;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
@@ -68,6 +69,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
+                .registerTypeAdapter(PropertyOutput.class, new PlatformIO.Serializer()) // Exclusion de hasPasswords lorsqu'il est null
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
                 .serializeNulls()
