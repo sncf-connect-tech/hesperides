@@ -3,6 +3,7 @@ package org.hesperides.core.domain.technos.queries;
 import org.axonframework.queryhandling.QueryGateway;
 import org.hesperides.commons.axon.AxonQueries;
 import org.hesperides.core.domain.technos.*;
+import org.hesperides.core.domain.technos.entities.Techno;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
@@ -55,5 +56,9 @@ public class TechnoQueries extends AxonQueries {
 
     public List<AbstractPropertyView> getProperties(TemplateContainer.Key technoKey) {
         return querySyncList(new GetTechnoPropertiesQuery(technoKey), AbstractPropertyView.class);
+    }
+
+    public List<Techno.Key> getTechnosWithPasswordWithin(List<Techno.Key> technoKeys) {
+        return querySyncList(new GetTechnosWithPasswordWithinQuery(technoKeys), Techno.Key.class);
     }
 }

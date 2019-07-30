@@ -16,13 +16,11 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriTemplateHandler;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,8 +70,8 @@ public class DebuggableRestTemplate extends RestTemplate {
 
     private <T> ResponseEntity<T> wrapForEntity(ResponseEntity<String> stringResponseEntity, Type responseType) {
         return ResponseEntity.status(stringResponseEntity.getStatusCodeValue())
-                        .headers(stringResponseEntity.getHeaders())
-                        .body(this.wrap(stringResponseEntity.getBody(), responseType));
+                .headers(stringResponseEntity.getHeaders())
+                .body(this.wrap(stringResponseEntity.getBody(), responseType));
     }
 
     @Override

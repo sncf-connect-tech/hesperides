@@ -30,7 +30,7 @@ public class TemplateIO {
     @NotNull
     @SerializedName("version_id")
     @JsonProperty("version_id")  // required for Swagger to use the correct property name
-    Long versionId;
+            Long versionId;
 
     public TemplateIO(TemplateView templateView) {
         this.name = templateView.getName();

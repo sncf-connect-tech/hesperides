@@ -31,13 +31,13 @@ public class GetModules extends HesperidesScenario implements En {
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {
                 moduleInput = new ModuleBuilder().withName(moduleBuilder.getName().toUpperCase()).build();
             }
-            testContext.responseEntity = moduleClient.get(moduleInput, moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class));
+            testContext.setResponseEntity(moduleClient.get(moduleInput, moduleBuilder.getVersionType(), getResponseType(tryTo, ModuleIO.class)));
         });
 
         Then("^the module detail is successfully retrieved$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
             assertEquals(expectedModule, actualModule);
         });
     }

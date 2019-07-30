@@ -25,8 +25,7 @@ import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
-import org.hesperides.core.domain.platforms.queries.views.PlatformView;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.domain.security.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

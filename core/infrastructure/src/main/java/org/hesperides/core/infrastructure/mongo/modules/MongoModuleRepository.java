@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -52,4 +52,9 @@ public interface MongoModuleRepository extends MongoRepository<ModuleDocument, S
     @Query(value = "{ 'key.name': { '$regex' : ?0, '$options' : 'i' }, 'key.version': { '$regex' : ?1, '$options' : 'i' } }")
     List<ModuleDocument> findAllByKeyNameLikeAndKeyVersionLike(String name, String version, Pageable pageable);
 
+    @Query(value = "{ 'key' : { $in: ?0 } }")
+    List<ModuleDocument> findModulesWithin(List<KeyDocument> modulesKeys);
+
+    @Query(value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }", fields = "{ 'key' : 1 }")
+    List<ModuleDocument> findModulesWithPasswordWithin(List<KeyDocument> modulesKeys);
 }

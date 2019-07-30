@@ -26,7 +26,7 @@ Feature: Create platform
     When I try to create this platform
     Then the platform creation fails with an already exist error
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: forbid creation of a platform with a same name but different letter case
     Given an existing platform
     And a platform to create with the same name but different letter case

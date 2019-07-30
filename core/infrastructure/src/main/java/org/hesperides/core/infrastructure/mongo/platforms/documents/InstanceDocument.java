@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 public class InstanceDocument {
 
     private String name;
-    List<ValuedPropertyDocument> valuedProperties;
+    private List<ValuedPropertyDocument> valuedProperties;
 
     public InstanceDocument(Instance instance) {
         this.name = instance.getName();

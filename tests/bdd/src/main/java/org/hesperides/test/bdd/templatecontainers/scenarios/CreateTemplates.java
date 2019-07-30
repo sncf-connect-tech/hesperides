@@ -29,7 +29,6 @@ import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CreateTemplates extends HesperidesScenario implements En {
@@ -63,8 +62,9 @@ public class CreateTemplates extends HesperidesScenario implements En {
         });
 
         Given("^an existing template$", () -> {
-            //TODO Générifier ou bouger dans module
-            testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
+            testContext.setResponseEntity(
+                    moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class)
+            );
             assertCreated();
         });
 

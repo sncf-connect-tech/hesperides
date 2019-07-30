@@ -9,7 +9,7 @@ object Events {
     .get("/events/modules/${moduleName}/${moduleVersion}/workingcopy")
     .check(status.is(200)))
 
-  val getLegacyModules= exec(http("getLegacyModuleEvents")
+  val getLegacyModules = exec(http("getLegacyModuleEvents")
     .get("/events/module-${moduleName}-${moduleVersion}-wc")
     .check(status.is(200)))
 
@@ -17,7 +17,7 @@ object Events {
     .get("/events/platforms/${applicationName}/${platformName}")
     .check(status.is(200)))
 
-  val getLegacyPlatforms= exec(http("getLegacyPlatformEvents")
+  val getLegacyPlatforms = exec(http("getLegacyPlatformEvents")
     .get("/events/platform-${applicationName}-${platformName}")
     .check(status.is(200)))
 }

@@ -88,5 +88,8 @@ public interface PlatformProjectionRepository {
     Boolean onInstanceExistsQuery(InstanceExistsQuery query);
 
     @QueryHandler
+    Boolean onApplicationExistsQuery(ApplicationExistsQuery query);
+
+    @QueryHandler
     List<ApplicationView> onGetAllApplicationsDetailQuery(GetAllApplicationsDetailQuery query);
 }

@@ -27,7 +27,6 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.commons.spring.HasProfile;
 
 import java.io.IOException;
 import java.io.StringReader;

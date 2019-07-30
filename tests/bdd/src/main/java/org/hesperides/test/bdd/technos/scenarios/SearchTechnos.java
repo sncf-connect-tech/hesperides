@@ -22,16 +22,16 @@ public class SearchTechnos extends HesperidesScenario implements En {
     public SearchTechnos() {
 
         When("^I search for one specific techno$", () -> {
-            testContext.responseEntity = technoClient.search("a-techno 0.0.3");
+            testContext.setResponseEntity(technoClient.search("a-techno 0.0.3"));
         });
 
         When("^I search for some of those technos(?:, limiting the number of results to (\\d+))?$", (String nbResults) -> {
             Integer size = StringUtils.isEmpty(nbResults) ? 0 : Integer.valueOf(nbResults);
-            testContext.responseEntity = technoClient.search("a-techno", size);
+            testContext.setResponseEntity(technoClient.search("a-techno", size));
         });
 
         When("^I search for a techno that does not exist$", () -> {
-            testContext.responseEntity = technoClient.search("nope");
+            testContext.setResponseEntity(technoClient.search("nope"));
         });
 
         Then("^the techno is found$", () -> {

@@ -27,8 +27,6 @@ import org.hesperides.core.domain.platforms.entities.properties.IterableValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.infrastructure.mongo.templatecontainers.AbstractPropertyDocument;
-import org.hesperides.core.infrastructure.mongo.templatecontainers.IterablePropertyDocument;
-import org.hesperides.core.infrastructure.mongo.templatecontainers.PropertyDocument;
 
 import java.util.ArrayList;
 import java.util.Collections;

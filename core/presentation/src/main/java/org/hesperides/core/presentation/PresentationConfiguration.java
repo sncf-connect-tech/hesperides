@@ -1,18 +1,13 @@
 package org.hesperides.core.presentation;
 
 import com.google.gson.*;
-import io.micrometer.core.aop.TimedAspect;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
-import io.micrometer.core.instrument.Tags;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.StandardWrapper;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTags;
-import org.springframework.boot.actuate.metrics.web.servlet.WebMvcTagsProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -27,14 +22,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.UrlPathHelper;
 import springfox.documentation.spring.web.json.Json;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Configuration
 @EnableWebMvc
@@ -79,6 +69,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(Json.class, new SpringfoxJsonToGsonAdapter())
+                .registerTypeAdapter(PropertyOutput.class, new PlatformIO.Serializer()) // Exclusion de hasPasswords lorsqu'il est null
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
                 .serializeNulls()
@@ -104,7 +95,8 @@ public class PresentationConfiguration implements WebMvcConfigurer {
         try {
             // idem, mais comme cette classe est package-private, impossible de l'importer directement :
             gsonBuilder.registerTypeAdapter(Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedContext"), (JsonSerializer) (src, typeOfSrc, context) -> null);
-        } catch (ClassNotFoundException e) {}
+        } catch (ClassNotFoundException ignored) {
+        }
         return gsonBuilder.create();
     }
 

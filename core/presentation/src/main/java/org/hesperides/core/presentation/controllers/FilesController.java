@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.files.FileUseCases;
+import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -13,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.hesperides.core.domain.security.User.fromAuthentication;
 
 
 @Slf4j
@@ -86,7 +85,7 @@ public class FilesController extends AbstractController {
                 Boolean.TRUE.equals(isWorkingCopy),
                 templateNamespace,
                 Boolean.TRUE.equals(simulate),
-                fromAuthentication(authentication));
+                new User(authentication));
 
         return ResponseEntity.ok(fileContent);
     }

@@ -114,9 +114,7 @@ public class ModuleBuilder {
     }
 
     public void removeTechno(TechnoIO techno) {
-        if (technos.contains(techno)) {
-            technos.remove(techno);
-        }
+        technos.remove(techno);
     }
 
     public String getPropertiesPath() {
@@ -142,12 +140,12 @@ public class ModuleBuilder {
         return templates;
     }
 
-    public void setLogicalGroup(String logicalGroup) {
-        this.logicalGroup = logicalGroup;
-    }
-
     public String getLogicalGroup() {
         return logicalGroup;
+    }
+
+    public void setLogicalGroup(String logicalGroup) {
+        this.logicalGroup = logicalGroup;
     }
 
     public PropertiesIO buildPropertiesIO(long globalPropertiesVersionId) {

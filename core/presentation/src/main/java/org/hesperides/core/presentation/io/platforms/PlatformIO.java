@@ -21,6 +21,7 @@
 package org.hesperides.core.presentation.io.platforms;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -31,6 +32,7 @@ import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,18 +65,34 @@ public class PlatformIO {
     @SerializedName("version_id")
     @JsonProperty("version_id")
     Long versionId;
+    @SerializedName("has_passwords")
+    @JsonProperty("has_passwords")
+    Boolean hasPasswords;
 
-    public PlatformIO(PlatformView platformView) {
-        this(platformView, false);
+    /**
+     * Si la propriété hasPasswords est null, cela signifie que cette information
+     * n'a pas été demandée donc on ne la sérialise pas pour ne pas créer de confusion.
+     */
+    public static class Serializer implements JsonSerializer<PlatformIO> {
+        @Override
+        public JsonElement serialize(PlatformIO src, Type typeOfSrc, JsonSerializationContext context) {
+            Gson gson = new GsonBuilder().serializeNulls().create();
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(src);
+            if (src.getHasPasswords() == null) {
+                jsonObject.remove("has_passwords");
+            }
+            return jsonObject;
+        }
     }
 
-    public PlatformIO(PlatformView platformView, boolean hidePlatformsModules) {
+    public PlatformIO(PlatformView platformView) {
         platformName = platformView.getPlatformName();
         applicationName = platformView.getApplicationName();
         version = platformView.getVersion();
         isProductionPlatform = platformView.isProductionPlatform();
-        deployedModules = hidePlatformsModules ? Collections.emptyList() : DeployedModuleIO.fromActiveDeployedModuleViews(platformView.getActiveDeployedModules());
+        deployedModules = DeployedModuleIO.fromActiveDeployedModuleViews(platformView.getActiveDeployedModules());
         versionId = platformView.getVersionId();
+        this.hasPasswords = platformView.getHasPasswords();
     }
 
     public Platform toDomainInstance() {
@@ -89,11 +107,11 @@ public class PlatformIO {
         );
     }
 
-    public static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews, boolean hidePlatformsModules) {
+    static List<PlatformIO> fromPlatformViews(List<PlatformView> platformViews) {
         return Optional.ofNullable(platformViews)
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(platformView -> new PlatformIO(platformView, hidePlatformsModules))
+                .map(PlatformIO::new)
                 .collect(toList());
     }
 }

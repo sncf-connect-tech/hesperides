@@ -2,7 +2,6 @@ package org.hesperides.test.bdd.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.test.bdd.commons.CommonSteps;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
@@ -11,6 +10,7 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
+import org.hesperides.test.bdd.users.UserAuthorities;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -36,7 +36,7 @@ public class CreateModules extends HesperidesScenario implements En {
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
-    private CommonSteps commonSteps;
+    private UserAuthorities userAuthorities;
 
     public CreateModules() {
 
@@ -69,8 +69,8 @@ public class CreateModules extends HesperidesScenario implements En {
                 moduleBuilder.withTechno(technoBuilder.build());
             }
 
-            commonSteps.ensureUserAuthIsSet();
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            userAuthorities.ensureUserAuthIsSet();
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
             moduleBuilder.withVersionId(1);
 
@@ -97,25 +97,28 @@ public class CreateModules extends HesperidesScenario implements En {
             moduleBuilder.withName("new-module");
             for (int i = 0; i < nbVersions; i++) {
                 moduleBuilder.withVersion("1." + i);
-                testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
                 assertCreated();
             }
         });
 
-        Given("^a list of( \\d+)? modules( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
+        Given("^a list of( \\d+)? modules( with different names(?: starting with the same prefix)?)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
             Integer modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.valueOf(modulesCount.substring(1));
             for (int i = 0; i < modulesToCreateCount; i++) {
-                if (isNotEmpty(withDifferentNames)) {
-                    moduleBuilder.withName("new-module-" + i);
-                } else {
+                boolean isLast = i == (modulesToCreateCount - 1);
+                // Note: il faut créer en dernier le module associé à un "match exact",
+                // car par défaut Mongo semble remonter les résultats ordonnés par date de création
+                if (isLast || isEmpty(withDifferentNames)) {
                     moduleBuilder.withName("new-module");
+                } else {
+                    moduleBuilder.withName("new-module-" + i);
                 }
-                if (i == 0) {
+                if (isLast) {
                     moduleBuilder.withVersion("0.0.1");
                 } else {
                     moduleBuilder.withVersion("0.0.1" + i);
                 }
-                testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
                 assertCreated();
             }
         });
@@ -141,8 +144,8 @@ public class CreateModules extends HesperidesScenario implements En {
         });
 
         Given("^an existing module with this template content?$", (String templateContent) -> {
-            commonSteps.ensureUserAuthIsSet();
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+            userAuthorities.ensureUserAuthIsSet();
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
             assertCreated();
             templateBuilder.setContent(templateContent);
             moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
@@ -159,37 +162,31 @@ public class CreateModules extends HesperidesScenario implements En {
                     moduleBuilder.withTemplate(templateBuilder.build());
                     Arrays.stream(versions.split(", ")).forEach(version -> {
                         moduleBuilder.withVersion(version);
-                        testContext.responseEntity = moduleClient.create(moduleBuilder.build());
+                        testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
                         assertCreated();
                         moduleBuilder.withVersionId(1);
-                        testContext.responseEntity = moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+                        testContext.setResponseEntity(moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build()));
                         assertCreated();
                         moduleHistory.addModule();
                     });
                 });
 
         When("^I( try to)? create this module$", (String tryTo) -> {
-            testContext.responseEntity = moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class));
+            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build(), getResponseType(tryTo, ModuleIO.class)));
         });
 
         Then("^the module is successfully created$", () -> {
             assertCreated();
             ModuleIO expectedModule = moduleBuilder.withVersionId(1).build();
-            ModuleIO actualModule = (ModuleIO) testContext.getResponseBody();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
             assertEquals(expectedModule, actualModule);
         });
 
-        Then("^the module creation is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the module creation is rejected with a conflict error$", this::assertConflict);
 
-        Then("^the module creation is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the module creation is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the module creation is rejected with a bad request error$", () -> {
-            assertBadRequest();
-        });
+        Then("^the module creation is rejected with a bad request error$", this::assertBadRequest);
     }
 
     private void addPropertyToBuilders(String name) {

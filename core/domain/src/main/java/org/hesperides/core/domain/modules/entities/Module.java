@@ -9,6 +9,7 @@ import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -101,12 +102,29 @@ public class Module extends TemplateContainer {
             VersionType versionType;
             if (VersionType.workingcopy.toString().equals(lowercaseVersionType)) {
                 versionType = VersionType.workingcopy;
-            } else if (VersionType.release.toString().equals(lowercaseVersionType)){
+            } else if (VersionType.release.toString().equals(lowercaseVersionType)) {
                 versionType = VersionType.release;
             } else {
                 throw new IllegalArgumentException("Invalid version type, must be WORKINGCOPY or RELEASE : " + parts[parts.length - 1]);
             }
             return new Key(parts[parts.length - 3], parts[parts.length - 2], versionType);
+        }
+
+        public static Optional<Key> fromSearchInput(String input) {
+            Key result = null;
+            String[] values = input.split(" ");
+            String name = values.length > 0 ? values[0] : "";
+            String version = values.length > 1 ? values[1] : "";
+            String workingCopy = values.length > 2 ? values[2] : "";
+            if (values.length > 1) {
+                boolean isWorkingCopy = !"false".equalsIgnoreCase(workingCopy);
+                result = new Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
+            }
+            return Optional.ofNullable(result);
+        }
+
+        public String formatAsSearchInput() {
+            return getName() + " " + getVersion() + " " + (isWorkingCopy() ? "true" : "false");
         }
     }
 }

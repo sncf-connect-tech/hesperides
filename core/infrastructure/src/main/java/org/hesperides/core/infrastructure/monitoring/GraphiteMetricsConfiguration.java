@@ -13,7 +13,7 @@ import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import static org.hesperides.commons.spring.SpringProfiles.GRAPHITE;
+import static org.hesperides.commons.SpringProfiles.GRAPHITE;
 
 @Configuration
 @Profile(GRAPHITE)

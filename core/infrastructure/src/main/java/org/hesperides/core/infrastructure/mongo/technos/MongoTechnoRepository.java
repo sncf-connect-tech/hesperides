@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hesperides.commons.spring.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.spring.SpringProfiles.MONGO;
+import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
+import static org.hesperides.commons.SpringProfiles.MONGO;
 
 @Profile({MONGO, FAKE_MONGO})
 @Repository
@@ -42,4 +42,13 @@ public interface MongoTechnoRepository extends MongoRepository<TechnoDocument, S
 
     @Query(value = "{ 'key.name' : ?0 }", fields = "{ 'key.version' : 1 }")
     List<TechnoDocument> findVersionsByKeyName(String technoName);
+
+    @Query(exists = true, value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }")
+    Boolean hasPasswords(List<KeyDocument> technoKeys);
+
+    @Query(value = "{ '_id' : { $in: ?0 } }", fields = "{ 'key' : 1 }")
+    List<TechnoDocument> findKeysByIdsIn(List<String> technoIds);
+
+    @Query(value = "{ 'key' : { $in: ?0 }, 'properties.isPassword' : true }", fields = "{ 'key' : 1 }")
+    List<TechnoDocument> findTechnosWithPasswordWithin(List<KeyDocument> technoKeys);
 }

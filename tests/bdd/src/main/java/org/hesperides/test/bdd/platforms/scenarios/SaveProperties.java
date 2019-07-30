@@ -52,11 +52,11 @@ public class SaveProperties extends HesperidesScenario implements En {
         Given("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
             platformBuilder.withIterableProperties(iterableProperties);
-            testContext.responseEntity = platformClient.saveProperties(
+            testContext.setResponseEntity(platformClient.saveProperties(
                     platformBuilder.buildInput(),
                     platformBuilder.getPropertiesIO(false),
                     moduleBuilder.getPropertiesPath(),
-                    getResponseType(tryTo, PropertiesIO.class));
+                    getResponseType(tryTo, PropertiesIO.class)));
         });
 
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
@@ -169,7 +169,7 @@ public class SaveProperties extends HesperidesScenario implements En {
         Then("^the properties are successfully saved$", () -> {
             assertOK();
             PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();
-            PropertiesIO actualProperties = (PropertiesIO) testContext.getResponseBody();
+            PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedProperties, actualProperties);
         });
 

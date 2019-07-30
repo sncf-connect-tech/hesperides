@@ -33,7 +33,6 @@ public class RandomPlatformViewGenerator {
                 1L,
                 1L,
                 genValuedProperties(avgGlobalsCount, 0)
-
         );
     }
 

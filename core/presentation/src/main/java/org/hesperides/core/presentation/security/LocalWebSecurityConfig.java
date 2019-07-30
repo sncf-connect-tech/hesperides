@@ -1,5 +1,6 @@
 package org.hesperides.core.presentation.security;
 
+import org.hesperides.core.domain.security.entities.springauthorities.GlobalRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -7,7 +8,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import static org.hesperides.commons.spring.SpringProfiles.NOLDAP;
+import static org.hesperides.commons.SpringProfiles.NOLDAP;
+import static org.hesperides.core.domain.security.entities.springauthorities.GlobalRole.IS_PROD;
+import static org.hesperides.core.domain.security.entities.springauthorities.GlobalRole.IS_TECH;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -31,8 +34,8 @@ public class LocalWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("tech").password("{noop}password").roles("TECH")
-                .and().withUser("prod").password("{noop}password").roles("PROD")
+                .withUser("tech").password("{noop}password").authorities(new GlobalRole(IS_TECH))
+                .and().withUser("prod").password("{noop}password").authorities(new GlobalRole(IS_PROD))
                 .and().withUser("user").password("{noop}password").roles("USER");
     }
 }

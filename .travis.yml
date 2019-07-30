@@ -2,76 +2,74 @@ language: java
 jdk: openjdk8
 sudo: required
 service:
-- docker
-- mongodb
+  - docker
+  - mongodb
 cache:
   directories:
-  - $HOME/.m2/repository
+    - $HOME/.m2/repository
 env:
   global:
-  - COMMIT=${TRAVIS_COMMIT::8}
-  - secure: "BsTupfxlx5xr5OzxBu7pnlu+rLbOKu569k5F9Kq8ZcV3sFU3VXg7tjoHlJjNcwsjVwT+PIQi9t+weWl8omLhpDf4g0c+g7J9ffCl+orgio/7hxZ89q0UNtImPcDT5oVzK81W2n7xotxoK6y0PA7wSWt5ktsgRMsADA8gfVBrNJHbkud4VnSZWo9FYfBh6o0JrNrz/lgpkTebASNX6NfPVo3H3sruqC0jxG/hQAlZv9GkszbSNbowLMZJ5u0aZ2epcWVFUYDDtwhMhSD+hrE1T4LNaAdmBvNi/SB6zsQU/RRDM2glUFJl9+SMkQHUBPsO9WCxOITj1ZbYRBZiYc2GQdfea3VKXcdyYYawqIOCNm++1JDuUAyRguqGUHqNxxItVZFsmMu7DfYhrOqGdpS2fhOPY6XIFo9RPfKxoP9WU7VMKZZVmJcC0H7Z0H+CmuPHK43JnQ82ivwjvOn5V5viILEtloLARUl/irIMSk9+vfyMG6Dp6lU2mjwfQ9rSojixZ5XsqaIaqFZQqvrwIsM9RK6dNx64nsr+3RzUg1lbX7UOXbsbh8figBh9wUL5AHg5dnKyrOXP1BEkINu6V8iZY4awM8SRF7fBaYRwdB/XuCFcRBQSJ5zoH0XdoHipTM2Ot+3aZQc7JtfuTfFc3yHN6ej73HQn0HHAQ+/PmmzgCv0=" # DOCKER_USER
-  - secure: "okmQr8g/yKN1CEFwHm68hsCJwgABA16L6HXD37pV17MoAV/5s+kVL9uXTza6XK27xHjPbRkzaxgWY6UOJ/XIfH+xe4M9+rwUTFy75kXH5qt6UazNMvm3PPtKQJTcQpSZ7HeGLhKJqBelNu2wUAO0OizE6GOCp0GlQbRzib/OzfYO27Xsk+1oPQ26cK8jpYeeV60L4JO8OhBeBxnLBP08D9Tf2osWAJLlf6Diejx/qW6RRBnkSCfXcFBGqbTEVxHtwtrZztU6q4DE6jEMHXz3pssQeV0hlinQB7dAKOO6+OewhzygH+k5CvxzgXeVzT8De/SnfRo2O2Q/xrn3QqvhSLHizPflMECm/E5qm9ngA3PfKJdG+3QQfGnSj4NfWKyo1d4/GXipk/6CkDpnMFkn9uVbzzRJnPRaWoEtCIs7Kmfzye49WU5D4Zn0fhugh3cy3IQ1rIIn8g3TdCv/hpY+5wl3czQrttPAJrASCp2tI2n1R3ZATasRjboxzmlsAGfo1A0qeJ642CGR8dAvphRJeLsLiqcj2WZ6/s9bDZh01C4yk4JCO1xh+iLKp30ZmidQg1JLJSjn0E+nNGN3NId/4eD7nWZOhxsBUk/R6viae5VsZMDMuie3+7+Z465RBXMG/Emln/OkLvcQKIUk4vVsJBWu2VsDQ5Fn5NxG4C9XBjM=" # DOCKER_PASS
-  - secure: "r1ck7mQ2QgAQFuc3tTdSpAoKP+iFsaAPoNpAiZFOSqXF6CUlydXYPK/FHqr8buEx2/+FCrI8yXpLP9URT3j6qZYQHAmoLzOzYtftrMgvHkRV91dAI+2RjorJVeEpcDjE2RmkWf/J3xvM4pnmQS68WUEZHqUpfL+TurKwVoc//pv5s/slDINV+W+UGGoobfDnCiIz10hI9jNIoOnkluH5a7qTyLYz0XWnq3ADL6Nkx2QpWJ9cRIz5t/6w2XHesOC3eG8nt6PwsLaa0eEkf7Iq1zkjNPyMqNjOD7qkNXxlCB5jFzA/85bljbc2Cd7/WjcYsTtPn+HXESxMj2ztHyqa9LEqGqoMw3WTAn7nXmNxz9aC9BiXwR07Am1Je1jITeOSA44i4iyE2iX/faOj1aD+AZAmi8oD3yDvjHcSjK3v3TrnzgEJr3VIeOyBh1yR21V8ERRqxyxMbaXPPwG/cvP6DisqBJnh7DDT/UcaG+S/WHYZakOpVQkiHlWSbnBCXnD6dBj1iOHBUYyGCUkKeJiGKQKGVGjtQ9pfwQk0Af9xq+Xru2+x4Q6BwpsH9uaYR6l3wkJTOtW8et8pBkJY6m4y7127lko9BRHGaNClVKz9abaNhvkynMBxTsQDkcIuBlIAqZeMBgdCf30pN5xeq55igMJliYSc3SYyP7FrWjFg0hM=" # OSSRH_USER
-  - secure: "lukzZ82+/aZQ56+TmMHWHqfqtekh4f4rnKRYYMaiZdx8pqS5Qvi+CKRzw5BR8YLLWYXP0+Ho9Kpkk48mOLxu41pLYR5w5ZRYU/85/aA+skyEXjJQXMm5y6LIs9TY+nPWBFvvtvP50NdvIFjaLD5aUhrRi7UNWG4AglqrV7b4wfzvG3R2AaK+4CLGDhNIoO5ehcyMqJsGKdxd2j62vbOTD1W8BzvtxPXr6YTM0VsYsDorqPUja8NB48o4jJMyqg6V+NYJHpm4z3vYFOALhCwo4YXogp1kw4qsignDy76S862puMd+aWmqHZGlVsqfC2clQgLxfRWi7F1igWhJu1i67g6hynitU8bXLK+y3uet/0LVHnZJ2sw6DPSbwzllgNc/tjQxb7PAKT7avLF12rp2Eq6xIFIH44cCau5bl44m0GJ4HmSrMS4pyOVS56kDWcBRoBTy8jfDc+JivAZ2urAZ5AKfy2aaDil2dK1XeKljp17zNF4QNn2pGRdxcWIBHi3/Bc+fK3O11nM8GiYOr1tR6w1aLV+IAlDO9gGN7leH2Ohqmt+30He5VRuLGSqGZVkK7gwkcJyDU1p0nostXG2QB90n/kjPlH5JZF6aMJrN1cYlcnFgrH5qJ1Txoh9aV+BP8kPCOBnn6o9LI0OwxzcEE222lT7F69vJvfyLHH/jBmY=" # OSSRH_PASS
-  - secure: "mALs/P9ONwc4e1DsUqMOoIEVxIhbhduFXvtabSSfJA9p9lczuP40xVUh9BcIeiv87d1IHiW2e733gcm6dTTNGtWtmh8r7YQ8Ax5W8Bo0fa/XwTFmjrQcIEAO6um24SAw/Lu75BLcY1MIk3TTwSYu4tAbStllzQ5lvVLt+rKknrbJM/pTeabJIHTaZnyQM6ycjmviKPIfi4RRFl81HIpKq2mpaMUF6U4Ik8j23wTB2Fvpiuumd/f7BJJEPFhWqaVs/COTfxQ4LLEYUPq0RBa4gvbYM83soBftI8mSWv51Ije2xyWD+FHdCdAvGHmSoPTLxVU8GdQeR84C8puhIE/hbc2aAopllVNoUG/HN/h933SKTt0EpPVFIwlkgJvGlts0HoGPRPstDUutyqertRrOsyM4k1PDi6qScr0KPiuTPbShLwo5HteaC+IFOqj1klijzhj4ToGpFZQknl/pzScRRgpOdoYnUY44iHXZRyDkMl8kB4Yz4iICWflPY4wLvgCmSy3YR+xQoS6Fg5a9Q4568wO0n/bWSZM8nZlSmbkhe0WoOH7eLQk6aQZokoQH3+296U0HZ3LN2hT0uoOFMp9PVldhp+q1SbR7KqmCcJVDS2FzRuDp1QOcHCwRP8o+dZBBWvzq4VrhH/Qr5NCqkbN+/DrzVulumYAv85lQTjVmURk=" # GPG_KEY_NAME
-  - secure: "dNjfejMK/Y3Vy5kFGjfAFbkKdA/hJEh8QHGNIiLDtpYcpzoyjyjgCcSEOvpfS/6SSdfPm+PMAhEqYsJrIkT44Jc3Gs+J284DNXG2y+GlkmR6SJfivNelJLZslkWn28YVdnATHXXv7TH/ctPr9KDoIiTZKk98TBtD+QgBV5kAcOMHXUGmwTbU5A9WyK4FYqsrZeX2TtSqRcshwHEqQGcKcaKZkIRcWAkdxmrZ+Xxk+v9dH3BafSFLJnpwjoCBARA+pnEg6e5ppHaTpaRVim1cdingSQ4rut2YsqPwBt4lbHuZxoDM0MdXk8kcGO89GraUp6NIMwWQoDWgAu/KLOgaFqpTTQydF1Nm7k1l0GBJ1r54OOAcqMV5mRI/y/hKPR3uGBbFmazFRNihSBUapCUoZlGNs0Y3EN11bHF+drHDg4DYQ0RosOj4WR+GfxP03CwQpnA7/2ygflCyFNjIGVaJFCBFA3n7fznQj1U/v79+CaxVdZ5AvO4yjQHAVq35CDsh0EBXtFp9N5E4vE1Q2zLr4Or+JI1nyEM5G58+amVcvClZwf79sHx3INQn/UIlYCNfW6z3gGG3irOEcS58CoAVZj8ThgxjqmMWpkow4XH6Pk392aHGerVzDBs//Eut9wFqhrbb5I5cU/GAgv+fzOs0VGLFBc5SWdGierXSYHQjpEA=" # GPG_PASSPHRASE
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - secure: "BsTupfxlx5xr5OzxBu7pnlu+rLbOKu569k5F9Kq8ZcV3sFU3VXg7tjoHlJjNcwsjVwT+PIQi9t+weWl8omLhpDf4g0c+g7J9ffCl+orgio/7hxZ89q0UNtImPcDT5oVzK81W2n7xotxoK6y0PA7wSWt5ktsgRMsADA8gfVBrNJHbkud4VnSZWo9FYfBh6o0JrNrz/lgpkTebASNX6NfPVo3H3sruqC0jxG/hQAlZv9GkszbSNbowLMZJ5u0aZ2epcWVFUYDDtwhMhSD+hrE1T4LNaAdmBvNi/SB6zsQU/RRDM2glUFJl9+SMkQHUBPsO9WCxOITj1ZbYRBZiYc2GQdfea3VKXcdyYYawqIOCNm++1JDuUAyRguqGUHqNxxItVZFsmMu7DfYhrOqGdpS2fhOPY6XIFo9RPfKxoP9WU7VMKZZVmJcC0H7Z0H+CmuPHK43JnQ82ivwjvOn5V5viILEtloLARUl/irIMSk9+vfyMG6Dp6lU2mjwfQ9rSojixZ5XsqaIaqFZQqvrwIsM9RK6dNx64nsr+3RzUg1lbX7UOXbsbh8figBh9wUL5AHg5dnKyrOXP1BEkINu6V8iZY4awM8SRF7fBaYRwdB/XuCFcRBQSJ5zoH0XdoHipTM2Ot+3aZQc7JtfuTfFc3yHN6ej73HQn0HHAQ+/PmmzgCv0=" # DOCKER_USER
+    - secure: "okmQr8g/yKN1CEFwHm68hsCJwgABA16L6HXD37pV17MoAV/5s+kVL9uXTza6XK27xHjPbRkzaxgWY6UOJ/XIfH+xe4M9+rwUTFy75kXH5qt6UazNMvm3PPtKQJTcQpSZ7HeGLhKJqBelNu2wUAO0OizE6GOCp0GlQbRzib/OzfYO27Xsk+1oPQ26cK8jpYeeV60L4JO8OhBeBxnLBP08D9Tf2osWAJLlf6Diejx/qW6RRBnkSCfXcFBGqbTEVxHtwtrZztU6q4DE6jEMHXz3pssQeV0hlinQB7dAKOO6+OewhzygH+k5CvxzgXeVzT8De/SnfRo2O2Q/xrn3QqvhSLHizPflMECm/E5qm9ngA3PfKJdG+3QQfGnSj4NfWKyo1d4/GXipk/6CkDpnMFkn9uVbzzRJnPRaWoEtCIs7Kmfzye49WU5D4Zn0fhugh3cy3IQ1rIIn8g3TdCv/hpY+5wl3czQrttPAJrASCp2tI2n1R3ZATasRjboxzmlsAGfo1A0qeJ642CGR8dAvphRJeLsLiqcj2WZ6/s9bDZh01C4yk4JCO1xh+iLKp30ZmidQg1JLJSjn0E+nNGN3NId/4eD7nWZOhxsBUk/R6viae5VsZMDMuie3+7+Z465RBXMG/Emln/OkLvcQKIUk4vVsJBWu2VsDQ5Fn5NxG4C9XBjM=" # DOCKER_PASS
+    - secure: "r1ck7mQ2QgAQFuc3tTdSpAoKP+iFsaAPoNpAiZFOSqXF6CUlydXYPK/FHqr8buEx2/+FCrI8yXpLP9URT3j6qZYQHAmoLzOzYtftrMgvHkRV91dAI+2RjorJVeEpcDjE2RmkWf/J3xvM4pnmQS68WUEZHqUpfL+TurKwVoc//pv5s/slDINV+W+UGGoobfDnCiIz10hI9jNIoOnkluH5a7qTyLYz0XWnq3ADL6Nkx2QpWJ9cRIz5t/6w2XHesOC3eG8nt6PwsLaa0eEkf7Iq1zkjNPyMqNjOD7qkNXxlCB5jFzA/85bljbc2Cd7/WjcYsTtPn+HXESxMj2ztHyqa9LEqGqoMw3WTAn7nXmNxz9aC9BiXwR07Am1Je1jITeOSA44i4iyE2iX/faOj1aD+AZAmi8oD3yDvjHcSjK3v3TrnzgEJr3VIeOyBh1yR21V8ERRqxyxMbaXPPwG/cvP6DisqBJnh7DDT/UcaG+S/WHYZakOpVQkiHlWSbnBCXnD6dBj1iOHBUYyGCUkKeJiGKQKGVGjtQ9pfwQk0Af9xq+Xru2+x4Q6BwpsH9uaYR6l3wkJTOtW8et8pBkJY6m4y7127lko9BRHGaNClVKz9abaNhvkynMBxTsQDkcIuBlIAqZeMBgdCf30pN5xeq55igMJliYSc3SYyP7FrWjFg0hM=" # OSSRH_USER
+    - secure: "lukzZ82+/aZQ56+TmMHWHqfqtekh4f4rnKRYYMaiZdx8pqS5Qvi+CKRzw5BR8YLLWYXP0+Ho9Kpkk48mOLxu41pLYR5w5ZRYU/85/aA+skyEXjJQXMm5y6LIs9TY+nPWBFvvtvP50NdvIFjaLD5aUhrRi7UNWG4AglqrV7b4wfzvG3R2AaK+4CLGDhNIoO5ehcyMqJsGKdxd2j62vbOTD1W8BzvtxPXr6YTM0VsYsDorqPUja8NB48o4jJMyqg6V+NYJHpm4z3vYFOALhCwo4YXogp1kw4qsignDy76S862puMd+aWmqHZGlVsqfC2clQgLxfRWi7F1igWhJu1i67g6hynitU8bXLK+y3uet/0LVHnZJ2sw6DPSbwzllgNc/tjQxb7PAKT7avLF12rp2Eq6xIFIH44cCau5bl44m0GJ4HmSrMS4pyOVS56kDWcBRoBTy8jfDc+JivAZ2urAZ5AKfy2aaDil2dK1XeKljp17zNF4QNn2pGRdxcWIBHi3/Bc+fK3O11nM8GiYOr1tR6w1aLV+IAlDO9gGN7leH2Ohqmt+30He5VRuLGSqGZVkK7gwkcJyDU1p0nostXG2QB90n/kjPlH5JZF6aMJrN1cYlcnFgrH5qJ1Txoh9aV+BP8kPCOBnn6o9LI0OwxzcEE222lT7F69vJvfyLHH/jBmY=" # OSSRH_PASS
+    - secure: "mALs/P9ONwc4e1DsUqMOoIEVxIhbhduFXvtabSSfJA9p9lczuP40xVUh9BcIeiv87d1IHiW2e733gcm6dTTNGtWtmh8r7YQ8Ax5W8Bo0fa/XwTFmjrQcIEAO6um24SAw/Lu75BLcY1MIk3TTwSYu4tAbStllzQ5lvVLt+rKknrbJM/pTeabJIHTaZnyQM6ycjmviKPIfi4RRFl81HIpKq2mpaMUF6U4Ik8j23wTB2Fvpiuumd/f7BJJEPFhWqaVs/COTfxQ4LLEYUPq0RBa4gvbYM83soBftI8mSWv51Ije2xyWD+FHdCdAvGHmSoPTLxVU8GdQeR84C8puhIE/hbc2aAopllVNoUG/HN/h933SKTt0EpPVFIwlkgJvGlts0HoGPRPstDUutyqertRrOsyM4k1PDi6qScr0KPiuTPbShLwo5HteaC+IFOqj1klijzhj4ToGpFZQknl/pzScRRgpOdoYnUY44iHXZRyDkMl8kB4Yz4iICWflPY4wLvgCmSy3YR+xQoS6Fg5a9Q4568wO0n/bWSZM8nZlSmbkhe0WoOH7eLQk6aQZokoQH3+296U0HZ3LN2hT0uoOFMp9PVldhp+q1SbR7KqmCcJVDS2FzRuDp1QOcHCwRP8o+dZBBWvzq4VrhH/Qr5NCqkbN+/DrzVulumYAv85lQTjVmURk=" # GPG_KEY_NAME
+    - secure: "dNjfejMK/Y3Vy5kFGjfAFbkKdA/hJEh8QHGNIiLDtpYcpzoyjyjgCcSEOvpfS/6SSdfPm+PMAhEqYsJrIkT44Jc3Gs+J284DNXG2y+GlkmR6SJfivNelJLZslkWn28YVdnATHXXv7TH/ctPr9KDoIiTZKk98TBtD+QgBV5kAcOMHXUGmwTbU5A9WyK4FYqsrZeX2TtSqRcshwHEqQGcKcaKZkIRcWAkdxmrZ+Xxk+v9dH3BafSFLJnpwjoCBARA+pnEg6e5ppHaTpaRVim1cdingSQ4rut2YsqPwBt4lbHuZxoDM0MdXk8kcGO89GraUp6NIMwWQoDWgAu/KLOgaFqpTTQydF1Nm7k1l0GBJ1r54OOAcqMV5mRI/y/hKPR3uGBbFmazFRNihSBUapCUoZlGNs0Y3EN11bHF+drHDg4DYQ0RosOj4WR+GfxP03CwQpnA7/2ygflCyFNjIGVaJFCBFA3n7fznQj1U/v79+CaxVdZ5AvO4yjQHAVq35CDsh0EBXtFp9N5E4vE1Q2zLr4Or+JI1nyEM5G58+amVcvClZwf79sHx3INQn/UIlYCNfW6z3gGG3irOEcS58CoAVZj8ThgxjqmMWpkow4XH6Pk392aHGerVzDBs//Eut9wFqhrbb5I5cU/GAgv+fzOs0VGLFBc5SWdGierXSYHQjpEA=" # GPG_PASSPHRASE
 stages:
 - name: build
 - name: test
-- name: docker
-  if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 - name: deploy
   if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 jobs:
   include:
-  - stage: build
-    env: BUILD WITHOUT TEST
-    install: echo Not performing default install step
-    script: ./mvnw clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
-  - stage: test
-    env: CUCUMBER TESTS
-    before_script:
-    - sudo touch /var/log/hesperides.log
-    - sudo chown travis /var/log/hesperides.log
-    script: ./mvnw test -pl '!tests/integration' -pl '!tests/regression' -Dcucumber.options='--tags ~@integ-test-only'
-  - stage: test
-    env: INTEGRATION TESTS
-    before_script:
-    - sudo service mongod start
-    - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
-    script:
-    - sleep 15  # waiting for MongoDB to start up
-    # On crée les collections MongoDB avec leurs collations:
-    - mongo projection_repository mongo_create_collections.js
-    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
-    - sleep 20  # waiting for the SpringBoot app to start up
-    - ./mvnw -pl tests/integration verify -P integration-test
-  - stage: test
-    env: STRESS TESTS
-    before_script:
-    - sudo service mongod start
-    - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
-    script:
-    - sleep 15  # waiting for MongoDB to start up
-    # On crée les collections MongoDB avec leurs collations:
-    - mongo projection_repository mongo_create_collections.js
-    - ./mvnw spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
-    - sleep 20  # waiting for the SpringBoot app to start up
-    - cd tests/perfs
-    # Warm up:
-    - mvn gatling:test -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -Dduration=5s >/dev/null 2>&1 || true
-    - mvn gatling:test -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -Dpercentile99ResponseTimeMax=15000
-  - stage: deploy
-    env: DEPLOY TO DOCKER HUB
-    script: "./.travis/docker_build_push.sh"
-  - stage: deploy
-    env: DEPLOY TO NEXUS (SONATYPE)
-    before_script:
-    - openssl aes-256-cbc -K $encrypted_2ec9da69c070_key -iv $encrypted_2ec9da69c070_iv
-      -in ./.travis/codesigning.asc.enc -out ./.travis/codesigning.asc -d
-    - gpg --import ./.travis/codesigning.asc
-    script: "./mvnw deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml"
+    - stage: build
+      env: BUILD WITHOUT TEST
+      install: echo Not performing default install step
+      script: mvn clean package -Dmaven.test.skip=true --settings ./.travis/deploy-settings.xml
+    - stage: test
+      env: CUCUMBER TESTS
+      before_script:
+        - sudo touch /var/log/hesperides.log
+        - sudo chown travis /var/log/hesperides.log
+      script: mvn test -pl '!tests/activedirectory-integration,!tests/mongo-integration,!tests/regression'
+    - stage: test
+      env: MONGO INTEGRATION TESTS
+      before_script:
+        - sudo service mongod start
+        - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
+      script:
+        - sleep 15  # waiting for MongoDB to start up
+        # On crée les collections MongoDB avec leurs collations:
+        - mongo projection_repository mongo_create_collections.js
+        - mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
+        - sleep 20  # waiting for the SpringBoot app to start up
+        - mvn -pl tests/mongo-integration verify
+    - stage: test
+      env: STRESS TESTS
+      before_script:
+        - sudo service mongod start
+        - sudo touch /var/log/hesperides.log && sudo chown travis /var/log/hesperides.log
+      script:
+        - sleep 15  # waiting for MongoDB to start up
+        # On crée les collections MongoDB avec leurs collations:
+        - mongo projection_repository mongo_create_collections.js
+        - mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
+        - sleep 20  # waiting for the SpringBoot app to start up
+        - cd tests/perfs
+        # Warm up:
+        - mvn gatling:test -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -Dduration=5s >/dev/null 2>&1 || true
+        - mvn gatling:test -Pgatling -Dgatling.simulationClass=HesperidesApi -Dauth=tech:password -Dpercentile99ResponseTimeMax=15000
+    - stage: deploy
+      env: DEPLOY TO DOCKER HUB
+      script: "./.travis/docker_build_push.sh"
+    - stage: deploy
+      env: DEPLOY TO NEXUS (SONATYPE)
+      before_script:
+        - openssl aes-256-cbc -K $encrypted_2ec9da69c070_key -iv $encrypted_2ec9da69c070_iv
+          -in ./.travis/codesigning.asc.enc -out ./.travis/codesigning.asc -d
+        - gpg --import ./.travis/codesigning.asc
+      script: mvn deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml
 notifications:
   webhooks: https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
   email: false

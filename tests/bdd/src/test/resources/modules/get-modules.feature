@@ -15,13 +15,13 @@ Feature: Get modules detail
     When I get the module detail
     Then the module detail is successfully retrieved
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: get the detail of an existing module with the wrong letter case
     Given an existing module
     When I get the module detail with the wrong letter case
     Then the module detail is successfully retrieved
 
-  @integ-test-only
+  @require-real-mongo
   Scenario: get the detail of a module whose name contains a slash and a percent sign
     Given an existing module named "toto/tata%titi"
     When I get the module detail

@@ -22,19 +22,17 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hesperides.core.domain.security.User;
+import org.hesperides.core.application.security.UserUseCases;
+import org.hesperides.core.domain.security.entities.User;
+import org.hesperides.core.presentation.io.UserInfoOutput;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @Api(tags = "9. Users and versions", description = " ")
@@ -42,12 +40,25 @@ import java.util.Set;
 @RestController
 public class UsersController extends AbstractController {
 
+    private final UserUseCases userUseCases;
     private final Set<String> loggedOutUsers = new HashSet<>();
+
+    @Autowired
+    public UsersController(UserUseCases userUseCases) {
+        this.userUseCases = userUseCases;
+    }
+
+    @ApiOperation("Retrieve information about a known user.")
+    @GetMapping("/{username}")
+    public ResponseEntity getUserInfo(@PathVariable final String username) {
+        final User user = userUseCases.getUser(username);
+        return ResponseEntity.ok(new UserInfoOutput(user));
+    }
 
     @ApiOperation("Authenticates users. It returns useful information about the authenticated user.")
     @GetMapping("/auth")
-    public ResponseEntity getUserInfo(Authentication authentication,
-                                      @RequestParam(value = "logout", required = false) final Boolean logout) {
+    public ResponseEntity getCurrentUserInfo(Authentication authentication,
+                                             @RequestParam(value = "logout", required = false) final Boolean logout) {
 
         if (Boolean.TRUE.equals(logout)) {
             /*
@@ -69,13 +80,6 @@ public class UsersController extends AbstractController {
             }
         }
 
-        User currentUser = User.fromAuthentication(authentication);
-
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("username", currentUser.getName());
-        userInfo.put("prodUser", currentUser.isProd());
-        userInfo.put("techUser", currentUser.isTech());
-
-        return ResponseEntity.ok(userInfo);
+        return ResponseEntity.ok(new UserInfoOutput(authentication));
     }
 }

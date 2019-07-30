@@ -42,7 +42,7 @@ public class FileValuationContext {
     PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals, boolean withExtraPropsWithoutModel) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
         propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties)
-                                           .addOverridingValuedProperties(predefinedProperties);
+                .addOverridingValuedProperties(predefinedProperties);
         if (withGlobals) {
             propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties);
         }

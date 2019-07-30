@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.hesperides.core.domain.templatecontainers.entities.Template;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
+import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,18 @@ public class Techno extends TemplateContainer {
 
         public Key(String name, String version, VersionType versionType) {
             super(name, version, versionType);
+        }
+
+        public Key(TemplateContainerKeyView key) {
+            super(key.getName(), key.getVersion(), TemplateContainer.getVersionType(key.getIsWorkingCopy()));
+        }
+
+        public static List<Key> fromViews(List<TemplateContainerKeyView> keys) {
+            return Optional.ofNullable(keys)
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(Key::new)
+                    .collect(Collectors.toList());
         }
 
         @Override

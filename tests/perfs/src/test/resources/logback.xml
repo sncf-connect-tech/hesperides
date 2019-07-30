@@ -9,7 +9,7 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file> target/log_gatling.log </file>
+        <file>target/log_gatling.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
             <fileNamePattern>target/log_gatling.%d{yyyy-MM-dd-HH-mm}.log</fileNamePattern>
@@ -23,10 +23,10 @@
     </appender>
 
     <!-- Logging ONLY FAILED HTTP request and responses, set it to TRACE to get everything: -->
-    <logger name="io.gatling.http.ahc.AsyncHandlerActor" level="DEBUG" />
+    <logger name="io.gatling.http.ahc.AsyncHandlerActor" level="DEBUG"/>
 
     <root level="ERROR">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="CONSOLE"/>
     </root>
 
 </configuration>

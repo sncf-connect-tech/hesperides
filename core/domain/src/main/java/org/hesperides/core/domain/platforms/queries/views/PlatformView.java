@@ -20,16 +20,21 @@
  */
 package org.hesperides.core.domain.platforms.queries.views;
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Value
+@AllArgsConstructor
 public class PlatformView {
 
     String id;
@@ -41,6 +46,25 @@ public class PlatformView {
     Long versionId;
     Long globalPropertiesVersionId;
     List<ValuedPropertyView> globalProperties;
+    Boolean hasPasswords;
+
+    public PlatformView(String id, String platformName, String applicationName, String version, boolean isProductionPlatform, List<DeployedModuleView> deployedModules, Long versionId, List<ValuedPropertyView> globalProperties) {
+        this.id = id;
+        this.platformName = platformName;
+        this.applicationName = applicationName;
+        this.version = version;
+        this.isProductionPlatform = isProductionPlatform;
+        this.deployedModules = deployedModules;
+        this.versionId = versionId;
+        this.globalProperties = globalProperties;
+        this.hasPasswords = null;
+    }
+
+    static List<PlatformView> setPlatformsWithPasswordIndicator(List<PlatformView> platforms, Set<Platform.Key> platformsWithPassword) {
+        return platforms.stream()
+                .map(platform -> platform.withPasswordIndicator(platformsWithPassword.contains(platform.getPlatformKey())))
+                .collect(Collectors.toList());
+    }
 
     public Stream<DeployedModuleView> getActiveDeployedModules() {
         return Optional.ofNullable(deployedModules)
@@ -53,6 +77,24 @@ public class PlatformView {
                 .filter(deployedModule -> deployedModule.getModulePath().equalsIgnoreCase(modulePath)
                         && deployedModule.getModuleKey().equals(moduleKey))
                 .findFirst();
+    }
+
+    public Platform.Key getPlatformKey() {
+        return new Platform.Key(applicationName, platformName);
+    }
+
+    public PlatformView withPasswordIndicator(boolean hasPasswords) {
+        return new PlatformView(
+                id,
+                platformName,
+                applicationName,
+                version,
+                isProductionPlatform,
+                deployedModules,
+                versionId,
+                globalProperties,
+                hasPasswords
+        );
     }
 }
 

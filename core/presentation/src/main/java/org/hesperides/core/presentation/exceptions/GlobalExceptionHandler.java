@@ -6,8 +6,11 @@ import org.axonframework.commandhandling.model.AggregateNotFoundException;
 import org.hesperides.core.domain.exceptions.*;
 import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
 import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
+import org.hesperides.core.domain.exceptions.DuplicateException;
+import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
+import org.hesperides.core.domain.exceptions.NotFoundException;
+import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.technos.exception.UndeletableTechnoInUseException;
-import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,17 +46,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
-    @ExceptionHandler({
-            IllegalArgumentException.class,
-            UpdateReleaseException.class,
-            InvalidPropertyValorisationException.class,
-            InvalidTemplateException.class})
+    @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity handleBadRequest(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler({ForbiddenOperationException.class, AccessDeniedException.class})
-    public ResponseEntity handleUnauthorized(Exception ex) {
+    public ResponseEntity handleForbidden(Exception ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 

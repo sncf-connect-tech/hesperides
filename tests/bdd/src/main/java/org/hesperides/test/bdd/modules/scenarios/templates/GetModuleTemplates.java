@@ -39,16 +39,14 @@ import static org.junit.Assert.assertEquals;
 
 public class GetModuleTemplates extends HesperidesScenario implements En {
 
+    private static int nbTemplates = 12;
     @Autowired
     private ModuleClient moduleClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-
     private List<TemplateBuilder> expectedTemplates = new ArrayList<>();
-
-    private static int nbTemplates = 12;
 
     public GetModuleTemplates() {
 
@@ -71,17 +69,17 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the list of templates of this module$", (String tryTo) -> {
-            testContext.responseEntity = moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
+            testContext.setResponseEntity(moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class)));
         });
 
         When("^I( try to)? get this template in this module( using an url-encoded template name)?$", (String tryTo, String urlEncodedtemplateName) -> {
-            testContext.responseEntity = moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class), StringUtils.isNotEmpty(urlEncodedtemplateName));
+            testContext.setResponseEntity(moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class), StringUtils.isNotEmpty(urlEncodedtemplateName)));
         });
 
         Then("^a list of all the templates of the module is returned$", () -> {
             assertOK();
             List<PartialTemplateIO> expectedPartialTemplates = expectedTemplates.stream().map(templateBuilder -> templateBuilder.buildPartialTemplate(moduleBuilder.getNamespace())).collect(Collectors.toList());
-            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList((PartialTemplateIO[]) testContext.getResponseBody());
+            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()
                             .filter(t -> !TemplateBuilder.DEFAULT_NAME.equals(t.getName()))
@@ -91,7 +89,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
         Then("^the module template is successfully returned$", () -> {
             assertOK();
             TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
-            TemplateIO actualTemplate = (TemplateIO) testContext.getResponseBody();
+            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
     }
