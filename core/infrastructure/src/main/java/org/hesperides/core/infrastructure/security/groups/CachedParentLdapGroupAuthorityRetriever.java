@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class CachedParentLdapGroupAuthorityRetriever {
 
-    static final int MAX_RECURSION = 10; // arbitraire, existe pour éviter tout risque de boucle infinie
+    static final int MAX_RECURSION = 1000; // arbitraire, existe pour éviter tout risque de boucle infinie
 
     private final Cache cache;
     private ParentGroupsDNRetriever parentGroupsDNRetriever;
