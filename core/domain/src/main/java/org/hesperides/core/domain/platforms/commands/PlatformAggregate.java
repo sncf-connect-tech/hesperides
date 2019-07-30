@@ -31,13 +31,14 @@ import org.hesperides.core.domain.exceptions.OutOfDateGlobalPropertiesException;
 import org.hesperides.core.domain.exceptions.OutOfDatePlatformVersionException;
 import org.hesperides.core.domain.exceptions.OutOfDatePropertiesException;
 import org.hesperides.core.domain.platforms.*;
-import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+import static org.hesperides.core.domain.platforms.entities.DeployedModule.INIT_PROPERTIES_VERSION_ID;
 
 @Slf4j
 @NoArgsConstructor
@@ -89,13 +90,17 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onUpdatePlatformModulePropertiesCommand(UpdatePlatformModulePropertiesCommand command) {
-        Long platformVersionId = command.getPlatformVersionId();
+        Long providedPlatformVersionId = command.getProvidedPlatformVersionId();
 
         log.debug("onUpdatePlatformModulePropertiesCommand - platformId: {} - versionId: {} - user: {}",
-                command.getPlatformId(), platformVersionId, command.getUser());
-        logBeforeEventVersionId(platformVersionId);
+                command.getPlatformId(), providedPlatformVersionId, command.getUser());
+        logBeforeEventVersionId(providedPlatformVersionId);
 
-        checkVersionIds(platformVersionId, command.getPropertiesVersionId(), command.getExpectedPropertiesVersionId(), command.getPropertiesPath(), false);
+        validatePropertiesVersionIds(providedPlatformVersionId,
+                versionId,
+                command.getProvidedPropertiesVersionId(),
+                command.getExpectedPropertiesVersionId(),
+                command.getPropertiesPath());
 
         apply(new PlatformModulePropertiesUpdatedEvent(
                 command.getPlatformId(),
@@ -108,12 +113,16 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onUpdatePlatformPropertiesCommand(UpdatePlatformPropertiesCommand command) {
-        Long platformVersionId = command.getPlatformVersionId();
+        Long providedPlatformVersionId = command.getProvidedPlatformVersionId();
         log.debug("onUpdatePlatformPropertiesCommand - platformId: {} - versionId: {} - user: {}",
-                command.getPlatformId(), platformVersionId, command.getUser());
-        logBeforeEventVersionId(platformVersionId);
+                command.getPlatformId(), providedPlatformVersionId, command.getUser());
+        logBeforeEventVersionId(providedPlatformVersionId);
 
-        checkVersionIds(platformVersionId, command.getPropertiesVersionId(), command.getExpectedPropertiesVersionId(), true);
+        validatePropertiesVersionIds(providedPlatformVersionId,
+                versionId,
+                command.getProvidedPropertiesVersionId(),
+                command.getExpectedPropertiesVersionId(),
+                Platform.GLOBAL_PROPERTIES_PATH);
 
         apply(new PlatformPropertiesUpdatedEvent(
                 command.getPlatformId(),
@@ -121,6 +130,32 @@ public class PlatformAggregate implements Serializable {
                 (command.getExpectedPropertiesVersionId() + 1),
                 command.getValuedProperties(),
                 command.getUser().getName()));
+    }
+
+    private static void validatePropertiesVersionIds(Long providedPlatformVersionId,
+                                                     Long expectedPlatformVersionId,
+                                                     Long providedPropertiesVersionId,
+                                                     Long expectedPropertiesVersionId,
+                                                     String propertiesPath) {
+
+        // Dans le cas ou providedPropertiesVersionId et expectedPropertiesVersionId ont tous les deux la valeur par défaut, deux possibilités :
+        // - L'appel a été fait sans fournir de providedPropertiesVersionId
+        // - L'appel a été fait avec une valeur initiale pour le providedPropertiesVersionId
+        // Dans les deux cas on est dans une situation d'initialisation, le providedPlatformVersionId fourni doit être le bon
+        boolean isInitialPropertiesVersionId = INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && INIT_PROPERTIES_VERSION_ID.equals(expectedPropertiesVersionId);
+        if (isInitialPropertiesVersionId && !Objects.equals(providedPlatformVersionId, expectedPlatformVersionId)) {
+            throw new OutOfDatePlatformVersionException(expectedPlatformVersionId, providedPlatformVersionId);
+        }
+
+        // Dans le cas ou le providedPropertiesVersionId est fourni avec une valeur différente par défaut, on ignore le providedPlatformVersionId, en contrepartie, les valeurs
+        // expectedPropertiesVersionId et providedPropertiesVersionId doivent être identique afin de s'assurer de la consistance des données
+        if (!INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !providedPropertiesVersionId.equals(expectedPropertiesVersionId)) {
+            if (Platform.isGlobalPropertiesPath(propertiesPath)) {
+                throw new OutOfDateGlobalPropertiesException(expectedPlatformVersionId, providedPlatformVersionId);
+            } else {
+                throw new OutOfDatePropertiesException(propertiesPath, expectedPropertiesVersionId, providedPropertiesVersionId);
+            }
+        }
     }
 
     @CommandHandler
@@ -174,32 +209,6 @@ public class PlatformAggregate implements Serializable {
                 event.getPlatformId(), event.getPlatformVersionId(), event.getUser());
         logAfterEventVersionId(event.getPlatformVersionId());
         this.versionId = event.getPlatformVersionId();
-    }
-
-
-    private void checkVersionIds(Long platformVersionId, Long propertiesVersionId, Long expectedPropertiesVersionId, boolean isGlobal) {
-        checkVersionIds(platformVersionId, propertiesVersionId,expectedPropertiesVersionId, null, isGlobal);
-    }
-
-    private void checkVersionIds(Long platformVersionId, Long propertiesVersionId, Long expectedPropertiesVersionId, String path, boolean isGlobal) {
-
-        // Dans le cas ou propertiesVersionId et expectedPropertiesVersionId ont tous les deux la valeurs par défaut, deux possibilités:
-        // - L'appel a été fait sans fournir de propertiesVersionId
-        // - L'appel a été fait avec une valeur initiale pour le propertiesVersionId
-        // Dans les deux cas on est dans une situation d'initialisation, le platformVersionId fourni doit être le bon
-        if (propertiesVersionId == DeployedModule.INIT_PROPERTIES_VERSION_ID && expectedPropertiesVersionId == propertiesVersionId && platformVersionId != versionId) {
-            throw new OutOfDatePlatformVersionException(versionId, platformVersionId);
-        }
-
-        // Dans le cas ou le propertiesVersionId est fourni avec une valeur différente par défaut, on ignore le platformVersionId, en contrepartie, les valeurs
-        // expectedPropertiesVersionId et propertiesVersionId doivent être identique afin de s'assurer de la consistance des données
-        if (propertiesVersionId != DeployedModule.INIT_PROPERTIES_VERSION_ID && expectedPropertiesVersionId != propertiesVersionId) {
-            if (isGlobal) {
-                throw new OutOfDateGlobalPropertiesException(expectedPropertiesVersionId, platformVersionId);
-            } else {
-                throw new OutOfDatePropertiesException(path, expectedPropertiesVersionId, propertiesVersionId);
-            }
-        }
     }
 
     private void logBeforeEventVersionId() {

@@ -157,6 +157,15 @@ public class SaveProperties extends HesperidesScenario implements En {
                     String.class);
         });
 
+        When("^I update this platform's global properties$", () -> {
+            testContext.responseEntity = platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
+                    "#",
+                    String.class);
+            assertOK();
+        });
+
         Then("^the properties are successfully saved$", () -> {
             assertOK();
             PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();

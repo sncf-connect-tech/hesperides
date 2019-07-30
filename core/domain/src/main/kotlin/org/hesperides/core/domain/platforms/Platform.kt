@@ -7,15 +7,14 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty
 import org.hesperides.core.domain.security.User
 import org.hesperides.core.domain.security.UserEvent
-import java.util.*
 
 // Command
 
 data class CreatePlatformCommand(val platform: Platform, val user: User)
 data class DeletePlatformCommand(@TargetAggregateIdentifier val platformId: String, val platformKey: Platform.Key, val user: User)
 data class UpdatePlatformCommand(@TargetAggregateIdentifier val platformId: String, val platform: Platform, val copyPropertiesForUpgradedModules: Boolean, val user: User)
-data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val platformId: String, val platformVersionId: Long, val propertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
-data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val platformId: String, val propertiesPath: String, val platformVersionId: Long, val propertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val user: User)
+data class UpdatePlatformPropertiesCommand(@TargetAggregateIdentifier val platformId: String, val providedPlatformVersionId: Long, val providedPropertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<ValuedProperty>, val user: User)
+data class UpdatePlatformModulePropertiesCommand(@TargetAggregateIdentifier val platformId: String, val propertiesPath: String, val providedPlatformVersionId: Long, val providedPropertiesVersionId: Long, val expectedPropertiesVersionId: Long, val valuedProperties: List<AbstractValuedProperty>, val user: User)
 data class RestoreDeletedPlatformCommand(@TargetAggregateIdentifier val platformId: String, val user: User)
 
 // Event

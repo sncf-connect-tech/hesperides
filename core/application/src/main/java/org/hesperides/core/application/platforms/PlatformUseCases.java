@@ -33,7 +33,6 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 @Component
 public class PlatformUseCases {
 
-    public static final String ROOT_PATH = "#";
     private final PlatformCommands commands;
     private final PlatformQueries queries;
     private final ModuleQueries moduleQueries;
@@ -161,7 +160,7 @@ public class PlatformUseCases {
 
         Optional<Long> propertiesVersionId = Optional.empty();
 
-        if (ROOT_PATH.equals(propertiesPath)) {
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             propertiesVersionId = queries.getGlobalPropertiesVersionId(platformKey);
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
             final String platformId = queries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
@@ -170,7 +169,7 @@ public class PlatformUseCases {
         return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
     }
 
-    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
+    private List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         return getValuedProperties(platformKey, propertiesPath, null, user);
     }
 
@@ -179,7 +178,7 @@ public class PlatformUseCases {
 
         PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
 
-        if (ROOT_PATH.equals(propertiesPath)) {
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             properties.addAll(queries.getGlobalProperties(platformKey));
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
             final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
@@ -247,7 +246,7 @@ public class PlatformUseCases {
 
         Long expectedPropertiesVersionId = getPropertiesVersionId(platformKey, propertiesPath);
 
-        if (ROOT_PATH.equals(propertiesPath)) {
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
             // Platform properties are global and should always be of type ValuedProperty
             if (valuedProperties.size() != abstractValuedProperties.size()) {

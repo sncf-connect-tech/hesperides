@@ -30,6 +30,8 @@ import java.util.List;
 @Value
 public class Platform {
 
+    public static final String GLOBAL_PROPERTIES_PATH = "#";
+
     Key key;
     String version;
     boolean isProductionPlatform;
@@ -37,6 +39,10 @@ public class Platform {
     List<DeployedModule> deployedModules;
     Long globalPropertiesVersionId;
     List<ValuedProperty> globalProperties;
+
+    public static boolean isGlobalPropertiesPath(String propertiesPath) {
+        return GLOBAL_PROPERTIES_PATH.equals(propertiesPath);
+    }
 
     public Key getKey() { // Doit être explicite car employé dans Platform.kt
         return key;
@@ -83,7 +89,6 @@ public class Platform {
                 globalProperties
         );
     }
-
 
     public Platform fillDeployedModulesMissingIds() {
         return new Platform(
