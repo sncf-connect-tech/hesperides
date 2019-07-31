@@ -57,6 +57,7 @@ public class VersionsController extends AbstractController {
         propertiesMap.put("GIT_TAG", System.getenv("GIT_TAG"));
         propertiesMap.put("url_to_github_commit", "https://github.com/voyages-sncf-technologies/hesperides/commit/" + System.getenv("GIT_COMMIT"));
         propertiesMap.put("url_to_github_changelog", "https://github.com/voyages-sncf-technologies/hesperides/blob/master/CHANGELOG.md#" + System.getenv("GIT_TAG"));
+        propertiesMap.put("HOSTNAME", System.getenv("HOSTNAME"));
 
         return ResponseEntity.ok(propertiesMap);
     }
