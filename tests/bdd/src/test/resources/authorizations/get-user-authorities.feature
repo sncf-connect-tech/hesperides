@@ -2,14 +2,14 @@
 Feature: Get user authorities
 
   Scenario: retrieve a user's directory groups
-    Given a prod user belonging to the directory group A_PROD_GROUP
+    Given a lambda user belonging to the directory group A_GROUP
     When I get the current user information
-    Then A_PROD_GROUP is listed under the user directory groups
+    Then A_GROUP is listed under the user directory groups
 
   Scenario: retrieve directory groups associated with an application
     Given an authenticated prod user
-    And an application ABC associated with the directory group A_PROD_GROUP
-    And a prod user belonging to the directory group A_PROD_GROUP
+    And an application ABC associated with the directory group A_GROUP
+    And a lambda user belonging to the directory group A_GROUP
     When I get the current user information
     Then ABC_PROD_USER is listed under the user authority roles
 

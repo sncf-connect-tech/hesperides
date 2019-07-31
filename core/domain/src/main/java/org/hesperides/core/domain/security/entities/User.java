@@ -35,31 +35,18 @@ public class User {
 
     public User(String username, Collection<? extends GrantedAuthority> springAuthorities) {
         this.name = username;
-        this.isGlobalProd = isGlobalProd(springAuthorities);
-        this.isGlobalTech = isGlobalTech(springAuthorities);
         this.roles = getRoles(springAuthorities);
         this.directoryGroupDNs = getDirectoryGroupDNs(springAuthorities);
+        this.isGlobalProd = hasRole(GlobalRole.IS_PROD);
+        this.isGlobalTech = hasRole(GlobalRole.IS_TECH);
     }
 
-    private static boolean isGlobalProd(Collection<? extends GrantedAuthority> springAuthorities) {
-        return hasGlobalRole(springAuthorities, GlobalRole.IS_PROD);
+    public boolean hasProductionRoleForApplication(String applicatioName) {
+        return isGlobalProd || hasRole(new ApplicationProdRole(applicatioName).getAuthority());
     }
 
-    private static boolean isGlobalTech(Collection<? extends GrantedAuthority> springAuthorities) {
-        return hasGlobalRole(springAuthorities, GlobalRole.IS_TECH);
-    }
-
-    private static boolean hasGlobalRole(Collection<? extends GrantedAuthority> springAuthorities, String userRole) {
-        boolean hasGlobalRole = false;
-        if (springAuthorities != null && userRole != null) {
-            for (GrantedAuthority authority : springAuthorities) {
-                if (userRole.equalsIgnoreCase(authority.getAuthority())) {
-                    hasGlobalRole = true;
-                    break;
-                }
-            }
-        }
-        return hasGlobalRole;
+    private boolean hasRole(String userRole) {
+        return roles.contains(userRole);
     }
 
     private static List<String> getRoles(Collection<? extends GrantedAuthority> springAuthorities) {
@@ -74,15 +61,6 @@ public class User {
                 .filter(springAuthority -> springAuthority instanceof DirectoryGroupDN)
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-    }
-
-    public boolean hasAtLeastOneDirectoryGroup(Map<String, List<String>> directoryGroups) {
-        boolean hasDirectoryGroup = false;
-        if (!CollectionUtils.isEmpty(directoryGroups)) {
-            List<String> flatDirectoryGroups = directoryGroups.values().stream().flatMap(List::stream).collect(Collectors.toList());
-            hasDirectoryGroup = !Collections.disjoint(flatDirectoryGroups, this.getDirectoryGroupDNs());
-        }
-        return hasDirectoryGroup;
     }
 
     public List<String> getDirectoryGroupCNs() {

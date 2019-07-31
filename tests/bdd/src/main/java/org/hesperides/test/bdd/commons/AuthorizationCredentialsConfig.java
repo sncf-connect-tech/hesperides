@@ -14,7 +14,7 @@ public class AuthorizationCredentialsConfig {
     public static final String PROD_TEST_PROFILE = "prod";
     public static final String NOGROUP_TEST_PROFILE = "nogroup";
 
-    private static final String A_PROD_GROUP = "A_PROD_GROUP";
+    private static final String A_GROUP = "A_GROUP";
     private static final String ANOTHER_GROUP = "ANOTHER_GROUP";
 
     @Setter
@@ -73,9 +73,9 @@ public class AuthorizationCredentialsConfig {
 
     public String getRealDirectoryGroup(String directoryGroup) {
         String realDirectoryGroup;
-        if (A_PROD_GROUP.equalsIgnoreCase(directoryGroup)) {
+        if (ANOTHER_GROUP.equalsIgnoreCase(directoryGroup)) {
             realDirectoryGroup = prodGroupCN;
-        } else if (ANOTHER_GROUP.equalsIgnoreCase(directoryGroup)) {
+        } else if (A_GROUP.equalsIgnoreCase(directoryGroup)) {
             realDirectoryGroup = otherGroupCN;
         } else {
             throw new IllegalArgumentException("Unknown directory group: " + directoryGroup);

@@ -8,6 +8,8 @@ public class CommonSteps extends HesperidesScenario implements En {
 
     public CommonSteps() {
 
+        Then("^the request is successful$", this::assertOK);
+
         Then("^the resource is not found$", this::assertNotFound);
 
         Then("^the request is rejected with a bad request error$", this::assertBadRequest);
