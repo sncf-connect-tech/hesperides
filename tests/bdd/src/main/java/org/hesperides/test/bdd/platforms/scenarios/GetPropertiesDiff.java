@@ -11,9 +11,10 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,8 +28,8 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
     private PlatformHistory platformHistory;
 
     public GetPropertiesDiff() {
-        When("^I get the (stored|final)( global)? properties diff(?: of this module)? between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
-                String storedOrFinal, String global, String fromPlatformName, String toPlatformName) -> {
+        When("^I get the( global)? properties diff on (stored|final) values between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
+                String global, String storedOrFinal, String fromPlatformName, String toPlatformName) -> {
             String propertiesPath = StringUtils.isNotEmpty(global) ? "#" : moduleBuilder.getPropertiesPath();
             testContext.setResponseEntity(platformClient.getPropertiesDiff(
                     platformHistory.getPlatformByName(fromPlatformName),
@@ -45,21 +46,22 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
 
         And("the resulting diff match these values", (DataTable data) -> {
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
+            final Map<String, String> dataMap = data.asMap(String.class, String.class);
 
             List<String> onlyLeftPropertiesName = actualPropertiesDiff.getOnlyLeft().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> onlyLeftPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("only_left"));
+            List<String> onlyLeftPropertiesNameExpected = Stream.of(dataMap.get("only_left")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
             assertEquals(onlyLeftPropertiesNameExpected, onlyLeftPropertiesName);
 
             List<String> onlyRightPropertiesName = actualPropertiesDiff.getOnlyRight().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> onlyRightPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("only_right"));
+            List<String> onlyRightPropertiesNameExpected = Stream.of(dataMap.get("only_right")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
             assertEquals(onlyRightPropertiesNameExpected, onlyRightPropertiesName);
 
             List<String> commonPropertiesName = actualPropertiesDiff.getCommon().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> commonPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("common"));
+            List<String> commonPropertiesNameExpected = Stream.of(dataMap.get("common")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
             assertEquals(commonPropertiesNameExpected, commonPropertiesName);
 
             List<String> differingPropertiesName = actualPropertiesDiff.getDiffering().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> differingPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("differing"));
+            List<String> differingPropertiesNameExpected = Stream.of(dataMap.get("differing")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
             assertEquals(differingPropertiesNameExpected, differingPropertiesName);
         });
     }

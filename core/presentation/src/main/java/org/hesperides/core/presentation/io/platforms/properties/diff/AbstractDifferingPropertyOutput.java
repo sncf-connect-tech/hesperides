@@ -22,7 +22,7 @@ public abstract class AbstractDifferingPropertyOutput {
 
     String name;
 
-    static AbstractDifferingPropertyOutput fromAbstractDifferingProperty(AbstractDifferingProperty abstractDifferingProperty){
+    private static AbstractDifferingPropertyOutput fromAbstractDifferingProperty(AbstractDifferingProperty abstractDifferingProperty) {
         AbstractDifferingPropertyOutput abstractDifferingPropertyOutput;
         if (abstractDifferingProperty instanceof SimpleDifferingProperty) {
             abstractDifferingPropertyOutput = new DualDifferingPropertyOutput((SimpleDifferingProperty)abstractDifferingProperty);
