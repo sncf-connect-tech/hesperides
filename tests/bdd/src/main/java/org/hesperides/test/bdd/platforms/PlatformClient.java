@@ -179,7 +179,11 @@ public class PlatformClient {
     }
 
     public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, PlatformIO toPlatform, String toPropertiesPath, boolean compareStoredValues, Long timestamp, Class responseType) {
-        String url = "/applications/{application_name}/platforms/{platform_name}/properties/diff?path={properties_path}&to_application={to_application}&to_platform={to_platform}&to_path={to_path}&compared_stored_values={compared_stored_values}";
+        String url = "/applications/{application_name}/platforms/{platform_name}/properties/diff?path={properties_path}" +
+                "&to_application={to_application}" +
+                "&to_platform={to_platform}" +
+                "&to_path={to_path}" +
+                "&compare_stored_values={compare_stored_values}";
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }

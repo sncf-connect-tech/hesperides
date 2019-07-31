@@ -2,6 +2,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -26,7 +27,9 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
     private PlatformHistory platformHistory;
 
     public GetPropertiesDiff() {
-        When("^I get the properties diff of this module between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (String fromPlatformName, String toPlatformName) -> {
+        When("^I get the (stored|final)( global)? properties diff(?: of this module)? between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
+                String storedOrFinal, String global, String fromPlatformName, String toPlatformName) -> {
+            String propertiesPath = StringUtils.isNotEmpty(global) ? "#" : moduleBuilder.getPropertiesPath();
             testContext.setResponseEntity(platformClient.getPropertiesDiff(
                     platformHistory.getPlatformByName(fromPlatformName),
                     propertiesPath,

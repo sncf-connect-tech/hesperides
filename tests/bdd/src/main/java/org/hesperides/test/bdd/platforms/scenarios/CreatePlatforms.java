@@ -340,7 +340,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
-        Given("^the platform has these global properties$", (DataTable data) -> {
+        Given("^the platform(?: \"([^\"]+)\")? has these global properties$", (String platformName, DataTable data) -> {
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
             List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
             platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(globalProperties), Collections.emptySet()));
             platformBuilder.incrementVersionId();
