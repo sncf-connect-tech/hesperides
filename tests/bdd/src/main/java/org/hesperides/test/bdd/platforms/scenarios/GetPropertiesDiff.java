@@ -2,8 +2,6 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
-import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
-import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -29,20 +27,20 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
 
     public GetPropertiesDiff() {
         When("^I get the properties diff of this module between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (String fromPlatformName, String toPlatformName) -> {
-            testContext.responseEntity = platformClient.getPropertiesDiff(
+            testContext.setResponseEntity(platformClient.getPropertiesDiff(
                 platformHistory.getPlatformByName(fromPlatformName),
                 moduleBuilder.getPropertiesPath(),
                 platformHistory.getPlatformByName(toPlatformName),
                 moduleBuilder.getPropertiesPath(),
                 null,
                 PropertiesDiffOutput.class
-            );
+            ));
         });
 
         Then("the diff is successfully retrieved", this::assertOK);
 
         And("the resulting diff match these values", (DataTable data) -> {
-            PropertiesDiffOutput actualPropertiesDiff = (PropertiesDiffOutput)testContext.getResponseBody();
+            PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
 
             List<String> onlyLeftPropertiesName = actualPropertiesDiff.getOnlyLeft().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
             List<String> onlyLeftPropertiesNameExpected = Collections.singletonList(data.asMap(String.class, String.class).get("only_left"));

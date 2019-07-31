@@ -255,25 +255,25 @@ public class PlatformUseCases {
                                             final User user) {
         Module.Key fromModuleKey = Module.Key.fromPropertiesPath(fromPropertiesPath);
         String fromModulePath = extractModulePathFromPropertiesPath(fromPropertiesPath);
-        if (!queries.deployedModuleExists(fromPlatformKey, fromModuleKey, fromModulePath)) {
+        if (!platformQueries.deployedModuleExists(fromPlatformKey, fromModuleKey, fromModulePath)) {
             throw new DeployedModuleNotFoundException(fromPlatformKey, fromModuleKey, fromModulePath);
         }
         Module.Key toModuleKey = Module.Key.fromPropertiesPath(toPropertiesPath);
         String toModulePath = extractModulePathFromPropertiesPath(toPropertiesPath);
-        if (!queries.deployedModuleExists(toPlatformKey, toModuleKey, toModulePath)) {
+        if (!platformQueries.deployedModuleExists(toPlatformKey, toModuleKey, toModulePath)) {
             throw new DeployedModuleNotFoundException(toPlatformKey, toModuleKey, toModulePath);
         }
 
-        PlatformView fromPlatform = queries.getOptionalPlatform(fromPlatformKey)
+        PlatformView fromPlatform = platformQueries.getOptionalPlatform(fromPlatformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(fromPlatformKey));
-        PlatformView toPlatform = queries.getOptionalPlatform(toPlatformKey)
+        PlatformView toPlatform = platformQueries.getOptionalPlatform(toPlatformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(toPlatformKey));
 
         List<AbstractPropertyView> fromModulePropertiesModels = moduleQueries.getPropertiesModel(fromModuleKey);
         List<AbstractPropertyView> toModulePropertiesModels = moduleQueries.getPropertiesModel(toModuleKey);
 
-        boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.isProd();
-        boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.isProd();
+        boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.isGlobalProd();
+        boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.isGlobalProd();
 
         PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequence(
                 fromPlatform, fromModulePath, fromModuleKey,
