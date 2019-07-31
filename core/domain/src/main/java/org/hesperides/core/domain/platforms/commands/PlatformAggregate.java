@@ -142,8 +142,7 @@ public class PlatformAggregate implements Serializable {
         // - L'appel a été fait sans fournir de providedPropertiesVersionId
         // - L'appel a été fait avec une valeur initiale pour le providedPropertiesVersionId
         // Dans les deux cas on est dans une situation d'initialisation, le providedPlatformVersionId fourni doit être le bon
-        boolean isInitialPropertiesVersionId = INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && INIT_PROPERTIES_VERSION_ID.equals(expectedPropertiesVersionId);
-        if (isInitialPropertiesVersionId && !Objects.equals(providedPlatformVersionId, expectedPlatformVersionId)) {
+        if (INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !Objects.equals(providedPlatformVersionId, expectedPlatformVersionId)) {
             throw new OutOfDatePlatformVersionException(expectedPlatformVersionId, providedPlatformVersionId);
         }
 
@@ -151,7 +150,7 @@ public class PlatformAggregate implements Serializable {
         // expectedPropertiesVersionId et providedPropertiesVersionId doivent être identique afin de s'assurer de la consistance des données
         if (!INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !providedPropertiesVersionId.equals(expectedPropertiesVersionId)) {
             if (Platform.isGlobalPropertiesPath(propertiesPath)) {
-                throw new OutOfDateGlobalPropertiesException(expectedPlatformVersionId, providedPlatformVersionId);
+                throw new OutOfDateGlobalPropertiesException(expectedPropertiesVersionId, providedPropertiesVersionId);
             } else {
                 throw new OutOfDatePropertiesException(propertiesPath, expectedPropertiesVersionId, providedPropertiesVersionId);
             }
