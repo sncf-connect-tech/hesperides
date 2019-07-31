@@ -42,8 +42,7 @@ public class PropertyUseCases {
                                                                          boolean shouldHidePasswordProperties,
                                                                          boolean excludePreparedProperties) {
 
-        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey)
-                .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
+        DeployedModuleView deployedModule = platform.getDeployedModule(modulePath, moduleKey);
 
         List<AbstractValuedPropertyView> valuedProperties = deployedModule.getValuedProperties();
         if (shouldHidePasswordProperties) {
