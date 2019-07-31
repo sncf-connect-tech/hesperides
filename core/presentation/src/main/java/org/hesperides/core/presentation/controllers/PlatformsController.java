@@ -228,7 +228,7 @@ public class PlatformsController extends AbstractController {
                                                                   @RequestParam("to_platform") final String toPlatformName,
                                                                   @RequestParam("to_path") final String toPropertiesPath,
                                                                   @RequestParam(value = "to_instance_name", required = false, defaultValue = "") final String toInstanceName,
-                                                                  @RequestParam(value = "compared_stored_values", required = false, defaultValue = "false") final Boolean compareStoredValues,
+                                                                  @RequestParam(value = "compared_stored_values", required = false) final boolean compareStoredValues,
                                                                   @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
@@ -236,7 +236,7 @@ public class PlatformsController extends AbstractController {
         PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(
                 fromPlatformKey, fromPropertiesPath, fromInstanceName,
                 toPlatformKey, toPropertiesPath, toInstanceName,
-                timestamp, Boolean.TRUE.equals(compareStoredValues),
+                timestamp, compareStoredValues,
                 new User(authentication));
         return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
     }

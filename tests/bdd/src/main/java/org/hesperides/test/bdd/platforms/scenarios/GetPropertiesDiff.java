@@ -28,12 +28,13 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
     public GetPropertiesDiff() {
         When("^I get the properties diff of this module between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (String fromPlatformName, String toPlatformName) -> {
             testContext.setResponseEntity(platformClient.getPropertiesDiff(
-                platformHistory.getPlatformByName(fromPlatformName),
-                moduleBuilder.getPropertiesPath(),
-                platformHistory.getPlatformByName(toPlatformName),
-                moduleBuilder.getPropertiesPath(),
-                null,
-                PropertiesDiffOutput.class
+                    platformHistory.getPlatformByName(fromPlatformName),
+                    propertiesPath,
+                    platformHistory.getPlatformByName(toPlatformName),
+                    propertiesPath,
+                    storedOrFinal.equals("stored"),
+                    null,
+                    PropertiesDiffOutput.class
             ));
         });
 
