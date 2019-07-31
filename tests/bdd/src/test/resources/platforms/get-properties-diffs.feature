@@ -1,11 +1,16 @@
-@wip
 Feature: Get properties diffs
 
   Background:
     Given an authenticated user
 
   Scenario: get properties diffs between two platforms with valued properties
-    Given an existing module
+    Given an existing module with this template content
+      """
+      {{property-X-in-p1-and-p2}}
+      {{property-Y-in-p1-and-p2}}
+      {{property-only-in-p1}}
+      {{property-only-in-p2}}
+      """
     And an existing platform named "P1" with this module
     And the platform "P1" has these valued properties
       | name                    | value         |

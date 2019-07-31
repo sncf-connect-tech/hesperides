@@ -38,6 +38,7 @@ Feature: Get file
       overwritten-value
       """
 
+  @buggy
   Scenario: get file with default value and an empty string valorization
     Given an existing module with this template content
       """
@@ -533,6 +534,7 @@ Feature: Get file
       instance-value
       """
 
+  @buggy
   Scenario: get file with a property with the same name but 2 different default values
     Given an existing module with this template content
     """
@@ -721,6 +723,7 @@ Feature: Get file
     """
     """
 
+  @buggy
   Scenario: get file using a set delimiter and with a property default value including mustaches
     Given an existing module with this template content
     """

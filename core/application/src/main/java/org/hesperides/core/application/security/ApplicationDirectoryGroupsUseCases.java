@@ -70,7 +70,7 @@ public class ApplicationDirectoryGroupsUseCases {
         if (existingApplicationDirectoryGroups.isPresent()) {
             // L'utilisateur doit avoir les droits de prod ou appartenir à l'un
             // des groupes AD de l'application pour modifier ses "directory groups"
-            if (!user.isGlobalProd() && !user.hasAtLeastOneDirectoryGroup(existingApplicationDirectoryGroups.get().getDirectoryGroupDNs())) {
+            if (!user.hasProductionRoleForApplication(applicationName)) {
                 throw new UpdateDirectoryGroupsForbiddenException(applicationName);
             }
             applicationDirectoryGroupsCommands.updateApplicationDirectoryGroups(
@@ -80,7 +80,7 @@ public class ApplicationDirectoryGroupsUseCases {
         } else {
             // L'utilisateur doit avoir les droits de prod pour
             // créer les directory groups de cette application
-            if (!user.isGlobalProd()) {
+            if (!user.hasProductionRoleForApplication(applicationName)) {
                 throw new CreateDirectoryGroupsForbiddenException(applicationName);
             }
             applicationDirectoryGroupsCommands.createApplicationDirectoryGroups(
