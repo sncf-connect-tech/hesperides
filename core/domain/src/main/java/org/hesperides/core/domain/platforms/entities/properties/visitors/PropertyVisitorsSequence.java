@@ -43,19 +43,24 @@ public class PropertyVisitorsSequence {
         //  - common : la propriété est présente dans la liste de droite et sa valeur est la même.
         //  - differing : la propriété est présente dans la liste de droite et sa valeur est différente.
         Set<PropertyVisitor> onlyLeft = new HashSet<>();
-        Set<PropertyVisitor> onlyRight;
+        Set<PropertyVisitor> onlyRight = new HashSet<>();
         Set<AbstractDifferingProperty> common = new HashSet<>();
         Set<AbstractDifferingProperty> differing = new HashSet<>();
 
         // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
         // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
         Map<String, PropertyVisitor> propertyVisitorsRightPerName = propertiesRight.stream().collect(toMap(PropertyVisitor::getName, property -> property));
-        Set<String> visitedLeftPropertyNames = new HashSet<>();
 
         for (PropertyVisitor leftProperty : propertiesLeft.getProperties()) {
             PropertyVisitor rightProperty = propertyVisitorsRightPerName.get(leftProperty.getName());
-            if (rightProperty == null) {
-                onlyLeft.add(leftProperty);
+            if (!isValued(rightProperty)) {
+                if (isValued(leftProperty)) {
+                    onlyLeft.add(leftProperty);
+                } else {
+                    common.add(buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues));
+                }
+            } else if (!isValued(leftProperty)) {
+                onlyRight.add(rightProperty);
             } else {
                 AbstractDifferingProperty differingProperty = buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues);
                 if (leftProperty.equals(rightProperty, compareStoredValues)) {
@@ -64,13 +69,13 @@ public class PropertyVisitorsSequence {
                     differing.add(differingProperty);
                 }
             }
-            visitedLeftPropertyNames.add(leftProperty.getName());
         }
-        onlyRight = propertiesRight.stream()
-                .filter(property -> !visitedLeftPropertyNames.contains(property.getName()))
-                .collect(Collectors.toSet());
 
         return new PropertiesDiff(onlyLeft, onlyRight, common, differing);
+    }
+
+    private static boolean isValued(PropertyVisitor propertyVisitor) {
+        return propertyVisitor != null && (propertyVisitor instanceof IterablePropertyVisitor || ((SimplePropertyVisitor) propertyVisitor).isValued());
     }
 
     private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, boolean compareStoredValues) {

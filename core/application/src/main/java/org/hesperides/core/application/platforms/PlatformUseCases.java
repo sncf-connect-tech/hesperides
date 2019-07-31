@@ -52,8 +52,6 @@ public class PlatformUseCases {
     private final TechnoQueries technoQueries;
     private final ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries;
 
-    public static enum PROPERTIES_WITH_ONLY_DEFAULT_VALUE {INCLUDE, EXCLUDE};
-
 
     @Autowired
     public PlatformUseCases(PlatformCommands platformCommands, PlatformQueries platformQueries, final ModuleQueries moduleQueries, TechnoQueries technoQueries, ApplicationDirectoryGroupsQueries applicationDirectoryGroupsQueries) {
@@ -65,7 +63,7 @@ public class PlatformUseCases {
     }
 
     public String createPlatform(Platform platform, User user) {
-        if (platform.isProductionPlatform() && !user.isGlobalProd()) {
+        if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platform.getKey().getApplicationName())) {
             throw new ForbiddenOperationException("Creating a production platform is reserved to production role");
         }
         if (platformQueries.platformExists(platform.getKey())) {
@@ -80,7 +78,7 @@ public class PlatformUseCases {
         }
         PlatformView existingPlatform = platformQueries.getOptionalPlatform(existingPlatformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(existingPlatformKey));
-        if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.isGlobalProd()) {
+        if ((newPlatform.isProductionPlatform() || existingPlatform.isProductionPlatform()) && !user.hasProductionRoleForApplication(newPlatform.getKey().getApplicationName())) {
             throw new ForbiddenOperationException("Creating a platform from a production platform is reserved to production role");
         }
         List<DeployedModule> deployedModules = DeployedModuleView.toDomainDeployedModules(existingPlatform.getActiveDeployedModules());
@@ -130,7 +128,7 @@ public class PlatformUseCases {
     public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
         PlatformView existingPlatform = platformQueries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        if (!user.isGlobalProd()) {
+        if (!user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {
                 throw new ForbiddenOperationException("Updating a production platform is reserved to production role");
             }
@@ -144,7 +142,7 @@ public class PlatformUseCases {
     public void deletePlatform(Platform.Key platformKey, User user) {
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        if (platform.isProductionPlatform() && !user.isGlobalProd()) {
+        if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Deleting a production platform is reserved to production role");
         }
         platformCommands.deletePlatform(platform.getId(), platformKey, user);
@@ -255,25 +253,18 @@ public class PlatformUseCases {
                                             final User user) {
         Module.Key fromModuleKey = Module.Key.fromPropertiesPath(fromPropertiesPath);
         String fromModulePath = extractModulePathFromPropertiesPath(fromPropertiesPath);
-        if (!platformQueries.deployedModuleExists(fromPlatformKey, fromModuleKey, fromModulePath)) {
-            throw new DeployedModuleNotFoundException(fromPlatformKey, fromModuleKey, fromModulePath);
-        }
         Module.Key toModuleKey = Module.Key.fromPropertiesPath(toPropertiesPath);
         String toModulePath = extractModulePathFromPropertiesPath(toPropertiesPath);
-        if (!platformQueries.deployedModuleExists(toPlatformKey, toModuleKey, toModulePath)) {
-            throw new DeployedModuleNotFoundException(toPlatformKey, toModuleKey, toModulePath);
-        }
 
-        PlatformView fromPlatform = platformQueries.getOptionalPlatform(fromPlatformKey)
-                .orElseThrow(() -> new PlatformNotFoundException(fromPlatformKey));
-        PlatformView toPlatform = platformQueries.getOptionalPlatform(toPlatformKey)
-                .orElseThrow(() -> new PlatformNotFoundException(toPlatformKey));
+        PlatformView fromPlatform = timestamp != null ? getPlatformAtPointInTime(fromPlatformKey, timestamp) : getPlatform(fromPlatformKey);
+        PlatformView toPlatform = timestamp != null ? getPlatformAtPointInTime(toPlatformKey, timestamp) : getPlatform(toPlatformKey);
 
+        // Note: on devrait passer le timestamp aux 2 appels ci-dessous, cf. issue #724
         List<AbstractPropertyView> fromModulePropertiesModels = moduleQueries.getPropertiesModel(fromModuleKey);
         List<AbstractPropertyView> toModulePropertiesModels = moduleQueries.getPropertiesModel(toModuleKey);
 
-        boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.isGlobalProd();
-        boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.isGlobalProd();
+        boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(fromPlatformKey.getApplicationName());
+        boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(toPlatformKey.getApplicationName());
 
         PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequence(
                 fromPlatform, fromModulePath, fromModuleKey,
@@ -295,40 +286,28 @@ public class PlatformUseCases {
         return String.join("#", parts);
     }
 
-    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
-        return getValuedProperties(platformKey, propertiesPath, null, user);
-    }
-
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {
-        return getValuedProperties(platformKey, propertiesPath, timestamp, user, PROPERTIES_WITH_ONLY_DEFAULT_VALUE.EXCLUDE);
-    }
-
-    public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user, final PROPERTIES_WITH_ONLY_DEFAULT_VALUE propertiesWithOnlyDefaultValue) {
         List<AbstractValuedPropertyView> properties = new ArrayList<>();
 
         PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
 
         if (ROOT_PATH.equals(propertiesPath)) {
-            properties.addAll(platformQueries.getGlobalProperties(platformKey));
+            properties.addAll(platform.getGlobalProperties());
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
             final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
-            if (!moduleQueries.moduleExists(moduleKey)) {
-                throw new ModuleNotFoundException(moduleKey);
-            }
+            // Note: on devrait passer le timestamp aux 2 appels ci-dessous, cf. issue #724
             List<AbstractPropertyView> modulePropertiesModel = moduleQueries.getPropertiesModel(moduleKey);
 
-            properties = platformQueries.getDeployedModuleProperties(platform.getId(), propertiesPath, timestamp);
+            properties = platform.getDeployedModule(propertiesPath).getValuedProperties();
 
-            if (PROPERTIES_WITH_ONLY_DEFAULT_VALUE.EXCLUDE.equals(propertiesWithOnlyDefaultValue)) {
-                // On exclue les propriétés non valorisées ayant une valeur par défaut
-                properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
-            }
+            // On exclue les propriétés non valorisées ayant une valeur par défaut
+            properties = AbstractValuedPropertyView.excludePropertiesWithOnlyDefaultValue(properties, modulePropertiesModel);
 
             // Pas besoin de récupérer la plateforme entière juste pour ce test
             // surtout si c'est pour refaire une requête pour récupérer les propriétés
             // => Créer une requête isProductionPlatform ou réutiliser la plateforme
             // pour récupérer les propriétés
-            if (platform.isProductionPlatform() && !user.isGlobalProd()) {
+            if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
                 properties = AbstractValuedPropertyView.hidePasswordProperties(properties, modulePropertiesModel);
             }
         }
@@ -371,7 +350,7 @@ public class PlatformUseCases {
             throw new PlatformNotFoundException(platformKey);
         }
         PlatformView platform = optPlatform.get();
-        if (platform.isProductionPlatform() && !user.isGlobalProd()) {
+        if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
         if (ROOT_PATH.equals(propertiesPath)) {
@@ -390,7 +369,7 @@ public class PlatformUseCases {
             platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, abstractValuedProperties, user);
         }
 
-        return getValuedProperties(platformKey, propertiesPath, user);
+        return getValuedProperties(platformKey, propertiesPath, null, user);
     }
 
     /**

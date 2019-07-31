@@ -20,7 +20,6 @@ import org.hesperides.core.domain.platforms.commands.PlatformAggregate;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
@@ -361,30 +360,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
     @QueryHandler
     @Override
     @Timed
-    public List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query) {
-        PlatformDocument platformDocument;
-        if (query.getTimestamp() >= 0) {
-            // Un cache serait bénéfique ici car une onGetPlatformAtPointInTimeQuery est toujours résolue juste avant cet appel
-            platformDocument = getPlatformAtPointInTime(query.getPlatformId(), query.getTimestamp());
-        } else {
-            platformDocument = minimalPlatformRepository.findById(query.getPlatformId())
-                    .orElseThrow(() -> new NotFoundException("Platform not found - impossible to get deployed module properties"
-                            + " - platform ID: " + query.getPlatformId() + " - path: " + query.getPropertiesPath())
-                    );
-        }
-
-        final List<AbstractValuedPropertyDocument> abstractValuedPropertyDocuments = platformDocument
-                .getActiveDeployedModules()
-                .filter(deployedModule -> deployedModule.getPropertiesPath().equals(query.getPropertiesPath()))
-                .findAny().map(DeployedModuleDocument::getValuedProperties)
-                .orElseGet(Collections::emptyList);
-
-        return AbstractValuedPropertyDocument.toViews(abstractValuedPropertyDocuments);
-    }
-
-    @QueryHandler
-    @Override
-    @Timed
     public List<String> onGetInstancesModelQuery(GetInstancesModelQuery query) {
         PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
         final Optional<PlatformDocument> platformDocument = platformRepository
@@ -408,20 +383,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElseGet(Collections::emptyList);
-    }
-
-    @QueryHandler
-    @Override
-    @Timed
-    public Boolean onDeployedModuleExistsQuery(DeployedModuleExistsQuery query) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        Module.Key moduleKey = query.getModuleKey();
-        return platformRepository.existsByPlatformKeyAndModuleKeyAndPath(
-                platformKeyDocument,
-                moduleKey.getName(),
-                moduleKey.getVersion(),
-                moduleKey.isWorkingCopy(),
-                query.getModulePath());
     }
 
     @QueryHandler
