@@ -37,6 +37,8 @@ ldap:  # bound to org.hesperides.core.infrastructure.security.LdapConfiguration
   usernameAttribute: ${LDAP_USERNAME_ATTRIBUTE:sAMAccountName}
   connectTimeout: ${LDAP_CONNECT_TIMEOUT:5000}
   readTimeout: ${LDAP_READ_TIMEOUT:5000}
+  max-number-of-tries: ${LDAP_RETRY_MAX_COUNT:3}
+  delay-between-tries-in-seconds: ${LDAP_RETRY_DELAY_IN_SECS:1}
 
 logging:
   file: /var/log/hesperides.log

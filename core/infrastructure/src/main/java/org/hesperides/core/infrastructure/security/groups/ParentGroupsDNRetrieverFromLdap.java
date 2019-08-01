@@ -1,6 +1,12 @@
 package org.hesperides.core.infrastructure.security.groups;
 
+import com.evanlennick.retry4j.CallExecutor;
+import com.evanlennick.retry4j.CallExecutorBuilder;
+import com.evanlennick.retry4j.config.RetryConfig;
+import com.evanlennick.retry4j.exception.RetriesExhaustedException;
+import com.evanlennick.retry4j.exception.UnexpectedException;
 import io.micrometer.core.annotation.Timed;
+import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.infrastructure.security.LdapConfiguration;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -15,14 +21,17 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import java.util.HashSet;
 
+@Slf4j
 public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever {
 
     private final DirContext dirContext;
     private final LdapConfiguration ldapConfiguration;
+    private final RetryConfig retryConfig;
 
-    public ParentGroupsDNRetrieverFromLdap(DirContext dirContext, LdapConfiguration ldapConfiguration) {
+    public ParentGroupsDNRetrieverFromLdap(DirContext dirContext, LdapConfiguration ldapConfiguration, RetryConfig retryConfig) {
         this.dirContext = dirContext;
         this.ldapConfiguration = ldapConfiguration;
+        this.retryConfig = retryConfig;
     }
 
     public HashSet<String> retrieveParentGroupDNs(String dn) {
@@ -31,7 +40,7 @@ public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever 
             String cn = DirectoryGroupDN.extractCnFromDn(dn);
             String base = getBaseFrom(cn, dn);
             String searchFilter = ldapConfiguration.getSearchFilterForCN(cn);
-            DirContextOperations dirContextOperations = searchCN(dirContext, cn, base, searchFilter);
+            DirContextOperations dirContextOperations = searchCNWithRetry(dirContext, cn, base, searchFilter);
             parentGroupDNs = extractDirectParentGroupDNs(dirContextOperations.getAttributes(""));
         } catch (IncorrectResultSizeDataAccessException e) {
             // On accepte que la recherche ne retourne aucun résultat
@@ -41,8 +50,26 @@ public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever 
         return parentGroupDNs;
     }
 
+    @Timed
+    public DirContextOperations searchCNWithRetry(DirContext dirContext, String cn, String base, String searchFilter) {
+        CallExecutor<DirContextOperations> executor = new CallExecutorBuilder().config(retryConfig).build();
+        try {
+            return executor.execute(() -> searchCN(dirContext, cn, base, searchFilter)).getResult();
+        } catch (UnexpectedException exception) {
+            Throwable cause = exception.getCause();
+            if (!(cause instanceof IncorrectResultSizeDataAccessException)) { // Cette exception est totalement OK et correspond à un cas nominal
+                log.error("Non retry-able exception while requesting LDAP for CN=" + cn, cause);
+            }
+            throw (RuntimeException)cause;
+        } catch (RetriesExhaustedException exception) {
+            Throwable cause = exception.getCause();
+            log.error("Retries exhausted while requesting LDAP for CN=" + cn, cause);
+            throw (RuntimeException)cause;
+        }
+    }
+
     @Timed // Il s'agit du seul endroit du code d'où sont véritablement effectués les appels LDAPS
-    public static DirContextOperations searchCN(DirContext dirContext, String cn, String base, String searchFilter) {
+    private static DirContextOperations searchCN(DirContext dirContext, String cn, String base, String searchFilter) {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         try {

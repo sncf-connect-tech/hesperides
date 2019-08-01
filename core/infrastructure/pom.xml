@@ -115,6 +115,12 @@
             <artifactId>jolokia-core</artifactId>
         </dependency>
 
+        <!-- Various -->
+        <dependency>
+            <groupId>com.evanlennick</groupId>
+            <artifactId>retry4j</artifactId>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
