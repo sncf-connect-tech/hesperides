@@ -20,6 +20,8 @@
  */
 package org.hesperides.core.infrastructure.security;
 
+import com.evanlennick.retry4j.config.RetryConfig;
+import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
@@ -31,6 +33,7 @@ import org.hesperides.core.domain.security.entities.springauthorities.GlobalRole
 import org.hesperides.core.infrastructure.security.groups.CachedParentLdapGroupAuthorityRetriever;
 import org.hesperides.core.infrastructure.security.groups.ParentGroupsDNRetrieverFromLdap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -51,6 +54,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -65,6 +69,11 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     private static final String USERS_AUTHENTICATION_CACHE_NAME = "users-authentication";
     private static final String AUTHORIZATION_GROUPS_TREE_CACHE_NAME = "authorization-groups-tree";
 
+    @Value("${ldap.max-number-of-tries}")
+    Integer maxNumberOfTries;
+    @Value("${ldap.delay-between-tries-in-seconds}")
+    Long delayBetweenTriesInSeconds;
+    private RetryConfig retryConfig;
     @Resource
     private LdapCNSearcher self;
     @Autowired
@@ -82,7 +91,18 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
     @PostConstruct
     void init() {
+        // Init en @PostConstruct pour avoir accès aux @Value valorisées :
+        retryConfig = new RetryConfigBuilder()
+                .retryOnSpecificExceptions(org.springframework.ldap.NamingException.class, NullPointerException.class)
+                .withMaxNumberOfTries(maxNumberOfTries)
+                .withDelayBetweenTries(delayBetweenTriesInSeconds, ChronoUnit.SECONDS)
+                .withFixedBackoff()
+                .build();
         cachedParentLdapGroupAuthorityRetriever = new CachedParentLdapGroupAuthorityRetriever(cacheManager.getCache(AUTHORIZATION_GROUPS_TREE_CACHE_NAME));
+    }
+
+    private ParentGroupsDNRetrieverFromLdap createParentGroupsDNRetrieverFromLdap(DirContext dirContext) {
+        return new ParentGroupsDNRetrieverFromLdap(dirContext, ldapConfiguration, retryConfig);
     }
 
     @Override
@@ -101,7 +121,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME, key = "#username")
     // Note: en cas d'exception levée dans cette méthode, rien ne sera mis en cache
     public DirContextOperations searchCN(DirContext dirContext, String username) {
-        return ParentGroupsDNRetrieverFromLdap.searchCN(dirContext, username,
+        return createParentGroupsDNRetrieverFromLdap(dirContext).searchCNWithRetry(dirContext, username,
                 ldapConfiguration.getUserSearchBase(),
                 ldapConfiguration.getSearchFilterForCN(username));
     }
@@ -189,7 +209,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         }
         DirContext dirContext = buildSearchContext(username, password);
         try {
-            cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(new ParentGroupsDNRetrieverFromLdap(dirContext, ldapConfiguration));
+            cachedParentLdapGroupAuthorityRetriever.setParentGroupsDNRetriever(createParentGroupsDNRetrieverFromLdap(dirContext));
             Set<String> groupAuthorities = new HashSet<>();
             HashSet<String> parentGroupsDN = extractDirectParentGroupDNs(attributes);
             for (String groupDN : parentGroupsDN) {

@@ -28,7 +28,12 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ## _(unreleased)_
 ### Added
 
-- $HOSTNAME displayed in /versions to allow easier identification of backend instance. [Lucas Cimon]
+- Retry logic when requesting LDAP to be more resilient. [Lucas Cimon]
+
+
+### Fixed
+
+- #39 : Update properties concurrently (#703) [Lucas Cimon]
 
 
 
