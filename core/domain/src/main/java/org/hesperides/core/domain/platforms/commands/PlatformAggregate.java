@@ -138,22 +138,20 @@ public class PlatformAggregate implements Serializable {
                                                      Long expectedPropertiesVersionId,
                                                      String propertiesPath) {
 
-        // Dans le cas ou providedPropertiesVersionId et expectedPropertiesVersionId ont tous les deux la valeur par défaut, deux possibilités :
-        // - L'appel a été fait sans fournir de providedPropertiesVersionId
-        // - L'appel a été fait avec une valeur initiale pour le providedPropertiesVersionId
-        // Dans les deux cas on est dans une situation d'initialisation, le providedPlatformVersionId fourni doit être le bon
-        if (INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !Objects.equals(providedPlatformVersionId, expectedPlatformVersionId)) {
-            throw new OutOfDatePlatformVersionException(expectedPlatformVersionId, providedPlatformVersionId);
-        }
-
-        // Dans le cas ou le providedPropertiesVersionId est fourni avec une valeur différente par défaut, on ignore le providedPlatformVersionId, en contrepartie, les valeurs
-        // expectedPropertiesVersionId et providedPropertiesVersionId doivent être identique afin de s'assurer de la consistance des données
-        if (!INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !providedPropertiesVersionId.equals(expectedPropertiesVersionId)) {
+        // Si le properties_version_id est fourni (nouvelle méthode de mise à jour des
+        // propriétés), on vérifie qu'il correspond au properties_version_id existant
+        if (!INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !Objects.equals(expectedPropertiesVersionId, providedPropertiesVersionId)) {
             if (Platform.isGlobalPropertiesPath(propertiesPath)) {
                 throw new OutOfDateGlobalPropertiesException(expectedPropertiesVersionId, providedPropertiesVersionId);
             } else {
                 throw new OutOfDatePropertiesException(propertiesPath, expectedPropertiesVersionId, providedPropertiesVersionId);
             }
+        }
+
+        // Si le properties_version_id n'est pas fourni (ancienne méthode de mise
+        // à jour des propriétés), on vérifie le version_id de la platforme
+        if (INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !Objects.equals(providedPlatformVersionId, expectedPlatformVersionId)) {
+            throw new OutOfDatePlatformVersionException(expectedPlatformVersionId, providedPlatformVersionId);
         }
     }
 

@@ -45,7 +45,7 @@ public class ModuleBuilder {
     private long versionId;
     private List<TemplateIO> templates;
     private String logicalGroup;
-    private long propertiesVersionId;
+    private Long propertiesVersionId;
     private List<ValuedPropertyIO> valuedProperties;
     private List<IterableValuedPropertyIO> iterableValuedProperties;
 
@@ -172,7 +172,7 @@ public class ModuleBuilder {
         propertiesVersionId = PROPERTIES_VERSION_ID;
     }
 
-    public void setPropertiesVersionId(long propertiesVersionId) {
+    public void setPropertiesVersionId(Long propertiesVersionId) {
         this.propertiesVersionId = propertiesVersionId;
     }
 }

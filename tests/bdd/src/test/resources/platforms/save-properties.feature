@@ -147,3 +147,9 @@ Feature: Save properties
     Given an existing platform with global properties
     When I try to update global properties twice with the same global properties version_id
     Then the properties update is rejected with a conflict error
+
+  Scenario: should fail when trying to update properties with wrong platform_version_id use and without properties_version_id (old school update)
+    Given an existing module
+    And an existing platform with this module and valued properties
+    When I try to update the properties with wrong platform_version_id and without properties_version_id
+    Then the properties update is rejected with a conflict error

@@ -159,14 +159,14 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withNoModule();
             moduleBuilder.withVersion(downgradeVersion);
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
-            moduleBuilder.setPropertiesVersionId(2);
+            moduleBuilder.setPropertiesVersionId(2L);
         }
         if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
             platformBuilder.withInstance("instance-foo-1");
             platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
-            moduleBuilder.setPropertiesVersionId(1);
+            moduleBuilder.setPropertiesVersionId(1L);
         }
         if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
             // So that "Then the platform is successfully updated" step validate there is no more modules:

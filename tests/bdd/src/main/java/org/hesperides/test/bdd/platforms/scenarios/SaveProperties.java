@@ -166,6 +166,16 @@ public class SaveProperties extends HesperidesScenario implements En {
             assertOK();
         });
 
+        When("^I try to update the properties with wrong platform_version_id and without properties_version_id$", () -> {
+            moduleBuilder.setPropertiesVersionId(null);
+            platformBuilder.incrementVersionId();
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    String.class));
+        });
+
         Then("^the properties are successfully saved$", () -> {
             assertOK();
             PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();
