@@ -21,7 +21,6 @@ import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.exceptions.UnreplayablePlatformEventsException;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.infrastructure.MinimalPlatformRepository;
@@ -445,20 +444,6 @@ public class MongoPlatformProjectionRepository implements PlatformProjectionRepo
                 .map(PlatformDocument::getGlobalProperties)
                 .map(ValuedPropertyDocument::toValuedPropertyViews)
                 .orElseGet(Collections::emptyList);
-    }
-
-    @QueryHandler
-    @Override
-    @Timed
-    public Boolean onDeployedModuleExistsQuery(DeployedModuleExistsQuery query) {
-        PlatformKeyDocument platformKeyDocument = new PlatformKeyDocument(query.getPlatformKey());
-        Module.Key moduleKey = query.getModuleKey();
-        return platformRepository.existsByPlatformKeyAndModuleKeyAndPath(
-                platformKeyDocument,
-                moduleKey.getName(),
-                moduleKey.getVersion(),
-                moduleKey.isWorkingCopy(),
-                query.getModulePath());
     }
 
     @QueryHandler

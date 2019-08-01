@@ -23,12 +23,12 @@ package org.hesperides.core.domain.platforms.entities.properties;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 @Value
 @NonFinal

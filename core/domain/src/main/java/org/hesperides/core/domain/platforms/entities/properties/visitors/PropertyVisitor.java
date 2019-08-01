@@ -1,4 +1,4 @@
-package org.hesperides.core.application.files;
+package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -7,7 +7,7 @@ import java.util.function.Function;
  - coupler les modèles de propriétés avec leurs valorisations
  - permettre le parcours récursif de l'arbre de ces propriétés
  */
-interface PropertyVisitor {
+public interface PropertyVisitor {
 
     String getName();
 
@@ -18,4 +18,6 @@ interface PropertyVisitor {
     PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper);
 
     PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper);
+
+    boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue);
 }

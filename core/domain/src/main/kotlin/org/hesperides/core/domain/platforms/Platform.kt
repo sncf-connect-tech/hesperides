@@ -47,7 +47,6 @@ data class GetDeployedModulePropertiesQuery(val platformId: String, val properti
 data class GetGlobalPropertiesVersionIdQuery(val platformKey: Platform.Key)
 data class GetGlobalPropertiesQuery(val platformKey: Platform.Key)
 data class GetInstancesModelQuery(val platformKey: Platform.Key, val propertiesPath: String)
-data class DeployedModuleExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String)
 data class InstanceExistsQuery(val platformKey: Platform.Key, val moduleKey: Module.Key, val modulePath: String, val instanceName: String)
 data class ApplicationExistsQuery(val applicationName: String)
 class GetAllApplicationsDetailQuery

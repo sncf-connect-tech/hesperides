@@ -44,7 +44,7 @@ public class IterablePropertyItemIO {
     @SerializedName("values")
     @JsonProperty("values")
     @Valid
-    Set<AbstractValuedPropertyIO> abstractValuedProperties;
+    List<AbstractValuedPropertyIO> abstractValuedProperties;
 
     public IterablePropertyItemIO(final IterablePropertyItemView iterablePropertyItemView) {
         this.title = iterablePropertyItemView.getTitle();
@@ -52,11 +52,24 @@ public class IterablePropertyItemIO {
         final Set<ValuedPropertyIO> valuedProperties = ValuedPropertyIO.fromValuedPropertyViews(valuedPropertyViews);
         final List<IterableValuedPropertyView> iterableValuedPropertyViews = AbstractValuedPropertyView.getAbstractValuedPropertyViewWithType(iterablePropertyItemView.getAbstractValuedPropertyViews(), IterableValuedPropertyView.class);
         final Set<IterableValuedPropertyIO> iterableValuedProperties = IterableValuedPropertyIO.fromIterableValuedPropertyViews(iterableValuedPropertyViews);
-        this.abstractValuedProperties = new HashSet<>(valuedProperties);
+        this.abstractValuedProperties = new ArrayList<>(valuedProperties);
         this.abstractValuedProperties.addAll(iterableValuedProperties);
     }
 
-    public static List<IterablePropertyItemIO> fromIterablePropertyItem(final List<IterablePropertyItemView> iterablePropertyItems) {
+    public IterablePropertyItemIO(final IterablePropertyItem iterablePropertyItem) {
+        this.title = iterablePropertyItem.getTitle();
+        this.abstractValuedProperties = new ArrayList<>(AbstractValuedPropertyIO.fromAbstractValuedProperties(iterablePropertyItem.getAbstractValuedProperties()));
+    }
+
+    public static List<IterablePropertyItemIO> fromIterablePropertyItemsViews(final List<IterablePropertyItemView> iterablePropertyItems) {
+        return Optional.ofNullable(iterablePropertyItems)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(IterablePropertyItemIO::new)
+                .collect(Collectors.toList());
+    }
+
+    public static List<IterablePropertyItemIO> fromIterablePropertyItems(final List<IterablePropertyItem> iterablePropertyItems) {
         return Optional.ofNullable(iterablePropertyItems)
                 .orElseGet(Collections::emptyList)
                 .stream()

@@ -227,7 +227,7 @@ public class SaveProperties extends HesperidesScenario implements En {
             iterableItems.forEach((itemTitle, itemProperties) -> {
                 List<AbstractValuedPropertyIO> properties = new ArrayList<>();
                 itemProperties.forEach((propertyName, propertyValue) -> properties.add(new ValuedPropertyIO(propertyName, propertyValue)));
-                items.add(new IterablePropertyItemIO(itemTitle, new HashSet<>(properties)));
+                items.add(new IterablePropertyItemIO(itemTitle, new ArrayList<>(properties)));
             });
             iterableProperties.add(new IterableValuedPropertyIO(iterableName, items));
         });

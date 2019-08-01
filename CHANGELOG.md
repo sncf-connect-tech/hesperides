@@ -28,6 +28,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ## _(unreleased)_
 ### Added
 
+- Nouvelle ressource /properties/diff. [Lucas Cimon]
+
+
+
+## _(unreleased)_
+### Added
+
 - $HOSTNAME displayed in /versions to allow easier identification of backend instance. [Lucas Cimon]
 
 

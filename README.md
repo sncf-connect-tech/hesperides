@@ -1,4 +1,4 @@
-# Hesperides Back
+# Hesperides backend
 
 [![](https://travis-ci.org/voyages-sncf-technologies/hesperides.svg)](https://travis-ci.org/voyages-sncf-technologies/hesperides)
 
@@ -9,9 +9,10 @@
 
 [![](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Hesperides is an open source tool generating content from a template file (using mustache) in a given environment.
+Hesperides is an open source tool generating configuration files from a given template with [mustaches](https://mustache.github.io)
+and the properties it stores per environment.
 
-The frontend interface is hosted here: https://github.com/voyages-sncf-technologies/hesperides-gui
+The frontend lives in this repo: https://github.com/voyages-sncf-technologies/hesperides-gui
 
 
 ## To test the app quickly

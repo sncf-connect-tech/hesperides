@@ -9,3 +9,4 @@ rebel.xml
 data/
 .m2settings.xml
 /hesperides/bootstrap/src/main/resources/application-corp.yml
+/hesperides/tests/perfs/dependency-reduced-pom.xml

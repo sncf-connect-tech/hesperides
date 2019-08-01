@@ -23,6 +23,9 @@ package org.hesperides.core.presentation.io.platforms.properties;
 import com.google.gson.*;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -39,13 +42,36 @@ public abstract class AbstractValuedPropertyIO {
 
     String name;
 
-    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(Set<AbstractValuedPropertyIO> properties, Class<T> clazz) {
+    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(List<AbstractValuedPropertyIO> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)
-                .orElse(Collections.emptySet())
+                .orElse(Collections.emptyList())
                 .stream()
                 .filter(clazz::isInstance)
                 .map(clazz::cast)
                 .collect(Collectors.toList());
+    }
+
+    public static List<AbstractValuedPropertyIO> fromAbstractValuedProperties(List<AbstractValuedProperty> abstractValuedProperties) {
+        return abstractValuedProperties.stream().map(AbstractValuedPropertyIO::fromAbstractValuedProperty).collect(Collectors.toList());
+    }
+
+    public static Set<AbstractValuedPropertyIO> fromAbstractValuedProperties(Set<AbstractValuedProperty> abstractValuedProperties) {
+        return Optional.ofNullable(abstractValuedProperties)
+                .orElseGet(Collections::emptySet)
+                .stream()
+                .map(AbstractValuedPropertyIO::fromAbstractValuedProperty)
+                .collect(Collectors.toSet());
+    }
+
+    public static AbstractValuedPropertyIO fromAbstractValuedProperty(AbstractValuedProperty abstractValuedProperty){
+        AbstractValuedPropertyIO abstractValuedPropertyIO;
+        if (abstractValuedProperty instanceof ValuedProperty) {
+            abstractValuedPropertyIO = new ValuedPropertyIO((ValuedProperty)abstractValuedProperty);
+        } else {
+            abstractValuedPropertyIO = new IterableValuedPropertyIO((IterableValuedProperty) abstractValuedProperty);
+        }
+
+        return abstractValuedPropertyIO;
     }
 
     /**
