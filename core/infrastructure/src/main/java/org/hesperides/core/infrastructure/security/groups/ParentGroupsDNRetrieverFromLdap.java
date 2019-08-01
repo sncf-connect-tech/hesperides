@@ -1,5 +1,6 @@
 package org.hesperides.core.infrastructure.security.groups;
 
+import io.micrometer.core.annotation.Timed;
 import org.hesperides.core.domain.security.entities.springauthorities.DirectoryGroupDN;
 import org.hesperides.core.infrastructure.security.LdapConfiguration;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -40,6 +41,7 @@ public class ParentGroupsDNRetrieverFromLdap implements ParentGroupsDNRetriever 
         return parentGroupDNs;
     }
 
+    @Timed // Il s'agit du seul endroit du code d'où sont véritablement effectués les appels LDAPS
     public static DirContextOperations searchCN(DirContext dirContext, String cn, String base, String searchFilter) {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
