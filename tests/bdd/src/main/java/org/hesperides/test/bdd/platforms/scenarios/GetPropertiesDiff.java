@@ -2,6 +2,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
+import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
@@ -12,9 +13,9 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,24 +47,55 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
 
         And("the resulting diff match these values", (DataTable data) -> {
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
-            final Map<String, String> dataMap = data.asMap(String.class, String.class);
+            List<Diff> expectedPropertiesDiff = data.asList(Diff.class);
 
-            List<String> onlyLeftPropertiesName = actualPropertiesDiff.getOnlyLeft().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> onlyLeftPropertiesNameExpected = Stream.of(dataMap.get("only_left")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
-            assertEquals(onlyLeftPropertiesNameExpected, onlyLeftPropertiesName);
+            List<String> onlyLeftPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyLeft());
+            List<String> onlyLeftPropertiesNameExpected = Diff.getOnlyLeft(expectedPropertiesDiff);
+            assertEquals("only_left", onlyLeftPropertiesNameExpected, onlyLeftPropertiesName);
 
-            List<String> onlyRightPropertiesName = actualPropertiesDiff.getOnlyRight().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> onlyRightPropertiesNameExpected = Stream.of(dataMap.get("only_right")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
-            assertEquals(onlyRightPropertiesNameExpected, onlyRightPropertiesName);
+            List<String> onlyRightPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyRight());
+            List<String> onlyRightPropertiesNameExpected = Diff.getOnlyRight(expectedPropertiesDiff);
+            assertEquals("only_righ", onlyRightPropertiesNameExpected, onlyRightPropertiesName);
 
-            List<String> commonPropertiesName = actualPropertiesDiff.getCommon().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> commonPropertiesNameExpected = Stream.of(dataMap.get("common")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
-            assertEquals(commonPropertiesNameExpected, commonPropertiesName);
+            List<String> commonPropertiesName = getPropertiesName(actualPropertiesDiff.getCommon());
+            List<String> commonPropertiesNameExpected = Diff.getCommon(expectedPropertiesDiff);
+            assertEquals("common", commonPropertiesNameExpected, commonPropertiesName);
 
-            List<String> differingPropertiesName = actualPropertiesDiff.getDiffering().stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
-            List<String> differingPropertiesNameExpected = Stream.of(dataMap.get("differing")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
-            assertEquals(differingPropertiesNameExpected, differingPropertiesName);
+            List<String> differingPropertiesName = getPropertiesName(actualPropertiesDiff.getDiffering());
+            List<String> differingPropertiesNameExpected = Diff.getDiffering(expectedPropertiesDiff);
+            assertEquals("differing", differingPropertiesNameExpected, differingPropertiesName);
         });
     }
 
+    private List<String> getPropertiesName(Set<AbstractDifferingPropertyOutput> propertiesDiff) {
+        return propertiesDiff.stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
+    }
+
+    @Value
+    private static class Diff {
+        String only_left;
+        String only_right;
+        String common;
+        String differing;
+
+        private static List<String> getOnlyLeft(List<Diff> diffs) {
+            return getTypeOfDiff(diffs, Diff::getOnly_left);
+        }
+
+        private static List<String> getOnlyRight(List<Diff> diffs) {
+            return getTypeOfDiff(diffs, Diff::getOnly_right);
+        }
+
+        private static List<String> getCommon(List<Diff> diffs) {
+            return getTypeOfDiff(diffs, Diff::getCommon);
+        }
+
+        private static List<String> getDiffering(List<Diff> diffs) {
+            return getTypeOfDiff(diffs, Diff::getDiffering);
+        }
+
+        private static List<String> getTypeOfDiff(List<Diff> diffs, Function<Diff, String> mapper) {
+            return diffs.stream().map(mapper).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+        }
+    }
 }
