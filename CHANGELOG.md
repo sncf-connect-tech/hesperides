@@ -26,6 +26,18 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
+### Added
+
+- $HOSTNAME displayed in /versions to allow easier identification of backend instance. [Lucas Cimon]
+
+
+
+## 2019-07-31
+### Added
+
+- $HOSTNAME displayed in /versions to allow easier identification of backend instance (#726) [Lucas Cimon]
+
+
 ### Fixed
 
 - Correction des règles de restriction des actions "de prod" vis à vis des ACLs - fix #721 (#722) [Lucas Cimon]
