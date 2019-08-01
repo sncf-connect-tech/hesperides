@@ -25,6 +25,13 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- Correction des règles de restriction des actions "de prod" vis à vis des ACLs - fix #721 (#722) [Lucas Cimon]
+
+
+
 ## 2019-07-26
 ### Fixed
 

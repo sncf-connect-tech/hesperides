@@ -55,9 +55,15 @@ public class CreateApplications extends HesperidesScenario implements En {
             assertOK();
         });
 
-        Given("^an application ?(.+)? associated with the directory group (.*)?$", (String applicationName, String directoryGroup) -> {
+        Given("^an application ?(.+)? associated with the directory group (.+)$", (String applicationName, String directoryGroup) -> {
             createApplication(applicationName);
             assertOK();
+            final String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
+            addApplicationDirectoryGroups(realDirectoryGroup);
+            assertOK();
+        });
+
+        Given("^its application is associated with the directory group (.+)$", (String directoryGroup) -> {
             final String realDirectoryGroup = authorizationCredentialsConfig.getRealDirectoryGroup(directoryGroup);
             addApplicationDirectoryGroups(realDirectoryGroup);
             assertOK();

@@ -5,6 +5,6 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 
 public class DuplicatePlatformException extends DuplicateException {
     public DuplicatePlatformException(Platform.Key platformKey) {
-        super("could not create a new platform with key: " + platformKey.getApplicationName() + "-" + platformKey.getPlatformName() + " as it already exists");
+        super("Could not create a new platform with key: " + platformKey.getApplicationName() + "-" + platformKey.getPlatformName() + " as it already exists");
     }
 }

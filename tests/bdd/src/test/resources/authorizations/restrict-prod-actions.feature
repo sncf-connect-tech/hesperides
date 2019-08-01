@@ -1,3 +1,4 @@
+@auth-related
 Feature: Restrict actions on prod platforms to prod users
 
   Scenario: restrict prod platform copy
@@ -56,21 +57,3 @@ Feature: Restrict actions on prod platforms to prod users
       | name       | value   |
       | a-property | a-value |
     Then a 403 error is returned, blaming "Setting properties of a production platform is reserved to production role"
-
-  @require-real-ad
-  Scenario: do not restrict prod platform update for per-app prod users
-    Given an authenticated prod user
-    And an application ABC associated with the directory group A_PROD_GROUP
-    And a prod user belonging to the directory group A_PROD_GROUP
-    And an existing prod platform
-    When I update this platform
-    Then the platform is successfully updated
-
-  @require-real-ad
-  Scenario: do not restrict prod platform deletion for per-app prod users
-    Given an authenticated prod user
-    And an application ABC associated with the directory group A_PROD_GROUP
-    And a prod user belonging to the directory group A_PROD_GROUP
-    And an existing prod platform
-    When I delete this platform
-    Then the platform is successfully deleted

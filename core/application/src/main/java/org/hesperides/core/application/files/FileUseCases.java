@@ -128,7 +128,7 @@ public class FileUseCases {
         String templateContent = template.orElseThrow(() -> new TemplateNotFoundException(moduleKey, templateName)).getContent();
 
         PlatformView platform = platformQueries.getOptionalPlatform(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
-        boolean shouldHidePasswordProperties = platform.isProductionPlatform() && !user.isGlobalProd();
+        boolean shouldHidePasswordProperties = platform.isProductionPlatform() && !user.hasProductionRoleForApplication(applicationName);
         return valorizeWithModuleAndGlobalAndInstanceProperties(templateContent, platform, modulePath, moduleKey, moduleQueries.getPropertiesModel(moduleKey), instanceName, shouldHidePasswordProperties);
     }
 
