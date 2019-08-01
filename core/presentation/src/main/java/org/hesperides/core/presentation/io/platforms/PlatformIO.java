@@ -25,6 +25,7 @@ import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.hesperides.core.domain.platforms.entities.DeployedModule;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.presentation.io.OnlyPrintableCharacters;
@@ -101,6 +102,7 @@ public class PlatformIO {
                 isProductionPlatform != null ? isProductionPlatform : false,
                 versionId,
                 DeployedModuleIO.toDomainInstances(deployedModules),
+                null, // Les propriétés globales ne sont pas présente au niveau des IO de plateforme et donc du payload json de réponse, le domain se charge donc de gérer cela
                 Collections.emptyList()
         );
     }

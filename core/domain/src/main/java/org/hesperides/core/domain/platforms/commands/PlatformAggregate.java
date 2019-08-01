@@ -27,14 +27,18 @@ import org.axonframework.commandhandling.model.AggregateIdentifier;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.hesperides.commons.VersionIdLogger;
-import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
+import org.hesperides.core.domain.exceptions.OutOfDateGlobalPropertiesException;
+import org.hesperides.core.domain.exceptions.OutOfDatePlatformVersionException;
+import org.hesperides.core.domain.exceptions.OutOfDatePropertiesException;
 import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+import static org.hesperides.core.domain.platforms.entities.DeployedModule.INIT_PROPERTIES_VERSION_ID;
 
 @Slf4j
 @NoArgsConstructor
@@ -86,33 +90,69 @@ public class PlatformAggregate implements Serializable {
 
     @CommandHandler
     public void onUpdatePlatformModulePropertiesCommand(UpdatePlatformModulePropertiesCommand command) {
+        Long providedPlatformVersionId = command.getProvidedPlatformVersionId();
+
         log.debug("onUpdatePlatformModulePropertiesCommand - platformId: {} - versionId: {} - user: {}",
-                command.getPlatformId(), command.getPlatformVersionId(), command.getUser());
-        logBeforeEventVersionId(command.getPlatformVersionId());
-        if (command.getPlatformVersionId() != versionId) {
-            throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
-        }
+                command.getPlatformId(), providedPlatformVersionId, command.getUser());
+        logBeforeEventVersionId(providedPlatformVersionId);
+
+        validatePropertiesVersionIds(providedPlatformVersionId,
+                versionId,
+                command.getProvidedPropertiesVersionId(),
+                command.getExpectedPropertiesVersionId(),
+                command.getPropertiesPath());
+
         apply(new PlatformModulePropertiesUpdatedEvent(
                 command.getPlatformId(),
                 command.getPropertiesPath(),
-                (command.getPlatformVersionId() + 1),
+                (versionId + 1),
+                (command.getExpectedPropertiesVersionId() + 1),
                 command.getValuedProperties(),
                 command.getUser().getName()));
     }
 
     @CommandHandler
     public void onUpdatePlatformPropertiesCommand(UpdatePlatformPropertiesCommand command) {
+        Long providedPlatformVersionId = command.getProvidedPlatformVersionId();
         log.debug("onUpdatePlatformPropertiesCommand - platformId: {} - versionId: {} - user: {}",
-                command.getPlatformId(), command.getPlatformVersionId(), command.getUser());
-        logBeforeEventVersionId(command.getPlatformVersionId());
-        if (command.getPlatformVersionId() != versionId) {
-            throw new OutOfDateVersionException(versionId, command.getPlatformVersionId());
-        }
+                command.getPlatformId(), providedPlatformVersionId, command.getUser());
+        logBeforeEventVersionId(providedPlatformVersionId);
+
+        validatePropertiesVersionIds(providedPlatformVersionId,
+                versionId,
+                command.getProvidedPropertiesVersionId(),
+                command.getExpectedPropertiesVersionId(),
+                Platform.GLOBAL_PROPERTIES_PATH);
+
         apply(new PlatformPropertiesUpdatedEvent(
                 command.getPlatformId(),
-                (command.getPlatformVersionId() + 1),
+                (versionId + 1),
+                (command.getExpectedPropertiesVersionId() + 1),
                 command.getValuedProperties(),
                 command.getUser().getName()));
+    }
+
+    private static void validatePropertiesVersionIds(Long providedPlatformVersionId,
+                                                     Long expectedPlatformVersionId,
+                                                     Long providedPropertiesVersionId,
+                                                     Long expectedPropertiesVersionId,
+                                                     String propertiesPath) {
+
+        // Si le properties_version_id est fourni (nouvelle méthode de mise à jour des
+        // propriétés), on vérifie qu'il correspond au properties_version_id existant
+        if (!INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !Objects.equals(expectedPropertiesVersionId, providedPropertiesVersionId)) {
+            if (Platform.isGlobalPropertiesPath(propertiesPath)) {
+                throw new OutOfDateGlobalPropertiesException(expectedPropertiesVersionId, providedPropertiesVersionId);
+            } else {
+                throw new OutOfDatePropertiesException(propertiesPath, expectedPropertiesVersionId, providedPropertiesVersionId);
+            }
+        }
+
+        // Si le properties_version_id n'est pas fourni (ancienne méthode de mise
+        // à jour des propriétés), on vérifie le version_id de la platforme
+        if (INIT_PROPERTIES_VERSION_ID.equals(providedPropertiesVersionId) && !Objects.equals(providedPlatformVersionId, expectedPlatformVersionId)) {
+            throw new OutOfDatePlatformVersionException(expectedPlatformVersionId, providedPlatformVersionId);
+        }
     }
 
     @CommandHandler

@@ -31,6 +31,7 @@ public class RandomPlatformViewGenerator {
                 false,
                 genDeployedModules(dpProfils),
                 1L,
+                1L,
                 genValuedProperties(avgGlobalsCount, 0)
         );
     }
@@ -62,6 +63,7 @@ public class RandomPlatformViewGenerator {
         List<InstanceView> instances = genInstances(dpProfile.avgInstanceCount, dpProfile.avgInstancePropertiesCount);
         return new DeployedModuleView(
                 nextLong(),
+                1L,
                 name,
                 version,
                 true,

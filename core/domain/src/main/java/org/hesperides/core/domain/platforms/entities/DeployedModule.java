@@ -26,10 +26,7 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,8 +36,10 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 public class DeployedModule {
 
     public static final String DEFAULT_MODULE_PATH = "#";
+    public static final Long INIT_PROPERTIES_VERSION_ID = 0L;
 
     Long id;
+    Long propertiesVersionId;
     String name;
     String version;
     boolean isWorkingCopy;
@@ -50,8 +49,9 @@ public class DeployedModule {
     List<Instance> instances;
     List<String> instancesModel; // Liste des noms de propriétés de toutes les instances du module
 
-    public DeployedModule(Long id, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
+    public DeployedModule(Long id, Long propertiesVersionId, String name, String version, boolean isWorkingCopy, String modulePath, List<AbstractValuedProperty> valuedProperties, List<Instance> instances, List<String> instancesModel) {
         this.id = id;
+        this.propertiesVersionId = propertiesVersionId;
         this.name = name;
         this.version = version;
         this.isWorkingCopy = isWorkingCopy;
@@ -64,6 +64,20 @@ public class DeployedModule {
 
     private DeployedModule(Long newId, DeployedModule other) {
         id = newId;
+        propertiesVersionId = other.getPropertiesVersionId() != null ? other.getPropertiesVersionId() : INIT_PROPERTIES_VERSION_ID;
+        name = other.name;
+        version = other.version;
+        isWorkingCopy = other.isWorkingCopy;
+        modulePath = other.modulePath;
+        propertiesPath = other.propertiesPath;
+        valuedProperties = other.valuedProperties;
+        instances = other.instances;
+        instancesModel = other.instancesModel;
+    }
+
+    private DeployedModule(DeployedModule other, Long newPropertiesVersionId) {
+        id = other.getId();
+        propertiesVersionId = newPropertiesVersionId;
         name = other.name;
         version = other.version;
         isWorkingCopy = other.isWorkingCopy;
@@ -77,6 +91,7 @@ public class DeployedModule {
     public DeployedModule copyWithoutInstancesNorProperties() {
         return new DeployedModule(
                 id,
+                INIT_PROPERTIES_VERSION_ID, // Copie from scratch donc reset du deployed module version id
                 name,
                 version,
                 isWorkingCopy,
@@ -113,6 +128,24 @@ public class DeployedModule {
         return deployedModulesWithId;
     }
 
+    static List<DeployedModule> retrieveExistingOrInitializePropertiesVersionIds(List<DeployedModule> existingDeployedModules, List<DeployedModule> newDeployedModules) {
+        List<DeployedModule> deployedModulesWithPropertiesVersionIds = Collections.emptyList();
+        if (newDeployedModules != null) {
+            deployedModulesWithPropertiesVersionIds = new ArrayList<>();
+
+            for (DeployedModule deployedModule : newDeployedModules) {
+                final Optional<DeployedModule> existingDeployedModule = existingDeployedModules.stream().filter(
+                        streamDeployedModule -> streamDeployedModule.getId().equals(deployedModule.getId())).findFirst();
+                // Si le module existe déjà, on récupère systématiquement le
+                // properties_version_id existant, sinon on l'initialise
+                Long newPropertiesVersionId = existingDeployedModule.isPresent() ? existingDeployedModule.get().getPropertiesVersionId() : INIT_PROPERTIES_VERSION_ID;
+
+                deployedModulesWithPropertiesVersionIds.add(new DeployedModule(deployedModule, newPropertiesVersionId));
+            }
+        }
+        return deployedModulesWithPropertiesVersionIds;
+    }
+
     /**
      * L'identifiant des modules déployés est l'équivalent d'un identifiant auto-incrémenté d'une base de données relationnelle.
      * Une fois qu'il est défini, il ne bouge plus.
@@ -132,6 +165,7 @@ public class DeployedModule {
     public DeployedModule buildInstancesModel(List<ValuedProperty> globalProperties) {
         return new DeployedModule(
                 id,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,
@@ -155,6 +189,7 @@ public class DeployedModule {
     public DeployedModule setValuedProperties(List<AbstractValuedProperty> valuedProperties) {
         return new DeployedModule(
                 id,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,

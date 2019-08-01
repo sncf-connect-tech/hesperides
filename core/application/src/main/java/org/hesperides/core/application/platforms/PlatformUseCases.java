@@ -42,7 +42,6 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 @Component
 public class PlatformUseCases {
 
-    public static final String ROOT_PATH = "#";
     private final PlatformCommands platformCommands;
     private final PlatformQueries platformQueries;
     private final ModuleQueries moduleQueries;
@@ -91,6 +90,7 @@ public class PlatformUseCases {
                 newPlatform.isProductionPlatform(),
                 1L,
                 deployedModules,
+                DeployedModule.INIT_PROPERTIES_VERSION_ID,
                 globalProperties
         );
         return platformCommands.createPlatform(newFullPlatform, user);
@@ -124,6 +124,9 @@ public class PlatformUseCases {
     public void updatePlatform(Platform.Key platformKey, Platform newPlatform, boolean copyPropertiesForUpgradedModules, User user) {
         PlatformView existingPlatform = platformQueries.getOptionalPlatform(platformKey)
                 .orElseThrow(() -> new PlatformNotFoundException(platformKey));
+        List<DeployedModule> existingDeployedModule = DeployedModuleView.toDomainDeployedModules(existingPlatform.getDeployedModules().stream());
+        newPlatform = newPlatform.retrieveExistingOrInitializePropertiesVersionIds(existingDeployedModule);
+
         if (!user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             if (existingPlatform.isProductionPlatform() && newPlatform.isProductionPlatform()) {
                 throw new ForbiddenOperationException("Updating a production platform is reserved to production role");
@@ -238,6 +241,23 @@ public class PlatformUseCases {
         return platformQueries.searchPlatforms(applicationName, platformName);
     }
 
+    public Long getPropertiesVersionId(final Platform.Key platformKey, final String propertiesPath) {
+        return getPropertiesVersionId(platformKey, propertiesPath, null);
+    }
+
+    public Long getPropertiesVersionId(final Platform.Key platformKey, final String propertiesPath, final Long timestamp) {
+
+        Optional<Long> propertiesVersionId = Optional.empty();
+
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
+            propertiesVersionId = platformQueries.getGlobalPropertiesVersionId(platformKey);
+        } else if (StringUtils.isNotEmpty(propertiesPath)) {
+            final String platformId = platformQueries.getOptionalPlatformId(platformKey).orElseThrow(() -> new PlatformNotFoundException(platformKey));
+            propertiesVersionId = Optional.ofNullable(platformQueries.getPropertiesVersionId(platformId, propertiesPath, timestamp));
+        }
+        return propertiesVersionId.orElse(DeployedModule.INIT_PROPERTIES_VERSION_ID);
+    }
+
     private List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
         return getValuedProperties(platformKey, propertiesPath, null, user);
     }
@@ -247,7 +267,7 @@ public class PlatformUseCases {
 
         PlatformView platform = timestamp != null ? getPlatformAtPointInTime(platformKey, timestamp) : getPlatform(platformKey);
 
-        if (ROOT_PATH.equals(propertiesPath)) {
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             properties.addAll(platformQueries.getGlobalProperties(platformKey));
         } else if (StringUtils.isNotEmpty(propertiesPath)) {
             final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
@@ -302,6 +322,7 @@ public class PlatformUseCases {
                                                            final String propertiesPath,
                                                            final Long platformVersionId,
                                                            final List<AbstractValuedProperty> abstractValuedProperties,
+                                                           final Long propertiesVersionId,
                                                            final User user) {
         Optional<PlatformView> optPlatform = platformQueries.getOptionalPlatform(platformKey);
         if (!optPlatform.isPresent()) {
@@ -311,20 +332,23 @@ public class PlatformUseCases {
         if (platform.isProductionPlatform() && !user.hasProductionRoleForApplication(platformKey.getApplicationName())) {
             throw new ForbiddenOperationException("Setting properties of a production platform is reserved to production role");
         }
-        if (ROOT_PATH.equals(propertiesPath)) {
+
+        Long expectedPropertiesVersionId = getPropertiesVersionId(platformKey, propertiesPath);
+
+        if (Platform.isGlobalPropertiesPath(propertiesPath)) {
             List<ValuedProperty> valuedProperties = AbstractValuedProperty.filterAbstractValuedPropertyWithType(abstractValuedProperties, ValuedProperty.class);
             // Platform properties are global and should always be of type ValuedProperty
             if (valuedProperties.size() != abstractValuedProperties.size()) {
                 throw new IllegalArgumentException("Global properties should always be valued properties");
             }
-            platformCommands.savePlatformProperties(platform.getId(), platformVersionId, valuedProperties, user);
+            platformCommands.savePlatformProperties(platform.getId(), platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user);
         } else {
             final Module.Key moduleKey = Module.Key.fromPropertiesPath(propertiesPath);
             if (!moduleQueries.moduleExists(moduleKey)) {
                 throw new ModuleNotFoundException(moduleKey);
             }
             validateRequiredAndPatternProperties(abstractValuedProperties, moduleKey, platformKey);
-            platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, abstractValuedProperties, user);
+            platformCommands.saveModulePropertiesInPlatform(platform.getId(), propertiesPath, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, abstractValuedProperties, user);
         }
 
         return getValuedProperties(platformKey, propertiesPath, user);

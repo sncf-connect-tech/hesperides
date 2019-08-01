@@ -39,8 +39,10 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class IterableValuedPropertyIO extends AbstractValuedPropertyIO {
 
-    @SerializedName("iterable_valorisation_items")
-    @JsonProperty("iterable_valorisation_items")
+    static final String JSON_NAME_ITEMS = "iterable_valorisation_items";
+
+    @SerializedName(JSON_NAME_ITEMS)
+    @JsonProperty(JSON_NAME_ITEMS)
     @Valid
     List<IterablePropertyItemIO> iterablePropertyItems;
 

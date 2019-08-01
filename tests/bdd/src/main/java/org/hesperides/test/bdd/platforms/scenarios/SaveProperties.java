@@ -23,9 +23,11 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import lombok.Value;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.*;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,21 +44,10 @@ public class SaveProperties extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-
-    private PropertiesIO propertiesIO;
+    @Autowired
+    private ModuleHistory moduleHistory;
 
     public SaveProperties() {
-
-        When("^I( try to)? save these properties?$", (String tryTo, DataTable data) -> {
-            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-            valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue()));
-            propertiesIO = new PropertiesIO(new HashSet<>(valuedProperties), Collections.emptySet());
-            testContext.setResponseEntity(platformClient.saveProperties(
-                    platformBuilder.buildInput(),
-                    propertiesIO,
-                    moduleBuilder.getPropertiesPath(),
-                    getResponseType(tryTo, PropertiesIO.class)));
-        });
 
         Given("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
@@ -68,12 +59,148 @@ public class SaveProperties extends HesperidesScenario implements En {
                     getResponseType(tryTo, PropertiesIO.class)));
         });
 
+        When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
+            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+            moduleBuilder.withValuedProperties(valuedProperties);
+            testContext.setResponseEntity(platformClient.saveProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    getResponseType(tryTo, PropertiesIO.class)));
+            moduleBuilder.incrementPropertiesVersionId();
+        });
+
+        When("^I update the properties of those modules one after the other using the same platform version_id$", () -> {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+                testContext.setResponseEntity(platformClient.updateProperties(
+                        platformBuilder.buildInput(),
+                        moduleBuilder.buildPropertiesIO(),
+                        moduleBuilder.getPropertiesPath(),
+                        PropertiesIO.class));
+                moduleBuilder.incrementPropertiesVersionId();
+                platformBuilder.incrementVersionId();
+            });
+        });
+
+        When("^I update this module properties$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+            platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            moduleBuilder.incrementPropertiesVersionId();
+            platformBuilder.incrementVersionId();
+        });
+
+        When("^I update the module properties and then the platform global properties using the same platform version_id$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+            platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class);
+            assertOK();
+            platformBuilder.incrementVersionId();
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(true));
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    "#",
+                    PropertiesIO.class));
+            moduleBuilder.incrementPropertiesVersionId();
+            platformBuilder.incrementVersionId();
+        });
+
+        When("^I try to update the module properties and then the platform using the same platform version_id$", () -> {
+            final PlatformIO platformInput = platformBuilder.buildInput();
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformInput,
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class));
+            assertOK();
+            moduleBuilder.incrementPropertiesVersionId();
+            testContext.setResponseEntity(platformClient.update(platformInput, false, String.class));
+        });
+
+        When("^I try to update the properties of this module twice with the same properties version_id$", () -> {
+            moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+//            moduleBuilder.incrementPropertiesVersionId();
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    PropertiesIO.class));
+            assertOK();
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    String.class));
+        });
+
+        When("^I try to update global properties twice with the same global properties version_id$", () -> {
+//            platformBuilder.incrementGlobalPropertiesVersionId();
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
+                    "#",
+                    PropertiesIO.class));
+            assertOK();
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
+                    "#",
+                    String.class));
+        });
+
+        When("^I update this platform's global properties$", () -> {
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(platformBuilder.getGlobalPropertiesVersionId()),
+                    "#",
+                    String.class));
+            assertOK();
+        });
+
+        When("^I try to update the properties with wrong platform_version_id and without properties_version_id$", () -> {
+            moduleBuilder.setPropertiesVersionId(null);
+            platformBuilder.incrementVersionId();
+            testContext.setResponseEntity(platformClient.updateProperties(
+                    platformBuilder.buildInput(),
+                    moduleBuilder.buildPropertiesIO(),
+                    moduleBuilder.getPropertiesPath(),
+                    String.class));
+        });
+
         Then("^the properties are successfully saved$", () -> {
             assertOK();
-            PropertiesIO expectedProperties = propertiesIO;
+            PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();
             PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedProperties, actualProperties);
         });
+
+        Then("^the properties are successfully saved for those modules$", () -> {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                moduleBuilder.withValuedProperties(platformBuilder.getValuedProperties(false));
+                PropertiesIO expectedProperties = moduleBuilder.buildPropertiesIO();
+                PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+                assertEquals(expectedProperties, actualProperties);
+            });
+        });
+
+        Then("^the properties versionId should stay the same$", () -> {
+            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
+            Long expectedPropertiesVersionId = moduleBuilder.getPropertiesVersionId();
+            Long actualPropertiesVersionId = actualPlatform.getDeployedModules().get(0).getPropertiesVersionId();
+            assertEquals(expectedPropertiesVersionId, actualPropertiesVersionId);
+        });
+
+        Then("^the properties update is rejected with a conflict error$", this::assertConflict);
+
     }
 
     /**
@@ -81,7 +208,7 @@ public class SaveProperties extends HesperidesScenario implements En {
      * contenant les colonnes "iterable", "bloc", "name", "value"
      * en une liste de IterableValuedPropertyIO.
      */
-    public static List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
+    static List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
         Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
         // Première étape : transformer la datatable en map
         // pour mutualiser les données

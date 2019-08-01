@@ -58,5 +58,8 @@ public interface MongoPlatformRepository extends MongoRepository<PlatformDocumen
     @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalProperties' : 1 }")
     Optional<PlatformDocument> findGlobalPropertiesByPlatformKey(PlatformKeyDocument platformKeyDocument);
 
+    @Query(value = "{ 'key' : ?0 }", fields = "{ 'globalPropertiesVersionId' : 1 }")
+    Optional<PlatformDocument> findGlobalPropertiesVersionIdByPlatformKey(PlatformKeyDocument platformKeyDocument);
+
     boolean existsByKeyApplicationName(String applicationName);
 }

@@ -33,6 +33,7 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -103,6 +104,15 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             assertThat(properties.getValuedProperties(), is(empty()));
         });
+
+        Then("^the platform version_id is incremented twice$", () -> {
+            Long expectedVersionId = platformBuilder.buildOutput().getVersionId();
+            final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), null, false, PlatformIO.class);
+            Long actualVersionId = responseEntity.getBody().getVersionId();
+            assertEquals(expectedVersionId, actualVersionId);
+        });
+
+        Then("^the platform update is rejected with a conflict error$", this::assertConflict);
     }
 
     @When("^I( try to)? update this platform" +
@@ -143,17 +153,20 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 moduleBuilder.withVersion(upgradeVersion);
             }
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+            moduleBuilder.resetPropertiesVersionId();
         }
         if (StringUtils.isNotEmpty(downgradeVersion)) {
             platformBuilder.withNoModule();
             moduleBuilder.withVersion(downgradeVersion);
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+            moduleBuilder.setPropertiesVersionId(2L);
         }
         if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
             platformBuilder.withInstance("instance-foo-1");
             platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.setPropertiesVersionId(1L);
         }
         if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
             // So that "Then the platform is successfully updated" step validate there is no more modules:

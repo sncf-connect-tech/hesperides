@@ -8,20 +8,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.Platform;
-import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
-import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -144,19 +140,6 @@ public class PlatformsController extends AbstractController {
         return ResponseEntity.ok(platformOutput);
     }
 
-    @GetMapping("/{application_name}/platforms/{platform_name}/properties/instance_model")
-    @ApiOperation("Get properties with the given path in a platform")
-    public ResponseEntity<InstancesModelOutput> getInstancesModel(@PathVariable("application_name") final String applicationName,
-                                                                  @PathVariable("platform_name") final String platform_name,
-                                                                  @RequestParam("path") final String propertiesPath) {
-
-        Platform.Key platformKey = new Platform.Key(applicationName, platform_name);
-
-        List<String> instancesModelView = platformUseCases.getInstancesModel(platformKey, propertiesPath);
-        InstancesModelOutput instancesModelOutput = InstancesModelOutput.fromInstancesModelView(instancesModelView);
-        return ResponseEntity.ok(instancesModelOutput);
-    }
-
     @ApiOperation("Retrieve platforms using module")
     @GetMapping("/using_module/{module_name}/{module_version}/{version_type}")
     public ResponseEntity<List<ModulePlatformsOutput>> getPlatformsUsingModule(@PathVariable("module_name") final String moduleName,
@@ -214,34 +197,4 @@ public class PlatformsController extends AbstractController {
                                 globalPropertyUsage.getPropertiesPath()))
                         .collect(Collectors.toSet()))));
     }
-
-    @ApiOperation("Get properties with the given path in a platform")
-    @GetMapping("/{application_name}/platforms/{platform_name}/properties")
-    public ResponseEntity<PropertiesIO> getValuedProperties(Authentication authentication,
-                                                            @PathVariable("application_name") final String applicationName,
-                                                            @PathVariable("platform_name") final String platformName,
-                                                            @RequestParam("path") final String propertiesPath,
-                                                            @RequestParam(value = "timestamp", required = false) final Long timestamp) {
-
-        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> abstractValuedPropertyViews = platformUseCases.getValuedProperties(platformKey, propertiesPath, timestamp, new User(authentication));
-
-        return ResponseEntity.ok(new PropertiesIO(abstractValuedPropertyViews));
-    }
-
-    @ApiOperation("Save properties in a platform with the given path")
-    @PostMapping("/{application_name}/platforms/{platform_name}/properties")
-    public ResponseEntity<PropertiesIO> saveProperties(Authentication authentication,
-                                                       @PathVariable("application_name") final String applicationName,
-                                                       @PathVariable("platform_name") final String platformName,
-                                                       @RequestParam("path") final String propertiesPath,
-                                                       @RequestParam("platform_vid") final Long platformVersionId,
-                                                       @Valid @RequestBody final PropertiesIO properties) {
-        List<AbstractValuedProperty> abstractValuedProperties = properties.toDomainInstances();
-        Platform.Key platformKey = new Platform.Key(applicationName, platformName);
-        List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, new User(authentication));
-
-        return ResponseEntity.ok(new PropertiesIO(propertyViews));
-    }
-
 }

@@ -26,7 +26,9 @@ import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -36,12 +38,16 @@ import java.util.stream.Collectors;
 @Component
 public class PlatformBuilder {
 
+    @Autowired
+    private ModuleBuilder moduleBuilder;
+
     private String platformName;
     private String applicationName;
     private String version;
     private Boolean isProductionPlatform;
     private List<DeployedModuleIO> deployedModules;
     private long versionId;
+    private long globalPropertiesVersionId;
 
     private List<Property> properties;
     private List<IterableValuedPropertyIO> iterableProperties;
@@ -60,6 +66,7 @@ public class PlatformBuilder {
         isProductionPlatform = false;
         deployedModules = new ArrayList<>();
         versionId = 1;
+        globalPropertiesVersionId = 0;
         properties = new ArrayList<>();
         iterableProperties = new ArrayList<>();
         instanceProperties = new HashSet<>();
@@ -106,28 +113,30 @@ public class PlatformBuilder {
 
     public void incrementDeployedModuleIds() {
         deployedModules = deployedModules.stream()
-                .map(dm -> new DeployedModuleIO(
-                        dm.getId() + 1,
-                        dm.getName(),
-                        dm.getVersion(),
-                        dm.getIsWorkingCopy(),
-                        dm.getModulePath(),
-                        dm.getPropertiesPath(),
-                        dm.getInstances()
+                .map(deployedModule -> new DeployedModuleIO(
+                        deployedModule.getId() + 1,
+                        deployedModule.getPropertiesVersionId(),
+                        deployedModule.getName(),
+                        deployedModule.getVersion(),
+                        deployedModule.getIsWorkingCopy(),
+                        deployedModule.getModulePath(),
+                        deployedModule.getPropertiesPath(),
+                        deployedModule.getInstances()
                 ))
                 .collect(Collectors.toList());
     }
 
     public void setDeployedModulesVersion(String version) {
         deployedModules = deployedModules.stream()
-                .map(dm -> new DeployedModuleIO(
-                        dm.getId(),
-                        dm.getName(),
+                .map(deployedModule -> new DeployedModuleIO(
+                        deployedModule.getId(),
+                        deployedModule.getPropertiesVersionId(),
+                        deployedModule.getName(),
                         version,
-                        dm.getIsWorkingCopy(),
-                        dm.getModulePath(),
-                        dm.getPropertiesPath(),
-                        dm.getInstances()
+                        deployedModule.getIsWorkingCopy(),
+                        deployedModule.getModulePath(),
+                        deployedModule.getPropertiesPath(),
+                        deployedModule.getInstances()
                 ))
                 .collect(Collectors.toList());
     }
@@ -139,7 +148,8 @@ public class PlatformBuilder {
         } else if (logicalGroup != null) {
             modulePath = "#" + logicalGroup;
         }
-        deployedModules.add(new DeployedModuleIO(0L, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
+        long propertiesVersionId = "#".equals(propertiesPath) ? globalPropertiesVersionId : moduleBuilder.getPropertiesVersionId();
+        deployedModules.add(new DeployedModuleIO(0L, propertiesVersionId, module.getName(), module.getVersion(), module.getIsWorkingCopy(), modulePath, propertiesPath, instances));
         return this;
     }
 
@@ -172,7 +182,8 @@ public class PlatformBuilder {
         } else {
             AtomicLong moduleId = new AtomicLong();
             modules = deployedModules.stream().map(module ->
-                    new DeployedModuleIO(moduleId.incrementAndGet(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
+
+                    new DeployedModuleIO(moduleId.incrementAndGet(), moduleBuilder.getPropertiesVersionId(), module.getName(), module.getVersion(), module.getIsWorkingCopy(), module.getModulePath(), module.getPropertiesPath(), module.getInstances())
             ).collect(Collectors.toList());
         }
         return new PlatformIO(platformName, applicationName, version, isProductionPlatform, modules, versionId, null);
@@ -226,6 +237,7 @@ public class PlatformBuilder {
 
     public PropertiesIO getPropertiesIO(boolean isGlobal) {
         return new PropertiesIO(
+                isGlobal ? globalPropertiesVersionId : moduleBuilder.getPropertiesVersionId(),
                 new HashSet<>(getValuedProperties(isGlobal)),
                 new HashSet<>(iterableProperties));
     }
@@ -271,6 +283,14 @@ public class PlatformBuilder {
 
     public Boolean getIsProductionPlatform() {
         return isProductionPlatform;
+    }
+
+    public void incrementGlobalPropertiesVersionId() {
+        globalPropertiesVersionId++;
+    }
+
+    public long getGlobalPropertiesVersionId() {
+        return globalPropertiesVersionId;
     }
 
     public String getApplicationName() {

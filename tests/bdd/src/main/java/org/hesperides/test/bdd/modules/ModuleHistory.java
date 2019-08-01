@@ -37,13 +37,16 @@ public class ModuleHistory {
     @Autowired
     private ModuleBuilder moduleBuilder;
 
+    private List<ModuleBuilder> moduleBuilders = new ArrayList<>();
     private List<ModuleIO> modules = new ArrayList<>();
 
     public void reset() {
+        moduleBuilders = new ArrayList<>();
         modules = new ArrayList<>();
     }
 
     public void addModule() {
+        moduleBuilders.add(moduleBuilder);
         modules.add(moduleBuilder.build());
     }
 
@@ -53,5 +56,13 @@ public class ModuleHistory {
                 .stream()
                 .map(module -> new ModuleKeyOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
                 .collect(Collectors.toList());
+    }
+
+    public List<ModuleIO> getModules() {
+        return modules;
+    }
+
+    public List<ModuleBuilder> getModuleBuilders() {
+        return moduleBuilders;
     }
 }

@@ -31,6 +31,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO.JSON_NAME_ITEMS;
+
 @Value
 @NonFinal
 public abstract class AbstractValuedPropertyIO {
@@ -58,7 +60,7 @@ public abstract class AbstractValuedPropertyIO {
         @Override
         public AbstractValuedPropertyIO deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject jsonObject = json.getAsJsonObject();
-            JsonElement items = jsonObject.get("iterable_valorisation_items");
+            JsonElement items = jsonObject.get(JSON_NAME_ITEMS);
             Class<? extends AbstractValuedPropertyIO> subClass = items != null ? IterableValuedPropertyIO.class : ValuedPropertyIO.class;
             return context.deserialize(json, subClass);
         }

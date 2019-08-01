@@ -40,6 +40,9 @@ import java.util.stream.Stream;
 public class DeployedModuleIO {
 
     Long id;
+    // Pas d'annotation @NotNull afin de garantir de la rétro compatibilité
+    @SerializedName("properties_version_id")
+    Long propertiesVersionId;
     @OnlyPrintableCharacters(subject = "deployedModules.name")
     String name;
     @OnlyPrintableCharacters(subject = "deployedModules.version")
@@ -58,6 +61,7 @@ public class DeployedModuleIO {
 
     public DeployedModuleIO(DeployedModuleView deployedModuleView) {
         id = deployedModuleView.getId();
+        propertiesVersionId = deployedModuleView.getPropertiesVersionId();
         name = deployedModuleView.getName();
         version = deployedModuleView.getVersion();
         isWorkingCopy = deployedModuleView.isWorkingCopy();
@@ -74,6 +78,7 @@ public class DeployedModuleIO {
         // On crée donc une instance de DeployedModule avec ces champs `null`.
         return new DeployedModule(
                 id,
+                propertiesVersionId,
                 name,
                 version,
                 isWorkingCopy,

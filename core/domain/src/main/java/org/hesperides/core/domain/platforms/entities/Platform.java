@@ -30,12 +30,19 @@ import java.util.List;
 @Value
 public class Platform {
 
+    public static final String GLOBAL_PROPERTIES_PATH = "#";
+
     Key key;
     String version;
     boolean isProductionPlatform;
     Long versionId;
     List<DeployedModule> deployedModules;
-    private List<ValuedProperty> globalProperties;
+    Long globalPropertiesVersionId;
+    List<ValuedProperty> globalProperties;
+
+    public static boolean isGlobalPropertiesPath(String propertiesPath) {
+        return GLOBAL_PROPERTIES_PATH.equals(propertiesPath);
+    }
 
     public Key getKey() { // Doit être explicite car employé dans Platform.kt
         return key;
@@ -48,6 +55,7 @@ public class Platform {
                 isProductionPlatform,
                 1L,
                 deployedModules,
+                globalPropertiesVersionId,
                 globalProperties
         );
     }
@@ -77,10 +85,10 @@ public class Platform {
                 isProductionPlatform,
                 versionId + 1,
                 deployedModules,
+                globalPropertiesVersionId,
                 globalProperties
         );
     }
-
 
     public Platform fillDeployedModulesMissingIds() {
         return new Platform(
@@ -89,6 +97,19 @@ public class Platform {
                 isProductionPlatform,
                 versionId,
                 DeployedModule.fillMissingIdentifiers(deployedModules),
+                globalPropertiesVersionId,
+                globalProperties
+        );
+    }
+
+    public Platform retrieveExistingOrInitializePropertiesVersionIds(List<DeployedModule> existingDeployedModules) {
+        return new Platform(
+                key,
+                version,
+                isProductionPlatform,
+                versionId,
+                DeployedModule.retrieveExistingOrInitializePropertiesVersionIds(existingDeployedModules, deployedModules),
+                globalPropertiesVersionId,
                 globalProperties
         );
     }

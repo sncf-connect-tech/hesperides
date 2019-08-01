@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class PlatformCommands {
@@ -56,16 +57,20 @@ public class PlatformCommands {
     public void saveModulePropertiesInPlatform(final String platformId,
                                                final String propertiesPath,
                                                final Long platformVersionId,
+                                               final Long propertiesVersionId,
+                                               final Long expectedPropertiesVersionId,
                                                final List<AbstractValuedProperty> valuedProperties,
                                                final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, propertiesPath, platformVersionId, valuedProperties, user));
+        commandGateway.sendAndWait(new UpdatePlatformModulePropertiesCommand(platformId, propertiesPath, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user));
     }
 
     public void savePlatformProperties(final String platformId,
                                        final Long platformVersionId,
+                                       final Long propertiesVersionId,
+                                       final Long expectedPropertiesVersionId,
                                        final List<ValuedProperty> valuedProperties,
                                        final User user) {
-        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformId, platformVersionId, valuedProperties, user));
+        commandGateway.sendAndWait(new UpdatePlatformPropertiesCommand(platformId, platformVersionId, propertiesVersionId, expectedPropertiesVersionId, valuedProperties, user));
     }
 
     public void restoreDeletedPlatform(final String platformId, final User user) {

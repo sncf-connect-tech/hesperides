@@ -91,6 +91,7 @@ public class GetProperties extends HesperidesScenario implements En {
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
             PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+//            platformBuilder.resetGlobalPropertiesVersionId();
             PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });

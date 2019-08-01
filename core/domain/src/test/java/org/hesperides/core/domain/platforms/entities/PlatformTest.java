@@ -35,7 +35,7 @@ public class PlatformTest {
                 buildDeployedModuleWithId(0L),
                 buildDeployedModuleWithId(0L),
                 buildDeployedModuleWithId(1L)
-        ), null).validateDeployedModulesDistinctIds();
+        ), null, null).validateDeployedModulesDistinctIds();
     }
 
     @Test(expected = DuplicateDeployedModuleIdException.class)
@@ -44,10 +44,10 @@ public class PlatformTest {
                 buildDeployedModuleWithId(null),
                 buildDeployedModuleWithId(1L),
                 buildDeployedModuleWithId(1L)
-        ), null).validateDeployedModulesDistinctIds();
+        ), null,null).validateDeployedModulesDistinctIds();
     }
 
     private DeployedModule buildDeployedModuleWithId(Long id) {
-        return new DeployedModule(id, null, null, true, null, null, null, null);
+        return new DeployedModule(id, 1L, null, null, true, null, null, null, null);
     }
 }

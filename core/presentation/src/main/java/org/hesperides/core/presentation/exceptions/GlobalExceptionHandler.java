@@ -3,6 +3,9 @@ package org.hesperides.core.presentation.exceptions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.axonframework.commandhandling.model.AggregateNotFoundException;
+import org.hesperides.core.domain.exceptions.*;
+import org.hesperides.core.domain.modules.exceptions.UpdateReleaseException;
+import org.hesperides.core.domain.platforms.exceptions.InvalidPropertyValorisationException;
 import org.hesperides.core.domain.exceptions.DuplicateException;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.exceptions.NotFoundException;
@@ -38,7 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getAggregateIdentifier() + ": " + ex.getMessage());
     }
 
-    @ExceptionHandler({DuplicateException.class, OutOfDateVersionException.class, UndeletableTechnoInUseException.class})
+    @ExceptionHandler({DuplicateException.class, OutOfDateException.class, UndeletableTechnoInUseException.class})
     public ResponseEntity handleConflict(Exception ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }

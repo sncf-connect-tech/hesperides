@@ -31,6 +31,7 @@ import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO
 import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -59,6 +60,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
+    private ModuleHistory moduleHistory;
+    @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
     private UserAuthorities userAuthorities;
@@ -66,6 +69,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
             "( with this module)?" +
+            "( with those modules)?" +
             "( with two modules : one with the same name and one with the same version)?" +
             "(?: in logical group \"([^\"]*)\")?" +
             "( (?:and|with) an instance)?" +
@@ -80,6 +84,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public void givenAnExistingPlatform(String isProd,
                                         String platformName,
                                         String withThisModule,
+                                        String withThoseModules,
                                         String withTwoModulesOneWithTheSameNameAndOneWithTheSameVersion,
                                         String logicalGroup,
                                         String withAnInstance,
@@ -116,6 +121,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             platformBuilder.incrementDeployedModuleIds();
         }
+
+        if (isNotEmpty(withThoseModules)) {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+                platformBuilder.incrementDeployedModuleIds();
+            });
+        }
+
         if (isNotEmpty(withTwoModulesOneWithTheSameNameAndOneWithTheSameVersion)) {
             String origName = moduleBuilder.getName();
             String origVersion = moduleBuilder.getVersion();
@@ -157,6 +170,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withIterableProperties)) {
@@ -172,6 +186,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withIterableCeption)) {
@@ -201,6 +216,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withGlobalProperties)) {
@@ -213,6 +229,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
             platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(true));
             platformBuilder.incrementVersionId();
+            platformBuilder.incrementGlobalPropertiesVersionId();
         }
 
         if (isNotEmpty(withInstanceProperties)) {
@@ -222,6 +239,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         if (isNotEmpty(withFilenameLocationValues)) {
@@ -229,6 +247,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withProperty("location", "etc");
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         }
 
         platformHistory.addPlatform();
@@ -327,6 +346,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         });
 
         Given("^the platform has these iterable properties$", (DataTable data) -> {
@@ -334,12 +354,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withIterableProperties(iterableProperties);
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
             platformBuilder.incrementVersionId();
+            moduleBuilder.incrementPropertiesVersionId();
         });
 
         Given("^the platform has these global properties$", (DataTable data) -> {
             List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(new HashSet<>(globalProperties), Collections.emptySet()));
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(0L, new HashSet<>(globalProperties), Collections.emptySet()));
             platformBuilder.incrementVersionId();
+            platformBuilder.incrementGlobalPropertiesVersionId();
         });
 
         Given("^the platform has these instance properties$", (DataTable data) -> {

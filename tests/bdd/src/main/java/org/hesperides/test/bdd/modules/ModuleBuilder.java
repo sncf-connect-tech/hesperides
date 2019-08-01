@@ -22,24 +22,32 @@ package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Component
 public class ModuleBuilder {
+
+    private static final long PROPERTIES_VERSION_ID = 0;
 
     private String name;
     private String version;
     private String versionType;
     private List<TechnoIO> technos;
     private long versionId;
-
     private List<TemplateIO> templates;
     private String logicalGroup;
+    private Long propertiesVersionId;
+    private List<ValuedPropertyIO> valuedProperties;
+    private List<IterableValuedPropertyIO> iterableValuedProperties;
 
     public ModuleBuilder() {
         reset();
@@ -54,6 +62,9 @@ public class ModuleBuilder {
         templates = new ArrayList<>();
         versionId = 0;
         logicalGroup = null;
+        propertiesVersionId = PROPERTIES_VERSION_ID;
+        valuedProperties = new ArrayList<>();
+        iterableValuedProperties = new ArrayList<>();
         return this;
     }
 
@@ -135,5 +146,33 @@ public class ModuleBuilder {
 
     public void setLogicalGroup(String logicalGroup) {
         this.logicalGroup = logicalGroup;
+    }
+
+    public PropertiesIO buildPropertiesIO(long globalPropertiesVersionId) {
+        return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
+    }
+
+    public PropertiesIO buildPropertiesIO() {
+        return new PropertiesIO(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
+    }
+
+    public void incrementPropertiesVersionId() {
+        propertiesVersionId++;
+    }
+
+    public void withValuedProperties(List<ValuedPropertyIO> properties) {
+        valuedProperties.addAll(properties);
+    }
+
+    public Long getPropertiesVersionId() {
+        return propertiesVersionId;
+    }
+
+    public void resetPropertiesVersionId() {
+        propertiesVersionId = PROPERTIES_VERSION_ID;
+    }
+
+    public void setPropertiesVersionId(Long propertiesVersionId) {
+        this.propertiesVersionId = propertiesVersionId;
     }
 }

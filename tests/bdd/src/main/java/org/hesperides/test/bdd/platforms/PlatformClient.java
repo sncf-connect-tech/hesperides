@@ -149,6 +149,19 @@ public class PlatformClient {
                 "this is a comment");
     }
 
+    public ResponseEntity<PropertiesIO> updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, Class responseType) {
+        return restTemplate.exchange(
+                "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={properties_path}&comment={comment}",
+                HttpMethod.PUT,
+                new HttpEntity<>(propertiesInput),
+                responseType,
+                platformInput.getApplicationName(),
+                platformInput.getPlatformName(),
+                platformInput.getVersionId(),
+                propertiesPath,
+                "this is a comment");
+    }
+
     public ResponseEntity getGlobalPropertiesUsage(PlatformIO platform) {
         return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}/global_properties_usage",
