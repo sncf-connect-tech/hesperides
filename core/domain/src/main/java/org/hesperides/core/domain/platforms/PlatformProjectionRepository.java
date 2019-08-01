@@ -72,9 +72,6 @@ public interface PlatformProjectionRepository {
     Long onGetPropertiesVersionIdQuery(GetPropertiesVersionIdQuery query);
 
     @QueryHandler
-    List<AbstractValuedPropertyView> onGetDeployedModulePropertiesQuery(GetDeployedModulePropertiesQuery query);
-
-    @QueryHandler
     Optional<Long> onGetGlobalPropertiesVersionIdQuery(GetGlobalPropertiesVersionIdQuery query);
 
     @QueryHandler
