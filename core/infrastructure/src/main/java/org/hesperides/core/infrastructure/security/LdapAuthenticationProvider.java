@@ -75,7 +75,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     Long delayBetweenTriesInSeconds;
     private RetryConfig retryConfig;
     @Resource
-    private LdapCNSearcher self;
+    private LdapCNSearcher self; // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
     @Autowired
     private Gson gson; // nécessaire uniquement pour les logs DEBUG
     @Autowired
@@ -113,7 +113,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
         String username = auth.getName();
         String password = (String) auth.getCredentials();
-        // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
         // L'objet retourné est directement passé à loadUserAuthorities par la classe parente :
         return self.searchCN(username, password);
     }
@@ -195,7 +194,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 
     // Public for testing
     public HashSet<String> getUserGroupsDN(String username, String password) {
-        // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
         DirContextAdapter dirContextAdapter = (DirContextAdapter) self.searchCN(username, password);
         Attributes attributes;
         try {
