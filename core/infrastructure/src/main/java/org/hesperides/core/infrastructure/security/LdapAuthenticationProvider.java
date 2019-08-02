@@ -47,7 +47,6 @@ import org.springframework.security.ldap.authentication.AbstractLdapAuthenticati
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.naming.*;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -64,7 +63,7 @@ import static org.hesperides.core.infrastructure.security.groups.ParentGroupsDNR
 @Profile(LDAP)
 @Component
 @Slf4j
-public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider, LdapCNSearcher {
+public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider implements AuthenticationProvider {
 
     private static final String USERS_AUTHENTICATION_CACHE_NAME = "users-authentication";
     private static final String AUTHORIZATION_GROUPS_TREE_CACHE_NAME = "authorization-groups-tree";
@@ -74,8 +73,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     @Value("${ldap.delay-between-tries-in-seconds}")
     Long delayBetweenTriesInSeconds;
     private RetryConfig retryConfig;
-    @Resource
-    private LdapCNSearcher self;
     @Autowired
     private Gson gson; // nécessaire uniquement pour les logs DEBUG
     @Autowired
@@ -111,13 +108,12 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
         // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
         // L'objet retourné est directement passé à loadUserAuthorities par la classe parente :
         try {
-            return self.searchCN(dirContext, auth.getName());
+            return searchCN(dirContext, auth.getName());
         } finally {
             LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
         }
     }
 
-    @Override
     @Cacheable(cacheNames = USERS_AUTHENTICATION_CACHE_NAME, key = "#username")
     // Note: en cas d'exception levée dans cette méthode, rien ne sera mis en cache
     public DirContextOperations searchCN(DirContext dirContext, String username) {
@@ -225,7 +221,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
     public HashSet<String> getUserGroupsDN(String username, String password) {
         DirContext dirContext = this.buildSearchContext(username, password);
         // On passe par un attribut pour que le cache fonctionne, cf. https://stackoverflow.com/a/48867068/636849
-        DirContextAdapter dirContextAdapter = (DirContextAdapter) self.searchCN(dirContext, username);
+        DirContextAdapter dirContextAdapter = (DirContextAdapter) searchCN(dirContext, username);
         Attributes attributes;
         try {
             attributes = dirContextAdapter.getAttributes("");
