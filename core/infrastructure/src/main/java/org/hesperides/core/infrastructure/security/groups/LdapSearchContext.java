@@ -221,8 +221,4 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
         }
         return attrs;
     }
-
-    public DirContextOperations getDirContextOperations() {
-        return (DirContextOperations)dirContext;
-    }
 }

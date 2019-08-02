@@ -59,7 +59,8 @@ public class LdapUserRepository implements UserRepository {
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         LdapSearchContext ldapSearchContext = createLdapSearchContext(ldapAuthenticationProvider, auth);
         try {
-            Collection<? extends GrantedAuthority> springAuthorities = ldapAuthenticationProvider.loadUserAuthorities(ldapSearchContext.getDirContextOperations(), auth.getName(), (String) auth.getCredentials());
+            Collection<? extends GrantedAuthority> springAuthorities = ldapAuthenticationProvider.loadUserAuthorities(
+                    ldapSearchContext.searchUserCNWithRetry(query.getUsername()), auth.getName(), (String) auth.getCredentials());
             return Optional.of(new User(query.getUsername(), springAuthorities));
         } catch (IncorrectResultSizeDataAccessException incorrectResultSizeException) {
             if (incorrectResultSizeException.getActualSize() == 0) {
