@@ -25,7 +25,7 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
+## 2019-08-02
 ### Added
 
 - Retry logic when requesting LDAP to be more resilient. [Lucas Cimon]
