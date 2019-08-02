@@ -6,5 +6,5 @@ import javax.naming.directory.DirContext;
 
 public interface LdapCNSearcher {
 
-    DirContextOperations searchCN(final DirContext dirContext, final String username);
+    DirContextOperations searchCN(String username, String password);
 }

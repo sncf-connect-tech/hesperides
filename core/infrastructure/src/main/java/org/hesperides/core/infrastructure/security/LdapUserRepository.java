@@ -26,16 +26,15 @@ import org.hesperides.core.domain.security.ResolveDirectoryGroupCNsQuery;
 import org.hesperides.core.domain.security.UserRepository;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.security.queries.views.DirectoryGroupsView;
+import org.hesperides.core.infrastructure.security.groups.LdapSearchContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.naming.directory.DirContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,10 +57,9 @@ public class LdapUserRepository implements UserRepository {
             throw new RuntimeException("This functionality is not available with profile " + NOLDAP);
         }
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        DirContext dirContext = ldapAuthenticationProvider.buildSearchContext(auth);
+        LdapSearchContext ldapSearchContext = createLdapSearchContext(ldapAuthenticationProvider, auth);
         try {
-            DirContextOperations userData = ldapAuthenticationProvider.searchCN(dirContext, query.getUsername());
-            Collection<? extends GrantedAuthority> springAuthorities = ldapAuthenticationProvider.loadUserAuthorities(userData, auth.getName(), (String) auth.getCredentials());
+            Collection<? extends GrantedAuthority> springAuthorities = ldapAuthenticationProvider.loadUserAuthorities(ldapSearchContext.getDirContextOperations(), auth.getName(), (String) auth.getCredentials());
             return Optional.of(new User(query.getUsername(), springAuthorities));
         } catch (IncorrectResultSizeDataAccessException incorrectResultSizeException) {
             if (incorrectResultSizeException.getActualSize() == 0) {
@@ -70,7 +68,7 @@ public class LdapUserRepository implements UserRepository {
             throw incorrectResultSizeException;
 
         } finally {
-            LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
+            ldapSearchContext.closeContext();
         }
     }
 
@@ -81,7 +79,7 @@ public class LdapUserRepository implements UserRepository {
             return DirectoryGroupsView.allUnresolved(query.getDirectoryGroupCNs());
         }
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        DirContext dirContext = ldapAuthenticationProvider.buildSearchContext(auth);
+        LdapSearchContext ldapSearchContext = createLdapSearchContext(ldapAuthenticationProvider, auth);
         try {
             List<String> unresolvedDirectoryGroupCNs = new ArrayList<>();
             List<String> ambiguousDirectoryGroupCNs = new ArrayList<>();
@@ -90,7 +88,7 @@ public class LdapUserRepository implements UserRepository {
             query.getDirectoryGroupCNs().stream().forEach(groupCN -> {
                 // On doit bénéficier du cache durant cet appel :
                 try {
-                    DirContextOperations dirContextOperations = ldapAuthenticationProvider.searchCN(dirContext, groupCN);
+                    DirContextOperations dirContextOperations = ldapSearchContext.searchUserCNWithRetry(groupCN);
                     directoryGroupDNs.add(dirContextOperations.getNameInNamespace());
                 } catch (IncorrectResultSizeDataAccessException incorrectResultSizeException) {
                     if (incorrectResultSizeException.getActualSize() == 0) {
@@ -102,7 +100,13 @@ public class LdapUserRepository implements UserRepository {
             });
             return new DirectoryGroupsView(unresolvedDirectoryGroupCNs, ambiguousDirectoryGroupCNs, directoryGroupDNs);
         } finally {
-            LdapUtils.closeContext(dirContext); // implique la suppression de l'env créé dans .buildSearchContext
+            ldapSearchContext.closeContext();
         }
+    }
+
+    private static LdapSearchContext createLdapSearchContext(LdapAuthenticationProvider ldapAuthenticationProvider, UsernamePasswordAuthenticationToken auth) {
+        String username = auth.getName();
+        String password = (String) auth.getCredentials();
+        return ldapAuthenticationProvider.createLdapSearchContext(username, password);
     }
 }
