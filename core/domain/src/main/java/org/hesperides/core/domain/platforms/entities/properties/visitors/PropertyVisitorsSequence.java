@@ -119,7 +119,7 @@ public class PropertyVisitorsSequence {
         List<PropertyVisitor> propertyVisitors = valuedProperties.stream().map(valuedProperty -> {
             PropertyVisitor propertyVisitor = null;
             // Si des valorisations existent sans modèle de propriété correspondant,
-            // cette lambda retourne un Optional.empty() qui sera exclue de la liste finale
+            // cette lambda retourne un Optional.empty() qui sera exclu de la liste finale
             if (valuedProperty instanceof ValuedPropertyView) {
                 if (propertyModelsPerName.containsKey(valuedProperty.getName())) {
                     propertyVisitor = SimplePropertyVisitor.fromAbstractPropertyViews(propertyModelsPerName.get(valuedProperty.getName()), (ValuedPropertyView) valuedProperty);

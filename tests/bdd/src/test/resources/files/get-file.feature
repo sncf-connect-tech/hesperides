@@ -38,7 +38,6 @@ Feature: Get file
       overwritten-value
       """
 
-  @buggy
   Scenario: get file with default value and an empty string valorization
     Given an existing module with this template content
       """
@@ -534,12 +533,11 @@ Feature: Get file
       instance-value
       """
 
-  @buggy
   Scenario: get file with a property with the same name but 2 different default values
     Given an existing module with this template content
     """
-    {{ simple-property | @default 10}}
-    {{ simple-property | @default 5}}
+    {{ simple-property | @default 10 }}
+    {{ simple-property | @default 5 }}
     """
     And an existing platform with this module
     When I get the module template file
@@ -592,7 +590,7 @@ Feature: Get file
     Given an existing module with this template content
     """
     {{#a}}
-    {{ simple-property | @default 10}}
+    {{ simple-property | @default 10 }}
     {{ simple-property | @default 5 }}
     {{/a}}
     """
@@ -604,7 +602,7 @@ Feature: Get file
     Then the file is successfully retrieved and contains
     """
     10
-    5
+    10
 
     """
 
@@ -723,7 +721,6 @@ Feature: Get file
     """
     """
 
-  @buggy
   Scenario: get file using a set delimiter and with a property default value including mustaches
     Given an existing module with this template content
     """

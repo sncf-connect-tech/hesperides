@@ -26,16 +26,21 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 <!-- gitchangelog START -->
 ## _(unreleased)_
+### Fixed
+
+- #710 Fix #381. [Thomas L'Hostis]
+
+
+
+## 2019-08-02
 ### Added
 
-- Nouvelle ressource /properties/diff. [Lucas Cimon]
+- Retry logic when requesting LDAP to be more resilient. [Lucas Cimon]
 
 
+### Fixed
 
-## _(unreleased)_
-### Added
-
-- $HOSTNAME displayed in /versions to allow easier identification of backend instance. [Lucas Cimon]
+- #39 : Update properties concurrently (#703) [Lucas Cimon]
 
 
 
