@@ -1,6 +1,7 @@
 package org.hesperides.core.application.platforms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.domain.exceptions.ForbiddenOperationException;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -28,6 +29,7 @@ import org.hesperides.core.domain.technos.queries.TechnoQueries;
 import org.hesperides.core.domain.technos.queries.TechnoView;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
+import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.TemplateContainerKeyView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,7 +41,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
-import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequence;
 
 
 @Component
@@ -271,30 +272,52 @@ public class PlatformUseCases {
                                             final Long timestamp,
                                             final boolean compareStoredValues,
                                             final User user) {
-        Module.Key fromModuleKey = Module.Key.fromPropertiesPath(fromPropertiesPath);
-        String fromModulePath = extractModulePathFromPropertiesPath(fromPropertiesPath);
-        Module.Key toModuleKey = Module.Key.fromPropertiesPath(toPropertiesPath);
-        String toModulePath = extractModulePathFromPropertiesPath(toPropertiesPath);
 
         PlatformView fromPlatform = timestamp != null ? getPlatformAtPointInTime(fromPlatformKey, timestamp) : getPlatform(fromPlatformKey);
         PlatformView toPlatform = timestamp != null ? getPlatformAtPointInTime(toPlatformKey, timestamp) : getPlatform(toPlatformKey);
 
-        // Note: on devrait passer le timestamp aux 2 appels ci-dessous, cf. issue #724
-        List<AbstractPropertyView> fromModulePropertiesModels = moduleQueries.getPropertiesModel(fromModuleKey);
-        List<AbstractPropertyView> toModulePropertiesModels = moduleQueries.getPropertiesModel(toModuleKey);
+        PropertiesDiff propertiesDiff;
+        if (Platform.isGlobalPropertiesPath(fromPropertiesPath) && Platform.isGlobalPropertiesPath(toPropertiesPath)) {
+            // On construit un faux model de propriétés globales pour faciliter la gestion du diff ensuite :
+            // le diff se sert du model de propriétés pour faire le lien entre les 2 listes de propriétés
+            List<AbstractPropertyView> fakeModelForGlobalProperties = buildFakeModelForGlobalProperties(fromPlatform.getGlobalProperties(), toPlatform.getGlobalProperties());
+            PropertyVisitorsSequence fromPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(fromPlatform, fakeModelForGlobalProperties);
+            PropertyVisitorsSequence toPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(toPlatform, fakeModelForGlobalProperties);
+            propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
 
-        boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(fromPlatformKey.getApplicationName());
-        boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(toPlatformKey.getApplicationName());
+        } else {
+            Module.Key fromModuleKey = Module.Key.fromPropertiesPath(fromPropertiesPath);
+            String fromModulePath = extractModulePathFromPropertiesPath(fromPropertiesPath);
+            Module.Key toModuleKey = Module.Key.fromPropertiesPath(toPropertiesPath);
+            String toModulePath = extractModulePathFromPropertiesPath(toPropertiesPath);
 
-        PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequence(
-                fromPlatform, fromModulePath, fromModuleKey,
-                fromModulePropertiesModels,
-                fromInstanceName, fromShouldHidePasswordProperties, true, true);
-        PropertyVisitorsSequence toPropertyVisitors = buildPropertyVisitorsSequence(
-                toPlatform, toModulePath, toModuleKey,
-                toModulePropertiesModels,
-                toInstanceName, toShouldHidePasswordProperties, true, true);
-        return new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
+            // Note: on devrait passer le timestamp aux 2 appels ci-dessous, cf. issue #724
+            List<AbstractPropertyView> fromModulePropertiesModels = moduleQueries.getPropertiesModel(fromModuleKey);
+            List<AbstractPropertyView> toModulePropertiesModels = moduleQueries.getPropertiesModel(toModuleKey);
+
+            boolean fromShouldHidePasswordProperties = fromPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(fromPlatformKey.getApplicationName());
+            boolean toShouldHidePasswordProperties = toPlatform.isProductionPlatform() && !user.hasProductionRoleForApplication(toPlatformKey.getApplicationName());
+
+            PropertyVisitorsSequence fromPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
+                    fromPlatform, fromModulePath, fromModuleKey,
+                    fromModulePropertiesModels,
+                    fromInstanceName, fromShouldHidePasswordProperties, true, true);
+            PropertyVisitorsSequence toPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(
+                    toPlatform, toModulePath, toModuleKey,
+                    toModulePropertiesModels,
+                    toInstanceName, toShouldHidePasswordProperties, true, true);
+
+            propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
+        }
+        return propertiesDiff;
+    }
+
+    private List<AbstractPropertyView> buildFakeModelForGlobalProperties(List<ValuedPropertyView> fromGlobalProperties, List<ValuedPropertyView> toGlobalProperties) {
+        return Stream.concat(fromGlobalProperties.stream(), toGlobalProperties.stream())
+                .map(AbstractValuedPropertyView::getName)
+                .distinct()
+                .map(propertyName -> new PropertyView(propertyName, propertyName, false, null, null, null, false))
+                .collect(Collectors.toList());
     }
 
     private static String extractModulePathFromPropertiesPath(String propertiesPath) {

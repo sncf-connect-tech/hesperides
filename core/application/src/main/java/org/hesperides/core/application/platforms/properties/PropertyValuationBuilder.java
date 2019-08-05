@@ -64,7 +64,18 @@ public class PropertyValuationBuilder {
         return propertyVisitors;
     }
 
-    private static List<AbstractValuedPropertyView> extractValuedPropertiesWithoutModel(List<AbstractValuedPropertyView> valuedProperties,
+    // Pour propriétés globales uniquement
+    public static PropertyVisitorsSequence buildPropertyVisitorsSequence(PlatformView platform, List<AbstractPropertyView> fakePropertiesModel) {
+        PropertyVisitorsSequence propertyVisitors = PropertyVisitorsSequence.fromModelAndValuedProperties(fakePropertiesModel, platform.getGlobalProperties(), true);
+        List<AbstractValuedPropertyView> valuedPropertiesWithoutModel = extractValuedPropertiesWithoutModel(platform.getGlobalProperties(), propertyVisitors);
+        PropertyValuationContext valuationContext = new PropertyValuationContext(platform, valuedPropertiesWithoutModel);
+        PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors, true, true);
+        propertyVisitors = preparePropertiesValues(completedPropertyVisitors, valuationContext, 0);
+        propertyVisitors = valuationContext.removePredefinedProperties(propertyVisitors);
+        return propertyVisitors;
+    }
+
+    private static List<AbstractValuedPropertyView> extractValuedPropertiesWithoutModel(List<? extends AbstractValuedPropertyView> valuedProperties,
                                                                                         PropertyVisitorsSequence propertyVisitors) {
         Set<String> propertyWithModelNames = propertyVisitors.getProperties().stream()
                 .map(PropertyVisitor::getName)

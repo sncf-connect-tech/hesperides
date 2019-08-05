@@ -35,7 +35,7 @@ public class PropertyVisitorsSequence {
     }
 
     public static PropertyVisitorsSequence fromModelAndValuedProperties(List<AbstractPropertyView> propertiesModels,
-                                                                        List<AbstractValuedPropertyView> valuedProperties,
+                                                                        List<? extends AbstractValuedPropertyView> valuedProperties,
                                                                         boolean includePropertiesWithoutModel) {
         Map<String, List<AbstractPropertyView>> propertyModelsPerName = propertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
         List<PropertyVisitor> propertyVisitors = valuedProperties.stream().map(valuedProperty -> {

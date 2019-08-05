@@ -20,6 +20,7 @@
  */
 package org.hesperides.core.application.files;
 
+import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -48,9 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequence;
-import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.replaceMustachePropertiesWithValues;
 
 @Component
 public class FileUseCases {
@@ -187,11 +185,11 @@ public class FileUseCases {
                                                                    String instanceName,
                                                                    boolean shouldHidePasswordProperties) {
 
-        PropertyVisitorsSequence preparedPropertyVisitors = buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties)
+        PropertyVisitorsSequence preparedPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties)
                 .removeMustachesInPropertyValues()
                 .passOverPropertyValuesToChildItems();
         Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
-        return replaceMustachePropertiesWithValues(input, scopes);
+        return PropertyValuationBuilder.replaceMustachePropertiesWithValues(input, scopes);
     }
 
     /**

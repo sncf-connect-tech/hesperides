@@ -32,6 +32,13 @@ class PropertyValuationContext {
         this.valuedPropertiesWithoutModel = valuedPropertiesWithoutModel;
     }
 
+    PropertyValuationContext(PlatformView platform, List<AbstractValuedPropertyView> valuedPropertiesWithoutModel) {
+        globalProperties = platform.getGlobalProperties();
+        instanceProperties = Collections.emptyList();
+        predefinedProperties = getPredefinedProperties(platform, null, null);
+        this.valuedPropertiesWithoutModel = valuedPropertiesWithoutModel;
+    }
+
     // Pas la plus belle signature du monde...
     // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
     PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean includeGlobalProperties, boolean includePropertiesWithoutModel) {
@@ -66,12 +73,14 @@ class PropertyValuationContext {
         predefinedProperties.add(new ValuedPropertyView("hesperides.application.name", platform.getApplicationName()));
         predefinedProperties.add(new ValuedPropertyView("hesperides.application.version", platform.getVersion()));
         predefinedProperties.add(new ValuedPropertyView("hesperides.platform.name", platform.getPlatformName()));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.module.name", deployedModule.getName()));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.module.version", deployedModule.getVersion()));
-        String modulePath = deployedModule.getModulePath();
-        predefinedProperties.add(new ValuedPropertyView("hesperides.module.path.full", modulePath.replace('#', '/')));
-        predefinedProperties.addAll(getPathLogicalGroups(modulePath));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", defaultString(instanceName, "")));
+        if (deployedModule != null) {
+            predefinedProperties.add(new ValuedPropertyView("hesperides.module.name", deployedModule.getName()));
+            predefinedProperties.add(new ValuedPropertyView("hesperides.module.version", deployedModule.getVersion()));
+            String modulePath = deployedModule.getModulePath();
+            predefinedProperties.add(new ValuedPropertyView("hesperides.module.path.full", modulePath.replace('#', '/')));
+            predefinedProperties.addAll(getPathLogicalGroups(modulePath));
+            predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", defaultString(instanceName, "")));
+        }
         return predefinedProperties;
     }
 
