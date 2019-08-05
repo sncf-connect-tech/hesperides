@@ -13,15 +13,19 @@ public class LdapSearchMetrics {
     public LdapSearchMetrics(MeterRegistry meterRegistry) {
         Gauge.builder("totalCallsCounter", this,
                 LdapSearchMetrics::getTotalCallsCounterAndReset)
+                .tags("class", this.getClass().getSimpleName())
                 .register(meterRegistry);
         Gauge.builder("failedCallsCounter", this,
                 LdapSearchMetrics::getFailedCallsCounterAndReset)
+                .tags("class", this.getClass().getSimpleName())
                 .register(meterRegistry);
         Gauge.builder("unexpectedExceptionCounter", this,
                 LdapSearchMetrics::getUnexpectedExceptionCounterAndReset)
+                .tags("class", this.getClass().getSimpleName())
                 .register(meterRegistry);
         Gauge.builder("retriesExhaustedExceptionCounter", this,
                 LdapSearchMetrics::getRetriesExhaustedExceptionCounterAndReset)
+                .tags("class", this.getClass().getSimpleName())
                 .register(meterRegistry);
     }
 

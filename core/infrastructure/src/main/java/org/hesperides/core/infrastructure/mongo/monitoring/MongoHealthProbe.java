@@ -41,10 +41,12 @@ public class MongoHealthProbe implements MeterBinder {
     public void bindTo(final MeterRegistry meterRegistry) {
         Gauge.builder(repoName + "_mongoHealthCheckQueryTime", this,
                 probe -> performHealthCheck(probe.mongoTemplate).getExecTimeInMs())
+                .tags("class", this.getClass().getSimpleName())
                 .baseUnit("ms")
                 .register(meterRegistry);
         Gauge.builder(repoName + "_mongoSessionPoolInUseCount", this,
                 probe -> getServerSessionPool(getMongoClient((SimpleMongoDbFactory) probe.mongoTemplate.getMongoDbFactory())).getInUseCount())
+                .tags("class", this.getClass().getSimpleName())
                 .register(meterRegistry);
     }
 }

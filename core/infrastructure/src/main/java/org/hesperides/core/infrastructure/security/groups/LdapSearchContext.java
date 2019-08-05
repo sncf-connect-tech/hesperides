@@ -143,6 +143,7 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
         } finally {
             try {
                 sample.stop(Timer.builder(timerMetricName)
+                        .tags("class", this.getClass().getSimpleName())
                         .tags("exception", exceptionClass)
                         .register(meterRegistry));
             } catch (Exception e) {
