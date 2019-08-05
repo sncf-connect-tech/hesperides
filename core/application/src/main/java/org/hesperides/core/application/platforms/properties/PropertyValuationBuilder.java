@@ -2,6 +2,7 @@ package org.hesperides.core.application.platforms.properties;
 
 import com.github.mustachejava.Mustache;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.files.InfiniteMustacheRecursion;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitor;
@@ -84,15 +85,21 @@ public class PropertyValuationBuilder {
             if (optValue.isPresent() && StringUtils.contains(optValue.get(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
                 // iso-legacy: on inclue les valorisations sans modèle ici
                 // cf. BDD Scenario: get file with property valorized with another valued property
-                Map<String, Object> scopes = valuationContext.completeWithContextualProperties(propertyVisitors, true, true).propertiesToScopes();
+                Map<String, Object> scopes = FileUseCases
+                        .propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, true, true)
+                                .passOverPropertyValuesToChildItems());
                 String value = replaceMustachePropertiesWithValues(optValue.get(), scopes);
                 // cf. BDD Scenario: get file with instance properties created by a module property that references itself and a global property with same name
                 if (StringUtils.contains(value, "}}")) {
-                    scopes = valuationContext.completeWithContextualProperties(propertyVisitors, false, true).propertiesToScopes();
+                    scopes = FileUseCases
+                            .propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, false, true)
+                                    .passOverPropertyValuesToChildItems());
                     value = replaceMustachePropertiesWithValues(value, scopes);
                     // cf. BDD Scenario: get file with property valorized with another valued property valorized with a predefined property
                     if (StringUtils.contains(value, "}}")) {
-                        scopes = valuationContext.completeWithContextualProperties(propertyVisitors, true, false).propertiesToScopes();
+                        scopes = FileUseCases
+                                .propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, true, false)
+                                        .passOverPropertyValuesToChildItems());
                         value = replaceMustachePropertiesWithValues(value, scopes);
                     }
                 }

@@ -73,44 +73,17 @@ public class PropertyVisitorsSequence {
         return new PropertyVisitorsSequence(propertyVisitors);
     }
 
-    /**
-     * Transforme une liste de propriétés `AbstractValuedPropertyView` pouvant contenir des propriétés simples
-     * et des propriétés itérables en map de ce type :
-     * - nom-propriété-simple => valeur-propriété-simple
-     * - nom-propriété-itérable => list (...)
-     */
-    public Map<String, Object> propertiesToScopes() {
-        // On concatène les propriétés parentes avec les propriété de l'item
-        // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles
-        // cf. BDD Scenario: get file with an iterable-ception
-        PropertyVisitorsSequence completePropertyVisitors = this.mapSequencesRecursive(propertyVisitors -> {
+
+    // On concatène les propriétés parentes avec les propriété de l'item
+    // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles
+    // cf. BDD Scenario: get file with an iterable-ception
+    public PropertyVisitorsSequence passOverPropertyValuesToChildItems() {
+        return this.mapSequencesRecursive(propertyVisitors -> {
             List<SimplePropertyVisitor> simpleSimplePropertyVisitors = propertyVisitors.getSimplePropertyVisitors();
             return propertyVisitors.mapDirectChildIterablePropertyVisitors(
                     iterablePropertyVisitor -> iterablePropertyVisitor.addPropertyVisitorsOrUpdateValue(simpleSimplePropertyVisitors)
             );
         });
-        Map<String, Object> scopes = new HashMap<>();
-        completePropertyVisitors.forEach(
-                simplePropertyVisitor ->
-                        simplePropertyVisitor.getMustacheKeyValues().forEach(scopes::put),
-                iterablePropertyVisitor -> scopes.put(
-                        iterablePropertyVisitor.getName(),
-                        iterablePropertyVisitor.getItems().stream()
-                                .map(PropertyVisitorsSequence::propertiesToScopes)
-                                .collect(Collectors.toList()))
-        );
-        // cf. #540 & BDD Scenario: get file with instance properties created by a module property that references itself
-        completePropertyVisitors.forEachSimplesRecursive(propertyVisitor -> {
-            Optional<String> optValue = propertyVisitor.getValue();
-            if (!scopes.containsKey(propertyVisitor.getName())) {
-                // Cas où une valorisation de propriété a été insérée pour la clef "mustacheContent" mais PAS pour le nom exact de la propriété,
-                // et aucune autre propriété n'a été insérée pour ce nom
-                // (ce qui peut arriver lorsque des propriétés d'instance ou globales ont le même nom),
-                // on l'insère donc maintenant:
-                optValue.ifPresent(value -> scopes.put(propertyVisitor.getName(), value));
-            }
-        });
-        return scopes;
     }
 
     private List<SimplePropertyVisitor> getSimplePropertyVisitors() {

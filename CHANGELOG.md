@@ -28,6 +28,8 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ## _(unreleased)_
 ### Fixed
 
+- Ing BDD tests. [Lucas Cimon]
+
 - #710 Fix #381. [Thomas L'Hostis]
 
 
@@ -39,6 +41,8 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 
 
 ### Fixed
+
+- ClassCastException in GetUserQuery (#731) [Lucas Cimon]
 
 - #39 : Update properties concurrently (#703) [Lucas Cimon]
 
