@@ -81,7 +81,7 @@ public class PropertyValuationBuilder {
             throw new InfiniteMustacheRecursion("Infinite loop due to self-referencing property or template");
         }
         PropertyVisitorsSequence preparedPropertyVisitors = propertyVisitors.mapSimplesRecursive(propertyVisitor -> {
-            Optional<String> optValue = propertyVisitor.getValue();
+            Optional<String> optValue = propertyVisitor.getValueOrDefault();
             if (optValue.isPresent() && StringUtils.contains(optValue.get(), "}}")) { // not bullet-proof but a false positive on mustaches escaped by a delimiter set is OK
                 // iso-legacy: on inclue les valorisations sans modèle ici
                 // cf. BDD Scenario: get file with property valorized with another valued property
@@ -107,13 +107,9 @@ public class PropertyValuationBuilder {
             }
             return propertyVisitor;
         });
-        if (propertyVisitors.equals(preparedPropertyVisitors)) {
-            // En tout dernier, complète les propriétés non valorisées avec leur valeur par défaut lorsqu'elle existe
-            preparedPropertyVisitors.completeWithDefaultValues();
-        } else {
-            preparedPropertyVisitors = preparePropertiesValues(preparedPropertyVisitors, valuationContext, iterationCount + 1);
-        }
-        return preparedPropertyVisitors;
+        return propertyVisitors.equals(preparedPropertyVisitors)
+                ? preparedPropertyVisitors
+                : preparePropertiesValues(preparedPropertyVisitors, valuationContext, iterationCount + 1);
     }
 
     /**

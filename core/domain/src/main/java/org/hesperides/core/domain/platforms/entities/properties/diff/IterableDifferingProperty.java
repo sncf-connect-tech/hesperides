@@ -11,7 +11,7 @@ public class IterableDifferingProperty extends AbstractDifferingProperty {
 
     List<PropertiesDiff> differingItems;
 
-    public IterableDifferingProperty(String name, List<PropertiesDiff> differingItems) {
+    IterableDifferingProperty(String name, List<PropertiesDiff> differingItems) {
         super(name);
         this.differingItems = differingItems;
     }

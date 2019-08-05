@@ -1,6 +1,7 @@
 package org.hesperides.core.domain.platforms.entities.properties.diff;
 
 import lombok.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.IterablePropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
@@ -23,7 +24,7 @@ public class PropertiesDiff {
     Set<AbstractDifferingProperty> common;
     Set<AbstractDifferingProperty> differingProperties;
 
-    public static PropertiesDiff performDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, boolean compareStoredValues) {
+    public PropertiesDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, boolean compareStoredValues) {
         // On procède au diff :
         //  - onlyLeft : la propriété n'est pas présente dans la liste de droite.
         //  - onlyRight : la propriété n'est pas présente dans la liste de gauche.
@@ -32,7 +33,7 @@ public class PropertiesDiff {
         Set<PropertyVisitor> onlyLeft = new HashSet<>();
         Set<PropertyVisitor> onlyRight = new HashSet<>();
         Set<AbstractDifferingProperty> common = new HashSet<>();
-        Set<AbstractDifferingProperty> differing = new HashSet<>();
+        Set<AbstractDifferingProperty> differingProperties = new HashSet<>();
 
         // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
         // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
@@ -40,29 +41,49 @@ public class PropertiesDiff {
 
         for (PropertyVisitor leftProperty : propertiesLeft.getProperties()) {
             PropertyVisitor rightProperty = propertyVisitorsRightPerName.get(leftProperty.getName());
-            if (!isValued(rightProperty)) {
-                if (isValued(leftProperty)) {
+            if (!hasValue(rightProperty, compareStoredValues)) {
+                if (hasValue(leftProperty, compareStoredValues)) {
                     onlyLeft.add(leftProperty);
                 } else {
                     common.add(buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues));
                 }
-            } else if (!isValued(leftProperty)) {
+            } else if (!hasValue(leftProperty, compareStoredValues)) {
                 onlyRight.add(rightProperty);
             } else {
                 AbstractDifferingProperty differingProperty = buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues);
                 if (leftProperty.equals(rightProperty, compareStoredValues)) {
                     common.add(differingProperty);
                 } else {
-                    differing.add(differingProperty);
+                    differingProperties.add(differingProperty);
                 }
             }
         }
 
-        return new PropertiesDiff(onlyLeft, onlyRight, common, differing);
+        this.onlyLeft = onlyLeft;
+        this.onlyRight = onlyRight;
+        this.common = common;
+        this.differingProperties = differingProperties;
     }
 
-    private static boolean isValued(PropertyVisitor propertyVisitor) {
-        return propertyVisitor != null && (propertyVisitor instanceof IterablePropertyVisitor || ((SimplePropertyVisitor) propertyVisitor).isValued());
+    private static boolean hasValue(PropertyVisitor propertyVisitor, boolean compareStoredValues) {
+        boolean hasValue = false;
+
+        if (propertyVisitor != null) {
+            if (propertyVisitor instanceof IterablePropertyVisitor) {
+                hasValue = true;
+            } else {
+                SimplePropertyVisitor simplePropertyVisitor = (SimplePropertyVisitor) propertyVisitor;
+                if (compareStoredValues) {
+                    hasValue = simplePropertyVisitor.isValued();
+                } else {
+                    // Permet de tenir compte de la valeur par défaut si elle est fournie
+                    hasValue = simplePropertyVisitor.getValueOrDefault().isPresent() &&
+                            // Dans le legacy, une valeur par défaut non fournie est vide (mais pas null)
+                            StringUtils.isNotEmpty(simplePropertyVisitor.getValueOrDefault().get());
+                }
+            }
+        }
+        return hasValue;
     }
 
     private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, boolean compareStoredValues) {
@@ -76,7 +97,7 @@ public class PropertiesDiff {
             List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
                 PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? PropertyVisitorsSequence.empty() : iterablePropertyLeftItems.get(index);
                 PropertyVisitorsSequence nestedPropertiesRight = (index >= iterablePropertyRightItems.size()) ? PropertyVisitorsSequence.empty() : iterablePropertyRightItems.get(index);
-                return performDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
+                return new PropertiesDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
             }).collect(Collectors.toList());
             differingProperty = new IterableDifferingProperty(leftProperty.getName(), propertiesDiffList);
         }

@@ -90,7 +90,7 @@ public class FileUseCases {
                 .filter(SimplePropertyVisitor.class::isInstance)
                 .map(SimplePropertyVisitor.class::cast)
                 .forEach(propertyVisitor -> {
-                    Optional<String> optValue = propertyVisitor.getValue();
+                    Optional<String> optValue = propertyVisitor.getValueOrDefault();
                     if (!scopes.containsKey(propertyVisitor.getName())) {
                         // Cas où une valorisation de propriété a été insérée pour la clef "mustacheContent" mais PAS pour le nom exact de la propriété,
                         // et aucune autre propriété n'a été insérée pour ce nom
@@ -187,10 +187,10 @@ public class FileUseCases {
                                                                    String instanceName,
                                                                    boolean shouldHidePasswordProperties) {
 
-        PropertyVisitorsSequence preparedPropertyVisitors = buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties);
-        Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors
-                        .removeMustachesInPropertyValues()
-                        .passOverPropertyValuesToChildItems());
+        PropertyVisitorsSequence preparedPropertyVisitors = buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties)
+                .removeMustachesInPropertyValues()
+                .passOverPropertyValuesToChildItems();
+        Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
         return replaceMustachePropertiesWithValues(input, scopes);
     }
 

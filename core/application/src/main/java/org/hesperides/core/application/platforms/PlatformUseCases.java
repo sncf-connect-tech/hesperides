@@ -294,7 +294,7 @@ public class PlatformUseCases {
                 toPlatform, toModulePath, toModuleKey,
                 toModulePropertiesModels,
                 toInstanceName, toShouldHidePasswordProperties, true, true);
-        return PropertiesDiff.performDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
+        return new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
     }
 
     private static String extractModulePathFromPropertiesPath(String propertiesPath) {

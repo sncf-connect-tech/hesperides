@@ -99,7 +99,7 @@ public class PropertyVisitorsSequence {
     public PropertyVisitorsSequence removeMustachesInPropertyValues() {
         return this.mapSimplesRecursive(propertyVisitor -> {
             if (propertyVisitor.isValued()) {
-                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValue().get(), "\\{\\{[^}]*\\}\\}"));
+                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValueOrDefault().get(), "\\{\\{[^}]*\\}\\}"));
             }
             return propertyVisitor;
         });
@@ -131,7 +131,7 @@ public class PropertyVisitorsSequence {
             }
             SimplePropertyVisitor matchingSimplePropertyVisitor = (SimplePropertyVisitor) properties.get(matchingPropertyIndex);
             if (!matchingSimplePropertyVisitor.isValued() && extraVisitorProperty.isValued()) {
-                newProperties.set(matchingPropertyIndex, matchingSimplePropertyVisitor.withValue(extraVisitorProperty.getValue().get()));
+                newProperties.set(matchingPropertyIndex, matchingSimplePropertyVisitor.withValue(extraVisitorProperty.getValueOrDefault().get()));
             }
         });
         return new PropertyVisitorsSequence(newProperties);
@@ -167,11 +167,6 @@ public class PropertyVisitorsSequence {
         return new PropertyVisitorsSequence(properties.stream()
                 .filter(property -> !excludedPropertyNames.contains(property.getName()))
                 .collect(Collectors.toList()));
-    }
-
-    /* Applique une fonction récursivement à toutes propriétés, sans provoquer de transformation */
-    public void forEach(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
-        properties.forEach(property -> property.acceptEither(simpleConsumer, iterableConsumer));
     }
 
     /* Applique une fonction récursivement à toutes propriétés simple, sans provoquer de transformation */
@@ -210,9 +205,5 @@ public class PropertyVisitorsSequence {
     public boolean equals(PropertyVisitorsSequence otherSequence, boolean compareStoredValues) {
         Map<String, PropertyVisitor> propertyVisitorMap = properties.stream().collect(toMap(PropertyVisitor::getName, property -> property));
         return (properties.size() == otherSequence.getProperties().size()) && otherSequence.properties.stream().allMatch(p -> p.equals(propertyVisitorMap.get(p.getName()), compareStoredValues));
-    }
-
-    public void completeWithDefaultValues() {
-        //TODO Refactoriser propertiesToScopes pour sortir la logique de conversion en map et séparer les 3 étapes en 3 méthodes
     }
 }

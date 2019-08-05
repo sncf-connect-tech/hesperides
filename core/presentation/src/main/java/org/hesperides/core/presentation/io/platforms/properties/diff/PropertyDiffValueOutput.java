@@ -10,7 +10,7 @@ class PropertyDiffValueOutput {
     String storedValue; // Correspond à la valeur en base / renseignée dans l'IHM
 
     PropertyDiffValueOutput(SimplePropertyVisitor propertyVisitor) {
-        this.finalValue = propertyVisitor.getValue().get();
+        this.finalValue = propertyVisitor.getValueOrDefault().get();
         this.defaultValue = propertyVisitor.getDefaultValue().orElse(null);
         this.storedValue = propertyVisitor.getInitialValue();
     }
