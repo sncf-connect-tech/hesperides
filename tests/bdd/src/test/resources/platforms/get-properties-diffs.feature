@@ -107,8 +107,8 @@ Feature: Get properties diffs
     When I get the properties diff on stored values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing       |
-      |           |            |        | simple-property |
+      | only_left | only_right      | common | differing |
+      |           | simple-property |        |           |
 
   Scenario: get global properties diff on final values between two platforms
     Given an existing module with this template content

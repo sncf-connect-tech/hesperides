@@ -20,7 +20,6 @@
  */
 package org.hesperides.core.application.files;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -29,7 +28,6 @@ import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
-import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
@@ -48,7 +46,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hesperides.core.application.properties.PropertyUseCases.*;
+import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequence;
+import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.replaceMustachePropertiesWithValues;
 
 @Component
 public class FileUseCases {
@@ -139,30 +138,19 @@ public class FileUseCases {
         }
     }
 
-    // public for testing
-    public static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
-                                                                          PlatformView platform,
-                                                                          String modulePath,
-                                                                          Module.Key moduleKey,
-                                                                          List<AbstractPropertyView> modulePropertiesModels,
-                                                                          String instanceName,
-                                                                          boolean shouldHidePasswordProperties) {
+    static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
+                                                                   PlatformView platform,
+                                                                   String modulePath,
+                                                                   Module.Key moduleKey,
+                                                                   List<AbstractPropertyView> modulePropertiesModels,
+                                                                   String instanceName,
+                                                                   boolean shouldHidePasswordProperties) {
 
         PropertyVisitorsSequence preparedPropertyVisitors = buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties);
-        Map<String, Object> scopes = propertiesToScopes(removeMustachesInPropertyValues(preparedPropertyVisitors));
+        Map<String, Object> scopes = preparedPropertyVisitors
+                .removeMustachesInPropertyValues()
+                .propertiesToScopes();
         return replaceMustachePropertiesWithValues(input, scopes);
-    }
-
-    // Juste avant d'appeler le moteur Mustache,
-    // on supprime toutes les {{mustaches}} n'ayant pas déjà été substituées par `preparePropertiesValues` des valorisations,
-    // afin que les fichiers générés n'en contiennent plus aucune trace
-    private static PropertyVisitorsSequence removeMustachesInPropertyValues(PropertyVisitorsSequence propertyVisitors) {
-        return propertyVisitors.mapSimplesRecursive(propertyVisitor -> {
-            if (propertyVisitor.isValued()) {
-                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValue().get(), "\\{\\{[^}]*\\}\\}"));
-            }
-            return propertyVisitor;
-        });
     }
 
     /**

@@ -55,7 +55,7 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
 
             List<String> onlyRightPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyRight());
             List<String> onlyRightPropertiesNameExpected = Diff.getOnlyRight(expectedPropertiesDiff);
-            assertEquals("only_righ", onlyRightPropertiesNameExpected, onlyRightPropertiesName);
+            assertEquals("only_right", onlyRightPropertiesNameExpected, onlyRightPropertiesName);
 
             List<String> commonPropertiesName = getPropertiesName(actualPropertiesDiff.getCommon());
             List<String> commonPropertiesNameExpected = Diff.getCommon(expectedPropertiesDiff);

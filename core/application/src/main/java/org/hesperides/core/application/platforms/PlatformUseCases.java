@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
-import static org.hesperides.core.application.properties.PropertyUseCases.buildPropertyVisitorsSequence;
+import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequence;
 
 
 @Component
@@ -289,12 +289,12 @@ public class PlatformUseCases {
         PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequence(
                 fromPlatform, fromModulePath, fromModuleKey,
                 fromModulePropertiesModels,
-                fromInstanceName, fromShouldHidePasswordProperties, true);
+                fromInstanceName, fromShouldHidePasswordProperties, true, true);
         PropertyVisitorsSequence toPropertyVisitors = buildPropertyVisitorsSequence(
                 toPlatform, toModulePath, toModuleKey,
                 toModulePropertiesModels,
-                toInstanceName, toShouldHidePasswordProperties, true);
-        return PropertyVisitorsSequence.performDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
+                toInstanceName, toShouldHidePasswordProperties, true, true);
+        return PropertiesDiff.performDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
     }
 
     private static String extractModulePathFromPropertiesPath(String propertiesPath) {
@@ -304,10 +304,6 @@ public class PlatformUseCases {
         }
         parts = Arrays.copyOfRange(parts, 0, parts.length - 3);
         return String.join("#", parts);
-    }
-
-    private List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final User user) {
-        return getValuedProperties(platformKey, propertiesPath, null, user);
     }
 
     public List<AbstractValuedPropertyView> getValuedProperties(final Platform.Key platformKey, final String propertiesPath, final Long timestamp, final User user) {

@@ -30,7 +30,7 @@ public class PropertiesDiffTest {
         PropertyVisitor p2pty3 = makeSimplePropertyVisitor("property-only-in-p2", "p2-value");
 
         // Test
-        PropertiesDiff pdiff = PropertyVisitorsSequence.performDiff(
+        PropertiesDiff pdiff = PropertiesDiff.performDiff(
                 new PropertyVisitorsSequence(Arrays.asList(p1pty1, p1pty2, p1pty3)),
                 new PropertyVisitorsSequence(Arrays.asList(p2pty1, p2pty2, p2pty3)),
                 false);
@@ -71,7 +71,7 @@ public class PropertiesDiffTest {
         IterablePropertyVisitor platformTwoIterablePpty = new IterablePropertyVisitor("iterable-property-X-in-p1-and-p2", singletonList(platformTwoIterablePropertyItem));
 
         // Test
-        PropertiesDiff pdiff = PropertyVisitorsSequence.performDiff(
+        PropertiesDiff pdiff = PropertiesDiff.performDiff(
                 new PropertyVisitorsSequence(singletonList(platformOneIterablePpty)),
                 new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)),
                 false);
@@ -100,7 +100,7 @@ public class PropertiesDiffTest {
         IterablePropertyVisitor platformTwoIterablePpty = new IterablePropertyVisitor("iterable-property-X-in-p1-and-p2", singletonList(platformTwoIterablePropertyItem));
 
         // Test
-        PropertiesDiff pdiff = PropertyVisitorsSequence.performDiff(
+        PropertiesDiff pdiff = PropertiesDiff.performDiff(
                 new PropertyVisitorsSequence(singletonList(platformOneIterablePpty)),
                 new PropertyVisitorsSequence(singletonList(platformTwoIterablePpty)),
                 false);

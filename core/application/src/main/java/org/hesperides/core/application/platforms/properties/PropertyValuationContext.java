@@ -1,4 +1,4 @@
-package org.hesperides.core.application.properties;
+package org.hesperides.core.application.platforms.properties;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -23,35 +23,28 @@ class PropertyValuationContext {
     private List<ValuedPropertyView> globalProperties;
     private List<ValuedPropertyView> instanceProperties;
     private List<ValuedPropertyView> predefinedProperties;
-    private List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel;
+    private List<AbstractValuedPropertyView> valuedPropertiesWithoutModel;
 
-    PropertyValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel) {
+    PropertyValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> valuedPropertiesWithoutModel) {
         globalProperties = platform.getGlobalProperties();
         instanceProperties = getInstanceProperties(deployedModule.getInstances(), deployedModule.getInstancesModel(), instanceName);
         predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
-        this.extraValuedPropertiesWithoutModel = extraValuedPropertiesWithoutModel;
-    }
-
-    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors) {
-        return completeWithContextualProperties(propertyVisitors, true);
-    }
-
-    private PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals) {
-        return completeWithContextualProperties(propertyVisitors, withGlobals, false);
+        this.valuedPropertiesWithoutModel = valuedPropertiesWithoutModel;
     }
 
     // Pas la plus belle signature du monde...
     // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
-    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals, boolean withExtraPropsWithoutModel) {
+    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean includeGlobalProperties, boolean includePropertiesWithoutModel) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
         propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties)
                 .addOverridingValuedProperties(predefinedProperties);
-        if (withGlobals) {
+        if (includeGlobalProperties) {
             propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties);
         }
-        if (withExtraPropsWithoutModel) {
-            propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(extraValuedPropertiesWithoutModel.stream()
-                    .filter(ValuedPropertyView.class::isInstance).map(ValuedPropertyView.class::cast));
+        if (includePropertiesWithoutModel) {
+            propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(valuedPropertiesWithoutModel.stream()
+                    .filter(ValuedPropertyView.class::isInstance)
+                    .map(ValuedPropertyView.class::cast));
         }
         return propertyVisitors;
     }
@@ -91,7 +84,7 @@ class PropertyValuationContext {
         return pathLogicalGroups;
     }
 
-    PropertyVisitorsSequence removePreparedProperties(PropertyVisitorsSequence propertyVisitors) {
+    PropertyVisitorsSequence removePredefinedProperties(PropertyVisitorsSequence propertyVisitors) {
         return propertyVisitors.removePropertiesByName(predefinedProperties.stream().map(ValuedPropertyView::getName).collect(Collectors.toSet()));
     }
 }

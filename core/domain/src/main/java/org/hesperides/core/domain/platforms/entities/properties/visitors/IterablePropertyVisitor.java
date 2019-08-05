@@ -12,8 +12,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence.fromModelAndValuedProperties;
-
 @Value
 public class IterablePropertyVisitor implements PropertyVisitor {
 
@@ -32,13 +30,12 @@ public class IterablePropertyVisitor implements PropertyVisitor {
         this(
                 iterablePropertyModel.getName(),
                 iterableValuedProperty.getIterablePropertyItems().stream()
-                        .map(valuedPropertyItem -> fromModelAndValuedProperties(
+                        .map(valuedPropertyItem -> PropertyVisitorsSequence.fromModelAndValuedProperties(
                                 iterablePropertyModel.getProperties(),
                                 valuedPropertyItem.getAbstractValuedPropertyViews(),
                                 // cf. BDD Scenario: get file with an iterable-ception
-                                false
-                                )
-                        ).collect(Collectors.toList())
+                                true))
+                        .collect(Collectors.toList())
         );
     }
 
@@ -80,7 +77,7 @@ public class IterablePropertyVisitor implements PropertyVisitor {
     public boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue) {
         boolean isEqual = false;
         if (getName().equals(propertyVisitor.getName()) && propertyVisitor instanceof IterablePropertyVisitor) {
-            IterablePropertyVisitor iterablePropertyVisitor = (IterablePropertyVisitor)propertyVisitor;
+            IterablePropertyVisitor iterablePropertyVisitor = (IterablePropertyVisitor) propertyVisitor;
             isEqual = (items.size() == iterablePropertyVisitor.getItems().size()) &&
                     IntStream.range(0, items.size()).allMatch(i -> items.get(i).equals(iterablePropertyVisitor.getItems().get(i)));
         }
