@@ -25,15 +25,6 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
-## _(unreleased)_
-### Fixed
-
-- Ing BDD tests. [Lucas Cimon]
-
-- #710 Fix #381. [Thomas L'Hostis]
-
-
-
 ## 2019-08-02
 ### Added
 

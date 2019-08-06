@@ -68,6 +68,7 @@
         <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <sentry.version>1.7.16</sentry.version>
+        <retry4j.version>0.15.0</retry4j.version>
     </properties>
 
     <dependencies>
@@ -250,6 +251,11 @@
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
                 <version>${micrometer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.evanlennick</groupId>
+                <artifactId>retry4j</artifactId>
+                <version>${retry4j.version}</version>
             </dependency>
 
             <!-- Test -->
