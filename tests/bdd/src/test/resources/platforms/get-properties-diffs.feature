@@ -6,49 +6,28 @@ Feature: Get properties diffs
   Scenario: get properties diffs between two platforms
     Given an existing module with this template content
       """
-      {{property-X-in-p1-and-p2}}
-      {{property-Y-in-p1-and-p2}}
-      {{property-only-in-p1}}
-      {{property-only-in-p2}}
+      {{only-p1}}
+      {{only-p2}}
+      {{common-property}}
+      {{differing-property}}
       """
     And an existing platform named "P1" with this module
     And the platform "P1" has these valued properties
-      | name                    | value         |
-      | property-X-in-p1-and-p2 | a-value       |
-      | property-Y-in-p1-and-p2 | another-value |
-      | property-only-in-p1     | p1-value      |
+      | name               | value    |
+      | only-p1            | value    |
+      | common-property    | value    |
+      | differing-property | p1-value |
     And an existing platform named "P2" with this module
     And the platform "P2" has these valued properties
-      | name                    | value             |
-      | property-X-in-p1-and-p2 | a-differing-value |
-      | property-Y-in-p1-and-p2 | another-value     |
-      | property-only-in-p2     | p2-value          |
+      | name               | value    |
+      | only-p2            | value    |
+      | common-property    | value    |
+      | differing-property | p2-value |
     When I get the properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left           | only_right          | common                  | differing               |
-      | property-only-in-p1 | property-only-in-p2 | property-Y-in-p1-and-p2 | property-X-in-p1-and-p2 |
-
-  Scenario: get properties diff on stored values between two platforms
-    Given an existing module with this template content
-      """
-      {{property-a}}
-      """
-    And an existing platform named "P1" with this module
-    And the platform "P1" has these valued properties
-      | name       | value          |
-      | property-a | {{property-b}} |
-      | property-b | p1             |
-    And an existing platform named "P2" with this module
-    And the platform "P2" has these valued properties
-      | name       | value          |
-      | property-a | {{property-b}} |
-      | property-b | p2             |
-    When I get the properties diff on stored values between platforms "P1" and "P2"
-    Then the diff is successfully retrieved
-    And the resulting diff match these values
-      | only_left | only_right | common     | differing  |
-      |           |            | property-a | property-b |
+      | only_left | only_right | common          | differing          |
+      | only-p1   | only-p2    | common-property | differing-property |
 
   Scenario: get properties diff on final values between two platforms
     Given an existing module with this template content
@@ -71,6 +50,27 @@ Feature: Get properties diffs
       | only_left | only_right | common | differing  |
       |           |            |        | property-a |
       |           |            |        | property-b |
+
+  Scenario: get properties diff on stored values between two platforms
+    Given an existing module with this template content
+      """
+      {{property-a}}
+      """
+    And an existing platform named "P1" with this module
+    And the platform "P1" has these valued properties
+      | name       | value          |
+      | property-a | {{property-b}} |
+      | property-b | p1             |
+    And an existing platform named "P2" with this module
+    And the platform "P2" has these valued properties
+      | name       | value          |
+      | property-a | {{property-b}} |
+      | property-b | p2             |
+    When I get the properties diff on stored values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common     | differing  |
+      |           |            | property-a | property-b |
 
   Scenario: get properties diff on final values between two platforms with default valued properties
     Given an existing module with this template content
@@ -107,41 +107,48 @@ Feature: Get properties diffs
     When I get the properties diff on stored values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left | only_right | common | differing       |
-      |           |            |        | simple-property |
+      | only_left | only_right      | common | differing |
+      |           | simple-property |        |           |
 
-  Scenario: get global properties diff on final values between two platforms
-    Given an existing module with this template content
-      """
-      {{property-X-in-p1-and-p2}}
-      {{property-Y-in-p1-and-p2}}
-      {{property-only-in-p1}}
-      {{property-only-in-p2}}
-      """
-    And an existing platform named "P1" with this module
+  Scenario: get global properties diffs between two platforms
+    Given an existing platform named "P1"
     And the platform "P1" has these global properties
-      | name                    | value         |
-      | property-X-in-p1-and-p2 | a-value       |
-      | property-Y-in-p1-and-p2 | another-value |
-      | property-only-in-p1     | p1-value      |
-    And an existing platform named "P2"
+      | name               | value    |
+      | only-p1            | value    |
+      | common-property    | value    |
+      | differing-property | p1-value |
+    And an existing platform named "P2" with this module
     And the platform "P2" has these global properties
-      | name                    | value             |
-      | property-X-in-p1-and-p2 | a-differing-value |
-      | property-Y-in-p1-and-p2 | another-value     |
-      | property-only-in-p2     | p2-value          |
+      | name               | value    |
+      | only-p2            | value    |
+      | common-property    | value    |
+      | differing-property | p2-value |
     When I get the global properties diff on final values between platforms "P1" and "P2"
     Then the diff is successfully retrieved
     And the resulting diff match these values
-      | only_left           | only_right          | common                  | differing               |
-      | property-only-in-p1 | property-only-in-p2 | property-Y-in-p1-and-p2 | property-X-in-p1-and-p2 |
+      | only_left | only_right | common          | differing          |
+      | only-p1   | only-p2    | common-property | differing-property |
+
+  Scenario: get global properties diff on final values between two platforms
+    Given an existing platform named "P1"
+    And the platform "P1" has these global properties
+      | name       | value          |
+      | property-a | {{property-b}} |
+      | property-b | p1             |
+    And an existing platform named "P2"
+    And the platform "P2" has these global properties
+      | name       | value          |
+      | property-a | {{property-b}} |
+      | property-b | p2             |
+    When I get the global properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common | differing  |
+      |           |            |        | property-a |
+      |           |            |        | property-b |
 
   Scenario: get global properties diff on stored values between two platforms
-    Given an existing module with this template content
-      """
-      {{property-a}}
-      """
-    And an existing platform named "P1" with this module
+    Given an existing platform named "P1"
     And the platform "P1" has these global properties
       | name       | value          |
       | property-a | {{property-b}} |
@@ -156,6 +163,57 @@ Feature: Get properties diffs
     And the resulting diff match these values
       | only_left | only_right | common     | differing  |
       |           |            | property-a | property-b |
+
+  Scenario: get instance properties diffs on final values between two platforms
+    Given an existing module with this template content
+      """
+      {{a-property}}
+      """
+    And an existing platform named "P1" with this module
+    And the platform "P1" has these valued properties
+      | name       | value                   |
+      | a-property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value           |
+      | instance-property | instance-value1 |
+    And an existing platform named "P2" with this module
+    And the platform "P2" has these valued properties
+      | name       | value                   |
+      | a-property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value           |
+      | instance-property | instance-value2 |
+    When I get the instance properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common | differing         |
+      |           |            |        | a-property        |
+      |           |            |        | instance-property |
+
+  Scenario: get instance properties diffs on stored values between two platforms
+    Given an existing module with this template content
+      """
+      {{a-property}}
+      """
+    And an existing platform named "P1" with this module
+    And the platform "P1" has these valued properties
+      | name       | value                   |
+      | a-property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value           |
+      | instance-property | instance-value1 |
+    And an existing platform named "P2" with this module
+    And the platform "P2" has these valued properties
+      | name       | value                   |
+      | a-property | {{ instance-property }} |
+    And the platform has these instance properties
+      | name              | value           |
+      | instance-property | instance-value2 |
+    When I get the instance properties diff on stored values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common     | differing         |
+      |           |            | a-property | instance-property |
 
   Scenario: get iterable properties diff on final values between two platforms
 

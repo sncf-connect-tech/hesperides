@@ -35,6 +35,7 @@ public class SpringProfiles {
     public static final String NOLDAP = "noldap";
     public static final String GRAPHITE = "graphite";
     public static final String SPRING_BOOT_ADMIN = "sba";
+    public static final String TEST = "test";
 
     @Autowired
     private Environment environment;

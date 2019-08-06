@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -52,12 +53,12 @@ public class SimplePropertyVisitor implements PropertyVisitor {
         return propertyValue != null && StringUtils.isNotBlank(propertyValue.getValue());
     }
 
-    public Optional<String> getValue() {
-        return (isValued()) ? Optional.of(propertyValue.getValue()) : getDefaultValue();
+    public Optional<String> getValueOrDefault() {
+        return isValued() ? Optional.ofNullable(propertyValue.getValue()) : getDefaultValue();
     }
 
     public Optional<String> getDefaultValue() {
-        return (propertyModels.size() > 0) ? Optional.ofNullable(propertyModels.get(0).getDefaultValue()) : Optional.empty();
+        return CollectionUtils.isEmpty(propertyModels) ? Optional.empty() : Optional.ofNullable(propertyModels.get(0).getDefaultValue());
     }
 
     public Map<String, String> getMustacheKeyValues() {
@@ -103,7 +104,7 @@ public class SimplePropertyVisitor implements PropertyVisitor {
             if (compareStoredValue) {
                 isEqual = Objects.equals(getInitialValue(), visitor.getInitialValue());
             } else {
-                isEqual = Objects.equals(getValue(), visitor.getValue());
+                isEqual = Objects.equals(getValueOrDefault(), visitor.getValueOrDefault());
             }
         }
         return isEqual;

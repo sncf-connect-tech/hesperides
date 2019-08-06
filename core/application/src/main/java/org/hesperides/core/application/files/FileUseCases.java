@@ -20,7 +20,7 @@
  */
 package org.hesperides.core.application.files;
 
-import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.application.platforms.properties.PropertyValuationBuilder;
 import org.hesperides.core.domain.files.InstanceFileView;
 import org.hesperides.core.domain.modules.entities.Module;
 import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
@@ -28,8 +28,9 @@ import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.modules.queries.ModuleQueries;
 import org.hesperides.core.domain.modules.queries.ModuleView;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.entities.properties.visitors.IterablePropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
-import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
+import org.hesperides.core.domain.platforms.entities.properties.visitors.SimplePropertyVisitor;
 import org.hesperides.core.domain.platforms.exceptions.InstanceNotFoundException;
 import org.hesperides.core.domain.platforms.exceptions.PlatformNotFoundException;
 import org.hesperides.core.domain.platforms.queries.PlatformQueries;
@@ -42,13 +43,12 @@ import org.hesperides.core.domain.templatecontainers.queries.TemplateView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.hesperides.core.application.properties.PropertyUseCases.*;
 
 @Component
 public class FileUseCases {
@@ -60,6 +60,44 @@ public class FileUseCases {
     public FileUseCases(PlatformQueries platformQueries, ModuleQueries moduleQueries) {
         this.platformQueries = platformQueries;
         this.moduleQueries = moduleQueries;
+    }
+
+    /**
+     * Transforme une liste de propriétés `AbstractValuedPropertyView` pouvant contenir des propriétés simples
+     * et des propriétés itérables en map de ce type :
+     * - nom-propriété-simple => valeur-propriété-simple
+     * - nom-propriété-itérable => list (...)
+     * @param propertyVisitorsSequence
+     */
+    public static Map<String, Object> propertiesToScopes(PropertyVisitorsSequence propertyVisitorsSequence) {
+        Map<String, Object> scopes = new HashMap<>();
+        propertyVisitorsSequence.stream().forEach(propertyVisitor -> {
+            if (propertyVisitor instanceof SimplePropertyVisitor) {
+                ((SimplePropertyVisitor) propertyVisitor).getMustacheKeyValues().forEach(scopes::put);
+            } else {
+                IterablePropertyVisitor iterablePropertyVisitor = (IterablePropertyVisitor) propertyVisitor;
+                scopes.put(
+                        iterablePropertyVisitor.getName(),
+                        iterablePropertyVisitor.getItems().stream()
+                                .map(FileUseCases::propertiesToScopes)
+                                .collect(Collectors.toList()));
+            }
+        });
+        // cf. #540 & BDD Scenario: get file with instance properties created by a module property that references itself
+        propertyVisitorsSequence.stream()
+                .filter(SimplePropertyVisitor.class::isInstance)
+                .map(SimplePropertyVisitor.class::cast)
+                .forEach(propertyVisitor -> {
+                    Optional<String> optValue = propertyVisitor.getValueOrDefault();
+                    if (!scopes.containsKey(propertyVisitor.getName())) {
+                        // Cas où une valorisation de propriété a été insérée pour la clef "mustacheContent" mais PAS pour le nom exact de la propriété,
+                        // et aucune autre propriété n'a été insérée pour ce nom
+                        // (ce qui peut arriver lorsque des propriétés d'instance ou globales ont le même nom),
+                        // on l'insère donc maintenant:
+                        optValue.ifPresent(value -> scopes.put(propertyVisitor.getName(), value));
+                    }
+                });
+        return scopes;
     }
 
     public List<InstanceFileView> getFiles(
@@ -139,30 +177,19 @@ public class FileUseCases {
         }
     }
 
-    // public for testing
-    public static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
-                                                                          PlatformView platform,
-                                                                          String modulePath,
-                                                                          Module.Key moduleKey,
-                                                                          List<AbstractPropertyView> modulePropertiesModels,
-                                                                          String instanceName,
-                                                                          boolean shouldHidePasswordProperties) {
+    static String valorizeWithModuleAndGlobalAndInstanceProperties(String input,
+                                                                   PlatformView platform,
+                                                                   String modulePath,
+                                                                   Module.Key moduleKey,
+                                                                   List<AbstractPropertyView> modulePropertiesModels,
+                                                                   String instanceName,
+                                                                   boolean shouldHidePasswordProperties) {
 
-        PropertyVisitorsSequence preparedPropertyVisitors = buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties);
-        Map<String, Object> scopes = propertiesToScopes(removeMustachesInPropertyValues(preparedPropertyVisitors));
-        return replaceMustachePropertiesWithValues(input, scopes);
-    }
-
-    // Juste avant d'appeler le moteur Mustache,
-    // on supprime toutes les {{mustaches}} n'ayant pas déjà été substituées par `preparePropertiesValues` des valorisations,
-    // afin que les fichiers générés n'en contiennent plus aucune trace
-    private static PropertyVisitorsSequence removeMustachesInPropertyValues(PropertyVisitorsSequence propertyVisitors) {
-        return propertyVisitors.mapSimplesRecursive(propertyVisitor -> {
-            if (propertyVisitor.isValued()) {
-                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValue().get(), "\\{\\{[^}]*\\}\\}"));
-            }
-            return propertyVisitor;
-        });
+        PropertyVisitorsSequence preparedPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequence(platform, modulePath, moduleKey, modulePropertiesModels, instanceName, shouldHidePasswordProperties)
+                .removeMustachesInPropertyValues()
+                .passOverPropertyValuesToChildItems();
+        Map<String, Object> scopes = propertiesToScopes(preparedPropertyVisitors);
+        return PropertyValuationBuilder.replaceMustachePropertiesWithValues(input, scopes);
     }
 
     /**

@@ -2,8 +2,6 @@ package org.hesperides.core.infrastructure.security;
 
 import org.springframework.ldap.core.DirContextOperations;
 
-import javax.naming.directory.DirContext;
-
 /*
  * Cette interface permet de "passer par un attribut" pour que le cache fonctionne,
  * cf. https://stackoverflow.com/a/48867068/636849

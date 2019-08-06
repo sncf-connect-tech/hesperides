@@ -121,9 +121,5 @@ public class Module extends TemplateContainer {
             }
             return Optional.ofNullable(result);
         }
-
-        public String formatAsSearchInput() {
-            return getName() + " " + getVersion() + " " + (isWorkingCopy() ? "true" : "false");
-        }
     }
 }
