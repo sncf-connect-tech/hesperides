@@ -25,6 +25,7 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -188,6 +189,27 @@ public class PlatformClient {
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);
+    }
+
+    public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, PlatformIO toPlatform, String toPropertiesPath, boolean compareStoredValues, Long timestamp, Class responseType) {
+        String url = "/applications/{application_name}/platforms/{platform_name}/properties/diff?path={properties_path}" +
+                "&to_application={to_application}" +
+                "&to_platform={to_platform}" +
+                "&to_path={to_path}" +
+                "&compare_stored_values={compare_stored_values}";
+        if (timestamp != null) {
+            url += "&timestamp=" + timestamp;
+        }
+        return restTemplate.getForEntity(
+                url,
+                responseType,
+                fromPlatform.getApplicationName(),
+                fromPlatform.getPlatformName(),
+                fromPropertiesPath,
+                toPlatform.getApplicationName(),
+                toPlatform.getPlatformName(),
+                toPropertiesPath,
+                compareStoredValues);
     }
 
     public ResponseEntity<ModulePlatformsOutput[]> getPlatformsUsingModule(ModuleIO module) {

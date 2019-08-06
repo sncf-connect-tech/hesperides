@@ -23,7 +23,9 @@ package org.hesperides.core.domain.platforms.queries.views;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.modules.exceptions.ModuleNotFoundException;
 import org.hesperides.core.domain.platforms.entities.Platform;
+import org.hesperides.core.domain.platforms.exceptions.DeployedModuleNotFoundException;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import java.util.Collections;
@@ -81,11 +83,18 @@ public class PlatformView {
                 .stream().filter(deployedModule -> deployedModule.getId() != null && deployedModule.getId() > 0);
     }
 
-    public Optional<DeployedModuleView> getDeployedModule(String modulePath, Module.Key moduleKey) {
+    public DeployedModuleView getDeployedModule(String modulePath, Module.Key moduleKey) {
         return getActiveDeployedModules()
                 .filter(deployedModule -> deployedModule.getModulePath().equalsIgnoreCase(modulePath)
                         && deployedModule.getModuleKey().equals(moduleKey))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new ModuleNotFoundException(moduleKey, modulePath));
+    }
+
+    public DeployedModuleView getDeployedModule(String propertiesPath) {
+        return getActiveDeployedModules()
+                .filter(deployedModule -> deployedModule.getPropertiesPath().equals(propertiesPath))
+                .findAny().orElseThrow(() -> new DeployedModuleNotFoundException(getPlatformKey(), propertiesPath));
     }
 
     public Platform.Key getPlatformKey() {

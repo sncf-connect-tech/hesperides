@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.hesperides.core.application.files.FileUseCases.valorizeWithModuleAndGlobalAndInstanceProperties;
 import static org.hesperides.core.application.files.RandomPlatformViewGenerator.*;
 
@@ -25,7 +26,9 @@ public class FileUseCasesTest {
         List<AbstractPropertyView> modulePropertiesModels = genModulePropertiesModels(350);
 
         DeployedModuleView firstDeployedModule = platform.getDeployedModules().get(0);
+        assertNotNull(firstDeployedModule);
         InstanceView firstInstance = firstDeployedModule.getInstances().get(0);
+        assertNotNull(firstInstance);
         valorizeWithModuleAndGlobalAndInstanceProperties(
                 "/tmp/{{hesperides.instance.name}}/{{hesperides.application.version}}.conf",
                 platform,

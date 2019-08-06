@@ -176,12 +176,12 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         if (isNotEmpty(withIterableProperties)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-module-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1")))),
-                            new IterablePropertyItemIO("bloc-module-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2"))))
+                            new IterablePropertyItemIO("bloc-module-1", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-1")))),
+                            new IterablePropertyItemIO("bloc-module-2", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("module-bar", "module-bar-val-2"))))
                     )),
                     new IterableValuedPropertyIO("techno-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-techno-1", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1")))),
-                            new IterablePropertyItemIO("bloc-techno-2", new HashSet<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2"))))
+                            new IterablePropertyItemIO("bloc-techno-1", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-1")))),
+                            new IterablePropertyItemIO("bloc-techno-2", new ArrayList<>(Arrays.asList(new ValuedPropertyIO("techno-bar", "techno-bar-val-2"))))
                     ))
             ));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
@@ -192,22 +192,22 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         if (isNotEmpty(withIterableCeption)) {
             platformBuilder.withIterableProperties(Arrays.asList(
                     new IterableValuedPropertyIO("module-foo", Arrays.asList(
-                            new IterablePropertyItemIO("bloc-module-foo-1", new HashSet<>(Arrays.asList(
+                            new IterablePropertyItemIO("bloc-module-foo-1", new ArrayList<>(Arrays.asList(
                                     new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                            new IterablePropertyItemIO("bloc-module-bar-1", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-1", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-1")
                                             ))),
-                                            new IterablePropertyItemIO("bloc-module-bar-2", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-2", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-2")
                                             )))
                                     ))
                             ))),
-                            new IterablePropertyItemIO("bloc-module-foo-2", new HashSet<>(Arrays.asList(
+                            new IterablePropertyItemIO("bloc-module-foo-2", new ArrayList<>(Arrays.asList(
                                     new IterableValuedPropertyIO("module-bar", Arrays.asList(
-                                            new IterablePropertyItemIO("bloc-module-bar-1", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-1", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-3")
                                             ))),
-                                            new IterablePropertyItemIO("bloc-module-bar-2", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("bloc-module-bar-2", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("module-foobar", "module-foobar-val-4")
                                             )))
                                     ))
@@ -341,7 +341,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.incrementVersionId();
         });
 
-        Given("^the platform has these valued properties$", (DataTable data) -> {
+        Given("^the platform(?: \"([^\"]+)\")? has these valued properties$", (String platformName, DataTable data) -> {
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
             List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
             valuedProperties.forEach(property -> platformBuilder.withProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
             platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
@@ -357,7 +361,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             moduleBuilder.incrementPropertiesVersionId();
         });
 
-        Given("^the platform has these global properties$", (DataTable data) -> {
+        Given("^the platform(?: \"([^\"]+)\")? has these global properties$", (String platformName, DataTable data) -> {
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
             List<ValuedPropertyIO> globalProperties = data.asList(ValuedPropertyIO.class);
             platformClient.saveGlobalProperties(platformBuilder.buildInput(), new PropertiesIO(0L, new HashSet<>(globalProperties), Collections.emptySet()));
             platformBuilder.incrementVersionId();
@@ -374,20 +382,20 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Given("^the platform has iterable-ception$", () -> {
             List<IterableValuedPropertyIO> iterableProperties = Arrays.asList(
                     new IterableValuedPropertyIO("a", Arrays.asList(
-                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                     new ValuedPropertyIO("valued_in_a", "value_a"),
                                     new IterableValuedPropertyIO("b", Arrays.asList(
-                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("valued_in_b", "value_b"),
                                                     new IterableValuedPropertyIO("c", Arrays.asList(
-                                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                                     new ValuedPropertyIO("valued_in_c", "value_c")
                                                             )))
                                                     ))
                                             )))
                                     )),
                                     new IterableValuedPropertyIO("d", Arrays.asList(
-                                            new IterablePropertyItemIO("", new HashSet<>(Arrays.asList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("valued_in_d", "value_d")
                                             )))
                                     ))
@@ -446,7 +454,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             Assert.assertEquals(expectedPlatform, actualPlatform);
             if (isNotEmpty(expectedModulePath)) {
-                Assert.assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
+                assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
             }
         });
 

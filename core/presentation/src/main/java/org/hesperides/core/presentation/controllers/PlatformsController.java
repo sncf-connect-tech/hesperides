@@ -11,13 +11,11 @@ import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.queries.views.ModulePlatformView;
 import org.hesperides.core.domain.platforms.queries.views.PlatformView;
 import org.hesperides.core.domain.platforms.queries.views.SearchPlatformResultView;
-import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.domain.templatecontainers.entities.TemplateContainer;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
-import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +23,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -181,20 +181,5 @@ public class PlatformsController extends AbstractController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(searchResultOutputs);
-    }
-
-    @ApiOperation("List all platform global properties usage")
-    @GetMapping("/{application_name}/platforms/{platform_name}/global_properties_usage")
-    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getGlobalPropertiesUsage(@PathVariable("application_name") final String applicationName,
-                                                                                                @PathVariable("platform_name") final String platformName) {
-
-        Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = platformUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
-
-        return ResponseEntity.ok(globalPropertyUsageView.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
-                        .map(globalPropertyUsage -> new GlobalPropertyUsageOutput(
-                                !globalPropertyUsage.isRemovedFromTemplate(),
-                                globalPropertyUsage.getPropertiesPath()))
-                        .collect(Collectors.toSet()))));
     }
 }

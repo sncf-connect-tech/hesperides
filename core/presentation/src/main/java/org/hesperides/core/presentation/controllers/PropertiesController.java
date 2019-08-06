@@ -6,10 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedProperty;
+import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
+import org.hesperides.core.domain.platforms.queries.views.properties.GlobalPropertyUsageView;
 import org.hesperides.core.domain.security.entities.User;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
+import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -85,5 +92,44 @@ public class PropertiesController extends AbstractController {
         List<AbstractValuedPropertyView> propertyViews = platformUseCases.saveProperties(platformKey, propertiesPath, platformVersionId, abstractValuedProperties, properties.getPropertiesVersionId(), new User(authentication));
         final Long propertiesVersionId = platformUseCases.getPropertiesVersionId(platformKey, propertiesPath);
         return ResponseEntity.ok(new PropertiesIO(propertiesVersionId, propertyViews));
+    }
+
+    @ApiOperation("Get properties diff with the given paths in given platforms")
+    @GetMapping("/{application_name}/platforms/{platform_name}/properties/diff")
+    public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(Authentication authentication,
+                                                                  @PathVariable("application_name") final String fromApplicationName,
+                                                                  @PathVariable("platform_name") final String fromPlatformName,
+                                                                  @RequestParam("path") final String fromPropertiesPath,
+                                                                  @RequestParam(value = "instance_name", required = false, defaultValue = "") final String fromInstanceName,
+                                                                  @RequestParam("to_application") final String toApplicationName,
+                                                                  @RequestParam("to_platform") final String toPlatformName,
+                                                                  @RequestParam("to_path") final String toPropertiesPath,
+                                                                  @RequestParam(value = "to_instance_name", required = false, defaultValue = "") final String toInstanceName,
+                                                                  @RequestParam(value = "compare_stored_values", required = false) final boolean compareStoredValues,
+                                                                  @RequestParam(value = "timestamp", required = false) final Long timestamp) {
+        Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
+        Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);
+
+        PropertiesDiff propertiesDiff = platformUseCases.getPropertiesDiff(
+                fromPlatformKey, fromPropertiesPath, fromInstanceName,
+                toPlatformKey, toPropertiesPath, toInstanceName,
+                timestamp, compareStoredValues,
+                new User(authentication));
+        return ResponseEntity.ok(new PropertiesDiffOutput(propertiesDiff));
+    }
+
+    @ApiOperation("List all platform global properties usage")
+    @GetMapping("/{application_name}/platforms/{platform_name}/global_properties_usage")
+    public ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>> getGlobalPropertiesUsage(@PathVariable("application_name") final String applicationName,
+                                                                                                @PathVariable("platform_name") final String platformName) {
+
+        Map<String, Set<GlobalPropertyUsageView>> globalPropertyUsageView = platformUseCases.getGlobalPropertiesUsage(new Platform.Key(applicationName, platformName));
+
+        return ResponseEntity.ok(globalPropertyUsageView.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
+                        .map(globalPropertyUsage -> new GlobalPropertyUsageOutput(
+                                !globalPropertyUsage.isRemovedFromTemplate(),
+                                globalPropertyUsage.getPropertiesPath()))
+                        .collect(Collectors.toSet()))));
     }
 }

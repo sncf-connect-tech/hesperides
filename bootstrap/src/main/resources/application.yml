@@ -44,6 +44,7 @@ logging:
   file: /var/log/hesperides.log
   level:
     root: INFO
+
     org:
       axonframework.queryhandling.responsetypes.MultipleInstancesResponseType: WARN
       hesperides:
@@ -61,6 +62,13 @@ logging:
         # On ne logue pas les nombreux "Ignoring PartialResultException"
         # dus aux champs referrals ignorés, cf. https://docs.spring.io/spring-ldap/docs/2.3.2.RELEASE/reference/#ldaptemplate-configuration
         security.ldap.SpringSecurityLdapTemplate: WARN
+        web:
+          servlet:
+            mvc:
+              method:
+                annotation:
+                  # Display JSON serialization errors wrapped in HttpMessageNotWritableException:
+                  ServletInvocableHandlerMethod: TRACE
 
 # Access it: http://localhost:8080/rest/manage
 # Includes but does not limit to:
