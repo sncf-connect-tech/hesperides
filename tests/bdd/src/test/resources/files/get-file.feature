@@ -22,6 +22,23 @@ Feature: Get file
       second-value
       """
 
+  Scenario: get file with an empty property value or no property values
+    Given an existing module with this template content
+      """
+      {{ simple-property }}
+      {{ another-property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name            | value |
+      | simple-property |       |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+
+
+      """
+
   Scenario: get file with default values
     Given an existing module with this template content
       """

@@ -25,6 +25,15 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Fixed
+
+- NoSuchElementExceptionbackend en cas de propriété de module sans valorisation + refacto pour éviter un fakePropertiesModel. [Lucas Cimon]
+
+- #710 Fix #381. [Thomas L'Hostis]
+
+
+
 ## 2019-08-02
 ### Added
 

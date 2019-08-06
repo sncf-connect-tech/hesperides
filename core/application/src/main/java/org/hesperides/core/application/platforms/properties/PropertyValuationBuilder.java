@@ -14,10 +14,7 @@ import org.hesperides.core.domain.templatecontainers.entities.AbstractProperty;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
@@ -64,8 +61,8 @@ public class PropertyValuationBuilder {
         return propertyVisitors;
     }
 
-    public static PropertyVisitorsSequence buildPropertyVisitorsSequenceForGlobals(PlatformView platform, List<AbstractPropertyView> fakePropertiesModel) {
-        PropertyVisitorsSequence propertyVisitors = PropertyVisitorsSequence.fromModelAndValuedProperties(fakePropertiesModel, platform.getGlobalProperties(), true);
+    public static PropertyVisitorsSequence buildPropertyVisitorsSequenceForGlobals(PlatformView platform) {
+        PropertyVisitorsSequence propertyVisitors = PropertyVisitorsSequence.fromModelAndValuedProperties(Collections.emptyList(), platform.getGlobalProperties(), true);
         List<AbstractValuedPropertyView> valuedPropertiesWithoutModel = extractValuedPropertiesWithoutModel(platform.getGlobalProperties(), propertyVisitors);
         PropertyValuationContext valuationContext = new PropertyValuationContext(platform, valuedPropertiesWithoutModel);
         PropertyVisitorsSequence completedPropertyVisitors = valuationContext.completeWithContextualProperties(propertyVisitors, true, true);

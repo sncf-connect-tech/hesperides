@@ -38,6 +38,7 @@ public class PropertiesDiff {
         // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
         // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
         Map<String, PropertyVisitor> propertyVisitorsRightPerName = propertiesRight.stream().collect(toMap(PropertyVisitor::getName, property -> property));
+        Set<String> visitedLeftPropertyNames = new HashSet<>();
 
         for (PropertyVisitor leftProperty : propertiesLeft.getProperties()) {
             PropertyVisitor rightProperty = propertyVisitorsRightPerName.get(leftProperty.getName());
@@ -57,7 +58,12 @@ public class PropertiesDiff {
                     differingProperties.add(differingProperty);
                 }
             }
+            visitedLeftPropertyNames.add(leftProperty.getName());
         }
+
+        propertiesRight.getProperties().stream()
+                .filter(rightProperty -> !visitedLeftPropertyNames.contains(rightProperty.getName()))
+                .forEach(onlyRight::add);
 
         this.onlyLeft = onlyLeft;
         this.onlyRight = onlyRight;

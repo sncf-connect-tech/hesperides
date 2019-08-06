@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.hesperides.core.application.platforms.properties.PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals;
 
 
 @Component
@@ -278,11 +279,8 @@ public class PlatformUseCases {
 
         PropertiesDiff propertiesDiff;
         if (Platform.isGlobalPropertiesPath(fromPropertiesPath) && Platform.isGlobalPropertiesPath(toPropertiesPath)) {
-            // On construit un faux model de propriétés globales pour faciliter la gestion du diff ensuite :
-            // le diff se sert du model de propriétés pour faire le lien entre les 2 listes de propriétés
-            List<AbstractPropertyView> fakeModelForGlobalProperties = buildFakeModelForGlobalProperties(fromPlatform.getGlobalProperties(), toPlatform.getGlobalProperties());
-            PropertyVisitorsSequence fromPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals(fromPlatform, fakeModelForGlobalProperties);
-            PropertyVisitorsSequence toPropertyVisitors = PropertyValuationBuilder.buildPropertyVisitorsSequenceForGlobals(toPlatform, fakeModelForGlobalProperties);
+            PropertyVisitorsSequence fromPropertyVisitors = buildPropertyVisitorsSequenceForGlobals(fromPlatform);
+            PropertyVisitorsSequence toPropertyVisitors = buildPropertyVisitorsSequenceForGlobals(toPlatform);
             propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
 
         } else {
