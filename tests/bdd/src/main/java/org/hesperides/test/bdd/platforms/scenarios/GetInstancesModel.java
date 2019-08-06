@@ -7,7 +7,6 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +28,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
         Then("^the instance model is successfully retrieved$", () -> {
             assertOK();
             InstancesModelOutput expectedInstancesModel = platformBuilder.buildInstancesModel();
-            InstancesModelOutput actualInstancesModel = ((ResponseEntity<InstancesModelOutput>) testContext.getResponseEntity()).getBody();
+            InstancesModelOutput actualInstancesModel = testContext.getResponseBody(InstancesModelOutput.class);
             assertEquals(expectedInstancesModel, actualInstancesModel);
         });
     }

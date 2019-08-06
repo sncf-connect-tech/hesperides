@@ -4,6 +4,7 @@ import cucumber.api.DataTable;
 import cucumber.api.java8.En;
 import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -29,14 +30,20 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
     private PlatformHistory platformHistory;
 
     public GetPropertiesDiff() {
-        When("^I get the( global)? properties diff on (stored|final) values between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
-                String global, String storedOrFinal, String fromPlatformName, String toPlatformName) -> {
-            String propertiesPath = StringUtils.isNotEmpty(global) ? "#" : moduleBuilder.getPropertiesPath();
+        When("^I get the( global)?( instance)? properties diff on (stored|final) values between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
+                String globalProperties, String instanceProperties, String storedOrFinal, String fromPlatformName, String toPlatformName) -> {
+            String propertiesPath = StringUtils.isNotEmpty(globalProperties) ? "#" : moduleBuilder.getPropertiesPath();
+            PlatformIO fromPlatform = platformHistory.getPlatformByName(fromPlatformName);
+            PlatformIO toPlatform = platformHistory.getPlatformByName(toPlatformName);
+            String fromInstance = StringUtils.isNotEmpty(instanceProperties) ? fromPlatform.getDeployedModules().get(0).getInstances().get(0).getName() : null;
+            String toInstance = StringUtils.isNotEmpty(instanceProperties) ? toPlatform.getDeployedModules().get(0).getInstances().get(0).getName() : null;
             testContext.setResponseEntity(platformClient.getPropertiesDiff(
                     platformHistory.getPlatformByName(fromPlatformName),
                     propertiesPath,
+                    fromInstance,
                     platformHistory.getPlatformByName(toPlatformName),
                     propertiesPath,
+                    toInstance,
                     storedOrFinal.equals("stored"),
                     null,
                     PropertiesDiffOutput.class
