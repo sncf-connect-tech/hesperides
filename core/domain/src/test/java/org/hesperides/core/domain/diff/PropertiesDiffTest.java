@@ -25,14 +25,16 @@ public class PropertiesDiffTest {
         PropertyVisitor p1pty1 = makeSimplePropertyVisitor("property-X-in-p1-and-p2", "a-value");
         PropertyVisitor p1pty2 = makeSimplePropertyVisitor("property-Y-in-p1-and-p2", "another-value");
         PropertyVisitor p1pty3 = makeSimplePropertyVisitor("property-only-in-p1", "p1-value");
+        PropertyVisitor p1pty4 = makeSimplePropertyVisitor("property-only-in-p2", null);
         PropertyVisitor p2pty1 = makeSimplePropertyVisitor("property-X-in-p1-and-p2", "a-differing-value");
         PropertyVisitor p2pty2 = makeSimplePropertyVisitor("property-Y-in-p1-and-p2", "another-value");
         PropertyVisitor p2pty3 = makeSimplePropertyVisitor("property-only-in-p2", "p2-value");
+        PropertyVisitor p2pty4 = makeSimplePropertyVisitor("property-only-in-p1", null);
 
         // Test
         PropertiesDiff pdiff = new PropertiesDiff(
-                new PropertyVisitorsSequence(Arrays.asList(p1pty1, p1pty2, p1pty3)),
-                new PropertyVisitorsSequence(Arrays.asList(p2pty1, p2pty2, p2pty3)),
+                new PropertyVisitorsSequence(Arrays.asList(p1pty1, p1pty2, p1pty3, p1pty4)),
+                new PropertyVisitorsSequence(Arrays.asList(p2pty1, p2pty2, p2pty3, p2pty4)),
                 false);
         assertEquals(1, pdiff.getOnlyLeft().size());
         assertEquals(1, pdiff.getOnlyRight().size());
@@ -114,5 +116,4 @@ public class PropertiesDiffTest {
                 new ValuedPropertyView(name, value)
         );
     }
-
 }
