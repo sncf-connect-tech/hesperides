@@ -1,7 +1,6 @@
-package org.hesperides.core.application.properties;
+package org.hesperides.core.application.platforms.properties;
 
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
 import org.hesperides.core.domain.platforms.queries.views.InstanceView;
@@ -17,41 +16,40 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Value
-@Slf4j
 class PropertyValuationContext {
 
     private List<ValuedPropertyView> globalProperties;
     private List<ValuedPropertyView> instanceProperties;
     private List<ValuedPropertyView> predefinedProperties;
-    private List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel;
+    private List<AbstractValuedPropertyView> valuedPropertiesWithoutModel;
 
-    PropertyValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> extraValuedPropertiesWithoutModel) {
+    PropertyValuationContext(PlatformView platform, DeployedModuleView deployedModule, String instanceName, List<AbstractValuedPropertyView> valuedPropertiesWithoutModel) {
         globalProperties = platform.getGlobalProperties();
         instanceProperties = getInstanceProperties(deployedModule.getInstances(), deployedModule.getInstancesModel(), instanceName);
         predefinedProperties = getPredefinedProperties(platform, deployedModule, instanceName);
-        this.extraValuedPropertiesWithoutModel = extraValuedPropertiesWithoutModel;
+        this.valuedPropertiesWithoutModel = valuedPropertiesWithoutModel;
     }
 
-    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors) {
-        return completeWithContextualProperties(propertyVisitors, true);
-    }
-
-    private PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals) {
-        return completeWithContextualProperties(propertyVisitors, withGlobals, false);
+    PropertyValuationContext(PlatformView platform, List<AbstractValuedPropertyView> valuedPropertiesWithoutModel) {
+        globalProperties = platform.getGlobalProperties();
+        instanceProperties = Collections.emptyList();
+        predefinedProperties = getPredefinedProperties(platform, null, null);
+        this.valuedPropertiesWithoutModel = valuedPropertiesWithoutModel;
     }
 
     // Pas la plus belle signature du monde...
     // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
-    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean withGlobals, boolean withExtraPropsWithoutModel) {
+    PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean includeGlobalProperties, boolean includePropertiesWithoutModel) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
         propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties)
                 .addOverridingValuedProperties(predefinedProperties);
-        if (withGlobals) {
+        if (includeGlobalProperties) {
             propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties);
         }
-        if (withExtraPropsWithoutModel) {
-            propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(extraValuedPropertiesWithoutModel.stream()
-                    .filter(ValuedPropertyView.class::isInstance).map(ValuedPropertyView.class::cast));
+        if (includePropertiesWithoutModel) {
+            propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(valuedPropertiesWithoutModel.stream()
+                    .filter(ValuedPropertyView.class::isInstance)
+                    .map(ValuedPropertyView.class::cast));
         }
         return propertyVisitors;
     }
@@ -73,12 +71,14 @@ class PropertyValuationContext {
         predefinedProperties.add(new ValuedPropertyView("hesperides.application.name", platform.getApplicationName()));
         predefinedProperties.add(new ValuedPropertyView("hesperides.application.version", platform.getVersion()));
         predefinedProperties.add(new ValuedPropertyView("hesperides.platform.name", platform.getPlatformName()));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.module.name", deployedModule.getName()));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.module.version", deployedModule.getVersion()));
-        String modulePath = deployedModule.getModulePath();
-        predefinedProperties.add(new ValuedPropertyView("hesperides.module.path.full", modulePath.replace('#', '/')));
-        predefinedProperties.addAll(getPathLogicalGroups(modulePath));
-        predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", defaultString(instanceName, "")));
+        if (deployedModule != null) {
+            predefinedProperties.add(new ValuedPropertyView("hesperides.module.name", deployedModule.getName()));
+            predefinedProperties.add(new ValuedPropertyView("hesperides.module.version", deployedModule.getVersion()));
+            String modulePath = deployedModule.getModulePath();
+            predefinedProperties.add(new ValuedPropertyView("hesperides.module.path.full", modulePath.replace('#', '/')));
+            predefinedProperties.addAll(getPathLogicalGroups(modulePath));
+            predefinedProperties.add(new ValuedPropertyView("hesperides.instance.name", defaultString(instanceName, "")));
+        }
         return predefinedProperties;
     }
 
@@ -91,7 +91,7 @@ class PropertyValuationContext {
         return pathLogicalGroups;
     }
 
-    PropertyVisitorsSequence removePreparedProperties(PropertyVisitorsSequence propertyVisitors) {
+    PropertyVisitorsSequence removePredefinedProperties(PropertyVisitorsSequence propertyVisitors) {
         return propertyVisitors.removePropertiesByName(predefinedProperties.stream().map(ValuedPropertyView::getName).collect(Collectors.toSet()));
     }
 }

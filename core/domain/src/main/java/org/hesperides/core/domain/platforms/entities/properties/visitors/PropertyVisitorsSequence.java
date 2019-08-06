@@ -2,10 +2,7 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.hesperides.core.domain.platforms.entities.properties.diff.AbstractDifferingProperty;
-import org.hesperides.core.domain.platforms.entities.properties.diff.IterableDifferingProperty;
-import org.hesperides.core.domain.platforms.entities.properties.diff.PropertiesDiff;
-import org.hesperides.core.domain.platforms.entities.properties.diff.SimpleDifferingProperty;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -26,6 +23,7 @@ import static java.util.stream.Collectors.toMap;
 @Value
 @Slf4j
 public class PropertyVisitorsSequence {
+
     List<PropertyVisitor> properties;
 
     public PropertyVisitorsSequence(List<PropertyVisitor> properties) {
@@ -36,85 +34,9 @@ public class PropertyVisitorsSequence {
         return new PropertyVisitorsSequence(Collections.emptyList());
     }
 
-    public static PropertiesDiff performDiff(PropertyVisitorsSequence propertiesLeft, PropertyVisitorsSequence propertiesRight, boolean compareStoredValues) {
-        // On procède au diff :
-        //  - onlyLeft : la propriété n'est pas présente dans la liste de droite.
-        //  - onlyRight : la propriété n'est pas présente dans la liste de gauche.
-        //  - common : la propriété est présente dans la liste de droite et sa valeur est la même.
-        //  - differing : la propriété est présente dans la liste de droite et sa valeur est différente.
-        Set<PropertyVisitor> onlyLeft = new HashSet<>();
-        Set<PropertyVisitor> onlyRight = new HashSet<>();
-        Set<AbstractDifferingProperty> common = new HashSet<>();
-        Set<AbstractDifferingProperty> differing = new HashSet<>();
-
-        // On construit une map pour avoir en clé le nom de la propriété et en valeur l'objet AbstractValuedProperty.
-        // Cette mécanique nous sert à retrouver (ou non) la propriété dans la liste d'en face grâce à son nom..
-        Map<String, PropertyVisitor> propertyVisitorsRightPerName = propertiesRight.stream().collect(toMap(PropertyVisitor::getName, property -> property));
-
-        for (PropertyVisitor leftProperty : propertiesLeft.getProperties()) {
-            PropertyVisitor rightProperty = propertyVisitorsRightPerName.get(leftProperty.getName());
-            if (!isValued(rightProperty)) {
-                if (isValued(leftProperty)) {
-                    onlyLeft.add(leftProperty);
-                } else {
-                    common.add(buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues));
-                }
-            } else if (!isValued(leftProperty)) {
-                onlyRight.add(rightProperty);
-            } else {
-                AbstractDifferingProperty differingProperty = buildDifferingPropertyRecursive(leftProperty, rightProperty, compareStoredValues);
-                if (leftProperty.equals(rightProperty, compareStoredValues)) {
-                    common.add(differingProperty);
-                } else {
-                    differing.add(differingProperty);
-                }
-            }
-        }
-
-        return new PropertiesDiff(onlyLeft, onlyRight, common, differing);
-    }
-
-    private static boolean isValued(PropertyVisitor propertyVisitor) {
-        return propertyVisitor != null && (propertyVisitor instanceof IterablePropertyVisitor || ((SimplePropertyVisitor) propertyVisitor).isValued());
-    }
-
-    private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, boolean compareStoredValues) {
-        AbstractDifferingProperty differingProperty;
-        if (leftProperty instanceof SimplePropertyVisitor) {
-            differingProperty = new SimpleDifferingProperty(leftProperty.getName(), (SimplePropertyVisitor) leftProperty, (SimplePropertyVisitor) rightProperty);
-        } else {
-            List<PropertyVisitorsSequence> iterablePropertyLeftItems = ((IterablePropertyVisitor) leftProperty).getItems();
-            List<PropertyVisitorsSequence> iterablePropertyRightItems = ((IterablePropertyVisitor) rightProperty).getItems();
-            int maxRange = Math.max(iterablePropertyLeftItems.size(), iterablePropertyRightItems.size());
-            List<PropertiesDiff> propertiesDiffList = IntStream.range(0, maxRange).mapToObj(index -> {
-                PropertyVisitorsSequence nestedPropertiesLeft = (index >= iterablePropertyLeftItems.size()) ? empty() : iterablePropertyLeftItems.get(index);
-                PropertyVisitorsSequence nestedPropertiesRight = (index >= iterablePropertyRightItems.size()) ? empty() : iterablePropertyRightItems.get(index);
-                return performDiff(nestedPropertiesLeft, nestedPropertiesRight, compareStoredValues);
-            }).collect(Collectors.toList());
-            differingProperty = new IterableDifferingProperty(leftProperty.getName(), propertiesDiffList);
-        }
-        return differingProperty;
-    }
-
-    int size() {
-        return properties.size();
-    }
-
-    public List<SimplePropertyVisitor> getSimplePropertyVisitors() {
-        return properties.stream()
-                .filter(SimplePropertyVisitor.class::isInstance)
-                .map(SimplePropertyVisitor.class::cast)
-                .collect(Collectors.toList());
-    }
-
-    public static PropertyVisitorsSequence fromModelAndValuedProperties(List<AbstractPropertyView> propertyModels,
-                                                                        List<AbstractValuedPropertyView> valuedProperties) {
-        return fromModelAndValuedProperties(propertyModels, valuedProperties, true);
-    }
-
-    static PropertyVisitorsSequence fromModelAndValuedProperties(List<AbstractPropertyView> propertiesModels,
-                                                                 List<AbstractValuedPropertyView> valuedProperties,
-                                                                 boolean filterOutValuedPropertiesWithoutModel) {
+    public static PropertyVisitorsSequence fromModelAndValuedProperties(List<AbstractPropertyView> propertiesModels,
+                                                                        List<? extends AbstractValuedPropertyView> valuedProperties,
+                                                                        boolean includePropertiesWithoutModel) {
         Map<String, List<AbstractPropertyView>> propertyModelsPerName = propertiesModels.stream().collect(groupingBy(AbstractPropertyView::getName));
         List<PropertyVisitor> propertyVisitors = valuedProperties.stream().map(valuedProperty -> {
             PropertyVisitor propertyVisitor = null;
@@ -123,7 +45,7 @@ public class PropertyVisitorsSequence {
             if (valuedProperty instanceof ValuedPropertyView) {
                 if (propertyModelsPerName.containsKey(valuedProperty.getName())) {
                     propertyVisitor = SimplePropertyVisitor.fromAbstractPropertyViews(propertyModelsPerName.get(valuedProperty.getName()), (ValuedPropertyView) valuedProperty);
-                } else if (!filterOutValuedPropertiesWithoutModel) {
+                } else if (includePropertiesWithoutModel) {
                     propertyVisitor = new SimplePropertyVisitor((ValuedPropertyView) valuedProperty);
                 }
             } else if (valuedProperty instanceof IterableValuedPropertyView && propertyModelsPerName.containsKey(valuedProperty.getName())) {
@@ -149,6 +71,38 @@ public class PropertyVisitorsSequence {
             }
         });
         return new PropertyVisitorsSequence(propertyVisitors);
+    }
+
+
+    // On concatène les propriétés parentes avec les propriété de l'item
+    // pour bénéficier de la valorisation de ces propriétés dans les propriétés filles
+    // cf. BDD Scenario: get file with an iterable-ception
+    public PropertyVisitorsSequence passOverPropertyValuesToChildItems() {
+        return this.mapSequencesRecursive(propertyVisitors -> {
+            List<SimplePropertyVisitor> simpleSimplePropertyVisitors = propertyVisitors.getSimplePropertyVisitors();
+            return propertyVisitors.mapDirectChildIterablePropertyVisitors(
+                    iterablePropertyVisitor -> iterablePropertyVisitor.addPropertyVisitorsOrUpdateValue(simpleSimplePropertyVisitors)
+            );
+        });
+    }
+
+    private List<SimplePropertyVisitor> getSimplePropertyVisitors() {
+        return properties.stream()
+                .filter(SimplePropertyVisitor.class::isInstance)
+                .map(SimplePropertyVisitor.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    // Juste avant d'appeler le moteur Mustache,
+    // on supprime toutes les {{mustaches}} n'ayant pas déjà été substituées par `preparePropertiesValues` des valorisations,
+    // afin que les fichiers générés n'en contiennent plus aucune trace
+    public PropertyVisitorsSequence removeMustachesInPropertyValues() {
+        return this.mapSimplesRecursive(propertyVisitor -> {
+            if (propertyVisitor.isValued()) {
+                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValueOrDefault().get(), "\\{\\{[^}]*\\}\\}"));
+            }
+            return propertyVisitor;
+        });
     }
 
     public PropertyVisitorsSequence addValuedPropertiesIfUndefined(Stream<ValuedPropertyView> extraProperties) {
@@ -177,7 +131,7 @@ public class PropertyVisitorsSequence {
             }
             SimplePropertyVisitor matchingSimplePropertyVisitor = (SimplePropertyVisitor) properties.get(matchingPropertyIndex);
             if (!matchingSimplePropertyVisitor.isValued() && extraVisitorProperty.isValued()) {
-                newProperties.set(matchingPropertyIndex, matchingSimplePropertyVisitor.withValue(extraVisitorProperty.getValue().get()));
+                newProperties.set(matchingPropertyIndex, matchingSimplePropertyVisitor.withValue(extraVisitorProperty.getValueOrDefault().get()));
             }
         });
         return new PropertyVisitorsSequence(newProperties);
@@ -211,17 +165,12 @@ public class PropertyVisitorsSequence {
 
     public PropertyVisitorsSequence removePropertiesByName(Set<String> excludedPropertyNames) {
         return new PropertyVisitorsSequence(properties.stream()
-                .filter(p -> !excludedPropertyNames.contains(p.getName()))
+                .filter(property -> !excludedPropertyNames.contains(property.getName()))
                 .collect(Collectors.toList()));
     }
 
-    /* Applique une fonction récursivement à toutes propriétés, sans provoquer de transformation */
-    public void forEach(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
-        properties.forEach(property -> property.acceptEither(simpleConsumer, iterableConsumer));
-    }
-
     /* Applique une fonction récursivement à toutes propriétés simple, sans provoquer de transformation */
-    public void forEachSimplesRecursive(Consumer<SimplePropertyVisitor> consumer) {
+    void forEachSimplesRecursive(Consumer<SimplePropertyVisitor> consumer) {
         properties.forEach(property -> property.acceptSimplesRecursive(consumer));
     }
 
@@ -233,13 +182,13 @@ public class PropertyVisitorsSequence {
     }
 
     /* Applique récursivement une fonction sur les propriétés itérables uniquement, en les transformant potentiellement */
-    public PropertyVisitorsSequence mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper) {
+    PropertyVisitorsSequence mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper) {
         return new PropertyVisitorsSequence(
                 mapper.apply(this).properties.stream().map(property -> property.mapSequencesRecursive(mapper)).collect(Collectors.toList())
         );
     }
 
-    public PropertyVisitorsSequence mapDirectChildIterablePropertyVisitors(Function<IterablePropertyVisitor, PropertyVisitor> mapper) {
+    private PropertyVisitorsSequence mapDirectChildIterablePropertyVisitors(Function<IterablePropertyVisitor, PropertyVisitor> mapper) {
         return new PropertyVisitorsSequence(properties.stream()
                 .map(iPropertyVisitor -> {
                     if (iPropertyVisitor instanceof IterablePropertyVisitor) {

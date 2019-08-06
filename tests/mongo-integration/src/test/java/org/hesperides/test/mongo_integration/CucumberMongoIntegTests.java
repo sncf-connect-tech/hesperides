@@ -14,8 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import static org.hesperides.commons.SpringProfiles.MONGO;
-import static org.hesperides.commons.SpringProfiles.NOLDAP;
+import static org.hesperides.commons.SpringProfiles.*;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
@@ -28,7 +27,7 @@ public class CucumberMongoIntegTests {
         JUnitCore.main("CucumberMongoIntegTests");
     }
 
-    @ActiveProfiles(profiles = {MONGO, NOLDAP})
+    @ActiveProfiles(profiles = {MONGO, NOLDAP, TEST})
     @ContextConfiguration(classes = {IntegTestConfig.class, IntegTestHttpConfig.class})
     @Configuration
     public static class SpringIntegTests {
