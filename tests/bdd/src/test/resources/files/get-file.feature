@@ -1,3 +1,4 @@
+@wip
 Feature: Get file
 
   Background:
@@ -19,6 +20,23 @@ Feature: Get file
       """
       first-value
       second-value
+      """
+
+  Scenario: get file with an empty property value or no property values
+    Given an existing module with this template content
+      """
+      {{ simple-property }}
+      {{ another-property }}
+      """
+    And an existing platform with this module
+    And the platform has these valued properties
+      | name            | value |
+      | simple-property |       |
+    When I get the module template file
+    Then the file is successfully retrieved and contains
+      """
+
+
       """
 
   Scenario: get file with default values
@@ -536,8 +554,8 @@ Feature: Get file
   Scenario: get file with a property with the same name but 2 different default values
     Given an existing module with this template content
     """
-    {{ simple-property | @default 10}}
-    {{ simple-property | @default 5}}
+    {{ simple-property | @default 10 }}
+    {{ simple-property | @default 5 }}
     """
     And an existing platform with this module
     When I get the module template file
@@ -590,7 +608,7 @@ Feature: Get file
     Given an existing module with this template content
     """
     {{#a}}
-    {{ simple-property | @default 10}}
+    {{ simple-property | @default 10 }}
     {{ simple-property | @default 5 }}
     {{/a}}
     """
@@ -602,7 +620,7 @@ Feature: Get file
     Then the file is successfully retrieved and contains
     """
     10
-    5
+    10
 
     """
 

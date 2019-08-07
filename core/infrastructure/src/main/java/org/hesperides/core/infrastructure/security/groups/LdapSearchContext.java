@@ -53,7 +53,7 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
         this.retryConfig = retryConfig;
         this.gson = gson;
         this.dirContext = withRetry("ldapBuildContext", "building LDAP context for user=" + username,
-                                    () -> buildSearchContext(username, password));
+                () -> buildSearchContext(username, password));
     }
 
     public void closeContext() {
@@ -109,7 +109,7 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
 
     private DirContextOperations searchCNWithRetry(String cn, String base, String searchFilter) {
         return withRetry("ldapSearchCN", "requesting LDAP for CN=" + cn,
-                         () -> searchCN(dirContext, cn, base, searchFilter));
+                () -> searchCN(dirContext, cn, base, searchFilter));
     }
 
     private <T> T withRetry(String timerMetricName, String actionDesc, Supplier<T> action) {
@@ -130,13 +130,13 @@ public class LdapSearchContext implements ParentGroupsDNRetriever {
                 exceptionClass = cause.getClass().getSimpleName();
                 log.error("Non retry-able exception while " + actionDesc, cause);
             }
-            throw (RuntimeException)cause;
+            throw (RuntimeException) cause;
         } catch (RetriesExhaustedException exception) {
             ldapSearchMetrics.incrRetriesExhaustedExceptionCounter();
             Throwable cause = exception.getCause();
             exceptionClass = cause.getClass().getSimpleName();
             log.error("Retries exhausted while " + actionDesc, cause);
-            throw (RuntimeException)cause;
+            throw (RuntimeException) cause;
         } catch (Exception ex) {
             exceptionClass = ex.getClass().getSimpleName();
             throw ex;

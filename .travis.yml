@@ -43,7 +43,7 @@ jobs:
         # On crée les collections MongoDB avec leurs collations:
         - mongo projection_repository mongo_create_collections.js
         - mvn spring-boot:run -pl bootstrap -Dspring.profiles.active=mongo,noldap &
-        - sleep 20  # waiting for the SpringBoot app to start up
+        - sleep 30  # waiting for the SpringBoot app to start up
         - mvn -pl tests/mongo-integration verify
     - stage: test
       env: STRESS TESTS

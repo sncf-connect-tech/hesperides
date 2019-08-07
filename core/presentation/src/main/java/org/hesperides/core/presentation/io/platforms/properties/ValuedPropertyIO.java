@@ -44,6 +44,10 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
         this.value = value;
     }
 
+    public ValuedPropertyIO(ValuedProperty valuedProperty){
+        this(valuedProperty.getName(), valuedProperty.getValue());
+    }
+
     public ValuedPropertyIO(ValuedPropertyView valuedPropertyView) {
         super(valuedPropertyView.getName());
         this.value = valuedPropertyView.getValue();
@@ -63,6 +67,14 @@ public class ValuedPropertyIO extends AbstractValuedPropertyIO {
 
     public static Set<ValuedPropertyIO> fromValuedPropertyViews(List<ValuedPropertyView> valuedPropertyViews) {
         return Optional.ofNullable(valuedPropertyViews)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(ValuedPropertyIO::new)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<ValuedPropertyIO> fromValuedProperties(List<ValuedProperty> valuedProperties){
+        return Optional.ofNullable(valuedProperties)
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(ValuedPropertyIO::new)

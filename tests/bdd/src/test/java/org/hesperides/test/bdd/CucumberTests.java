@@ -16,8 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import static org.hesperides.commons.SpringProfiles.FAKE_MONGO;
-import static org.hesperides.commons.SpringProfiles.NOLDAP;
+import static org.hesperides.commons.SpringProfiles.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(Cucumber.class)
@@ -34,7 +33,7 @@ public class CucumberTests {
 
     @SpringBootTest(classes = {HesperidesSpringApplication.class, TestConfig.class}, webEnvironment = RANDOM_PORT)
     // Ce dernier profil active la prise en compte du application-test.yml
-    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, "test"})
+    @ActiveProfiles(profiles = {FAKE_MONGO, NOLDAP, TEST})
     @Configuration
     @ContextConfiguration
     @EnableTransactionManagement(proxyTargetClass = true) // avoids: BeanNotOfRequiredTypeException

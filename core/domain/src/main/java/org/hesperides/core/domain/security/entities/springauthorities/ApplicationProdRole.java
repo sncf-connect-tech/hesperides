@@ -26,14 +26,14 @@ public class ApplicationProdRole implements GrantedAuthority {
 
     public static final String PROD_USER_SUFFIX = "_PROD_USER";
 
-    private final String authority;
+    private final String applicationName;
 
-    public ApplicationProdRole(String authority) {
-        this.authority = authority + PROD_USER_SUFFIX;
+    public ApplicationProdRole(String applicationName) {
+        this.applicationName = applicationName + PROD_USER_SUFFIX;
     }
 
     @Override
     public String getAuthority() {
-        return authority;
+        return applicationName;
     }
 }

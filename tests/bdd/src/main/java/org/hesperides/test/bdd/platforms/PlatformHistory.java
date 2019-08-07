@@ -26,6 +26,7 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,5 +68,19 @@ public class PlatformHistory {
         return platforms.keySet().stream().sorted().map(t -> platforms.get(t))
                 .map(platform -> new ModulePlatformsOutput(platform.getApplicationName(), platform.getPlatformName()))
                 .collect(Collectors.toList());
+    }
+
+    public List<PlatformIO> getPlatformsSortedByTimestamp() {
+        return platforms.keySet().stream().sorted().map(t -> platforms.get(t)).collect(Collectors.toList());
+    }
+
+    public PlatformIO getPlatformByName(String platformName) {
+        List<PlatformIO> matchingPlatforms = platforms.values().stream()
+                .filter(p -> p.getPlatformName().equals(platformName))
+                .collect(Collectors.toList());
+        if (matchingPlatforms.size() != 1) {
+            throw new RuntimeException("Incorrect matching platforms count: " + matchingPlatforms.size());
+        }
+        return matchingPlatforms.get(0);
     }
 }

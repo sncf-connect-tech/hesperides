@@ -31,7 +31,6 @@ public class Module extends TemplateContainer {
         return (Module) super.validateTemplates();
     }
 
-
     public Module initializeVersionId() {
         return new Module(getKey(), getTemplates(), technos, 1L);
     }
@@ -121,10 +120,6 @@ public class Module extends TemplateContainer {
                 result = new Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
             }
             return Optional.ofNullable(result);
-        }
-
-        public String formatAsSearchInput() {
-            return getName() + " " + getVersion() + " " + (isWorkingCopy() ? "true" : "false");
         }
     }
 }

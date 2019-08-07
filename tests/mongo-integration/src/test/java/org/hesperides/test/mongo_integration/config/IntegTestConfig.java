@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import static org.springframework.context.annotation.ComponentScan.Filter;
 
 @Configuration
-@PropertySource("application-integ-test.properties")
+@PropertySource("application-test.yml")
 @ComponentScan(basePackages = {"org.springframework.boot.actuate.autoconfigure.health"})
 // provides HealthAggregator Bean
 @ComponentScan(basePackages = {"org.hesperides.test.bdd"})

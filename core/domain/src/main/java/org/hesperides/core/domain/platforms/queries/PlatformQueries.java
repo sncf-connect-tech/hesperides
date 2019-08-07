@@ -28,7 +28,6 @@ import org.hesperides.core.domain.platforms.*;
 import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.domain.platforms.exceptions.InexistantPlatformAtTimeException;
 import org.hesperides.core.domain.platforms.queries.views.*;
-import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.springframework.stereotype.Component;
 
@@ -105,20 +104,12 @@ public class PlatformQueries extends AxonQueries {
         return querySync(new GetPropertiesVersionIdQuery(platformId, propertiesPath, timestamp == null ? -1 : timestamp), Long.class);
     }
 
-    public List<AbstractValuedPropertyView> getDeployedModuleProperties(final String platformId, final String propertiesPath, final Long timestamp) {
-        return querySyncList(new GetDeployedModulePropertiesQuery(platformId, propertiesPath, timestamp == null ? -1 : timestamp), AbstractValuedPropertyView.class);
-    }
-
     public Optional<Long> getGlobalPropertiesVersionId(final Platform.Key platformKey) {
         return querySyncOptional(new GetGlobalPropertiesVersionIdQuery(platformKey), Long.class);
     }
 
     public List<ValuedPropertyView> getGlobalProperties(final Platform.Key platformKey) {
         return querySyncList(new GetGlobalPropertiesQuery(platformKey), ValuedPropertyView.class);
-    }
-
-    public boolean deployedModuleExists(Platform.Key platformKey, Module.Key moduleKey, String modulePath) {
-        return querySync(new DeployedModuleExistsQuery(platformKey, moduleKey, modulePath), Boolean.class);
     }
 
     public boolean instanceExists(Platform.Key platformKey, Module.Key moduleKey, String modulePath, String instanceName) {
