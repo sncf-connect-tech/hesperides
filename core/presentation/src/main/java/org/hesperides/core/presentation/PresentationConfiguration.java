@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.StandardWrapper;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.AbstractValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDifferingPropertyOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.core.presentation.swagger.SpringfoxJsonToGsonAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,7 @@ public class PresentationConfiguration implements WebMvcConfigurer {
                 .registerTypeAdapter(PropertyOutput.class, new PlatformIO.Serializer()) // Exclusion de hasPasswords lorsqu'il est null
                 .registerTypeAdapter(PropertyOutput.class, new PropertyOutput.Serializer()) // Exclusion et récursivité
                 .registerTypeAdapter(AbstractValuedPropertyIO.class, new AbstractValuedPropertyIO.Adapter()) // Classe abstraite
+                .registerTypeAdapter(AbstractDifferingPropertyOutput.class, new AbstractDifferingPropertyOutput.Serializer()) // Classe abstraite
                 .serializeNulls()
                 .addSerializationExclusionStrategy(new ExclusionStrategy() {
                     @Override

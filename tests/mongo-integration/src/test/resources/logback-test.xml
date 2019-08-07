@@ -14,7 +14,7 @@
     <logger name="org.apache.http.wire" level="INFO"/>
     <logger name="org.springframework.test" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

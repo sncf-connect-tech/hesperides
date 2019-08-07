@@ -1,0 +1,15 @@
+mongo-integration.remote-base-url: http://localhost:8080/rest
+event-store.uri: mongodb://localhost:27017/event_store
+projection-repository.uri: mongodb://localhost:27017/projection_repository
+
+logging.level:
+  org:
+    hesperides:
+      core.domain:
+        templatecontainers.entities.AbstractProperty: INFO
+        modules.commands.ModuleAggregate: INFO
+        platforms.commands.PlatformAggregate: INFO
+      test.bdd.commons.DebuggableRestTemplate: INFO
+    springframework:
+      data.mongodb.core.MongoTemplate: INFO
+    mongodb.driver.protocol.command: INFO

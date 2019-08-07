@@ -1,4 +1,4 @@
-package org.hesperides.core.application.files;
+package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
 import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.hesperides.core.application.files.PropertyVisitorsSequence.fromModelAndValuedProperties;
+import java.util.stream.IntStream;
 
 @Value
-class IterablePropertyVisitor implements PropertyVisitor {
+public class IterablePropertyVisitor implements PropertyVisitor {
 
     private String name;
     private List<PropertyVisitorsSequence> items;
@@ -31,17 +30,16 @@ class IterablePropertyVisitor implements PropertyVisitor {
         this(
                 iterablePropertyModel.getName(),
                 iterableValuedProperty.getIterablePropertyItems().stream()
-                        .map(valuedPropertyItem -> fromModelAndValuedProperties(
+                        .map(valuedPropertyItem -> PropertyVisitorsSequence.fromModelAndValuedProperties(
                                 iterablePropertyModel.getProperties(),
                                 valuedPropertyItem.getAbstractValuedPropertyViews(),
                                 // cf. BDD Scenario: get file with an iterable-ception
-                                false
-                                )
-                        ).collect(Collectors.toList())
+                                true))
+                        .collect(Collectors.toList())
         );
     }
 
-    private IterablePropertyVisitor(String name, List<PropertyVisitorsSequence> items) {
+    public IterablePropertyVisitor(String name, List<PropertyVisitorsSequence> items) {
         this.name = name;
         this.items = Collections.unmodifiableList(items);
     }
@@ -75,7 +73,18 @@ class IterablePropertyVisitor implements PropertyVisitor {
                 .collect(Collectors.toList()));
     }
 
-    IterablePropertyVisitor addPropertyVisitorsOrUpdateValue(List<SimplePropertyVisitor> extraProperties) {
+    @Override
+    public boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue) {
+        boolean isEqual = false;
+        if (getName().equals(propertyVisitor.getName()) && propertyVisitor instanceof IterablePropertyVisitor) {
+            IterablePropertyVisitor iterablePropertyVisitor = (IterablePropertyVisitor) propertyVisitor;
+            isEqual = (items.size() == iterablePropertyVisitor.getItems().size()) &&
+                    IntStream.range(0, items.size()).allMatch(i -> items.get(i).equals(iterablePropertyVisitor.getItems().get(i)));
+        }
+        return isEqual;
+    }
+
+    public IterablePropertyVisitor addPropertyVisitorsOrUpdateValue(List<SimplePropertyVisitor> extraProperties) {
         return new IterablePropertyVisitor(name, items.stream()
                 .map(item -> item.addPropertyVisitorsOrUpdateValue(extraProperties))
                 .collect(Collectors.toList()));
