@@ -2,6 +2,7 @@ package org.hesperides.core.presentation.controllers;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.hesperides.core.application.platforms.PlatformUseCases;
 import org.hesperides.core.domain.platforms.entities.Platform;
@@ -38,6 +39,7 @@ public class PropertiesController extends AbstractController {
                                                             @PathVariable("application_name") final String applicationName,
                                                             @PathVariable("platform_name") final String platformName,
                                                             @RequestParam("path") final String propertiesPath,
+                                                            @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
                                                             @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key platformKey = new Platform.Key(applicationName, platformName);
 
