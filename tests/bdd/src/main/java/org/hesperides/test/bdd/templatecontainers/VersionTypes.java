@@ -20,12 +20,12 @@
  */
 package org.hesperides.test.bdd.templatecontainers;
 
-public class TemplateContainerHelper {
+public class VersionTypes {
 
     public final static String WORKINGCOPY = "workingcopy";
     public final static String RELEASE = "release";
 
-    public static Boolean isWorkingCopy(String versionType) {
+    public static Boolean toIsWorkingCopy(String versionType) {
         Boolean isWorkingCopy;
         if (WORKINGCOPY.equalsIgnoreCase(versionType)) {
             isWorkingCopy = true;
@@ -37,7 +37,7 @@ public class TemplateContainerHelper {
         return isWorkingCopy;
     }
 
-    public static String getVersionType(Boolean isWorkingCopy) {
+    public static String fromIsWorkingCopy(Boolean isWorkingCopy) {
         String versionType;
         if (isWorkingCopy == null) {
             versionType = "";

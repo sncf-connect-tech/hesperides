@@ -87,8 +87,10 @@ public class GetFiles extends HesperidesScenario implements En {
                     HesperidesScenario.getResponseType(tryTo, InstanceFileOutput[].class)));
 
             expectedFiles = new ArrayList<>();
-            technoBuilder.getTemplates().forEach(template -> {
-                expectedFiles.add(buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, technoBuilder.getNamespace()));
+            technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
+                TemplateIO template = templateBuilder.build();
+                InstanceFileOutput instanceFile = buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, template.getNamespace());
+                expectedFiles.add(instanceFile);
             });
             moduleBuilder.getTemplates().forEach(template -> {
                 expectedFiles.add(buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, moduleBuilder.getNamespace()));

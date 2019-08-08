@@ -6,6 +6,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
+import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,38 +20,37 @@ public class DeleteTechnos extends HesperidesScenario implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
+    private TechnoHistory technoHistory;
 
     public DeleteTechnos() {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class)));
-            moduleBuilder.removeTechno(technoBuilder.build());
-            modelBuilder.removeProperties(technoBuilder.getProperties());
+            ResponseEntity responseEntity = technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+            testContext.setResponseEntity(responseEntity);
+            technoHistory.removeTechnoBuilder(technoBuilder);
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            testContext.setResponseEntity(technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class));
+            ResponseEntity responseEntity = technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class);
+            testContext.setResponseEntity(responseEntity);
             assertNotFound();
         });
 
-        Then("^the techno deletion is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno deletion is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the techno deletion is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the techno deletion is rejected with a conflict error$", this::assertConflict);
 
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
-            testContext.setResponseEntity(technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class));
+            ResponseEntity responseEntity = technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
+            testContext.setResponseEntity(responseEntity);
             assertEquals(0, getBodyAsArray().length);
-            testContext.setResponseEntity(technoClient.getTemplate(technoBuilder.build().getName(), technoBuilder.build(), String.class));
-            assertNotFound();
+            technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
+                ResponseEntity response = technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), String.class);
+                testContext.setResponseEntity(response);
+                assertNotFound();
+            });
         });
 
     }

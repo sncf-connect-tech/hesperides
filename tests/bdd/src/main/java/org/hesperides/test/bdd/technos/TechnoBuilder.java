@@ -20,40 +20,45 @@
  */
 package org.hesperides.test.bdd.technos;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
+import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
-public class TechnoBuilder {
+public class TechnoBuilder implements Serializable {
 
+    @Getter
     private String name;
     private String version;
-    private String versionType;
-    private List<PropertyOutput> properties;
-
-    private List<TemplateIO> templates;
+    private Boolean isWorkingCopy;
+    @Getter
+    private List<TemplateBuilder> templateBuilders;
+    private List<PropertyBuilder> propertyBuilders;
 
     public TechnoBuilder() {
         reset();
     }
 
     public void reset() {
-        // Valeurs par défaut
         name = "test-techno";
         version = "1.0.0";
-        versionType = TemplateContainerHelper.WORKINGCOPY;
-        properties = new ArrayList<>();
-        templates = new ArrayList<>();
-    }
-
-    public String getName() {
-        return name;
+        isWorkingCopy = true;
+        templateBuilders = new ArrayList<>();
+        propertyBuilders = new ArrayList<>();
     }
 
     public TechnoBuilder withName(String name) {
@@ -66,37 +71,38 @@ public class TechnoBuilder {
         return this;
     }
 
-    public TechnoBuilder withVersionType(String versionType) {
-        this.versionType = versionType;
+    public TechnoBuilder withIsWorkingCopy(boolean isWorkingCopy) {
+        this.isWorkingCopy = isWorkingCopy;
         return this;
     }
 
     public TechnoIO build() {
-        return new TechnoIO(name, version, TemplateContainerHelper.isWorkingCopy(versionType));
+        return new TechnoIO(name, version, isWorkingCopy);
     }
 
-    public String getNamespace() {
-        return "packages#" + name + "#" + version + "#" + versionType.toUpperCase();
+    public String buildNamespace() {
+        return "packages#" + name + "#" + version + "#" + VersionTypes.fromIsWorkingCopy(isWorkingCopy).toUpperCase();
     }
 
-    public void withProperty(PropertyOutput property) {
-        properties.add(property);
+    public void withTemplateBuilder(TemplateBuilder templateBuilder) {
+        templateBuilders.add(SerializationUtils.clone(templateBuilder));
     }
 
-    public List<PropertyOutput> getProperties() {
-        return properties;
+    public void withPropertyBuilder(PropertyBuilder propertyBuilder) {
+        propertyBuilders.add(SerializationUtils.clone(propertyBuilder));
+    }
+
+    public void withVersionType(String versionType) {
+        isWorkingCopy = VersionTypes.toIsWorkingCopy(versionType);
     }
 
     public String getVersionType() {
-        return versionType;
+        return VersionTypes.fromIsWorkingCopy(isWorkingCopy);
     }
 
-    public TechnoBuilder withTemplate(TemplateIO template) {
-        templates.add(template);
-        return this;
-    }
-
-    public List<TemplateIO> getTemplates() {
-        return templates;
+    public ModelOutput getPropertiesModel() {
+        Set<PropertyOutput> simpleProperties = propertyBuilders.stream().map(PropertyBuilder::build).collect(Collectors.toSet());
+        Set<PropertyOutput> iterableProperties = Collections.emptySet();
+        return new ModelOutput(simpleProperties, iterableProperties);
     }
 }

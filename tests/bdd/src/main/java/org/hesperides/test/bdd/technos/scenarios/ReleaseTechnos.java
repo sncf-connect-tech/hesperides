@@ -1,15 +1,15 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
-import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
+import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,49 +23,35 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
-    private TemplateBuilder templateBuilder;
+    private TechnoHistory technoHistory;
 
     public ReleaseTechnos() {
 
-        Given("^a released techno( with properties)?$", (String withProperties) -> {
-            if (StringUtils.isNotEmpty(withProperties)) {
-                templateBuilder.withContent("foo").withContent("bar");
-            }
-            technoClient.create(templateBuilder.build(), technoBuilder.build());
-            technoClient.release(technoBuilder.build());
-            technoBuilder.withVersionType(TemplateContainerHelper.RELEASE);
-        });
-
         When("^I( try to)? release this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(
-                    technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class))
-            );
+            ResponseEntity responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+            testContext.setResponseEntity(responseEntity);
+            technoBuilder.withIsWorkingCopy(false);
+            technoHistory.addTechnoBuilder(technoBuilder);
         });
 
         Then("^the techno is successfully released$", () -> {
             assertCreated();
-            TechnoBuilder expectedTechnoBuilder = new TechnoBuilder().withVersionType(TemplateContainerHelper.RELEASE);
-            TechnoIO expectedTechno = expectedTechnoBuilder.build();
+            TechnoIO expectedTechno = technoBuilder.build();
             TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
             assertEquals(expectedTechno, actualTechno);
 
-            // Compare les templates de la techno d'origine avec ceux de la techno en mode release
-            // Seul le namespace est différent
-            String expectedNamespace = expectedTechnoBuilder.getNamespace();
-            List<PartialTemplateIO> expectedTemplates = technoClient.getTemplates(this.technoBuilder.build())
+            // Compare les templates de la techno d'origine avec ceux de la techno en mode release. Seul le namespace est différent.
+            TechnoBuilder originTechno = technoHistory.findTechnoBuilder(expectedTechno.getName(), expectedTechno.getVersion(), true);
+            List<PartialTemplateIO> expectedTemplates = originTechno.getTemplateBuilders()
                     .stream()
-                    .map(expectedTemplate -> new PartialTemplateIO(expectedTemplate.getName(), expectedNamespace, expectedTemplate.getFilename(), expectedTemplate.getLocation()))
+                    .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
             List<PartialTemplateIO> actualTemplates = technoClient.getTemplates(actualTechno);
             assertEquals(expectedTemplates, actualTemplates);
         });
 
-        Then("^the techno release is rejected with a not found error$", () -> {
-            assertNotFound();
-        });
+        Then("^the techno release is rejected with a not found error$", this::assertNotFound);
 
-        Then("^the techno release is rejected with a conflict error$", () -> {
-            assertConflict();
-        });
+        Then("^the techno release is rejected with a conflict error$", this::assertConflict);
     }
 }

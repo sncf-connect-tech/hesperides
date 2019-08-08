@@ -8,7 +8,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
@@ -62,7 +62,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
             }
 
             moduleClient.release(moduleBuilder.build(), ModuleIO.class);
-            moduleBuilder.withVersionId(1).withVersionType(TemplateContainerHelper.RELEASE);
+            moduleBuilder.withVersionId(1).withVersionType(VersionTypes.RELEASE);
         });
 
         When("^I( try to)? release this module(?: in version \"(.*)\")?( without specifying its version)?$", (String tryTo, String releasedModuleVersion, String withoutVersion) -> {
@@ -70,12 +70,12 @@ public class ReleaseModules extends HesperidesScenario implements En {
                 moduleBuilder.withVersion("");
             }
             testContext.setResponseEntity(moduleClient.release(moduleBuilder.build(), releasedModuleVersion, getResponseType(tryTo, ModuleIO.class)));
-            moduleBuilder.withVersionType(TemplateContainerHelper.RELEASE);
+            moduleBuilder.withVersionType(VersionTypes.RELEASE);
         });
 
         Then("^the module is successfully released(?: in version \"(.*)\")?$", (String releasedModuleVersion) -> {
             assertOK();
-            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersionType(TemplateContainerHelper.RELEASE);
+            ModuleBuilder expectedModuleBuilder = new ModuleBuilder().withTechno(technoBuilder.build()).withVersionId(1).withVersionType(VersionTypes.RELEASE);
             if (StringUtils.isNotEmpty(releasedModuleVersion)) {
                 expectedModuleBuilder.withVersion(releasedModuleVersion);
             }

@@ -33,7 +33,6 @@ public class GetTechnosModel extends HesperidesScenario implements En {
             propertyBuilder.reset().withName("techno-foo").withProperty(new PropertyBuilder().withName("techno-bar"));
             modelBuilder.withIterableProperty(propertyBuilder.build());
             templateBuilder.withContent(propertyBuilder.toString());
-
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         });
 

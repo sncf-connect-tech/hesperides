@@ -26,7 +26,7 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPr
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.test.bdd.templatecontainers.TemplateContainerHelper;
+import org.hesperides.test.bdd.templatecontainers.VersionTypes;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class ModuleBuilder {
         // Valeurs par défaut
         name = "test-module";
         version = "1.0.0";
-        versionType = TemplateContainerHelper.WORKINGCOPY;
+        versionType = VersionTypes.WORKINGCOPY;
         technos = new ArrayList<>();
         templates = new ArrayList<>();
         versionId = 0;
@@ -106,7 +106,7 @@ public class ModuleBuilder {
     }
 
     public ModuleIO build() {
-        return new ModuleIO(name, version, TemplateContainerHelper.isWorkingCopy(versionType), technos, versionId);
+        return new ModuleIO(name, version, VersionTypes.toIsWorkingCopy(versionType), technos, versionId);
     }
 
     public String getNamespace() {

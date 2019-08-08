@@ -82,7 +82,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
             List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()
-                            .filter(t -> !TemplateBuilder.DEFAULT_NAME.equals(t.getName()))
+                            .filter(template -> !TemplateBuilder.DEFAULT_NAME.equals(template.getName()))
                             .collect(Collectors.toList()));
         });
 

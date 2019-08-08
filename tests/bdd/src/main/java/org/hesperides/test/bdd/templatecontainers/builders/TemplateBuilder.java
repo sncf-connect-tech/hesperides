@@ -20,37 +20,42 @@
  */
 package org.hesperides.test.bdd.templatecontainers.builders;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
 @Component
-public class TemplateBuilder {
+public class TemplateBuilder implements Serializable {
 
     public static String DEFAULT_NAME = "template";
 
+    @Getter
     private String name;
     private String namespace;
     private String filename;
     private String location;
     private String content;
     private TemplateIO.RightsIO rights;
-    private long versionId;
+    private Long versionId;
 
     public TemplateBuilder() {
         reset();
     }
 
     public TemplateBuilder reset() {
-        // Valeurs par défaut
         name = DEFAULT_NAME;
-        namespace = null;
+        this.namespace = null;
         filename = "template.json";
         location = "/location";
         content = "content";
         rights = defaultRights();
-        versionId = 0;
+        versionId = null;
         return this;
     }
 
@@ -90,10 +95,6 @@ public class TemplateBuilder {
         return this;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public TemplateBuilder withVersionId(long versionId) {
         this.versionId = versionId;
         return this;
@@ -103,7 +104,17 @@ public class TemplateBuilder {
         return new TemplateIO(name, namespace, filename, location, content, rights, versionId);
     }
 
-    public PartialTemplateIO buildPartialTemplate(String namespace) {
+    public TemplateIO buildAndIncrementVersionId() {
+        TemplateIO template = build();
+        versionId++;
+        return template;
+    }
+
+    public PartialTemplateIO buildPartialTemplate() {
         return new PartialTemplateIO(name, namespace, filename, location);
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }
