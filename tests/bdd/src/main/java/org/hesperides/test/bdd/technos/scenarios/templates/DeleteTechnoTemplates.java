@@ -43,7 +43,7 @@ public class DeleteTechnoTemplates extends HesperidesScenario implements En {
             String templateName = templateBuilder.getName();
             ResponseEntity responseEntity = technoClient.deleteTemplate(templateName, technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
             testContext.setResponseEntity(responseEntity);
-            technoBuilder.removeTemplateBuilder(templateName);
+            technoBuilder.removeTemplateBuilderInstance(templateName);
         });
 
         Then("^the techno template is successfully deleted$", () -> {

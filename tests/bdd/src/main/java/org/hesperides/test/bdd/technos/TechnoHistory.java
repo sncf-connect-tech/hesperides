@@ -63,4 +63,8 @@ public class TechnoHistory {
     public TechnoBuilder getFirstTechnoBuilder() {
         return technoBuilders.get(0);
     }
+
+    public TechnoBuilder getLastTechnoBuilder() {
+        return technoBuilders.get(technoBuilders.size() - 1);
+    }
 }

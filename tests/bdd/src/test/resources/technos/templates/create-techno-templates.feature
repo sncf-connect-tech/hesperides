@@ -10,7 +10,7 @@ Feature: Create techno templates
     Then the template is successfully added to the techno
 
   Scenario: add a template to a released techno
-    Given a released techno
+    Given an existing released techno
     And a template to create
     When I try to add this template to the techno
     Then the techno template creation is rejected with a method not allowed error

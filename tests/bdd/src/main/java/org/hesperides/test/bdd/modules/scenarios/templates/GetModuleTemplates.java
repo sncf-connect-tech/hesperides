@@ -78,7 +78,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
 
         Then("^a list of all the templates of the module is returned$", () -> {
             assertOK();
-            List<PartialTemplateIO> expectedPartialTemplates = expectedTemplates.stream().map(templateBuilder -> templateBuilder.buildPartialTemplate(moduleBuilder.getNamespace())).collect(Collectors.toList());
+            List<PartialTemplateIO> expectedPartialTemplates = expectedTemplates.stream().map(templateBuilder -> templateBuilder.buildPartialTemplate()).collect(Collectors.toList());
             List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
             assertEquals(expectedPartialTemplates,
                     actualPartialTemplates.stream()

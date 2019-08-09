@@ -40,17 +40,22 @@ public class CopyTechnos extends HesperidesScenario implements En {
             }
             ResponseEntity responseEntity = technoClient.copy(existingTechno, technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
             testContext.setResponseEntity(responseEntity);
+            // Dans le cas d'une copie de release, la techno
+            // créée devient automatiquement une working copy
+            technoBuilder.withIsWorkingCopy(true);
+            // Les templates sont identiques sauf pour le namespace
+            technoBuilder.updateTemplatesNamespace();
             technoHistory.addTechnoBuilder(technoBuilder);
         });
 
         Then("^the techno is successfully duplicated$", () -> {
             assertCreated();
-            TechnoIO expectedTechno = technoBuilder.build();
+            TechnoBuilder expectedTechnoBuilder = technoHistory.getLastTechnoBuilder();
+            TechnoIO expectedTechno = expectedTechnoBuilder.build();
             TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
             assertEquals(expectedTechno, actualTechno);
 
-            // Compare les templates de la techno d'origine avec ceux de la techno copiée. Seul le namespace est différent.
-            List<PartialTemplateIO> expectedTemplates = technoHistory.getFirstTechnoBuilder().getTemplateBuilders()
+            List<PartialTemplateIO> expectedTemplates = expectedTechnoBuilder.getTemplateBuilders()
                     .stream()
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
@@ -61,7 +66,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
         Then("^the model of the techno is the same$", () -> {
             testContext.setResponseEntity(technoClient.getModel(technoBuilder.build(), ModelOutput.class));
             assertOK();
-            ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().getPropertiesModel();
+            ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().buildPropertiesModel();
             ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
             assertEquals(expectedModel, actualModel);
         });
@@ -74,10 +79,5 @@ public class CopyTechnos extends HesperidesScenario implements En {
         Then("^the techno copy is rejected with a not found error$", this::assertNotFound);
 
         Then("^the techno copy is rejected with a conflict error$", this::assertConflict);
-    }
-
-    private ResponseEntity copy(String newVersion, Class responseType) {
-        TechnoIO newTechnoInput = new TechnoBuilder().withVersion(newVersion).build();
-        return technoClient.copy(technoBuilder.build(), newTechnoInput, responseType);
     }
 }

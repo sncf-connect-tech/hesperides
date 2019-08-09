@@ -6,6 +6,7 @@ import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
+import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
@@ -25,6 +26,8 @@ public class TestContextCleaner {
 
     @Autowired
     private TechnoBuilder technoBuilder;
+    @Autowired
+    private TechnoHistory technoHistory;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
@@ -55,6 +58,7 @@ public class TestContextCleaner {
     private void resetBuilders() {
         templateBuilder.reset();
         technoBuilder.reset();
+        technoHistory.reset();
         propertyBuilder.reset();
         modelBuilder.reset();
         moduleBuilder.reset();

@@ -4,7 +4,7 @@ Feature: Get technos type
     Given an authenticated user
 
   Scenario: get the types of a released techno
-    Given a released techno
+    Given an existing released techno
     When I get the techno types
     Then a list containing workingcopy and release is returned
 

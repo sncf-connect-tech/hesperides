@@ -20,9 +20,7 @@
  */
 package org.hesperides.test.bdd.templatecontainers.builders;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
@@ -55,7 +53,7 @@ public class TemplateBuilder implements Serializable {
         location = "/location";
         content = "content";
         rights = defaultRights();
-        versionId = null;
+        versionId = 0L;
         return this;
     }
 
@@ -104,17 +102,15 @@ public class TemplateBuilder implements Serializable {
         return new TemplateIO(name, namespace, filename, location, content, rights, versionId);
     }
 
-    public TemplateIO buildAndIncrementVersionId() {
-        TemplateIO template = build();
-        versionId++;
-        return template;
-    }
-
     public PartialTemplateIO buildPartialTemplate() {
         return new PartialTemplateIO(name, namespace, filename, location);
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void incrementVersionId() {
+        versionId++;
     }
 }

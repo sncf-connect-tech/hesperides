@@ -174,4 +174,16 @@ public class PropertyBuilder implements Serializable {
         }
         return properties;
     }
+
+    public boolean isSimpleProperty() {
+        return !hasProperties();
+    }
+
+    public boolean isIterableProperty() {
+        return hasProperties();
+    }
+
+    private boolean hasProperties() {
+        return !CollectionUtils.isEmpty(properties);
+    }
 }

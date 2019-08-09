@@ -84,12 +84,41 @@ public class TechnoBuilder implements Serializable {
         return "packages#" + name + "#" + version + "#" + VersionTypes.fromIsWorkingCopy(isWorkingCopy).toUpperCase();
     }
 
-    public void withTemplateBuilder(TemplateBuilder templateBuilder) {
-        templateBuilders.add(SerializationUtils.clone(templateBuilder));
+    public ModelOutput buildPropertiesModel() {
+        Set<PropertyOutput> simpleProperties = propertyBuilders.stream()
+                .filter(PropertyBuilder::isSimpleProperty)
+                .map(PropertyBuilder::build)
+                .collect(Collectors.toSet());
+        Set<PropertyOutput> iterableProperties = propertyBuilders.stream()
+                .filter(PropertyBuilder::isIterableProperty)
+                .map(PropertyBuilder::build)
+                .collect(Collectors.toSet());
+        return new ModelOutput(simpleProperties, iterableProperties);
     }
 
-    public void withPropertyBuilder(PropertyBuilder propertyBuilder) {
+    public void saveTemplateBuilderInstance(TemplateBuilder templateBuilder) {
+        TemplateBuilder templateBuilderInstance = SerializationUtils.clone(templateBuilder);
+        templateBuilderInstance.incrementVersionId();
+        templateBuilders.add(templateBuilderInstance);
+    }
+
+    public void savePropertyBuilderInstance(PropertyBuilder propertyBuilder) {
         propertyBuilders.add(SerializationUtils.clone(propertyBuilder));
+    }
+
+    public void removeTemplateBuilderInstance(String templateName) {
+        templateBuilders = templateBuilders.stream()
+                .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
+                .collect(Collectors.toList());;
+    }
+
+    public void updateTemplateBuilderInstance(TemplateBuilder updatedTemplateBuilder) {
+        TemplateBuilder updatedTemplateBuilderInstance = SerializationUtils.clone(updatedTemplateBuilder);
+        updatedTemplateBuilderInstance.incrementVersionId();
+        templateBuilders = templateBuilders.stream()
+                .map(existingTemplateBuilder -> existingTemplateBuilder.getName().equals(updatedTemplateBuilderInstance.getName())
+                        ? updatedTemplateBuilderInstance : existingTemplateBuilder)
+                .collect(Collectors.toList());
     }
 
     public void withVersionType(String versionType) {
@@ -100,13 +129,13 @@ public class TechnoBuilder implements Serializable {
         return VersionTypes.fromIsWorkingCopy(isWorkingCopy);
     }
 
-    public ModelOutput getPropertiesModel() {
-        Set<PropertyOutput> simpleProperties = propertyBuilders.stream().map(PropertyBuilder::build).collect(Collectors.toSet());
-        Set<PropertyOutput> iterableProperties = Collections.emptySet();
-        return new ModelOutput(simpleProperties, iterableProperties);
+    public TemplateBuilder getFirstTemplateBuilder() {
+        return templateBuilders.get(0);
     }
 
-    public void removeTemplateBuilder(String templateName) {
-        templateBuilders = templateBuilders.stream().filter(templateBuilder -> !templateBuilder.getName().equals(templateName)).collect(Collectors.toList());;
+    public void updateTemplatesNamespace() {
+        templateBuilders = templateBuilders.stream()
+                .map(templateBuilder -> templateBuilder.withNamespace(buildNamespace()))
+                .collect(Collectors.toList());
     }
 }

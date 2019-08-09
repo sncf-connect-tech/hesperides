@@ -10,8 +10,6 @@ public class GetTechnosVersions extends HesperidesScenario implements En {
 
     @Autowired
     private TechnoClient technoClient;
-    @Autowired
-    private TechnoBuilder technoBuilder;
 
     public GetTechnosVersions() {
 

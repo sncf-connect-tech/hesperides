@@ -10,7 +10,7 @@ Feature: Update techno templates
     Then the techno template is successfully updated
 
   Scenario: update an existing template in a released techno
-    Given a released techno
+    Given an existing released techno
     And a template to update
     When I try to update this techno template
     Then the techno template update is rejected with a method not allowed error
