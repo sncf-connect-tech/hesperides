@@ -105,4 +105,8 @@ public class TechnoBuilder implements Serializable {
         Set<PropertyOutput> iterableProperties = Collections.emptySet();
         return new ModelOutput(simpleProperties, iterableProperties);
     }
+
+    public void removeTemplateBuilder(String templateName) {
+        templateBuilders = templateBuilders.stream().filter(templateBuilder -> !templateBuilder.getName().equals(templateName)).collect(Collectors.toList());;
+    }
 }
