@@ -49,6 +49,7 @@ public class SimplePropertyVisitor implements PropertyVisitor {
                 .collect(Collectors.toList()), valuedPropertyView);
     }
 
+    @Override
     public boolean isValued() {
         return propertyValue != null && StringUtils.isNotBlank(propertyValue.getValue());
     }
@@ -79,11 +80,6 @@ public class SimplePropertyVisitor implements PropertyVisitor {
             return propertyValue.getName();
         }
         return propertyModels.get(0).getName();
-    }
-
-    @Override
-    public void acceptEither(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
-        simpleConsumer.accept(this);
     }
 
     @Override

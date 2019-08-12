@@ -4,6 +4,7 @@ import lombok.Value;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.IterablePropertyView;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,11 +56,6 @@ public class IterablePropertyVisitor implements PropertyVisitor {
     }
 
     @Override
-    public void acceptEither(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer) {
-        iterableConsumer.accept(this);
-    }
-
-    @Override
     public PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper) {
         return new IterablePropertyVisitor(name, items.stream()
                 .map(item -> item.mapSimplesRecursive(mapper))
@@ -82,6 +78,11 @@ public class IterablePropertyVisitor implements PropertyVisitor {
                     IntStream.range(0, items.size()).allMatch(i -> items.get(i).equals(iterablePropertyVisitor.getItems().get(i)));
         }
         return isEqual;
+    }
+
+    @Override
+    public boolean isValued() {
+        return !CollectionUtils.isEmpty(items);
     }
 
     public IterablePropertyVisitor addPropertyVisitorsOrUpdateValue(List<SimplePropertyVisitor> extraProperties) {
