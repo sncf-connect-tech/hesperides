@@ -27,6 +27,7 @@ import org.hesperides.core.domain.platforms.entities.properties.AbstractValuedPr
 import org.hesperides.core.domain.platforms.entities.properties.IterableValuedProperty;
 import org.hesperides.core.domain.platforms.entities.properties.ValuedProperty;
 
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -40,9 +41,10 @@ import static org.hesperides.core.presentation.io.platforms.properties.IterableV
 @NonFinal
 public abstract class AbstractValuedPropertyIO {
 
+    @NotNull
     String name;
 
-    public static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(List<AbstractValuedPropertyIO> properties, Class<T> clazz) {
+    static <T extends AbstractValuedPropertyIO> List<T> getPropertyWithType(List<AbstractValuedPropertyIO> properties, Class<T> clazz) {
         return Optional.ofNullable(properties)
                 .orElse(Collections.emptyList())
                 .stream()
@@ -51,7 +53,7 @@ public abstract class AbstractValuedPropertyIO {
                 .collect(Collectors.toList());
     }
 
-    public static List<AbstractValuedPropertyIO> fromAbstractValuedProperties(List<AbstractValuedProperty> abstractValuedProperties) {
+    static List<AbstractValuedPropertyIO> fromAbstractValuedProperties(List<AbstractValuedProperty> abstractValuedProperties) {
         return abstractValuedProperties.stream().map(AbstractValuedPropertyIO::fromAbstractValuedProperty).collect(Collectors.toList());
     }
 
@@ -63,7 +65,7 @@ public abstract class AbstractValuedPropertyIO {
                 .collect(Collectors.toSet());
     }
 
-    public static AbstractValuedPropertyIO fromAbstractValuedProperty(AbstractValuedProperty abstractValuedProperty){
+    private static AbstractValuedPropertyIO fromAbstractValuedProperty(AbstractValuedProperty abstractValuedProperty){
         AbstractValuedPropertyIO abstractValuedPropertyIO;
         if (abstractValuedProperty instanceof ValuedProperty) {
             abstractValuedPropertyIO = new ValuedPropertyIO((ValuedProperty)abstractValuedProperty);
