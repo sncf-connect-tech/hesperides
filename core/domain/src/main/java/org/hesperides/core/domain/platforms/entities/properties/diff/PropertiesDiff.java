@@ -63,7 +63,14 @@ public class PropertiesDiff {
 
         propertiesRight.getProperties().stream()
                 .filter(rightProperty -> !visitedLeftPropertyNames.contains(rightProperty.getName()))
-                .forEach(onlyRight::add);
+                .forEach(rightProperty -> {
+                    if (rightProperty.isValued()) {
+                        onlyRight.add(rightProperty);
+                    } else {
+                        // Cas où la propriété n'a pas de model, n'est pas renseignée à gauche et vide à droite
+                        common.add(buildDifferingPropertyRecursive(null, rightProperty, compareStoredValues));
+                    }
+                });
 
         this.onlyLeft = onlyLeft;
         this.onlyRight = onlyRight;
@@ -95,7 +102,10 @@ public class PropertiesDiff {
 
     private static AbstractDifferingProperty buildDifferingPropertyRecursive(PropertyVisitor leftProperty, PropertyVisitor rightProperty, boolean compareStoredValues) {
         AbstractDifferingProperty differingProperty;
-        if (leftProperty instanceof SimplePropertyVisitor) {
+        if (leftProperty == null) {
+            // Cas où la propriété n'a pas de model, n'est pas renseignée à gauche et vide à droite
+            differingProperty = new SimpleDifferingProperty(rightProperty.getName(), (SimplePropertyVisitor) leftProperty, (SimplePropertyVisitor) rightProperty);
+        } else if (leftProperty instanceof SimplePropertyVisitor) {
             differingProperty = new SimpleDifferingProperty(leftProperty.getName(), (SimplePropertyVisitor) leftProperty, (SimplePropertyVisitor) rightProperty);
         } else {
             List<PropertyVisitorsSequence> iterablePropertyLeftItems = ((IterablePropertyVisitor) leftProperty).getItems();

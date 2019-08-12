@@ -274,7 +274,7 @@ public class PlatformUseCases {
                                             final boolean compareStoredValues,
                                             final User user) {
 
-        PlatformView fromPlatform = timestamp != null ? getPlatformAtPointInTime(fromPlatformKey, timestamp) : getPlatform(fromPlatformKey);
+        PlatformView fromPlatform = getPlatform(fromPlatformKey);
         PlatformView toPlatform = timestamp != null ? getPlatformAtPointInTime(toPlatformKey, timestamp) : getPlatform(toPlatformKey);
 
         PropertiesDiff propertiesDiff;
@@ -313,14 +313,6 @@ public class PlatformUseCases {
             propertiesDiff = new PropertiesDiff(fromPropertyVisitors, toPropertyVisitors, compareStoredValues);
         }
         return propertiesDiff;
-    }
-
-    private List<AbstractPropertyView> buildFakeModelForGlobalProperties(List<ValuedPropertyView> fromGlobalProperties, List<ValuedPropertyView> toGlobalProperties) {
-        return Stream.concat(fromGlobalProperties.stream(), toGlobalProperties.stream())
-                .map(AbstractValuedPropertyView::getName)
-                .distinct()
-                .map(propertyName -> new PropertyView(propertyName, propertyName, false, null, null, null, false))
-                .collect(Collectors.toList());
     }
 
     private static String extractModulePathFromPropertiesPath(String propertiesPath) {

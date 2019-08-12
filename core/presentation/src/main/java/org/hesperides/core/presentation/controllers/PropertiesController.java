@@ -108,6 +108,7 @@ public class PropertiesController extends AbstractController {
                                                                   @RequestParam("to_path") final String toPropertiesPath,
                                                                   @RequestParam(value = "to_instance_name", required = false, defaultValue = "") final String toInstanceName,
                                                                   @RequestParam(value = "compare_stored_values", required = false) final boolean compareStoredValues,
+                                                                  @ApiParam(value = "En milliseconds depuis l'EPOCH. Pour le générer via Javascript à partir d'une date: new Date('2019-01-01 12:00:00').getTime()")
                                                                   @RequestParam(value = "timestamp", required = false) final Long timestamp) {
         Platform.Key fromPlatformKey = new Platform.Key(fromApplicationName, fromPlatformName);
         Platform.Key toPlatformKey = new Platform.Key(toApplicationName, toPlatformName);

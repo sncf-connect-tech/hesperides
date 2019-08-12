@@ -13,11 +13,11 @@ public interface PropertyVisitor {
 
     void acceptSimplesRecursive(Consumer<SimplePropertyVisitor> consumer);
 
-    void acceptEither(Consumer<SimplePropertyVisitor> simpleConsumer, Consumer<IterablePropertyVisitor> iterableConsumer);
-
     PropertyVisitor mapSimplesRecursive(Function<SimplePropertyVisitor, PropertyVisitor> mapper);
 
     PropertyVisitor mapSequencesRecursive(Function<PropertyVisitorsSequence, PropertyVisitorsSequence> mapper);
 
     boolean equals(PropertyVisitor propertyVisitor, boolean compareStoredValue);
+
+    boolean isValued();
 }

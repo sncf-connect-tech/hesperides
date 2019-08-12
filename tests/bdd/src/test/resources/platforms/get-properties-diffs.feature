@@ -230,3 +230,28 @@ Feature: Get properties diffs
   Scenario: get iterable properties diff on the same platform at a different timestamp
 
   Scenario: get iterable properties diff between two platforms at a different timestamp
+
+  Scenario: get global properties diffs with a property that is empty in the left and not provided in the right
+    Given an existing platform named "P1"
+    And the platform "P1" has these global properties
+      | name   | value |
+      | common |       |
+    And an existing platform named "P2"
+    When I get the global properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common | differing |
+      |           |            | common |           |
+
+
+  Scenario: get global properties diffs with a property that is empty in the right and not provided in the left
+    Given an existing platform named "P1"
+    And an existing platform named "P2"
+    And the platform "P2" has these global properties
+      | name   | value |
+      | common |       |
+    When I get the global properties diff on final values between platforms "P1" and "P2"
+    Then the diff is successfully retrieved
+    And the resulting diff match these values
+      | only_left | only_right | common | differing |
+      |           |            | common |           |
