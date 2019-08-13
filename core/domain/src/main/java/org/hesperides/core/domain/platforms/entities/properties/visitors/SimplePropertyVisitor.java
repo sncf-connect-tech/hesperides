@@ -1,8 +1,8 @@
 package org.hesperides.core.domain.platforms.entities.properties.visitors;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.AbstractPropertyView;
 import org.hesperides.core.domain.templatecontainers.queries.PropertyView;
@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@EqualsAndHashCode
 public class SimplePropertyVisitor implements PropertyVisitor {
 
     // Invariant: les 2 champs suivants ne sont jamais simultanément vide & null
@@ -22,23 +21,26 @@ public class SimplePropertyVisitor implements PropertyVisitor {
     private final ValuedPropertyView propertyValue;
     @Getter
     private final String initialValue;
+    private final ValuedPropertyTransformation[] transformations;
 
     SimplePropertyVisitor(ValuedPropertyView propertyValue) {
-        this(Collections.emptyList(), propertyValue, propertyValue.getValue());
+        this(Collections.emptyList(), propertyValue, propertyValue.getValue(), new ValuedPropertyTransformation[]{});
     }
 
     public SimplePropertyVisitor(List<PropertyView> propertyModels,
                                  ValuedPropertyView propertyValue) {
         // propertyValue peut être null dans le cas où on construit un Visitor uniquement à partir du modèle
-        this(propertyModels, propertyValue, propertyValue == null ? null : propertyValue.getValue());
+        this(propertyModels, propertyValue, propertyValue == null ? null : propertyValue.getValue(), new ValuedPropertyTransformation[]{});
     }
 
     private SimplePropertyVisitor(List<PropertyView> propertyModels,
                                   ValuedPropertyView propertyValue,
-                                  String initialValue) {
+                                  String initialValue,
+                                  ValuedPropertyTransformation[] transformations) {
         this.propertyModels = propertyModels;
         this.propertyValue = propertyValue;
         this.initialValue = initialValue;
+        this.transformations = transformations;
     }
 
     static SimplePropertyVisitor fromAbstractPropertyViews(List<AbstractPropertyView> propertiesModels,
@@ -82,6 +84,10 @@ public class SimplePropertyVisitor implements PropertyVisitor {
         return propertyModels.get(0).getName();
     }
 
+    public ValuedPropertyTransformation[] getTransformations() {
+        return transformations;
+    }
+
     @Override
     public void acceptSimplesRecursive(Consumer<SimplePropertyVisitor> consumer) {
         consumer.accept(this);
@@ -111,21 +117,38 @@ public class SimplePropertyVisitor implements PropertyVisitor {
         return isEqual;
     }
 
-    public SimplePropertyVisitor withValue(String newValue) {
+    public SimplePropertyVisitor withValue(String newValue, ValuedPropertyTransformation transformation) {
         ValuedPropertyView newValuedPropertyView;
         if (propertyValue != null) {
             newValuedPropertyView = propertyValue.withValue(newValue);
         } else {
             newValuedPropertyView = new ValuedPropertyView(propertyModels.get(0).getName(), newValue);
         }
+        ValuedPropertyTransformation[] newTransformations = Arrays.copyOf(transformations, transformations.length + 1);
+        newTransformations[transformations.length] = transformation;
         return new SimplePropertyVisitor(
                 propertyModels,
                 newValuedPropertyView,
-                initialValue
+                initialValue,
+                newTransformations
         );
     }
 
     static SimplePropertyVisitor fromAbstractPropertyViews(List<AbstractPropertyView> propertiesModels) {
         return fromAbstractPropertyViews(propertiesModels, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimplePropertyVisitor that = (SimplePropertyVisitor) o;
+        return Objects.equals(propertyModels, that.propertyModels) &&
+                Objects.equals(propertyValue, that.propertyValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(propertyModels, propertyValue);
     }
 }

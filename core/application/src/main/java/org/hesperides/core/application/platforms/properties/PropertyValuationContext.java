@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.*;
 
 @Value
 class PropertyValuationContext {
@@ -41,10 +42,10 @@ class PropertyValuationContext {
     // Refacto en 3 méthodes distinctes ? -> nommage pas évident à choisir
     PropertyVisitorsSequence completeWithContextualProperties(PropertyVisitorsSequence propertyVisitors, boolean includeGlobalProperties, boolean includePropertiesWithoutModel) {
         // Concatène les propriétés globales, de module, d'instance et prédéfinies
-        propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties)
-                .addOverridingValuedProperties(predefinedProperties);
+        propertyVisitors = propertyVisitors.addOverridingValuedProperties(instanceProperties, OVERRIDEN_BY_INSTANCE)
+                .addOverridingValuedProperties(predefinedProperties, OVERRIDEN_BY_PREDEFINED);
         if (includeGlobalProperties) {
-            propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties);
+            propertyVisitors = propertyVisitors.addOverridingValuedProperties(globalProperties, OVERRIDEN_BY_GLOBAL);
         }
         if (includePropertiesWithoutModel) {
             propertyVisitors = propertyVisitors.addValuedPropertiesIfUndefined(valuedPropertiesWithoutModel.stream()

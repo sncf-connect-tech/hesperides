@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.application.files.FileUseCases;
 import org.hesperides.core.application.files.InfiniteMustacheRecursion;
 import org.hesperides.core.domain.modules.entities.Module;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitor;
 import org.hesperides.core.domain.platforms.entities.properties.visitors.PropertyVisitorsSequence;
 import org.hesperides.core.domain.platforms.queries.views.DeployedModuleView;
@@ -17,6 +18,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.*;
 import static org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView.hidePasswordProperties;
 
 public class PropertyValuationBuilder {
@@ -96,21 +98,27 @@ public class PropertyValuationBuilder {
                         .propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, true, true)
                                 .passOverPropertyValuesToChildItems());
                 String value = replaceMustachePropertiesWithValues(optValue.get(), scopes);
+                // Principe de substitution : une propriété qui en réference une autre doit prendre sa valeur,
+                // en sachant que cette valeur peut elle-même e, référencer une autre...
+                // Le "niveau" indique le nombre de remplacements de ce type.
+                ValuedPropertyTransformation transformation = PROPERTY_SUBSTITUTION_LEVEL_1;
                 // cf. BDD Scenario: get file with instance properties created by a module property that references itself and a global property with same name
                 if (StringUtils.contains(value, "}}")) {
                     scopes = FileUseCases
                             .propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, false, true)
                                     .passOverPropertyValuesToChildItems());
                     value = replaceMustachePropertiesWithValues(value, scopes);
+                    transformation = PROPERTY_SUBSTITUTION_LEVEL_2;
                     // cf. BDD Scenario: get file with property valorized with another valued property valorized with a predefined property
                     if (StringUtils.contains(value, "}}")) {
                         scopes = FileUseCases
                                 .propertiesToScopes(valuationContext.completeWithContextualProperties(propertyVisitors, true, false)
                                         .passOverPropertyValuesToChildItems());
                         value = replaceMustachePropertiesWithValues(value, scopes);
+                        transformation = PROPERTY_SUBSTITUTION_LEVEL_3;
                     }
                 }
-                propertyVisitor = propertyVisitor.withValue(value);
+                propertyVisitor = propertyVisitor.withValue(value, transformation);
             }
             return propertyVisitor;
         });

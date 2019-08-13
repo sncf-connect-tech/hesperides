@@ -85,7 +85,7 @@ public class IterablePropertyVisitor implements PropertyVisitor {
         return !CollectionUtils.isEmpty(items);
     }
 
-    public IterablePropertyVisitor addPropertyVisitorsOrUpdateValue(List<SimplePropertyVisitor> extraProperties) {
+    IterablePropertyVisitor addPropertyVisitorsOrUpdateValue(List<SimplePropertyVisitor> extraProperties) {
         return new IterablePropertyVisitor(name, items.stream()
                 .map(item -> item.addPropertyVisitorsOrUpdateValue(extraProperties))
                 .collect(Collectors.toList()));

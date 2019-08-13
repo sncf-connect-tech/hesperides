@@ -3,6 +3,7 @@ package org.hesperides.core.domain.platforms.entities.properties.visitors;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation;
 import org.hesperides.core.domain.platforms.queries.views.properties.AbstractValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.IterableValuedPropertyView;
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
@@ -19,6 +20,8 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
+import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.ERASED_DUE_TO_REMAINING_MUSTACHE;
+import static org.hesperides.core.domain.platforms.entities.properties.ValuedPropertyTransformation.FROM_PARENT_ITERABLE;
 
 @Value
 @Slf4j
@@ -99,7 +102,7 @@ public class PropertyVisitorsSequence {
     public PropertyVisitorsSequence removeMustachesInPropertyValues() {
         return this.mapSimplesRecursive(propertyVisitor -> {
             if (propertyVisitor.isValued()) {
-                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValueOrDefault().get(), "\\{\\{[^}]*\\}\\}"));
+                propertyVisitor = propertyVisitor.withValue(StringUtils.removeAll(propertyVisitor.getValueOrDefault().get(), "\\{\\{[^}]*\\}\\}"), ERASED_DUE_TO_REMAINING_MUSTACHE);
             }
             return propertyVisitor;
         });
@@ -131,13 +134,13 @@ public class PropertyVisitorsSequence {
             }
             SimplePropertyVisitor matchingSimplePropertyVisitor = (SimplePropertyVisitor) properties.get(matchingPropertyIndex);
             if (!matchingSimplePropertyVisitor.isValued() && extraVisitorProperty.isValued()) {
-                newProperties.set(matchingPropertyIndex, matchingSimplePropertyVisitor.withValue(extraVisitorProperty.getValueOrDefault().get()));
+                newProperties.set(matchingPropertyIndex, matchingSimplePropertyVisitor.withValue(extraVisitorProperty.getValueOrDefault().get(), FROM_PARENT_ITERABLE));
             }
         });
         return new PropertyVisitorsSequence(newProperties);
     }
 
-    public PropertyVisitorsSequence addOverridingValuedProperties(List<ValuedPropertyView> extraValuedProperties) {
+    public PropertyVisitorsSequence addOverridingValuedProperties(List<ValuedPropertyView> extraValuedProperties, ValuedPropertyTransformation transformation) {
         Map<String, Integer> indexPerPropertyName = buildIndexPerPropertyName();
         List<PropertyVisitor> newProperties = new ArrayList<>(properties);
         for (ValuedPropertyView valuedProperty : extraValuedProperties) {
@@ -147,7 +150,7 @@ public class PropertyVisitorsSequence {
                 if (propertyVisitor instanceof SimplePropertyVisitor) {
                     // On préserve le modèle de propriété
                     // cf. BDD Scenario: get file with instance properties created by a module property that references itself
-                    newProperties.set(matchingPropertyIndex, ((SimplePropertyVisitor) propertyVisitor).withValue(valuedProperty.getValue()));
+                    newProperties.set(matchingPropertyIndex, ((SimplePropertyVisitor) propertyVisitor).withValue(valuedProperty.getValue(), transformation));
                 }
             } else {
                 newProperties.add(new SimplePropertyVisitor(valuedProperty));
