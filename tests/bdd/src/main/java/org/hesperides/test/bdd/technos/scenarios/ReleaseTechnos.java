@@ -36,20 +36,6 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
             technoHistory.addTechnoBuilder(technoBuilder);
         });
 
-        Then("^the techno is successfully released$", () -> {
-            assertCreated();
-            TechnoIO expectedTechno = technoBuilder.build();
-            TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
-            assertEquals(expectedTechno, actualTechno);
-
-            List<PartialTemplateIO> expectedTemplates = technoBuilder.getTemplateBuilders()
-                    .stream()
-                    .map(TemplateBuilder::buildPartialTemplate)
-                    .collect(Collectors.toList());
-            List<PartialTemplateIO> actualTemplates = technoClient.getTemplates(actualTechno);
-            assertEquals(expectedTemplates, actualTemplates);
-        });
-
         Then("^the techno release is rejected with a not found error$", this::assertNotFound);
 
         Then("^the techno release is rejected with a conflict error$", this::assertConflict);

@@ -49,7 +49,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
             technoHistory.addTechnoBuilder(technoBuilder);
         });
 
-        Then("^the techno is successfully duplicated$", () -> {
+        Then("^the techno is successfully (?:duplicated|released)$", () -> {
             assertCreated();
             TechnoIO expectedTechno = technoBuilder.build();
             TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);

@@ -48,6 +48,10 @@ public class CreateTemplates extends HesperidesScenario implements En {
 
         Given("^a template to create(?: with name \"([^\"]*)\")?(?: with filename \"([^\"]*)\")?(?: with location \"([^\"]*)\")?$", (
                 String name, String filename, String location) -> {
+
+            // C'est un nouveau template donc on réinitialise le version_id
+            templateBuilder.withVersionId(0);
+
             if (StringUtils.isNotEmpty(name)) {
                 templateBuilder.withName(name);
             }

@@ -54,7 +54,7 @@ public class TechnoBuilder implements Serializable {
 
     public void reset() {
         name = "test-techno";
-        version = "1.0.0";
+        version = "1.0";
         versionType = VersionType.WORKINGCOPY;
         templateBuilders = new ArrayList<>();
         propertyBuilders = new ArrayList<>();
@@ -107,7 +107,8 @@ public class TechnoBuilder implements Serializable {
     public void removeTemplateBuilderInstance(String templateName) {
         templateBuilders = templateBuilders.stream()
                 .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
+        ;
     }
 
     public void updateTemplateBuilderInstance(TemplateBuilder updatedTemplateBuilder) {
@@ -119,13 +120,13 @@ public class TechnoBuilder implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    public TemplateBuilder getFirstTemplateBuilder() {
-        return templateBuilders.get(0);
-    }
-
     public void updateTemplatesNamespace() {
         templateBuilders = templateBuilders.stream()
                 .map(templateBuilder -> templateBuilder.withNamespace(buildNamespace()))
                 .collect(Collectors.toList());
+    }
+
+    public TemplateBuilder getLastTemplateBuilder() {
+        return templateBuilders.get(templateBuilders.size() - 1);
     }
 }

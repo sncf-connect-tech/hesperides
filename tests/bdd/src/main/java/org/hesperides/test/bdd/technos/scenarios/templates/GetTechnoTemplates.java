@@ -74,7 +74,7 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
         Then("^the techno template is successfully returned$", () -> {
             assertOK();
             // On récupère le template depuis la techno pour avoir le bon version_id
-            TemplateIO expectedTemplate = technoBuilder.getTemplateBuilders().get(0).build();
+            TemplateIO expectedTemplate = technoBuilder.getLastTemplateBuilder().build();
             TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
@@ -89,7 +89,8 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
     private void addTemplateToExistingTechno(String templateName) {
         templateBuilder
                 .withNamespace(technoBuilder.buildNamespace())
-                .withName(templateName);
+                .withName(templateName)
+                .withVersionId(0);
         ResponseEntity responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         testContext.setResponseEntity(responseEntity);
         assertCreated();
