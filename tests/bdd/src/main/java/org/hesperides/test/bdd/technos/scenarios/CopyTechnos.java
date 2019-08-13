@@ -9,6 +9,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
             testContext.setResponseEntity(responseEntity);
             // Dans le cas d'une copie de release, la techno
             // créée devient automatiquement une working copy
-            technoBuilder.withIsWorkingCopy(true);
+            technoBuilder.withVersionType(VersionType.WORKINGCOPY);
             // Les templates sont identiques sauf pour le namespace
             technoBuilder.updateTemplatesNamespace();
             technoHistory.addTechnoBuilder(technoBuilder);
@@ -50,12 +51,11 @@ public class CopyTechnos extends HesperidesScenario implements En {
 
         Then("^the techno is successfully duplicated$", () -> {
             assertCreated();
-            TechnoBuilder expectedTechnoBuilder = technoHistory.getLastTechnoBuilder();
-            TechnoIO expectedTechno = expectedTechnoBuilder.build();
+            TechnoIO expectedTechno = technoBuilder.build();
             TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
             assertEquals(expectedTechno, actualTechno);
 
-            List<PartialTemplateIO> expectedTemplates = expectedTechnoBuilder.getTemplateBuilders()
+            List<PartialTemplateIO> expectedTemplates = technoBuilder.getTemplateBuilders()
                     .stream()
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());

@@ -21,6 +21,7 @@
 package org.hesperides.test.bdd.templatecontainers.builders;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
@@ -38,6 +39,7 @@ public class TemplateBuilder implements Serializable {
     private String namespace;
     private String filename;
     private String location;
+    @Setter
     private String content;
     private TemplateIO.RightsIO rights;
     private Long versionId;
@@ -104,10 +106,6 @@ public class TemplateBuilder implements Serializable {
 
     public PartialTemplateIO buildPartialTemplate() {
         return new PartialTemplateIO(name, namespace, filename, location);
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public void incrementVersionId() {

@@ -7,7 +7,7 @@ import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +51,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
         Given("^a copy of this module changing the name to \"([^\"]*)\"$", (String name) -> {
             ModuleIO existingModule = moduleBuilder.build();
-            ModuleIO newModule = moduleBuilder.withVersionType(VersionTypes.WORKINGCOPY).withName(name).build();
+            ModuleIO newModule = moduleBuilder.withVersionType(VersionType.WORKINGCOPY).withName(name).build();
             moduleClient.copy(existingModule, newModule, ModuleIO.class);
         });
 
@@ -104,7 +104,7 @@ public class CopyModules extends HesperidesScenario implements En {
 
     private ResponseEntity copy(String newVersion, Class responseType) {
         ModuleIO existingModule = moduleBuilder.build();
-        moduleBuilder.withVersionType(VersionTypes.WORKINGCOPY).withVersion(newVersion);
+        moduleBuilder.withVersionType(VersionType.WORKINGCOPY).withVersion(newVersion);
         return moduleClient.copy(existingModule, moduleBuilder.build(), responseType);
     }
 }

@@ -25,7 +25,7 @@ import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -104,7 +104,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity copy(ModuleIO existingModuleInput, ModuleIO newModuleInput, Class responseType) {
@@ -125,7 +125,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
 
     }
 
@@ -140,7 +140,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity updateTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
@@ -150,7 +150,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public ResponseEntity getTemplates(ModuleIO moduleInput, Class responseType) {
@@ -158,7 +158,7 @@ public class ModuleClient {
                 responseType,
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
     public List<PartialTemplateIO> getTemplates(ModuleIO moduleInput) {
@@ -180,7 +180,7 @@ public class ModuleClient {
                     responseType,
                     moduleInput.getName(),
                     moduleInput.getVersion(),
-                    VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                    VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
         } finally {
             defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
         }
@@ -198,7 +198,7 @@ public class ModuleClient {
                     responseType,
                     urlEncodeUtf8(moduleInput.getName()),
                     urlEncodeUtf8(moduleInput.getVersion()),
-                    VersionTypes.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+                    VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
         } finally {
             defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
         }

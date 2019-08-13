@@ -44,27 +44,11 @@ public class TechnoHistory {
         technoBuilders.add(SerializationUtils.clone(technoBuilder));
     }
 
-    public TechnoBuilder findTechnoBuilder(String name, String version, Boolean isWorkingCopy) {
-        return technoBuilders.stream()
-                .filter(technoBuilder -> {
-                    TechnoIO techno = technoBuilder.build();
-                    return techno.getName().equals(name) &&
-                            techno.getVersion().equals(version) &&
-                            techno.getIsWorkingCopy().equals(isWorkingCopy);
-                })
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Unable to find techno in techno history"));
-    }
-
     public void removeTechnoBuilder(TechnoBuilder technoBuilder) {
         technoBuilders.remove(technoBuilder);
     }
 
     public TechnoBuilder getFirstTechnoBuilder() {
         return technoBuilders.get(0);
-    }
-
-    public TechnoBuilder getLastTechnoBuilder() {
-        return technoBuilders.get(technoBuilders.size() - 1);
     }
 }

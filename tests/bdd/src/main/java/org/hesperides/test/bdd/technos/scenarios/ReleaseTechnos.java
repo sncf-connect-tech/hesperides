@@ -7,6 +7,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,8 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
         When("^I( try to)? release this techno$", (String tryTo) -> {
             ResponseEntity responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
             testContext.setResponseEntity(responseEntity);
-            technoBuilder.withIsWorkingCopy(false);
+            technoBuilder.withVersionType(VersionType.RELEASE);
+            technoBuilder.updateTemplatesNamespace();
             technoHistory.addTechnoBuilder(technoBuilder);
         });
 
@@ -40,9 +42,7 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
             TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
             assertEquals(expectedTechno, actualTechno);
 
-            // Compare les templates de la techno d'origine avec ceux de la techno en mode release. Seul le namespace est différent.
-            TechnoBuilder originTechno = technoHistory.findTechnoBuilder(expectedTechno.getName(), expectedTechno.getVersion(), true);
-            List<PartialTemplateIO> expectedTemplates = originTechno.getTemplateBuilders()
+            List<PartialTemplateIO> expectedTemplates = technoBuilder.getTemplateBuilders()
                     .stream()
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());

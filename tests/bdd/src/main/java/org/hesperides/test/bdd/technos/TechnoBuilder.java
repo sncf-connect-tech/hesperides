@@ -20,20 +20,18 @@
  */
 package org.hesperides.test.bdd.technos;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
-import org.hesperides.test.bdd.templatecontainers.VersionTypes;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,7 +42,8 @@ public class TechnoBuilder implements Serializable {
     @Getter
     private String name;
     private String version;
-    private Boolean isWorkingCopy;
+    @Getter
+    private String versionType;
     @Getter
     private List<TemplateBuilder> templateBuilders;
     private List<PropertyBuilder> propertyBuilders;
@@ -56,7 +55,7 @@ public class TechnoBuilder implements Serializable {
     public void reset() {
         name = "test-techno";
         version = "1.0.0";
-        isWorkingCopy = true;
+        versionType = VersionType.WORKINGCOPY;
         templateBuilders = new ArrayList<>();
         propertyBuilders = new ArrayList<>();
     }
@@ -71,17 +70,16 @@ public class TechnoBuilder implements Serializable {
         return this;
     }
 
-    public TechnoBuilder withIsWorkingCopy(boolean isWorkingCopy) {
-        this.isWorkingCopy = isWorkingCopy;
-        return this;
+    public void withVersionType(String versionType) {
+        this.versionType = versionType;
     }
 
     public TechnoIO build() {
-        return new TechnoIO(name, version, isWorkingCopy);
+        return new TechnoIO(name, version, VersionType.toIsWorkingCopy(versionType));
     }
 
     public String buildNamespace() {
-        return "packages#" + name + "#" + version + "#" + VersionTypes.fromIsWorkingCopy(isWorkingCopy).toUpperCase();
+        return "packages#" + name + "#" + version + "#" + versionType.toUpperCase();
     }
 
     public ModelOutput buildPropertiesModel() {
@@ -97,8 +95,8 @@ public class TechnoBuilder implements Serializable {
     }
 
     public void saveTemplateBuilderInstance(TemplateBuilder templateBuilder) {
+        templateBuilder.incrementVersionId();
         TemplateBuilder templateBuilderInstance = SerializationUtils.clone(templateBuilder);
-        templateBuilderInstance.incrementVersionId();
         templateBuilders.add(templateBuilderInstance);
     }
 
@@ -119,14 +117,6 @@ public class TechnoBuilder implements Serializable {
                 .map(existingTemplateBuilder -> existingTemplateBuilder.getName().equals(updatedTemplateBuilderInstance.getName())
                         ? updatedTemplateBuilderInstance : existingTemplateBuilder)
                 .collect(Collectors.toList());
-    }
-
-    public void withVersionType(String versionType) {
-        isWorkingCopy = VersionTypes.toIsWorkingCopy(versionType);
-    }
-
-    public String getVersionType() {
-        return VersionTypes.fromIsWorkingCopy(isWorkingCopy);
     }
 
     public TemplateBuilder getFirstTemplateBuilder() {

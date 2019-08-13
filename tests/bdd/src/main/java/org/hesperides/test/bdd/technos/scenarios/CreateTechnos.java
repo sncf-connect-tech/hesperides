@@ -6,6 +6,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,7 +196,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
         ResponseEntity responseEntity = technoClient.release(technoBuilder.build());
         testContext.setResponseEntity(responseEntity);
         assertCreated();
-        technoBuilder.withIsWorkingCopy(false);
+        technoBuilder.withVersionType(VersionType.RELEASE);
         technoHistory.addTechnoBuilder(technoBuilder);
     }
 }
