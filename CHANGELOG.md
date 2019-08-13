@@ -25,6 +25,18 @@ git fetch --tags upstream && gitchangelog && git add CHANGELOG.md
 ```
 
 <!-- gitchangelog START -->
+## _(unreleased)_
+### Added
+
+- Un champ .transforms dans la sortie du /diff permet désormais d'identifier si la valeur d'une propriété est issue d'une globale. [Lucas Cimon]
+
+
+### Fixed
+
+- We require property to have a name when saving them through a PUT (#742) [Lucas Cimon]
+
+
+
 ## 2019-08-07
 ### Added
 

@@ -1,0 +1,12 @@
+package org.hesperides.core.domain.platforms.entities.properties;
+
+public enum ValuedPropertyTransformation {
+    OVERRIDEN_BY_GLOBAL,
+    OVERRIDEN_BY_INSTANCE,
+    OVERRIDEN_BY_PREDEFINED,
+    PROPERTY_SUBSTITUTION_LEVEL_1,
+    PROPERTY_SUBSTITUTION_LEVEL_2,
+    PROPERTY_SUBSTITUTION_LEVEL_3,
+    FROM_PARENT_ITERABLE,
+    ERASED_DUE_TO_REMAINING_MUSTACHE;
+}

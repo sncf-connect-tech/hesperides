@@ -13,6 +13,7 @@ import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -54,28 +55,28 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
 
         And("the resulting diff match these values", (DataTable data) -> {
             PropertiesDiffOutput actualPropertiesDiff = testContext.getResponseBody(PropertiesDiffOutput.class);
-            List<Diff> expectedPropertiesDiff = data.asList(Diff.class);
+            Set<Diff> expectedPropertiesDiff = new HashSet<>(data.asList(Diff.class));
 
-            List<String> onlyLeftPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyLeft());
-            List<String> onlyLeftPropertiesNameExpected = Diff.getOnlyLeft(expectedPropertiesDiff);
+            Set<String> onlyLeftPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyLeft());
+            Set<String> onlyLeftPropertiesNameExpected = Diff.getOnlyLeft(expectedPropertiesDiff);
             assertEquals("only_left", onlyLeftPropertiesNameExpected, onlyLeftPropertiesName);
 
-            List<String> onlyRightPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyRight());
-            List<String> onlyRightPropertiesNameExpected = Diff.getOnlyRight(expectedPropertiesDiff);
+            Set<String> onlyRightPropertiesName = getPropertiesName(actualPropertiesDiff.getOnlyRight());
+            Set<String> onlyRightPropertiesNameExpected = Diff.getOnlyRight(expectedPropertiesDiff);
             assertEquals("only_right", onlyRightPropertiesNameExpected, onlyRightPropertiesName);
 
-            List<String> commonPropertiesName = getPropertiesName(actualPropertiesDiff.getCommon());
-            List<String> commonPropertiesNameExpected = Diff.getCommon(expectedPropertiesDiff);
+            Set<String> commonPropertiesName = getPropertiesName(actualPropertiesDiff.getCommon());
+            Set<String> commonPropertiesNameExpected = Diff.getCommon(expectedPropertiesDiff);
             assertEquals("common", commonPropertiesNameExpected, commonPropertiesName);
 
-            List<String> differingPropertiesName = getPropertiesName(actualPropertiesDiff.getDiffering());
-            List<String> differingPropertiesNameExpected = Diff.getDiffering(expectedPropertiesDiff);
+            Set<String> differingPropertiesName = getPropertiesName(actualPropertiesDiff.getDiffering());
+            Set<String> differingPropertiesNameExpected = Diff.getDiffering(expectedPropertiesDiff);
             assertEquals("differing", differingPropertiesNameExpected, differingPropertiesName);
         });
     }
 
-    private List<String> getPropertiesName(Set<AbstractDifferingPropertyOutput> propertiesDiff) {
-        return propertiesDiff.stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toList());
+    private Set<String> getPropertiesName(Set<AbstractDifferingPropertyOutput> propertiesDiff) {
+        return propertiesDiff.stream().map(AbstractDifferingPropertyOutput::getName).collect(Collectors.toSet());
     }
 
     @Value
@@ -85,24 +86,24 @@ public class GetPropertiesDiff extends HesperidesScenario implements En {
         String common;
         String differing;
 
-        private static List<String> getOnlyLeft(List<Diff> diffs) {
+        private static Set<String> getOnlyLeft(Set<Diff> diffs) {
             return getTypeOfDiff(diffs, Diff::getOnly_left);
         }
 
-        private static List<String> getOnlyRight(List<Diff> diffs) {
+        private static Set<String> getOnlyRight(Set<Diff> diffs) {
             return getTypeOfDiff(diffs, Diff::getOnly_right);
         }
 
-        private static List<String> getCommon(List<Diff> diffs) {
+        private static Set<String> getCommon(Set<Diff> diffs) {
             return getTypeOfDiff(diffs, Diff::getCommon);
         }
 
-        private static List<String> getDiffering(List<Diff> diffs) {
+        private static Set<String> getDiffering(Set<Diff> diffs) {
             return getTypeOfDiff(diffs, Diff::getDiffering);
         }
 
-        private static List<String> getTypeOfDiff(List<Diff> diffs, Function<Diff, String> mapper) {
-            return diffs.stream().map(mapper).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+        private static Set<String> getTypeOfDiff(Set<Diff> diffs, Function<Diff, String> mapper) {
+            return diffs.stream().map(mapper).filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
         }
     }
 }
