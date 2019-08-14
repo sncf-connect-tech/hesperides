@@ -111,8 +111,8 @@ public class TechnoBuilder implements Serializable {
     }
 
     public void updateTemplateBuilderInstance(TemplateBuilder updatedTemplateBuilder) {
+        updatedTemplateBuilder.incrementVersionId();
         TemplateBuilder updatedTemplateBuilderInstance = SerializationUtils.clone(updatedTemplateBuilder);
-        updatedTemplateBuilderInstance.incrementVersionId();
         templateBuilders = templateBuilders.stream()
                 .map(existingTemplateBuilder -> existingTemplateBuilder.getName().equals(updatedTemplateBuilderInstance.getName())
                         ? updatedTemplateBuilderInstance : existingTemplateBuilder)
