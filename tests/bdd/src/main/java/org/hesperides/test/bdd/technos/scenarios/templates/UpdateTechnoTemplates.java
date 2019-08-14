@@ -27,7 +27,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
@@ -44,7 +43,7 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
 
         When("^I( try to)? update this techno template$", (String tryTo) -> {
             technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
-                        templateBuilder.incrementVersionId();
+            templateBuilder.incrementVersionId();
             technoBuilder.updateTemplateBuilderInstance(templateBuilder);
         });
 

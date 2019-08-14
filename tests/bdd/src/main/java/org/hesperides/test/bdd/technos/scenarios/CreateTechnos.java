@@ -1,6 +1,7 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
+import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
@@ -10,7 +11,6 @@ import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.stream.IntStream;
 
@@ -105,7 +105,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-a");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-                        assertCreated();
+            assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
 
             templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
@@ -113,7 +113,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-b");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-                        assertCreated();
+            assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         });
 
@@ -125,7 +125,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-a");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-                        assertCreated();
+            assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
 
             templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
@@ -133,14 +133,14 @@ public class CreateTechnos extends HesperidesScenario implements En {
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-b");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-                        assertCreated();
+            assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         });
 
         Given("^the techno template properties are modified$", () -> {
             addPropertyToBuilders("patate");
             technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build());
-                        assertOK();
+            assertOK();
             technoBuilder.updateTemplateBuilderInstance(templateBuilder);
         });
 
@@ -150,9 +150,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
             }
         });
 
-        When("^I( try to)? create this techno$", (String tryTo) -> {
-            createTechno(tryTo);
-        });
+        When("^I( try to)? create this techno$", (StepdefBody.A1<String>) this::createTechno);
 
         Then("^the techno is successfully created$", () -> {
             assertCreated();
@@ -182,14 +180,14 @@ public class CreateTechnos extends HesperidesScenario implements En {
     private void createTechno(String tryTo) {
         templateBuilder.withNamespace(technoBuilder.buildNamespace());
         technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
-                templateBuilder.withVersionId(0);
+        templateBuilder.withVersionId(0);
         technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         technoHistory.addTechnoBuilder(technoBuilder);
     }
 
     private void releaseTechno() {
         technoClient.release(technoBuilder.build());
-                assertCreated();
+        assertCreated();
         technoBuilder.withVersionType(VersionType.RELEASE);
         technoHistory.addTechnoBuilder(technoBuilder);
     }

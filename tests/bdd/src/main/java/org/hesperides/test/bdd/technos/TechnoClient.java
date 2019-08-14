@@ -22,21 +22,18 @@ package org.hesperides.test.bdd.technos;
 
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
-import org.hesperides.test.bdd.commons.TestContext;
+import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
 public class TechnoClient {
 
-    private final RestTemplate restTemplate;
+    private final CustomRestTemplate restTemplate;
 
     @Autowired
-    public TechnoClient(RestTemplate restTemplate) {
+    public TechnoClient(CustomRestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
@@ -83,9 +80,7 @@ public class TechnoClient {
     }
 
     public void delete(TechnoIO technoInput, Class responseType) {
-        restTemplate.exchange("/templates/packages/{name}/{version}/{type}",
-                HttpMethod.DELETE,
-                null,
+        restTemplate.deleteForEntity("/templates/packages/{name}/{version}/{type}",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
@@ -123,9 +118,8 @@ public class TechnoClient {
     }
 
     public void updateTemplate(TemplateIO templateInput, TechnoIO technoInput, Class responseType) {
-        restTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates",
-                HttpMethod.PUT,
-                new HttpEntity<>(templateInput),
+        restTemplate.putForEntity("/templates/packages/{name}/{version}/{type}/templates",
+                templateInput,
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),
@@ -150,9 +144,7 @@ public class TechnoClient {
     }
 
     public void deleteTemplate(String templateName, TechnoIO technoInput, Class responseType) {
-        restTemplate.exchange("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
-                HttpMethod.DELETE,
-                null,
+        restTemplate.deleteForEntity("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
                 responseType,
                 technoInput.getName(),
                 technoInput.getVersion(),

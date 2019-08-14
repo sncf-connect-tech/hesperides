@@ -21,7 +21,6 @@
 package org.hesperides.test.bdd.technos;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.hesperides.core.presentation.io.TechnoIO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

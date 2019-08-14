@@ -27,7 +27,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,7 +45,7 @@ public class CreateTechnoTemplates extends HesperidesScenario implements En {
             templateBuilder.withNamespace(technoBuilder.buildNamespace());
             templateBuilder.withVersionId(0);
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
-                        technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+            technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         });
 
         Then("^the template is successfully added to the techno$", () -> {

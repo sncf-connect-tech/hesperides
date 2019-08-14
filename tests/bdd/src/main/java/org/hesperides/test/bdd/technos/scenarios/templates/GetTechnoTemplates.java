@@ -28,7 +28,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,11 +55,11 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
 
         When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> {
             technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
-                    });
+        });
 
         When("^I( try to)? get this template in this techno$", (String tryTo) -> {
             technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
-                    });
+        });
 
         Then("^a list of all the templates of the techno is returned$", () -> {
             assertOK();
@@ -90,7 +89,7 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
                 .withName(templateName)
                 .withVersionId(0);
         technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-                assertCreated();
+        assertCreated();
         technoBuilder.saveTemplateBuilderInstance(templateBuilder);
     }
 }

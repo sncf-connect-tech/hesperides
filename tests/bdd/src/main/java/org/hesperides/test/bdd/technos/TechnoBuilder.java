@@ -108,7 +108,6 @@ public class TechnoBuilder implements Serializable {
         templateBuilders = templateBuilders.stream()
                 .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
                 .collect(Collectors.toList());
-        ;
     }
 
     public void updateTemplateBuilderInstance(TemplateBuilder updatedTemplateBuilder) {

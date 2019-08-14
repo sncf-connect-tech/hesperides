@@ -3,6 +3,7 @@ package org.hesperides.test.bdd.commons;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -14,6 +15,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -218,5 +220,16 @@ public class CustomRestTemplate extends RestTemplate {
         @Override
         public void handleError(ClientHttpResponse response) throws IOException {
         }
+    }
+
+    // Les 2 prochaines méthodes ne sont pas des appels REST standard, elles
+    // correspondent à des cas d'utilisation présents dans Hespérides.
+
+    public <T> ResponseEntity<T> putForEntity(String url, Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
+        return wrapForEntity(super.exchange(url, HttpMethod.PUT, new HttpEntity<>(request), String.class, uriVariables), responseType);
+    }
+
+    public <T> ResponseEntity<T> deleteForEntity(String url, Class<T> responseType, Object... uriVariables) throws RestClientException {
+        return wrapForEntity(super.exchange(url, HttpMethod.DELETE, null, String.class, uriVariables), responseType);
     }
 }
