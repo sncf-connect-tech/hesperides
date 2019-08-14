@@ -14,7 +14,7 @@ public class GetTechnosVersions extends HesperidesScenario implements En {
     public GetTechnosVersions() {
 
         When("^I get the techno versions$", () -> {
-            testContext.setResponseEntity(technoClient.getVersions("new-techno"));
+            technoClient.getVersions("new-techno");
         });
     }
 }

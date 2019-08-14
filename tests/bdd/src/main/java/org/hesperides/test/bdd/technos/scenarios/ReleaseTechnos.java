@@ -29,9 +29,8 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
     public ReleaseTechnos() {
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
-            ResponseEntity responseEntity = technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
-            testContext.setResponseEntity(responseEntity);
-            technoBuilder.withVersionType(VersionType.RELEASE);
+            technoClient.release(technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+                        technoBuilder.withVersionType(VersionType.RELEASE);
             technoBuilder.updateTemplatesNamespace();
             technoHistory.addTechnoBuilder(technoBuilder);
         });

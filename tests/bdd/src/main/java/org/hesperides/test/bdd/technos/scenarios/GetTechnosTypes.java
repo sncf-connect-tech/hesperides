@@ -18,7 +18,7 @@ public class GetTechnosTypes extends HesperidesScenario implements En {
 
         When("^I get the techno types$", () -> {
             TechnoIO techno = technoBuilder.build();
-            testContext.setResponseEntity(technoClient.getTypes(techno.getName(), techno.getVersion()));
+            technoClient.getTypes(techno.getName(), techno.getVersion());
         });
     }
 }

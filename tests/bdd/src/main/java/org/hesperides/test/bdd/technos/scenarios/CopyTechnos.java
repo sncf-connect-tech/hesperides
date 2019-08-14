@@ -15,6 +15,7 @@ import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,6 @@ public class CopyTechnos extends HesperidesScenario implements En {
     private TechnoBuilder technoBuilder;
     @Autowired
     private TechnoHistory technoHistory;
-    @Autowired
-    private ModelBuilder modelBuilder;
 
     public CopyTechnos() {
 
@@ -39,9 +38,8 @@ public class CopyTechnos extends HesperidesScenario implements En {
             if (StringUtils.isEmpty(sameKey)) {
                 technoBuilder.withVersion("1.1");
             }
-            ResponseEntity responseEntity = technoClient.copy(existingTechno, technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
-            testContext.setResponseEntity(responseEntity);
-            // Dans le cas d'une copie de release, la techno
+            technoClient.copy(existingTechno, technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+                        // Dans le cas d'une copie de release, la techno
             // créée devient automatiquement une working copy
             technoBuilder.withVersionType(VersionType.WORKINGCOPY);
             // Les templates sont identiques sauf pour le namespace
@@ -64,7 +62,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
         });
 
         Then("^the model of the techno is the same$", () -> {
-            testContext.setResponseEntity(technoClient.getModel(technoBuilder.build(), ModelOutput.class));
+            technoClient.getModel(technoBuilder.build(), ModelOutput.class);
             assertOK();
             ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().buildPropertiesModel();
             ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);

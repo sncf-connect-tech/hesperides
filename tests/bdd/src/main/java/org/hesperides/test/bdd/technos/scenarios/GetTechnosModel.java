@@ -30,7 +30,7 @@ public class GetTechnosModel extends HesperidesScenario implements En {
     public GetTechnosModel() {
 
         When("^I( try to)? get the model of this techno$", (String tryTo) -> {
-            testContext.setResponseEntity(technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class)));
+            technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
         });
 
         Then("^the model of this techno contains the properties$", () -> {

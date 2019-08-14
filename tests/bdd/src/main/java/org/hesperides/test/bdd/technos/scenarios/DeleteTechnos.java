@@ -25,16 +25,14 @@ public class DeleteTechnos extends HesperidesScenario implements En {
     public DeleteTechnos() {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
-            ResponseEntity responseEntity = technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
-            testContext.setResponseEntity(responseEntity);
-            technoHistory.removeTechnoBuilder(technoBuilder);
+            technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+                        technoHistory.removeTechnoBuilder(technoBuilder);
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            ResponseEntity responseEntity = technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class);
-            testContext.setResponseEntity(responseEntity);
-            assertNotFound();
+            technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class);
+                        assertNotFound();
         });
 
         Then("^the techno deletion is rejected with a not found error$", this::assertNotFound);
@@ -43,12 +41,10 @@ public class DeleteTechnos extends HesperidesScenario implements En {
 
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
-            ResponseEntity responseEntity = technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
-            testContext.setResponseEntity(responseEntity);
-            assertEquals(0, getBodyAsArray().length);
+            technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
+                        assertEquals(0, getBodyAsArray().length);
             technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
-                ResponseEntity response = technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), String.class);
-                testContext.setResponseEntity(response);
+                technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), String.class);
                 assertNotFound();
             });
         });

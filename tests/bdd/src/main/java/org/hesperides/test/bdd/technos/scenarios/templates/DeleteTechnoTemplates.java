@@ -41,16 +41,14 @@ public class DeleteTechnoTemplates extends HesperidesScenario implements En {
 
         When("^I( try to)? delete this techno template$", (String tryTo) -> {
             String templateName = templateBuilder.getName();
-            ResponseEntity responseEntity = technoClient.deleteTemplate(templateName, technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
-            testContext.setResponseEntity(responseEntity);
-            technoBuilder.removeTemplateBuilderInstance(templateName);
+            technoClient.deleteTemplate(templateName, technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+                        technoBuilder.removeTemplateBuilderInstance(templateName);
         });
 
         Then("^the techno template is successfully deleted$", () -> {
             assertOK();
-            ResponseEntity responseEntity = technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
-            testContext.setResponseEntity(responseEntity);
-            assertNotFound();
+            technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
+                        assertNotFound();
         });
 
         Then("^the techno template delete is rejected with a method not allowed error$", this::assertMethodNotAllowed);

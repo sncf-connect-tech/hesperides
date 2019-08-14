@@ -104,18 +104,16 @@ public class CreateTechnos extends HesperidesScenario implements En {
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("12");
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-a");
-            ResponseEntity responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-            testContext.setResponseEntity(responseEntity);
-            assertCreated();
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
+                        assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
 
             templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-b");
-            responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-            testContext.setResponseEntity(responseEntity);
-            assertCreated();
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
+                        assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         });
 
@@ -126,26 +124,23 @@ public class CreateTechnos extends HesperidesScenario implements En {
             propertyBuilder.reset().withName("foo").withComment("comment-a");
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-a");
-            ResponseEntity responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-            testContext.setResponseEntity(responseEntity);
-            assertCreated();
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
+                        assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
 
             templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment-b");
             addPropertyToBuilders(propertyBuilder);
             templateBuilder.withName("template-b");
-            responseEntity = technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
-            testContext.setResponseEntity(responseEntity);
-            assertCreated();
+            technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
+                        assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         });
 
         Given("^the techno template properties are modified$", () -> {
             addPropertyToBuilders("patate");
-            ResponseEntity responseEntity = technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build());
-            testContext.setResponseEntity(responseEntity);
-            assertOK();
+            technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build());
+                        assertOK();
             technoBuilder.updateTemplateBuilderInstance(templateBuilder);
         });
 
@@ -186,17 +181,15 @@ public class CreateTechnos extends HesperidesScenario implements En {
 
     private void createTechno(String tryTo) {
         templateBuilder.withNamespace(technoBuilder.buildNamespace());
-        ResponseEntity responseEntity = technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
-        testContext.setResponseEntity(responseEntity);
-        templateBuilder.withVersionId(0);
+        technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+                templateBuilder.withVersionId(0);
         technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         technoHistory.addTechnoBuilder(technoBuilder);
     }
 
     private void releaseTechno() {
-        ResponseEntity responseEntity = technoClient.release(technoBuilder.build());
-        testContext.setResponseEntity(responseEntity);
-        assertCreated();
+        technoClient.release(technoBuilder.build());
+                assertCreated();
         technoBuilder.withVersionType(VersionType.RELEASE);
         technoHistory.addTechnoBuilder(technoBuilder);
     }

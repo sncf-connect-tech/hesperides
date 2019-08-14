@@ -13,7 +13,7 @@ public class GetTechnosName extends HesperidesScenario implements En {
     public GetTechnosName() {
 
         When("^I get the technos names$", () -> {
-            testContext.setResponseEntity(technoClient.getNames());
+            technoClient.getNames();
         });
     }
 }
