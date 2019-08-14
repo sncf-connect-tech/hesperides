@@ -67,12 +67,12 @@ public class SearchModules extends HesperidesScenario implements En {
 
         Then("^the module is found$", () -> {
             assertOK();
-            assertEquals(1, getBodyAsArray().length);
+            assertEquals(1, testContext.getResponseBodyArrayLength());
         });
 
         Then("^the list of module results is limited to (\\d+) items$", (Integer limit) -> {
             assertOK();
-            assertEquals(limit.intValue(), getBodyAsArray().length);
+            assertEquals(limit.intValue(), testContext.getResponseBodyArrayLength());
         });
 
         Then("^the search request is rejected with a bad request error$", () -> {
@@ -95,19 +95,19 @@ public class SearchModules extends HesperidesScenario implements En {
 
         Then("^the first module in the results is this module$", () -> {
             assertOK();
-            ModuleIO[] returnedModules = getBodyAsArray();
+            ModuleIO[] returnedModules = testContext.getResponseBodyAsArray();
             assertEquals(returnedModules[0].toDomainInstance().getKey().getNamespaceWithoutPrefix(), "new-module#0.0.1#WORKINGCOPY");
         });
 
         Then("^the first module in the results has exactly this name$", () -> {
             assertOK();
-            ModuleIO[] returnedModules = getBodyAsArray();
+            ModuleIO[] returnedModules = testContext.getResponseBodyAsArray();
             assertEquals(returnedModules[0].toDomainInstance().getKey().getName(), "new-module");
         });
 
         Then("^the first module in the results has exactly this name and version$", () -> {
             assertOK();
-            ModuleIO[] returnedModules = getBodyAsArray();
+            ModuleIO[] returnedModules = testContext.getResponseBodyAsArray();
             assertEquals(returnedModules[0].toDomainInstance().getKey().getName(), "new-module");
             assertEquals(returnedModules[0].toDomainInstance().getKey().getVersion(), "0.0.1");
         });

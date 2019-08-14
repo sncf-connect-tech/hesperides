@@ -42,7 +42,7 @@ public class DeleteTechnos extends HesperidesScenario implements En {
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
             technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
-                        assertEquals(0, getBodyAsArray().length);
+                        assertEquals(0, testContext.getResponseBodyArrayLength());
             technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
                 technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), String.class);
                 assertNotFound();

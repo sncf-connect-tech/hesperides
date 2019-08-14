@@ -85,7 +85,7 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
                 }
             });
 
-            Map<String, Set<GlobalPropertyUsageOutput>> actualProperties = ((ResponseEntity<Map<String, Set<GlobalPropertyUsageOutput>>>) testContext.getResponseEntity()).getBody();
+            Map<String, Set<GlobalPropertyUsageOutput>> actualProperties = testContext.getResponseBodyAsMap();
             Assert.assertEquals(expectedProperties, actualProperties);
         });
     }

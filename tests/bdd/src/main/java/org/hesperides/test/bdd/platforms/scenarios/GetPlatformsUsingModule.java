@@ -53,13 +53,13 @@ public class GetPlatformsUsingModule extends HesperidesScenario implements En {
         Then("^the platforms using this module are successfully retrieved", () -> {
             assertOK();
             List<ModulePlatformsOutput> expectedPlatforms = platformHistory.buildModulePlatforms();
-            List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(getBodyAsArray());
+            List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
             assertEquals(expectedPlatforms, actualPlatforms);
         });
 
         Then("^a single platform is retrieved", () -> {
             assertOK();
-            List<ModulePlatformsOutput> actualPlatforms = Arrays.asList(getBodyAsArray());
+            List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
             assertThat(actualPlatforms, hasSize(1));
         });
     }

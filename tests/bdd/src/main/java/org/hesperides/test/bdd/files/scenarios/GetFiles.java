@@ -99,7 +99,7 @@ public class GetFiles extends HesperidesScenario implements En {
 
         Then("^the files are successfully retrieved$", () -> {
             assertOK();
-            List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
+            List<InstanceFileOutput> actualOutput = testContext.getResponseBodyAsList();
             assertEquals(expectedFiles, actualOutput);
         });
 
@@ -111,13 +111,13 @@ public class GetFiles extends HesperidesScenario implements En {
 
         Then("^the file location is \"([^\"]*)\"$", (String expectedLocation) -> {
             assertOK();
-            List<InstanceFileOutput> actualOutput = Arrays.asList(getBodyAsArray());
+            List<InstanceFileOutput> actualOutput = testContext.getResponseBodyAsList();
             assertEquals(expectedLocation, actualOutput.get(0).getLocation());
         });
 
         Then("^their location contains no mustaches$", () -> {
             assertOK();
-            List<InstanceFileOutput> files = Arrays.asList(getBodyAsArray());
+            List<InstanceFileOutput> files = testContext.getResponseBodyAsList();
             files.forEach(file -> {
                 assertThat(file.getLocation(), not(containsString("{{")));
                 assertThat(file.getLocation(), not(containsString("}}")));

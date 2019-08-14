@@ -153,11 +153,6 @@ public class TechnoClient {
         testContext.setResponseEntity(responseEntity);
     }
 
-    public List<PartialTemplateIO> getTemplates(TechnoIO technoInput) {
-        getTemplates(technoInput, PartialTemplateIO[].class);
-        return Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
-    }
-
     public void getTemplate(String templateName, TechnoIO technoInput, Class responseType) {
         ResponseEntity responseEntity = restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}/templates/{template_name}",
                 responseType,

@@ -32,6 +32,8 @@ import static org.junit.Assert.assertEquals;
 
 public class HesperidesScenario {
 
+    //TODO Quel est l'intérêt de cette classe ? Est-ce qu'on peut pas tout passer dans TestContext ?
+
     @Autowired
     protected TestContext testContext;
     @Autowired
@@ -41,14 +43,6 @@ public class HesperidesScenario {
 
     public static Class getResponseType(String tryTo, Class defaultResponseType) {
         return StringUtils.isEmpty(tryTo) ? defaultResponseType : String.class;
-    }
-
-    protected <T> T[] getBodyAsArray() {
-        return ((ResponseEntity<T[]>) testContext.getResponseEntity()).getBody();
-    }
-
-    protected Map getBodyAsMap() {
-        return ((ResponseEntity<Map>) testContext.getResponseEntity()).getBody();
     }
 
     public void assertOK() {

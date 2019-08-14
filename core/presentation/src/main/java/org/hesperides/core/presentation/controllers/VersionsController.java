@@ -38,7 +38,7 @@ import java.util.Map;
 @RestController
 public class VersionsController extends AbstractController {
 
-    private static String APPLICATION_BOOT_TIME = (new SimpleDateFormat("yyyy-MM-dd'_'HH:mm:ss")).format(new Date());
+    private static String APPLICATION_BOOT_TIME = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(new Date());
 
     @Value("${application.version}")
     private String version;

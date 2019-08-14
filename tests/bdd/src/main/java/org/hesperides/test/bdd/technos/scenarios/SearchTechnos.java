@@ -36,12 +36,12 @@ public class SearchTechnos extends HesperidesScenario implements En {
 
         Then("^the techno is found$", () -> {
             assertOK();
-            assertEquals(1, getBodyAsArray().length);
+            assertEquals(1, testContext.getResponseBodyArrayLength());
         });
 
         Then("^the list of techno results is limited to (\\d+) items$", (Integer limit) -> {
             assertOK();
-            assertEquals(limit.intValue(), getBodyAsArray().length);
+            assertEquals(limit.intValue(), testContext.getResponseBodyArrayLength());
         });
     }
 }

@@ -22,12 +22,12 @@ public class CommonSteps extends HesperidesScenario implements En {
 
         Then("^an empty list is returned$", () -> {
             assertOK();
-            assertEquals(0, getBodyAsArray().length);
+            assertEquals(0, testContext.getResponseBodyArrayLength());
         });
 
         Then("^a list of (\\d+) elements? is returned$", (Integer expectedCount) -> {
             assertOK();
-            assertEquals(expectedCount.intValue(), getBodyAsArray().length);
+            assertEquals(expectedCount.intValue(), testContext.getResponseBodyArrayLength());
         });
     }
 }

@@ -81,7 +81,7 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
 
         Then("^the templates techno is not found$", this::assertNotFound);
 
-        Then("^the list of techno templates is empty$", () -> assertEquals(0, getBodyAsArray().length));
+        Then("^the list of techno templates is empty$", () -> assertEquals(0, testContext.getResponseBodyArrayLength()));
     }
 
     private void addTemplateToExistingTechno(String templateName) {

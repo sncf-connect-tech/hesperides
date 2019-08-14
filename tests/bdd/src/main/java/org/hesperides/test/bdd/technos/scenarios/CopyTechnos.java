@@ -10,10 +10,8 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +37,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
                 technoBuilder.withVersion("1.1");
             }
             technoClient.copy(existingTechno, technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
-                        // Dans le cas d'une copie de release, la techno
+            // Dans le cas d'une copie de release, la techno
             // créée devient automatiquement une working copy
             technoBuilder.withVersionType(VersionType.WORKINGCOPY);
             // Les templates sont identiques sauf pour le namespace
@@ -57,7 +55,9 @@ public class CopyTechnos extends HesperidesScenario implements En {
                     .stream()
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
-            List<PartialTemplateIO> actualTemplates = technoClient.getTemplates(actualTechno);
+
+            technoClient.getTemplates(actualTechno, PartialTemplateIO[].class);
+            List<PartialTemplateIO> actualTemplates = testContext.getResponseBodyAsList();
             assertEquals(expectedTemplates, actualTemplates);
         });
 
@@ -67,11 +67,6 @@ public class CopyTechnos extends HesperidesScenario implements En {
             ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().buildPropertiesModel();
             ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
             assertEquals(expectedModel, actualModel);
-        });
-
-        Then("^the version type of the duplicated techno is working copy$", () -> {
-            TechnoIO technoOutput = testContext.getResponseBody(TechnoIO.class);
-            assertTrue(technoOutput.getIsWorkingCopy());
         });
 
         Then("^the techno copy is rejected with a not found error$", this::assertNotFound);

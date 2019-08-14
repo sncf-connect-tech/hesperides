@@ -53,7 +53,7 @@ public class GetModulesUsingTechno extends HesperidesScenario implements En {
         Then("^the modules using this techno are successfully retrieved", () -> {
             assertOK();
             List<ModuleKeyOutput> expectedModules = moduleHistory.buildTechnoModules();
-            List<ModuleKeyOutput> actualModules = Arrays.asList(getBodyAsArray());
+            List<ModuleKeyOutput> actualModules = testContext.getResponseBodyAsList();
             Assert.assertEquals(expectedModules, actualModules);
         });
     }

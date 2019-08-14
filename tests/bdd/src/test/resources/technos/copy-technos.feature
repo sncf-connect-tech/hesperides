@@ -13,7 +13,6 @@ Feature: Copy technos
     Given an existing released techno with properties
     When I create a copy of this techno
     Then the techno is successfully duplicated
-    But the version type of the duplicated techno is working copy
 
   Scenario: copy a techno that doesn't exist
     Given a techno that doesn't exist

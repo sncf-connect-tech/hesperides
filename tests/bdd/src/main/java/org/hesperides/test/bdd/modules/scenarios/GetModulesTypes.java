@@ -25,7 +25,7 @@ public class GetModulesTypes extends HesperidesScenario implements En {
 
         Then("^a list containing workingcopy and release is returned$", () -> {
             assertOK();
-            String[] body = getBodyAsArray();
+            String[] body = testContext.getResponseBodyAsArray();
             assertEquals(2, body.length);
             assertEquals("workingcopy", body[0]);
             assertEquals("release", body[1]);
@@ -33,7 +33,7 @@ public class GetModulesTypes extends HesperidesScenario implements En {
 
         Then("^a list containing workingcopy is returned$", () -> {
             assertOK();
-            String[] body = getBodyAsArray();
+            String[] body = testContext.getResponseBodyAsArray();
             assertEquals(1, body.length);
             assertEquals("workingcopy", body[0]);
         });

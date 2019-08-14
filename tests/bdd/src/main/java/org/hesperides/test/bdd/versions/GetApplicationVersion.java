@@ -17,7 +17,7 @@ public class GetApplicationVersion extends HesperidesScenario implements En {
 
         Then("^the versions are returned$", () -> {
             assertOK();
-            Map map = getBodyAsMap();
+            Map map = testContext.getResponseBodyAsMap();
             assertNotNull(map.get("version"));
         });
     }
