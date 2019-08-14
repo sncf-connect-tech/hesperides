@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.commons;
 
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class TestContext {
 
     private String authorizationRole = null;
+    @Setter
     private ResponseEntity responseEntity;
 
     private final AuthorizationCredentialsConfig authorizationCredentialsConfig;
@@ -52,10 +54,6 @@ public class TestContext {
 
     public <K, V> Map<K, V> getResponseBodyAsMap() {
         return ((ResponseEntity<Map<K, V>>) responseEntity).getBody();
-    }
-
-    public void setResponseEntity(ResponseEntity responseEntity) {
-        this.responseEntity = responseEntity;
     }
 
     public HttpStatus getResponseStatusCode() {
