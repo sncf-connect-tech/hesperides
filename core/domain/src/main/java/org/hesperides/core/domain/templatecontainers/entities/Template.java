@@ -6,6 +6,7 @@ import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
+import org.hesperides.core.domain.templatecontainers.exceptions.PropertyWithSameNameAsIterablePropertyException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,15 @@ public class Template {
     TemplateContainer.Key templateContainerKey;
 
     public Template validateProperties() {
-        extractProperties();
+        extractProperties().stream()
+                .filter(IterableProperty.class::isInstance)
+                .forEach(iterableProperty -> {
+            if (extractProperties().stream()
+                    .filter(Property.class::isInstance)
+                    .anyMatch(p -> p.getName().equalsIgnoreCase(iterableProperty.getName()))) {
+                throw new PropertyWithSameNameAsIterablePropertyException(templateContainerKey.toString(), filename, iterableProperty.getName());
+            }
+        });
         return this;
     }
 
