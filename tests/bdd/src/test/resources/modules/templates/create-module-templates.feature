@@ -51,3 +51,15 @@ Feature: Create module templates
     When I delete this module template
     And I add this template to the module
     Then the template is successfully added to the module
+
+  Scenario: create a template using both a simple property and an iterable property with same name
+    Given an existing module
+    And this template content
+      """
+      {{ property }}
+      {{#property}}
+      {{/property}}
+      """
+    When I try to add this template to the module
+    Then the module template creation is rejected with a bad request error
+

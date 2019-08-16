@@ -723,21 +723,6 @@ Feature: Get file
       test-application
       """
 
-  # Note: rien ne nous contraint ici vis à vis du legacy : nous pourrions interdire ce cas dans les templates
-  Scenario: get file with a property and an iterable property that have the same name and are not valorized
-    Given an existing module with this template content
-    """
-    {{#a}}
-    {{ it-property }}
-    {{/a}}
-    {{ a }}
-    """
-    And an existing platform with this module
-    When I get the module template file
-    Then the file is successfully retrieved and contains
-    """
-    """
-
   Scenario: get file using a set delimiter and with a property default value including mustaches
     Given an existing module with this template content
     """

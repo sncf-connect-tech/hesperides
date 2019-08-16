@@ -6,10 +6,13 @@ import org.hesperides.core.domain.exceptions.OutOfDateVersionException;
 import org.hesperides.core.domain.modules.exceptions.DuplicateTemplateCreationException;
 import org.hesperides.core.domain.modules.exceptions.TemplateNotFoundException;
 import org.hesperides.core.domain.templatecontainers.exceptions.InvalidTemplateException;
+import org.hesperides.core.domain.templatecontainers.exceptions.PropertyWithSameNameAsIterablePropertyException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Value
 public class Template {
@@ -22,7 +25,23 @@ public class Template {
     TemplateContainer.Key templateContainerKey;
 
     public Template validateProperties() {
-        extractProperties();
+        List<AbstractProperty> properties = extractProperties();
+        Set<String> iterablePropertiesNames = properties.stream()
+                .filter(IterableProperty.class::isInstance)
+                .map(IterableProperty.class::cast)
+                .map(AbstractProperty::getName)
+                .collect(Collectors.toSet());
+        Set<String> propertiesNames = properties.stream()
+                .filter(Property.class::isInstance)
+                .map(Property.class::cast)
+                .map(AbstractProperty::getName)
+                .collect(Collectors.toSet());
+        for (String iterablePropertyName : iterablePropertiesNames) {
+            if (propertiesNames.contains(iterablePropertyName)) {
+                throw new PropertyWithSameNameAsIterablePropertyException(templateContainerKey.toString(), filename, iterablePropertyName);
+            }
+        }
+
         return this;
     }
 

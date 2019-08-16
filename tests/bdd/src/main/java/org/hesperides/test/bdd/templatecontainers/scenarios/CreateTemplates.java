@@ -82,6 +82,9 @@ public class CreateTemplates extends HesperidesScenario implements En {
         Given("^a template to create without a location", () -> {
             templateBuilder.withName("new-template").withLocation("");
         });
+        Given("^this template content", (String templateContent) -> {
+            templateBuilder.setContent(templateContent);
+        });
     }
 
     private void addPropertiesToModel(String input) {
