@@ -6,8 +6,6 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -20,18 +18,10 @@ public class GetTechnosModel extends HesperidesScenario implements En {
     private TechnoClient technoClient;
     @Autowired
     private TechnoBuilder technoBuilder;
-    @Autowired
-    private TemplateBuilder templateBuilder;
-    @Autowired
-    private PropertyBuilder propertyBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
 
     public GetTechnosModel() {
 
-        When("^I( try to)? get the model of this techno$", (String tryTo) -> {
-            technoClient.getModel(technoBuilder.build(), getResponseType(tryTo, ModelOutput.class));
-        });
+        When("^I( try to)? get the model of this techno$", (String tryTo) -> technoClient.getModel(technoBuilder.build(), tryTo));
 
         Then("^the model of this techno contains the properties$", () -> {
             assertOK();

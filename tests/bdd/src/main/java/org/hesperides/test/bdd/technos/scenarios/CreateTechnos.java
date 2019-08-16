@@ -100,18 +100,16 @@ public class CreateTechnos extends HesperidesScenario implements En {
         Given("^an existing techno with properties with the same name and comment, but different default values, in two templates$", () -> {
             createTechno();
 
-            templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
+            templateBuilder.reset().withName("template-a").withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("12");
             addPropertyToBuilders(propertyBuilder);
-            templateBuilder.withName("template-a");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
 
-            templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
+            templateBuilder.reset().withName("template-b").withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
             addPropertyToBuilders(propertyBuilder);
-            templateBuilder.withName("template-b");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
@@ -120,18 +118,16 @@ public class CreateTechnos extends HesperidesScenario implements En {
         Given("^an existing techno with properties with the same name but different comments in two templates$", () -> {
             createTechno();
 
-            templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
+            templateBuilder.reset().withName("template-a").withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment-a");
             addPropertyToBuilders(propertyBuilder);
-            templateBuilder.withName("template-a");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
 
-            templateBuilder.reset().withNamespace(technoBuilder.buildNamespace());
+            templateBuilder.reset().withName("template-b").withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment-b");
             addPropertyToBuilders(propertyBuilder);
-            templateBuilder.withName("template-b");
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
             technoBuilder.saveTemplateBuilderInstance(templateBuilder);
@@ -179,14 +175,14 @@ public class CreateTechnos extends HesperidesScenario implements En {
 
     private void createTechno(String tryTo) {
         templateBuilder.withNamespace(technoBuilder.buildNamespace());
-        technoClient.create(templateBuilder.build(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
+        technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), tryTo);
         templateBuilder.withVersionId(0);
         technoBuilder.saveTemplateBuilderInstance(templateBuilder);
         technoHistory.addTechnoBuilder(technoBuilder);
     }
 
     private void releaseTechno() {
-        technoClient.release(technoBuilder.build());
+        technoClient.releaseTechno(technoBuilder.build());
         assertCreated();
         technoBuilder.withVersionType(VersionType.RELEASE);
         technoHistory.addTechnoBuilder(technoBuilder);

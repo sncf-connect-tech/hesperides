@@ -96,6 +96,7 @@ public class TechnoBuilder implements Serializable {
 
     public void saveTemplateBuilderInstance(TemplateBuilder templateBuilder) {
         templateBuilder.incrementVersionId();
+        templateBuilder.withNamespace(buildNamespace());
         TemplateBuilder templateBuilderInstance = SerializationUtils.clone(templateBuilder);
         templateBuilders.add(templateBuilderInstance);
     }

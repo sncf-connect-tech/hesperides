@@ -26,7 +26,6 @@ import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 public class DeleteTechnoTemplates extends HesperidesScenario implements En {
 
@@ -41,13 +40,13 @@ public class DeleteTechnoTemplates extends HesperidesScenario implements En {
 
         When("^I( try to)? delete this techno template$", (String tryTo) -> {
             String templateName = templateBuilder.getName();
-            technoClient.deleteTemplate(templateName, technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+            technoClient.deleteTemplate(templateName, technoBuilder.build(), tryTo);
             technoBuilder.removeTemplateBuilderInstance(templateName);
         });
 
         Then("^the techno template is successfully deleted$", () -> {
             assertOK();
-            technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), String.class);
+            technoClient.getTemplate(templateBuilder.build().getName(), technoBuilder.build(), "it-should-fail");
             assertNotFound();
         });
 

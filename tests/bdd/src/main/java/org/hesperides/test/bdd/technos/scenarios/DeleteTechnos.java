@@ -1,13 +1,11 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,13 +21,13 @@ public class DeleteTechnos extends HesperidesScenario implements En {
     public DeleteTechnos() {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
-            technoClient.delete(technoBuilder.build(), getResponseType(tryTo, ResponseEntity.class));
+            technoClient.deleteTechno(technoBuilder.build(), tryTo);
             technoHistory.removeTechnoBuilder(technoBuilder);
         });
 
         Then("^the techno is successfully deleted$", () -> {
             assertOK();
-            technoClient.get(technoBuilder.build(), technoBuilder.getVersionType(), String.class);
+            technoClient.getTechno(technoBuilder.build(), technoBuilder.getVersionType(), "should-fail");
             assertNotFound();
         });
 
@@ -39,10 +37,10 @@ public class DeleteTechnos extends HesperidesScenario implements En {
 
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
-            technoClient.getTemplates(technoBuilder.build(), PartialTemplateIO[].class);
+            technoClient.getTemplates(technoBuilder.build());
             assertEquals(0, testContext.getResponseBodyArrayLength());
             technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
-                technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), String.class);
+                technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), "should-fail");
                 assertNotFound();
             });
         });

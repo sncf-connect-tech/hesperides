@@ -34,7 +34,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
             if (StringUtils.isEmpty(sameKey)) {
                 technoBuilder.withVersion("1.1");
             }
-            technoClient.copy(existingTechno, technoBuilder.build(), getResponseType(tryTo, TechnoIO.class));
+            technoClient.copyTechno(existingTechno, technoBuilder.build(), tryTo);
             // Dans le cas d'une copie de release, la techno
             // créée devient automatiquement une working copy
             technoBuilder.withVersionType(VersionType.WORKINGCOPY);
@@ -54,13 +54,13 @@ public class CopyTechnos extends HesperidesScenario implements En {
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
 
-            technoClient.getTemplates(actualTechno, PartialTemplateIO[].class);
+            technoClient.getTemplates(actualTechno);
             List<PartialTemplateIO> actualTemplates = testContext.getResponseBodyAsList();
             assertEquals(expectedTemplates, actualTemplates);
         });
 
         Then("^the model of the techno is the same$", () -> {
-            technoClient.getModel(technoBuilder.build(), ModelOutput.class);
+            technoClient.getModel(technoBuilder.build());
             assertOK();
             ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().buildPropertiesModel();
             ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);

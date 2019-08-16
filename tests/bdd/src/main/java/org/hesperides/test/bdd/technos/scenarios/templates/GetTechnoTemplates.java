@@ -53,13 +53,10 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
 
         Given("^a template that doesn't exist in this techno$", () -> templateBuilder.withName("doesn-t-exist"));
 
-        When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> {
-            technoClient.getTemplates(technoBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class));
-        });
+        When("^I( try to)? get the list of templates of this techno$", (String tryTo) -> technoClient.getTemplates(technoBuilder.build(), tryTo));
 
-        When("^I( try to)? get this template in this techno$", (String tryTo) -> {
-            technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), getResponseType(tryTo, TemplateIO.class));
-        });
+        When("^I( try to)? get this template in this techno$", (String tryTo) ->
+                technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), tryTo));
 
         Then("^a list of all the templates of the techno is returned$", () -> {
             assertOK();
@@ -84,10 +81,9 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
     }
 
     private void addTemplateToExistingTechno(String templateName) {
-        templateBuilder
+        templateBuilder.reset()
                 .withNamespace(technoBuilder.buildNamespace())
-                .withName(templateName)
-                .withVersionId(0);
+                .withName(templateName);
         technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         assertCreated();
         technoBuilder.saveTemplateBuilderInstance(templateBuilder);
