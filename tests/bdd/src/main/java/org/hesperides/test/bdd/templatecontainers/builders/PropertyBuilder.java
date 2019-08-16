@@ -126,13 +126,13 @@ public class PropertyBuilder implements Serializable {
                 property.append(" @required");
             }
             if (!StringUtils.isEmpty(comment)) {
-                property.append(" @comment " + comment);
+                property.append(" @comment ").append(comment);
             }
             if (!StringUtils.isEmpty(defaultValue)) {
-                property.append(" @default " + defaultValue);
+                property.append(" @default ").append(defaultValue);
             }
             if (!StringUtils.isEmpty(pattern)) {
-                property.append(" @pattern " + pattern);
+                property.append(" @pattern ").append(pattern);
             }
             if (isPassword) {
                 property.append(" @password");

@@ -21,15 +21,16 @@ public class GetTechnos extends HesperidesScenario implements En {
 
         Given("^a techno that doesn't exist$", () -> technoBuilder.withName("doesn-t-exist"));
 
-        When("^I( try to)? get the techno detail(?: for a techno type \"(.*)\")?( with the wrong letter case)?$", (String tryTo, String technoType, String withWrongLetterCase) -> {
+        When("^I( try to)? get the techno detail(?: for a techno type \"(.*)\")?( with the wrong letter case)?$", (
+                String tryTo, String technoType, String withWrongLetterCase) -> {
+
             if (isNotEmpty(technoType)) {
                 technoBuilder.withVersionType(technoType);
             }
-            TechnoIO technoInput = technoBuilder.build();
             if (isNotEmpty(withWrongLetterCase)) {
-                technoInput = new TechnoBuilder().withName(technoBuilder.getName().toUpperCase()).build();
+                technoBuilder.withName(technoBuilder.getName().toUpperCase());
             }
-            technoClient.getTechno(technoInput, technoBuilder.getVersionType(), tryTo);
+            technoClient.getTechno(technoBuilder.build(), technoBuilder.getVersionType(), tryTo);
         });
 
         When("^I get the technos names$", () -> technoClient.getTechnoNames());

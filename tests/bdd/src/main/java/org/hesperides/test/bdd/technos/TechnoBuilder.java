@@ -20,58 +20,20 @@
  */
 package org.hesperides.test.bdd.technos;
 
-import lombok.Getter;
-import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
-import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
-import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
+import org.hesperides.test.bdd.templatecontainers.builders.TemplateContainerBuilder;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Component
-public class TechnoBuilder implements Serializable {
-
-    @Getter
-    private String name;
-    private String version;
-    @Getter
-    private String versionType;
-    @Getter
-    private List<TemplateBuilder> templateBuilders;
-    private List<PropertyBuilder> propertyBuilders;
+public class TechnoBuilder extends TemplateContainerBuilder {
 
     public TechnoBuilder() {
         reset();
     }
 
     public void reset() {
-        name = "test-techno";
-        version = "1.0";
-        versionType = VersionType.WORKINGCOPY;
-        templateBuilders = new ArrayList<>();
-        propertyBuilders = new ArrayList<>();
-    }
-
-    public TechnoBuilder withName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public TechnoBuilder withVersion(String version) {
-        this.version = version;
-        return this;
-    }
-
-    public void withVersionType(String versionType) {
-        this.versionType = versionType;
+        reset("test-techno");
     }
 
     public TechnoIO build() {
@@ -80,53 +42,5 @@ public class TechnoBuilder implements Serializable {
 
     public String buildNamespace() {
         return "packages#" + name + "#" + version + "#" + versionType.toUpperCase();
-    }
-
-    public ModelOutput buildPropertiesModel() {
-        Set<PropertyOutput> simpleProperties = propertyBuilders.stream()
-                .filter(PropertyBuilder::isSimpleProperty)
-                .map(PropertyBuilder::build)
-                .collect(Collectors.toSet());
-        Set<PropertyOutput> iterableProperties = propertyBuilders.stream()
-                .filter(PropertyBuilder::isIterableProperty)
-                .map(PropertyBuilder::build)
-                .collect(Collectors.toSet());
-        return new ModelOutput(simpleProperties, iterableProperties);
-    }
-
-    public void saveTemplateBuilderInstance(TemplateBuilder templateBuilder) {
-        templateBuilder.incrementVersionId();
-        templateBuilder.withNamespace(buildNamespace());
-        TemplateBuilder templateBuilderInstance = SerializationUtils.clone(templateBuilder);
-        templateBuilders.add(templateBuilderInstance);
-    }
-
-    public void savePropertyBuilderInstance(PropertyBuilder propertyBuilder) {
-        propertyBuilders.add(SerializationUtils.clone(propertyBuilder));
-    }
-
-    public void removeTemplateBuilderInstance(String templateName) {
-        templateBuilders = templateBuilders.stream()
-                .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
-                .collect(Collectors.toList());
-    }
-
-    public void updateTemplateBuilderInstance(TemplateBuilder updatedTemplateBuilder) {
-        updatedTemplateBuilder.incrementVersionId();
-        TemplateBuilder updatedTemplateBuilderInstance = SerializationUtils.clone(updatedTemplateBuilder);
-        templateBuilders = templateBuilders.stream()
-                .map(existingTemplateBuilder -> existingTemplateBuilder.getName().equals(updatedTemplateBuilderInstance.getName())
-                        ? updatedTemplateBuilderInstance : existingTemplateBuilder)
-                .collect(Collectors.toList());
-    }
-
-    public void updateTemplatesNamespace() {
-        templateBuilders = templateBuilders.stream()
-                .map(templateBuilder -> templateBuilder.withNamespace(buildNamespace()))
-                .collect(Collectors.toList());
-    }
-
-    public TemplateBuilder getLastTemplateBuilder() {
-        return templateBuilders.get(templateBuilders.size() - 1);
     }
 }

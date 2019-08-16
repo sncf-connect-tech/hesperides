@@ -60,6 +60,10 @@ public class TechnoClient {
         restTemplate.getForEntity("/templates/packages/perform_search?terms=" + terms + "&size=" + size, TechnoIO[].class);
     }
 
+    public void getTechno(TechnoIO technoInput, String tryTo) {
+        getTechno(technoInput, VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()), tryTo);
+    }
+
     public void getTechno(TechnoIO technoInput, String versionType, String tryTo) {
         restTemplate.getForEntity("/templates/packages/{name}/{version}/{type}",
                 getResponseType(tryTo, TechnoIO.class),
