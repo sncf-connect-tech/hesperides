@@ -3,7 +3,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
 
     public GetInstancesModel() {
 

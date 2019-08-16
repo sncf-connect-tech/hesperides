@@ -18,13 +18,13 @@
  *
  *
  */
-package org.hesperides.test.bdd.modules.scenarios.templates;
+package backup.modules.scenarios.templates;
 
+import org.hesperides.test.bdd.modules.OldModuleClient;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,30 +33,47 @@ import static org.junit.Assert.assertEquals;
 public class CreateModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
 
     public CreateModuleTemplates() {
 
+        Given("^a module template to create$", () -> {
+            templateBuilder
+                    .withName("module-template")
+                    .withFilename("module.js")
+                    .withLocation("/etc");
+        });
+
         When("^I( try to)? add this template to the module$", (String tryTo) -> {
-            templateBuilder.withNamespace(moduleBuilder.buildNamespace());
-            templateBuilder.withVersionId(0);
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), tryTo);
-            moduleBuilder.addTemplateBuilder(templateBuilder);
+            moduleBuilder.withTemplate(templateBuilder.build());
+            testContext.setResponseEntity(moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
         });
 
         Then("^the template is successfully added to the module$", () -> {
             assertCreated();
-            TemplateIO expectedTemplate = moduleBuilder.getLastTemplateBuilder().build();
+            TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
             TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the module template creation is rejected with a method not allowed error$", this::assertMethodNotAllowed);
+        Then("^the module template creation is rejected with a method not allowed error$", () -> {
+            assertMethodNotAllowed();
+        });
 
-        Then("^the module template creation is rejected with a bad request error$", this::assertBadRequest);
+        Then("^the module template creation is rejected with a bad request error$", () -> {
+            assertBadRequest();
+        });
+
+        Then("^the module template creation is rejected with a not found error$", () -> {
+            assertNotFound();
+        });
+
+        Then("^the module template creation is rejected with a conflict error$", () -> {
+            assertConflict();
+        });
     }
 }

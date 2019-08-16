@@ -41,7 +41,7 @@ public class DeleteTechnoTemplates extends HesperidesScenario implements En {
         When("^I( try to)? delete this techno template$", (String tryTo) -> {
             String templateName = templateBuilder.getName();
             technoClient.deleteTemplate(templateName, technoBuilder.build(), tryTo);
-            technoBuilder.removeTemplateBuilderInstance(templateName);
+            technoBuilder.removeTemplateBuilder(templateName);
         });
 
         Then("^the techno template is successfully deleted$", () -> {

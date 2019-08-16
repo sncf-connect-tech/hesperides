@@ -24,9 +24,8 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CreateTemplates extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
 
@@ -49,8 +46,7 @@ public class CreateTemplates extends HesperidesScenario implements En {
         Given("^a template to create(?: with name \"([^\"]*)\")?(?: with filename \"([^\"]*)\")?(?: with location \"([^\"]*)\")?$", (
                 String name, String filename, String location) -> {
 
-            // C'est un nouveau template donc on réinitialise le version_id
-            templateBuilder.withVersionId(0);
+            templateBuilder.reset();
 
             if (StringUtils.isNotEmpty(name)) {
                 templateBuilder.withName(name);
@@ -76,15 +72,15 @@ public class CreateTemplates extends HesperidesScenario implements En {
         });
 
         Given("^a template to create without a name$", () -> {
-            templateBuilder.withName("");
+            templateBuilder.reset().withName("");
         });
 
         Given("^a template to create without a filename$", () -> {
-            templateBuilder.withName("new-template").withFilename("");
+            templateBuilder.reset().withName("new-template").withFilename("");
         });
 
         Given("^a template to create without a location", () -> {
-            templateBuilder.withName("new-template").withLocation("");
+            templateBuilder.reset().withName("new-template").withLocation("");
         });
         Given("^this template content", (String templateContent) -> {
             templateBuilder.setContent(templateContent);
@@ -94,7 +90,7 @@ public class CreateTemplates extends HesperidesScenario implements En {
     private void addPropertiesToModel(String input) {
         propertyBuilder.extractProperties(input).forEach(property -> {
             propertyBuilder.reset().withName(property);
-            modelBuilder.withProperty(propertyBuilder.build());
+//            modelBuilder.withProperty(propertyBuilder.build());
         });
     }
 }

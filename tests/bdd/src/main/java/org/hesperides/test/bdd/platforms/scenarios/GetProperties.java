@@ -31,8 +31,8 @@ import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleClient;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -58,13 +58,13 @@ public class GetProperties extends HesperidesScenario implements En {
     @Autowired
     private PlatformClient platformClient;
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
 
     public GetProperties() {
 

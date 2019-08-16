@@ -5,7 +5,7 @@ import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.events.EventOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 public class GetEvents extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
     @Autowired
     private PlatformBuilder platformBuilder;
 

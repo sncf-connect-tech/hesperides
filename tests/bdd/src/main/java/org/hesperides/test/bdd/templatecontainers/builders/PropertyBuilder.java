@@ -175,11 +175,11 @@ public class PropertyBuilder implements Serializable {
         return properties;
     }
 
-    public boolean isSimpleProperty() {
+    boolean isSimpleProperty() {
         return !hasProperties();
     }
 
-    public boolean isIterableProperty() {
+    boolean isIterableProperty() {
         return hasProperties();
     }
 

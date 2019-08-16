@@ -18,13 +18,13 @@
  *
  *
  */
-package org.hesperides.test.bdd.modules.scenarios.templates;
+package backup.modules.scenarios.templates;
 
+import org.hesperides.test.bdd.modules.OldModuleClient;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,34 +33,36 @@ import static org.junit.Assert.assertEquals;
 public class UpdateModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
 
     public UpdateModuleTemplates() {
 
         When("^I( try to)? update this module template$", (String tryTo) -> {
-            moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), tryTo);
-            moduleBuilder.updateTemplateBuilder(templateBuilder);
+            testContext.setResponseEntity(moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class)));
         });
 
         Then("^the module template is successfully updated$", () -> {
             assertOK();
-            TemplateIO expectedTemplate = templateBuilder.build();
+            String expectedNamespace = moduleBuilder.getNamespace();
+            TemplateIO expectedTemplate = templateBuilder.withNamespace(expectedNamespace).withVersionId(2).build();
             TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
 
-        Then("^the module template update is rejected with a method not allowed error$", this::assertMethodNotAllowed);
+        Then("^the module template update is rejected with a method not allowed error$", () -> {
+            assertMethodNotAllowed();
+        });
 
-        Then("^the module template update is rejected with a not found error$", this::assertNotFound);
+        Then("^the module template update is rejected with a not found error$", () -> {
+            assertNotFound();
+        });
 
-        Then("^the module template update is rejected with a conflict error$", this::assertConflict);
-
-        Then("^the module template update is rejected with an internal server error$", this::assertInternalServerError);
-
-        Then("^the module template update is rejected with a bad request error$", this::assertBadRequest);
+        Then("^the module template update is rejected with a conflict error$", () -> {
+            assertConflict();
+        });
     }
 }

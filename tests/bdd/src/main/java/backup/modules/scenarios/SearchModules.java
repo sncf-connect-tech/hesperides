@@ -1,0 +1,115 @@
+package backup.modules.scenarios;
+
+import org.hesperides.test.bdd.modules.OldModuleClient;
+import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.junit.Assert.assertEquals;
+
+public class SearchModules extends HesperidesScenario implements En {
+
+    @Autowired
+    private OldModuleClient moduleClient;
+    @Autowired
+    private OldModuleBuilder moduleBuilder;
+
+    public SearchModules() {
+
+        When("^I search for one specific module( using the wrong case)?$", (String wrongCase) -> {
+            String input = "new-module 0.0.13";
+            if (StringUtils.isNotEmpty(wrongCase)) {
+                input = input.toUpperCase();
+            }
+            testContext.setResponseEntity(moduleClient.search(input));
+        });
+
+        When("^I search for some of those modules(?:, limiting the number of results to (\\d+))?$", (String nbResults) -> {
+            Integer size = StringUtils.isEmpty(nbResults) ? 0 : Integer.valueOf(nbResults);
+            testContext.setResponseEntity(moduleClient.search("new-module", size));
+        });
+
+        When("^I search for a module that does not exist$", () -> {
+            testContext.setResponseEntity(moduleClient.search("nope"));
+        });
+
+        When("^I try to search for a module with no search terms$", () -> {
+            testContext.setResponseEntity(moduleClient.search("", 0, String.class));
+        });
+
+        When("^I search for modules, using an existing module name, version and version type$", () -> {
+            testContext.setResponseEntity(moduleClient.search("new-module 0.0.1 true"));
+        });
+
+        When("^I search for modules, using an existing module name and version$", () -> {
+            testContext.setResponseEntity(moduleClient.search("new-module 0.0.1"));
+        });
+
+        When("^I search for modules, using an existing module name$", () -> {
+            testContext.setResponseEntity(moduleClient.search("new-module"));
+        });
+
+        When("^I search for a single module using only the name and version of this module$", () -> {
+            testContext.setResponseEntity(moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion(), ModuleIO.class));
+        });
+
+        When("^I search for the released version of this single module$", () -> {
+            testContext.setResponseEntity(moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " false", ModuleIO.class));
+        });
+
+        When("^I search for the working copy version of this single module$", () -> {
+            testContext.setResponseEntity(moduleClient.singleSearch(moduleBuilder.getName() + " " + moduleBuilder.getVersion() + " true", ModuleIO.class));
+        });
+
+        Then("^the module is found$", () -> {
+            assertOK();
+            assertEquals(1, testContext.getResponseBodyArrayLength());
+        });
+
+        Then("^the list of module results is limited to (\\d+) items$", (Integer limit) -> {
+            assertOK();
+            assertEquals(limit.intValue(), testContext.getResponseBodyArrayLength());
+        });
+
+        Then("^the search request is rejected with a bad request error$", () -> {
+            assertBadRequest();
+        });
+
+        Then("^I get the working copy version of this module$", () -> {
+            assertOK();
+            ModuleIO expectedModule = moduleBuilder.withVersionType(VersionType.WORKINGCOPY).build();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            assertEquals(expectedModule, actualModule);
+        });
+
+        Then("^I get the released version of this module$", () -> {
+            assertOK();
+            ModuleIO expectedModule = moduleBuilder.withVersionType(VersionType.RELEASE).build();
+            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            assertEquals(expectedModule, actualModule);
+        });
+
+        Then("^the first module in the results is this module$", () -> {
+            assertOK();
+            ModuleIO[] returnedModules = testContext.getResponseBodyAsArray();
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getNamespaceWithoutPrefix(), "new-module#0.0.1#WORKINGCOPY");
+        });
+
+        Then("^the first module in the results has exactly this name$", () -> {
+            assertOK();
+            ModuleIO[] returnedModules = testContext.getResponseBodyAsArray();
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getName(), "new-module");
+        });
+
+        Then("^the first module in the results has exactly this name and version$", () -> {
+            assertOK();
+            ModuleIO[] returnedModules = testContext.getResponseBodyAsArray();
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getName(), "new-module");
+            assertEquals(returnedModules[0].toDomainInstance().getKey().getVersion(), "0.0.1");
+        });
+    }
+}

@@ -45,7 +45,7 @@ public class CreateTechnoTemplates extends HesperidesScenario implements En {
             templateBuilder.withNamespace(technoBuilder.buildNamespace());
             templateBuilder.withVersionId(0);
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build(), tryTo);
-            technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+            technoBuilder.addTemplateBuilder(templateBuilder);
         });
 
         Then("^the template is successfully added to the techno$", () -> {

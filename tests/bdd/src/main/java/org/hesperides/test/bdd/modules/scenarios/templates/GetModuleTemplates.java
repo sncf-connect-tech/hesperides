@@ -21,7 +21,6 @@
 package org.hesperides.test.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -30,67 +29,63 @@ import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
 public class GetModuleTemplates extends HesperidesScenario implements En {
 
-    private static int nbTemplates = 12;
     @Autowired
     private ModuleClient moduleClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
-    private List<TemplateBuilder> expectedTemplates = new ArrayList<>();
 
     public GetModuleTemplates() {
 
-        Given("^multiple templates in this module$", () -> {
-            for (int i = 0; i < nbTemplates; i++) {
-                TemplateBuilder newTemplateBuilder = new TemplateBuilder().withName("template-" + i + 1);
-                moduleClient.addTemplate(newTemplateBuilder.build(), moduleBuilder.build());
-                expectedTemplates.add(newTemplateBuilder);
-            }
-        });
+        Given("^multiple templates in this module$", () -> IntStream.range(0, 12).forEach(index -> addTemplateToExistingModule("template-" + index + 1)));
 
-        Given("^a template that doesn't exist in this module$", () -> {
-            templateBuilder.withName("nope");
-        });
+        Given("^a template in this module$", () -> addTemplateToExistingModule("a-new-template"));
 
-        Given("^a template with \"(.)\" within the title$", (String specialCaracter) -> {
-            if (StringUtils.isNotEmpty(specialCaracter)) {
-                templateBuilder.withName("conf" + specialCaracter + "domains.json");
-            }
-        });
+        Given("^a template that doesn't exist in this module$", () -> templateBuilder.withName("doesn-t-exist"));
 
-        When("^I( try to)? get the list of templates of this module$", (String tryTo) -> {
-            testContext.setResponseEntity(moduleClient.getTemplates(moduleBuilder.build(), getResponseType(tryTo, PartialTemplateIO[].class)));
-        });
+        When("^I( try to)? get the list of templates of this module$", (String tryTo) -> moduleClient.getTemplates(moduleBuilder.build(), tryTo));
 
-        When("^I( try to)? get this template in this module( using an url-encoded template name)?$", (String tryTo, String urlEncodedtemplateName) -> {
-            testContext.setResponseEntity(moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), getResponseType(tryTo, TemplateIO.class), StringUtils.isNotEmpty(urlEncodedtemplateName)));
-        });
+        When("^I( try to)? get this template in this module$", (String tryTo) ->
+                moduleClient.getTemplate(templateBuilder.getName(), moduleBuilder.build(), tryTo));
 
         Then("^a list of all the templates of the module is returned$", () -> {
             assertOK();
-            List<PartialTemplateIO> expectedPartialTemplates = expectedTemplates.stream().map(templateBuilder -> templateBuilder.buildPartialTemplate()).collect(Collectors.toList());
+            List<PartialTemplateIO> expectedPartialTemplates = moduleBuilder.getTemplateBuilders().stream().map(TemplateBuilder::buildPartialTemplate).collect(Collectors.toList());
             List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
-            assertEquals(expectedPartialTemplates,
-                    actualPartialTemplates.stream()
-                            .filter(template -> !TemplateBuilder.DEFAULT_NAME.equals(template.getName()))
-                            .collect(Collectors.toList()));
+            assertEquals(expectedPartialTemplates, actualPartialTemplates);
         });
 
         Then("^the module template is successfully returned$", () -> {
             assertOK();
-            TemplateIO expectedTemplate = templateBuilder.withNamespace(moduleBuilder.getNamespace()).withVersionId(1).build();
+            // On récupère le template depuis la module pour avoir le bon version_id
+            TemplateIO expectedTemplate = moduleBuilder.getLastTemplateBuilder().build();
             TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
             assertEquals(expectedTemplate, actualTemplate);
         });
+
+        Then("^the module template is not found$", this::assertNotFound);
+
+        Then("^the templates module is not found$", this::assertNotFound);
+
+        Then("^the list of module templates is empty$", () -> assertEquals(0, testContext.getResponseBodyArrayLength()));
+    }
+
+    private void addTemplateToExistingModule(String templateName) {
+        templateBuilder.reset()
+                .withNamespace(moduleBuilder.buildNamespace())
+                .withName(templateName);
+        moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
+        assertCreated();
+        moduleBuilder.addTemplateBuilder(templateBuilder);
     }
 }

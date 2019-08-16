@@ -18,40 +18,48 @@
  *
  *
  */
-package org.hesperides.test.bdd.modules.scenarios.templates;
+package backup.modules.scenarios.templates;
 
+import org.hesperides.test.bdd.modules.OldModuleClient;
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 public class DeleteModuleTemplates extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
     private TemplateBuilder templateBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
 
     public DeleteModuleTemplates() {
 
-        When("^I( try to)? delete this module template$", (String tryTo) -> {
-            String templateName = templateBuilder.getName();
-            moduleClient.deleteTemplate(templateName, moduleBuilder.build(), tryTo);
-            moduleBuilder.removeTemplateBuilder(templateName);
+        When("^I( try to)? delete this module template( using an url-encoded template name)?$", (String tryTo, String urlEncodeTemplateName) -> {
+            testContext.setResponseEntity(moduleClient.deleteTemplate(
+                    templateBuilder.build().getName(),
+                    moduleBuilder.build(),
+                    getResponseType(tryTo, ResponseEntity.class),
+                    StringUtils.isNotEmpty(urlEncodeTemplateName)));
         });
 
         Then("^the module template is successfully deleted$", () -> {
-            assertOK();
-            moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), "it-should-fail");
+            assertNoContent();
+            testContext.setResponseEntity(moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), String.class));
             assertNotFound();
         });
 
-        Then("^the module template delete is rejected with a method not allowed error$", this::assertMethodNotAllowed);
+        Then("^the module template delete is rejected with a method not allowed error$", () -> {
+            assertMethodNotAllowed();
+        });
 
-        Then("^the module template delete is rejected with a not found error$", this::assertNotFound);
+        Then("^the module template delete is rejected with a not found error$", () -> {
+            assertNotFound();
+        });
     }
 }

@@ -21,214 +21,158 @@
 package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.ModuleKeyOutput;
-import org.hesperides.core.presentation.io.TechnoIO;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.test.bdd.commons.CustomRestTemplate;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.urlEncodeUtf8;
-import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.NONE;
+import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
 
 @Component
 public class ModuleClient {
 
+    private final CustomRestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
-    @Autowired
-    private DefaultUriBuilderFactory defaultUriBuilderFactory;
-
-    public ResponseEntity create(ModuleIO moduleInput) {
-        return create(moduleInput, ModuleIO.class);
+    public ModuleClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
-    public ResponseEntity create(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.postForEntity("/modules", moduleInput, responseType);
+    public void createModule(ModuleIO moduleInput, String tryTo) {
+        restTemplate.postForEntity("/modules", moduleInput, getResponseType(tryTo, ModuleIO.class));
     }
 
-    public ResponseEntity search(String terms) {
-        return this.search(terms, 0);
+    public void searchModules(String terms) {
+        searchModules(terms, 0);
     }
 
-    public ResponseEntity search(String terms, int size) {
-        return this.search(terms, size, ModuleIO[].class);
+    public void searchModules(String terms, Integer size) {
+        restTemplate.getForEntity("/modules/perform_search?terms=" + terms + "&size=" + size, ModuleIO[].class);
     }
 
-    public ResponseEntity search(String terms, Integer size, Class responseType) {
-        return restTemplate.getForEntity("/modules/perform_search?terms=" + terms + "&size=" + size, responseType);
+    public void getModule(ModuleIO moduleInput, String tryTo) {
+        getModule(moduleInput, VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()), tryTo);
     }
 
-    public ResponseEntity singleSearch(String terms, Class responseType) {
-        return restTemplate.getForEntity("/modules/search?terms=" + terms, responseType);
-    }
-
-    public ResponseEntity get(ModuleIO moduleInput, String versionType, Class responseType) {
-        return restTemplate.getForEntity("/modules/{name}/{version}/{type}",
-                responseType,
+    public void getModule(ModuleIO moduleInput, String versionType, String tryTo) {
+        restTemplate.getForEntity("/modules/{name}/{version}/{type}",
+                getResponseType(tryTo, ModuleIO.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
-                versionType.toLowerCase());
+                versionType);
     }
 
-    public ResponseEntity release(ModuleIO moduleInput, Class responseType) {
-        return this.release(moduleInput, "", responseType);
+    public void releaseModule(ModuleIO moduleInput) {
+        releaseModule(moduleInput, null);
     }
 
-    public ResponseEntity release(ModuleIO moduleInput, String releasedModuleVersion, Class responseType) {
-        return restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={module_version}&release_version={release_version}",
+    public void releaseModule(ModuleIO moduleInput, String tryTo) {
+        restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
                 null,
-                responseType,
+                getResponseType(tryTo, ModuleIO.class),
                 moduleInput.getName(),
-                moduleInput.getVersion(),
-                releasedModuleVersion);
+                moduleInput.getVersion());
     }
 
-    public ResponseEntity delete(ModuleIO moduleInput) {
-        return delete(moduleInput, ResponseEntity.class);
-    }
-
-    public ResponseEntity delete(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.exchange("/modules/{name}/{version}/{type}",
-                HttpMethod.DELETE,
-                null,
-                responseType,
+    public void deleteModule(ModuleIO moduleInput, String tryTo) {
+        restTemplate.deleteForEntity("/modules/{name}/{version}/{type}",
+                getResponseType(tryTo, ResponseEntity.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
                 VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
-    public ResponseEntity copy(ModuleIO existingModuleInput, ModuleIO newModuleInput, Class responseType) {
-        String url = "/modules?from_module_name={name}&from_module_version={version}";
-        if (existingModuleInput.getIsWorkingCopy() != null) {
-            url += "&from_is_working_copy={isWorkingCopy}";
-        }
-        return restTemplate.postForEntity(url,
+    public void copyModule(ModuleIO existingModuleInput, ModuleIO newModuleInput, String tryTo) {
+        restTemplate.postForEntity("/modules?from_module_name={name}&from_module_version={version}&from_is_working_copy={isWorkingCopy}",
                 newModuleInput,
-                responseType,
+                getResponseType(tryTo, ModuleIO.class),
                 existingModuleInput.getName(),
                 existingModuleInput.getVersion(),
                 existingModuleInput.getIsWorkingCopy());
     }
 
-    public ResponseEntity getModel(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/model",
-                responseType,
+    public void getModel(ModuleIO moduleInput) {
+        getModel(moduleInput, null);
+    }
+
+    public void getModel(ModuleIO moduleInput, String tryTo) {
+        restTemplate.getForEntity("/modules/{name}/{version}/{type}/model",
+                getResponseType(tryTo, ModelOutput.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
                 VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
-
     }
 
-    public ResponseEntity addTemplate(TemplateIO templateInput, ModuleIO moduleInput) {
-        return addTemplate(templateInput, moduleInput, TemplateIO.class);
+    public void addTemplate(TemplateIO templateInput, ModuleIO moduleInput) {
+        addTemplate(templateInput, moduleInput, null);
     }
 
-    public ResponseEntity addTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
-        return restTemplate.postForEntity(
+    public void addTemplate(TemplateIO templateInput, ModuleIO moduleInput, String tryTo) {
+        restTemplate.postForEntity(
                 "/modules/{name}/{version}/{type}/templates",
                 templateInput,
-                responseType,
+                getResponseType(tryTo, TemplateIO.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
                 VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
-    public ResponseEntity updateTemplate(TemplateIO templateInput, ModuleIO moduleInput, Class responseType) {
-        return restTemplate.exchange("/modules/{name}/{version}/{type}/templates",
-                HttpMethod.PUT,
-                new HttpEntity<>(templateInput),
-                responseType,
+    public void updateTemplate(TemplateIO templateInput, ModuleIO moduleInput) {
+        updateTemplate(templateInput, moduleInput, null);
+    }
+
+    public void updateTemplate(TemplateIO templateInput, ModuleIO moduleInput, String tryTo) {
+        restTemplate.putForEntity("/modules/{name}/{version}/{type}/templates",
+                templateInput,
+                getResponseType(tryTo, TemplateIO.class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
                 VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
-    public ResponseEntity getTemplates(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates",
-                responseType,
+    public void getTemplates(ModuleIO moduleInput) {
+        getTemplates(moduleInput, null);
+    }
+
+    public void getTemplates(ModuleIO moduleInput, String tryTo) {
+        restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates",
+                getResponseType(tryTo, PartialTemplateIO[].class),
                 moduleInput.getName(),
                 moduleInput.getVersion(),
                 VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
-    public List<PartialTemplateIO> getTemplates(ModuleIO moduleInput) {
-        ResponseEntity<PartialTemplateIO[]> responseEntity = getTemplates(moduleInput, PartialTemplateIO[].class);
-        return Arrays.asList(responseEntity.getBody());
+    public void getTemplate(String templateName, ModuleIO moduleInput, String tryTo) {
+        restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
+                getResponseType(tryTo, TemplateIO.class),
+                moduleInput.getName(),
+                moduleInput.getVersion(),
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()),
+                templateName);
     }
 
-    public ResponseEntity getTemplate(String templateName, ModuleIO moduleInput, Class responseType) {
-        return getTemplate(templateName, moduleInput, responseType, false);
+    public void deleteTemplate(String templateName, ModuleIO moduleInput, String tryTo) {
+        restTemplate.deleteForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
+                getResponseType(tryTo, ResponseEntity.class),
+                moduleInput.getName(),
+                moduleInput.getVersion(),
+                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()),
+                templateName);
     }
 
-    public ResponseEntity getTemplate(String templateName, ModuleIO moduleInput, Class responseType, boolean urlEncodeTemplateName) {
-        DefaultUriBuilderFactory.EncodingMode defaultEncodingMode = defaultUriBuilderFactory.getEncodingMode();
-        try {
-            if (!urlEncodeTemplateName) {
-                defaultUriBuilderFactory.setEncodingMode(NONE);
-            }
-            return restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/" + templateName,
-                    responseType,
-                    moduleInput.getName(),
-                    moduleInput.getVersion(),
-                    VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
-        } finally {
-            defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
-        }
+    public void getModuleNames() {
+        restTemplate.getForEntity("/modules", String[].class);
     }
 
-    public ResponseEntity deleteTemplate(String templateName, ModuleIO moduleInput, Class responseType, boolean urlEncodeTemplateName) {
-        DefaultUriBuilderFactory.EncodingMode defaultEncodingMode = defaultUriBuilderFactory.getEncodingMode();
-        try {
-            if (!urlEncodeTemplateName) {
-                defaultUriBuilderFactory.setEncodingMode(NONE);
-            }
-            return restTemplate.exchange("/modules/{name}/{version}/{type}/templates/" + templateName,
-                    HttpMethod.DELETE,
-                    null,
-                    responseType,
-                    urlEncodeUtf8(moduleInput.getName()),
-                    urlEncodeUtf8(moduleInput.getVersion()),
-                    VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
-        } finally {
-            defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
-        }
+    public void getModuleVersions(String name) {
+        restTemplate.getForEntity("/modules/{name}", String[].class, name);
     }
 
-    public ResponseEntity<String[]> getNames() {
-        return restTemplate.getForEntity("/modules", String[].class);
-    }
-
-    public ResponseEntity<String[]> getVersions(String name) {
-        return restTemplate.getForEntity("/modules/{name}", String[].class, urlEncodeUtf8(name));
-    }
-
-    public ResponseEntity<String[]> getTypes(String name, String version) {
-        return restTemplate.getForEntity("/modules/{name}/{version}", String[].class, urlEncodeUtf8(name), urlEncodeUtf8(version));
-    }
-
-    public ResponseEntity update(ModuleIO moduleInput, Class responseType) {
-        return restTemplate.exchange("/modules",
-                HttpMethod.PUT,
-                new HttpEntity<>(moduleInput),
-                responseType);
-    }
-
-    public ResponseEntity<ModuleKeyOutput[]> getModulesUsingTechno(TechnoIO techno) {
-        return restTemplate.getForEntity(
-                "/modules/using_techno/{techno_name}/{techno_version}/{techno_type}",
-                ModuleKeyOutput[].class,
-                techno.getName(),
-                techno.getVersion(),
-                techno.getIsWorkingCopy() ? "workingcopy" : "release");
+    public void getModuleTypes(String name, String version) {
+        restTemplate.getForEntity("/modules/{name}/{version}", String[].class, name, version);
     }
 }

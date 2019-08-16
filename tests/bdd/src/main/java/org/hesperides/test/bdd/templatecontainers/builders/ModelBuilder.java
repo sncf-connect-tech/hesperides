@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @Component
+//TODO à supprimer
 public class ModelBuilder {
 
     private List<PropertyOutput> properties;

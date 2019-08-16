@@ -30,8 +30,8 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleHistory;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -58,9 +58,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private PlatformHistory platformHistory;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
     @Autowired
-    private ModuleHistory moduleHistory;
+    private OldModuleHistory moduleHistory;
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired

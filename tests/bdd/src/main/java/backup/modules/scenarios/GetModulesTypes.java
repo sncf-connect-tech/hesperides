@@ -1,10 +1,10 @@
-package org.hesperides.test.bdd.modules.scenarios;
+package backup.modules.scenarios;
 
+import org.hesperides.test.bdd.modules.OldModuleClient;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
@@ -12,9 +12,9 @@ import static org.junit.Assert.assertEquals;
 public class GetModulesTypes extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
 
     public GetModulesTypes() {
 

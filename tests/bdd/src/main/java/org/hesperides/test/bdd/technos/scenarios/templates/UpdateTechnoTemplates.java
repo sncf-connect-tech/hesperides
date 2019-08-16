@@ -43,7 +43,7 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
 
         When("^I( try to)? update this techno template$", (String tryTo) -> {
             technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build(), tryTo);
-            technoBuilder.updateTemplateBuilderInstance(templateBuilder);
+            technoBuilder.updateTemplateBuilder(templateBuilder);
         });
 
         Then("^the techno template is successfully updated$", () -> {

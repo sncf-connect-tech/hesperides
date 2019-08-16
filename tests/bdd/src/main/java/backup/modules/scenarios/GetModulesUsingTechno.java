@@ -18,29 +18,28 @@
  *
  *
  */
-package org.hesperides.test.bdd.modules.scenarios;
+package backup.modules.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.modules.ModuleHistory;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleClient;
+import org.hesperides.test.bdd.modules.OldModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class GetModulesUsingTechno extends HesperidesScenario implements En {
 
     @Autowired
-    private ModuleClient moduleClient;
+    private OldModuleClient moduleClient;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
     @Autowired
-    private ModuleHistory moduleHistory;
+    private OldModuleHistory moduleHistory;
     @Autowired
     private TechnoBuilder technoBuilder;
 

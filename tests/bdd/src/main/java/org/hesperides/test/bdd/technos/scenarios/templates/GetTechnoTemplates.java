@@ -86,6 +86,6 @@ public class GetTechnoTemplates extends HesperidesScenario implements En {
                 .withName(templateName);
         technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
         assertCreated();
-        technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+        technoBuilder.addTemplateBuilder(templateBuilder);
     }
 }

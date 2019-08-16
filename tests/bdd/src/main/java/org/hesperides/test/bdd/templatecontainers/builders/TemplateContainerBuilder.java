@@ -36,6 +36,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
 
     @Getter
     protected String name;
+    @Getter
     protected String version;
     @Getter
     protected String versionType;
@@ -77,29 +78,29 @@ public abstract class TemplateContainerBuilder implements Serializable {
         return new ModelOutput(simpleProperties, iterableProperties);
     }
 
-    public void saveTemplateBuilderInstance(TemplateBuilder templateBuilder) {
+    public void addPropertyBuilder(PropertyBuilder propertyBuilder) {
+        propertyBuilders.add(SerializationUtils.clone(propertyBuilder));
+    }
+
+    public void addTemplateBuilder(TemplateBuilder templateBuilder) {
         templateBuilder.incrementVersionId();
         templateBuilder.withNamespace(buildNamespace());
         TemplateBuilder templateBuilderInstance = SerializationUtils.clone(templateBuilder);
         templateBuilders.add(templateBuilderInstance);
     }
 
-    public void savePropertyBuilderInstance(PropertyBuilder propertyBuilder) {
-        propertyBuilders.add(SerializationUtils.clone(propertyBuilder));
-    }
-
-    public void removeTemplateBuilderInstance(String templateName) {
+    public void removeTemplateBuilder(String templateName) {
         templateBuilders = templateBuilders.stream()
                 .filter(templateBuilder -> !templateBuilder.getName().equals(templateName))
                 .collect(Collectors.toList());
     }
 
-    public void updateTemplateBuilderInstance(TemplateBuilder updatedTemplateBuilder) {
-        updatedTemplateBuilder.incrementVersionId();
-        TemplateBuilder updatedTemplateBuilderInstance = SerializationUtils.clone(updatedTemplateBuilder);
+    public void updateTemplateBuilder(TemplateBuilder templateBuilder) {
+        templateBuilder.incrementVersionId();
+        TemplateBuilder updatedTemplateBuilder = SerializationUtils.clone(templateBuilder);
         templateBuilders = templateBuilders.stream()
-                .map(existingTemplateBuilder -> existingTemplateBuilder.getName().equals(updatedTemplateBuilderInstance.getName())
-                        ? updatedTemplateBuilderInstance : existingTemplateBuilder)
+                .map(existingTemplateBuilder -> existingTemplateBuilder.getName().equals(updatedTemplateBuilder.getName())
+                        ? updatedTemplateBuilder : existingTemplateBuilder)
                 .collect(Collectors.toList());
     }
 

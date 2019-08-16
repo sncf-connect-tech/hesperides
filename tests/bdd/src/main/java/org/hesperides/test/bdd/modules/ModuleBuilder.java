@@ -20,159 +20,69 @@
  */
 package org.hesperides.test.bdd.modules;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.TechnoIO;
-import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
+import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.builders.TemplateContainerBuilder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
-public class ModuleBuilder {
+public class ModuleBuilder extends TemplateContainerBuilder {
 
-    private static final long PROPERTIES_VERSION_ID = 0;
-
-    private String name;
-    private String version;
-    private String versionType;
-    private List<TechnoIO> technos;
-    private long versionId;
-    private List<TemplateIO> templates;
-    private String logicalGroup;
-    private Long propertiesVersionId;
-    private List<ValuedPropertyIO> valuedProperties;
-    private List<IterableValuedPropertyIO> iterableValuedProperties;
+    private List<TechnoBuilder> technoBuilders;
+    private Long versionId;
 
     public ModuleBuilder() {
         reset();
     }
 
-    public ModuleBuilder reset() {
-        // Valeurs par défaut
-        name = "test-module";
-        version = "1.0.0";
-        versionType = VersionType.WORKINGCOPY;
-        technos = new ArrayList<>();
-        templates = new ArrayList<>();
-        versionId = 0;
-        logicalGroup = null;
-        propertiesVersionId = PROPERTIES_VERSION_ID;
-        valuedProperties = new ArrayList<>();
-        iterableValuedProperties = new ArrayList<>();
-        return this;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getVersion() {
-        return this.version;
-    }
-
-    public ModuleBuilder withName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public ModuleBuilder withVersion(String version) {
-        this.version = version;
-        return this;
-    }
-
-    public ModuleBuilder withVersionType(String versionType) {
-        this.versionType = versionType;
-        return this;
-    }
-
-    public ModuleBuilder withTechno(TechnoIO techno) {
-        technos.add(techno);
-        return this;
-    }
-
-    public boolean hasTechno() {
-        return technos.size() > 0;
-    }
-
-    public ModuleBuilder withVersionId(long versionId) {
-        this.versionId = versionId;
-        return this;
+    public void reset() {
+        reset("test-module");
+        technoBuilders = new ArrayList<>();
+        versionId = 0L;
     }
 
     public ModuleIO build() {
+        List<TechnoIO> technos = technoBuilders.stream().map(TechnoBuilder::build).collect(Collectors.toList());
         return new ModuleIO(name, version, VersionType.toIsWorkingCopy(versionType), technos, versionId);
     }
 
-    public String getNamespace() {
-        return "modules#" + name + "#" + version + "#" + versionType.toUpperCase();
+    public String buildNamespace() {
+        return "modules#" + name + "#" + version + "#" + StringUtils.upperCase(versionType);
     }
 
-    public void removeTechno(TechnoIO techno) {
-        technos.remove(techno);
+    public void withVersionId(Long versionId) {
+        this.versionId = versionId;
     }
 
-    public String getPropertiesPath() {
-        String modulePath = "#GROUP";
-        if ("".equals(logicalGroup) || "#".equals(logicalGroup)) {
-            modulePath = logicalGroup;
-        } else if (logicalGroup != null) {
-            modulePath = "#" + logicalGroup;
-        }
-        return modulePath + "#" + name + "#" + version + "#" + versionType.toUpperCase();
+    public void incrementVersionId() {
+        versionId++;
     }
 
-    public String getVersionType() {
-        return versionType;
+    public void withTechnoBuilder(TechnoBuilder technoBuilder) {
+        technoBuilders.add(technoBuilder);
     }
 
-    public ModuleBuilder withTemplate(TemplateIO template) {
-        templates.add(template);
-        return this;
-    }
+    @Override
+    public ModelOutput buildPropertiesModel() {
+        List<ModelOutput> technosModel = technoBuilders.stream().map(TemplateContainerBuilder::buildPropertiesModel).collect(Collectors.toList());
+        Set<PropertyOutput> technosSimpleProperties = technosModel.stream().map(ModelOutput::getProperties).flatMap(Set::stream).collect(Collectors.toSet());
+        Set<PropertyOutput> technosIterableProperties = technosModel.stream().map(ModelOutput::getIterableProperties).flatMap(Set::stream).collect(Collectors.toSet());
 
-    public List<TemplateIO> getTemplates() {
-        return templates;
-    }
+        Set<PropertyOutput> moduleSimpleProperties = super.buildPropertiesModel().getProperties();
+        moduleSimpleProperties.addAll(technosSimpleProperties);
+        Set<PropertyOutput> moduleIterableProperties = super.buildPropertiesModel().getIterableProperties();
+        moduleIterableProperties.addAll(technosIterableProperties);
 
-    public String getLogicalGroup() {
-        return logicalGroup;
-    }
-
-    public void setLogicalGroup(String logicalGroup) {
-        this.logicalGroup = logicalGroup;
-    }
-
-    public PropertiesIO buildPropertiesIO(long globalPropertiesVersionId) {
-        return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
-    }
-
-    public PropertiesIO buildPropertiesIO() {
-        return new PropertiesIO(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
-    }
-
-    public void incrementPropertiesVersionId() {
-        propertiesVersionId++;
-    }
-
-    public void withValuedProperties(List<ValuedPropertyIO> properties) {
-        valuedProperties.addAll(properties);
-    }
-
-    public Long getPropertiesVersionId() {
-        return propertiesVersionId;
-    }
-
-    public void resetPropertiesVersionId() {
-        propertiesVersionId = PROPERTIES_VERSION_ID;
-    }
-
-    public void setPropertiesVersionId(Long propertiesVersionId) {
-        this.propertiesVersionId = propertiesVersionId;
+        return new ModelOutput(moduleSimpleProperties, moduleIterableProperties);
     }
 }

@@ -20,49 +20,47 @@
  */
 package org.hesperides.test.bdd.modules;
 
-import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.ModuleKeyOutput;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 public class ModuleHistory {
 
-    @Autowired
-    private ModuleBuilder moduleBuilder;
+    private List<ModuleBuilder> moduleBuilders;
 
-    private List<ModuleBuilder> moduleBuilders = new ArrayList<>();
-    private List<ModuleIO> modules = new ArrayList<>();
+    public ModuleHistory() {
+        reset();
+    }
 
-    public void reset() {
+    public ModuleHistory reset() {
         moduleBuilders = new ArrayList<>();
-        modules = new ArrayList<>();
+        return this;
     }
 
-    public void addModule() {
-        moduleBuilders.add(moduleBuilder);
-        modules.add(moduleBuilder.build());
+    public void addModuleBuilder(ModuleBuilder moduleBuilder) {
+        moduleBuilders.add(SerializationUtils.clone(moduleBuilder));
     }
 
-    public List<ModuleKeyOutput> buildTechnoModules() {
-        return Optional.ofNullable(modules)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(module -> new ModuleKeyOutput(module.getName(), module.getVersion(), module.getIsWorkingCopy()))
+    public void removeModuleBuilder(ModuleBuilder moduleBuilder) {
+        moduleBuilders.remove(moduleBuilder);
+    }
+
+    public ModuleBuilder getFirstModuleBuilder() {
+        return moduleBuilders.get(0);
+    }
+
+    public void updateModuleBuilder(ModuleBuilder moduleBuilder) {
+        moduleBuilder.incrementVersionId();
+        ModuleBuilder updatedModuleBuilder = SerializationUtils.clone(moduleBuilder);
+        moduleBuilders = moduleBuilders.stream()
+                .map(existingModuleBuilder -> existingModuleBuilder.getName().equals(updatedModuleBuilder.getName()) &&
+                        existingModuleBuilder.getVersion().equals(updatedModuleBuilder.getVersion()) &&
+                        existingModuleBuilder.getVersionType().equals(updatedModuleBuilder.getVersionType())
+                        ? updatedModuleBuilder : existingModuleBuilder)
                 .collect(Collectors.toList());
-    }
-
-    public List<ModuleIO> getModules() {
-        return modules;
-    }
-
-    public List<ModuleBuilder> getModuleBuilders() {
-        return moduleBuilders;
     }
 }

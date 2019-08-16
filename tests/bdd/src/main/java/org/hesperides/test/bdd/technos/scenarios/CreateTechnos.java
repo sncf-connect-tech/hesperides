@@ -1,7 +1,6 @@
 package org.hesperides.test.bdd.technos.scenarios;
 
 import cucumber.api.java8.En;
-import cucumber.api.java8.StepdefBody;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
@@ -105,14 +104,14 @@ public class CreateTechnos extends HesperidesScenario implements En {
             addPropertyToBuilders(propertyBuilder);
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
-            technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+            technoBuilder.addTemplateBuilder(templateBuilder);
 
             templateBuilder.reset().withName("template-b").withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
             addPropertyToBuilders(propertyBuilder);
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
-            technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+            technoBuilder.addTemplateBuilder(templateBuilder);
         });
 
         Given("^an existing techno with properties with the same name but different comments in two templates$", () -> {
@@ -123,21 +122,21 @@ public class CreateTechnos extends HesperidesScenario implements En {
             addPropertyToBuilders(propertyBuilder);
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
-            technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+            technoBuilder.addTemplateBuilder(templateBuilder);
 
             templateBuilder.reset().withName("template-b").withNamespace(technoBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment-b");
             addPropertyToBuilders(propertyBuilder);
             technoClient.addTemplate(templateBuilder.build(), technoBuilder.build());
             assertCreated();
-            technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+            technoBuilder.addTemplateBuilder(templateBuilder);
         });
 
         Given("^the techno template properties are modified$", () -> {
             addPropertyToBuilders("patate");
             technoClient.updateTemplate(templateBuilder.build(), technoBuilder.build());
             assertOK();
-            technoBuilder.updateTemplateBuilderInstance(templateBuilder);
+            technoBuilder.updateTemplateBuilder(templateBuilder);
         });
 
         Given("^a techno to create(?: with the same name and version)?( but different letter case)?$", (String withDifferentLetterCase) -> {
@@ -146,7 +145,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
             }
         });
 
-        When("^I( try to)? create this techno$", (StepdefBody.A1<String>) this::createTechno);
+        When("^I( try to)? create this techno$", (String tryTo) -> createTechno(tryTo));
 
         Then("^the techno is successfully created$", () -> {
             assertCreated();
@@ -165,7 +164,7 @@ public class CreateTechnos extends HesperidesScenario implements En {
 
     private void addPropertyToBuilders(PropertyBuilder propertyBuilder) {
         templateBuilder.withContent(propertyBuilder.toString());
-        technoBuilder.savePropertyBuilderInstance(propertyBuilder);
+        technoBuilder.addPropertyBuilder(propertyBuilder);
     }
 
     private void createTechno() {
@@ -174,10 +173,11 @@ public class CreateTechnos extends HesperidesScenario implements En {
     }
 
     private void createTechno(String tryTo) {
-        templateBuilder.withNamespace(technoBuilder.buildNamespace());
+        templateBuilder
+                .withVersionId(0)
+                .withNamespace(technoBuilder.buildNamespace());
         technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), tryTo);
-        templateBuilder.withVersionId(0);
-        technoBuilder.saveTemplateBuilderInstance(templateBuilder);
+        technoBuilder.addTemplateBuilder(templateBuilder);
         technoHistory.addTechnoBuilder(technoBuilder);
     }
 

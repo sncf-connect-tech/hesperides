@@ -30,7 +30,7 @@ import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
@@ -58,7 +58,7 @@ public class GetFiles extends HesperidesScenario implements En {
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
 

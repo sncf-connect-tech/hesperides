@@ -28,10 +28,8 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
-import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -52,13 +50,9 @@ public class GetFile extends HesperidesScenario implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
-    private TechnoBuilder technoBuilder;
-    @Autowired
-    private ModuleBuilder moduleBuilder;
+    private OldModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
-    @Autowired
-    private PropertyBuilder propertyBuilder;
 
     public GetFile() {
 
