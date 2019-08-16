@@ -52,7 +52,6 @@ Feature: Create module templates
     And I add this template to the module
     Then the template is successfully added to the module
 
-  @wip
   Scenario: create a template using both a simple property and an iterable property with same name
     Given an existing module
     And this template content
