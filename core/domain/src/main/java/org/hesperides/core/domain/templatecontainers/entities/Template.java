@@ -11,6 +11,7 @@ import org.hesperides.core.domain.templatecontainers.exceptions.PropertyWithSame
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -24,16 +25,17 @@ public class Template {
     TemplateContainer.Key templateContainerKey;
 
     public Template validateProperties() {
-        List<String> iterablePropertiesNames = extractProperties().stream()
+        List<AbstractProperty> properties = extractProperties();
+        Set<String> iterablePropertiesNames = properties.stream()
                 .filter(IterableProperty.class::isInstance)
                 .map(IterableProperty.class::cast)
                 .map(AbstractProperty::getName)
-                .collect(Collectors.toList());
-        List<String> propertiesNames = extractProperties().stream()
+                .collect(Collectors.toSet());
+        Set<String> propertiesNames = properties.stream()
                 .filter(Property.class::isInstance)
                 .map(Property.class::cast)
                 .map(AbstractProperty::getName)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         for (String iterablePropertyName : iterablePropertiesNames) {
             if (propertiesNames.contains(iterablePropertyName)) {
                 throw new PropertyWithSameNameAsIterablePropertyException(templateContainerKey.toString(), filename, iterablePropertyName);
