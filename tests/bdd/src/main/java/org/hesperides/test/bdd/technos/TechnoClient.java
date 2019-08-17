@@ -52,12 +52,12 @@ public class TechnoClient {
                 VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
-    public void searchTechnos(String terms) {
-        searchTechnos(terms, 0);
+    public void searchTechnos(String searchInput) {
+        searchTechnos(searchInput, 0);
     }
 
-    public void searchTechnos(String terms, Integer size) {
-        restTemplate.getForEntity("/templates/packages/perform_search?terms=" + terms + "&size=" + size, TechnoIO[].class);
+    public void searchTechnos(String searchInput, Integer size) {
+        restTemplate.getForEntity("/templates/packages/perform_search?terms=" + searchInput + "&size=" + size, TechnoIO[].class);
     }
 
     public void getTechno(TechnoIO technoInput, String tryTo) {

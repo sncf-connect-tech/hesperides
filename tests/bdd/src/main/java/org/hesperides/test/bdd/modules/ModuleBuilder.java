@@ -61,7 +61,7 @@ public class ModuleBuilder extends TemplateContainerBuilder {
         return "modules#" + name + "#" + version + "#" + StringUtils.upperCase(versionType);
     }
 
-    public void withVersionId(Long versionId) {
+    public void withVersionId(long versionId) {
         this.versionId = versionId;
     }
 

@@ -21,11 +21,14 @@
 package org.hesperides.test.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class DeleteModuleTemplates extends HesperidesScenario implements En {
 
@@ -38,15 +41,20 @@ public class DeleteModuleTemplates extends HesperidesScenario implements En {
 
     public DeleteModuleTemplates() {
 
-        When("^I( try to)? delete this module template$", (String tryTo) -> {
+        When("^I( try to)? delete this module template( using an url-encoded template name)?$", (
+                String tryTo, String urlEncodeTemplateName) -> {
+
             String templateName = templateBuilder.getName();
-            moduleClient.deleteTemplate(templateName, moduleBuilder.build(), tryTo);
-            moduleBuilder.removeTemplateBuilder(templateName);
+            moduleClient.deleteTemplate(templateName, moduleBuilder.build(), tryTo, isNotEmpty(urlEncodeTemplateName));
+
+            if (StringUtils.isEmpty(tryTo)) {
+                moduleBuilder.removeTemplateBuilder(templateName);
+            }
         });
 
         Then("^the module template is successfully deleted$", () -> {
-            assertOK();
-            moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), "it-should-fail");
+            assertNoContent();
+            moduleClient.getTemplate(templateBuilder.build().getName(), moduleBuilder.build(), "should-fail");
             assertNotFound();
         });
 

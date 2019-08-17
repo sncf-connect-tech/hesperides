@@ -29,11 +29,11 @@ import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class GetModuleTemplates extends HesperidesScenario implements En {
@@ -55,13 +55,16 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
 
         When("^I( try to)? get the list of templates of this module$", (String tryTo) -> moduleClient.getTemplates(moduleBuilder.build(), tryTo));
 
-        When("^I( try to)? get this template in this module$", (String tryTo) ->
-                moduleClient.getTemplate(templateBuilder.getName(), moduleBuilder.build(), tryTo));
+        When("^I( try to)? get this template in this module( using an url-encoded template name)?$", (
+                String tryTo, String urlEncodeTemplateName) ->
+                moduleClient.getTemplate(templateBuilder.getName(), moduleBuilder.build(), tryTo, isNotEmpty(urlEncodeTemplateName)));
 
         Then("^a list of all the templates of the module is returned$", () -> {
             assertOK();
-            List<PartialTemplateIO> expectedPartialTemplates = moduleBuilder.getTemplateBuilders().stream().map(TemplateBuilder::buildPartialTemplate).collect(Collectors.toList());
-            List<PartialTemplateIO> actualPartialTemplates = Arrays.asList(testContext.getResponseBody(PartialTemplateIO[].class));
+            List<PartialTemplateIO> expectedPartialTemplates = moduleBuilder.getTemplateBuilders().stream()
+                    .map(TemplateBuilder::buildPartialTemplate)
+                    .collect(Collectors.toList());
+            List<PartialTemplateIO> actualPartialTemplates = testContext.getResponseBodyAsList();
             assertEquals(expectedPartialTemplates, actualPartialTemplates);
         });
 

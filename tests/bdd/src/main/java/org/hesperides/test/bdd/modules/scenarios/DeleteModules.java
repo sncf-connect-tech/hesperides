@@ -23,7 +23,7 @@ public class DeleteModules extends HesperidesScenario implements En {
         When("^I( try to)? delete this module$", (String tryTo) -> {
             moduleClient.deleteModule(moduleBuilder.build(), tryTo);
             moduleHistory.removeModuleBuilder(moduleBuilder);
-            moduleBuilder.withVersionId(0L);
+            moduleBuilder.withVersionId(0);
         });
 
         Then("^the module is successfully deleted$", () -> {

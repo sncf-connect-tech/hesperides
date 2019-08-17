@@ -34,7 +34,7 @@ public class UpdateModules extends HesperidesScenario implements En {
                 String addingThisTechno) -> {
 
             if (isNotEmpty(usingTheWrongVersionId)) {
-                moduleBuilder.withVersionId(2049L);
+                moduleBuilder.withVersionId(2049);
             }
             if (isNotEmpty(addingThisTechno)) {
                 moduleBuilder.withTechnoBuilder(technoBuilder);

@@ -51,7 +51,7 @@ public class CopyModules extends HesperidesScenario implements En {
             }
 
             moduleClient.copyModule(existingModule, moduleBuilder.build(), tryTo);
-            moduleBuilder.withVersionId(1L);
+            moduleBuilder.withVersionId(1);
             // Les templates sont identiques sauf pour le namespace
             moduleBuilder.updateTemplatesNamespace();
             moduleHistory.addModuleBuilder(moduleBuilder);

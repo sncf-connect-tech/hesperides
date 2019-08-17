@@ -21,10 +21,7 @@
 package org.hesperides.test.bdd.templatecontainers.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.modules.OldModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,17 +30,13 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 public class CreateTemplates extends HesperidesScenario implements En {
 
     @Autowired
-    private OldModuleClient moduleClient;
-    @Autowired
-    private OldModuleBuilder moduleBuilder;
-    @Autowired
     private TemplateBuilder templateBuilder;
 
     public CreateTemplates() {
 
         //TODO Supprimer to create ?
         Given("^a template to create" +
-                "(?: with name \"([^\"]*)\")?" +
+                "(?: with name \"([^\"]*)\")?" + //TODO named?
                 "(?: with filename \"([^\"]*)\")?" +
                 "(?: with location \"([^\"]*)\")?$", (
                 String name, String filename, String location) -> {
@@ -59,11 +52,6 @@ public class CreateTemplates extends HesperidesScenario implements En {
             if (isNotEmpty(location)) {
                 templateBuilder.withLocation(location);
             }
-        });
-
-        Given("^an existing template$", () -> {
-            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build(), TemplateIO.class);
-            assertCreated();
         });
 
         Given("^a template(?: named \"([^\"]*)\")? with the following content$", (String name, String content) -> {

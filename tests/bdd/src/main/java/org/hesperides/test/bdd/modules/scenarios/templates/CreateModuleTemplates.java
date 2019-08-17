@@ -58,5 +58,9 @@ public class CreateModuleTemplates extends HesperidesScenario implements En {
         Then("^the module template creation is rejected with a method not allowed error$", this::assertMethodNotAllowed);
 
         Then("^the module template creation is rejected with a bad request error$", this::assertBadRequest);
+
+        Then("^the module template creation is rejected with a not found error$", this::assertNotFound);
+
+        Then("^the module template creation is rejected with a conflict error$", this::assertConflict);
     }
 }

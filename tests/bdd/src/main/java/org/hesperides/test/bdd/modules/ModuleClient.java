@@ -31,17 +31,22 @@ import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
+import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.urlEncodeUtf8;
 import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
+import static org.springframework.web.util.DefaultUriBuilderFactory.EncodingMode.NONE;
 
 @Component
 public class ModuleClient {
 
     private final CustomRestTemplate restTemplate;
+    private final DefaultUriBuilderFactory defaultUriBuilderFactory;
 
     @Autowired
-    public ModuleClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate) {
+    public ModuleClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate, DefaultUriBuilderFactory defaultUriBuilderFactory) {
         this.restTemplate = restTemplate;
+        this.defaultUriBuilderFactory = defaultUriBuilderFactory;
     }
 
     public void createModule(ModuleIO moduleInput, String tryTo) {
@@ -150,21 +155,39 @@ public class ModuleClient {
     }
 
     public void getTemplate(String templateName, ModuleIO moduleInput, String tryTo) {
-        restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
-                getResponseType(tryTo, TemplateIO.class),
-                moduleInput.getName(),
-                moduleInput.getVersion(),
-                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()),
-                templateName);
+        getTemplate(templateName, moduleInput, tryTo, false);
     }
 
-    public void deleteTemplate(String templateName, ModuleIO moduleInput, String tryTo) {
-        restTemplate.deleteForEntity("/modules/{name}/{version}/{type}/templates/{template_name}",
-                getResponseType(tryTo, ResponseEntity.class),
-                moduleInput.getName(),
-                moduleInput.getVersion(),
-                VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()),
-                templateName);
+    public void getTemplate(String templateName, ModuleIO moduleInput, String tryTo, boolean urlEncodeTemplateName) {
+        DefaultUriBuilderFactory.EncodingMode defaultEncodingMode = defaultUriBuilderFactory.getEncodingMode();
+        try {
+            if (!urlEncodeTemplateName) {
+                defaultUriBuilderFactory.setEncodingMode(NONE);
+            }
+            restTemplate.getForEntity("/modules/{name}/{version}/{type}/templates/" + templateName,
+                    getResponseType(tryTo, TemplateIO.class),
+                    moduleInput.getName(),
+                    moduleInput.getVersion(),
+                    VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+        } finally {
+            defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
+        }
+    }
+
+    public void deleteTemplate(String templateName, ModuleIO moduleInput, String tryTo, boolean urlEncodeTemplateName) {
+        DefaultUriBuilderFactory.EncodingMode defaultEncodingMode = defaultUriBuilderFactory.getEncodingMode();
+        try {
+            if (!urlEncodeTemplateName) {
+                defaultUriBuilderFactory.setEncodingMode(NONE);
+            }
+            restTemplate.deleteForEntity("/modules/{name}/{version}/{type}/templates/" + templateName,
+                    getResponseType(tryTo, ResponseEntity.class),
+                    urlEncodeUtf8(moduleInput.getName()),
+                    urlEncodeUtf8(moduleInput.getVersion()),
+                    VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
+        } finally {
+            defaultUriBuilderFactory.setEncodingMode(defaultEncodingMode);
+        }
     }
 
     public void getModuleNames() {
