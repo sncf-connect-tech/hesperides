@@ -19,7 +19,8 @@ public class EventQueries extends AxonQueries {
     }
 
     public List<EventView> getEvents(String aggregateId, Integer page, Integer size) {
-        return ordinateAndPaginateAccordingSize(querySyncList(new GenericEventsByStreamQuery(aggregateId), EventView.class), page, size);
+        List<EventView> events = querySyncList(new GenericEventsByStreamQuery(aggregateId), EventView.class);
+        return ordinateAndPaginateAccordingSize(events, page, size);
     }
 
     private List<EventView> ordinateAndPaginateAccordingSize(final List<EventView> events, Integer page, Integer size) {
