@@ -36,7 +36,7 @@ public class CreateModules extends HesperidesScenario implements En {
 
         Given("^an existing( released)? module" +
                 "(?: named \"([^\"]*)\")?" +
-                "( (?:and|with) (?:a|this) template(?: with a \"/\" in the title)?)?" +
+                "( (?:and|with) (?:this|a) template)?" +
                 "( (?:and|with) properties)?" +
                 "( (?:and|with) password properties)?" +
                 "( (?:and|with) global properties)?" +
@@ -45,7 +45,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 "( (?:and|with) this techno)?$", (
                 String released,
                 String moduleName,
-                String withTemplate, //TODO à revoir
+                String withThisTemplate,
                 String withProperties,
                 String withPasswordProperties,
                 String withGlobalProperties,
@@ -65,14 +65,7 @@ public class CreateModules extends HesperidesScenario implements En {
 
             createModule();
 
-            //TODO à revoir
-            if (isEmpty(withTemplate) || !withTemplate.contains("this")) {
-                templateBuilder.reset();
-            }
-            if (isNotEmpty(withTemplate) && withTemplate.contains("\"/\" in the title")) { // Est-ce que c'est utilisé ? à remplacer par "a template to create with name "a/template"
-                templateBuilder.withName("a/template");
-            }
-            if (isNotEmpty(withTemplate)) {
+            if (isNotEmpty(withThisTemplate)) {
                 addTemplatePropertiesToBuilders(templateBuilder);
             }
 
@@ -105,7 +98,7 @@ public class CreateModules extends HesperidesScenario implements En {
                 addPropertyToBuilders(propertyBuilder);
             }
 
-            if (isNotEmpty(withTemplate) ||
+            if (isNotEmpty(withThisTemplate) ||
                     isNotEmpty(withProperties) ||
                     isNotEmpty(withGlobalProperties) ||
                     isNotEmpty(withPasswordProperties) ||
