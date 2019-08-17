@@ -38,19 +38,19 @@ Feature: Get module templates
     Then the resource is not found
 
   Scenario: get a template with a slash within the title
-    Given a template to create with name "conf/domains.json"
+    Given a template named "conf/domains.json"
     And an existing module with this template
     When I get this template in this module
     Then the module template is successfully returned
 
   Scenario: get a template with a url-encoded slash within the title
-    Given a template to create with name "conf/domains.json"
+    Given a template named "conf/domains.json"
     And an existing module with this template
     When I get this template in this module using an url-encoded template name
     Then the module template is successfully returned
 
   Scenario: get a template with a percent sign within the title
-    Given a template to create with name "con%/domains.json"
+    Given a template named "con%/domains.json"
     And an existing module with this template
     When I get this template in this module using an url-encoded template name
     Then the module template is successfully returned

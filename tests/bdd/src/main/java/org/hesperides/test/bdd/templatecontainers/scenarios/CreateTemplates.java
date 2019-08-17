@@ -34,11 +34,10 @@ public class CreateTemplates extends HesperidesScenario implements En {
 
     public CreateTemplates() {
 
-        //TODO Supprimer to create ?
-        Given("^a template to create" +
-                "(?: with name \"([^\"]*)\")?" + //TODO named?
-                "(?: with filename \"([^\"]*)\")?" +
-                "(?: with location \"([^\"]*)\")?$", (
+        Given("^a template(?: to create)?" +
+                "(?: named \"([^\"]*)\")?" +
+                "(?: (?:and|with) filename \"([^\"]*)\")?" +
+                "(?: (?:and|with) location \"([^\"]*)\")?$", (
                 String name, String filename, String location) -> {
 
             templateBuilder.reset();
@@ -55,24 +54,25 @@ public class CreateTemplates extends HesperidesScenario implements En {
         });
 
         Given("^a template(?: named \"([^\"]*)\")? with the following content$", (String name, String content) -> {
+            templateBuilder.reset();
             if (isNotEmpty(name)) {
                 templateBuilder.withName(name);
             }
             templateBuilder.withContent(content);
         });
 
-        Given("^a template to create with the same name as the existing one$", () -> {
+        Given("^a template with the same name as the existing one$", () -> {
         });
 
-        Given("^a template to create without a name$", () -> {
+        Given("^a template without a name$", () -> {
             templateBuilder.reset().withName("");
         });
 
-        Given("^a template to create without a filename$", () -> {
+        Given("^a template without a filename$", () -> {
             templateBuilder.reset().withName("new-template").withFilename("");
         });
 
-        Given("^a template to create without a location", () -> {
+        Given("^a template without a location", () -> {
             templateBuilder.reset().withName("new-template").withLocation("");
         });
         Given("^this template content", (String templateContent) -> {

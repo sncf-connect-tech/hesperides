@@ -50,7 +50,7 @@ Feature: Get module model
     And the model of this module contains the properties
 
   Scenario: get the model of a module with a template with variables in filename and location
-    Given a template to create with filename "{{filename}}.json" with location "/{{location}}"
+    Given a template with filename "{{filename}}.json" and location "/{{location}}"
     And an existing module with this template
     When I get the model of this module
     Then the model of this module contains the properties
