@@ -33,7 +33,7 @@ public class GetTechnos extends HesperidesScenario implements En {
             technoClient.getTechno(technoBuilder.build(), technoBuilder.getVersionType(), tryTo);
         });
 
-        When("^I get the technos names$", () -> technoClient.getTechnoNames());
+        When("^I get the technos name$", () -> technoClient.getTechnoNames());
 
         When("^I get the techno types$", () -> {
             TechnoIO techno = technoBuilder.build();

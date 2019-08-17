@@ -37,8 +37,11 @@ public class TemplateBuilder implements Serializable {
     @Getter
     private String name;
     private String namespace;
+    @Getter
     private String filename;
+    @Getter
     private String location;
+    @Getter
     @Setter
     private String content;
     private TemplateIO.RightsIO rights;

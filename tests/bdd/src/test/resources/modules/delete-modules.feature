@@ -9,7 +9,7 @@ Feature: Delete modules
     Then the module is successfully deleted
 
   Scenario: delete a released module
-    Given a released module
+    Given an existing released module
     When I delete this module
     Then the module is successfully deleted
 

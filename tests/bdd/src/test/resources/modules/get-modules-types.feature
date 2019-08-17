@@ -4,7 +4,7 @@ Feature: Get modules type
     Given an authenticated user
 
   Scenario: get the types of a released module
-    Given a released module
+    Given an existing released module
     When I get the module types
     Then a list containing workingcopy and release is returned
 

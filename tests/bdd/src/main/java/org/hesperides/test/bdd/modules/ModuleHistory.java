@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.modules;
 
+import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @Component
 public class ModuleHistory {
 
+    @Getter
     private List<ModuleBuilder> moduleBuilders;
 
     public ModuleHistory() {

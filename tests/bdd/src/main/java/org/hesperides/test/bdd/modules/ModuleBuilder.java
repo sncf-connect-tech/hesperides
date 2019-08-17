@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.modules;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.core.presentation.io.ModuleKeyOutput;
 import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
@@ -84,5 +85,9 @@ public class ModuleBuilder extends TemplateContainerBuilder {
         moduleIterableProperties.addAll(technosIterableProperties);
 
         return new ModelOutput(moduleSimpleProperties, moduleIterableProperties);
+    }
+
+    public ModuleKeyOutput buildModuleKeyOutput() {
+        return new ModuleKeyOutput(name, version, VersionType.toIsWorkingCopy(versionType));
     }
 }

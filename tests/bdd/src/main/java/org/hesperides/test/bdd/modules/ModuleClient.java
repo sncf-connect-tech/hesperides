@@ -21,6 +21,8 @@
 package org.hesperides.test.bdd.modules;
 
 import org.hesperides.core.presentation.io.ModuleIO;
+import org.hesperides.core.presentation.io.ModuleKeyOutput;
+import org.hesperides.core.presentation.io.TechnoIO;
 import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
@@ -46,12 +48,16 @@ public class ModuleClient {
         restTemplate.postForEntity("/modules", moduleInput, getResponseType(tryTo, ModuleIO.class));
     }
 
-    public void searchModules(String terms) {
-        searchModules(terms, 0);
+    public void searchModules(String searchInput) {
+        searchModules(searchInput, 0, null);
     }
 
-    public void searchModules(String terms, Integer size) {
-        restTemplate.getForEntity("/modules/perform_search?terms=" + terms + "&size=" + size, ModuleIO[].class);
+    public void searchModules(String searchInput, Integer size, String tryTo) {
+        restTemplate.getForEntity("/modules/perform_search?terms=" + searchInput + "&size=" + size, getResponseType(tryTo, ModuleIO[].class));
+    }
+
+    public void searchSingle(String searchInput) {
+        restTemplate.getForEntity("/modules/search?terms=" + searchInput, ModuleIO.class);
     }
 
     public void getModule(ModuleIO moduleInput, String tryTo) {
@@ -66,16 +72,13 @@ public class ModuleClient {
                 versionType);
     }
 
-    public void releaseModule(ModuleIO moduleInput) {
-        releaseModule(moduleInput, null);
-    }
-
-    public void releaseModule(ModuleIO moduleInput, String tryTo) {
-        restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}",
+    public void releaseModule(ModuleIO moduleInput, String releaseVersion, String tryTo) {
+        restTemplate.postForEntity("/modules/create_release?module_name={name}&module_version={version}&release_version={release_version}",
                 null,
                 getResponseType(tryTo, ModuleIO.class),
                 moduleInput.getName(),
-                moduleInput.getVersion());
+                moduleInput.getVersion(),
+                releaseVersion);
     }
 
     public void deleteModule(ModuleIO moduleInput, String tryTo) {
@@ -174,5 +177,18 @@ public class ModuleClient {
 
     public void getModuleTypes(String name, String version) {
         restTemplate.getForEntity("/modules/{name}/{version}", String[].class, name, version);
+    }
+
+    public void getModulesUsingTechno(TechnoIO technoInput) {
+        restTemplate.getForEntity(
+                "/modules/using_techno/{techno_name}/{techno_version}/{techno_type}",
+                ModuleKeyOutput[].class,
+                technoInput.getName(),
+                technoInput.getVersion(),
+                VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
+    }
+
+    public void updateModule(ModuleIO moduleInput, String tryTo) {
+        restTemplate.putForEntity("/modules", moduleInput, getResponseType(tryTo, ModuleIO.class));
     }
 }

@@ -11,7 +11,7 @@ Feature: Get modules detail
 
   Scenario: get the detail of a released module
     Given an existing techno
-    And a released module with this techno
+    And an existing released module with this techno
     When I get the module detail
     Then the module detail is successfully retrieved
 

@@ -7,7 +7,6 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +53,11 @@ public class CreateModules extends HesperidesScenario implements En {
                 String withNestedIterableProperties,
                 String withThisTechno) -> {
 
+            moduleBuilder.reset();
+
             if (isNotEmpty(moduleName)) {
                 moduleBuilder.withName(moduleName);
             }
-
 
             if (isNotEmpty(withThisTechno)) {
                 moduleBuilder.withTechnoBuilder(technoBuilder);
@@ -69,8 +69,11 @@ public class CreateModules extends HesperidesScenario implements En {
             if (isEmpty(withTemplate) || !withTemplate.contains("this")) {
                 templateBuilder.reset();
             }
-            if (isNotEmpty(withTemplate) && withTemplate.contains("\"/\" in the title")) { // Est-ce que c'est utilisé ?
+            if (isNotEmpty(withTemplate) && withTemplate.contains("\"/\" in the title")) { // Est-ce que c'est utilisé ? à remplacer par "a template to create with name "a/template"
                 templateBuilder.withName("a/template");
+            }
+            if (isNotEmpty(withTemplate)) {
+                addTemplatePropertiesToBuilders(templateBuilder);
             }
 
             if (isNotEmpty(withProperties)) {
@@ -124,16 +127,25 @@ public class CreateModules extends HesperidesScenario implements En {
             });
         });
 
-        Given("^a list of ?(\\d+)? modules( with different names)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
-            int modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.parseInt(modulesCount);
-            IntStream.range(0, modulesToCreateCount).forEach(index -> {
-                if (isNotEmpty(withDifferentNames)) {
-                    moduleBuilder.withName("a-module-" + index);
+        Given("^a list of( \\d+)? modules( with different names(?: starting with the same prefix)?)?(?: with the same name)?$", (String modulesCount, String withDifferentNames) -> {
+            int modulesToCreateCount = isEmpty(modulesCount) ? 12 : Integer.parseInt(modulesCount.substring(1));
+            for (int i = 0; i < modulesToCreateCount; i++) {
+                boolean isLast = i == (modulesToCreateCount - 1);
+                // Note: il faut créer en dernier le module associé à un "match exact",
+                // car par défaut Mongo semble remonter les résultats ordonnés par date de création
+                if (isLast || isEmpty(withDifferentNames)) {
+                    moduleBuilder.withName("new-module");
                 } else {
-                    moduleBuilder.withVersion("0." + (index + 1));
+                    moduleBuilder.withName("new-module-" + i);
+                }
+                if (isLast) {
+                    moduleBuilder.withVersion("0.0.1");
+                } else {
+                    moduleBuilder.withVersion("0.0.1" + i);
                 }
                 createModule();
-            });
+                assertCreated();
+            }
         });
 
         Given("^an existing module with properties with the same name and comment, but different default values, in two templates$", () -> {
@@ -207,6 +219,16 @@ public class CreateModules extends HesperidesScenario implements En {
         Then("^the module creation is rejected with a bad request error$", this::assertBadRequest);
     }
 
+    private void addTemplatePropertiesToBuilders(TemplateBuilder templateBuilder) {
+        extractPropertyToBuilders(templateBuilder.getFilename());
+        extractPropertyToBuilders(templateBuilder.getLocation());
+        extractPropertyToBuilders(templateBuilder.getContent());
+    }
+
+    private void extractPropertyToBuilders(String input) {
+        propertyBuilder.extractProperties(input).forEach(this::addPropertyToBuilders);
+    }
+
     private void addPropertyToBuilders(String name) {
         propertyBuilder.reset().withName(name);
         addPropertyToBuilders(propertyBuilder);
@@ -239,9 +261,7 @@ public class CreateModules extends HesperidesScenario implements En {
     }
 
     private void releaseModule() {
-        moduleClient.releaseModule(moduleBuilder.build());
+        ReleaseModules.releaseModule(moduleClient, moduleBuilder, moduleHistory, null, null);
         assertOK();
-        moduleBuilder.withVersionType(VersionType.RELEASE);
-        moduleHistory.addModuleBuilder(moduleBuilder);
     }
 }

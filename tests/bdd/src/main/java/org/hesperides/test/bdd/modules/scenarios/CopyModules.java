@@ -8,7 +8,6 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,16 +52,18 @@ public class CopyModules extends HesperidesScenario implements En {
 
             moduleClient.copyModule(existingModule, moduleBuilder.build(), tryTo);
             moduleBuilder.withVersionId(1L);
-            // Dans le cas d'une copie de release, le module
-            // créé devient automatiquement une working copy
-            moduleBuilder.withVersionType(VersionType.WORKINGCOPY);
             // Les templates sont identiques sauf pour le namespace
             moduleBuilder.updateTemplatesNamespace();
             moduleHistory.addModuleBuilder(moduleBuilder);
         });
 
-        Then("^the module is successfully (?:duplicated|released)$", () -> {
-            assertCreated();
+        Then("^the module is successfully (duplicated|released)?$", (String duplicatedOrReleased) -> {
+            if ("duplicated".equals(duplicatedOrReleased)) {
+                assertCreated();
+            } else {
+                assertOK();
+            }
+
             ModuleIO expectedModule = moduleBuilder.build();
             ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
             assertEquals(expectedModule, actualModule);

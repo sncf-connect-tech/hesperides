@@ -44,6 +44,8 @@ public class CreateTechnos extends HesperidesScenario implements En {
                 String withIterableProperties,
                 String withNestedIterableProperties) -> {
 
+            technoBuilder.reset();
+
             if (isNotEmpty(withProperties)) {
                 addPropertyToBuilders("techno-foo");
                 addPropertyToBuilders("techno-bar");

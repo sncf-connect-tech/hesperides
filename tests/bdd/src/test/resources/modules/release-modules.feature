@@ -11,7 +11,7 @@ Feature: Release modules
 
   Scenario: release an already released module with the same version
     Given an existing techno
-    And a released module with this techno
+    And an existing released module with this techno
     When I try to release this module
     Then the module release is rejected with a conflict error
 
@@ -19,7 +19,7 @@ Feature: Release modules
     Given an existing techno
     And an existing module with this techno
     When I release this module in version "2.0.0"
-    Then the module is successfully released in version "2.0.0"
+    Then the module is successfully released
 
   Scenario: release a module that doesn't exist
     Given a module that doesn't exist

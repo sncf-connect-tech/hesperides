@@ -25,7 +25,7 @@ Feature: Search modules
 
   Scenario: search for a module without search terms
     Given a list of modules
-    When I try to search for a module with no search terms
+    When I try to search for a module with no search input
     Then the search request is rejected with a bad request error
 
   Scenario: search a single module that has been released without specifying the version type
@@ -37,13 +37,13 @@ Feature: Search modules
   Scenario: search a released single module that has been released
     Given an existing module
     And I release this module
-    When I search for the released version of this single module
+    When I search for the released version of this module
     Then I get the released version of this module
 
   Scenario: search a working copy single module that has been released
     Given an existing module
     And I release this module
-    When I search for the working copy version of this single module
+    When I search for the working copy version of this module
     Then I get the working copy version of this module
 
   Scenario: search for a limited number of existing modules
