@@ -25,7 +25,7 @@ Feature: Create platform
   Scenario: copy of a platform with an history of deployed modules
     And an existing module with properties
     And an existing platform with this module and valued properties
-    And a copy of this module in version 2.0.0
+    And a copy of this module in version "2.0.0"
     And I update this platform, upgrading its module to version "2.0.0", and requiring the copy of properties
     When I copy this platform
     Then the platform is successfully created

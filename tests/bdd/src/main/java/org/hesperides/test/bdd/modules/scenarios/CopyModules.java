@@ -29,6 +29,12 @@ public class CopyModules extends HesperidesScenario implements En {
 
     public CopyModules() {
 
+        Given("^a copy of this module(?: in version \"(.*)\")?$", (String copyVersion) -> {
+            ModuleIO existingModule = moduleBuilder.build();
+            moduleBuilder.withVersion(isNotEmpty(copyVersion) ? copyVersion : "1.1");
+            copyModule(existingModule, null);
+        });
+
         When("^I( try to)? create a copy of this module" +
                 "( without specifying the version of the source module)?" +
                 "( without specifying whether it is a workingcopy)?" +
@@ -50,11 +56,7 @@ public class CopyModules extends HesperidesScenario implements En {
                 moduleBuilder.withVersionType(null);
             }
 
-            moduleClient.copyModule(existingModule, moduleBuilder.build(), tryTo);
-            moduleBuilder.withVersionId(1);
-            // Les templates sont identiques sauf pour le namespace
-            moduleBuilder.updateTemplatesNamespace();
-            moduleHistory.addModuleBuilder(moduleBuilder);
+            copyModule(existingModule, tryTo);
         });
 
         Then("^the module is successfully (duplicated|released)?$", (String duplicatedOrReleased) -> {
@@ -91,5 +93,13 @@ public class CopyModules extends HesperidesScenario implements En {
         Then("^the module copy is rejected with a bad request error$", this::assertBadRequest);
 
         Then("^the module copy is rejected with a conflict error$", this::assertConflict);
+    }
+
+    private void copyModule(ModuleIO existingModule, String tryTo) {
+        moduleClient.copyModule(existingModule, moduleBuilder.build(), tryTo);
+        moduleBuilder.withVersionId(1);
+        // Les templates sont identiques sauf pour le namespace
+        moduleBuilder.updateTemplatesNamespace();
+        moduleHistory.addModuleBuilder(moduleBuilder);
     }
 }
