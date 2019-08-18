@@ -16,14 +16,16 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
     Then there are obfuscated password properties in the file
 
   Scenario: a property in a file is obfuscated if it is tagged as a password in another template
-    Given an existing module with this template content
+    Given a template named "a" with the following content
       """
       {{password}}
       """
-    And another template in this module with this content
+    And an existing module with this template
+    And a template named "b" with the following content
       """
       {{password|@password}}
       """
+    And I add this template to the module
     And an existing prod platform with this module
     And the platform has these valued properties
       | name     | value  |

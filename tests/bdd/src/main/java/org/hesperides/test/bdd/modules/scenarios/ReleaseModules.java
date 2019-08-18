@@ -31,7 +31,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
             if (isNotEmpty(withoutVersion)) {
                 moduleBuilder.withVersion(null);
             }
-            releaseModule(moduleClient, moduleBuilder, moduleHistory, releasedVersion, tryTo);
+            releaseModule(releasedVersion, tryTo);
         });
 
         Then("^the module release is rejected with a not found error$", this::assertNotFound);
@@ -41,7 +41,11 @@ public class ReleaseModules extends HesperidesScenario implements En {
         Then("^the module release is rejected with a bad request error$", this::assertBadRequest);
     }
 
-    static void releaseModule(ModuleClient moduleClient, ModuleBuilder moduleBuilder, ModuleHistory moduleHistory, String releaseVersion, String tryTo) {
+    void releaseModule() {
+        releaseModule(null, null);
+    }
+
+    private void releaseModule(String releaseVersion, String tryTo) {
         moduleClient.releaseModule(moduleBuilder.build(), releaseVersion, tryTo);
         if (isNotEmpty(releaseVersion)) {
             moduleBuilder.withVersion(releaseVersion);

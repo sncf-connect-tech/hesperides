@@ -6,7 +6,7 @@ import org.hesperides.core.presentation.io.events.EventOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,7 +21,7 @@ public class GetEvents extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
 
     public GetEvents() {
 
@@ -30,7 +30,7 @@ public class GetEvents extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? get the events of this platform$", (String tryTo) -> {
-            getPlatformEvents(platformBuilder.buildInput(), tryTo);
+            getPlatformEvents(oldPlatformBuilder.buildInput(), tryTo);
         });
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {

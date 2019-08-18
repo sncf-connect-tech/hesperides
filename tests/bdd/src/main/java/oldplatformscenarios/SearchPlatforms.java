@@ -1,9 +1,9 @@
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -15,13 +15,13 @@ import static org.junit.Assert.assertEquals;
 public class SearchPlatforms extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
 
     public SearchPlatforms() {
 
         When("^I( try to)? search for the platform \"([^\"]*)\" in the application \"([^\"]*)\"$", (
                 String tryTo, String platformName, String applicationName) -> {
-            testContext.setResponseEntity(platformClient.search(applicationName, platformName, getResponseType(tryTo, SearchResultOutput[].class)));
+            testContext.setResponseEntity(oldPlatformClient.search(applicationName, platformName, getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
         Then("^the platform search result contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {

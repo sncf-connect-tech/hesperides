@@ -31,7 +31,7 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class GetFiles extends HesperidesScenario implements En {
     @Autowired
     private FileClient fileClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
@@ -67,7 +67,7 @@ public class GetFiles extends HesperidesScenario implements En {
     public GetFiles() {
 
         When("^I( try to)? get the (instance|module)? files(?: in the logical group \"([^\"]*)\")?$", (String tryTo, String instanceOrModule, String logicalGroup) -> {
-            PlatformIO platform = platformBuilder.buildInput();
+            PlatformIO platform = oldPlatformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
 
             Optional<DeployedModuleIO> deployedModule = getDeployedModule(platform, logicalGroup);
@@ -177,17 +177,17 @@ public class GetFiles extends HesperidesScenario implements En {
     private String replacePropertiesWithValues(String input, String modulePath, String instanceName) {
         List<ValuedPropertyIO> predefinedProperties = getPredefinedProperties(modulePath, instanceName);
 
-        List<ValuedPropertyIO> moduleAndGlobalProperties = platformBuilder.getModuleAndGlobalProperties();
+        List<ValuedPropertyIO> moduleAndGlobalProperties = oldPlatformBuilder.getModuleAndGlobalProperties();
         input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
-        List<ValuedPropertyIO> globalProperties = platformBuilder.getAllGlobalProperties();
+        List<ValuedPropertyIO> globalProperties = oldPlatformBuilder.getAllGlobalProperties();
         List<ValuedPropertyIO> globalAndInstanceProperties = new ArrayList<>(globalProperties);
-        globalAndInstanceProperties.addAll(platformBuilder.getInstancePropertyValues());
+        globalAndInstanceProperties.addAll(oldPlatformBuilder.getInstancePropertyValues());
         input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalAndInstanceProperties);
         return propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalProperties);
     }
 
     private List<ValuedPropertyIO> getPredefinedProperties(String modulePath, String instanceName) {
-        PlatformIO platform = platformBuilder.buildInput();
+        PlatformIO platform = oldPlatformBuilder.buildInput();
         ModuleIO module = moduleBuilder.build();
         return Arrays.asList(
                 new ValuedPropertyIO("hesperides.application.name", platform.getApplicationName()),

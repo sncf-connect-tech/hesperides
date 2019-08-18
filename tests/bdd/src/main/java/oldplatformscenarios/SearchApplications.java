@@ -1,11 +1,11 @@
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -16,9 +16,9 @@ import static org.junit.Assert.assertEquals;
 public class SearchApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
 
     public SearchApplications() {
 
@@ -26,29 +26,29 @@ public class SearchApplications extends HesperidesScenario implements En {
                 Integer nbApplications, String applicationPrefix, String withPlatform, Integer nbPlatforms, String platformPrefix) -> {
 
             for (int i = 0; i < nbApplications; i++) {
-                platformBuilder.withApplicationName(applicationPrefix + "-" + (i + 1));
+                oldPlatformBuilder.withApplicationName(applicationPrefix + "-" + (i + 1));
 
                 if (StringUtils.isNotEmpty(withPlatform)) {
                     for (int j = 0; j < nbPlatforms; j++) {
-                        platformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
-                        platformClient.create(platformBuilder.buildInput());
+                        oldPlatformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
+                        oldPlatformClient.create(oldPlatformBuilder.buildInput());
                     }
                 } else {
-                    platformClient.create(platformBuilder.buildInput());
+                    oldPlatformClient.create(oldPlatformBuilder.buildInput());
                 }
             }
         });
 
         Given("^an application named ([^ ]+)(?: with a platform named (.+))?$", (String applicationName, String platformName) -> {
-            platformBuilder.withApplicationName(applicationName);
+            oldPlatformBuilder.withApplicationName(applicationName);
             if (StringUtils.isNotEmpty(platformName)) {
-                platformBuilder.withPlatformName(platformName);
+                oldPlatformBuilder.withPlatformName(platformName);
             }
-            platformClient.create(platformBuilder.buildInput());
+            oldPlatformClient.create(oldPlatformBuilder.buildInput());
         });
 
         When("^I( try to)? search for the application \"(.*?)\"", (String tryTo, String applicationName) -> {
-            testContext.setResponseEntity(platformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class)));
+            testContext.setResponseEntity(oldPlatformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class)));
         });
 
         Then("^the application (?:list|search result) contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {

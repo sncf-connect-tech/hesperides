@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
@@ -33,9 +33,9 @@ import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.modules.OldModuleClient;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
-import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -56,13 +56,13 @@ import static org.junit.Assert.*;
 public class GetProperties extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
     private OldModuleClient moduleClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
-    private PlatformHistory platformHistory;
+    private OldPlatformHistory oldPlatformHistory;
     @Autowired
     private OldModuleBuilder moduleBuilder;
 
@@ -71,28 +71,28 @@ public class GetProperties extends HesperidesScenario implements En {
         When("^(?:when )?I( try to)? get the platform properties for this module( at a specific time in the past)?( with an incorrect version type)?$", (String tryTo, String withTimestamp, String withIncorrectVersionType) -> {
             Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
-                timestamp = platformHistory.getFirstPlatformTimestamp();
+                timestamp = oldPlatformHistory.getFirstPlatformTimestamp();
             }
             if (StringUtils.isNotEmpty(withIncorrectVersionType)) {
                 moduleBuilder.withVersionType("TOTO");
             }
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class)));
+            testContext.setResponseEntity(oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath(), timestamp, getResponseType(tryTo, PropertiesIO.class)));
         });
 
         When("^I get the global properties of this platform$", () -> {
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), "#"));
+            testContext.setResponseEntity(oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), "#"));
         });
 
         Then("^the platform property values are(?: also)? copied$", () -> {
             // Propriétés valorisées
-            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
-            PropertiesIO expectedProperties = platformBuilder.getPropertiesIO(false);
+            PropertiesIO actualProperties = oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            PropertiesIO expectedProperties = oldPlatformBuilder.getPropertiesIO(false);
             assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
             assertThat(actualProperties.getIterableValuedProperties(), containsInAnyOrder(expectedProperties.getIterableValuedProperties().toArray()));
             // Propriétés globales
-            PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+            PropertiesIO actualGlobalProperties = oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), "#").getBody();
 //            platformBuilder.resetGlobalPropertiesVersionId();
-            PropertiesIO expectedGlobalProperties = platformBuilder.getPropertiesIO(true);
+            PropertiesIO expectedGlobalProperties = oldPlatformBuilder.getPropertiesIO(true);
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });
 
@@ -115,13 +115,13 @@ public class GetProperties extends HesperidesScenario implements En {
 
         Then("^the( initial)? platform( global)? properties are successfully retrieved$", (String initial, String global) -> {
             assertOK();
-            PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? platformHistory.getInitialPlatformProperties() : platformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
+            PropertiesIO expectedProperties = StringUtils.isNotEmpty(initial) ? oldPlatformHistory.getInitialPlatformProperties() : oldPlatformBuilder.getPropertiesIO(StringUtils.isNotEmpty(global));
             PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedProperties, actualProperties);
         });
 
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
+            testContext.setResponseEntity(oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
             PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
@@ -130,7 +130,7 @@ public class GetProperties extends HesperidesScenario implements En {
         });
 
         Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
-            testContext.setResponseEntity(platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
+            testContext.setResponseEntity(oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath()));
             assertOK();
             PropertiesIO actualProperties = testContext.getResponseBody(PropertiesIO.class);
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
@@ -138,12 +138,12 @@ public class GetProperties extends HesperidesScenario implements En {
         });
 
         Then("^there are (\\d+) global properties$", (Integer expectedCount) -> {
-            PropertiesIO actualGlobalProperties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+            PropertiesIO actualGlobalProperties = oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), "#").getBody();
             assertEquals(expectedCount.intValue(), actualGlobalProperties.getValuedProperties().size());
         });
 
         Then("^there are (\\d+) module properties$", (Integer expectedCount) -> {
-            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            PropertiesIO actualProperties = oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             assertEquals(expectedCount.intValue(), actualProperties.getValuedProperties().size());
         });
     }

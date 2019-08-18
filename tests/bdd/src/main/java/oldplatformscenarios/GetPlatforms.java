@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
@@ -27,9 +27,9 @@ import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
-import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformHistory;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,11 +42,11 @@ import static org.junit.Assert.assertThat;
 public class GetPlatforms extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
-    private PlatformHistory platformHistory;
+    private OldPlatformHistory oldPlatformHistory;
     @Autowired
     private OldModuleBuilder moduleBuilder;
 
@@ -64,24 +64,24 @@ public class GetPlatforms extends HesperidesScenario implements En {
                 String requestingThePasswordFlag) -> {
             Long timestamp = null;
             if (StringUtils.isNotEmpty(withTimestamp)) {
-                timestamp = platformHistory.getFirstPlatformTimestamp();
+                timestamp = oldPlatformHistory.getFirstPlatformTimestamp();
             } else if (StringUtils.isNotEmpty(withEpochTimestamp)) {
                 timestamp = 0L;
             }
-            PlatformIO platformInput = platformBuilder.buildInput();
+            PlatformIO platformInput = oldPlatformBuilder.buildInput();
             if (StringUtils.isNotEmpty(withWrongLetterCase)) {
-                platformInput = new PlatformBuilder().withPlatformName(platformBuilder.getPlatformName().toUpperCase()).buildInput();
+                platformInput = new OldPlatformBuilder().withPlatformName(oldPlatformBuilder.getPlatformName().toUpperCase()).buildInput();
             }
-            testContext.setResponseEntity(platformClient.get(platformInput, timestamp, StringUtils.isNotEmpty(requestingThePasswordFlag), getResponseType(tryTo, PlatformIO.class)));
+            testContext.setResponseEntity(oldPlatformClient.get(platformInput, timestamp, StringUtils.isNotEmpty(requestingThePasswordFlag), getResponseType(tryTo, PlatformIO.class)));
         });
 
         Then("^the( initial)? platform detail is successfully retrieved", (String initial) -> {
             assertOK();
             PlatformIO expectedPlatform;
             if (StringUtils.isEmpty(initial)) {
-                expectedPlatform = platformBuilder.buildOutput();
+                expectedPlatform = oldPlatformBuilder.buildOutput();
             } else {
-                expectedPlatform = platformHistory.getInitialPlatformState();
+                expectedPlatform = oldPlatformHistory.getInitialPlatformState();
                 expectedPlatform = new PlatformIO(
                         expectedPlatform.getPlatformName(),
                         expectedPlatform.getApplicationName(),

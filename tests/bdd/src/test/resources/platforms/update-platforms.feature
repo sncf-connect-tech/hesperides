@@ -52,7 +52,7 @@ Feature: Update platforms
   Scenario: update an existing platform, upgrading a module version and requiring the copy of properties
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
-    And a copy of this module in version 2.0.0
+    And a copy of this module in version "2.0"
     When I update this platform, upgrading its module, and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
@@ -102,18 +102,18 @@ Feature: Update platforms
   Scenario: restoring properties of a deployed module to an already upgraded module
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
-    And a copy of this module in version 2.0.0
-    And I update this platform, upgrading its module to version "2.0.0"
-    And I update this platform, downgrading its module to version "1.0.0"
-    When I update this platform, upgrading its module to version "2.0.0", and requiring the copy of properties
+    And a copy of this module in version "2.0"
+    And I update this platform, upgrading its module to version "2.0"
+    And I update this platform, downgrading its module to version "1.0"
+    When I update this platform, upgrading its module to version "2.0", and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
 
   Scenario: trying to copy properties from an empty deployed modules
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
-    And a copy of this module in version 2.0.0
-    And I update this platform, upgrading its module to version "2.0.0"
-    And I update this platform, downgrading its module to version "1.0.0", and requiring the copy of properties
+    And a copy of this module in version "2.0"
+    And I update this platform, upgrading its module to version "2.0"
+    And I update this platform, downgrading its module to version "1.0", and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied

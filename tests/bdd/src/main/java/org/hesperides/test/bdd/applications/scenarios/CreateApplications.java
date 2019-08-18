@@ -27,8 +27,8 @@ import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -38,9 +38,9 @@ import java.util.stream.Collectors;
 public class CreateApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
     private ApplicationClient applicationClient;
     @Autowired
@@ -94,9 +94,9 @@ public class CreateApplications extends HesperidesScenario implements En {
 
     private void createApplication(String applicationName) {
         if (StringUtils.isNotEmpty(applicationName)) {
-            platformBuilder.withApplicationName(applicationName);
+            oldPlatformBuilder.withApplicationName(applicationName);
         }
-        testContext.setResponseEntity(platformClient.create(platformBuilder.buildInput()));
+        testContext.setResponseEntity(oldPlatformClient.create(oldPlatformBuilder.buildInput()));
     }
 
     private void addApplicationDirectoryGroups(String directoryGroup) {
@@ -104,7 +104,7 @@ public class CreateApplications extends HesperidesScenario implements En {
     }
 
     private void addApplicationDirectoryGroups(List<String> directoryGroups) {
-        applicationDirectoryGroupsBuilder.withApplicationName(platformBuilder.getApplicationName());
+        applicationDirectoryGroupsBuilder.withApplicationName(oldPlatformBuilder.getApplicationName());
         applicationDirectoryGroupsBuilder.addDirectoryGroups(directoryGroups);
         testContext.setResponseEntity(applicationClient.setApplicationDirectoryGroups(
                 applicationDirectoryGroupsBuilder.getApplicationName(),

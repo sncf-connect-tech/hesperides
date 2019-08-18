@@ -18,14 +18,14 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
-import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -37,21 +37,21 @@ import static org.junit.Assert.assertThat;
 public class GetPlatformsUsingModule extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformHistory platformHistory;
+    private OldPlatformHistory oldPlatformHistory;
     @Autowired
     private OldModuleBuilder moduleBuilder;
 
     public GetPlatformsUsingModule() {
 
         When("^I get the platforms using this module$", () -> {
-            testContext.setResponseEntity(platformClient.getPlatformsUsingModule(moduleBuilder.build()));
+            testContext.setResponseEntity(oldPlatformClient.getPlatformsUsingModule(moduleBuilder.build()));
         });
 
         Then("^the platforms using this module are successfully retrieved", () -> {
             assertOK();
-            List<ModulePlatformsOutput> expectedPlatforms = platformHistory.buildModulePlatforms();
+            List<ModulePlatformsOutput> expectedPlatforms = oldPlatformHistory.buildModulePlatforms();
             List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
             assertEquals(expectedPlatforms, actualPlatforms);
         });

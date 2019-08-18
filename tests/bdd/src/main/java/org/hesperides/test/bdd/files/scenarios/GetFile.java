@@ -29,7 +29,7 @@ import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -48,7 +48,7 @@ public class GetFile extends HesperidesScenario implements En {
     @Autowired
     private FileClient fileClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
     private OldModuleBuilder moduleBuilder;
     @Autowired
@@ -57,7 +57,7 @@ public class GetFile extends HesperidesScenario implements En {
     public GetFile() {
 
         When("^I( try to)? get the (instance|module)? template file$", (String tryTo, String instanceOrModule) -> {
-            PlatformIO platform = platformBuilder.buildInput();
+            PlatformIO platform = oldPlatformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
             TemplateIO template = templateBuilder.build();
 

@@ -18,30 +18,30 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 public class DeletePlatforms extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
 
     public DeletePlatforms() {
 
         Given("^a platform that doesn't exist$", () -> {
-            platformBuilder.withPlatformName("nope");
+            oldPlatformBuilder.withPlatformName("nope");
         });
 
         When("^I( try to)? delete this platform$", (String tryTo) -> {
-            testContext.setResponseEntity(platformClient.delete(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
+            testContext.setResponseEntity(oldPlatformClient.delete(oldPlatformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
         });
 
         Then("^the platform is successfully deleted", () -> {

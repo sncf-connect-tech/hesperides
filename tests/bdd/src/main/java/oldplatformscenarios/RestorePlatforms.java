@@ -18,12 +18,12 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -32,17 +32,17 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class RestorePlatforms extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
 
     public RestorePlatforms() {
 
         When("^I( try to)? restore this platform( with a different platform case)?$", (String tryTo, String withDifferentPlatformCase) -> {
             if (isNotBlank(withDifferentPlatformCase)) {
-                platformBuilder.withPlatformName(platformBuilder.getPlatformName().toLowerCase());
+                oldPlatformBuilder.withPlatformName(oldPlatformBuilder.getPlatformName().toLowerCase());
             }
-            testContext.setResponseEntity(platformClient.restore(platformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
+            testContext.setResponseEntity(oldPlatformClient.restore(oldPlatformBuilder.buildInput(), getResponseType(tryTo, ResponseEntity.class)));
         });
     }
 }

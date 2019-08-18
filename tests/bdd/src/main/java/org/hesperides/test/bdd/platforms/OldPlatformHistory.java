@@ -26,17 +26,16 @@ import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-public class PlatformHistory {
+public class OldPlatformHistory {
 
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
 
     private Map<Long, PlatformIO> platforms = new HashMap<>();
     private Map<Long, PropertiesIO> platformProperties = new HashMap<>();
@@ -48,8 +47,8 @@ public class PlatformHistory {
 
     public void addPlatform() {
         Long timestamp = System.currentTimeMillis();
-        platforms.put(timestamp, platformBuilder.buildInput());
-        platformProperties.put(timestamp, platformBuilder.getPropertiesIO(false));
+        platforms.put(timestamp, oldPlatformBuilder.buildInput());
+        platformProperties.put(timestamp, oldPlatformBuilder.getPropertiesIO(false));
     }
 
     public Long getFirstPlatformTimestamp() {

@@ -26,64 +26,59 @@ import org.hesperides.core.presentation.io.platforms.*;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
-import org.hesperides.test.bdd.commons.CustomRestTemplate;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
-
 @Component
-public class PlatformClient {
-
-    private final CustomRestTemplate restTemplate;
+public class OldPlatformClient {
 
     @Autowired
-    public PlatformClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    private RestTemplate restTemplate;
+
+    public ResponseEntity create(PlatformIO platformInput) {
+        return create(platformInput, PlatformIO.class);
     }
 
-    public void createPlatform(PlatformIO platformInput) {
-        createPlatform(platformInput, null);
-    }
-
-    public void createPlatform(PlatformIO platformInput, String tryTo) {
-        restTemplate.postForEntity(
+    public ResponseEntity create(PlatformIO platformInput, Class responseType) {
+        return restTemplate.postForEntity(
                 "/applications",
                 platformInput,
-                getResponseType(tryTo, PlatformIO.class));
+                responseType);
     }
 
-    public void copyPlatform(PlatformIO existingPlatform, PlatformIO newPlatform, boolean withoutInstancesOrProperties, String tryTo) {
+    public ResponseEntity copy(PlatformIO existingPlatform, PlatformIO newPlatform, boolean withoutInstancesAndProperties, Class responseType) {
         String url = "/applications/{application_name}/platforms?from_application={from_application}&from_platform={from_platform}";
-        if (withoutInstancesOrProperties) {
+        if (withoutInstancesAndProperties) {
             url += "&copy_instances_and_properties=false";
         }
-        restTemplate.postForEntity(
+        return restTemplate.postForEntity(
                 url,
                 newPlatform,
-                getResponseType(tryTo, PlatformIO.class),
+                responseType,
                 existingPlatform.getApplicationName(),
                 existingPlatform.getApplicationName(),
                 existingPlatform.getPlatformName());
     }
 
-    public void deletePlatform(PlatformIO platformInput, String tryTo) {
-        restTemplate.deleteForEntity(
+    public ResponseEntity delete(PlatformIO platformInput, Class responseType) {
+        return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}",
-                getResponseType(tryTo, ResponseEntity.class),
+                HttpMethod.DELETE,
+                null,
+                responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
     }
 
-    public void getPlatform(PlatformIO platformInput, Long timestamp, boolean withPasswordFlag, String tryTo) {
+    public ResponseEntity get(PlatformIO platformInput, Long timestamp, boolean withPasswordFlag, Class responseType) {
         String url = "/applications/{application_name}/platforms/{platform_name}";
         if (timestamp != null) {
             url += "?timestamp=" + timestamp;
@@ -91,43 +86,43 @@ public class PlatformClient {
         if (withPasswordFlag) {
             url += "?with_password_info=true";
         }
-        restTemplate.getForEntity(
+        return restTemplate.getForEntity(
                 url,
-                getResponseType(tryTo, PlatformIO.class),
+                responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
     }
 
-    public void updatePlatform(PlatformIO platformInput, boolean copyProperties, String tryTo) {
+    public ResponseEntity update(PlatformIO platformInput, boolean copyProperties, Class responseType) {
         String url = "/applications/{application_name}/platforms";
         if (copyProperties) {
             url += "?copyPropertiesForUpgradedModules=true";
         }
-        restTemplate.exchange(
+        return restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 new HttpEntity<>(platformInput),
-                getResponseType(tryTo, PlatformIO.class),
+                responseType,
                 platformInput.getApplicationName());
     }
 
-    public void searchApplication(String search, String tryTo) {
-        restTemplate.postForEntity("/applications/perform_search?name=" + search, null, getResponseType(tryTo, SearchResultOutput[].class));
+    public ResponseEntity<SearchResultOutput[]> searchApplication(String search, Class responseType) {
+        return restTemplate.postForEntity("/applications/perform_search?name=" + search, null, responseType);
     }
 
-    public void searchPlatform(String applicationName, String platformName, String tryTo) {
+    public ResponseEntity<SearchResultOutput[]> search(String applicationName, String platformName, Class responseType) {
         String url = "/applications/platforms/perform_search?applicationName=" + applicationName;
         if (StringUtils.isNotBlank(platformName)) {
             url += "&platformName=" + platformName;
         }
-        restTemplate.postForEntity(
+        return restTemplate.postForEntity(
                 url,
                 null,
-                getResponseType(tryTo, SearchResultOutput[].class));
+                responseType);
     }
 
-    public void getInstancesModel(PlatformIO platform, String propertiesPath) {
-        restTemplate.getForEntity(
+    public ResponseEntity<InstancesModelOutput> getInstancesModel(PlatformIO platform, String propertiesPath) {
+        return restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties/instance_model?path={path}",
                 InstancesModelOutput.class,
                 platform.getApplicationName(),
@@ -135,19 +130,19 @@ public class PlatformClient {
                 propertiesPath);
     }
 
-    public void saveGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
-        saveProperties(platform, propertiesInput, "#");
+    public ResponseEntity<PropertiesIO> saveGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
+        return saveProperties(platform, propertiesInput, "#");
     }
 
-    public void saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {
-        saveProperties(platformInput, propertiesInput, propertiesPath, null);
+    public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {
+        return saveProperties(platformInput, propertiesInput, propertiesPath, PropertiesIO.class);
     }
 
-    public void saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, String tryTo) {
-        restTemplate.postForEntity(
+    public ResponseEntity<PropertiesIO> saveProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, Class responseType) {
+        return restTemplate.postForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={properties_path}&comment={comment}",
                 propertiesInput,
-                getResponseType(tryTo, PropertiesIO.class),
+                responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName(),
                 platformInput.getVersionId(),
@@ -155,11 +150,12 @@ public class PlatformClient {
                 "this is a comment");
     }
 
-    public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, String tryTo) {
-        restTemplate.putForEntity(
+    public ResponseEntity<PropertiesIO> updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, Class responseType) {
+        return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}/properties?platform_vid={platform_version_id}&path={properties_path}&comment={comment}",
-                propertiesInput,
-                getResponseType(tryTo, PropertiesIO.class),
+                HttpMethod.PUT,
+                new HttpEntity<>(propertiesInput),
+                responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName(),
                 platformInput.getVersionId(),
@@ -167,8 +163,8 @@ public class PlatformClient {
                 "this is a comment");
     }
 
-    public void getGlobalPropertiesUsage(PlatformIO platform) {
-        restTemplate.exchange(
+    public ResponseEntity getGlobalPropertiesUsage(PlatformIO platform) {
+        return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}/global_properties_usage",
                 HttpMethod.GET,
                 null,
@@ -178,24 +174,24 @@ public class PlatformClient {
                 platform.getPlatformName());
     }
 
-    public void getProperties(PlatformIO platform, String propertiesPath) {
-        getProperties(platform, propertiesPath, null, null);
+    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath) {
+        return getProperties(platform, propertiesPath, null, PropertiesIO.class);
     }
 
-    public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, String tryTo) {
+    public ResponseEntity<PropertiesIO> getProperties(PlatformIO platform, String propertiesPath, Long timestamp, Class responseType) {
         String url = "/applications/{application_name}/platforms/{platform_name}/properties?path={properties_path}";
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }
-        restTemplate.getForEntity(
+        return restTemplate.getForEntity(
                 url,
-                getResponseType(tryTo, PropertiesIO.class),
+                responseType,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);
     }
 
-    public void getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, String fromInstance, PlatformIO toPlatform, String toPropertiesPath, String toInstance, boolean compareStoredValues, Long timestamp, String tryTo) {
+    public ResponseEntity<PropertiesDiffOutput> getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, String fromInstance, PlatformIO toPlatform, String toPropertiesPath, String toInstance, boolean compareStoredValues, Long timestamp, Class responseType) {
         String url = "/applications/{application_name}/platforms/{platform_name}/properties/diff?path={properties_path}" +
                 "&instance_name={instance_name}" +
                 "&to_application={to_application}" +
@@ -206,9 +202,9 @@ public class PlatformClient {
         if (timestamp != null) {
             url += "&timestamp=" + timestamp;
         }
-        restTemplate.getForEntity(
+        return restTemplate.getForEntity(
                 url,
-                getResponseType(tryTo, PropertiesDiffOutput.class),
+                responseType,
                 fromPlatform.getApplicationName(),
                 fromPlatform.getPlatformName(),
                 fromPropertiesPath,
@@ -220,26 +216,26 @@ public class PlatformClient {
                 compareStoredValues);
     }
 
-    public void getPlatformsUsingModule(ModuleIO module) {
-        restTemplate.getForEntity(
+    public ResponseEntity<ModulePlatformsOutput[]> getPlatformsUsingModule(ModuleIO module) {
+        return restTemplate.getForEntity(
                 "/applications/using_module/{module_name}/{module_version}/{version_type}",
                 ModulePlatformsOutput[].class,
                 module.getName(),
                 module.getVersion(),
-                VersionType.fromIsWorkingCopy(module.getIsWorkingCopy()));
+                module.getIsWorkingCopy() ? "workingcopy" : "release");
     }
 
-    public void restorePlatform(PlatformIO platformInput, String tryTo) {
-        restTemplate.exchange(
+    public ResponseEntity restore(PlatformIO platformInput, Class responseType) {
+        return restTemplate.exchange(
                 "/applications/{application_name}/platforms/{platform_name}/restore",
                 HttpMethod.POST,
                 null,
-                getResponseType(tryTo, PlatformIO.class),
+                responseType,
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
     }
 
-    public void getAllApplications() {
-        restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
+    public ResponseEntity<AllApplicationsDetailOutput> getAllApplications() {
+        return restTemplate.getForEntity("/applications/platforms", AllApplicationsDetailOutput.class);
     }
 }

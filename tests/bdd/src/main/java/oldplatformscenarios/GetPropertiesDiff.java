@@ -1,4 +1,4 @@
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
@@ -9,8 +9,8 @@ import org.hesperides.core.presentation.io.platforms.properties.diff.AbstractDif
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
-import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
@@ -23,25 +23,25 @@ import static org.junit.Assert.assertEquals;
 public class GetPropertiesDiff extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
     private OldModuleBuilder moduleBuilder;
     @Autowired
-    private PlatformHistory platformHistory;
+    private OldPlatformHistory oldPlatformHistory;
 
     public GetPropertiesDiff() {
         When("^I get the( global)?( instance)? properties diff on (stored|final) values between platforms \"([^\"]+)\" and \"([^\"]+)\"$", (
                 String globalProperties, String instanceProperties, String storedOrFinal, String fromPlatformName, String toPlatformName) -> {
             String propertiesPath = StringUtils.isNotEmpty(globalProperties) ? "#" : moduleBuilder.getPropertiesPath();
-            PlatformIO fromPlatform = platformHistory.getPlatformByName(fromPlatformName);
-            PlatformIO toPlatform = platformHistory.getPlatformByName(toPlatformName);
+            PlatformIO fromPlatform = oldPlatformHistory.getPlatformByName(fromPlatformName);
+            PlatformIO toPlatform = oldPlatformHistory.getPlatformByName(toPlatformName);
             String fromInstance = StringUtils.isNotEmpty(instanceProperties) ? fromPlatform.getDeployedModules().get(0).getInstances().get(0).getName() : null;
             String toInstance = StringUtils.isNotEmpty(instanceProperties) ? toPlatform.getDeployedModules().get(0).getInstances().get(0).getName() : null;
-            testContext.setResponseEntity(platformClient.getPropertiesDiff(
-                    platformHistory.getPlatformByName(fromPlatformName),
+            testContext.setResponseEntity(oldPlatformClient.getPropertiesDiff(
+                    oldPlatformHistory.getPlatformByName(fromPlatformName),
                     propertiesPath,
                     fromInstance,
-                    platformHistory.getPlatformByName(toPlatformName),
+                    oldPlatformHistory.getPlatformByName(toPlatformName),
                     propertiesPath,
                     toInstance,
                     storedOrFinal.equals("stored"),

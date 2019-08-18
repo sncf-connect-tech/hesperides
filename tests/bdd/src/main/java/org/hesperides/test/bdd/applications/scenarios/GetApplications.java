@@ -31,8 +31,8 @@ import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
@@ -49,9 +49,9 @@ public class GetApplications extends HesperidesScenario implements En {
     @Autowired
     private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
     private OldModuleBuilder moduleBuilder;
 
@@ -62,11 +62,11 @@ public class GetApplications extends HesperidesScenario implements En {
     public GetApplications() {
 
         Given("^a list of applications with platforms and this module$", () -> {
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            oldPlatformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
             Arrays.asList("ABC", "DEF", "GHI").forEach(applicationName -> {
-                platformBuilder.withApplicationName(applicationName);
-                platformClient.create(platformBuilder.buildInput());
-                expectedApplications.add(platformBuilder.buildApplicationOutput(false));
+                oldPlatformBuilder.withApplicationName(applicationName);
+                oldPlatformClient.create(oldPlatformBuilder.buildInput());
+                expectedApplications.add(oldPlatformBuilder.buildApplicationOutput(false));
             });
 
         });
@@ -99,7 +99,7 @@ public class GetApplications extends HesperidesScenario implements En {
 
         Then("^the application is successfully retrieved", () -> {
             assertOK();
-            ApplicationOutput expectedApplication = platformBuilder.buildApplicationOutput(hidePlatform);
+            ApplicationOutput expectedApplication = oldPlatformBuilder.buildApplicationOutput(hidePlatform);
             ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
             assertEquals(expectedApplication, actualApplication);
         });

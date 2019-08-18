@@ -4,19 +4,15 @@ Feature: Get instance or module files
     Given an authenticated user
 
   Scenario: get files of an instance
-    Given a techno template to create
-    And an existing techno with this template
-    And a module template to create
-    And an existing module with this template and this techno
+    Given an existing techno with a template
+    And an existing module with a template and this techno
     And an existing platform with this module and an instance
     When I get the instance files
     Then the files are successfully retrieved
 
   Scenario: get files of a deployed module
-    Given a techno template to create
-    And an existing techno with this template
-    And a module template to create
-    And an existing module with this template and this techno
+    Given an existing techno with a template
+    And an existing module with a template and this techno
     And an existing platform with this module
     When I get the module files
     Then the files are successfully retrieved
@@ -109,8 +105,7 @@ Feature: Get instance or module files
 
   #issue-662
   Scenario: get files should not escape HTML in the location URLs
-    Given a module template to create
-    And an existing module with this template
+    Given an existing module with a template
     And an existing platform with this module
     When I try to get the module files
     Then the JSON output does not contain escaped characters

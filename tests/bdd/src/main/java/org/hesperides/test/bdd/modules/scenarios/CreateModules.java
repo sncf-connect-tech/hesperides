@@ -31,6 +31,8 @@ public class CreateModules extends HesperidesScenario implements En {
     private TemplateBuilder templateBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
+    @Autowired
+    private ReleaseModules releaseModules;
 
     public CreateModules() {
 
@@ -108,17 +110,10 @@ public class CreateModules extends HesperidesScenario implements En {
             }
 
             if (isNotEmpty(released)) {
-                releaseModule();
+                releaseModules.releaseModule();
+                assertOK();
             }
         });
-
-//        Given("^an existing module with this template content?$", (String templateContent) -> {
-//            userAuthorities.ensureUserAuthIsSet();
-//            testContext.setResponseEntity(moduleClient.create(moduleBuilder.build()));
-//            assertCreated();
-//            templateBuilder.setContent(templateContent);
-//            moduleClient.addTemplate(templateBuilder.build(), moduleBuilder.build());
-//        });
 
         //Tentative
         Given("^an existing module with this template content$", (String templateContent) -> {
@@ -271,10 +266,5 @@ public class CreateModules extends HesperidesScenario implements En {
         assertCreated();
         moduleBuilder.addTemplateBuilder(templateBuilder);
         moduleHistory.updateModuleBuilder(moduleBuilder);
-    }
-
-    private void releaseModule() {
-        ReleaseModules.releaseModule(moduleClient, moduleBuilder, moduleHistory, null, null);
-        assertOK();
     }
 }

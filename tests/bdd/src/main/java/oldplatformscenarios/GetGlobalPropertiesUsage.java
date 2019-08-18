@@ -18,15 +18,15 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
 import org.hesperides.test.bdd.modules.OldModuleClient;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +39,9 @@ import java.util.Set;
 public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
     private OldModuleBuilder moduleBuilder;
     @Autowired
@@ -52,29 +52,29 @@ public class GetGlobalPropertiesUsage extends HesperidesScenario implements En {
     public GetGlobalPropertiesUsage() {
 
         Given("^the deployed module properties are valued with the platform global properties$", () -> {
-            platformBuilder.withProperty("module-foo", "{{ instance-property-a }}{{ global-module-foo }}");
-            platformBuilder.withProperty("techno-foo", "{{ global-techno-foo }}");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-            platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, false);
-            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, false);
+            oldPlatformBuilder.withProperty("module-foo", "{{ instance-property-a }}{{ global-module-foo }}");
+            oldPlatformBuilder.withProperty("techno-foo", "{{ global-techno-foo }}");
+            oldPlatformClient.saveProperties(oldPlatformBuilder.buildInput(), oldPlatformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+            oldPlatformBuilder.withGlobalProperty("global-module-foo", "whatever", true, false);
+            oldPlatformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, false);
         });
 
         Given("^the properties are removed from the module$", () -> {
             moduleClient.delete(moduleBuilder.build());
-            platformBuilder.withGlobalProperty("global-module-foo", "whatever", true, true);
-            platformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, true);
-            platformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
+            oldPlatformBuilder.withGlobalProperty("global-module-foo", "whatever", true, true);
+            oldPlatformBuilder.withGlobalProperty("global-techno-foo", "whatever", true, true);
+            oldPlatformBuilder.withGlobalProperty("unused-global-property", "12", modelBuilder);
         });
 
         When("^I get this platform global properties usage$", () -> {
-            testContext.setResponseEntity(platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput()));
+            testContext.setResponseEntity(oldPlatformClient.getGlobalPropertiesUsage(oldPlatformBuilder.buildInput()));
         });
 
         Then("^the platform global properties usage is successfully retrieved$", () -> {
             assertOK();
 
             Map<String, Set<GlobalPropertyUsageOutput>> expectedProperties = new HashMap<>();
-            platformBuilder.getProperties().forEach(property -> {
+            oldPlatformBuilder.getProperties().forEach(property -> {
                 if (property.isGlobal()) {
                     Set<GlobalPropertyUsageOutput> usages = new HashSet<>();
                     if (property.isUsed()) {

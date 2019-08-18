@@ -18,7 +18,7 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.scenarios;
+package oldplatformscenarios;
 
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
@@ -28,9 +28,9 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.PlatformClient;
-import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.platforms.OldPlatformHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,43 +46,43 @@ import static org.junit.Assert.assertThat;
 public class UpdatePlatforms extends HesperidesScenario implements En {
 
     @Autowired
-    private PlatformClient platformClient;
+    private OldPlatformClient oldPlatformClient;
     @Autowired
     private OldModuleBuilder moduleBuilder;
     @Autowired
     private ModelBuilder modelBuilder;
     @Autowired
-    private PlatformBuilder platformBuilder;
+    private OldPlatformBuilder oldPlatformBuilder;
     @Autowired
-    private PlatformHistory platformHistory;
+    private OldPlatformHistory oldPlatformHistory;
 
     public UpdatePlatforms() {
         When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)(?: updating the value of the \"([^\"]+)\" property accordingly)?$", (String versions, String propertyName) -> {
             Arrays.stream(versions.split(", ")).forEach(version -> {
-                platformBuilder.setDeployedModulesVersion(version);
+                oldPlatformBuilder.setDeployedModulesVersion(version);
                 moduleBuilder.withVersion(version); // to update the properties path
-                testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), false, PlatformIO.class));
+                testContext.setResponseEntity(oldPlatformClient.update(oldPlatformBuilder.buildInput(), false, PlatformIO.class));
                 assertOK();
-                platformBuilder.incrementVersionId();
+                oldPlatformBuilder.incrementVersionId();
                 if (StringUtils.isNotEmpty(propertyName)) {
-                    platformBuilder.setProperty(propertyName, version);
-                    testContext.setResponseEntity(platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath()));
+                    oldPlatformBuilder.setProperty(propertyName, version);
+                    testContext.setResponseEntity(oldPlatformClient.saveProperties(oldPlatformBuilder.buildInput(), oldPlatformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath()));
                     assertOK();
-                    platformBuilder.incrementVersionId();
+                    oldPlatformBuilder.incrementVersionId();
                 }
-                platformHistory.addPlatform();
+                oldPlatformHistory.addPlatform();
             });
         });
 
         Then("^the platform is successfully updated$", () -> {
             assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
+            PlatformIO expectedPlatform = oldPlatformBuilder.buildOutput();
             PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^the platform property model includes this instance property$", () -> {
-            InstancesModelOutput model = platformClient.getInstancesModel(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            InstancesModelOutput model = oldPlatformClient.getInstancesModel(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             List<String> actualPropertyNames = model.getInstanceProperties()
                     .stream()
                     .map(InstancesModelOutput.InstancePropertyOutput::getName)
@@ -96,18 +96,18 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform(?: still)? has (\\d+) global properties$", (Integer count) -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), "#").getBody();
+            PropertiesIO properties = oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), "#").getBody();
             assertThat(properties.getValuedProperties(), hasSize(count));
         });
 
         Then("^the platform has no module valued properties$", () -> {
-            PropertiesIO properties = platformClient.getProperties(platformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
+            PropertiesIO properties = oldPlatformClient.getProperties(oldPlatformBuilder.buildInput(), moduleBuilder.getPropertiesPath()).getBody();
             assertThat(properties.getValuedProperties(), is(empty()));
         });
 
         Then("^the platform version_id is incremented twice$", () -> {
-            Long expectedVersionId = platformBuilder.buildOutput().getVersionId();
-            final ResponseEntity<PlatformIO> responseEntity = platformClient.get(platformBuilder.buildInput(), null, false, PlatformIO.class);
+            Long expectedVersionId = oldPlatformBuilder.buildOutput().getVersionId();
+            final ResponseEntity<PlatformIO> responseEntity = oldPlatformClient.get(oldPlatformBuilder.buildInput(), null, false, PlatformIO.class);
             Long actualVersionId = responseEntity.getBody().getVersionId();
             assertEquals(expectedVersionId, actualVersionId);
         });
@@ -142,49 +142,49 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         moduleBuilder.setLogicalGroup(logicalGroup);
         if (StringUtils.isNotEmpty(addingOrRemovingModule)) {
             if (addingOrRemovingModule.contains("adding")) {
-                platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+                oldPlatformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
             } else {
-                platformBuilder.withNoModule();
+                oldPlatformBuilder.withNoModule();
             }
         }
         if (StringUtils.isNotEmpty(upgradeModule)) {
-            platformBuilder.withNoModule();
+            oldPlatformBuilder.withNoModule();
             if (StringUtils.isNotEmpty(upgradeVersion)) {
                 moduleBuilder.withVersion(upgradeVersion);
             }
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+            oldPlatformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
             moduleBuilder.resetPropertiesVersionId();
         }
         if (StringUtils.isNotEmpty(downgradeVersion)) {
-            platformBuilder.withNoModule();
+            oldPlatformBuilder.withNoModule();
             moduleBuilder.withVersion(downgradeVersion);
-            platformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
+            oldPlatformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), logicalGroup);
             moduleBuilder.setPropertiesVersionId(2L);
         }
         if (StringUtils.isNotEmpty(addingInstanceAndInstanceProperty)) {
-            platformBuilder.withInstance("instance-foo-1");
-            platformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-            platformBuilder.incrementVersionId();
+            oldPlatformBuilder.withInstance("instance-foo-1");
+            oldPlatformBuilder.withInstanceProperty("module-foo", "instance-module-foo");
+            oldPlatformClient.saveProperties(oldPlatformBuilder.buildInput(), oldPlatformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+            oldPlatformBuilder.incrementVersionId();
             moduleBuilder.setPropertiesVersionId(1L);
         }
         if (StringUtils.isNotEmpty(withAnEmptyPayload)) {
             // So that "Then the platform is successfully updated" step validate there is no more modules:
-            platformBuilder.withNoModule();
+            oldPlatformBuilder.withNoModule();
         }
         if (StringUtils.isNotEmpty(changePropertyValues)) {
-            modelBuilder.getProperties().forEach(property -> platformBuilder.setProperty(property.getName(), "42"));
-            platformClient.saveProperties(platformBuilder.buildInput(), platformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
-            platformBuilder.incrementVersionId();
+            modelBuilder.getProperties().forEach(property -> oldPlatformBuilder.setProperty(property.getName(), "42"));
+            oldPlatformClient.saveProperties(oldPlatformBuilder.buildInput(), oldPlatformBuilder.getPropertiesIO(false), moduleBuilder.getPropertiesPath());
+            oldPlatformBuilder.incrementVersionId();
         }
         if (StringUtils.isNotEmpty(changeApplicationVersion)) {
-            platformBuilder.withVersion("12");
+            oldPlatformBuilder.withVersion("12");
         }
         if (StringUtils.isNotEmpty(toProd)) {
-            platformBuilder.withIsProductionPlatform(true);
+            oldPlatformBuilder.withIsProductionPlatform(true);
         }
-        testContext.setResponseEntity(platformClient.update(platformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class)));
-        platformHistory.addPlatform();
-        platformBuilder.incrementVersionId();
+        testContext.setResponseEntity(oldPlatformClient.update(oldPlatformBuilder.buildInput(), StringUtils.isNotEmpty(withCopy), getResponseType(tryTo, PlatformIO.class)));
+        oldPlatformHistory.addPlatform();
+        oldPlatformBuilder.incrementVersionId();
     }
 }

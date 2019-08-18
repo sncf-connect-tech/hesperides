@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Component
-public class PlatformBuilder {
+public class OldPlatformBuilder {
 
     @Autowired
     private OldModuleBuilder moduleBuilder;
@@ -55,11 +55,11 @@ public class PlatformBuilder {
     private List<InstanceIO> instances;
     private List<ValuedPropertyIO> instancePropertyValues;
 
-    public PlatformBuilder() {
+    public OldPlatformBuilder() {
         reset();
     }
 
-    public PlatformBuilder reset() {
+    public OldPlatformBuilder reset() {
         platformName = "test-platform";
         applicationName = "test-application";
         version = "1.0";
@@ -79,22 +79,22 @@ public class PlatformBuilder {
         return platformName;
     }
 
-    public PlatformBuilder withPlatformName(String platformName) {
+    public OldPlatformBuilder withPlatformName(String platformName) {
         this.platformName = platformName;
         return this;
     }
 
-    public PlatformBuilder withApplicationName(String applicationName) {
+    public OldPlatformBuilder withApplicationName(String applicationName) {
         this.applicationName = applicationName;
         return this;
     }
 
-    public PlatformBuilder withVersion(String version) {
+    public OldPlatformBuilder withVersion(String version) {
         this.version = version;
         return this;
     }
 
-    public PlatformBuilder withIsProductionPlatform(Boolean isProductionPlatform) {
+    public OldPlatformBuilder withIsProductionPlatform(Boolean isProductionPlatform) {
         this.isProductionPlatform = isProductionPlatform;
         return this;
     }
@@ -141,7 +141,7 @@ public class PlatformBuilder {
                 .collect(Collectors.toList());
     }
 
-    public PlatformBuilder withModule(ModuleIO module, String propertiesPath, String logicalGroup) {
+    public OldPlatformBuilder withModule(ModuleIO module, String propertiesPath, String logicalGroup) {
         String modulePath = "#GROUP";
         if ("".equals(logicalGroup) || "#".equals(logicalGroup)) {
             modulePath = logicalGroup;
@@ -153,12 +153,12 @@ public class PlatformBuilder {
         return this;
     }
 
-    public PlatformBuilder withNoModule() {
+    public OldPlatformBuilder withNoModule() {
         deployedModules = new ArrayList<>();
         return this;
     }
 
-    public PlatformBuilder withVersionId(long versionId) {
+    public OldPlatformBuilder withVersionId(long versionId) {
         this.versionId = versionId;
         return this;
     }
