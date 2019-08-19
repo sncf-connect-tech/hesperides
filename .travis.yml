@@ -56,5 +56,7 @@ jobs:
         - gpg --import ./.travis/codesigning.asc
       script: mvn deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml
 notifications:
-  webhooks: https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
+  webhooks:
+    - https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
+    - https://outlook.office.com/webhook/838cfd20-344e-4053-97eb-5fa1f7fb25f9@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/287a35ae03c74b2d9e01c33c286f174c/9adc9018-8898-45c6-8f07-e92b8eaeb8a2
   email: false
