@@ -28,6 +28,7 @@ import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
+import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateContainerBuilder;
 import org.springframework.stereotype.Component;
 
@@ -89,5 +90,9 @@ public class ModuleBuilder extends TemplateContainerBuilder {
 
     public ModuleKeyOutput buildModuleKeyOutput() {
         return new ModuleKeyOutput(name, version, VersionType.toIsWorkingCopy(versionType));
+    }
+
+    public boolean hasPasswordProperty() {
+        return propertyBuilders.stream().anyMatch(PropertyBuilder::isPassword);
     }
 }

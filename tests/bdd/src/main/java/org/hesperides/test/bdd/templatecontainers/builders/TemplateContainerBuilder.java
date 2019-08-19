@@ -42,7 +42,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
     protected String versionType;
     @Getter
     private List<TemplateBuilder> templateBuilders;
-    private List<PropertyBuilder> propertyBuilders;
+    protected List<PropertyBuilder> propertyBuilders;
 
     protected void reset(String name) {
         this.name = name;

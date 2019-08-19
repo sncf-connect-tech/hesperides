@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.templatecontainers.builders;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
@@ -44,6 +45,7 @@ public class PropertyBuilder implements Serializable {
     private String comment;
     private String defaultValue;
     private String pattern;
+    @Getter
     private boolean isPassword;
     private List<PropertyBuilder> properties;
 

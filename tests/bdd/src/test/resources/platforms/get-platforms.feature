@@ -11,8 +11,8 @@ Feature: Get platforms
 
   @require-real-mongo
   Scenario: get the detail of an existing platform with the wrong letter case
-    Given an existing platform
-    When I get the platform detail with the wrong letter case
+    Given an existing platform named "dev"
+    When I get the platform "DEV" detail
     Then the platform detail is successfully retrieved
 
   Scenario: get a platform that doesn't exist

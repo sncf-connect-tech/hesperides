@@ -52,11 +52,23 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        Given("^an existing platform(?: named \"(.*)\")?$", (String platformName) -> {
+        Given("^an existing platform" +
+                "(?: named \"(.*)\")?" +
+                "( with this module)?$", (
+                String platformName,
+                String withThisModule) -> {
+
             platformBuilder.reset();
+
             if (isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
             }
+
+            if (isNotEmpty(withThisModule)) {
+                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            }
+
             createPlatform();
         });
 

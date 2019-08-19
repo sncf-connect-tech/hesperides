@@ -42,7 +42,7 @@ public class PlatformBuilder implements Serializable {
     @Getter
     private List<DeployedModuleBuilder> deployedModuleBuilders;
     private Long versionId;
-    private Boolean hasPasswords;
+
     private Long globalPropertiesVersionId;
     private List<ValuedPropertyIO> globalProperties;
 
@@ -74,6 +74,10 @@ public class PlatformBuilder implements Serializable {
         deployedModuleBuilders.add(deployedModuleBuilder);
     }
 
+    public void withIsProductionPlatform(Boolean isProductionPlatform) {
+        this.isProductionPlatform = isProductionPlatform;
+    }
+
     public PlatformIO buildInput() {
         return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders));
     }
@@ -86,6 +90,9 @@ public class PlatformBuilder implements Serializable {
     }
 
     private PlatformIO build(List<DeployedModuleIO> deployedModules) {
+        // On ne se préoccupe pas du flag hasPasswords dans le builder,
+        // cela simplifie la glue. Le cas est géré par l'étape "the platform
+        // has the password flag and the flag is set to (true|false)".
         return new PlatformIO(
                 platformName,
                 applicationName,
@@ -93,7 +100,7 @@ public class PlatformBuilder implements Serializable {
                 isProductionPlatform,
                 deployedModules,
                 versionId,
-                hasPasswords);
+                null);
     }
 
     public void setDeployedModuleIds() {
@@ -102,9 +109,5 @@ public class PlatformBuilder implements Serializable {
 
     public void incrementVersionId() {
         versionId++;
-    }
-
-    public void withIsProductionPlatform(Boolean isProductionPlatform) {
-        this.isProductionPlatform = isProductionPlatform;
     }
 }
