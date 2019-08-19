@@ -23,11 +23,14 @@ package org.hesperides.test.bdd.platforms.builders;
 import lombok.Getter;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 @Component
@@ -42,7 +45,6 @@ public class PlatformBuilder implements Serializable {
     @Getter
     private List<DeployedModuleBuilder> deployedModuleBuilders;
     private Long versionId;
-
     private Long globalPropertiesVersionId;
     private List<ValuedPropertyIO> globalProperties;
 
@@ -78,6 +80,18 @@ public class PlatformBuilder implements Serializable {
         this.isProductionPlatform = isProductionPlatform;
     }
 
+    public void withGlobalProperty(String name, String value) {
+        globalProperties.add(new ValuedPropertyIO(name, value));
+    }
+
+    public void withVersionId(long versionId) {
+        this.versionId = versionId;
+    }
+
+    public void withGlobalPropertyVersionId(long globalPropertiesVersionId) {
+        this.globalPropertiesVersionId = globalPropertiesVersionId;
+    }
+
     public PlatformIO buildInput() {
         return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders));
     }
@@ -103,11 +117,19 @@ public class PlatformBuilder implements Serializable {
                 null);
     }
 
+    public PropertiesIO buildProperties() {
+        return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(globalProperties), Collections.emptySet());
+    }
+
     public void setDeployedModuleIds() {
         DeployedModuleBuilder.setIds(deployedModuleBuilders);
     }
 
     public void incrementVersionId() {
         versionId++;
+    }
+
+    public void incrementGlobalPropertiesVersionId() {
+        globalPropertiesVersionId++;
     }
 }

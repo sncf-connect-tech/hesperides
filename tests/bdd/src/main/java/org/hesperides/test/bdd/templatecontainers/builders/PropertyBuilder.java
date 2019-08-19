@@ -48,6 +48,7 @@ public class PropertyBuilder implements Serializable {
     @Getter
     private boolean isPassword;
     private List<PropertyBuilder> properties;
+    private boolean isGlobal;
 
     public PropertyBuilder() {
         reset();
@@ -61,6 +62,7 @@ public class PropertyBuilder implements Serializable {
         pattern = "";
         isPassword = false;
         properties = null;
+        isGlobal = false;
         return this;
     }
 
@@ -99,6 +101,11 @@ public class PropertyBuilder implements Serializable {
             properties = new ArrayList<>();
         }
         this.properties.add(property);
+        return this;
+    }
+
+    public PropertyBuilder withIsGlobal() {
+        this.isGlobal = true;
         return this;
     }
 

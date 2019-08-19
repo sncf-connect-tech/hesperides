@@ -25,6 +25,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -74,6 +76,14 @@ public class DeployedModuleBuilder implements Serializable {
         instanceBuilders.add(instanceBuilder);
     }
 
+    public void withValuedProperty(String name, String value) {
+        valuedProperties.add(new ValuedPropertyIO(name, value));
+    }
+
+    public void withPropertiesVersionId(long propertiesVersionId) {
+        this.propertiesVersionId = propertiesVersionId;
+    }
+
     public void fromModuleBuider(ModuleBuilder moduleBuilder) {
         name = moduleBuilder.getName();
         version = moduleBuilder.getVersion();
@@ -102,7 +112,7 @@ public class DeployedModuleBuilder implements Serializable {
         if (StringUtils.isEmpty(modulePath)) {
             modulePath = "#";
         }
-        String propertiesPath = modulePath + "#" + name + "#" + version + "#" + versionType.toUpperCase();
+        String propertiesPath = buildPropertiesPath();
         return build(propertiesPath);
     }
 
@@ -118,6 +128,14 @@ public class DeployedModuleBuilder implements Serializable {
                 InstanceBuilder.build(instanceBuilders));
     }
 
+    public PropertiesIO buildProperties() {
+        return new PropertiesIO(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableValuedProperties));
+    }
+
+    public String buildPropertiesPath() {
+        return modulePath + "#" + name + "#" + version + "#" + versionType.toUpperCase();
+    }
+
     static void setIds(List<DeployedModuleBuilder> deployedModuleBuilders) {
         Long maxId = deployedModuleBuilders.stream()
                 .map(DeployedModuleBuilder::getId)
@@ -130,5 +148,9 @@ public class DeployedModuleBuilder implements Serializable {
                 deployedModuleBuilder.setId(++maxId);
             }
         }
+    }
+
+    public void incrementPropertiesVersionId() {
+        propertiesVersionId++;
     }
 }

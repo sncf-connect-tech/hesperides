@@ -52,11 +52,22 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
+        //TODO Tenter de factoriser les étapes existing platform et platforml to create
+        // extraire et factoriser la sauvegarde de propriétés dans SaveProperties
+
         Given("^an existing platform" +
                 "(?: named \"(.*)\")?" +
-                "( with this module)?$", (
+                "( (?:and|with) this module)?" +
+                "( (?:and|with) an instance)?" +
+                "( (?:and|with) valued properties)?" +
+                "( (?:and|with) global properties)?" +
+                "( (?:and|with) instance properties)?$", (
                 String platformName,
-                String withThisModule) -> {
+                String withThisModule,
+                String withAnInstance,
+                String withValuedProperties,
+                String withGlobalProperties,
+                String withInstanceProperties) -> {
 
             platformBuilder.reset();
 
@@ -64,12 +75,41 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withPlatformName(platformName);
             }
 
+            if (isNotEmpty(withAnInstance)) {
+                if (isNotEmpty(withInstanceProperties)) {
+                    instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                    instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
+                }
+                deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
+            }
+
             if (isNotEmpty(withThisModule)) {
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                if (isNotEmpty(withValuedProperties)) {
+                    deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
+                    deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
+                }
                 platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             }
 
             createPlatform();
+
+            if (isNotEmpty(withGlobalProperties)) {
+                platformBuilder.withGlobalProperty("global-module-foo", "global-module-foo-value");
+                platformBuilder.withGlobalProperty("global-techno-foo", "global-techno-foo-value");
+                platformBuilder.withGlobalProperty("global-filename", "properties.js");
+                platformBuilder.withGlobalProperty("global-location", "/conf");
+                platformBuilder.withGlobalProperty("unused-global-property", "12");
+                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
+                platformBuilder.incrementVersionId();
+                platformBuilder.incrementGlobalPropertiesVersionId();
+            }
+
+            if (isNotEmpty(withValuedProperties)) {
+                platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                platformBuilder.incrementVersionId();
+                deployedModuleBuilder.incrementPropertiesVersionId();
+            }
         });
 
         Given("^a platform to create" +
@@ -102,7 +142,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             if (isNotEmpty(withThisModule)) {
                 if (withThisModule.contains("with an empty path")) {
                     deployedModuleBuilder.withModulePath("");
-
                 }
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
                 platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
@@ -127,9 +166,12 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
             assertEquals(expectedPlatform, actualPlatform);
-            platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                assertEquals(expectedModulePath, deployedModuleBuilder.getModulePath());
-            });
+
+            if (isNotEmpty(expectedModulePath)) {
+                platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
+                    assertEquals(expectedModulePath, deployedModuleBuilder.getModulePath());
+                });
+            }
         });
 
         Then("^the platform creation fails with a conflict error$", this::assertConflict);

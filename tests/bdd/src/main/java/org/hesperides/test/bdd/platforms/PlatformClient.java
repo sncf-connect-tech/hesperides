@@ -195,6 +195,10 @@ public class PlatformClient {
                 propertiesPath);
     }
 
+    public void getGlobalProperties(PlatformIO platform) {
+        getProperties(platform, "#");
+    }
+
     public void getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, String fromInstance, PlatformIO toPlatform, String toPropertiesPath, String toInstance, boolean compareStoredValues, Long timestamp, String tryTo) {
         String url = "/applications/{application_name}/platforms/{platform_name}/properties/diff?path={properties_path}" +
                 "&instance_name={instance_name}" +
