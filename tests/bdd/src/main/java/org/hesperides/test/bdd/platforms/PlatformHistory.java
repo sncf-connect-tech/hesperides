@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class PlatformHistory {
@@ -43,5 +44,12 @@ public class PlatformHistory {
 
     public void addPlatformBuilder(PlatformBuilder platformBuilder) {
         platformBuilders.add(SerializationUtils.clone(platformBuilder));
+    }
+
+    public void removePlatformBuilder(PlatformBuilder platformBuilder) {
+        platformBuilders = platformBuilders.stream()
+                .filter(platformBuilder1 -> !platformBuilder.getPlatformName().equals(platformBuilder1.getPlatformName()) &&
+                        !platformBuilder.getApplicationName().equals(platformBuilder1.getApplicationName()))
+                .collect(Collectors.toList());
     }
 }

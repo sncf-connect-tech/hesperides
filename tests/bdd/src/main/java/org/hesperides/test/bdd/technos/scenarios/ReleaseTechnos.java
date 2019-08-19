@@ -8,6 +8,8 @@ import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 public class ReleaseTechnos extends HesperidesScenario implements En {
 
     @Autowired
@@ -20,14 +22,20 @@ public class ReleaseTechnos extends HesperidesScenario implements En {
     public ReleaseTechnos() {
 
         When("^I( try to)? release this techno$", (String tryTo) -> {
-            technoClient.releaseTechno(technoBuilder.build(), tryTo);
-            technoBuilder.withVersionType(VersionType.RELEASE);
-            technoBuilder.updateTemplatesNamespace();
-            technoHistory.addTechnoBuilder(technoBuilder);
+            release(tryTo);
         });
 
         Then("^the techno release is rejected with a not found error$", this::assertNotFound);
 
         Then("^the techno release is rejected with a conflict error$", this::assertConflict);
+    }
+
+    public void release(String tryTo) {
+        technoClient.releaseTechno(technoBuilder.build(), tryTo);
+        if (isEmpty(tryTo)) {
+            technoBuilder.withVersionType(VersionType.RELEASE);
+            technoBuilder.updateTemplatesNamespace();
+            technoHistory.addTechnoBuilder(technoBuilder);
+        }
     }
 }

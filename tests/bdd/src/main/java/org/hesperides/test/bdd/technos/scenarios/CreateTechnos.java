@@ -6,7 +6,6 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,8 @@ public class CreateTechnos extends HesperidesScenario implements En {
     private TemplateBuilder templateBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
+    @Autowired
+    private ReleaseTechnos releaseTechnos;
 
     public CreateTechnos() {
 
@@ -74,7 +75,8 @@ public class CreateTechnos extends HesperidesScenario implements En {
             createTechno();
 
             if (isNotEmpty(released)) {
-                releaseTechno();
+                releaseTechnos.release(null);
+                assertCreated();
             }
         });
 
@@ -179,14 +181,9 @@ public class CreateTechnos extends HesperidesScenario implements En {
                 .withVersionId(0)
                 .withNamespace(technoBuilder.buildNamespace());
         technoClient.createTechno(templateBuilder.build(), technoBuilder.build(), tryTo);
-        technoBuilder.addTemplateBuilder(templateBuilder);
-        technoHistory.addTechnoBuilder(technoBuilder);
-    }
-
-    private void releaseTechno() {
-        technoClient.releaseTechno(technoBuilder.build());
-        assertCreated();
-        technoBuilder.withVersionType(VersionType.RELEASE);
-        technoHistory.addTechnoBuilder(technoBuilder);
+        if (isEmpty(tryTo)) {
+            technoBuilder.addTemplateBuilder(templateBuilder);
+            technoHistory.addTechnoBuilder(technoBuilder);
+        }
     }
 }

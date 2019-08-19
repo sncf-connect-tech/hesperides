@@ -7,6 +7,7 @@ import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class DeleteModules extends HesperidesScenario implements En {
@@ -22,8 +23,10 @@ public class DeleteModules extends HesperidesScenario implements En {
 
         When("^I( try to)? delete this module$", (String tryTo) -> {
             moduleClient.deleteModule(moduleBuilder.build(), tryTo);
-            moduleHistory.removeModuleBuilder(moduleBuilder);
-            moduleBuilder.withVersionId(0);
+            if (isEmpty(tryTo)) {
+                moduleHistory.removeModuleBuilder(moduleBuilder);
+                moduleBuilder.withVersionId(0);
+            }
         });
 
         Then("^the module is successfully deleted$", () -> {

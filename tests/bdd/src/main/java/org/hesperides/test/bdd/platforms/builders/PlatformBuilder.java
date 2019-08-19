@@ -33,7 +33,9 @@ import java.util.List;
 @Component
 public class PlatformBuilder implements Serializable {
 
+    @Getter
     private String platformName;
+    @Getter
     private String applicationName;
     private String version;
     private Boolean isProductionPlatform;

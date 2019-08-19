@@ -8,6 +8,7 @@ import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ReleaseModules extends HesperidesScenario implements En {
@@ -50,8 +51,10 @@ public class ReleaseModules extends HesperidesScenario implements En {
         if (isNotEmpty(releaseVersion)) {
             moduleBuilder.withVersion(releaseVersion);
         }
-        moduleBuilder.withVersionType(VersionType.RELEASE);
-        moduleBuilder.updateTemplatesNamespace();
-        moduleHistory.addModuleBuilder(moduleBuilder);
+        if (isEmpty(tryTo)) {
+            moduleBuilder.withVersionType(VersionType.RELEASE);
+            moduleBuilder.updateTemplatesNamespace();
+            moduleHistory.addModuleBuilder(moduleBuilder);
+        }
     }
 }

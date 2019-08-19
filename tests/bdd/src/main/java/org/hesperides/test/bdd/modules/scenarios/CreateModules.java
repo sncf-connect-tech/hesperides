@@ -253,8 +253,10 @@ public class CreateModules extends HesperidesScenario implements En {
 
     private void createModule(String tryTo) {
         moduleClient.createModule(moduleBuilder.build(), tryTo);
-        moduleBuilder.incrementVersionId();
-        moduleHistory.addModuleBuilder(moduleBuilder);
+        if (isEmpty(tryTo)) {
+            moduleBuilder.incrementVersionId();
+            moduleHistory.addModuleBuilder(moduleBuilder);
+        }
     }
 
     private void addTemplateToModule() {

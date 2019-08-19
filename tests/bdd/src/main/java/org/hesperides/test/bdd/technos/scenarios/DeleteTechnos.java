@@ -7,6 +7,7 @@ import org.hesperides.test.bdd.technos.TechnoClient;
 import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class DeleteTechnos extends HesperidesScenario implements En {
@@ -22,7 +23,9 @@ public class DeleteTechnos extends HesperidesScenario implements En {
 
         When("^I( try to)? delete this techno$", (String tryTo) -> {
             technoClient.deleteTechno(technoBuilder.build(), tryTo);
-            technoHistory.removeTechnoBuilder(technoBuilder);
+            if (isEmpty(tryTo)) {
+                technoHistory.removeTechnoBuilder(technoBuilder);
+            }
         });
 
         Then("^the techno is successfully deleted$", () -> {

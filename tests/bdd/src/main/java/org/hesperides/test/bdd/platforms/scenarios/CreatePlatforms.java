@@ -31,6 +31,7 @@ import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
@@ -100,6 +101,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             }
         });
 
+        Given("^a platform that doesn't exist$", () -> {
+            platformBuilder.withPlatformName("doesn-t-exist");
+        });
+
         When("^I( try to)? create this platform$", (String tryTo) -> {
             createPlatform(tryTo);
         });
@@ -125,8 +130,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     private void createPlatform(String tryTo) {
         platformClient.createPlatform(platformBuilder.buildInput(), tryTo);
-        platformBuilder.incrementVersionId();
-        platformBuilder.setDeployedModuleIds();
-        platformHistory.addPlatformBuilder(platformBuilder);
+        if (isEmpty(tryTo)) {
+            platformBuilder.incrementVersionId();
+            platformBuilder.setDeployedModuleIds();
+            platformHistory.addPlatformBuilder(platformBuilder);
+        }
     }
 }

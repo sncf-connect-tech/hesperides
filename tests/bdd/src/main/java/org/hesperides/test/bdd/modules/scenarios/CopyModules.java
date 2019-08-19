@@ -97,9 +97,11 @@ public class CopyModules extends HesperidesScenario implements En {
 
     private void copyModule(ModuleIO existingModule, String tryTo) {
         moduleClient.copyModule(existingModule, moduleBuilder.build(), tryTo);
-        moduleBuilder.withVersionId(1);
-        // Les templates sont identiques sauf pour le namespace
-        moduleBuilder.updateTemplatesNamespace();
-        moduleHistory.addModuleBuilder(moduleBuilder);
+        if (isEmpty(tryTo)) {
+            moduleBuilder.withVersionId(1);
+            // Les templates sont identiques sauf pour le namespace
+            moduleBuilder.updateTemplatesNamespace();
+            moduleHistory.addModuleBuilder(moduleBuilder);
+        }
     }
 }
