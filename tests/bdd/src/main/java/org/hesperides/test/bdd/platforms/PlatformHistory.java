@@ -18,38 +18,30 @@
  *
  *
  */
-package org.hesperides.test.bdd.platforms.builders;
+package org.hesperides.test.bdd.platforms;
 
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.apache.commons.lang3.SerializationUtils;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
-public class ValuedPropertyBuilder implements Serializable {
+public class PlatformHistory {
 
-    private String name;
-    private String value;
-    //itérables ?
+    private List<PlatformBuilder> platformBuilders;
 
-    public ValuedPropertyBuilder withName(String name) {
-        this.name = name;
+    public PlatformHistory() {
+        reset();
+    }
+
+    public PlatformHistory reset() {
+        platformBuilders = new ArrayList<>();
         return this;
     }
 
-    public ValuedPropertyBuilder withValue(String value) {
-        this.value = value;
-        return this;
-    }
-
-    public static Set<ValuedPropertyIO> build(List<ValuedPropertyBuilder> valuedPropertyBuilders) {
-        return valuedPropertyBuilders.stream().map(ValuedPropertyBuilder::build).collect(Collectors.toSet());
-    }
-
-    public ValuedPropertyIO build() {
-        return new ValuedPropertyIO(name, value);
+    public void addPlatformBuilder(PlatformBuilder platformBuilder) {
+        platformBuilders.add(SerializationUtils.clone(platformBuilder));
     }
 }

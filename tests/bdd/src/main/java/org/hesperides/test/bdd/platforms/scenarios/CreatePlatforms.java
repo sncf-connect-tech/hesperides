@@ -25,17 +25,21 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.hesperides.test.bdd.platforms.builders.ValuedPropertyBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.junit.Assert.assertEquals;
 
 public class CreatePlatforms extends HesperidesScenario implements En {
 
+    @Autowired
+    private PlatformClient platformClient;
+    @Autowired
+    private PlatformHistory platformHistory;
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
@@ -43,60 +47,86 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
-    private ValuedPropertyBuilder valuedPropertyBuilder;
-    @Autowired
     private InstanceBuilder instanceBuilder;
-    @Autowired
-    private PlatformClient platformClient;
 
     public CreatePlatforms() {
 
+        Given("^an existing platform(?: named \"(.*)\")?$", (String platformName) -> {
+            platformBuilder.reset();
+            if (isNotEmpty(platformName)) {
+                platformBuilder.withPlatformName(platformName);
+            }
+            createPlatform();
+        });
+
         Given("^a platform to create" +
-                "( (?:and|with) this module?)?" +
-                "( (?:and|with) an instance(?: with properties))?$", (
+                "(?: named \"(.*)\")?" +
+                "(?: (?:and|with) version \"(.*)\")?" +
+                "( (?:and|with) this module(?: with an empty path)?)?" +
+                "( (?:and|with) an instance(?: with properties))?" +
+                "( without setting production flag)?$", (
+                String platformName,
+                String platformVersion,
                 String withThisModule,
-                String withAnInstance) -> {
+                String withAnInstance,
+                String withoutSettingProductionFlag) -> {
 
             platformBuilder.reset();
 
+            if (isNotEmpty(platformName)) {
+                platformBuilder.withPlatformName(platformName);
+            }
+            if (isNotEmpty(platformVersion)) {
+                platformBuilder.withVersion(platformVersion);
+            }
+
             if (isNotEmpty(withAnInstance)) {
-                // Quel est l'intérêt de valuedPropertyBuilder par rapport à ValuedPropertyIO
-                // Quel est l'intérêt d'instanceBuilder ?
-                valuedPropertyBuilder.withName("instance-property-a").withValue("instance-property-a-value");
-                instanceBuilder.withValuedPropertyBuilder(valuedPropertyBuilder);
-                valuedPropertyBuilder.withName("instance-property-b").withValue("instance-property-b-value");
-                instanceBuilder.withValuedPropertyBuilder(valuedPropertyBuilder);
+                instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
                 deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
             }
 
             if (isNotEmpty(withThisModule)) {
+                if (withThisModule.contains("with an empty path")) {
+                    deployedModuleBuilder.withModulePath("");
+
+                }
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
                 platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            }
+
+            if (isNotEmpty(withoutSettingProductionFlag)) {
+                platformBuilder.withIsProductionPlatform(null);
             }
         });
 
         When("^I( try to)? create this platform$", (String tryTo) -> {
-            platformClient.createPlatform(platformBuilder.buildInput(), tryTo);
-            platformBuilder.updateDeployedModulesId();
+            createPlatform(tryTo);
         });
 
-        Then("^the platform is successfully created(?: with \"(.*)\" as path)?$", (String expectedModulePath) -> {
+        Then("^the platform is successfully created(?: and the deployed module has the following path \"(.*)\")?$", (
+                String expectedModulePath) -> {
             assertOK();
-//            if (oldPlatformBuilder.getIsProductionPlatform() == null) {
-//                oldPlatformBuilder.withIsProductionPlatform(false);
-//            }
-//            // The returned deployed modules always have a non-empty modulePath, even if none was provided:
-//            if (oldPlatformBuilder.getDeployedModules().size() > 0 && isBlank(oldPlatformBuilder.getDeployedModules().get(0).getModulePath())) {
-//                oldPlatformBuilder.withNoModule();
-//                moduleBuilder.setLogicalGroup("#");
-//                oldPlatformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
-//            }
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
-            Assert.assertEquals(expectedPlatform, actualPlatform);
-//            if (isNotEmpty(expectedModulePath)) {
-//                assertEquals(expectedModulePath, actualPlatform.getDeployedModules().get(0).getModulePath());
-//            }
+            assertEquals(expectedPlatform, actualPlatform);
+            platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
+                assertEquals(expectedModulePath, deployedModuleBuilder.getModulePath());
+            });
         });
+
+        Then("^the platform creation fails with a conflict error$", this::assertConflict);
+    }
+
+    private void createPlatform() {
+        createPlatform(null);
+        assertOK();
+    }
+
+    private void createPlatform(String tryTo) {
+        platformClient.createPlatform(platformBuilder.buildInput(), tryTo);
+        platformBuilder.incrementVersionId();
+        platformBuilder.setDeployedModuleIds();
+        platformHistory.addPlatformBuilder(platformBuilder);
     }
 }

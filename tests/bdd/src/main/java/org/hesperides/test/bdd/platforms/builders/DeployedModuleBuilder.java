@@ -20,7 +20,12 @@
  */
 package org.hesperides.test.bdd.platforms.builders;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.stereotype.Component;
@@ -28,19 +33,23 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
 public class DeployedModuleBuilder implements Serializable {
 
+    @Getter
+    @Setter
     private Long id;
     private Long propertiesVersionId;
     private String name;
     private String version;
     private String versionType;
+    @Getter
     private String modulePath;
-    private String propertiesPath;
-    private List<ValuedPropertyBuilder> valuedPropertyBuilders;
+    private List<ValuedPropertyIO> valuedProperties;
+    private List<IterableValuedPropertyIO> iterableValuedProperties;
     private List<InstanceBuilder> instanceBuilders;
 
     public DeployedModuleBuilder() {
@@ -48,16 +57,17 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     public DeployedModuleBuilder reset() {
-        id = null; //ou 0
-        propertiesVersionId = 0L; //ou null
-//        name = "test-module";
-//        version = "1.0";
-//        versionType = VersionType.WORKINGCOPY;
+        id = null;
+        propertiesVersionId = 0L;
         modulePath = "#ABC#DEF";
-//        propertiesPath = ""; // ou null ou pas du tout
-        valuedPropertyBuilders = new ArrayList<>();
+        valuedProperties = new ArrayList<>();
+        iterableValuedProperties = new ArrayList<>();
         instanceBuilders = new ArrayList<>();
         return this;
+    }
+
+    public void withModulePath(String modulePath) {
+        this.modulePath = modulePath;
     }
 
     public void withInstanceBuilder(InstanceBuilder instanceBuilder) {
@@ -71,7 +81,10 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     static List<DeployedModuleIO> buildInputs(List<DeployedModuleBuilder> deployedModuleBuilders) {
-        return deployedModuleBuilders.stream().map(DeployedModuleBuilder::buildInput).collect(Collectors.toList());
+        return deployedModuleBuilders
+                .stream()
+                .map(DeployedModuleBuilder::buildInput)
+                .collect(Collectors.toList());
     }
 
     private DeployedModuleIO buildInput() {
@@ -79,15 +92,43 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     static List<DeployedModuleIO> buildOutputs(List<DeployedModuleBuilder> deployedModuleBuilders) {
-        return deployedModuleBuilders.stream().map(DeployedModuleBuilder::buildOutput).collect(Collectors.toList());
+        return deployedModuleBuilders
+                .stream()
+                .map(DeployedModuleBuilder::buildOutput)
+                .collect(Collectors.toList());
     }
 
     private DeployedModuleIO buildOutput() {
+        if (StringUtils.isEmpty(modulePath)) {
+            modulePath = "#";
+        }
         String propertiesPath = modulePath + "#" + name + "#" + version + "#" + versionType.toUpperCase();
         return build(propertiesPath);
     }
 
-    private DeployedModuleIO build(String propertiesPath) { //id ?
-        return new DeployedModuleIO(id, propertiesVersionId, name, version, VersionType.toIsWorkingCopy(versionType), modulePath, propertiesPath, InstanceBuilder.build(instanceBuilders));
+    private DeployedModuleIO build(String propertiesPath) {
+        return new DeployedModuleIO(
+                id,
+                propertiesVersionId,
+                name,
+                version,
+                VersionType.toIsWorkingCopy(versionType),
+                modulePath,
+                propertiesPath,
+                InstanceBuilder.build(instanceBuilders));
+    }
+
+    static void setIds(List<DeployedModuleBuilder> deployedModuleBuilders) {
+        Long maxId = deployedModuleBuilders.stream()
+                .map(DeployedModuleBuilder::getId)
+                .filter(Objects::nonNull)
+                .max(Long::compareTo)
+                .orElse(0L);
+
+        for (DeployedModuleBuilder deployedModuleBuilder : deployedModuleBuilders) {
+            if (deployedModuleBuilder.getId() == null || deployedModuleBuilder.getId() < 1) {
+                deployedModuleBuilder.setId(++maxId);
+            }
+        }
     }
 }

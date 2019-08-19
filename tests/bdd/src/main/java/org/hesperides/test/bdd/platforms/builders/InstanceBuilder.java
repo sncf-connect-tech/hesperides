@@ -21,18 +21,20 @@
 package org.hesperides.test.bdd.platforms.builders;
 
 import org.hesperides.core.presentation.io.platforms.InstanceIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class InstanceBuilder implements Serializable {
 
     private String name;
-    private List<ValuedPropertyBuilder> valuedPropertyBuilders;
+    private Set<ValuedPropertyIO> valuedProperties;
 
     public InstanceBuilder() {
         reset();
@@ -40,19 +42,22 @@ public class InstanceBuilder implements Serializable {
 
     public InstanceBuilder reset() {
         name = "instance-name";
-        valuedPropertyBuilders = new ArrayList<>();
+        valuedProperties = new HashSet<>();
         return this;
     }
 
-    public void withValuedPropertyBuilder(ValuedPropertyBuilder valuedPropertyBuilder) {
-        valuedPropertyBuilders.add(valuedPropertyBuilder);
-    }
-
     public static List<InstanceIO> build(List<InstanceBuilder> instanceBuilders) {
-        return instanceBuilders.stream().map(InstanceBuilder::build).collect(Collectors.toList());
+        return instanceBuilders
+                .stream()
+                .map(InstanceBuilder::build)
+                .collect(Collectors.toList());
     }
 
     public InstanceIO build() {
-        return new InstanceIO(name, ValuedPropertyBuilder.build(valuedPropertyBuilders));
+        return new InstanceIO(name, valuedProperties);
+    }
+
+    public void withValuedProperty(String name, String value) {
+        valuedProperties.add(new ValuedPropertyIO(name, value));
     }
 }

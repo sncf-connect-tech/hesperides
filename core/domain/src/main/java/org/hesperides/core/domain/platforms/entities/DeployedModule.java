@@ -102,8 +102,7 @@ public class DeployedModule {
         );
     }
 
-    // public for testing
-    public String generatePropertiesPath() {
+    private String generatePropertiesPath() {
         final Module.Key moduleKey = new Module.Key(name, version, TemplateContainer.getVersionType(isWorkingCopy));
         return modulePath + "#" + moduleKey.getNamespaceWithoutPrefix();
     }

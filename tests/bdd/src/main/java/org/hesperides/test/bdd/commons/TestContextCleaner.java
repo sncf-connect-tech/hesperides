@@ -3,8 +3,8 @@ package org.hesperides.test.bdd.commons;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
-import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
-import org.hesperides.test.bdd.platforms.OldPlatformHistory;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
@@ -39,9 +39,9 @@ public class TestContextCleaner {
     @Autowired
     private ModuleHistory moduleHistory;
     @Autowired
-    private OldPlatformBuilder oldPlatformBuilder;
+    private PlatformBuilder platformBuilder;
     @Autowired
-    private OldPlatformHistory oldPlatformHistory;
+    private PlatformHistory platformHistory;
     @Autowired
     private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
 
@@ -51,7 +51,7 @@ public class TestContextCleaner {
     }
 
     private void resetRestTemplateAuthHeader() {
-        // On supprime le BasicAuthenticationInterceptor précédement configuré:
+        // On supprime le BasicAuthenticationInterceptor précédement configuré :
         restTemplate.setInterceptors(Collections.emptyList());
     }
 
@@ -63,8 +63,8 @@ public class TestContextCleaner {
         modelBuilder.reset();
         moduleBuilder.reset();
         moduleHistory.reset();
-        oldPlatformBuilder.reset();
-        oldPlatformHistory.reset();
+        platformBuilder.reset();
+        platformHistory.reset();
         applicationDirectoryGroupsBuilder.reset();
     }
 }

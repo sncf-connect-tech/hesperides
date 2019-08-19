@@ -20,9 +20,10 @@
  */
 package org.hesperides.test.bdd.platforms.builders;
 
+import lombok.Getter;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -36,10 +37,12 @@ public class PlatformBuilder implements Serializable {
     private String applicationName;
     private String version;
     private Boolean isProductionPlatform;
+    @Getter
     private List<DeployedModuleBuilder> deployedModuleBuilders;
     private Long versionId;
+    private Boolean hasPasswords;
     private Long globalPropertiesVersionId;
-    private List<PropertyBuilder> propertyBuilders;
+    private List<ValuedPropertyIO> globalProperties;
 
     public PlatformBuilder() {
         reset();
@@ -51,10 +54,18 @@ public class PlatformBuilder implements Serializable {
         version = "1.0";
         isProductionPlatform = false;
         deployedModuleBuilders = new ArrayList<>();
-        versionId = 1L;
+        versionId = 0L;
         globalPropertiesVersionId = 0L;
-        propertyBuilders = new ArrayList<>();
+        globalProperties = new ArrayList<>();
         return this;
+    }
+
+    public void withPlatformName(String platformName) {
+        this.platformName = platformName;
+    }
+
+    public void withVersion(String version) {
+        this.version = version;
     }
 
     public void withDeployedModuleBuilder(DeployedModuleBuilder deployedModuleBuilder) {
@@ -62,14 +73,17 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PlatformIO buildInput() {
-        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), null);
+        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders));
     }
 
     public PlatformIO buildOutput() {
-        return build(DeployedModuleBuilder.buildOutputs(deployedModuleBuilders), null);
+        if (isProductionPlatform == null) {
+            isProductionPlatform = false;
+        }
+        return build(DeployedModuleBuilder.buildOutputs(deployedModuleBuilders));
     }
 
-    private PlatformIO build(List<DeployedModuleIO> deployedModules, Boolean hasPasswords) {
+    private PlatformIO build(List<DeployedModuleIO> deployedModules) {
         return new PlatformIO(
                 platformName,
                 applicationName,
@@ -80,9 +94,15 @@ public class PlatformBuilder implements Serializable {
                 hasPasswords);
     }
 
-    public void updateDeployedModulesId() {
-        //Récupérer l'identifiant le plus élevé
-        deployedModuleBuilders.forEach(deployedModuleBuilder -> {
-        });
+    public void setDeployedModuleIds() {
+        DeployedModuleBuilder.setIds(deployedModuleBuilders);
+    }
+
+    public void incrementVersionId() {
+        versionId++;
+    }
+
+    public void withIsProductionPlatform(Boolean isProductionPlatform) {
+        this.isProductionPlatform = isProductionPlatform;
     }
 }

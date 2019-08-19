@@ -37,7 +37,7 @@ public class CreateModules extends HesperidesScenario implements En {
     public CreateModules() {
 
         Given("^an existing( released)? module" +
-                "(?: named \"([^\"]*)\")?" +
+                "(?: named \"(.*)\")?" +
                 "( (?:and|with) (?:this|a) template)?" +
                 "( (?:and|with) properties)?" +
                 "( (?:and|with) password properties)?" +
@@ -115,7 +115,6 @@ public class CreateModules extends HesperidesScenario implements En {
             }
         });
 
-        //Tentative
         Given("^an existing module with this template content$", (String templateContent) -> {
             // Cette étape est la fusion de `Given a template with the following content` et de
             // `Given a module with this template`, il y a 59 tests qui dépendent de cette étape.
