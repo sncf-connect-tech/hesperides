@@ -79,14 +79,13 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             // Propriétés valorisées au niveau des modules
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
                 PropertiesIO expectedModuleProperties = deployedModuleBuilder.buildProperties();
-                platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
-                PropertiesIO actualModuleProperties = testContext.getResponseBody(PropertiesIO.class);
+                PropertiesIO actualModuleProperties = platformClient.getProperties(
+                        platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
                 assertEquals(expectedModuleProperties, actualModuleProperties);
             });
             // Propriétés globales
             PropertiesIO expectedGlobalProperties = platformBuilder.buildProperties();
-            platformClient.getGlobalProperties(platformBuilder.buildInput());
-            PropertiesIO actualGlobalProperties = testContext.getResponseBody(PropertiesIO.class);
+            PropertiesIO actualGlobalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
         });
 
@@ -97,12 +96,10 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             DeployedModuleIO deployedModule = copiedPlatform.getDeployedModules().get(0);
             assertThat(deployedModule.getInstances(), hasSize(0));
 
-            platformClient.getProperties(copiedPlatform, "#");
-            PropertiesIO globalProperties = testContext.getResponseBody(PropertiesIO.class);
+            PropertiesIO globalProperties = platformClient.getProperties(copiedPlatform, "#");
             assertThat(globalProperties.getValuedProperties(), hasSize(0));
 
-            platformClient.getProperties(copiedPlatform, deployedModule.getPropertiesPath());
-            PropertiesIO moduleProperties = testContext.getResponseBody(PropertiesIO.class);
+            PropertiesIO moduleProperties = platformClient.getProperties(copiedPlatform, deployedModule.getPropertiesPath());
             assertThat(moduleProperties.getValuedProperties(), hasSize(0));
             assertThat(moduleProperties.getIterableValuedProperties(), hasSize(0));
         });

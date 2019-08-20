@@ -136,4 +136,9 @@ public class PlatformBuilder implements Serializable {
     public void clearGlobalProperties() {
         globalProperties = new ArrayList<>();
     }
+
+    public boolean equals(PlatformBuilder platformBuilder) {
+        return applicationName.equals(platformBuilder.getApplicationName())
+                && platformName.equals(platformBuilder.getPlatformName());
+    }
 }

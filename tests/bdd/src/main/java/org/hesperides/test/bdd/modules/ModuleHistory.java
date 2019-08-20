@@ -43,25 +43,25 @@ public class ModuleHistory {
         return this;
     }
 
+    public ModuleBuilder getFirstModuleBuilder() {
+        return moduleBuilders.get(0);
+    }
+
     public void addModuleBuilder(ModuleBuilder moduleBuilder) {
         moduleBuilders.add(SerializationUtils.clone(moduleBuilder));
     }
 
-    public void removeModuleBuilder(ModuleBuilder moduleBuilder) {
-        moduleBuilders.remove(moduleBuilder);
-    }
-
-    public ModuleBuilder getFirstModuleBuilder() {
-        return moduleBuilders.get(0);
+    public void removeModuleBuilder(ModuleBuilder moduleBuilderToRemove) {
+        moduleBuilders = moduleBuilders.stream()
+                .filter(existingModuleBuilder -> !existingModuleBuilder.equals(moduleBuilderToRemove))
+                .collect(Collectors.toList());
     }
 
     public void updateModuleBuilder(ModuleBuilder moduleBuilder) {
         moduleBuilder.incrementVersionId();
         ModuleBuilder updatedModuleBuilder = SerializationUtils.clone(moduleBuilder);
         moduleBuilders = moduleBuilders.stream()
-                .map(existingModuleBuilder -> existingModuleBuilder.getName().equals(updatedModuleBuilder.getName()) &&
-                        existingModuleBuilder.getVersion().equals(updatedModuleBuilder.getVersion()) &&
-                        existingModuleBuilder.getVersionType().equals(updatedModuleBuilder.getVersionType())
+                .map(existingModuleBuilder -> existingModuleBuilder.equals(updatedModuleBuilder)
                         ? updatedModuleBuilder : existingModuleBuilder)
                 .collect(Collectors.toList());
     }

@@ -8,7 +8,8 @@ import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 
 public class DeleteModules extends HesperidesScenario implements En {
 
@@ -41,8 +42,7 @@ public class DeleteModules extends HesperidesScenario implements En {
 
         Then("^this module templates are also deleted$", () -> {
             assertOK();
-            moduleClient.getTemplates(moduleBuilder.build());
-            assertEquals(0, testContext.getResponseBodyArrayLength());
+            assertThat(moduleClient.getTemplates(moduleBuilder.build()), hasSize(0));
             moduleBuilder.getTemplateBuilders().forEach(templateBuilder -> {
                 moduleClient.getTemplate(templateBuilder.getName(), moduleBuilder.build(), "should-fail");
                 assertNotFound();

@@ -27,11 +27,14 @@ import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
+import org.hesperides.test.bdd.commons.TestContext;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+
+import java.util.List;
 
 import static org.hesperides.core.domain.templatecontainers.entities.TemplateContainer.urlEncodeUtf8;
 import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
@@ -42,11 +45,15 @@ public class ModuleClient {
 
     private final CustomRestTemplate restTemplate;
     private final DefaultUriBuilderFactory defaultUriBuilderFactory;
+    private final TestContext testContext;
 
     @Autowired
-    public ModuleClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate, DefaultUriBuilderFactory defaultUriBuilderFactory) {
+    public ModuleClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate,
+                        DefaultUriBuilderFactory defaultUriBuilderFactory,
+                        TestContext testContext) {
         this.restTemplate = restTemplate;
         this.defaultUriBuilderFactory = defaultUriBuilderFactory;
+        this.testContext = testContext;
     }
 
     public void createModule(ModuleIO moduleInput, String tryTo) {
@@ -142,8 +149,9 @@ public class ModuleClient {
                 VersionType.fromIsWorkingCopy(moduleInput.getIsWorkingCopy()));
     }
 
-    public void getTemplates(ModuleIO moduleInput) {
+    public List<PartialTemplateIO> getTemplates(ModuleIO moduleInput) {
         getTemplates(moduleInput, null);
+        return testContext.getResponseBodyAsList();
     }
 
     public void getTemplates(ModuleIO moduleInput, String tryTo) {

@@ -75,8 +75,7 @@ public class CopyModules extends HesperidesScenario implements En {
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
 
-            moduleClient.getTemplates(actualModule);
-            List<PartialTemplateIO> actualTemplates = testContext.getResponseBodyAsList();
+            List<PartialTemplateIO> actualTemplates = moduleClient.getTemplates(actualModule);
             assertEquals(expectedTemplates, actualTemplates);
         });
 

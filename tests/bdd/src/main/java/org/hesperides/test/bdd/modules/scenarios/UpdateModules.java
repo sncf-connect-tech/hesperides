@@ -33,6 +33,8 @@ public class UpdateModules extends HesperidesScenario implements En {
                 String usingTheWrongVersionId,
                 String addingThisTechno) -> {
 
+            moduleBuilder.withVersion("1.1");
+
             if (isNotEmpty(usingTheWrongVersionId)) {
                 moduleBuilder.withVersionId(2049);
             }

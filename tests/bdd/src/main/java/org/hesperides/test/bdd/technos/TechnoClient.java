@@ -25,10 +25,13 @@ import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.core.presentation.io.templatecontainers.PartialTemplateIO;
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
+import org.hesperides.test.bdd.commons.TestContext;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
 
@@ -36,10 +39,12 @@ import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType
 public class TechnoClient {
 
     private final CustomRestTemplate restTemplate;
+    private final TestContext testContext;
 
     @Autowired
-    public TechnoClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate) {
+    public TechnoClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate, TestContext testContext) {
         this.restTemplate = restTemplate;
+        this.testContext = testContext;
     }
 
     public void createTechno(TemplateIO templateInput, TechnoIO technoInput, String tryTo) {
@@ -135,8 +140,9 @@ public class TechnoClient {
                 VersionType.fromIsWorkingCopy(technoInput.getIsWorkingCopy()));
     }
 
-    public void getTemplates(TechnoIO technoInput) {
+    public List<PartialTemplateIO> getTemplates(TechnoIO technoInput) {
         getTemplates(technoInput, null);
+        return testContext.getResponseBodyAsList();
     }
 
     public void getTemplates(TechnoIO technoInput, String tryTo) {

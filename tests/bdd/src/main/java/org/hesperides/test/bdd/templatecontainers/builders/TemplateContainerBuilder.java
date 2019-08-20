@@ -113,4 +113,10 @@ public abstract class TemplateContainerBuilder implements Serializable {
     public TemplateBuilder getLastTemplateBuilder() {
         return templateBuilders.get(templateBuilders.size() - 1);
     }
+
+    public boolean equals(TemplateContainerBuilder templateContainerBuilder) {
+        return name.equals(templateContainerBuilder.getName()) &&
+                version.equals(templateContainerBuilder.getVersion()) &&
+                versionType.equals(templateContainerBuilder.getVersionType());
+    }
 }

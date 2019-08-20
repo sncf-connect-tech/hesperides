@@ -8,7 +8,8 @@ import org.hesperides.test.bdd.technos.TechnoHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 
 public class DeleteTechnos extends HesperidesScenario implements En {
 
@@ -40,8 +41,7 @@ public class DeleteTechnos extends HesperidesScenario implements En {
 
         Then("^this techno templates are also deleted$", () -> {
             assertOK();
-            technoClient.getTemplates(technoBuilder.build());
-            assertEquals(0, testContext.getResponseBodyArrayLength());
+            assertThat(technoClient.getTemplates(technoBuilder.build()), hasSize(0));
             technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
                 technoClient.getTemplate(templateBuilder.getName(), technoBuilder.build(), "should-fail");
                 assertNotFound();

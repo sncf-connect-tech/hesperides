@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class TechnoHistory {
@@ -39,15 +40,17 @@ public class TechnoHistory {
         return this;
     }
 
+    public TechnoBuilder getFirstTechnoBuilder() {
+        return technoBuilders.get(0);
+    }
+
     public void addTechnoBuilder(TechnoBuilder technoBuilder) {
         technoBuilders.add(SerializationUtils.clone(technoBuilder));
     }
 
-    public void removeTechnoBuilder(TechnoBuilder technoBuilder) {
-        technoBuilders.remove(technoBuilder);
-    }
-
-    public TechnoBuilder getFirstTechnoBuilder() {
-        return technoBuilders.get(0);
+    public void removeTechnoBuilder(TechnoBuilder technoBuilderToRemove) {
+        technoBuilders = technoBuilders.stream()
+                .filter(existingTechnoBuilder -> !existingTechnoBuilder.equals(technoBuilderToRemove))
+                .collect(Collectors.toList());
     }
 }

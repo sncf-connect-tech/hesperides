@@ -27,6 +27,7 @@ import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUs
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.diff.PropertiesDiffOutput;
 import org.hesperides.test.bdd.commons.CustomRestTemplate;
+import org.hesperides.test.bdd.commons.TestContext;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -44,10 +45,12 @@ import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType
 public class PlatformClient {
 
     private final CustomRestTemplate restTemplate;
+    private final TestContext testContext;
 
     @Autowired
-    public PlatformClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate) {
+    public PlatformClient(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") CustomRestTemplate restTemplate, TestContext testContext) {
         this.restTemplate = restTemplate;
+        this.testContext = testContext;
     }
 
     public void createPlatform(PlatformIO platformInput) {
@@ -96,6 +99,10 @@ public class PlatformClient {
                 getResponseType(tryTo, PlatformIO.class),
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
+    }
+
+    public void updatePlatform(PlatformIO platformInput, String tryTo) {
+        updatePlatform(platformInput, false, tryTo);
     }
 
     public void updatePlatform(PlatformIO platformInput, boolean copyProperties, String tryTo) {
@@ -178,8 +185,13 @@ public class PlatformClient {
                 platform.getPlatformName());
     }
 
-    public void getProperties(PlatformIO platform, String propertiesPath) {
+    public PropertiesIO getGlobalProperties(PlatformIO platform) {
+        return getProperties(platform, "#");
+    }
+
+    public PropertiesIO getProperties(PlatformIO platform, String propertiesPath) {
         getProperties(platform, propertiesPath, null, null);
+        return testContext.getResponseBody(PropertiesIO.class);
     }
 
     public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, String tryTo) {
@@ -193,10 +205,6 @@ public class PlatformClient {
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);
-    }
-
-    public void getGlobalProperties(PlatformIO platform) {
-        getProperties(platform, "#");
     }
 
     public void getPropertiesDiff(PlatformIO fromPlatform, String fromPropertiesPath, String fromInstance, PlatformIO toPlatform, String toPropertiesPath, String toInstance, boolean compareStoredValues, Long timestamp, String tryTo) {

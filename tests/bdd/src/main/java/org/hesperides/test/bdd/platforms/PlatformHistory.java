@@ -46,10 +46,18 @@ public class PlatformHistory {
         platformBuilders.add(SerializationUtils.clone(platformBuilder));
     }
 
-    public void removePlatformBuilder(PlatformBuilder platformBuilder) {
+    public void removePlatformBuilder(PlatformBuilder platformBuilderToRemove) {
         platformBuilders = platformBuilders.stream()
-                .filter(platformBuilder1 -> !platformBuilder.getPlatformName().equals(platformBuilder1.getPlatformName()) &&
-                        !platformBuilder.getApplicationName().equals(platformBuilder1.getApplicationName()))
+                .filter(existingPlatformBuilder -> !existingPlatformBuilder.equals(platformBuilderToRemove))
+                .collect(Collectors.toList());
+    }
+
+    public void updatePlatformBuilder(PlatformBuilder platformBuilder) {
+        platformBuilder.incrementVersionId();
+        PlatformBuilder updatedPlatformBuilder = SerializationUtils.clone(platformBuilder);
+        platformBuilders = platformBuilders.stream()
+                .map(existingPlatformBuilder -> existingPlatformBuilder.equals(updatedPlatformBuilder)
+                        ? updatedPlatformBuilder : existingPlatformBuilder)
                 .collect(Collectors.toList());
     }
 }

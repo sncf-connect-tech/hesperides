@@ -54,8 +54,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
                     .map(TemplateBuilder::buildPartialTemplate)
                     .collect(Collectors.toList());
 
-            technoClient.getTemplates(actualTechno);
-            List<PartialTemplateIO> actualTemplates = testContext.getResponseBodyAsList();
+            List<PartialTemplateIO> actualTemplates = technoClient.getTemplates(actualTechno);
             assertEquals(expectedTemplates, actualTemplates);
         });
 
