@@ -84,12 +84,12 @@ public class GetFile extends HesperidesScenario implements En {
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
             assertOK();
             String expectedOutput = fileContent.replaceAll("&nbsp;", "");
-            String actualOutput = testContext.getResponseBody(String.class);
+            String actualOutput = testContext.getResponseBody();
             assertEquals(expectedOutput, defaultString(actualOutput, ""));
         });
 
         Then("^there are( no)? obfuscated password properties in the(?: initial)? file$", (String no) -> {
-            String actualOutput = testContext.getResponseBody(String.class);
+            String actualOutput = testContext.getResponseBody();
             if (StringUtils.isBlank(no)) {
                 assertThat(actualOutput, containsString(OBFUSCATED_PASSWORD_VALUE));
             } else {

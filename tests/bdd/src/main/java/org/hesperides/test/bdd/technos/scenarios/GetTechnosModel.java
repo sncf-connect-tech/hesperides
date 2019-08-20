@@ -26,21 +26,21 @@ public class GetTechnosModel extends HesperidesScenario implements En {
         Then("^the model of this techno contains the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = technoBuilder.buildPropertiesModel();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the techno model is empty$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelOutput(Collections.emptySet(), Collections.emptySet());
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the model of this techno doesn't contain the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
     }

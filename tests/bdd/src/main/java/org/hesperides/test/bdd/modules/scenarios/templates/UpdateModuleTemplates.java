@@ -49,7 +49,7 @@ public class UpdateModuleTemplates extends HesperidesScenario implements En {
         Then("^the module template is successfully updated$", () -> {
             assertOK();
             TemplateIO expectedTemplate = templateBuilder.build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

@@ -54,7 +54,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         Then("^the platform is successfully updated$", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
+            PlatformIO actualPlatform = testContext.getResponseBody();
             assertEquals(expectedPlatform, actualPlatform);
         });
 

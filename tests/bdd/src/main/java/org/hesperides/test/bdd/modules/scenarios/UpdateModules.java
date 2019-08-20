@@ -33,8 +33,6 @@ public class UpdateModules extends HesperidesScenario implements En {
                 String usingTheWrongVersionId,
                 String addingThisTechno) -> {
 
-            moduleBuilder.withVersion("1.1");
-
             if (isNotEmpty(usingTheWrongVersionId)) {
                 moduleBuilder.withVersionId(2049);
             }
@@ -52,7 +50,7 @@ public class UpdateModules extends HesperidesScenario implements En {
         Then("^the module is successfully updated$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleBuilder.build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 

@@ -90,7 +90,7 @@ public class CopyPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the new platform has one module, no instances, no global properties and no module properties$", () -> {
-            PlatformIO copiedPlatform = testContext.getResponseBody(PlatformIO.class);
+            PlatformIO copiedPlatform = testContext.getResponseBody();
             assertThat(copiedPlatform.getDeployedModules(), hasSize(1));
 
             DeployedModuleIO deployedModule = copiedPlatform.getDeployedModules().get(0);

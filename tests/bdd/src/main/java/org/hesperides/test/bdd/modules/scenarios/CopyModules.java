@@ -67,7 +67,7 @@ public class CopyModules extends HesperidesScenario implements En {
             }
 
             ModuleIO expectedModule = moduleBuilder.build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
 
             List<PartialTemplateIO> expectedTemplates = moduleBuilder.getTemplateBuilders()
@@ -83,7 +83,7 @@ public class CopyModules extends HesperidesScenario implements En {
             moduleClient.getModel(moduleBuilder.build());
             assertOK();
             ModelOutput expectedModel = moduleHistory.getFirstModuleBuilder().buildPropertiesModel();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 

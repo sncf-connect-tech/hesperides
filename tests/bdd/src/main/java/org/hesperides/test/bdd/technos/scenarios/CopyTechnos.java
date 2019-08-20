@@ -46,7 +46,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
         Then("^the techno is successfully (?:duplicated|released)$", () -> {
             assertCreated();
             TechnoIO expectedTechno = technoBuilder.build();
-            TechnoIO actualTechno = testContext.getResponseBody(TechnoIO.class);
+            TechnoIO actualTechno = testContext.getResponseBody();
             assertEquals(expectedTechno, actualTechno);
 
             List<PartialTemplateIO> expectedTemplates = technoBuilder.getTemplateBuilders()
@@ -62,7 +62,7 @@ public class CopyTechnos extends HesperidesScenario implements En {
             technoClient.getModel(technoBuilder.build());
             assertOK();
             ModelOutput expectedModel = technoHistory.getFirstTechnoBuilder().buildPropertiesModel();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 

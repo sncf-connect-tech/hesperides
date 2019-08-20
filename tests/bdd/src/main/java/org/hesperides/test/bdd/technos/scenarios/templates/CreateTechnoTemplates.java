@@ -51,7 +51,7 @@ public class CreateTechnoTemplates extends HesperidesScenario implements En {
         Then("^the template is successfully added to the techno$", () -> {
             assertCreated();
             TemplateIO expectedTemplate = technoBuilder.getLastTemplateBuilder().build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

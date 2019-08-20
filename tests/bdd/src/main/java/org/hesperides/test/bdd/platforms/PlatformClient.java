@@ -191,7 +191,7 @@ public class PlatformClient {
 
     public PropertiesIO getProperties(PlatformIO platform, String propertiesPath) {
         getProperties(platform, propertiesPath, null, null);
-        return testContext.getResponseBody(PropertiesIO.class);
+        return testContext.getResponseBody();
     }
 
     public void getProperties(PlatformIO platform, String propertiesPath, Long timestamp, String tryTo) {

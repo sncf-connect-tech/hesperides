@@ -165,7 +165,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 String expectedModulePath) -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
+            PlatformIO actualPlatform = testContext.getResponseBody();
             assertEquals(expectedPlatform, actualPlatform);
 
             if (isNotEmpty(expectedModulePath)) {

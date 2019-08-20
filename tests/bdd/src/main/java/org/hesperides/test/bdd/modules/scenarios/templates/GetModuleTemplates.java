@@ -72,7 +72,7 @@ public class GetModuleTemplates extends HesperidesScenario implements En {
             assertOK();
             // On récupère le template depuis la module pour avoir le bon version_id
             TemplateIO expectedTemplate = moduleBuilder.getLastTemplateBuilder().build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

@@ -51,7 +51,7 @@ public class CreateModuleTemplates extends HesperidesScenario implements En {
         Then("^the template is successfully added to the module$", () -> {
             assertCreated();
             TemplateIO expectedTemplate = moduleBuilder.getLastTemplateBuilder().build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

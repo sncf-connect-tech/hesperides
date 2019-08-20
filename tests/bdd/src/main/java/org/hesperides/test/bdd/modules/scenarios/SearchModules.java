@@ -80,14 +80,14 @@ public class SearchModules extends HesperidesScenario implements En {
         Then("^I get the working copy version of this module$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleHistory.getFirstModuleBuilder().build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 
         Then("^I get the released version of this module$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleBuilder.build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 

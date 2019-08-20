@@ -57,12 +57,12 @@ public class GetPlatforms extends HesperidesScenario implements En {
         Then("^the platform detail is successfully retrieved", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody(PlatformIO.class);
+            PlatformIO actualPlatform = testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
         });
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
-            Boolean hasPasswords = testContext.getResponseBody(PlatformIO.class).getHasPasswords();
+            Boolean hasPasswords = testContext.getResponseBody();
             assertThat(hasPasswords).isNotNull();
             assertEquals("true".equals(trueOrFalse), hasPasswords);
         });

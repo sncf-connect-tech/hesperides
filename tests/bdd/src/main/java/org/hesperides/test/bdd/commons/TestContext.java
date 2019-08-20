@@ -40,8 +40,12 @@ public class TestContext {
         return responseType.cast(responseEntity.getBody());
     }
 
+    public <T> T getResponseBody() {
+        return (T) responseEntity.getBody();
+    }
+
     public <T> T[] getResponseBodyAsArray() {
-        return ((ResponseEntity<T[]>) responseEntity).getBody();
+        return (T[]) responseEntity.getBody();
     }
 
     public <T> List<T> getResponseBodyAsList() {
@@ -53,10 +57,10 @@ public class TestContext {
     }
 
     public <K, V> Map<K, V> getResponseBodyAsMap() {
-        return ((ResponseEntity<Map<K, V>>) responseEntity).getBody();
+        return (Map<K, V>) responseEntity.getBody();
     }
 
-    public HttpStatus getResponseStatusCode() {
+    HttpStatus getResponseStatusCode() {
         return responseEntity.getStatusCode();
     }
 }

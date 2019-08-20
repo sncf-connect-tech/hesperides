@@ -100,7 +100,7 @@ public class GetApplications extends HesperidesScenario implements En {
         Then("^the application is successfully retrieved", () -> {
             assertOK();
             ApplicationOutput expectedApplication = oldPlatformBuilder.buildApplicationOutput(hidePlatform);
-            ApplicationOutput actualApplication = testContext.getResponseBody(ApplicationOutput.class);
+            ApplicationOutput actualApplication = testContext.getResponseBody();
             assertEquals(expectedApplication, actualApplication);
         });
 

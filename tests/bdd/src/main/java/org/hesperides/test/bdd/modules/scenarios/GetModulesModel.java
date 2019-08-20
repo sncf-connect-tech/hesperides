@@ -31,14 +31,14 @@ public class GetModulesModel extends HesperidesScenario implements En {
         Then("^the model of this module contains the(?: updated)? properties$", () -> {
             assertOK();
             ModelOutput expectedModel = moduleBuilder.buildPropertiesModel();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
         Then("^the module model is empty$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelOutput(Collections.emptySet(), Collections.emptySet());
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 
@@ -47,7 +47,7 @@ public class GetModulesModel extends HesperidesScenario implements En {
         Then("^the model of this module doesn't contain the properties$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = testContext.getResponseBody(ModelOutput.class);
+            ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });
 

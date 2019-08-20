@@ -35,7 +35,7 @@ public class CommonSteps extends HesperidesScenario implements En {
 
         Then("^a ([45][0-9][0-9]) error is returned, blaming \"([^\"]+)\"$", (Integer httpCode, String message) -> {
             assertEquals(HttpStatus.valueOf(httpCode), testContext.getResponseStatusCode());
-            assertThat(testContext.getResponseBody(String.class), containsString(message));
+            assertThat(testContext.getResponseBody(), containsString(message));
         });
     }
 }

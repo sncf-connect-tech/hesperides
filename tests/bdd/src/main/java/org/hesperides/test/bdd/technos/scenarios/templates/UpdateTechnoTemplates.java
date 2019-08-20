@@ -49,7 +49,7 @@ public class UpdateTechnoTemplates extends HesperidesScenario implements En {
         Then("^the techno template is successfully updated$", () -> {
             assertOK();
             TemplateIO expectedTemplate = templateBuilder.build();
-            TemplateIO actualTemplate = testContext.getResponseBody(TemplateIO.class);
+            TemplateIO actualTemplate = testContext.getResponseBody();
             assertEquals(expectedTemplate, actualTemplate);
         });
 

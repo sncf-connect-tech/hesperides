@@ -60,7 +60,7 @@ public class GetModules extends HesperidesScenario implements En {
         Then("^the module detail is successfully retrieved$", () -> {
             assertOK();
             ModuleIO expectedModule = moduleBuilder.build();
-            ModuleIO actualModule = testContext.getResponseBody(ModuleIO.class);
+            ModuleIO actualModule = testContext.getResponseBody();
             assertEquals(expectedModule, actualModule);
         });
 
