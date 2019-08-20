@@ -17,10 +17,10 @@ env:
     - secure: "mALs/P9ONwc4e1DsUqMOoIEVxIhbhduFXvtabSSfJA9p9lczuP40xVUh9BcIeiv87d1IHiW2e733gcm6dTTNGtWtmh8r7YQ8Ax5W8Bo0fa/XwTFmjrQcIEAO6um24SAw/Lu75BLcY1MIk3TTwSYu4tAbStllzQ5lvVLt+rKknrbJM/pTeabJIHTaZnyQM6ycjmviKPIfi4RRFl81HIpKq2mpaMUF6U4Ik8j23wTB2Fvpiuumd/f7BJJEPFhWqaVs/COTfxQ4LLEYUPq0RBa4gvbYM83soBftI8mSWv51Ije2xyWD+FHdCdAvGHmSoPTLxVU8GdQeR84C8puhIE/hbc2aAopllVNoUG/HN/h933SKTt0EpPVFIwlkgJvGlts0HoGPRPstDUutyqertRrOsyM4k1PDi6qScr0KPiuTPbShLwo5HteaC+IFOqj1klijzhj4ToGpFZQknl/pzScRRgpOdoYnUY44iHXZRyDkMl8kB4Yz4iICWflPY4wLvgCmSy3YR+xQoS6Fg5a9Q4568wO0n/bWSZM8nZlSmbkhe0WoOH7eLQk6aQZokoQH3+296U0HZ3LN2hT0uoOFMp9PVldhp+q1SbR7KqmCcJVDS2FzRuDp1QOcHCwRP8o+dZBBWvzq4VrhH/Qr5NCqkbN+/DrzVulumYAv85lQTjVmURk=" # GPG_KEY_NAME
     - secure: "dNjfejMK/Y3Vy5kFGjfAFbkKdA/hJEh8QHGNIiLDtpYcpzoyjyjgCcSEOvpfS/6SSdfPm+PMAhEqYsJrIkT44Jc3Gs+J284DNXG2y+GlkmR6SJfivNelJLZslkWn28YVdnATHXXv7TH/ctPr9KDoIiTZKk98TBtD+QgBV5kAcOMHXUGmwTbU5A9WyK4FYqsrZeX2TtSqRcshwHEqQGcKcaKZkIRcWAkdxmrZ+Xxk+v9dH3BafSFLJnpwjoCBARA+pnEg6e5ppHaTpaRVim1cdingSQ4rut2YsqPwBt4lbHuZxoDM0MdXk8kcGO89GraUp6NIMwWQoDWgAu/KLOgaFqpTTQydF1Nm7k1l0GBJ1r54OOAcqMV5mRI/y/hKPR3uGBbFmazFRNihSBUapCUoZlGNs0Y3EN11bHF+drHDg4DYQ0RosOj4WR+GfxP03CwQpnA7/2ygflCyFNjIGVaJFCBFA3n7fznQj1U/v79+CaxVdZ5AvO4yjQHAVq35CDsh0EBXtFp9N5E4vE1Q2zLr4Or+JI1nyEM5G58+amVcvClZwf79sHx3INQn/UIlYCNfW6z3gGG3irOEcS58CoAVZj8ThgxjqmMWpkow4XH6Pk392aHGerVzDBs//Eut9wFqhrbb5I5cU/GAgv+fzOs0VGLFBc5SWdGierXSYHQjpEA=" # GPG_PASSPHRASE
 stages:
-- name: build
-- name: test
-- name: deploy
-  if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
+  - name: build
+  - name: test
+  - name: deploy
+    if: (branch = master OR branch =~ ^v[0-9]) AND type != pull_request AND repo = "voyages-sncf-technologies/hesperides"
 jobs:
   include:
     - stage: build
@@ -56,5 +56,9 @@ jobs:
         - gpg --import ./.travis/codesigning.asc
       script: mvn deploy -DskipTests=true -Ddeploy --settings ./.travis/deploy-settings.xml
 notifications:
-  webhooks: https://outlook.office.com/webhook/b95afcd0-96b7-4034-9bcd-785973709f0a@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/e609ea50bd7d485fbc01b47299a0d35b/671e3320-57d1-49bb-a67a-950d08b12517
+  webhooks:
+    urls:
+      - https://outlook.office.com/webhook/838cfd20-344e-4053-97eb-5fa1f7fb25f9@85eca096-674d-4fd9-9a9e-ae1178e2ee56/TravisCI/287a35ae03c74b2d9e01c33c286f174c/9adc9018-8898-45c6-8f07-e92b8eaeb8a2
+    on_success: change
+    on_failure: change
   email: false
