@@ -14,7 +14,7 @@ Feature: Update platforms
     Given an existing module with properties
     And an existing platform with this module and valued properties
     And I release this module
-    When I update this platform, upgrading its module, and requiring the copy of properties
+    When I update this platform, upgrading its module and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
 

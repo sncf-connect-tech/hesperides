@@ -10,9 +10,9 @@ import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 
@@ -35,13 +35,13 @@ public class GetEvents extends HesperidesScenario implements En {
 
         Then("^(\\d+) event(?: is|s are) returned$", (Integer nbEvents) -> {
             assertOK();
-            EventOutput[] events = testContext.getResponseBody(EventOutput[].class);
-            assertEquals(nbEvents.intValue(), events.length);
+            List<EventOutput> events = testContext.getResponseBodyAsList();
+            assertThat(events, hasSize(nbEvents));
         });
 
         Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
-            EventOutput[] events = testContext.getResponseBody(EventOutput[].class);
-            assertThat(events[index], hasProperty("type", endsWith(eventType)));
+            List<EventOutput> events = testContext.getResponseBody();
+            assertThat(events.get(index), hasProperty("type", endsWith(eventType)));
         });
     }
 

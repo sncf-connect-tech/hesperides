@@ -137,6 +137,10 @@ public class PlatformBuilder implements Serializable {
         globalProperties = new ArrayList<>();
     }
 
+    public void clearDeployedModuleBuilders() {
+        deployedModuleBuilders = new ArrayList<>();
+    }
+
     public boolean equals(PlatformBuilder platformBuilder) {
         return applicationName.equals(platformBuilder.getApplicationName())
                 && platformName.equals(platformBuilder.getPlatformName());

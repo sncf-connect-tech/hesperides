@@ -101,10 +101,6 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
-    public void updatePlatform(PlatformIO platformInput, String tryTo) {
-        updatePlatform(platformInput, false, tryTo);
-    }
-
     public void updatePlatform(PlatformIO platformInput, boolean copyProperties, String tryTo) {
         String url = "/applications/{application_name}/platforms";
         if (copyProperties) {

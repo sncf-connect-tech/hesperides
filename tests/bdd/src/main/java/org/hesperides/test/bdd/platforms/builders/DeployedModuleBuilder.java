@@ -88,6 +88,7 @@ public class DeployedModuleBuilder implements Serializable {
         name = moduleBuilder.getName();
         version = moduleBuilder.getVersion();
         versionType = moduleBuilder.getVersionType();
+        propertiesVersionId = 0L;
     }
 
     static List<DeployedModuleIO> buildInputs(List<DeployedModuleBuilder> deployedModuleBuilders) {

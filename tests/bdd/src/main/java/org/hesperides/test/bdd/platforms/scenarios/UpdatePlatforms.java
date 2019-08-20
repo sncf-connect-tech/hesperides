@@ -24,11 +24,14 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
 public class UpdatePlatforms extends HesperidesScenario implements En {
@@ -39,12 +42,33 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     public UpdatePlatforms() {
 
-        When("^I( try to)? update this platform$", (String tryTo) -> {
+        When("^I( try to)? update this platform" +
+                "(, upgrading its module)?" +
+                "( and requiring the copy of properties)?$", (
+                String tryTo,
+                String upgradingItsModule,
+                String copyProperties) -> {
+
             platformBuilder.withVersion("1.1");
-            platformClient.updatePlatform(platformBuilder.buildInput(), tryTo);
+
+            if (isNotEmpty(upgradingItsModule)) {
+                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                // Ici on part du principe qu'il n'y a qu'un module déployé donc
+                // on le supprime et on ajoute le nouveau. Le mieux aurait été de
+                // détecté quel module a été mis à jour et de le remplacer dynamiquement.
+                platformBuilder.clearDeployedModuleBuilders();
+                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            }
+
+            platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);
+
             if (StringUtils.isEmpty(tryTo)) {
                 platformHistory.updatePlatformBuilder(platformBuilder);
 
