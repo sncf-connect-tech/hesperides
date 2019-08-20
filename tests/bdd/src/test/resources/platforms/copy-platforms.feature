@@ -1,4 +1,4 @@
-Feature: Create platform
+Feature: Copy platforms
 
   Background:
     Given an authenticated user
@@ -8,7 +8,7 @@ Feature: Create platform
     And an existing module with properties and global properties and this techno
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
     When I copy this platform
-    Then the platform is successfully created
+    Then the platform is successfully copied
     And the platform property values are also copied
 
   Scenario: copy a platform that doesn't exist
@@ -28,17 +28,15 @@ Feature: Create platform
     And a copy of this module in version "2.0"
     And I update this platform, upgrading its module to version "2.0", and requiring the copy of properties
     When I copy this platform
-    Then the platform is successfully created
+    Then the platform is successfully copied
     And the platform property values are also copied
     And there is 1 module on this platform
 
   #issue-634
-  Scenario: copy of a platform without instances & properties
+  Scenario: copy of a platform without instances or properties
     Given an existing techno with properties and global properties
     And an existing module with properties and global properties and this techno
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
-    When I copy this platform without instances & properties
-    Then there is 1 module on this new platform
-    And there are 0 instances
-    And there are 0 global properties
-    And there are 0 module properties
+    When I copy this platform without copying instances or properties
+    Then the platform is successfully copied
+    And the new platform has one module, no instances, no global properties and no module properties

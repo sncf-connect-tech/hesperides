@@ -132,4 +132,8 @@ public class PlatformBuilder implements Serializable {
     public void incrementGlobalPropertiesVersionId() {
         globalPropertiesVersionId++;
     }
+
+    public void clearGlobalProperties() {
+        globalProperties = new ArrayList<>();
+    }
 }

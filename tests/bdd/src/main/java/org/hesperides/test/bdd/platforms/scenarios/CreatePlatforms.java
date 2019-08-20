@@ -160,7 +160,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             createPlatform(tryTo);
         });
 
-        Then("^the platform is successfully created(?: and the deployed module has the following path \"(.*)\")?$", (
+        Then("^the platform is successfully (?:created|copied)" +
+                "(?: and the deployed module has the following path \"(.*)\")?$", (
                 String expectedModulePath) -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();

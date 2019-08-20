@@ -1,4 +1,4 @@
-Feature: Create platform
+Feature: Create platforms
 
   Background:
     Given an authenticated user

@@ -21,16 +21,21 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class CopyPlatforms extends HesperidesScenario implements En {
 
@@ -43,7 +48,8 @@ public class CopyPlatforms extends HesperidesScenario implements En {
 
     public CopyPlatforms() {
 
-        When("^I( try to)? copy this platform( using the same key)?$", (String tryTo, String usingTheSameKey) -> {
+        When("^I( try to)? copy this platform( using the same key)?( without copying instances or properties)?$", (
+                String tryTo, String usingTheSameKey, String withoutInstancesOrProperties) -> {
 
             PlatformIO existingPlatform = platformBuilder.buildInput();
 
@@ -51,11 +57,20 @@ public class CopyPlatforms extends HesperidesScenario implements En {
                 platformBuilder.withPlatformName(existingPlatform.getPlatformName() + "-copy");
             }
 
-            platformClient.copyPlatform(existingPlatform, platformBuilder.buildInput(), false, tryTo);
+            platformClient.copyPlatform(existingPlatform, platformBuilder.buildInput(), isNotEmpty(withoutInstancesOrProperties), tryTo);
+
             if (isEmpty(tryTo)) {
                 platformBuilder.withVersionId(1);
                 platformBuilder.withGlobalPropertyVersionId(0);
-                platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> deployedModuleBuilder.withPropertiesVersionId(1));
+
+                if (isEmpty(withoutInstancesOrProperties)) {
+                    DeployedModuleBuilder.initPropertiesVersionIdTo(1, platformBuilder.getDeployedModuleBuilders());
+                } else {
+                    DeployedModuleBuilder.initPropertiesVersionIdTo(0, platformBuilder.getDeployedModuleBuilders());
+                    platformBuilder.clearGlobalProperties();
+                    DeployedModuleBuilder.clearInstancesAndProperties(platformBuilder.getDeployedModuleBuilders());
+                }
+
                 platformHistory.addPlatformBuilder(platformBuilder);
             }
         });
@@ -73,8 +88,23 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             platformClient.getGlobalProperties(platformBuilder.buildInput());
             PropertiesIO actualGlobalProperties = testContext.getResponseBody(PropertiesIO.class);
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
+        });
 
-//            assertThat(actualProperties.getValuedProperties(), containsInAnyOrder(expectedProperties.getValuedProperties().toArray()));
+        Then("^the new platform has one module, no instances, no global properties and no module properties$", () -> {
+            PlatformIO copiedPlatform = testContext.getResponseBody(PlatformIO.class);
+            assertThat(copiedPlatform.getDeployedModules(), hasSize(1));
+
+            DeployedModuleIO deployedModule = copiedPlatform.getDeployedModules().get(0);
+            assertThat(deployedModule.getInstances(), hasSize(0));
+
+            platformClient.getProperties(copiedPlatform, "#");
+            PropertiesIO globalProperties = testContext.getResponseBody(PropertiesIO.class);
+            assertThat(globalProperties.getValuedProperties(), hasSize(0));
+
+            platformClient.getProperties(copiedPlatform, deployedModule.getPropertiesPath());
+            PropertiesIO moduleProperties = testContext.getResponseBody(PropertiesIO.class);
+            assertThat(moduleProperties.getValuedProperties(), hasSize(0));
+            assertThat(moduleProperties.getIterableValuedProperties(), hasSize(0));
         });
 
         Then("^the platform copy fails with a not found error$", this::assertNotFound);

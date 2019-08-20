@@ -153,4 +153,17 @@ public class DeployedModuleBuilder implements Serializable {
     public void incrementPropertiesVersionId() {
         propertiesVersionId++;
     }
+
+    public static void initPropertiesVersionIdTo(long propertiesVersionId, List<DeployedModuleBuilder> deployedModuleBuilders) {
+        deployedModuleBuilders.forEach(deployedModuleBuilder -> deployedModuleBuilder.withPropertiesVersionId(propertiesVersionId));
+    }
+
+    public static void clearInstancesAndProperties(List<DeployedModuleBuilder> deployedModuleBuilders) {
+        deployedModuleBuilders.forEach(DeployedModuleBuilder::clearInstancesAndProperties);
+    }
+
+    private void clearInstancesAndProperties() {
+        instanceBuilders = new ArrayList<>();
+        valuedProperties = new ArrayList<>();
+    }
 }
