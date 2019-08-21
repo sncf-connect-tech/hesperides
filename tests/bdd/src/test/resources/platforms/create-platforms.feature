@@ -1,3 +1,4 @@
+@done
 Feature: Create platforms
 
   Background:

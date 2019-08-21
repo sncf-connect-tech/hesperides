@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.builders;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
@@ -52,6 +53,7 @@ public class DeployedModuleBuilder implements Serializable {
     private String modulePath;
     private List<ValuedPropertyIO> valuedProperties;
     private List<IterableValuedPropertyIO> iterableValuedProperties;
+    @Getter
     private List<InstanceBuilder> instanceBuilders;
 
     public DeployedModuleBuilder() {
@@ -68,12 +70,16 @@ public class DeployedModuleBuilder implements Serializable {
         return this;
     }
 
+    public void withVersion(String version) {
+        this.version = version;
+    }
+
     public void withModulePath(String modulePath) {
         this.modulePath = modulePath;
     }
 
     public void withInstanceBuilder(InstanceBuilder instanceBuilder) {
-        instanceBuilders.add(instanceBuilder);
+        instanceBuilders.add(SerializationUtils.clone(instanceBuilder));
     }
 
     public void withValuedProperty(String name, String value) {
@@ -151,7 +157,7 @@ public class DeployedModuleBuilder implements Serializable {
         }
     }
 
-    public void incrementPropertiesVersionId() {
+    void incrementPropertiesVersionId() {
         propertiesVersionId++;
     }
 
@@ -166,5 +172,12 @@ public class DeployedModuleBuilder implements Serializable {
     private void clearInstancesAndProperties() {
         instanceBuilders = new ArrayList<>();
         valuedProperties = new ArrayList<>();
+    }
+
+    public boolean equalsByKey(DeployedModuleBuilder deployedModuleBuilder) {
+        return name.equals(deployedModuleBuilder.name) &&
+                version.equals(deployedModuleBuilder.version) &&
+                versionType.equals(deployedModuleBuilder.versionType) &&
+                modulePath.equals(deployedModuleBuilder.modulePath);
     }
 }

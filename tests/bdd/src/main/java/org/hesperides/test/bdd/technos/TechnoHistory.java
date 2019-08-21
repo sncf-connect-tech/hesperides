@@ -50,7 +50,7 @@ public class TechnoHistory {
 
     public void removeTechnoBuilder(TechnoBuilder technoBuilderToRemove) {
         technoBuilders = technoBuilders.stream()
-                .filter(existingTechnoBuilder -> !existingTechnoBuilder.equals(technoBuilderToRemove))
+                .filter(existingTechnoBuilder -> !existingTechnoBuilder.equalsByKey(technoBuilderToRemove))
                 .collect(Collectors.toList());
     }
 }

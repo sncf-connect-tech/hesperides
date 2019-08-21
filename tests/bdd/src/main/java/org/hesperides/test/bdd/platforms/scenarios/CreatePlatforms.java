@@ -58,12 +58,14 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Given("^an existing platform" +
                 "(?: named \"(.*)\")?" +
                 "( (?:and|with) this module)?" +
+                "(?: in logical group \"(.*)\")?" +
                 "( (?:and|with) an instance)?" +
                 "( (?:and|with) valued properties)?" +
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) instance properties)?$", (
                 String platformName,
                 String withThisModule,
+                String moduleLogicalGroup,
                 String withAnInstance,
                 String withValuedProperties,
                 String withGlobalProperties,
@@ -77,6 +79,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
             if (isNotEmpty(withAnInstance)) {
                 if (isNotEmpty(withInstanceProperties)) {
+                    // Propriétés de module enregistrées après la création de plateforme
+                    deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
+                    deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
                     instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
                     instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
                 }
@@ -85,6 +90,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
             if (isNotEmpty(withThisModule)) {
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                if (isNotEmpty(moduleLogicalGroup)) {
+                    deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
+                }
                 if (isNotEmpty(withValuedProperties)) {
                     deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
                     deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
@@ -100,15 +108,17 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformBuilder.withGlobalProperty("global-filename", "properties.js");
                 platformBuilder.withGlobalProperty("global-location", "/conf");
                 platformBuilder.withGlobalProperty("unused-global-property", "12");
+                // à bouger dans SaveProperties ?
                 platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-                platformBuilder.incrementVersionId();
                 platformBuilder.incrementGlobalPropertiesVersionId();
+                platformHistory.updatePlatformBuilder(platformBuilder);
             }
 
-            if (isNotEmpty(withValuedProperties)) {
+            if (isNotEmpty(withValuedProperties) || isNotEmpty(withInstanceProperties)) {
+                // à bouger dans SaveProperties ?
                 platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                platformBuilder.incrementVersionId();
-                deployedModuleBuilder.incrementPropertiesVersionId();
+                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                platformHistory.updatePlatformBuilder(platformBuilder);
             }
         });
 
@@ -144,7 +154,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     deployedModuleBuilder.withModulePath("");
                 }
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
-                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             }
 
             if (isNotEmpty(withoutSettingProductionFlag)) {

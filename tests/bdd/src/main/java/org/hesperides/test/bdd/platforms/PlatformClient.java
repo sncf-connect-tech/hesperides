@@ -129,13 +129,14 @@ public class PlatformClient {
                 getResponseType(tryTo, SearchResultOutput[].class));
     }
 
-    public void getInstancesModel(PlatformIO platform, String propertiesPath) {
+    public InstancesModelOutput getInstancesModel(PlatformIO platform, String propertiesPath) {
         restTemplate.getForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/properties/instance_model?path={path}",
                 InstancesModelOutput.class,
                 platform.getApplicationName(),
                 platform.getPlatformName(),
                 propertiesPath);
+        return testContext.getResponseBody();
     }
 
     public void saveGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {

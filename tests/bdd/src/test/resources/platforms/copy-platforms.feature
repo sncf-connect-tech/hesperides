@@ -1,8 +1,10 @@
+@done
 Feature: Copy platforms
 
   Background:
     Given an authenticated user
 
+  @wip
   Scenario: copy of a platform with its modules and properties
     Given an existing techno with properties and global properties
     And an existing module with properties and global properties and this techno
@@ -22,15 +24,16 @@ Feature: Copy platforms
     Then the platform copy fails with a conflict error
 
   #issue-623
+  @wip
   Scenario: copy of a platform with an history of deployed modules
     And an existing module with properties
     And an existing platform with this module and valued properties
     And a copy of this module in version "2.0"
-    And I update this platform, upgrading its module to version "2.0", and requiring the copy of properties
+    And I update this platform, upgrading its module to version "2.0" and requiring the copy of properties
     When I copy this platform
     Then the platform is successfully copied
+    And the platform has only one module
     And the platform property values are also copied
-    And there is 1 module on this platform
 
   #issue-634
   Scenario: copy of a platform without instances or properties

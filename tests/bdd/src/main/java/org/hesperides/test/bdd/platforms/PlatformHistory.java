@@ -48,15 +48,16 @@ public class PlatformHistory {
 
     public void removePlatformBuilder(PlatformBuilder platformBuilderToRemove) {
         platformBuilders = platformBuilders.stream()
-                .filter(existingPlatformBuilder -> !existingPlatformBuilder.equals(platformBuilderToRemove))
+                .filter(existingPlatformBuilder -> !existingPlatformBuilder.equalsByKey(platformBuilderToRemove))
                 .collect(Collectors.toList());
     }
 
     public void updatePlatformBuilder(PlatformBuilder platformBuilder) {
         platformBuilder.incrementVersionId();
+        platformBuilder.setDeployedModuleIds();
         PlatformBuilder updatedPlatformBuilder = SerializationUtils.clone(platformBuilder);
         platformBuilders = platformBuilders.stream()
-                .map(existingPlatformBuilder -> existingPlatformBuilder.equals(updatedPlatformBuilder)
+                .map(existingPlatformBuilder -> existingPlatformBuilder.equalsByKey(updatedPlatformBuilder)
                         ? updatedPlatformBuilder : existingPlatformBuilder)
                 .collect(Collectors.toList());
     }

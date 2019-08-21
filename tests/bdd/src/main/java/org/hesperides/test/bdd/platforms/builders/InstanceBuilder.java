@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.platforms.builders;
 
+import lombok.Getter;
 import org.hesperides.core.presentation.io.platforms.InstanceIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 public class InstanceBuilder implements Serializable {
 
     private String name;
+    @Getter
     private Set<ValuedPropertyIO> valuedProperties;
 
     public InstanceBuilder() {

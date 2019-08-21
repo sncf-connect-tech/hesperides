@@ -21,17 +21,17 @@
 package org.hesperides.test.bdd.platforms.builders;
 
 import lombok.Getter;
+import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class PlatformBuilder implements Serializable {
@@ -73,7 +73,7 @@ public class PlatformBuilder implements Serializable {
     }
 
     public void withDeployedModuleBuilder(DeployedModuleBuilder deployedModuleBuilder) {
-        deployedModuleBuilders.add(deployedModuleBuilder);
+        deployedModuleBuilders.add(SerializationUtils.clone(deployedModuleBuilder));
     }
 
     public void withIsProductionPlatform(Boolean isProductionPlatform) {
@@ -141,8 +141,35 @@ public class PlatformBuilder implements Serializable {
         deployedModuleBuilders = new ArrayList<>();
     }
 
-    public boolean equals(PlatformBuilder platformBuilder) {
+    public boolean equalsByKey(PlatformBuilder platformBuilder) {
         return applicationName.equals(platformBuilder.getApplicationName())
                 && platformName.equals(platformBuilder.getPlatformName());
+    }
+
+    public InstancesModelOutput buildInstanceModel() {
+        Set<InstancesModelOutput.InstancePropertyOutput> instanceProperties = deployedModuleBuilders.stream()
+                .map(DeployedModuleBuilder::getInstanceBuilders)
+                .flatMap(List::stream)
+                .map(InstanceBuilder::getValuedProperties)
+                .flatMap(Set::stream)
+                .map(valuedProperty -> new InstancesModelOutput.InstancePropertyOutput(valuedProperty.getName()))
+                .collect(Collectors.toSet());
+        return new InstancesModelOutput(instanceProperties);
+    }
+
+    public void updateDeployedModuleBuilder(DeployedModuleBuilder deployedModuleBuilder) {
+        deployedModuleBuilder.incrementPropertiesVersionId();
+        DeployedModuleBuilder updatedDeployedModuleBuilder = SerializationUtils.clone(deployedModuleBuilder);
+        deployedModuleBuilders = deployedModuleBuilders.stream()
+                .map(existingDeployedModuleBuilder -> existingDeployedModuleBuilder.equalsByKey(updatedDeployedModuleBuilder)
+                        ? updatedDeployedModuleBuilder : existingDeployedModuleBuilder)
+                .collect(Collectors.toList());
+    }
+
+    public void replaceDeployedModuleBuilder(DeployedModuleBuilder existingDeployedModuleBuilder, DeployedModuleBuilder updatedDeployedModuleBuilder) {
+        deployedModuleBuilders = deployedModuleBuilders.stream()
+                .map(deployedModuleBuilder -> deployedModuleBuilder.equalsByKey(existingDeployedModuleBuilder)
+                        ? updatedDeployedModuleBuilder : deployedModuleBuilder)
+                .collect(Collectors.toList());
     }
 }

@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.modules;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.ModuleKeyOutput;
@@ -70,7 +71,7 @@ public class ModuleBuilder extends TemplateContainerBuilder {
     }
 
     public void withTechnoBuilder(TechnoBuilder technoBuilder) {
-        technoBuilders.add(technoBuilder);
+        technoBuilders.add(SerializationUtils.clone(technoBuilder));
     }
 
     @Override

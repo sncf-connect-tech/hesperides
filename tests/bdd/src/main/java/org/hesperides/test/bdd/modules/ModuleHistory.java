@@ -53,7 +53,7 @@ public class ModuleHistory {
 
     public void removeModuleBuilder(ModuleBuilder moduleBuilderToRemove) {
         moduleBuilders = moduleBuilders.stream()
-                .filter(existingModuleBuilder -> !existingModuleBuilder.equals(moduleBuilderToRemove))
+                .filter(existingModuleBuilder -> !existingModuleBuilder.equalsByKey(moduleBuilderToRemove))
                 .collect(Collectors.toList());
     }
 
@@ -61,7 +61,7 @@ public class ModuleHistory {
         moduleBuilder.incrementVersionId();
         ModuleBuilder updatedModuleBuilder = SerializationUtils.clone(moduleBuilder);
         moduleBuilders = moduleBuilders.stream()
-                .map(existingModuleBuilder -> existingModuleBuilder.equals(updatedModuleBuilder)
+                .map(existingModuleBuilder -> existingModuleBuilder.equalsByKey(updatedModuleBuilder)
                         ? updatedModuleBuilder : existingModuleBuilder)
                 .collect(Collectors.toList());
     }

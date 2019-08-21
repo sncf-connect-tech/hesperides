@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 
 public class GetPlatforms extends HesperidesScenario implements En {
@@ -62,9 +63,14 @@ public class GetPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
-            Boolean hasPasswords = testContext.getResponseBody();
+            Boolean hasPasswords = testContext.getResponseBody(PlatformIO.class).getHasPasswords();
             assertThat(hasPasswords).isNotNull();
             assertEquals("true".equals(trueOrFalse), hasPasswords);
+        });
+
+        Then("^the platform has only one module$", () -> {
+            PlatformIO actualPlatform = testContext.getResponseBody();
+            Assert.assertThat(actualPlatform.getDeployedModules(), hasSize(1));
         });
     }
 }

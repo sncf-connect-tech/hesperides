@@ -31,6 +31,8 @@ import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
+
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hamcrest.Matchers.hasSize;
@@ -62,10 +64,9 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             if (isEmpty(tryTo)) {
                 platformBuilder.withVersionId(1);
                 platformBuilder.withGlobalPropertyVersionId(0);
+                DeployedModuleBuilder.initPropertiesVersionIdTo(12, platformBuilder.getDeployedModuleBuilders());
 
-                if (isEmpty(withoutInstancesOrProperties)) {
-                    DeployedModuleBuilder.initPropertiesVersionIdTo(1, platformBuilder.getDeployedModuleBuilders());
-                } else {
+                if (isNotEmpty(withoutInstancesOrProperties)) {
                     DeployedModuleBuilder.initPropertiesVersionIdTo(0, platformBuilder.getDeployedModuleBuilders());
                     platformBuilder.clearGlobalProperties();
                     DeployedModuleBuilder.clearInstancesAndProperties(platformBuilder.getDeployedModuleBuilders());
@@ -87,6 +88,15 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             PropertiesIO expectedGlobalProperties = platformBuilder.buildProperties();
             PropertiesIO actualGlobalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
             assertEquals(expectedGlobalProperties, actualGlobalProperties);
+        });
+
+        Then("^the platform property values are not copied$", () -> {
+            platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
+                PropertiesIO expectedModuleProperties = new PropertiesIO(1L, Collections.emptySet(), Collections.emptySet());
+                PropertiesIO actualModuleProperties = platformClient.getProperties(
+                        platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+                assertEquals(expectedModuleProperties, actualModuleProperties);
+            });
         });
 
         Then("^the new platform has one module, no instances, no global properties and no module properties$", () -> {

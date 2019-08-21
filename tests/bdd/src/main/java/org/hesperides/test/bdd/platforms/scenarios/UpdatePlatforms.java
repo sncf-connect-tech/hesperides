@@ -21,16 +21,20 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
@@ -46,32 +50,73 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private InstanceBuilder instanceBuilder;
 
     public UpdatePlatforms() {
 
         When("^I( try to)? update this platform" +
-                "(, upgrading its module)?" +
+                "(, upgrading its module(?: to version \"(.*)\")?)?" +
+                "(, adding this module(?: in logical group \"(.*)\")?)?" +
+                "(, adding an instance(?: (and|with) instance properties)?)?" +
                 "( and requiring the copy of properties)?$", (
                 String tryTo,
-                String upgradingItsModule,
+                String upgradeModule,
+                String moduleVersion,
+                String addThisModule,
+                String moduleLogicalGroup,
+                String addAnInstance,
+                String addInstanceProperties,
                 String copyProperties) -> {
 
             platformBuilder.withVersion("1.1");
 
-            if (isNotEmpty(upgradingItsModule)) {
+            if (isNotEmpty(upgradeModule)) {
+                DeployedModuleBuilder existingDeployedModuleBuilder = SerializationUtils.clone(deployedModuleBuilder);
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                if (isNotEmpty(moduleVersion)) {
+                    deployedModuleBuilder.withVersion(moduleVersion);
+                }
+                if (isEmpty(copyProperties)) {
+                    // Je ne comprends pas pourquoi j'ai à faire ça... à étudier
+                    deployedModuleBuilder.withPropertiesVersionId(1);
+                }
+                platformBuilder.replaceDeployedModuleBuilder(existingDeployedModuleBuilder, deployedModuleBuilder);
                 // Ici on part du principe qu'il n'y a qu'un module déployé donc
                 // on le supprime et on ajoute le nouveau. Le mieux aurait été de
                 // détecté quel module a été mis à jour et de le remplacer dynamiquement.
-                platformBuilder.clearDeployedModuleBuilders();
+//                platformBuilder.clearDeployedModuleBuilders();
+//                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            }
+
+            if (isNotEmpty(addThisModule)) {
+                deployedModuleBuilder.reset().fromModuleBuider(moduleBuilder);
+                if (isNotEmpty(moduleLogicalGroup)) {
+                    deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
+                }
                 platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             }
 
-            platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);
+            if (isNotEmpty(addAnInstance)) {
+                if (isNotEmpty(addInstanceProperties)) {
+                    // L'ajout de propriétés d'instance nécessitent qu'elles soient définies dans les valorisations
+                    // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
+                    platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-a", "{{instance-property-a}}");
+                    platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-b", "{{instance-property-b}}");
+                    // à bouger dans SaveProperties ?
+                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                    platformHistory.updatePlatformBuilder(platformBuilder);
 
+                    instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                    instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
+                }
+                platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
+            }
+
+            platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);
             if (StringUtils.isEmpty(tryTo)) {
                 platformHistory.updatePlatformBuilder(platformBuilder);
-
             }
         });
 
@@ -80,6 +125,13 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
             PlatformIO actualPlatform = testContext.getResponseBody();
             assertEquals(expectedPlatform, actualPlatform);
+        });
+
+        Then("^the platform instance model includes these instance properties$", () -> {
+            InstancesModelOutput expectedInstanceModel = platformBuilder.buildInstanceModel();
+            InstancesModelOutput actualInstanceModel = platformClient.getInstancesModel(platformBuilder.buildInput(),
+                    platformBuilder.getDeployedModuleBuilders().get(0).buildPropertiesPath());
+            assertEquals(expectedInstanceModel, actualInstanceModel);
         });
 
 //        Then("^the platform is successfully deleted", this::assertOK);

@@ -3,6 +3,7 @@ Feature: Update platforms
   Background:
     Given an authenticated user
 
+  @done
   Scenario: update an existing platform
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -10,6 +11,7 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are also copied
 
+  @done
   Scenario: update an existing platform, using the released version of a module already there as workingcopy
     Given an existing module with properties
     And an existing platform with this module and valued properties
@@ -18,13 +20,23 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are also copied
 
+  @done
+  Scenario: update an existing platform, using the released version of a module without copying the properties
+    Given an existing module with properties
+    And an existing platform with this module and valued properties
+    And I release this module
+    When I update this platform, upgrading its module
+    Then the platform is successfully updated
+    And the platform property values are not copied
+
+  @done
   Scenario: update an existing platform, adding a module introducing new instance properties
     Given an existing module with properties
     And an existing platform with this module
-    When I update this platform, adding an instance and an instance property
+    When I update this platform, adding an instance and instance properties
     Then the platform is successfully updated
     And the platform property values are also copied
-    And the platform property model includes this instance property
+    And the platform instance model includes these instance properties
 
   Scenario: update an existing platform, with an empty payload
     Given an existing module with properties and global properties

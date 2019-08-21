@@ -42,7 +42,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
     protected String versionType;
     @Getter
     private List<TemplateBuilder> templateBuilders;
-    protected List<PropertyBuilder> propertyBuilders;
+    private List<PropertyBuilder> propertyBuilders;
 
     protected void reset(String name) {
         this.name = name;
@@ -114,7 +114,7 @@ public abstract class TemplateContainerBuilder implements Serializable {
         return templateBuilders.get(templateBuilders.size() - 1);
     }
 
-    public boolean equals(TemplateContainerBuilder templateContainerBuilder) {
+    public boolean equalsByKey(TemplateContainerBuilder templateContainerBuilder) {
         return name.equals(templateContainerBuilder.getName()) &&
                 version.equals(templateContainerBuilder.getVersion()) &&
                 versionType.equals(templateContainerBuilder.getVersionType());

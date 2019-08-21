@@ -41,7 +41,6 @@ public class UpdateModules extends HesperidesScenario implements En {
             }
 
             moduleClient.updateModule(moduleBuilder.build(), tryTo);
-
             if (isEmpty(tryTo)) {
                 moduleHistory.updateModuleBuilder(moduleBuilder);
             }
