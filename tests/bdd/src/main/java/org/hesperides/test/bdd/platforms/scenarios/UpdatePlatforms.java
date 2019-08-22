@@ -23,6 +23,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -42,7 +43,6 @@ import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class UpdatePlatforms extends HesperidesScenario implements En {
 
@@ -60,7 +60,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private InstanceBuilder instanceBuilder;
 
     @When("^I( try to)? update this platform" +
-            "(?:, upgrading its module version to \"(.*)\")?" +
+            "(?:, (?:upgrading|downgrading) its module version to \"(.*)\")?" +
             "(?:, upgrading its module name to \"(.*)\")?" +
             "(, upgrading its module to the release version)?" +
             "(, adding this module(?: again)?(?: in logical group \"(.*)\")?)?" +
@@ -175,10 +175,14 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
             PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
             Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
-            assertTrue(matchingProperty.isPresent());
+            Assertions.assertThat(matchingProperty).isPresent();
             assertEquals(expectedValue, matchingProperty.get().getValue());
         });
 
-//        Then("^the platform is successfully deleted", this::assertOK);
+        Then("^property \"([^\"]*)\" has no value on the platform$", (String propertyName) -> {
+            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+            Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
+            Assertions.assertThat(matchingProperty).isNotPresent();
+        });
     }
 }

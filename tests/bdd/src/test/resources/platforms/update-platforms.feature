@@ -1,9 +1,9 @@
+@done
 Feature: Update platforms
 
   Background:
     Given an authenticated user
 
-  @done
   Scenario: update an existing platform
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -11,7 +11,6 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are also copied
 
-  @done
   Scenario: update an existing platform, using the released version of a module already there as workingcopy
     Given an existing module with properties
     And an existing platform with this module and valued properties
@@ -20,7 +19,6 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are also copied
 
-  @done
   Scenario: update an existing platform, using the released version of a module without copying the properties
     Given an existing module with properties
     And an existing platform with this module and valued properties
@@ -29,7 +27,6 @@ Feature: Update platforms
     Then the platform is successfully updated
     And the platform property values are not copied
 
-  @done
   Scenario: update an existing platform, adding a module introducing new instance properties
     Given an existing module with properties
     And an existing platform with this module
@@ -38,7 +35,6 @@ Feature: Update platforms
     And the platform property values are also copied
     And the platform instance model includes these instance properties
 
-  @done
   Scenario: update an existing platform clearing the modules
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -48,7 +44,6 @@ Feature: Update platforms
     And the platform has 5 global properties
 
   #data-migration-issue-27
-  @done
   Scenario: remove then restore a module with valued properties from a platform
     Given an existing module with properties
     And an existing platform with this module and valued properties
@@ -58,13 +53,11 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-451
-  @done
   Scenario: update an existing platform, changing the platform version
     Given an existing platform
     When I update this platform, changing the platform version
     Then the platform is successfully updated
 
-  @done
   Scenario: update an existing platform, upgrading a module version and requiring the copy of properties
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -74,7 +67,6 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-469
-  @done
   Scenario: update an existing platform, using the released version of a module already there as workingcopy, and requiring the copy of properties
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -84,7 +76,6 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-472
-  @done
   Scenario: update an existing platform, upgrading a module name and requiring the copy of properties
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -94,7 +85,6 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-481
-  @done
   Scenario: update an existing platform, upgrading a logical group and requiring the copy of properties
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
@@ -103,7 +93,6 @@ Feature: Update platforms
     And the platform property values are also copied
 
   #issue-564
-  @done
   Scenario: restoring properties of a deployed module to a previous version
     Given a module with a property "version" existing in versions: 1, 2, 3
     And an existing platform with this module in version 1 and the property "version" valued accordingly
@@ -123,9 +112,9 @@ Feature: Update platforms
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
     And a copy of this module in version "2.0"
-    And I update this platform, upgrading its module to version "2.0"
-    And I update this platform, downgrading its module to version "1.0"
-    When I update this platform, upgrading its module to version "2.0", and requiring the copy of properties
+    And I update this platform, upgrading its module version to "2.0"
+    And I update this platform, downgrading its module version to "1.0"
+    When I update this platform, upgrading its module version to "2.0" and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
 
@@ -133,7 +122,7 @@ Feature: Update platforms
     Given an existing module with properties and global properties
     And an existing platform with this module and an instance and valued properties and global properties and instance properties
     And a copy of this module in version "2.0"
-    And I update this platform, upgrading its module to version "2.0"
-    And I update this platform, downgrading its module to version "1.0", and requiring the copy of properties
+    And I update this platform, upgrading its module version to "2.0"
+    When I update this platform, downgrading its module version to "1.0" and requiring the copy of properties
     Then the platform is successfully updated
     And the platform property values are also copied
