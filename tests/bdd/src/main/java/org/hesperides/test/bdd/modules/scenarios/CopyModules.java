@@ -29,9 +29,12 @@ public class CopyModules extends HesperidesScenario implements En {
 
     public CopyModules() {
 
-        Given("^a copy of this module(?: in version \"(.*)\")?$", (String copyVersion) -> {
+        Given("^a copy of this module(?: in version \"(.*)\")?(?: using the name \"(.*)\")?$", (String copyVersion, String copyName) -> {
             ModuleIO existingModule = moduleBuilder.build();
             moduleBuilder.withVersion(isNotEmpty(copyVersion) ? copyVersion : "1.1");
+            if (isNotEmpty(copyName)) {
+                moduleBuilder.withName(copyName);
+            }
             copyModule(existingModule, null);
         });
 

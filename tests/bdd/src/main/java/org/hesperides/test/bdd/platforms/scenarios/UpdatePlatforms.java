@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
+import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,72 +54,82 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private InstanceBuilder instanceBuilder;
 
-    public UpdatePlatforms() {
+    @When("^I( try to)? update this platform" +
+            "(, upgrading its module(?: to version \"(.*)\")?)?" +
+            "(, adding this module(?: again)?(?: in logical group \"(.*)\")?)?" +
+            "(, adding an instance(?: (and|with) instance properties)?)?" +
+            "(, clearing the modules)?" +
+            "(, changing the platform version)?" +
+            "( and requiring the copy of properties)?$")
+    public void whenIupdateThisPlatform(
+            String tryTo,
+            String upgradeModule,
+            String moduleVersion,
+            String addThisModule,
+            String moduleLogicalGroup,
+            String addAnInstance,
+            String addInstanceProperties,
+            String clearModules,
+            String changePlatformVersion,
+            String copyProperties) {
 
-        When("^I( try to)? update this platform" +
-                "(, upgrading its module(?: to version \"(.*)\")?)?" +
-                "(, adding this module(?: in logical group \"(.*)\")?)?" +
-                "(, adding an instance(?: (and|with) instance properties)?)?" +
-                "( and requiring the copy of properties)?$", (
-                String tryTo,
-                String upgradeModule,
-                String moduleVersion,
-                String addThisModule,
-                String moduleLogicalGroup,
-                String addAnInstance,
-                String addInstanceProperties,
-                String copyProperties) -> {
-
-            platformBuilder.withVersion("1.1");
-
-            if (isNotEmpty(upgradeModule)) {
-                DeployedModuleBuilder existingDeployedModuleBuilder = SerializationUtils.clone(deployedModuleBuilder);
-                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
-                if (isEmpty(copyProperties)) {
-                    // S'il n'y a pas de copie des propriétés, on conserve le properties_version_id du module mis à jour
-                    deployedModuleBuilder.withPropertiesVersionId(existingDeployedModuleBuilder.getPropertiesVersionId());
-                }
-                if (isNotEmpty(moduleVersion)) {
-                    deployedModuleBuilder.withVersion(moduleVersion);
-                }
-                platformBuilder.replaceDeployedModuleBuilder(existingDeployedModuleBuilder, deployedModuleBuilder);
-                // Ici on part du principe qu'il n'y a qu'un module déployé donc
-                // on le supprime et on ajoute le nouveau. Le mieux aurait été de
-                // détecté quel module a été mis à jour et de le remplacer dynamiquement.
-//                platformBuilder.clearDeployedModuleBuilders();
-//                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+        if (isNotEmpty(upgradeModule)) {
+            DeployedModuleBuilder existingDeployedModuleBuilder = SerializationUtils.clone(deployedModuleBuilder);
+            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            if (isEmpty(copyProperties)) {
+                // S'il n'y a pas de copie des propriétés, on conserve le properties_version_id du module mis à jour
+                deployedModuleBuilder.withPropertiesVersionId(existingDeployedModuleBuilder.getPropertiesVersionId());
             }
-
-            if (isNotEmpty(addThisModule)) {
-                deployedModuleBuilder.reset().fromModuleBuider(moduleBuilder);
-                if (isNotEmpty(moduleLogicalGroup)) {
-                    deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
-                }
-                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            if (isNotEmpty(moduleVersion)) {
+                deployedModuleBuilder.withVersion(moduleVersion);
             }
+            platformBuilder.replaceDeployedModuleBuilder(existingDeployedModuleBuilder, deployedModuleBuilder);
+        }
 
-            if (isNotEmpty(addAnInstance)) {
-                if (isNotEmpty(addInstanceProperties)) {
-                    // L'ajout de propriétés d'instance nécessitent qu'elles soient définies dans les valorisations
-                    // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
-                    platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-a", "{{instance-property-a}}");
-                    platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-b", "{{instance-property-b}}");
-                    // à bouger dans SaveProperties ?
-                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                    platformHistory.updatePlatformBuilder(platformBuilder);
-
-                    instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
-                    instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
-                }
-                platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
+        if (isNotEmpty(addThisModule)) {
+            if (!addThisModule.contains("again")) {
+                deployedModuleBuilder.reset();
             }
+            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            if (isNotEmpty(moduleLogicalGroup)) {
+                deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
+            }
+            platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+        }
 
-            platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);
-            if (StringUtils.isEmpty(tryTo)) {
+        if (isNotEmpty(addAnInstance)) {
+            if (isNotEmpty(addInstanceProperties)) {
+                // L'ajout de propriétés d'instance nécessitent qu'elles soient définies dans les valorisations
+                // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
+                platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-a", "{{instance-property-a}}");
+                platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-b", "{{instance-property-b}}");
+                // à bouger dans SaveProperties ?
+                platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
                 platformHistory.updatePlatformBuilder(platformBuilder);
+
+                instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
             }
-        });
+            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
+        }
+
+        if (isNotEmpty(clearModules)) {
+            platformBuilder.clearDeployedModuleBuilders();
+        }
+
+        if (isNotEmpty(changePlatformVersion)) {
+            platformBuilder.withVersion("1.1");
+        }
+
+        platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);
+
+        if (StringUtils.isEmpty(tryTo)) {
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        }
+    }
+
+    public UpdatePlatforms() {
 
         Then("^the platform is successfully updated$", () -> {
             assertOK();

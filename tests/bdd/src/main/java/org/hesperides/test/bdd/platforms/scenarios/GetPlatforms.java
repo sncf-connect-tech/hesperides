@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
@@ -68,9 +69,14 @@ public class GetPlatforms extends HesperidesScenario implements En {
             assertEquals("true".equals(trueOrFalse), hasPasswords);
         });
 
-        Then("^the platform has only one module$", () -> {
+        Then("^the platform has (\\d+) modules?$", (String expectedNumberOfModules) -> {
             PlatformIO actualPlatform = testContext.getResponseBody();
-            Assert.assertThat(actualPlatform.getDeployedModules(), hasSize(1));
+            Assert.assertThat(actualPlatform.getDeployedModules(), hasSize(Integer.parseInt(expectedNumberOfModules)));
+        });
+
+        Then("^the platform has (\\d+) global properties?$", (String expectedNumberOfGlobalProperties) -> {
+            PropertiesIO globalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
+            Assert.assertThat(globalProperties.getValuedProperties(), hasSize(Integer.parseInt(expectedNumberOfGlobalProperties)));
         });
     }
 }

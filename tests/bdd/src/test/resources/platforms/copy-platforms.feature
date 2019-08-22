@@ -30,7 +30,7 @@ Feature: Copy platforms
     And I update this platform, upgrading its module to version "2.0" and requiring the copy of properties
     When I copy this platform
     Then the platform is successfully copied
-    And the platform has only one module
+    And the platform has 1 module
     And the platform property values are also copied
 
   #issue-634
