@@ -4,7 +4,6 @@ Feature: Copy platforms
   Background:
     Given an authenticated user
 
-  @wip
   Scenario: copy of a platform with its modules and properties
     Given an existing techno with properties and global properties
     And an existing module with properties and global properties and this techno
@@ -24,7 +23,6 @@ Feature: Copy platforms
     Then the platform copy fails with a conflict error
 
   #issue-623
-  @wip
   Scenario: copy of a platform with an history of deployed modules
     And an existing module with properties
     And an existing platform with this module and valued properties

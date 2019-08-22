@@ -64,7 +64,6 @@ public class CopyPlatforms extends HesperidesScenario implements En {
             if (isEmpty(tryTo)) {
                 platformBuilder.withVersionId(1);
                 platformBuilder.withGlobalPropertyVersionId(0);
-                DeployedModuleBuilder.initPropertiesVersionIdTo(12, platformBuilder.getDeployedModuleBuilders());
 
                 if (isNotEmpty(withoutInstancesOrProperties)) {
                     DeployedModuleBuilder.initPropertiesVersionIdTo(0, platformBuilder.getDeployedModuleBuilders());

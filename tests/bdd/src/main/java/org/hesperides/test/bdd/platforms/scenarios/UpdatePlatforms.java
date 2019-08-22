@@ -74,12 +74,12 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             if (isNotEmpty(upgradeModule)) {
                 DeployedModuleBuilder existingDeployedModuleBuilder = SerializationUtils.clone(deployedModuleBuilder);
                 deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                if (isEmpty(copyProperties)) {
+                    // S'il n'y a pas de copie des propriétés, on conserve le properties_version_id du module mis à jour
+                    deployedModuleBuilder.withPropertiesVersionId(existingDeployedModuleBuilder.getPropertiesVersionId());
+                }
                 if (isNotEmpty(moduleVersion)) {
                     deployedModuleBuilder.withVersion(moduleVersion);
-                }
-                if (isEmpty(copyProperties)) {
-                    // Je ne comprends pas pourquoi j'ai à faire ça... à étudier
-                    deployedModuleBuilder.withPropertiesVersionId(1);
                 }
                 platformBuilder.replaceDeployedModuleBuilder(existingDeployedModuleBuilder, deployedModuleBuilder);
                 // Ici on part du principe qu'il n'y a qu'un module déployé donc

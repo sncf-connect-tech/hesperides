@@ -45,6 +45,7 @@ public class DeployedModuleBuilder implements Serializable {
     @Getter
     @Setter
     private Long id;
+    @Getter
     private Long propertiesVersionId;
     private String name;
     private String version;
