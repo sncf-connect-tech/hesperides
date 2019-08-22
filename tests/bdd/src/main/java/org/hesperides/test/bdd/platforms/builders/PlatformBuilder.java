@@ -30,7 +30,10 @@ import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -147,14 +150,7 @@ public class PlatformBuilder implements Serializable {
     }
 
     public InstancesModelOutput buildInstanceModel() {
-        Set<InstancesModelOutput.InstancePropertyOutput> instanceProperties = deployedModuleBuilders.stream()
-                .map(DeployedModuleBuilder::getInstanceBuilders)
-                .flatMap(List::stream)
-                .map(InstanceBuilder::getValuedProperties)
-                .flatMap(Set::stream)
-                .map(valuedProperty -> new InstancesModelOutput.InstancePropertyOutput(valuedProperty.getName()))
-                .collect(Collectors.toSet());
-        return new InstancesModelOutput(instanceProperties);
+        return InstanceBuilder.buildInstanceModel(deployedModuleBuilders, globalProperties);
     }
 
     public void updateDeployedModuleBuilder(DeployedModuleBuilder deployedModuleBuilder) {

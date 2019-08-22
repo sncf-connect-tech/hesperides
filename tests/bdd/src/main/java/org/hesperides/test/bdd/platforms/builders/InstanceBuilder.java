@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.builders;
 
 import lombok.Getter;
 import org.hesperides.core.presentation.io.platforms.InstanceIO;
+import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +49,10 @@ public class InstanceBuilder implements Serializable {
         return this;
     }
 
+    public void withValuedProperty(String name, String value) {
+        valuedProperties.add(new ValuedPropertyIO(name, value));
+    }
+
     public static List<InstanceIO> build(List<InstanceBuilder> instanceBuilders) {
         return instanceBuilders
                 .stream()
@@ -59,7 +64,23 @@ public class InstanceBuilder implements Serializable {
         return new InstanceIO(name, valuedProperties);
     }
 
-    public void withValuedProperty(String name, String value) {
-        valuedProperties.add(new ValuedPropertyIO(name, value));
+    static InstancesModelOutput buildInstanceModel(List<DeployedModuleBuilder> deployedModuleBuilders, List<ValuedPropertyIO> globalProperties) {
+        Set<InstancesModelOutput.InstancePropertyOutput> instanceProperties = deployedModuleBuilders.stream()
+                .map(DeployedModuleBuilder::getInstanceBuilders)
+                .flatMap(List::stream)
+                .map(InstanceBuilder::getValuedProperties)
+                .flatMap(Set::stream)
+                // Une propriété d'instance ne fait pas partie du model d'instance si elle a
+                // le même nom qu'une propriété globale ou qu'une propriété de module (sauf
+                // si la propriété de module se référence elle même...)
+                .filter(instanceProperty -> globalProperties.stream().noneMatch(globalProperty -> globalProperty.getName().equals(instanceProperty.getName())) &&
+                        deployedModuleBuilders.stream()
+                                .map(DeployedModuleBuilder::getValuedProperties)
+                                .flatMap(List::stream)
+                                .noneMatch(moduleProperty -> moduleProperty.getName().equals(instanceProperty.getName()) &&
+                                        !moduleProperty.getValue().equals("{{" + moduleProperty.getName() + "}}")))
+                .map(valuedProperty -> new InstancesModelOutput.InstancePropertyOutput(valuedProperty.getName()))
+                .collect(Collectors.toSet());
+        return new InstancesModelOutput(instanceProperties);
     }
 }

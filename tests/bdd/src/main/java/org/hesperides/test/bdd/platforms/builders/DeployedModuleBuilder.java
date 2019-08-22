@@ -52,6 +52,7 @@ public class DeployedModuleBuilder implements Serializable {
     private String versionType;
     @Getter
     private String modulePath;
+    @Getter
     private List<ValuedPropertyIO> valuedProperties;
     private List<IterableValuedPropertyIO> iterableValuedProperties;
     @Getter

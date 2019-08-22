@@ -1,4 +1,4 @@
-package oldplatformscenarios;
+package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;

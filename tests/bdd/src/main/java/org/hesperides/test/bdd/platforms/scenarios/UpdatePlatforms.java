@@ -108,8 +108,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             if (isNotEmpty(addInstanceProperties)) {
                 // L'ajout de propriétés d'instance nécessitent qu'elles soient définies dans les valorisations
                 // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
-                platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-a", "{{instance-property-a}}");
-                platformBuilder.getDeployedModuleBuilders().get(0).withValuedProperty("module-property-b", "{{instance-property-b}}");
+                deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
+                deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
                 // à bouger dans SaveProperties ?
                 platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
                 platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
@@ -118,6 +118,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
                 instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
             }
+            // J'utilise get(0) pour ne pas appeler dMB.withInstanceBuilder puis platformBuilder.updateDMB
+            // qui incrémente le propertiesVersionId mais c'est à revoir
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
         }
 

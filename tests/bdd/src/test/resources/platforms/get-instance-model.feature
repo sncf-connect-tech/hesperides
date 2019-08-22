@@ -1,3 +1,4 @@
+@done
 Feature: Get instance model
 
   Background:
@@ -5,14 +6,14 @@ Feature: Get instance model
 
   Scenario: get a platform module instance model
     Given an existing module with properties
-    And an existing platform with this module and an instance and instance properties
+    And an existing platform with this module and an instance with instance properties
     When I get the instance model
     Then the instance model is successfully retrieved
 
   Scenario: get instance properties with an instance property name that is the same as a global property name
     Given an existing module with properties
     And an existing platform with this module and an instance
-    And the platform has instance properties with the same name as a global property
+    And the platform has an instance property with the same name as a global property
     When I get the instance model
     Then the instance model is successfully retrieved
 
@@ -43,6 +44,6 @@ Feature: Get instance model
   Scenario: get one instance property when it's been declared more than once
     Given an existing module with properties
     And an existing platform with this module and an instance
-    And the platform has an instance property declared twice
+    And the platform has an instance property declared in two different module properties
     When I get the instance model
     Then the instance model is successfully retrieved
