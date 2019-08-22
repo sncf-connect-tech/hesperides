@@ -71,8 +71,16 @@ public class DeployedModuleBuilder implements Serializable {
         return this;
     }
 
+    public void withName(String name) {
+        this.name = name;
+    }
+
     public void withVersion(String version) {
         this.version = version;
+    }
+
+    public void withVersionType(String versionType) {
+        this.versionType = versionType;
     }
 
     public void withModulePath(String modulePath) {
@@ -87,7 +95,13 @@ public class DeployedModuleBuilder implements Serializable {
         valuedProperties.add(new ValuedPropertyIO(name, value));
     }
 
-    public void withPropertiesVersionId(long propertiesVersionId) {
+    public void updateValuedProperty(String name, String value) {
+        valuedProperties = valuedProperties.stream()
+                .map(valuedProperty -> valuedProperty.getName().equals(name) ? new ValuedPropertyIO(name, value) : valuedProperty)
+                .collect(Collectors.toList());
+    }
+
+    private void withPropertiesVersionId(long propertiesVersionId) {
         this.propertiesVersionId = propertiesVersionId;
     }
 

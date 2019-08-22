@@ -11,6 +11,7 @@ import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -208,6 +209,16 @@ public class CreateModules extends HesperidesScenario implements En {
             if (isNotEmpty(withoutVersionType)) {
                 moduleBuilder.withVersionType(null);
             }
+        });
+
+        Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$", (String propertyName, String versions) -> {
+            Arrays.stream(versions.split(", ")).forEach(version -> {
+                moduleBuilder.reset();
+                addPropertyToBuilders(propertyName);
+                moduleBuilder.withVersion(version);
+                createModule();
+                addTemplateToModule();
+            });
         });
 
         When("^I( try to)? create this module$", (String tryTo) -> createModule(tryTo));

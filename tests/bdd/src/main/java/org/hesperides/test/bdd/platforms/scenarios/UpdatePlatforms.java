@@ -22,10 +22,11 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -33,11 +34,15 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import java.util.Arrays;
+import java.util.Optional;
+
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UpdatePlatforms extends HesperidesScenario implements En {
 
@@ -55,7 +60,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private InstanceBuilder instanceBuilder;
 
     @When("^I( try to)? update this platform" +
-            "(, upgrading its module(?: to version \"(.*)\")?)?" +
+            "(?:, upgrading its module version to \"(.*)\")?" +
+            "(?:, upgrading its module name to \"(.*)\")?" +
+            "(, upgrading its module to the release version)?" +
             "(, adding this module(?: again)?(?: in logical group \"(.*)\")?)?" +
             "(, adding an instance(?: (and|with) instance properties)?)?" +
             "(, clearing the modules)?" +
@@ -63,8 +70,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "( and requiring the copy of properties)?$")
     public void whenIupdateThisPlatform(
             String tryTo,
-            String upgradeModule,
-            String moduleVersion,
+            String newModuleVersion,
+            String newModuleName,
+            String upgradeModuleToRelease,
             String addThisModule,
             String moduleLogicalGroup,
             String addAnInstance,
@@ -73,17 +81,16 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String changePlatformVersion,
             String copyProperties) {
 
-        if (isNotEmpty(upgradeModule)) {
-            DeployedModuleBuilder existingDeployedModuleBuilder = SerializationUtils.clone(deployedModuleBuilder);
-            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
-            if (isEmpty(copyProperties)) {
-                // S'il n'y a pas de copie des propriétés, on conserve le properties_version_id du module mis à jour
-                deployedModuleBuilder.withPropertiesVersionId(existingDeployedModuleBuilder.getPropertiesVersionId());
-            }
-            if (isNotEmpty(moduleVersion)) {
-                deployedModuleBuilder.withVersion(moduleVersion);
-            }
-            platformBuilder.replaceDeployedModuleBuilder(existingDeployedModuleBuilder, deployedModuleBuilder);
+        if (isNotEmpty(newModuleVersion)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersion(newModuleVersion);
+        }
+
+        if (isNotEmpty(newModuleName)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).withName(newModuleName);
+        }
+
+        if (isNotEmpty(upgradeModuleToRelease)) {
+            platformBuilder.getDeployedModuleBuilders().get(0).withVersionType(VersionType.RELEASE);
         }
 
         if (isNotEmpty(addThisModule)) {
@@ -131,6 +138,26 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
+        When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)" +
+                "(?: updating the value of the \"(.+)\" property accordingly)?$", (
+                String moduleVersions, String propertyName) -> {
+
+            Arrays.stream(moduleVersions.split(", ")).forEach(moduleVersion -> {
+
+                platformBuilder.getDeployedModuleBuilders().get(0).withVersion(moduleVersion);
+                deployedModuleBuilder.withVersion(moduleVersion);
+                platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+                platformHistory.updatePlatformBuilder(platformBuilder);
+
+                if (isNotEmpty(propertyName)) {
+                    deployedModuleBuilder.updateValuedProperty(propertyName, moduleVersion);
+                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                    platformHistory.updatePlatformBuilder(platformBuilder);
+                }
+            });
+        });
+
         Then("^the platform is successfully updated$", () -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();
@@ -143,6 +170,13 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             InstancesModelOutput actualInstanceModel = platformClient.getInstancesModel(platformBuilder.buildInput(),
                     platformBuilder.getDeployedModuleBuilders().get(0).buildPropertiesPath());
             assertEquals(expectedInstanceModel, actualInstanceModel);
+        });
+
+        Then("^property \"([^\"]*)\" has for value \"([^\"]*)\" on the platform$", (String propertyName, String expectedValue) -> {
+            PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+            Optional<ValuedPropertyIO> matchingProperty = actualProperties.getValuedProperties().stream().filter(property -> property.getName().equals(propertyName)).findFirst();
+            assertTrue(matchingProperty.isPresent());
+            assertEquals(expectedValue, matchingProperty.get().getValue());
         });
 
 //        Then("^the platform is successfully deleted", this::assertOK);

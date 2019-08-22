@@ -165,6 +165,20 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withPlatformName("doesn-t-exist");
         });
 
+        Given("^an existing platform with this module in version (.+) and the property \"([^\"]*)\" valued accordingly$", (
+                String moduleVersion, String propertyName) -> {
+
+            moduleBuilder.withVersion(moduleVersion);
+            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            createPlatform();
+
+            deployedModuleBuilder.withValuedProperty(propertyName, moduleVersion);
+            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        });
+
         When("^I( try to)? create this platform$", (String tryTo) -> {
             createPlatform(tryTo);
         });
