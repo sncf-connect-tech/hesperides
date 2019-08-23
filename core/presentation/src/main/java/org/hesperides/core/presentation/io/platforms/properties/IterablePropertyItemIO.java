@@ -32,12 +32,13 @@ import org.hesperides.core.domain.platforms.queries.views.properties.IterableVal
 import org.hesperides.core.domain.platforms.queries.views.properties.ValuedPropertyView;
 
 import javax.validation.Valid;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
-public class IterablePropertyItemIO {
+public class IterablePropertyItemIO implements Serializable {
 
     String title;
 

@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.When;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
@@ -139,6 +140,19 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     }
 
     public UpdatePlatforms() {
+
+        // à bouger dans SaveProperties ?
+        Given("^the platform(?: \"([^\"]+)\")? has these valued properties$", (String platformName, DataTable data) -> {
+            if (isNotEmpty(platformName)) {
+                // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
+                assertEquals(platformName, platformBuilder.getPlatformName());
+            }
+            deployedModuleBuilder.withValuedProperties(data.asList(ValuedPropertyIO.class));
+            // à bouger dans SaveProperties ?
+            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        });
 
         When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)" +
                 "(?: updating the value of the \"(.+)\" property accordingly)?$", (

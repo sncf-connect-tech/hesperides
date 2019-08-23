@@ -1,3 +1,4 @@
+@done
 Feature: Search platforms
 
   Background:

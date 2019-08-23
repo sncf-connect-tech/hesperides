@@ -22,6 +22,9 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
+import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
@@ -30,6 +33,8 @@ import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Arrays;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -61,6 +66,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 "(?: in logical group \"(.*)\")?" +
                 "( (?:and|with) an instance)?" +
                 "( (?:and|with) valued properties)?" +
+                "( (?:and|with) iterable properties)?" +
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) instance properties)?$", (
                 String platformName,
@@ -68,6 +74,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 String moduleLogicalGroup,
                 String withAnInstance,
                 String withValuedProperties,
+                String withIterableProperties,
                 String withGlobalProperties,
                 String withInstanceProperties) -> {
 
@@ -97,6 +104,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
                     deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
                 }
+                if (isNotEmpty(withIterableProperties)) {
+                    //à bouger dans SaveProperties ?
+                    deployedModuleBuilder.withIterableProperties(new IterableValuedPropertyIO("iterable-property", Arrays.asList(new IterablePropertyItemIO("item", Arrays.asList(new ValuedPropertyIO("property-name", "property-value"))))));
+                }
                 platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             }
 
@@ -114,7 +125,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 platformHistory.updatePlatformBuilder(platformBuilder);
             }
 
-            if (isNotEmpty(withValuedProperties) || isNotEmpty(withInstanceProperties)) {
+            if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties)) {
                 // à bouger dans SaveProperties ?
                 platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
                 platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
