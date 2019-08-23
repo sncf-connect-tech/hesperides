@@ -76,6 +76,7 @@ public class CopyPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform property values are(?: also)? copied$", () -> {
+            //à bouger dans GetProperties
             // Propriétés valorisées au niveau des modules
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
                 PropertiesIO expectedModuleProperties = deployedModuleBuilder.buildProperties();

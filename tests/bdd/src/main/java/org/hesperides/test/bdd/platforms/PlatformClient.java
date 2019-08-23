@@ -239,13 +239,19 @@ public class PlatformClient {
     }
 
     public void restorePlatform(PlatformIO platformInput, String tryTo) {
-        restTemplate.exchange(
+        restTemplate.postForEntity(
                 "/applications/{application_name}/platforms/{platform_name}/restore",
-                HttpMethod.POST,
                 null,
                 getResponseType(tryTo, PlatformIO.class),
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
+//        restTemplate.exchange(
+//                "/applications/{application_name}/platforms/{platform_name}/restore",
+//                HttpMethod.POST,
+//                null,
+//                getResponseType(tryTo, PlatformIO.class),
+//                platformInput.getApplicationName(),
+//                platformInput.getPlatformName());
     }
 
     public void getAllApplications() {

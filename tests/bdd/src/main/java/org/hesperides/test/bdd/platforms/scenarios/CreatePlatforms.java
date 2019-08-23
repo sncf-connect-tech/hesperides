@@ -52,8 +52,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
     public CreatePlatforms() {
 
-        //TODO Tenter de factoriser les étapes existing platform et platforml to create
-        // extraire et factoriser la sauvegarde de propriétés dans SaveProperties
+        //TODO Tenter de factoriser les étapes existing platform et platform to create si c'est possible
+        //TODO Extraire et factoriser la sauvegarde de propriétés dans SaveProperties
 
         Given("^an existing platform" +
                 "(?: named \"(.*)\")?" +
