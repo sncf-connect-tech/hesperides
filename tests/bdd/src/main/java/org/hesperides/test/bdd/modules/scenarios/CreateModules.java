@@ -252,7 +252,7 @@ public class CreateModules extends HesperidesScenario implements En {
     }
 
     private void extractPropertyToBuilders(String input) {
-        propertyBuilder.extractProperties(input).forEach(this::addPropertyToBuilders);
+        PropertyBuilder.extractProperties(input).forEach(this::addPropertyToBuilders);
     }
 
     private void addPropertyToBuilders(String name) {

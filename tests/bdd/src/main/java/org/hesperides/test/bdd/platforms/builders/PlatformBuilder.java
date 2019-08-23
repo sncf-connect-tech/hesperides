@@ -25,15 +25,18 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
+import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
+import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -162,10 +165,34 @@ public class PlatformBuilder implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    public void replaceDeployedModuleBuilder(DeployedModuleBuilder existingDeployedModuleBuilder, DeployedModuleBuilder updatedDeployedModuleBuilder) {
-        deployedModuleBuilders = deployedModuleBuilders.stream()
-                .map(deployedModuleBuilder -> deployedModuleBuilder.equalsByKey(existingDeployedModuleBuilder)
-                        ? updatedDeployedModuleBuilder : deployedModuleBuilder)
-                .collect(Collectors.toList());
+    public Map<String, Set<GlobalPropertyUsageOutput>> buildGlobalPropertiesUsage(ModuleHistory moduleHistory) {
+        Map<String, Set<GlobalPropertyUsageOutput>> result = new HashMap<>();
+        globalProperties.forEach(globalProperty -> {
+            Set<GlobalPropertyUsageOutput> globalPropertyUsage = new HashSet<>();
+            deployedModuleBuilders.forEach(deployedModuleBuilder -> {
+
+                boolean isFoundInDeployedModulePropertyValues = deployedModuleBuilder.getValuedProperties()
+                        .stream()
+                        .map(ValuedPropertyIO::getValue)
+                        .map(PropertyBuilder::extractProperties)
+                        .flatMap(List::stream)
+                        .anyMatch(property -> property.equals(globalProperty.getName()));
+
+                boolean isFoundInModulePropertyModel = deployedModuleBuilder.findMatchingModuleBuilder(moduleHistory)
+                        .map(ModuleBuilder::buildPropertiesModel)
+                        .map(ModelOutput::getProperties)
+                        .orElseGet(Collections::emptySet)
+                        .stream()
+                        .map(PropertyOutput::getName)
+                        .anyMatch(property -> property.equals(globalProperty.getName()));
+
+                // Dans les propriétés d'instances ?
+                if (isFoundInDeployedModulePropertyValues || isFoundInModulePropertyModel) {
+                    globalPropertyUsage.add(new GlobalPropertyUsageOutput(isFoundInModulePropertyModel, deployedModuleBuilder.buildPropertiesPath()));
+                }
+            });
+            result.put(globalProperty.getName(), globalPropertyUsage);
+        });
+        return result;
     }
 }

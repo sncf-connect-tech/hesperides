@@ -1,3 +1,4 @@
+@done
 Feature: Get global properties usage
 
   Background:
@@ -14,7 +15,7 @@ Feature: Get global properties usage
     Given an existing techno with properties
     And an existing module with properties and this techno
     And an existing platform with this module and global properties
-    And the deployed module properties are valued with the platform global properties
+    And the deployed module has properties with values referencing global properties
     When I get this platform global properties usage
     Then the platform global properties usage is successfully retrieved
 
@@ -22,7 +23,7 @@ Feature: Get global properties usage
     Given an existing techno with properties
     And an existing module with properties and this techno
     And an existing platform with this module and global properties
-    And the deployed module properties are valued with the platform global properties
+    And the deployed module has properties with values referencing global properties
     And the properties are removed from the module
     When I get this platform global properties usage
     Then the platform global properties usage is successfully retrieved

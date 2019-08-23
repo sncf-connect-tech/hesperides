@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 @Component
 public class PropertyBuilder implements Serializable {
 
+    //TODO à nettoyer
+
     private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
 
     private String name;
@@ -175,11 +177,11 @@ public class PropertyBuilder implements Serializable {
     /**
      * Extrait la liste des propriétés qu se trouvent entre moustaches.
      */
-    public List<String> extractProperties(String input) {
+    public static List<String> extractProperties(String input) {
         List<String> properties = new ArrayList<>();
         Matcher matcher = anythingBetweenMustachesPattern.matcher(input);
         while (matcher.find()) {
-            properties.add(matcher.group(1));
+            properties.add(matcher.group(1).trim());
         }
         return properties;
     }

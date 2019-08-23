@@ -154,6 +154,17 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
+        // à bouger dans SaveProperties ?
+        Given("^the deployed module has properties with values referencing global properties$", () -> {
+            deployedModuleBuilder.withValuedProperty("property-a", "{{ global-module-foo }}");
+            deployedModuleBuilder.withValuedProperty("property-b", "{{ global-techno-foo }}");
+            deployedModuleBuilder.withValuedProperty("property-c", "{{ global-filename }} {{ global-location }}");
+            // à bouger dans SaveProperties ?
+            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        });
+
         When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)" +
                 "(?: updating the value of the \"(.+)\" property accordingly)?$", (
                 String moduleVersions, String propertyName) -> {

@@ -29,14 +29,12 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPr
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -118,7 +116,7 @@ public class DeployedModuleBuilder implements Serializable {
         name = moduleBuilder.getName();
         version = moduleBuilder.getVersion();
         versionType = moduleBuilder.getVersionType();
-        propertiesVersionId = 0L;
+        propertiesVersionId = 0L; // Est-ce utile ?
     }
 
     static List<DeployedModuleIO> buildInputs(List<DeployedModuleBuilder> deployedModuleBuilders) {
@@ -203,5 +201,13 @@ public class DeployedModuleBuilder implements Serializable {
                 version.equals(deployedModuleBuilder.version) &&
                 versionType.equals(deployedModuleBuilder.versionType) &&
                 modulePath.equals(deployedModuleBuilder.modulePath);
+    }
+
+    public Optional<ModuleBuilder> findMatchingModuleBuilder(ModuleHistory moduleHistory) {
+        return moduleHistory.getModuleBuilders().stream()
+                .filter(moduleBuilder -> name.equals(moduleBuilder.getName()) &&
+                        version.equals(moduleBuilder.getVersion()) &&
+                        versionType.equals(moduleBuilder.getVersionType()))
+                .findFirst();
     }
 }

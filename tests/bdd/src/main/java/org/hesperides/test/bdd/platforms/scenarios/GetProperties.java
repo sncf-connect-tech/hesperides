@@ -21,12 +21,17 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
+import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
@@ -39,6 +44,8 @@ public class GetProperties extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private ModuleHistory moduleHistory;
 
     public GetProperties() {
 
@@ -62,6 +69,17 @@ public class GetProperties extends HesperidesScenario implements En {
                     ? platformBuilder.buildProperties() : deployedModuleBuilder.buildProperties();
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
             assertEquals(expectedModuleProperties, actualModuleProperties);
+        });
+
+        When("^I get this platform global properties usage$", () -> {
+            platformClient.getGlobalPropertiesUsage(platformBuilder.buildInput());
+        });
+
+        Then("^the platform global properties usage is successfully retrieved$", () -> {
+            assertOK();
+            Map<String, Set<GlobalPropertyUsageOutput>> expectedGlobalPropertiesUsage = platformBuilder.buildGlobalPropertiesUsage(moduleHistory);
+            Map<String, Set<GlobalPropertyUsageOutput>> actualGlobalPropertiesUsage = testContext.getResponseBody();
+            assertEquals(expectedGlobalPropertiesUsage, actualGlobalPropertiesUsage);
         });
     }
 }

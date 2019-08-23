@@ -41,6 +41,12 @@ public class UpdateModuleTemplates extends HesperidesScenario implements En {
 
     public UpdateModuleTemplates() {
 
+        Given("^the properties are removed from the module$", () -> {
+            templateBuilder.setContent("clear");
+            moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build());
+            moduleBuilder.updateTemplateBuilder(templateBuilder);
+        });
+
         When("^I( try to)? update this module template$", (String tryTo) -> {
             moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build(), tryTo);
             moduleBuilder.updateTemplateBuilder(templateBuilder);
