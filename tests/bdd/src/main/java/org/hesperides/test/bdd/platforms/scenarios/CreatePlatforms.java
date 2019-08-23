@@ -179,7 +179,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
-        When("^I( try to)? create this platform$", (String tryTo) -> {
+        When("^I( try to)? create this platform( again)?$", (String tryTo, String again) -> {
+            if (isNotEmpty(again)) {
+                platformBuilder.reset();
+            }
             createPlatform(tryTo);
         });
 

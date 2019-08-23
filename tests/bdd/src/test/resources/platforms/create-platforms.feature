@@ -1,3 +1,4 @@
+@done
 Feature: Create platforms
 
   Background:
@@ -36,7 +37,7 @@ Feature: Create platforms
   Scenario: create a platform after it has been deleted
     Given an existing platform
     And I delete this platform
-    When I create this platform
+    When I create this platform again
     Then the platform is successfully created
 
   Scenario: create a platform with a space character in its version
