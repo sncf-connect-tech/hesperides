@@ -1,5 +1,6 @@
 package org.hesperides.test.bdd.modules.scenarios;
 
+import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -35,86 +36,93 @@ public class CreateModules extends HesperidesScenario implements En {
     @Autowired
     private ReleaseModules releaseModules;
 
+    @Given("^an existing( released)? module" +
+            "(?: named \"([^\"]*)\")?" +
+            "(?: with version \"([^\"]*)\")?" +
+            "( (?:and|with) (?:this|a) template)?" +
+            "( (?:and|with) properties)?" +
+            "( (?:and|with) password properties)?" +
+            "( (?:and|with) global properties)?" +
+            "( (?:and|with) iterable properties)?" +
+            "( (?:and|with) nested iterable properties)?" +
+            "( (?:and|with) this techno)?$")
+    public void givenAnExistingPlatform(
+            String released,
+            String moduleName,
+            String moduleVersion,
+            String withThisTemplate,
+            String withProperties,
+            String withPasswordProperties,
+            String withGlobalProperties,
+            String withIterableProperties,
+            String withNestedIterableProperties,
+            String withThisTechno) {
+
+        moduleBuilder.reset();
+
+        if (isNotEmpty(moduleName)) {
+            moduleBuilder.withName(moduleName);
+        }
+
+        if (isNotEmpty(moduleVersion)) {
+            moduleBuilder.withVersion(moduleVersion);
+        }
+
+        if (isNotEmpty(withThisTechno)) {
+            moduleBuilder.withTechnoBuilder(technoBuilder);
+        }
+
+        createModule();
+
+        if (isNotEmpty(withThisTemplate)) {
+            addTemplatePropertiesToBuilders(templateBuilder);
+        }
+
+        if (isNotEmpty(withProperties)) {
+            addPropertyToBuilders("module-foo");
+            addPropertyToBuilders("module-bar");
+        }
+        if (isNotEmpty(withPasswordProperties)) {
+            propertyBuilder.reset().withName("module-fuzz").withIsPassword();
+            addPropertyToBuilders(propertyBuilder);
+        }
+        if (isNotEmpty(withGlobalProperties)) {
+            addPropertyToBuilders("global-module-foo");
+            addPropertyToBuilders("global-module-bar");
+        }
+        if (isNotEmpty(withIterableProperties)) {
+            propertyBuilder.reset()
+                    .withName("module-foo")
+                    .withProperty(new PropertyBuilder()
+                            .withName("module-bar"));
+            addPropertyToBuilders(propertyBuilder);
+        }
+        if (isNotEmpty(withNestedIterableProperties)) {
+            propertyBuilder.reset()
+                    .withName("module-foo")
+                    .withProperty(new PropertyBuilder()
+                            .withName("module-bar")
+                            .withProperty(new PropertyBuilder()
+                                    .withName("module-foobar")));
+            addPropertyToBuilders(propertyBuilder);
+        }
+
+        if (isNotEmpty(withThisTemplate) ||
+                isNotEmpty(withProperties) ||
+                isNotEmpty(withGlobalProperties) ||
+                isNotEmpty(withPasswordProperties) ||
+                isNotEmpty(withIterableProperties) ||
+                isNotEmpty(withNestedIterableProperties)) {
+            addTemplateToModule();
+        }
+
+        if (isNotEmpty(released)) {
+            releaseModules.releaseModule();
+            assertOK();
+        }
+    }
+
     public CreateModules() {
-
-        Given("^an existing( released)? module" +
-                "(?: named \"(.*)\")?" +
-                "( (?:and|with) (?:this|a) template)?" +
-                "( (?:and|with) properties)?" +
-                "( (?:and|with) password properties)?" +
-                "( (?:and|with) global properties)?" +
-                "( (?:and|with) iterable properties)?" +
-                "( (?:and|with) nested iterable properties)?" +
-                "( (?:and|with) this techno)?$", (
-                String released,
-                String moduleName,
-                String withThisTemplate,
-                String withProperties,
-                String withPasswordProperties,
-                String withGlobalProperties,
-                String withIterableProperties,
-                String withNestedIterableProperties,
-                String withThisTechno) -> {
-
-            moduleBuilder.reset();
-
-            if (isNotEmpty(moduleName)) {
-                moduleBuilder.withName(moduleName);
-            }
-
-            if (isNotEmpty(withThisTechno)) {
-                moduleBuilder.withTechnoBuilder(technoBuilder);
-            }
-
-            createModule();
-
-            if (isNotEmpty(withThisTemplate)) {
-                addTemplatePropertiesToBuilders(templateBuilder);
-            }
-
-            if (isNotEmpty(withProperties)) {
-                addPropertyToBuilders("module-foo");
-                addPropertyToBuilders("module-bar");
-            }
-            if (isNotEmpty(withPasswordProperties)) {
-                propertyBuilder.reset().withName("module-fuzz").withIsPassword();
-                addPropertyToBuilders(propertyBuilder);
-            }
-            if (isNotEmpty(withGlobalProperties)) {
-                addPropertyToBuilders("global-module-foo");
-                addPropertyToBuilders("global-module-bar");
-            }
-            if (isNotEmpty(withIterableProperties)) {
-                propertyBuilder.reset()
-                        .withName("module-foo")
-                        .withProperty(new PropertyBuilder()
-                                .withName("module-bar"));
-                addPropertyToBuilders(propertyBuilder);
-            }
-            if (isNotEmpty(withNestedIterableProperties)) {
-                propertyBuilder.reset()
-                        .withName("module-foo")
-                        .withProperty(new PropertyBuilder()
-                                .withName("module-bar")
-                                .withProperty(new PropertyBuilder()
-                                        .withName("module-foobar")));
-                addPropertyToBuilders(propertyBuilder);
-            }
-
-            if (isNotEmpty(withThisTemplate) ||
-                    isNotEmpty(withProperties) ||
-                    isNotEmpty(withGlobalProperties) ||
-                    isNotEmpty(withPasswordProperties) ||
-                    isNotEmpty(withIterableProperties) ||
-                    isNotEmpty(withNestedIterableProperties)) {
-                addTemplateToModule();
-            }
-
-            if (isNotEmpty(released)) {
-                releaseModules.releaseModule();
-                assertOK();
-            }
-        });
 
         Given("^an existing module with this template content$", (String templateContent) -> {
             // Cette étape est la fusion de `Given a template with the following content` et de

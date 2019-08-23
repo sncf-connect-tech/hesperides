@@ -21,13 +21,19 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +46,12 @@ public class GetPlatforms extends HesperidesScenario implements En {
     private PlatformClient platformClient;
     @Autowired
     private PlatformBuilder platformBuilder;
+    @Autowired
+    private PlatformHistory platformHistory;
+    @Autowired
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     public GetPlatforms() {
 
@@ -77,6 +89,25 @@ public class GetPlatforms extends HesperidesScenario implements En {
         Then("^the platform has (\\d+) global properties?$", (String expectedNumberOfGlobalProperties) -> {
             PropertiesIO globalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
             Assert.assertThat(globalProperties.getValuedProperties(), hasSize(Integer.parseInt(expectedNumberOfGlobalProperties)));
+        });
+
+        // Get platforms using module
+
+        When("^I get the platforms using this module$", () -> {
+            platformClient.getPlatformsUsingModule(moduleBuilder.build());
+        });
+
+        Then("^the platforms using this module are successfully retrieved", () -> {
+            assertOK();
+            List<ModulePlatformsOutput> expectedPlatforms = platformHistory.buildModulePlatforms(deployedModuleBuilder);
+            List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
+            assertEquals(expectedPlatforms, actualPlatforms);
+        });
+
+        Then("^a single platform is retrieved", () -> {
+            assertOK();
+            List<ModulePlatformsOutput> actualPlatforms = testContext.getResponseBodyAsList();
+            Assert.assertThat(actualPlatforms, hasSize(1));
         });
     }
 }

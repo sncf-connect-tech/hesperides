@@ -21,6 +21,8 @@
 package org.hesperides.test.bdd.platforms;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.stereotype.Component;
 
@@ -59,6 +61,15 @@ public class PlatformHistory {
         platformBuilders = platformBuilders.stream()
                 .map(existingPlatformBuilder -> existingPlatformBuilder.equalsByKey(updatedPlatformBuilder)
                         ? updatedPlatformBuilder : existingPlatformBuilder)
+                .collect(Collectors.toList());
+    }
+
+    public List<ModulePlatformsOutput> buildModulePlatforms(DeployedModuleBuilder moduleToLookFor) {
+        return platformBuilders.stream()
+                .filter(platformBuilder -> platformBuilder.getDeployedModuleBuilders()
+                        .stream()
+                        .anyMatch(deployedModuleBuilder -> deployedModuleBuilder.equalsByKey(moduleToLookFor)))
+                .map(platformBuilder -> new ModulePlatformsOutput(platformBuilder.getApplicationName(), platformBuilder.getPlatformName()))
                 .collect(Collectors.toList());
     }
 }
