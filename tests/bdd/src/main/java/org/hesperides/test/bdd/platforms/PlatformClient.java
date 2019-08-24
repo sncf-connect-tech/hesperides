@@ -165,7 +165,11 @@ public class PlatformClient {
     }
 
     public void updateGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
-        updateProperties(platform, propertiesInput, "#");
+        updateProperties(platform, propertiesInput, "#", null);
+    }
+
+    public void updateGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput, String tryTo) {
+        updateProperties(platform, propertiesInput, "#", tryTo);
     }
 
     public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {

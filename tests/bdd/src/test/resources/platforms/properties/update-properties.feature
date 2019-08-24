@@ -1,3 +1,4 @@
+@done
 Feature: Update properties (new way)
 
   Background:
@@ -23,27 +24,29 @@ Feature: Update properties (new way)
     Given an existing module
     And an existing platform with this module and valued properties
     When I try to update the module properties and then the platform using the same platform version_id
-    Then the platform update is rejected with a conflict error
+    Then the request is rejected with a conflict error
 
   Scenario: reject updating properties of the same module twice with the same version id
     Given an existing module
     And an existing platform with this module and valued properties
     When I try to update the properties of this module twice with the same properties version_id
-    Then the properties update is rejected with a conflict error
+    Then the request is rejected with a conflict error
 
-  Scenario: an update of a platform after an update of properties should not impact the properties version_id
+  Scenario: updating a platform after updating its properties should not impact the properties version_id
     Given an existing module
     And an existing platform with this module and valued properties
+    And I update the properties
     When I update this platform
-    Then the properties versionId should stay the same
+    Then the platform is successfully updated
+    And the properties versionId should stay the same
 
   Scenario: fail trying update global properties simultaneously
     Given an existing platform with global properties
     When I try to update global properties twice with the same global properties version_id
-    Then the properties update is rejected with a conflict error
+    Then the request is rejected with a conflict error
 
-  Scenario: should fail when trying to update properties with wrong platform_version_id use and without properties_version_id (old school update)
+  Scenario: update properties with wrong platform_version_id
     Given an existing module
     And an existing platform with this module and valued properties
-    When I try to update the properties with wrong platform_version_id and without properties_version_id
-    Then the properties update is rejected with a conflict error
+    When I update the properties with wrong platform_version_id
+    And the properties are successfully updated

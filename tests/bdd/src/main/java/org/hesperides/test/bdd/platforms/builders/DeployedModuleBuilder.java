@@ -162,6 +162,10 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     public PropertiesIO buildProperties() {
+        return buildProperties(propertiesVersionId);
+    }
+
+    public PropertiesIO buildProperties(Long propertiesVersionId) {
         return new PropertiesIO(propertiesVersionId, new HashSet<>(valuedProperties), new HashSet<>(iterableProperties));
     }
 

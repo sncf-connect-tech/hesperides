@@ -23,6 +23,8 @@ public class CommonSteps extends HesperidesScenario implements En {
 
         Then("^the request is rejected with a forbidden error$", this::assertForbidden);
 
+        Then("^the request is rejected with a conflict error$", this::assertConflict);
+
         Then("^an empty list is returned$", () -> {
             assertOK();
             assertEquals(0, testContext.getResponseBodyArrayLength());

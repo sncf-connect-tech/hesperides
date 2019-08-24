@@ -52,6 +52,7 @@ public class PlatformBuilder implements Serializable {
     private List<DeployedModuleBuilder> deployedModuleBuilders;
     @Getter
     private Long versionId;
+    @Getter
     private Long globalPropertiesVersionId;
     private List<ValuedPropertyIO> globalProperties;
 
@@ -134,6 +135,10 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PropertiesIO buildProperties() {
+        return buildProperties(globalPropertiesVersionId);
+    }
+
+    public PropertiesIO buildProperties(Long globalPropertiesVersionId) {
         return new PropertiesIO(globalPropertiesVersionId, new HashSet<>(globalProperties), Collections.emptySet());
     }
 

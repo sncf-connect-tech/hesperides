@@ -124,4 +124,7 @@ Feature: Save properties the old way
       | property | value |
     Then the properties are successfully saved
 
-  Scenario: save properties of 2 modules of the same platform simultaneously ?
+  Scenario: save properties of 2 modules of the same platform simultaneously should fail
+    #Est-ce qu'il ne faudrait pas ne pas passer les properties_version_id pour tester la rétrocompatibilité ?
+
+  Scenario: save global properties
