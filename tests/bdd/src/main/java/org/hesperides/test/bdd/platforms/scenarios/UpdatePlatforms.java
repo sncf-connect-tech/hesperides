@@ -40,6 +40,7 @@ import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -142,16 +143,36 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     public UpdatePlatforms() {
 
         // à bouger dans SaveProperties ?
-        Given("^the platform(?: \"([^\"]+)\")? has these valued properties$", (String platformName, DataTable data) -> {
+        Given("^the platform(?: \"([^\"]+)\")? has these (valued|global|instance)? properties$", (
+                String platformName, String valuedGlobalOrInstanceProperties, DataTable data) -> {
+
             if (isNotEmpty(platformName)) {
                 // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
                 assertEquals(platformName, platformBuilder.getPlatformName());
             }
-            deployedModuleBuilder.withValuedProperties(data.asList(ValuedPropertyIO.class));
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+
+            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+            if (valuedGlobalOrInstanceProperties.contains("global")) {
+                platformBuilder.withGlobalProperties(valuedProperties);
+                // à bouger dans SaveProperties ?
+                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
+                platformBuilder.incrementGlobalPropertiesVersionId();
+                platformHistory.updatePlatformBuilder(platformBuilder);
+
+            } else if (valuedGlobalOrInstanceProperties.contains("instance")) {
+                instanceBuilder.reset().withValuedProperties(valuedProperties);
+                deployedModuleBuilder.updateOrAddInstanceBuilder(instanceBuilder);
+                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                platformClient.updatePlatform(platformBuilder.buildInput(), true, null);
+                platformHistory.updatePlatformBuilder(platformBuilder);
+
+            } else {
+                deployedModuleBuilder.withValuedProperties(valuedProperties);
+                // à bouger dans SaveProperties ?
+                platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                platformHistory.updatePlatformBuilder(platformBuilder);
+            }
         });
 
         // à bouger dans SaveProperties ?
@@ -173,7 +194,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
                 platformBuilder.getDeployedModuleBuilders().get(0).withVersion(moduleVersion);
                 deployedModuleBuilder.withVersion(moduleVersion);
-                platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+                platformClient.updatePlatform(platformBuilder.buildInput());
                 platformHistory.updatePlatformBuilder(platformBuilder);
 
                 if (isNotEmpty(propertyName)) {

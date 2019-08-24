@@ -37,7 +37,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
             instanceBuilder.withValuedProperty("global-property", "instance-property-value");
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
             // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+            platformClient.updatePlatform(platformBuilder.buildInput());
             platformHistory.updatePlatformBuilder(platformBuilder);
 
             platformBuilder.withGlobalProperty("global-property", "global-value");
@@ -58,7 +58,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
             instanceBuilder.withValuedProperty("module-property-b", "instance-property-value");
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
             // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+            platformClient.updatePlatform(platformBuilder.buildInput());
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
@@ -72,7 +72,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
             instanceBuilder.withValuedProperty("module-property", "instance-property-value");
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
             // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+            platformClient.updatePlatform(platformBuilder.buildInput());
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
@@ -87,7 +87,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
             instanceBuilder.withValuedProperty("instance-property-b", "instance-value-b");
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
             // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+            platformClient.updatePlatform(platformBuilder.buildInput());
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
@@ -102,7 +102,7 @@ public class GetInstancesModel extends HesperidesScenario implements En {
             instanceBuilder.withValuedProperty("instance-property", "instance-value");
             platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
             // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput(), false, null);
+            platformClient.updatePlatform(platformBuilder.buildInput());
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 

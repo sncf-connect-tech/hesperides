@@ -72,4 +72,14 @@ public class PlatformHistory {
                 .map(platformBuilder -> new ModulePlatformsOutput(platformBuilder.getApplicationName(), platformBuilder.getPlatformName()))
                 .collect(Collectors.toList());
     }
+
+    public PlatformBuilder getPlatformByName(String platformName) {
+        List<PlatformBuilder> matchingPlatforms = platformBuilders.stream()
+                .filter(platformBuilder -> platformBuilder.getPlatformName().equals(platformName))
+                .collect(Collectors.toList());
+        if (matchingPlatforms.size() != 1) {
+            throw new RuntimeException("Incorrect matching platforms count: " + matchingPlatforms.size());
+        }
+        return matchingPlatforms.get(0);
+    }
 }

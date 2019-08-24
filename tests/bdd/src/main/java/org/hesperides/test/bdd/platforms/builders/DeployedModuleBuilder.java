@@ -95,7 +95,7 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     public void withValuedProperties(List<ValuedPropertyIO> valuedProperties) {
-        this.valuedProperties.addAll(valuedProperties);
+        this.valuedProperties = new ArrayList<>(valuedProperties);
     }
 
     public void updateValuedProperty(String name, String value) {
@@ -109,7 +109,7 @@ public class DeployedModuleBuilder implements Serializable {
     }
 
     public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
-        this.iterableProperties.addAll(iterableProperties);
+        this.iterableProperties = new ArrayList<>(iterableProperties);
     }
 
     private void withPropertiesVersionId(long propertiesVersionId) {
@@ -217,5 +217,18 @@ public class DeployedModuleBuilder implements Serializable {
                         version.equals(moduleBuilder.getVersion()) &&
                         versionType.equals(moduleBuilder.getVersionType()))
                 .findFirst();
+    }
+
+    public void updateOrAddInstanceBuilder(InstanceBuilder instanceBuilder) {
+
+        if (instanceBuilders.stream().anyMatch(existingInstanceBuilder ->
+                existingInstanceBuilder.getName().equals(instanceBuilder.getName()))) {
+            instanceBuilders = instanceBuilders.stream()
+                    .map(existingInstanceBuilder -> existingInstanceBuilder.getName().equals(instanceBuilder.getName())
+                            ? instanceBuilder : existingInstanceBuilder)
+                    .collect(Collectors.toList());
+        } else {
+            instanceBuilders.add(instanceBuilder);
+        }
     }
 }

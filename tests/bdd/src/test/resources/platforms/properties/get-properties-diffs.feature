@@ -1,3 +1,4 @@
+@done
 Feature: Get properties diffs
 
   Background:

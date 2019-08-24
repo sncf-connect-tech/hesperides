@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @Component
 public class InstanceBuilder implements Serializable {
 
+    @Getter
     private String name;
     @Getter
     private Set<ValuedPropertyIO> valuedProperties;
@@ -51,6 +52,10 @@ public class InstanceBuilder implements Serializable {
 
     public void withValuedProperty(String name, String value) {
         valuedProperties.add(new ValuedPropertyIO(name, value));
+    }
+
+    public void withValuedProperties(List<ValuedPropertyIO> valuedProperties) {
+        this.valuedProperties = new HashSet<>(valuedProperties);
     }
 
     public static List<InstanceIO> build(List<InstanceBuilder> instanceBuilders) {

@@ -52,14 +52,6 @@ public class SaveProperties extends HesperidesScenario implements En {
 
     public SaveProperties() {
 
-        When("^the platform has these global properties$", (DataTable data) -> {
-            platformBuilder.withGlobalProperties(data.asList(ValuedPropertyIO.class));
-            // à bouger dans SaveProperties ?
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-            platformBuilder.incrementGlobalPropertiesVersionId();
-            platformHistory.updatePlatformBuilder(platformBuilder);
-        });
-
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
             deployedModuleBuilder.withValuedProperties(data.asList(ValuedPropertyIO.class));
             // à bouger dans SaveProperties ?
