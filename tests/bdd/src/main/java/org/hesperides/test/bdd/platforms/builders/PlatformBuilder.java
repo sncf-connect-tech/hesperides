@@ -54,6 +54,7 @@ public class PlatformBuilder implements Serializable {
     private Long versionId;
     @Getter
     private Long globalPropertiesVersionId;
+    @Getter
     private List<ValuedPropertyIO> globalProperties;
 
     public PlatformBuilder() {
@@ -209,5 +210,21 @@ public class PlatformBuilder implements Serializable {
             result.put(globalProperty.getName(), globalPropertyUsage);
         });
         return result;
+    }
+
+    public List<ValuedPropertyIO> getAllModuleProperties() {
+        return deployedModuleBuilders.stream()
+                .map(DeployedModuleBuilder::getValuedProperties)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    public List<ValuedPropertyIO> getAllInstanceProperties() {
+        return deployedModuleBuilders.stream()
+                .map(DeployedModuleBuilder::getInstanceBuilders)
+                .flatMap(List::stream)
+                .map(InstanceBuilder::getValuedProperties)
+                .flatMap(Set::stream)
+                .collect(Collectors.toList());
     }
 }

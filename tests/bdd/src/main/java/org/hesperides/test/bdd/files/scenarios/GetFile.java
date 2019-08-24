@@ -22,14 +22,12 @@ package org.hesperides.test.bdd.files.scenarios;
 
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.ModuleIO;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
-import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -48,37 +46,33 @@ public class GetFile extends HesperidesScenario implements En {
     @Autowired
     private FileClient fileClient;
     @Autowired
-    private OldPlatformBuilder oldPlatformBuilder;
+    private PlatformBuilder oldPlatformBuilder;
     @Autowired
-    private OldModuleBuilder moduleBuilder;
+    private ModuleBuilder moduleBuilder;
     @Autowired
     private TemplateBuilder templateBuilder;
 
     public GetFile() {
 
         When("^I( try to)? get the (instance|module)? template file$", (String tryTo, String instanceOrModule) -> {
-            PlatformIO platform = oldPlatformBuilder.buildInput();
-            ModuleIO module = moduleBuilder.build();
-            TemplateIO template = templateBuilder.build();
 
-            Optional<DeployedModuleIO> deployedModule = CollectionUtils.isEmpty(platform.getDeployedModules())
-                    ? Optional.empty() : Optional.of(platform.getDeployedModules().get(0));
-            String modulePath = deployedModule.map(DeployedModuleIO::getModulePath).orElse("anything");
+            Optional<DeployedModuleBuilder> deployedModuleBuilder = CollectionUtils.isEmpty(oldPlatformBuilder.getDeployedModuleBuilders())
+                    ? Optional.empty() : Optional.of(oldPlatformBuilder.getDeployedModuleBuilders().get(0));
+            String modulePath = deployedModuleBuilder.map(DeployedModuleBuilder::getModulePath).orElse("anything");
             boolean simulate = "module".equals(instanceOrModule);
-            String instanceName = getInstanceName(deployedModule, simulate);
+            String instanceName = getInstanceName(deployedModuleBuilder, simulate);
 
-            testContext.setResponseEntity(fileClient.getFile(
-                    platform.getApplicationName(),
-                    platform.getPlatformName(),
+            fileClient.getFile(
+                    oldPlatformBuilder.getApplicationName(),
+                    oldPlatformBuilder.getPlatformName(),
                     modulePath,
-                    module.getName(),
-                    module.getVersion(),
+                    moduleBuilder.getName(),
+                    moduleBuilder.getVersion(),
                     instanceName,
-                    template.getName(),
-                    module.getIsWorkingCopy(),
-                    moduleBuilder.getNamespace(),
-                    simulate,
-                    HesperidesScenario.getResponseType(tryTo, String.class)));
+                    templateBuilder.getName(),
+                    VersionType.toIsWorkingCopy(moduleBuilder.getVersionType()), // Dans ModuleBuilder ?
+                    templateBuilder.getNamespace(),
+                    simulate);
         });
 
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
@@ -98,9 +92,9 @@ public class GetFile extends HesperidesScenario implements En {
         });
     }
 
-    private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {
-        return deployedModule.isPresent() && !CollectionUtils.isEmpty(deployedModule.get().getInstances()) && !simulate
-                ? deployedModule.get().getInstances().get(0).getName()
+    private String getInstanceName(Optional<DeployedModuleBuilder> deployedModuleBuilder, boolean simulate) {
+        return deployedModuleBuilder.isPresent() && !CollectionUtils.isEmpty(deployedModuleBuilder.get().getInstanceBuilders()) && !simulate
+                ? deployedModuleBuilder.get().getInstanceBuilders().get(0).getName()
                 : "anything";
     }
 }

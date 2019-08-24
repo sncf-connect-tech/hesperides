@@ -176,7 +176,7 @@ Feature: Get file
       """
       {{#module-foo}}{{#module-bar}}{{module-foobar}}{{/module-bar}}{{/module-foo}}
       """
-    And an existing platform with this module and iterable-ception
+    And an existing platform with this module and nested iterable properties
     When I get the module template file
     Then the file is successfully retrieved and contains
     """

@@ -30,8 +30,8 @@ import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO
 import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.files.FileClient;
-import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -54,11 +56,11 @@ public class GetFiles extends HesperidesScenario implements En {
     @Autowired
     private FileClient fileClient;
     @Autowired
-    private OldPlatformBuilder oldPlatformBuilder;
+    private PlatformBuilder platformBuilder;
     @Autowired
     private TechnoBuilder technoBuilder;
     @Autowired
-    private OldModuleBuilder moduleBuilder;
+    private ModuleBuilder moduleBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
 
@@ -66,8 +68,10 @@ public class GetFiles extends HesperidesScenario implements En {
 
     public GetFiles() {
 
-        When("^I( try to)? get the (instance|module)? files(?: in the logical group \"(.*)\")?$", (String tryTo, String instanceOrModule, String logicalGroup) -> {
-            PlatformIO platform = oldPlatformBuilder.buildInput();
+        When("^I( try to)? get the (instance|module)? files(?: in the logical group \"(.*)\")?$", (
+                String tryTo, String instanceOrModule, String logicalGroup) -> {
+
+            PlatformIO platform = platformBuilder.buildInput();
             ModuleIO module = moduleBuilder.build();
 
             Optional<DeployedModuleIO> deployedModule = getDeployedModule(platform, logicalGroup);
@@ -75,7 +79,7 @@ public class GetFiles extends HesperidesScenario implements En {
             boolean simulate = "module".equals(instanceOrModule);
             String instanceName = getInstanceName(deployedModule, simulate);
 
-            testContext.setResponseEntity(fileClient.getFiles(
+            fileClient.getFiles(
                     platform.getApplicationName(),
                     platform.getPlatformName(),
                     modulePath,
@@ -84,7 +88,7 @@ public class GetFiles extends HesperidesScenario implements En {
                     instanceName,
                     module.getIsWorkingCopy(),
                     simulate,
-                    HesperidesScenario.getResponseType(tryTo, InstanceFileOutput[].class)));
+                    tryTo);
 
             expectedFiles = new ArrayList<>();
             technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
@@ -92,8 +96,10 @@ public class GetFiles extends HesperidesScenario implements En {
                 InstanceFileOutput instanceFile = buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, template.getNamespace());
                 expectedFiles.add(instanceFile);
             });
-            moduleBuilder.getTemplates().forEach(template -> {
-                expectedFiles.add(buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, moduleBuilder.getNamespace()));
+            moduleBuilder.getTemplateBuilders().forEach(templateBuilder -> {
+                TemplateIO template = templateBuilder.build();
+                InstanceFileOutput instanceFile = buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, template.getNamespace());
+                expectedFiles.add(instanceFile);
             });
         });
 
@@ -176,18 +182,20 @@ public class GetFiles extends HesperidesScenario implements En {
      */
     private String replacePropertiesWithValues(String input, String modulePath, String instanceName) {
         List<ValuedPropertyIO> predefinedProperties = getPredefinedProperties(modulePath, instanceName);
+        List<ValuedPropertyIO> globalProperties = platformBuilder.getGlobalProperties();
+        List<ValuedPropertyIO> moduleProperties = platformBuilder.getAllModuleProperties();
+        List<ValuedPropertyIO> instanceProperties = platformBuilder.getAllInstanceProperties();
 
-        List<ValuedPropertyIO> moduleAndGlobalProperties = oldPlatformBuilder.getModuleAndGlobalProperties();
+        List<ValuedPropertyIO> moduleAndGlobalProperties = Stream.concat(moduleProperties.stream(), globalProperties.stream()).collect(Collectors.toList());
+        List<ValuedPropertyIO> globalAndInstanceProperties = Stream.concat(globalProperties.stream(), instanceProperties.stream()).collect(Collectors.toList());
+
         input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
-        List<ValuedPropertyIO> globalProperties = oldPlatformBuilder.getAllGlobalProperties();
-        List<ValuedPropertyIO> globalAndInstanceProperties = new ArrayList<>(globalProperties);
-        globalAndInstanceProperties.addAll(oldPlatformBuilder.getInstancePropertyValues());
         input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalAndInstanceProperties);
         return propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalProperties);
     }
 
     private List<ValuedPropertyIO> getPredefinedProperties(String modulePath, String instanceName) {
-        PlatformIO platform = oldPlatformBuilder.buildInput();
+        PlatformIO platform = platformBuilder.buildInput();
         ModuleIO module = moduleBuilder.build();
         return Arrays.asList(
                 new ValuedPropertyIO("hesperides.application.name", platform.getApplicationName()),

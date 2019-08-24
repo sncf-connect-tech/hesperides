@@ -20,6 +20,7 @@
  */
 package org.hesperides.test.bdd.platforms.scenarios;
 
+import cucumber.api.java.en.Given;
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
@@ -58,87 +59,104 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private ModuleHistory moduleHistory;
 
-    public CreatePlatforms() {
+    //TODO Tenter de factoriser les étapes existing platform et platform to create si c'est possible
+    //TODO Extraire et factoriser la sauvegarde de propriétés dans SaveProperties
 
-        //TODO Tenter de factoriser les étapes existing platform et platform to create si c'est possible
-        //TODO Extraire et factoriser la sauvegarde de propriétés dans SaveProperties
+    @Given("^an existing platform" +
+            "(?: named \"(.*)\")?" +
+            "( (?:and|with) (?:this|those) modules?)?" +
+            "(?: in logical group \"(.*)\")?" +
+            "( (?:and|with) an instance)?" +
+            "( (?:and|with) valued properties)?" +
+            "( (?:and|with) iterable properties)?" +
+            "( (?:and|with) global properties)?" +
+            "( (?:and|with) instance properties)?" +
+            "( (?:and|with) filename and location values)?" +
+            "( (?:and|with) global properties as instance values)?" +
+            "(?: (?:and|with) an instance value named \"([^ ]+)\")?$")
+    public void givenAnExistingPlatform(
+            String platformName,
+            String withThoseModule,
+            String moduleLogicalGroup,
+            String withAnInstance,
+            String withValuedProperties,
+            String withIterableProperties,
+            String withGlobalProperties,
+            String withInstanceProperties,
+            String withFilenameAndLocationValues,
+            String withGlobalPropertiesAsInstanceValues,
+            String withInstanceValueNamed) {
 
-        Given("^an existing platform" +
-                "(?: named \"(.*)\")?" +
-                "( (?:and|with) (?:this|those) modules?)?" +
-                "(?: in logical group \"(.*)\")?" +
-                "( (?:and|with) an instance)?" +
-                "( (?:and|with) valued properties)?" +
-                "( (?:and|with) iterable properties)?" +
-                "( (?:and|with) global properties)?" +
-                "( (?:and|with) instance properties)?$", (
-                String platformName,
-                String withThoseModule,
-                String moduleLogicalGroup,
-                String withAnInstance,
-                String withValuedProperties,
-                String withIterableProperties,
-                String withGlobalProperties,
-                String withInstanceProperties) -> {
+        platformBuilder.reset();
 
-            platformBuilder.reset();
+        if (isNotEmpty(platformName)) {
+            platformBuilder.withPlatformName(platformName);
+        }
 
-            if (isNotEmpty(platformName)) {
-                platformBuilder.withPlatformName(platformName);
+        if (isNotEmpty(withAnInstance)) {
+            if (isNotEmpty(withInstanceProperties)) {
+                // Propriétés de module enregistrées après la création de plateforme
+                deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
+                deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
+                instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
+                instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
             }
+            if (isNotEmpty(withGlobalPropertiesAsInstanceValues)) {
+                instanceBuilder.withValuedProperty("instance-module-foo", "global-module-foo");
+            }
+            if (isNotEmpty(withInstanceValueNamed)) {
+                instanceBuilder.withValuedProperty(withInstanceValueNamed, "/var");
+            }
+            deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
+        }
 
-            if (isNotEmpty(withAnInstance)) {
-                if (isNotEmpty(withInstanceProperties)) {
-                    // Propriétés de module enregistrées après la création de plateforme
-                    deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
-                    deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
-                    instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
-                    instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
+        if (isNotEmpty(withThoseModule)) {
+            moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                if (isNotEmpty(moduleLogicalGroup)) {
+                    deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
                 }
-                deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
-            }
+                if (isNotEmpty(withValuedProperties)) {
+                    deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
+                    deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
+                }
+                if (isNotEmpty(withIterableProperties)) {
+                    //à bouger dans SaveProperties ?
+                    deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
+                            Collections.singletonList(new IterablePropertyItemIO("item",
+                                    Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));
+                }
+                if (isNotEmpty(withFilenameAndLocationValues)) {
+                    deployedModuleBuilder.withValuedProperty("filename", "conf");
+                    deployedModuleBuilder.withValuedProperty("location", "etc");
+                }
+                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            });
+        }
 
-            if (isNotEmpty(withThoseModule)) {
-                moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
-                    deployedModuleBuilder.fromModuleBuider(moduleBuilder);
-                    if (isNotEmpty(moduleLogicalGroup)) {
-                        deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
-                    }
-                    if (isNotEmpty(withValuedProperties)) {
-                        deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
-                        deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
-                    }
-                    if (isNotEmpty(withIterableProperties)) {
-                        //à bouger dans SaveProperties ?
-                        deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
-                                Collections.singletonList(new IterablePropertyItemIO("item",
-                                        Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));
-                    }
-                    platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
-                });
-            }
+        createPlatform();
 
-            createPlatform();
+        if (isNotEmpty(withGlobalProperties)) {
+            platformBuilder.withGlobalProperty("global-module-foo", "global-module-foo-value");
+            platformBuilder.withGlobalProperty("global-techno-foo", "global-techno-foo-value");
+            platformBuilder.withGlobalProperty("global-filename", "properties.js");
+            platformBuilder.withGlobalProperty("global-location", "/conf");
+            platformBuilder.withGlobalProperty("unused-global-property", "12");
+            // à bouger dans SaveProperties ?
+            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
+            platformBuilder.incrementGlobalPropertiesVersionId();
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        }
 
-            if (isNotEmpty(withGlobalProperties)) {
-                platformBuilder.withGlobalProperty("global-module-foo", "global-module-foo-value");
-                platformBuilder.withGlobalProperty("global-techno-foo", "global-techno-foo-value");
-                platformBuilder.withGlobalProperty("global-filename", "properties.js");
-                platformBuilder.withGlobalProperty("global-location", "/conf");
-                platformBuilder.withGlobalProperty("unused-global-property", "12");
-                // à bouger dans SaveProperties ?
-                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-                platformBuilder.incrementGlobalPropertiesVersionId();
-                platformHistory.updatePlatformBuilder(platformBuilder);
-            }
+        if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties)) {
+            // à bouger dans SaveProperties ?
+            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        }
+    }
 
-            if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties)) {
-                // à bouger dans SaveProperties ?
-                platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                platformHistory.updatePlatformBuilder(platformBuilder);
-            }
-        });
+    public CreatePlatforms() {
 
         Given("^a platform to create" +
                 "(?: named \"(.*)\")?" +
