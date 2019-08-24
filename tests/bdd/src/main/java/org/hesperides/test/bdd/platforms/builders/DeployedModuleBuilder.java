@@ -104,8 +104,12 @@ public class DeployedModuleBuilder implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    public void withIterableProperties(IterableValuedPropertyIO iterableProperty) {
+    public void withIterableProperty(IterableValuedPropertyIO iterableProperty) {
         iterableProperties.add(iterableProperty);
+    }
+
+    public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
+        this.iterableProperties.addAll(iterableProperties);
     }
 
     private void withPropertiesVersionId(long propertiesVersionId) {

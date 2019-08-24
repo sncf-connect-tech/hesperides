@@ -50,6 +50,7 @@ public class PlatformBuilder implements Serializable {
     private Boolean isProductionPlatform;
     @Getter
     private List<DeployedModuleBuilder> deployedModuleBuilders;
+    @Getter
     private Long versionId;
     private Long globalPropertiesVersionId;
     private List<ValuedPropertyIO> globalProperties;
@@ -90,8 +91,13 @@ public class PlatformBuilder implements Serializable {
         globalProperties.add(new ValuedPropertyIO(name, value));
     }
 
-    public void withVersionId(long versionId) {
+    public void withGlobalProperties(List<ValuedPropertyIO> globalProperties) {
+        this.globalProperties.addAll(globalProperties);
+    }
+
+    public PlatformBuilder withVersionId(long versionId) {
         this.versionId = versionId;
+        return this;
     }
 
     public void withGlobalPropertyVersionId(long globalPropertiesVersionId) {
@@ -99,17 +105,21 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PlatformIO buildInput() {
-        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders));
+        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), versionId);
+    }
+
+    public PlatformIO buildInput(Long platformVersionId) {
+        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), platformVersionId);
     }
 
     public PlatformIO buildOutput() {
         if (isProductionPlatform == null) {
             isProductionPlatform = false;
         }
-        return build(DeployedModuleBuilder.buildOutputs(deployedModuleBuilders));
+        return build(DeployedModuleBuilder.buildOutputs(deployedModuleBuilders), versionId);
     }
 
-    private PlatformIO build(List<DeployedModuleIO> deployedModules) {
+    private PlatformIO build(List<DeployedModuleIO> deployedModules, Long platformVersionId) {
         // On ne se préoccupe pas du flag hasPasswords dans le builder,
         // cela simplifie la glue. Le cas est géré par l'étape "the platform
         // has the password flag and the flag is set to (true|false)".
@@ -119,7 +129,7 @@ public class PlatformBuilder implements Serializable {
                 version,
                 isProductionPlatform,
                 deployedModules,
-                versionId,
+                platformVersionId,
                 null);
     }
 

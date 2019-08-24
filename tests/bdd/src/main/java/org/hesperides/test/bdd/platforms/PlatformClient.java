@@ -86,6 +86,11 @@ public class PlatformClient {
                 platformInput.getPlatformName());
     }
 
+    public PlatformIO getPlatform(PlatformIO platformInput) {
+        getPlatform(platformInput, null, false, null);
+        return testContext.getResponseBody();
+    }
+
     public void getPlatform(PlatformIO platformInput, Long timestamp, boolean withPasswordFlag, String tryTo) {
         String url = "/applications/{application_name}/platforms/{platform_name}";
         if (timestamp != null) {
@@ -157,6 +162,14 @@ public class PlatformClient {
                 platformInput.getVersionId(),
                 propertiesPath,
                 "this is a comment");
+    }
+
+    public void updateGlobalProperties(PlatformIO platform, PropertiesIO propertiesInput) {
+        updateProperties(platform, propertiesInput, "#");
+    }
+
+    public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath) {
+        updateProperties(platformInput, propertiesInput, propertiesPath, null);
     }
 
     public void updateProperties(PlatformIO platformInput, PropertiesIO propertiesInput, String propertiesPath, String tryTo) {

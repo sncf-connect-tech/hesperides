@@ -27,6 +27,7 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPr
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
@@ -34,7 +35,7 @@ import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -51,9 +52,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
+    private InstanceBuilder instanceBuilder;
+    @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
-    private InstanceBuilder instanceBuilder;
+    private ModuleHistory moduleHistory;
 
     public CreatePlatforms() {
 
@@ -62,7 +65,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
 
         Given("^an existing platform" +
                 "(?: named \"(.*)\")?" +
-                "( (?:and|with) this module)?" +
+                "( (?:and|with) (?:this|those) modules?)?" +
                 "(?: in logical group \"(.*)\")?" +
                 "( (?:and|with) an instance)?" +
                 "( (?:and|with) valued properties)?" +
@@ -70,7 +73,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 "( (?:and|with) global properties)?" +
                 "( (?:and|with) instance properties)?$", (
                 String platformName,
-                String withThisModule,
+                String withThoseModule,
                 String moduleLogicalGroup,
                 String withAnInstance,
                 String withValuedProperties,
@@ -95,20 +98,24 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 deployedModuleBuilder.withInstanceBuilder(instanceBuilder);
             }
 
-            if (isNotEmpty(withThisModule)) {
-                deployedModuleBuilder.fromModuleBuider(moduleBuilder);
-                if (isNotEmpty(moduleLogicalGroup)) {
-                    deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
-                }
-                if (isNotEmpty(withValuedProperties)) {
-                    deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
-                    deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
-                }
-                if (isNotEmpty(withIterableProperties)) {
-                    //à bouger dans SaveProperties ?
-                    deployedModuleBuilder.withIterableProperties(new IterableValuedPropertyIO("iterable-property", Arrays.asList(new IterablePropertyItemIO("item", Arrays.asList(new ValuedPropertyIO("property-name", "property-value"))))));
-                }
-                platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+            if (isNotEmpty(withThoseModule)) {
+                moduleHistory.getModuleBuilders().forEach(moduleBuilder -> {
+                    deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+                    if (isNotEmpty(moduleLogicalGroup)) {
+                        deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
+                    }
+                    if (isNotEmpty(withValuedProperties)) {
+                        deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
+                        deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
+                    }
+                    if (isNotEmpty(withIterableProperties)) {
+                        //à bouger dans SaveProperties ?
+                        deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
+                                Collections.singletonList(new IterablePropertyItemIO("item",
+                                        Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));
+                    }
+                    platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+                });
             }
 
             createPlatform();
