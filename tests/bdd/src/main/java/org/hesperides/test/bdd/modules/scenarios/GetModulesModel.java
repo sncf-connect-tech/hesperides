@@ -6,7 +6,6 @@ import org.hesperides.core.presentation.io.templatecontainers.PropertyOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -43,13 +42,6 @@ public class GetModulesModel extends HesperidesScenario implements En {
         });
 
         Then("^the module model is not found$", this::assertNotFound);
-
-        Then("^the model of this module doesn't contain the properties$", () -> {
-            assertOK();
-            ModelOutput expectedModel = new ModelBuilder().build();
-            ModelOutput actualModel = testContext.getResponseBody();
-            assertEquals(expectedModel, actualModel);
-        });
 
         Then("^the model of this module has (\\d+) simple propert(?:y|ies)$", (Integer nbSimpleProperties) -> {
             assertOK();

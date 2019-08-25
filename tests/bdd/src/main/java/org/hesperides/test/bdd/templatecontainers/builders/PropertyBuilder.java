@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 @Component
 public class PropertyBuilder implements Serializable {
 
-    //TODO à nettoyer
-
     private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
 
     private String name;
@@ -50,7 +48,6 @@ public class PropertyBuilder implements Serializable {
     @Getter
     private boolean isPassword;
     private List<PropertyBuilder> properties;
-    private boolean isGlobal;
 
     public PropertyBuilder() {
         reset();
@@ -64,17 +61,11 @@ public class PropertyBuilder implements Serializable {
         pattern = "";
         isPassword = false;
         properties = null;
-        isGlobal = false;
         return this;
     }
 
     public PropertyBuilder withName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public PropertyBuilder withIsRequired() {
-        this.isRequired = true;
         return this;
     }
 
@@ -88,11 +79,6 @@ public class PropertyBuilder implements Serializable {
         return this;
     }
 
-    public PropertyBuilder withPattern(String pattern) {
-        this.pattern = pattern;
-        return this;
-    }
-
     public PropertyBuilder withIsPassword() {
         this.isPassword = true;
         return this;
@@ -103,11 +89,6 @@ public class PropertyBuilder implements Serializable {
             properties = new ArrayList<>();
         }
         this.properties.add(property);
-        return this;
-    }
-
-    public PropertyBuilder withIsGlobal() {
-        this.isGlobal = true;
         return this;
     }
 

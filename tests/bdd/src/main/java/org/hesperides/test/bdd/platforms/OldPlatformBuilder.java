@@ -27,7 +27,6 @@ import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPr
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -192,11 +191,6 @@ public class OldPlatformBuilder {
     public ApplicationOutput buildApplicationOutput(boolean hidePlatform) {
         PlatformIO platform = hidePlatform ? buildOutputWithoutModules() : buildOutput();
         return new ApplicationOutput(applicationName, Arrays.asList(platform), Collections.emptyMap());
-    }
-
-    public void withGlobalProperty(String name, String value, ModelBuilder modelBuilder) {
-        boolean isUsed = modelBuilder.containsProperty(name);
-        properties.add(new Property(name, value, true, isUsed, false));
     }
 
     public void withGlobalProperty(String name, String value, boolean isUsed, boolean isRemovedFromTemplate) {

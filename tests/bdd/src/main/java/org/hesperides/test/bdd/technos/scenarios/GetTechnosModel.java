@@ -5,7 +5,6 @@ import org.hesperides.core.presentation.io.templatecontainers.ModelOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoClient;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -33,13 +32,6 @@ public class GetTechnosModel extends HesperidesScenario implements En {
         Then("^the techno model is empty$", () -> {
             assertOK();
             ModelOutput expectedModel = new ModelOutput(Collections.emptySet(), Collections.emptySet());
-            ModelOutput actualModel = testContext.getResponseBody();
-            assertEquals(expectedModel, actualModel);
-        });
-
-        Then("^the model of this techno doesn't contain the properties$", () -> {
-            assertOK();
-            ModelOutput expectedModel = new ModelBuilder().build();
             ModelOutput actualModel = testContext.getResponseBody();
             assertEquals(expectedModel, actualModel);
         });

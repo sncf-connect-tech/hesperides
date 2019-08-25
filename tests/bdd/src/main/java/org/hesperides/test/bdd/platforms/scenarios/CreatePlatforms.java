@@ -61,9 +61,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     @Autowired
     private SaveProperties saveProperties;
 
-    //TODO Tenter de factoriser les étapes existing platform et platform to create si c'est possible
-    //TODO Extraire et factoriser la sauvegarde de propriétés dans SaveProperties
-
     @Given("^an existing platform" +
             "(?: named \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|those) modules?)?" +

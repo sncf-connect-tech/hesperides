@@ -9,7 +9,6 @@ import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.technos.TechnoHistory;
-import org.hesperides.test.bdd.templatecontainers.builders.ModelBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +33,6 @@ public class TestContextCleaner {
     private TemplateBuilder templateBuilder;
     @Autowired
     private PropertyBuilder propertyBuilder;
-    @Autowired
-    private ModelBuilder modelBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
@@ -66,7 +63,6 @@ public class TestContextCleaner {
         technoBuilder.reset();
         technoHistory.reset();
         propertyBuilder.reset();
-        modelBuilder.reset();
         moduleBuilder.reset();
         moduleHistory.reset();
         platformBuilder.reset();
