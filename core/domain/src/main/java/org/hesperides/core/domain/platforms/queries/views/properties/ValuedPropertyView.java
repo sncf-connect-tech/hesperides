@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 public class ValuedPropertyView extends AbstractValuedPropertyView {
 
-    public final static String OBFUSCATED_PASSWORD_VALUE = "********";
+    private final static String OBFUSCATED_PASSWORD_VALUE = "********";
 
     String value;
 

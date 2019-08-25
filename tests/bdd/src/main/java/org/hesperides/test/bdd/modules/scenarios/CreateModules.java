@@ -10,6 +10,7 @@ import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
+import org.hesperides.test.bdd.users.UserAuthorities;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -35,6 +36,8 @@ public class CreateModules extends HesperidesScenario implements En {
     private PropertyBuilder propertyBuilder;
     @Autowired
     private ReleaseModules releaseModules;
+    @Autowired
+    private UserAuthorities userAuthorities;
 
     @Given("^an existing( released)? module" +
             "(?: named \"([^\"]*)\")?" +
@@ -273,6 +276,7 @@ public class CreateModules extends HesperidesScenario implements En {
     }
 
     private void createModule(String tryTo) {
+        userAuthorities.ensureUserAuthIsSet();
         moduleClient.createModule(moduleBuilder.build(), tryTo);
         if (isEmpty(tryTo)) {
             moduleBuilder.incrementVersionId();

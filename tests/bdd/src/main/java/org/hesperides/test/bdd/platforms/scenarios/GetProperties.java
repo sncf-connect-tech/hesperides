@@ -91,7 +91,7 @@ public class GetProperties extends HesperidesScenario implements En {
             PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
-                    assertEquals("******", valuedProperty.getValue());
+                    assertEquals("********", valuedProperty.getValue());
                 }
             });
         });
@@ -101,7 +101,7 @@ public class GetProperties extends HesperidesScenario implements En {
             PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (!moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
-                    assertThat(valuedProperty.getValue()).doesNotContain("******");
+                    assertThat(valuedProperty.getValue()).doesNotContain("********");
                 }
             });
         });
@@ -111,7 +111,7 @@ public class GetProperties extends HesperidesScenario implements En {
             PropertiesIO actualProperties = testContext.getResponseBody();
             actualProperties.getValuedProperties().forEach(valuedProperty -> {
                 if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
-                    assertThat(valuedProperty.getValue()).doesNotContain("******");
+                    assertThat(valuedProperty.getValue()).doesNotContain("********");
                 }
             });
         });

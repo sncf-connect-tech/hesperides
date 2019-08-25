@@ -11,7 +11,7 @@ Feature: Get platform events
 
   Scenario: create a new platform, change its version and read its events
     Given an existing platform
-    And I update this platform, changing the application version
+    And I update this platform, changing the platform version
     When I get the events of this platform
     Then 2 events are returned
     And event at index 0 is a PlatformUpdatedEvent event type

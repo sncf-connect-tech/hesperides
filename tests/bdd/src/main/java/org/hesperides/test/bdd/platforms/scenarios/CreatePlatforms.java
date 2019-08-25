@@ -126,8 +126,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
                 }
                 if (isNotEmpty(withValuedProperties)) {
-                    deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
-                    deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
+                    moduleBuilder.buildPropertiesModel().getProperties().forEach(property ->
+                            deployedModuleBuilder.withValuedProperty(property.getName(), property.getName() + "-value"));
+//                    deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
+//                    deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
                 }
                 if (isNotEmpty(withIterableProperties)) {
                     deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
@@ -246,6 +248,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     }
 
     private void createPlatform(String tryTo) {
+        userAuthorities.ensureUserAuthIsSet();
         platformClient.createPlatform(platformBuilder.buildInput(), tryTo);
         if (isEmpty(tryTo)) {
             platformBuilder.incrementVersionId();

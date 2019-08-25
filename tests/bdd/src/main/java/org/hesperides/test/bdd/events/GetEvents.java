@@ -39,7 +39,7 @@ public class GetEvents extends HesperidesScenario implements En {
         });
 
         Then("^event at index (\\d+) is a (.*) event type$", (Integer index, String eventType) -> {
-            List<EventOutput> events = testContext.getResponseBody();
+            List<EventOutput> events = testContext.getResponseBodyAsList();
             assertThat(events.get(index), hasProperty("type", endsWith(eventType)));
         });
     }
