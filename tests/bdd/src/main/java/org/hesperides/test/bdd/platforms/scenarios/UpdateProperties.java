@@ -104,7 +104,12 @@ public class UpdateProperties extends HesperidesScenario implements En {
         Then("^the properties are successfully updated for those modules$", () ->
                 platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties));
 
-        Then("^the platform version_id is also updated$", () -> createPlatforms.assertPlatform());
+        Then("^the platform version_id is also updated$", () -> {
+            PlatformIO expectedPlatform = platformBuilder.buildOutput();
+            PlatformIO actualPlatform = platformClient.getPlatform(platformBuilder.buildInput());
+            assertOK();
+            assertEquals(expectedPlatform, actualPlatform);
+        });
 
         Then("^the properties versionId should stay the same$", () -> {
             Long expectedPropertiesVersionId = deployedModuleBuilder.getPropertiesVersionId();
