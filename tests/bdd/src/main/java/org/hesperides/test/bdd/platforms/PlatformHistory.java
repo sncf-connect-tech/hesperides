@@ -21,13 +21,16 @@
 package org.hesperides.test.bdd.platforms;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -81,5 +84,27 @@ public class PlatformHistory {
             throw new RuntimeException("Incorrect matching platforms count: " + matchingPlatforms.size());
         }
         return matchingPlatforms.get(0);
+    }
+
+    public ApplicationOutput buildApplicationOutput(boolean withoutModules) {
+        return buildApplicationOutput(platformBuilders.get(0).getApplicationName(), platformBuilders, withoutModules);
+    }
+
+    private ApplicationOutput buildApplicationOutput(String applicationName, List<PlatformBuilder> platformBuilders, boolean withoutModules) {
+        return new ApplicationOutput(applicationName,
+                platformBuilders.stream()
+                        .filter(platformBuilder -> platformBuilder.getApplicationName().equals(applicationName))
+                        .map(platformBuilder -> platformBuilder.buildOutput(withoutModules))
+                        .collect(Collectors.toList()),
+                new HashMap<>());
+    }
+
+    public List<ApplicationOutput> buildApplicationOutputs() {
+        Map<String, List<PlatformBuilder>> applicationPlatformsMap = platformBuilders.stream()
+                .collect(Collectors.groupingBy(PlatformBuilder::getApplicationName));
+
+        return applicationPlatformsMap.entrySet().stream()
+                .map(entry -> buildApplicationOutput(entry.getKey(), entry.getValue(), false))
+                .collect(Collectors.toList());
     }
 }

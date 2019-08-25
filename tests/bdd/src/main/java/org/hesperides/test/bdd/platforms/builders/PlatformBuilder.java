@@ -77,6 +77,10 @@ public class PlatformBuilder implements Serializable {
         this.platformName = platformName;
     }
 
+    public void withApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
     public void withVersion(String version) {
         this.version = version;
     }
@@ -115,10 +119,14 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PlatformIO buildOutput() {
+        return buildOutput(false);
+    }
+
+    public PlatformIO buildOutput(boolean withoutModules) {
         if (isProductionPlatform == null) {
             isProductionPlatform = false;
         }
-        return build(DeployedModuleBuilder.buildOutputs(deployedModuleBuilders), versionId);
+        return build(DeployedModuleBuilder.buildOutputs(withoutModules ? Collections.emptyList() : deployedModuleBuilders), versionId);
     }
 
     private PlatformIO build(List<DeployedModuleIO> deployedModules, Long platformVersionId) {

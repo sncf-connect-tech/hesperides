@@ -230,7 +230,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform creation fails with a conflict error$", this::assertConflict);
     }
 
-    private void createPlatform() {
+    public void createPlatform() {
         createPlatform(null);
         assertOK();
     }

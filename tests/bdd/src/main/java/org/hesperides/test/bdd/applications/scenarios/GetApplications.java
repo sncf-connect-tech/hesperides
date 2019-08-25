@@ -22,23 +22,26 @@ package org.hesperides.test.bdd.applications.scenarios;
 
 import cucumber.api.DataTable;
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
-import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.applications.ApplicationClient;
 import org.hesperides.test.bdd.applications.ApplicationDirectoryGroupsBuilder;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.modules.OldModuleBuilder;
-import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
-import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
+import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.scenarios.CreatePlatforms;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -49,57 +52,58 @@ public class GetApplications extends HesperidesScenario implements En {
     @Autowired
     private ApplicationDirectoryGroupsBuilder applicationDirectoryGroupsBuilder;
     @Autowired
-    private OldPlatformBuilder oldPlatformBuilder;
+    private PlatformBuilder platformBuilder;
     @Autowired
-    private OldPlatformClient oldPlatformClient;
+    private PlatformHistory platformHistory;
     @Autowired
-    private OldModuleBuilder moduleBuilder;
-
-    private List<ApplicationOutput> expectedApplications = new ArrayList<>();
-
-    private boolean hidePlatform;
+    private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public GetApplications() {
 
         Given("^a list of applications with platforms and this module$", () -> {
-            oldPlatformBuilder.withModule(moduleBuilder.build(), moduleBuilder.getPropertiesPath(), moduleBuilder.getLogicalGroup());
+            deployedModuleBuilder.fromModuleBuider(moduleBuilder);
+            platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
             Arrays.asList("ABC", "DEF", "GHI").forEach(applicationName -> {
-                oldPlatformBuilder.withApplicationName(applicationName);
-                oldPlatformClient.create(oldPlatformBuilder.buildInput());
-                expectedApplications.add(oldPlatformBuilder.buildApplicationOutput(false));
+                platformBuilder.withVersionId(0);
+                platformBuilder.withApplicationName(applicationName);
+                createPlatforms.createPlatform();
             });
-
         });
 
         When("^I get all the applications detail( requesting the password flag)?$", (String requestingThePasswordFlag) -> {
-            testContext.setResponseEntity(applicationClient.getAllApplicationsDetail(StringUtils.isNotEmpty(requestingThePasswordFlag)));
+            applicationClient.getAllApplicationsDetail(isNotEmpty(requestingThePasswordFlag));
         });
 
-        When("^I( try to)? get the applications name", (String tryTo) -> {
-            testContext.setResponseEntity(applicationClient.getApplications(
-                    getResponseType(tryTo, SearchResultOutput[].class)));
-        });
+        When("^I( try to)? get the applications name", (String tryTo) -> applicationClient.getApplications(tryTo));
 
-        When("^I( try to)? get the application detail( with parameter hide_platform set to true)?( requesting the password flag)?$", (
-                String tryTo, String withHidePlatform, String requestingThePasswordFlag) -> {
-            hidePlatform = StringUtils.isNotEmpty(withHidePlatform);
-            final ResponseEntity responseEntity = applicationClient.getApplication(
+        When("^I( try to)? get the application detail" +
+                "( without the platform modules)?" +
+                "( requesting the password flag)?$", (
+                String tryTo,
+                String withoutPlatformModules,
+                String requestingThePasswordFlag) -> {
+
+            applicationClient.getApplication(
                     applicationDirectoryGroupsBuilder.getApplicationName(),
-                    hidePlatform,
-                    StringUtils.isNotEmpty(requestingThePasswordFlag),
-                    getResponseType(tryTo, ApplicationOutput.class));
-            testContext.setResponseEntity(responseEntity);
+                    isNotEmpty(withoutPlatformModules),
+                    isNotEmpty(requestingThePasswordFlag),
+                    tryTo);
         });
 
         Then("^all the applications are retrieved with their platforms and their modules$", () -> {
             assertOK();
+            List<ApplicationOutput> expectedApplications = platformHistory.buildApplicationOutputs();
             List<ApplicationOutput> actualApplications = testContext.getResponseBody(AllApplicationsDetailOutput.class).getApplications();
             assertEquals(expectedApplications, actualApplications);
         });
 
-        Then("^the application is successfully retrieved", () -> {
+        Then("^the application is successfully retrieved( without the platform modules)?", (String withoutPlatformModules) -> {
             assertOK();
-            ApplicationOutput expectedApplication = oldPlatformBuilder.buildApplicationOutput(hidePlatform);
+            ApplicationOutput expectedApplication = platformHistory.buildApplicationOutput(isNotEmpty(withoutPlatformModules));
             ApplicationOutput actualApplication = testContext.getResponseBody();
             assertEquals(expectedApplication, actualApplication);
         });
@@ -113,8 +117,8 @@ public class GetApplications extends HesperidesScenario implements En {
         });
 
         Then("^the application details contains no directory groups", () -> {
-            final String directoryGroupsKey = applicationDirectoryGroupsBuilder.getDirectoryGroupsKey();
-            final List<String> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups().get(directoryGroupsKey);
+            String directoryGroupsKey = applicationDirectoryGroupsBuilder.getDirectoryGroupsKey();
+            List<String> actualDirectoryGroups = testContext.getResponseBody(ApplicationOutput.class).getDirectoryGroups().get(directoryGroupsKey);
             assertThat(actualDirectoryGroups).isEmpty();
         });
 

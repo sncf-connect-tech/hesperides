@@ -22,38 +22,47 @@ package org.hesperides.test.bdd.applications;
 
 import org.hesperides.core.presentation.io.platforms.AllApplicationsDetailOutput;
 import org.hesperides.core.presentation.io.platforms.ApplicationDirectoryGroupsInput;
+import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
+import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import static org.hesperides.test.bdd.commons.HesperidesScenario.getResponseType;
 
 @Component
 public class ApplicationClient {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    public ResponseEntity getApplications(Class responseType) {
-        return restTemplate.getForEntity("/applications", responseType);
+    @Autowired
+    public ApplicationClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
-    public ResponseEntity getApplication(String applicationName, boolean hidePlatform, boolean withPasswordFlag, Class responseType) {
-        return restTemplate.getForEntity(
+    public void getApplications(String tryTo) {
+        restTemplate.getForEntity("/applications", getResponseType(tryTo, SearchResultOutput[].class));
+    }
+
+    public void getApplication(String applicationName, boolean hidePlatform, boolean withPasswordFlag, String tryTo) {
+        restTemplate.getForEntity(
                 "/applications/{application_name}?hide_platform={hide_platform}&with_password_info={with_password_flag}",
-                responseType,
+                getResponseType(tryTo, ApplicationOutput.class),
                 applicationName,
                 hidePlatform,
                 withPasswordFlag);
     }
 
-    public ResponseEntity<AllApplicationsDetailOutput> getAllApplicationsDetail(boolean withPasswordFlag) {
-        return restTemplate.getForEntity("/applications/platforms?with_password_info={with_password_flag}", AllApplicationsDetailOutput.class, withPasswordFlag);
+    public void getAllApplicationsDetail(boolean withPasswordFlag) {
+        restTemplate.getForEntity("/applications/platforms?with_password_info={with_password_flag}",
+                AllApplicationsDetailOutput.class, withPasswordFlag);
     }
 
-    public ResponseEntity setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {
-        return restTemplate.exchange("/applications/{application_name}/directory_groups",
+    public void setApplicationDirectoryGroups(String applicationName, ApplicationDirectoryGroupsInput applicationDirectoryGroups) {
+        //TODO utiliser customtemplate.putForEntity
+        restTemplate.exchange("/applications/{application_name}/directory_groups",
                 HttpMethod.PUT,
                 new HttpEntity<>(applicationDirectoryGroups),
                 String.class,

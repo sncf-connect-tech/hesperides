@@ -1,3 +1,4 @@
+@done
 Feature: Get applications
 
   Background:
@@ -17,8 +18,8 @@ Feature: Get applications
   Scenario: get an existing application without modules
     Given an existing module
     And an existing platform with this module
-    When I get the application detail with parameter hide_platform set to true
-    Then the application is successfully retrieved
+    When I get the application detail without the platform modules
+    Then the application is successfully retrieved without the platform modules
 
   Scenario: get an application that doesn't exist
     Given a platform that doesn't exist
