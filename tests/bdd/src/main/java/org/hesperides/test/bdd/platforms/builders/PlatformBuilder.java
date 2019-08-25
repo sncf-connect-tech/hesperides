@@ -227,4 +227,10 @@ public class PlatformBuilder implements Serializable {
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
+
+    public Optional<DeployedModuleBuilder> findMatchingDeployedModuleBuilder(ModuleBuilder moduleBuilder) {
+        return deployedModuleBuilders.stream().filter(deployedModuleBuilder ->
+                deployedModuleBuilder.matchModuleBuilder(moduleBuilder))
+                .findFirst();
+    }
 }

@@ -207,10 +207,14 @@ public class DeployedModuleBuilder implements Serializable {
 
     public Optional<ModuleBuilder> findMatchingModuleBuilder(ModuleHistory moduleHistory) {
         return moduleHistory.getModuleBuilders().stream()
-                .filter(moduleBuilder -> name.equals(moduleBuilder.getName()) &&
-                        version.equals(moduleBuilder.getVersion()) &&
-                        versionType.equals(moduleBuilder.getVersionType()))
+                .filter(this::matchModuleBuilder)
                 .findFirst();
+    }
+
+    public boolean matchModuleBuilder(ModuleBuilder moduleBuilder) {
+        return name.equals(moduleBuilder.getName()) &&
+                version.equals(moduleBuilder.getVersion()) &&
+                versionType.equals(moduleBuilder.getVersionType());
     }
 
     public void updateOrAddInstanceBuilder(InstanceBuilder instanceBuilder) {

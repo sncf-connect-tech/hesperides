@@ -21,30 +21,15 @@
 package org.hesperides.test.bdd.files.scenarios;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
-import org.hesperides.core.presentation.io.ModuleIO;
 import org.hesperides.core.presentation.io.files.InstanceFileOutput;
-import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
-import org.hesperides.core.presentation.io.templatecontainers.TemplateIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.files.FileBuilder;
 import org.hesperides.test.bdd.files.FileClient;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.hesperides.test.bdd.templatecontainers.builders.PropertyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -53,62 +38,38 @@ import static org.junit.Assert.assertThat;
 
 public class GetFiles extends HesperidesScenario implements En {
 
-    //TODO Classe à nettoyger et expectedFiles à revoir ?
-
     @Autowired
     private FileClient fileClient;
     @Autowired
+    private FileBuilder fileBuilder;
+    @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
-    private TechnoBuilder technoBuilder;
-    @Autowired
     private ModuleBuilder moduleBuilder;
-    @Autowired
-    private PropertyBuilder propertyBuilder;
-
-    private List<InstanceFileOutput> expectedFiles;
 
     public GetFiles() {
 
         When("^I( try to)? get the (instance|module)? files(?: in the logical group \"([^\"]*)\")?$", (
                 String tryTo, String instanceOrModule, String logicalGroup) -> {
 
-            PlatformIO platform = platformBuilder.buildInput();
-            ModuleIO module = moduleBuilder.build();
-
-            Optional<DeployedModuleIO> deployedModule = getDeployedModule(platform, logicalGroup);
-            String modulePath = deployedModule.map(DeployedModuleIO::getModulePath).orElse("anything");
-            boolean simulate = "module".equals(instanceOrModule);
-            String instanceName = getInstanceName(deployedModule, simulate);
-
+            fileBuilder.setSimulate("module".equals(instanceOrModule));
             fileClient.getFiles(
-                    platform.getApplicationName(),
-                    platform.getPlatformName(),
-                    modulePath,
-                    module.getName(),
-                    module.getVersion(),
-                    instanceName,
-                    module.getIsWorkingCopy(),
-                    simulate,
+                    platformBuilder.getApplicationName(),
+                    platformBuilder.getPlatformName(),
+                    fileBuilder.buildModulePath(),
+                    moduleBuilder.getName(),
+                    moduleBuilder.getVersion(),
+                    fileBuilder.buildInstanceName(),
+                    moduleBuilder.isWorkingCopy(),
+                    fileBuilder.isSimulate(),
                     tryTo);
-
-            expectedFiles = new ArrayList<>();
-            technoBuilder.getTemplateBuilders().forEach(templateBuilder -> {
-                TemplateIO template = templateBuilder.build();
-                InstanceFileOutput instanceFile = buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, template.getNamespace());
-                expectedFiles.add(instanceFile);
-            });
-            moduleBuilder.getTemplateBuilders().forEach(templateBuilder -> {
-                TemplateIO template = templateBuilder.build();
-                InstanceFileOutput instanceFile = buildInstanceFileOutput(platform, module, modulePath, simulate, instanceName, template, template.getNamespace());
-                expectedFiles.add(instanceFile);
-            });
         });
 
         Then("^the files are successfully retrieved$", () -> {
             assertOK();
-            List<InstanceFileOutput> actualOutput = testContext.getResponseBodyAsList();
-            assertEquals(expectedFiles, actualOutput);
+            List<InstanceFileOutput> expectedFiles = fileBuilder.buildInstanceFileOutputs();
+            List<InstanceFileOutput> actualFiles = testContext.getResponseBodyAsList();
+            assertEquals(expectedFiles, actualFiles);
         });
 
         Then("^the JSON output does not contain escaped characters$", () -> {
@@ -131,81 +92,5 @@ public class GetFiles extends HesperidesScenario implements En {
                 assertThat(file.getLocation(), not(containsString("}}")));
             });
         });
-    }
-
-    private Optional<DeployedModuleIO> getDeployedModule(PlatformIO platform, String logicalGroup) {
-        return platform.getDeployedModules()
-                .stream()
-                .filter(deployedModuleIO -> StringUtils.isEmpty(logicalGroup) || deployedModuleIO.getModulePath().equalsIgnoreCase("#" + logicalGroup))
-                .findFirst();
-    }
-
-    private String getInstanceName(Optional<DeployedModuleIO> deployedModule, boolean simulate) {
-        return deployedModule.isPresent() && !CollectionUtils.isEmpty(deployedModule.get().getInstances()) && !simulate
-                ? deployedModule.get().getInstances().get(0).getName()
-                : "anything";
-    }
-
-    private InstanceFileOutput buildInstanceFileOutput(PlatformIO platform, ModuleIO module, String modulePath, boolean simulate, String instanceName, TemplateIO template, String templateNamespace) {
-        String location = replacePropertiesWithValues(template.getLocation(), modulePath, instanceName);
-        String filename = replacePropertiesWithValues(template.getFilename(), modulePath, instanceName);
-        try {
-            return new InstanceFileOutput(
-                    location + "/" + filename,
-                    "/rest/files"
-                            + "/applications/" + platform.getApplicationName()
-                            + "/platforms/" + platform.getPlatformName()
-                            + "/" + URLEncoder.encode(modulePath, "UTF-8")
-                            + "/" + module.getName()
-                            + "/" + module.getVersion()
-                            + "/instances/" + instanceName
-                            + "/" + template.getName()
-                            + "?isWorkingCopy=" + module.getIsWorkingCopy()
-                            + "&template_namespace=" + URLEncoder.encode(templateNamespace, "UTF-8")
-                            + "&simulate=" + simulate,
-                    new InstanceFileOutput.Rights("rwx", "---", "   ")
-            );
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Cf. org.hesperides.core.application.files.FileUseCases#valorizeWithModuleAndGlobalAndInstanceProperties
-     * <p>
-     * 1. Une propriété peut être valorisée au niveau de la platforme (propriété globale)
-     * et au niveau du module (valorisation classique).
-     * <p>
-     * 2. La valorisation d'une propriété au niveau du module peut faire référence
-     * à une propriété globale ou d'instance.
-     * <p>
-     * 3. La valorisation d'une propriété d'instance peut faire référence
-     * à une propriété globale.
-     */
-    private String replacePropertiesWithValues(String input, String modulePath, String instanceName) {
-        List<ValuedPropertyIO> predefinedProperties = getPredefinedProperties(modulePath, instanceName);
-        List<ValuedPropertyIO> globalProperties = platformBuilder.getGlobalProperties();
-        List<ValuedPropertyIO> moduleProperties = platformBuilder.getAllModuleProperties();
-        List<ValuedPropertyIO> instanceProperties = platformBuilder.getAllInstanceProperties();
-
-        List<ValuedPropertyIO> moduleAndGlobalProperties = Stream.concat(moduleProperties.stream(), globalProperties.stream()).collect(Collectors.toList());
-        List<ValuedPropertyIO> globalAndInstanceProperties = Stream.concat(globalProperties.stream(), instanceProperties.stream()).collect(Collectors.toList());
-
-        input = PropertyBuilder.replacePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
-        input = PropertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalAndInstanceProperties);
-        return PropertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalProperties);
-    }
-
-    private List<ValuedPropertyIO> getPredefinedProperties(String modulePath, String instanceName) {
-        PlatformIO platform = platformBuilder.buildInput();
-        ModuleIO module = moduleBuilder.build();
-        return Arrays.asList(
-                new ValuedPropertyIO("hesperides.application.name", platform.getApplicationName()),
-                new ValuedPropertyIO("hesperides.application.version", platform.getVersion()),
-                new ValuedPropertyIO("hesperides.platform.name", platform.getPlatformName()),
-                new ValuedPropertyIO("hesperides.module.name", module.getName()),
-                new ValuedPropertyIO("hesperides.module.version", module.getVersion()),
-                new ValuedPropertyIO("hesperides.module.path.full", modulePath.replace('#', '/')),
-                new ValuedPropertyIO("hesperides.instance.name", instanceName));
     }
 }

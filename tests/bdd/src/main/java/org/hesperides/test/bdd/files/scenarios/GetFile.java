@@ -23,16 +23,12 @@ package org.hesperides.test.bdd.files.scenarios;
 import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.files.FileBuilder;
 import org.hesperides.test.bdd.files.FileClient;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
-import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
-
-import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.hamcrest.CoreMatchers.not;
@@ -46,7 +42,9 @@ public class GetFile extends HesperidesScenario implements En {
     @Autowired
     private FileClient fileClient;
     @Autowired
-    private PlatformBuilder oldPlatformBuilder;
+    private FileBuilder fileBuilder;
+    @Autowired
+    private PlatformBuilder platformBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
     @Autowired
@@ -56,25 +54,18 @@ public class GetFile extends HesperidesScenario implements En {
 
         When("^I( try to)? get the (instance|module)? template file$", (String tryTo, String instanceOrModule) -> {
 
-            //Factoriser avec GetFiles
-
-            Optional<DeployedModuleBuilder> deployedModuleBuilder = CollectionUtils.isEmpty(oldPlatformBuilder.getDeployedModuleBuilders())
-                    ? Optional.empty() : Optional.of(oldPlatformBuilder.getDeployedModuleBuilders().get(0));
-            String modulePath = deployedModuleBuilder.map(DeployedModuleBuilder::getModulePath).orElse("anything");
-            boolean simulate = "module".equals(instanceOrModule);
-            String instanceName = getInstanceName(deployedModuleBuilder, simulate);
-
+            fileBuilder.setSimulate("module".equals(instanceOrModule));
             fileClient.getFile(
-                    oldPlatformBuilder.getApplicationName(),
-                    oldPlatformBuilder.getPlatformName(),
-                    modulePath,
+                    platformBuilder.getApplicationName(),
+                    platformBuilder.getPlatformName(),
+                    fileBuilder.buildModulePath(),
                     moduleBuilder.getName(),
                     moduleBuilder.getVersion(),
-                    instanceName,
+                    fileBuilder.buildInstanceName(),
                     templateBuilder.getName(),
-                    VersionType.toIsWorkingCopy(moduleBuilder.getVersionType()), // Dans ModuleBuilder ?
+                    moduleBuilder.isWorkingCopy(),
                     templateBuilder.getNamespace(),
-                    simulate);
+                    fileBuilder.isSimulate());
         });
 
         Then("^the file is successfully retrieved and contains$", (String fileContent) -> {
@@ -92,11 +83,5 @@ public class GetFile extends HesperidesScenario implements En {
                 assertThat(actualOutput, not(containsString(OBFUSCATED_PASSWORD_VALUE)));
             }
         });
-    }
-
-    private String getInstanceName(Optional<DeployedModuleBuilder> deployedModuleBuilder, boolean simulate) {
-        return deployedModuleBuilder.isPresent() && !CollectionUtils.isEmpty(deployedModuleBuilder.get().getInstanceBuilders()) && !simulate
-                ? deployedModuleBuilder.get().getInstanceBuilders().get(0).getName()
-                : "anything";
     }
 }

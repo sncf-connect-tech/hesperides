@@ -119,4 +119,8 @@ public abstract class TemplateContainerBuilder implements Serializable {
                 version.equals(templateContainerBuilder.getVersion()) &&
                 versionType.equals(templateContainerBuilder.getVersionType());
     }
+
+    public boolean isWorkingCopy() {
+        return VersionType.toIsWorkingCopy(versionType);
+    }
 }
