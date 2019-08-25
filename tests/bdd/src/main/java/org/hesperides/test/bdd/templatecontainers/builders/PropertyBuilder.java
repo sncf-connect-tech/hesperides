@@ -164,11 +164,17 @@ public class PropertyBuilder implements Serializable {
         return property.toString();
     }
 
-    public String replacePropertiesWithValues(String input, List<ValuedPropertyIO> predefinedProperties, List<ValuedPropertyIO> properties) {
+    public static String replacePropertiesWithValues(String input, List<ValuedPropertyIO> predefinedProperties, List<ValuedPropertyIO> properties) {
         String result = input;
         properties.addAll(predefinedProperties);
         for (String propertyName : extractProperties(input)) {
-            String propertyValue = properties.stream().filter(valuedProperty -> valuedProperty.getName().equals(propertyName.trim())).map(ValuedPropertyIO::getValue).findFirst().orElse("");
+
+            String propertyValue = properties.stream()
+                    .filter(valuedProperty -> valuedProperty.getName().equals(propertyName.trim()))
+                    .map(ValuedPropertyIO::getValue)
+                    .findFirst()
+                    .orElse("");
+
             result = result.replace("{{" + propertyName + "}}", propertyValue);
         }
         return result;

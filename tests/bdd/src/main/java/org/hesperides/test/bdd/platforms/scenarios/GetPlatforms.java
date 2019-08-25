@@ -76,7 +76,8 @@ public class GetPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
-            Boolean hasPasswords = testContext.getResponseBody(PlatformIO.class).getHasPasswords();
+            PlatformIO platform = testContext.getResponseBody();
+            Boolean hasPasswords = platform.getHasPasswords();
             assertThat(hasPasswords).isNotNull();
             assertEquals("true".equals(trueOrFalse), hasPasswords);
         });

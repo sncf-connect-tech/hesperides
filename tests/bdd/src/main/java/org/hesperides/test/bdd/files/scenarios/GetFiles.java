@@ -191,9 +191,9 @@ public class GetFiles extends HesperidesScenario implements En {
         List<ValuedPropertyIO> moduleAndGlobalProperties = Stream.concat(moduleProperties.stream(), globalProperties.stream()).collect(Collectors.toList());
         List<ValuedPropertyIO> globalAndInstanceProperties = Stream.concat(globalProperties.stream(), instanceProperties.stream()).collect(Collectors.toList());
 
-        input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
-        input = propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalAndInstanceProperties);
-        return propertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalProperties);
+        input = PropertyBuilder.replacePropertiesWithValues(input, predefinedProperties, moduleAndGlobalProperties);
+        input = PropertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalAndInstanceProperties);
+        return PropertyBuilder.replacePropertiesWithValues(input, predefinedProperties, globalProperties);
     }
 
     private List<ValuedPropertyIO> getPredefinedProperties(String modulePath, String instanceName) {

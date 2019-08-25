@@ -182,6 +182,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
                     break;
                 default:
+                    deployedModuleBuilder.clearValuedProperties();
                     List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
                     valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
                     // à bouger dans SaveProperties ?
@@ -224,9 +225,9 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
         // à bouger dans SaveProperties ?
         Given("^the deployed module has properties with values referencing global properties$", () -> {
-            deployedModuleBuilder.withValuedProperty("property-a", "{{ global-module-foo }}");
-            deployedModuleBuilder.withValuedProperty("property-b", "{{ global-techno-foo }}");
-            deployedModuleBuilder.withValuedProperty("property-c", "{{ global-filename }} {{ global-location }}");
+            deployedModuleBuilder.withValuedProperty("property-a", "{{global-module-foo}}");
+            deployedModuleBuilder.withValuedProperty("property-b", "{{global-techno-foo}}");
+            deployedModuleBuilder.withValuedProperty("property-c", "{{global-filename}}{{global-location}}");
             // à bouger dans SaveProperties ?
             platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);

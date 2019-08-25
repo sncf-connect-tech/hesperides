@@ -225,4 +225,8 @@ public class DeployedModuleBuilder implements Serializable {
             instanceBuilders.add(instanceBuilder);
         }
     }
+
+    public void clearValuedProperties() {
+        valuedProperties = new ArrayList<>();
+    }
 }

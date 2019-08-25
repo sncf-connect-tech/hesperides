@@ -46,7 +46,7 @@ public class CreateModules extends HesperidesScenario implements En {
             "( (?:and|with) iterable properties)?" +
             "( (?:and|with) nested iterable properties)?" +
             "( (?:and|with) this techno)?$")
-    public void givenAnExistingPlatform(
+    public void givenAnExistingModule(
             String released,
             String moduleName,
             String moduleVersion,
@@ -75,27 +75,27 @@ public class CreateModules extends HesperidesScenario implements En {
         createModule();
 
         if (isNotEmpty(withThisTemplate)) {
-            addTemplatePropertiesToBuilders(templateBuilder);
+            addTemplatePropertiesToModuleBuilder(templateBuilder);
         }
 
         if (isNotEmpty(withProperties)) {
-            addPropertyToBuilders("module-foo");
-            addPropertyToBuilders("module-bar");
+            addPropertyToTemplateContentAndModuleBuilder("module-foo");
+            addPropertyToTemplateContentAndModuleBuilder("module-bar");
         }
         if (isNotEmpty(withPasswordProperties)) {
             propertyBuilder.reset().withName("module-fuzz").withIsPassword();
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
         }
         if (isNotEmpty(withGlobalProperties)) {
-            addPropertyToBuilders("global-module-foo");
-            addPropertyToBuilders("global-module-bar");
+            addPropertyToTemplateContentAndModuleBuilder("global-module-foo");
+            addPropertyToTemplateContentAndModuleBuilder("global-module-bar");
         }
         if (isNotEmpty(withIterableProperties)) {
             propertyBuilder.reset()
                     .withName("module-foo")
                     .withProperty(new PropertyBuilder()
                             .withName("module-bar"));
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
         }
         if (isNotEmpty(withNestedIterableProperties)) {
             propertyBuilder.reset()
@@ -104,7 +104,7 @@ public class CreateModules extends HesperidesScenario implements En {
                             .withName("module-bar")
                             .withProperty(new PropertyBuilder()
                                     .withName("module-foobar")));
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
         }
 
         if (isNotEmpty(withThisTemplate) ||
@@ -130,7 +130,7 @@ public class CreateModules extends HesperidesScenario implements En {
             moduleBuilder.reset();
             createModule();
             templateBuilder.setContent(templateContent);
-            addTemplatePropertiesToBuilders(templateBuilder);
+            addTemplatePropertiesToModuleBuilder(templateBuilder);
             addTemplateToModule();
         });
 
@@ -168,12 +168,12 @@ public class CreateModules extends HesperidesScenario implements En {
 
             templateBuilder.reset().withName("template-a").withNamespace(moduleBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("12");
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
             addTemplateToModule();
 
             templateBuilder.reset().withName("template-b").withNamespace(moduleBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment").withDefaultValue("42");
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
             addTemplateToModule();
         });
 
@@ -182,17 +182,17 @@ public class CreateModules extends HesperidesScenario implements En {
 
             templateBuilder.reset().withName("template-a").withNamespace(moduleBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment-a");
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
             addTemplateToModule();
 
             templateBuilder.reset().withName("template-b").withNamespace(moduleBuilder.buildNamespace());
             propertyBuilder.reset().withName("foo").withComment("comment-b");
-            addPropertyToBuilders(propertyBuilder);
+            addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
             addTemplateToModule();
         });
 
         Given("^the module template properties are modified$", () -> {
-            addPropertyToBuilders("patate");
+            addPropertyToTemplateContentAndModuleBuilder("patate");
             moduleClient.updateTemplate(templateBuilder.build(), moduleBuilder.build());
             assertOK();
             moduleBuilder.updateTemplateBuilder(templateBuilder);
@@ -221,7 +221,7 @@ public class CreateModules extends HesperidesScenario implements En {
         Given("^a module with a property \"([^\"]+)\" existing in versions: (.+)$", (String propertyName, String versions) -> {
             Arrays.stream(versions.split(", ")).forEach(version -> {
                 moduleBuilder.reset();
-                addPropertyToBuilders(propertyName);
+                addPropertyToTemplateContentAndModuleBuilder(propertyName);
                 moduleBuilder.withVersion(version);
                 createModule();
                 addTemplateToModule();
@@ -244,23 +244,26 @@ public class CreateModules extends HesperidesScenario implements En {
         Then("^the module creation is rejected with a bad request error$", this::assertBadRequest);
     }
 
-    private void addTemplatePropertiesToBuilders(TemplateBuilder templateBuilder) {
-        extractPropertyToBuilders(templateBuilder.getFilename());
-        extractPropertyToBuilders(templateBuilder.getLocation());
-        extractPropertyToBuilders(templateBuilder.getContent());
+    private void addTemplatePropertiesToModuleBuilder(TemplateBuilder templateBuilder) {
+        extractPropertyToModuleBuilder(templateBuilder.getFilename());
+        extractPropertyToModuleBuilder(templateBuilder.getLocation());
+        extractPropertyToModuleBuilder(templateBuilder.getContent());
     }
 
-    private void extractPropertyToBuilders(String input) {
-        PropertyBuilder.extractProperties(input).forEach(this::addPropertyToBuilders);
+    private void extractPropertyToModuleBuilder(String input) {
+        PropertyBuilder.extractProperties(input).forEach(propertyName -> {
+            propertyBuilder.reset().withName(propertyName);
+            moduleBuilder.addPropertyBuilder(propertyBuilder);
+        });
     }
 
-    private void addPropertyToBuilders(String name) {
+    private void addPropertyToTemplateContentAndModuleBuilder(String name) {
         propertyBuilder.reset().withName(name);
-        addPropertyToBuilders(propertyBuilder);
+        addPropertyToTemplateContentAndModuleBuilder(propertyBuilder);
     }
 
-    private void addPropertyToBuilders(PropertyBuilder propertyBuilder) {
-//        templateBuilder.withContent(propertyBuilder.toString());
+    private void addPropertyToTemplateContentAndModuleBuilder(PropertyBuilder propertyBuilder) {
+        templateBuilder.withContent(propertyBuilder.toString());
         moduleBuilder.addPropertyBuilder(propertyBuilder);
     }
 
