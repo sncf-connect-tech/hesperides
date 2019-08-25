@@ -23,7 +23,7 @@ public class ReleaseModules extends HesperidesScenario implements En {
     public ReleaseModules() {
 
         When("^I( try to)? release this module" +
-                "(?: in version \"(.*)\")?" +
+                "(?: in version \"([^\"]*)\")?" +
                 "( without specifying its version)?$", (
                 String tryTo,
                 String releasedVersion,

@@ -62,10 +62,10 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private InstanceBuilder instanceBuilder;
 
     @When("^I( try to)? update this platform" +
-            "(?:, (?:upgrading|downgrading) its module version to \"(.*)\")?" +
-            "(?:, upgrading its module name to \"(.*)\")?" +
+            "(?:, (?:upgrading|downgrading) its module version to \"([^\"]*)\")?" +
+            "(?:, upgrading its module name to \"([^\"]*)\")?" +
             "(, upgrading its module to the release version)?" +
-            "(, adding this module(?: again)?(?: in logical group \"(.*)\")?)?" +
+            "(, adding this module(?: again)?(?: in logical group \"([^\"]*)\")?)?" +
             "(, adding an instance(?: (and|with) instance properties)?)?" +
             "(, clearing the modules)?" +
             "(, changing the platform version)?" +

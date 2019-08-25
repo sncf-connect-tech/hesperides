@@ -55,7 +55,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
 
     public GetPlatforms() {
 
-        When("^I( try to)? get the platform(?: \"(.*)\")? detail" +
+        When("^I( try to)? get the platform(?: \"([^\"]*)\")? detail" +
                 "( requesting the password flag)?$", (
                 String tryTo,
                 String platformName,

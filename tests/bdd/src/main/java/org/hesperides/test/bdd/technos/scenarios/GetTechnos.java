@@ -21,7 +21,7 @@ public class GetTechnos extends HesperidesScenario implements En {
 
         Given("^a techno that doesn't exist$", () -> technoBuilder.withName("doesn-t-exist"));
 
-        When("^I( try to)? get the techno detail(?: for a techno type \"(.*)\")?( with the wrong letter case)?$", (
+        When("^I( try to)? get the techno detail(?: for a techno type \"([^\"]*)\")?( with the wrong letter case)?$", (
                 String tryTo, String technoType, String withWrongLetterCase) -> {
 
             if (isNotEmpty(technoType)) {

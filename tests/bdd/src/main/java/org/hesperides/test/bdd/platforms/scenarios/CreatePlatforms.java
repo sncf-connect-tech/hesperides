@@ -63,9 +63,9 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     //TODO Extraire et factoriser la sauvegarde de propriétés dans SaveProperties
 
     @Given("^an existing platform" +
-            "(?: named \"(.*)\")?" +
+            "(?: named \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|those) modules?)?" +
-            "(?: in logical group \"(.*)\")?" +
+            "(?: in logical group \"([^\"]*)\")?" +
             "( (?:and|with) an instance)?" +
             "( (?:and|with) valued properties)?" +
             "( (?:and|with) iterable properties)?" +
@@ -148,7 +148,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformHistory.updatePlatformBuilder(platformBuilder);
         }
 
-        if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties)) {
+        if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties) || isNotEmpty(withFilenameAndLocationValues)) {
             // à bouger dans SaveProperties ?
             platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
@@ -159,8 +159,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     public CreatePlatforms() {
 
         Given("^a platform to create" +
-                "(?: named \"(.*)\")?" +
-                "(?: (?:and|with) version \"(.*)\")?" +
+                "(?: named \"([^\"]*)\")?" +
+                "(?: (?:and|with) version \"([^\"]*)\")?" +
                 "( (?:and|with) this module(?: with an empty path)?)?" +
                 "( (?:and|with) an instance(?: with properties))?" +
                 "( without setting production flag)?$", (
@@ -223,7 +223,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform is successfully (?:created|copied)" +
-                "(?: and the deployed module has the following path \"(.*)\")?$", (
+                "(?: and the deployed module has the following path \"([^\"]*)\")?$", (
                 String expectedModulePath) -> {
             assertOK();
             PlatformIO expectedPlatform = platformBuilder.buildOutput();

@@ -35,9 +35,9 @@ public class CreateTemplates extends HesperidesScenario implements En {
     public CreateTemplates() {
 
         Given("^a template(?: to create)?" +
-                "(?: named \"(.*)\")?" +
-                "(?: (?:and|with) filename \"(.*)\")?" +
-                "(?: (?:and|with) location \"(.*)\")?$", (
+                "(?: named \"([^\"]*)\")?" +
+                "(?: (?:and|with) filename \"([^\"]*)\")?" +
+                "(?: (?:and|with) location \"([^\"]*)\")?$", (
                 String name, String filename, String location) -> {
 
             templateBuilder.reset();
@@ -53,7 +53,7 @@ public class CreateTemplates extends HesperidesScenario implements En {
             }
         });
 
-        Given("^a template(?: named \"(.*)\")? with the following content$", (String name, String content) -> {
+        Given("^a template(?: named \"([^\"]*)\")? with the following content$", (String name, String content) -> {
             templateBuilder.reset();
             if (isNotEmpty(name)) {
                 templateBuilder.withName(name);

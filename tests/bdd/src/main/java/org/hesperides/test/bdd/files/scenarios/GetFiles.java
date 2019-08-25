@@ -68,7 +68,7 @@ public class GetFiles extends HesperidesScenario implements En {
 
     public GetFiles() {
 
-        When("^I( try to)? get the (instance|module)? files(?: in the logical group \"(.*)\")?$", (
+        When("^I( try to)? get the (instance|module)? files(?: in the logical group \"([^\"]*)\")?$", (
                 String tryTo, String instanceOrModule, String logicalGroup) -> {
 
             PlatformIO platform = platformBuilder.buildInput();
@@ -115,7 +115,7 @@ public class GetFiles extends HesperidesScenario implements En {
             assertThat(actualOutput, not(containsString("\\u003")));
         });
 
-        Then("^the file location is \"(.*)\"$", (String expectedLocation) -> {
+        Then("^the file location is \"([^\"]*)\"$", (String expectedLocation) -> {
             assertOK();
             List<InstanceFileOutput> actualOutput = testContext.getResponseBodyAsList();
             assertEquals(expectedLocation, actualOutput.get(0).getLocation());

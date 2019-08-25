@@ -181,8 +181,7 @@ public class PropertyBuilder implements Serializable {
         List<String> properties = new ArrayList<>();
         Matcher matcher = anythingBetweenMustachesPattern.matcher(input);
         while (matcher.find()) {
-            // TODO Pour corriger getFiles c'est ici que ça se passe (.trim()...)
-            properties.add(matcher.group(1).trim());
+            properties.add(matcher.group(1));
         }
         return properties;
     }
