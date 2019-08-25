@@ -24,86 +24,55 @@ public class GetInstancesModel extends HesperidesScenario implements En {
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
     private InstanceBuilder instanceBuilder;
+    @Autowired
+    private SaveProperties saveProperties;
 
     public GetInstancesModel() {
 
         Given("^the platform has an instance property with the same name as a global property$", () -> {
             deployedModuleBuilder.withValuedProperty("module-property", "{{global-property}}");
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
 
             instanceBuilder.withValuedProperty("global-property", "instance-property-value");
-            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
-            // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput());
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveInstanceProperties();
 
             platformBuilder.withGlobalProperty("global-property", "global-value");
-            // à bouger dans SaveProperties ?
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-            platformBuilder.incrementGlobalPropertiesVersionId();
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveGlobalProperties();
         });
 
         Given("^the platform has instance properties with the same name as another module property$", () -> {
             deployedModuleBuilder.withValuedProperty("module-property-a", "{{module-property-b}}");
             deployedModuleBuilder.withValuedProperty("module-property-b", "module-property-value");
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
 
             instanceBuilder.withValuedProperty("module-property-b", "instance-property-value");
-            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
-            // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput());
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveInstanceProperties();
         });
 
         Given("^the platform has instance properties with the same name as the module property that it's declared in$", () -> {
             deployedModuleBuilder.withValuedProperty("module-property", "{{module-property}}");
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
 
             instanceBuilder.withValuedProperty("module-property", "instance-property-value");
-            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
-            // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput());
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveInstanceProperties();
         });
 
         Given("^the platform has multiple instance properties declared in the same property value$", () -> {
             deployedModuleBuilder.withValuedProperty("module-property", "{{instance-property-a}}{{instance-property-b}}");
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
 
             instanceBuilder.withValuedProperty("instance-property-a", "instance-value-a");
             instanceBuilder.withValuedProperty("instance-property-b", "instance-value-b");
-            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
-            // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput());
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveInstanceProperties();
         });
 
         Given("^the platform has an instance property declared in two different module properties$", () -> {
             deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property}}");
             deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property}}");
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
 
             instanceBuilder.withValuedProperty("instance-property", "instance-value");
-            platformBuilder.getDeployedModuleBuilders().get(0).withInstanceBuilder(instanceBuilder);
-            // à bouger dans UpdatePlatforms ?
-            platformClient.updatePlatform(platformBuilder.buildInput());
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveInstanceProperties();
         });
 
         When("^I get the instance model$", () -> {

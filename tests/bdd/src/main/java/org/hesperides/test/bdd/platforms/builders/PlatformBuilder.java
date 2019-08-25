@@ -224,7 +224,7 @@ public class PlatformBuilder implements Serializable {
                 .map(DeployedModuleBuilder::getInstanceBuilders)
                 .flatMap(List::stream)
                 .map(InstanceBuilder::getValuedProperties)
-                .flatMap(Set::stream)
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 }

@@ -41,10 +41,7 @@ import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.hesperides.test.bdd.platforms.scenarios.SaveProperties.dataTableToIterableProperties;
@@ -64,6 +61,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private InstanceBuilder instanceBuilder;
+    @Autowired
+    private SaveProperties saveProperties;
 
     @When("^I( try to)? update this platform" +
             "(?:, (?:upgrading|downgrading) its module version to \"([^\"]*)\")?" +
@@ -116,10 +115,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 // au niveau du module déployé afin qu'elles soient prises en compte dans le model d'instance du module
                 deployedModuleBuilder.withValuedProperty("module-property-a", "{{instance-property-a}}");
                 deployedModuleBuilder.withValuedProperty("module-property-b", "{{instance-property-b}}");
-                // à bouger dans SaveProperties ?
-                platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                platformHistory.updatePlatformBuilder(platformBuilder);
+                saveProperties.saveValuedProperties();
 
                 instanceBuilder.withValuedProperty("instance-property-a", "instance-property-a-value");
                 instanceBuilder.withValuedProperty("instance-property-b", "instance-property-b-value");
@@ -146,7 +142,6 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
     public UpdatePlatforms() {
 
-        // à bouger dans SaveProperties ?
         Given("^the platform(?: \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
                 String platformName, String valuedGlobalInstanceOrIterableProperties, DataTable data) -> {
 
@@ -158,58 +153,45 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             switch (valuedGlobalInstanceOrIterableProperties) {
                 case "global":
                     platformBuilder.withGlobalProperties(data.asList(ValuedPropertyIO.class));
-                    // à bouger dans SaveProperties ?
-                    platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-                    platformBuilder.incrementGlobalPropertiesVersionId();
-                    platformHistory.updatePlatformBuilder(platformBuilder);
+                    saveProperties.saveGlobalProperties();
 
                     break;
                 case "instance":
-                    instanceBuilder.reset().withValuedProperties(data.asList(ValuedPropertyIO.class));
-                    deployedModuleBuilder.updateOrAddInstanceBuilder(instanceBuilder);
-                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                    platformClient.updatePlatform(platformBuilder.buildInput(), true, null);
-                    platformHistory.updatePlatformBuilder(platformBuilder);
+                    instanceBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
+                    saveProperties.saveInstanceProperties();
 
                     break;
                 case "iterable":
-                    List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data);
-                    deployedModuleBuilder.setIterableProperties(iterableProperties);
-                    // à bouger dans SaveProperties ?
-                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                    platformHistory.updatePlatformBuilder(platformBuilder);
+                    deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
+                    saveProperties.saveValuedProperties();
 
                     break;
                 default:
                     deployedModuleBuilder.clearValuedProperties();
                     List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
                     valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
-                    // à bouger dans SaveProperties ?
-                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                    platformHistory.updatePlatformBuilder(platformBuilder);
+                    saveProperties.saveValuedProperties();
                     break;
             }
         });
 
         Given("^the platform has nested iterable properties$", () -> {
-            List<IterableValuedPropertyIO> iterableProperties = Arrays.asList(
-                    new IterableValuedPropertyIO("a", Arrays.asList(
+            List<IterableValuedPropertyIO> iterableProperties = Collections.singletonList(
+                    new IterableValuedPropertyIO("a", Collections.singletonList(
                             new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                     new ValuedPropertyIO("valued_in_a", "value_a"),
-                                    new IterableValuedPropertyIO("b", Arrays.asList(
+                                    new IterableValuedPropertyIO("b", Collections.singletonList(
                                             new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
                                                     new ValuedPropertyIO("valued_in_b", "value_b"),
-                                                    new IterableValuedPropertyIO("c", Arrays.asList(
-                                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                                    new IterableValuedPropertyIO("c", Collections.singletonList(
+                                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
                                                                     new ValuedPropertyIO("valued_in_c", "value_c")
                                                             )))
                                                     ))
                                             )))
                                     )),
-                                    new IterableValuedPropertyIO("d", Arrays.asList(
-                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                    new IterableValuedPropertyIO("d", Collections.singletonList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Collections.singletonList(
                                                     new ValuedPropertyIO("valued_in_d", "value_d")
                                             )))
                                     ))
@@ -217,21 +199,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                     ))
             );
             deployedModuleBuilder.setIterableProperties(iterableProperties);
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
-        });
-
-        // à bouger dans SaveProperties ?
-        Given("^the deployed module has properties with values referencing global properties$", () -> {
-            deployedModuleBuilder.withValuedProperty("property-a", "{{global-module-foo}}");
-            deployedModuleBuilder.withValuedProperty("property-b", "{{global-techno-foo}}");
-            deployedModuleBuilder.withValuedProperty("property-c", "{{global-filename}}{{global-location}}");
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
         });
 
         When("^I update the module version on this platform(?: successively)? to versions? ([^a-z]+)" +

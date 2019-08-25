@@ -21,12 +21,14 @@
 package org.hesperides.test.bdd.platforms.builders;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.hesperides.core.presentation.io.platforms.InstanceIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +40,8 @@ public class InstanceBuilder implements Serializable {
     @Getter
     private String name;
     @Getter
-    private Set<ValuedPropertyIO> valuedProperties;
+    @Setter
+    private List<ValuedPropertyIO> valuedProperties;
 
     public InstanceBuilder() {
         reset();
@@ -46,16 +49,12 @@ public class InstanceBuilder implements Serializable {
 
     public InstanceBuilder reset() {
         name = "instance-name";
-        valuedProperties = new HashSet<>();
+        valuedProperties = new ArrayList<>();
         return this;
     }
 
     public void withValuedProperty(String name, String value) {
         valuedProperties.add(new ValuedPropertyIO(name, value));
-    }
-
-    public void withValuedProperties(List<ValuedPropertyIO> valuedProperties) {
-        this.valuedProperties = new HashSet<>(valuedProperties);
     }
 
     public static List<InstanceIO> build(List<InstanceBuilder> instanceBuilders) {
@@ -66,7 +65,7 @@ public class InstanceBuilder implements Serializable {
     }
 
     public InstanceIO build() {
-        return new InstanceIO(name, valuedProperties);
+        return new InstanceIO(name, new HashSet<>(valuedProperties));
     }
 
     static InstancesModelOutput buildInstanceModel(List<DeployedModuleBuilder> deployedModuleBuilders, List<ValuedPropertyIO> globalProperties) {
@@ -74,7 +73,7 @@ public class InstanceBuilder implements Serializable {
                 .map(DeployedModuleBuilder::getInstanceBuilders)
                 .flatMap(List::stream)
                 .map(InstanceBuilder::getValuedProperties)
-                .flatMap(Set::stream)
+                .flatMap(List::stream)
                 // Une propriété d'instance ne fait pas partie du model d'instance si elle a
                 // le même nom qu'une propriété globale ou qu'une propriété de module (sauf
                 // si la propriété de module se référence elle même...)

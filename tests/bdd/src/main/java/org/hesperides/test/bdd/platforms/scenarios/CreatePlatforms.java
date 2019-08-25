@@ -58,6 +58,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     private ModuleBuilder moduleBuilder;
     @Autowired
     private ModuleHistory moduleHistory;
+    @Autowired
+    private SaveProperties saveProperties;
 
     //TODO Tenter de factoriser les étapes existing platform et platform to create si c'est possible
     //TODO Extraire et factoriser la sauvegarde de propriétés dans SaveProperties
@@ -142,17 +144,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.withGlobalProperty("global-filename", "properties.js");
             platformBuilder.withGlobalProperty("global-location", "/conf");
             platformBuilder.withGlobalProperty("unused-global-property", "12");
-            // à bouger dans SaveProperties ?
-            platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-            platformBuilder.incrementGlobalPropertiesVersionId();
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveGlobalProperties();
         }
 
         if (isNotEmpty(withValuedProperties) || isNotEmpty(withIterableProperties) || isNotEmpty(withInstanceProperties) || isNotEmpty(withFilenameAndLocationValues)) {
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveProperties.saveValuedProperties();
         }
     }
 

@@ -28,6 +28,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
+import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.junit.Assert.assertEquals;
 
@@ -49,24 +51,26 @@ public class SaveProperties extends HesperidesScenario implements En {
     private PlatformHistory platformHistory;
     @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private InstanceBuilder instanceBuilder;
 
     public SaveProperties() {
 
+        Given("^the deployed module has properties with values referencing global properties$", () -> {
+            deployedModuleBuilder.withValuedProperty("property-a", "{{global-module-foo}}");
+            deployedModuleBuilder.withValuedProperty("property-b", "{{global-techno-foo}}");
+            deployedModuleBuilder.withValuedProperty("property-c", "{{global-filename}}{{global-location}}");
+            saveValuedProperties();
+        });
+
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
             deployedModuleBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            saveValuedProperties(tryTo);
         });
 
         When("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
-            List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data);
-            deployedModuleBuilder.setIterableProperties(iterableProperties);
-            // à bouger dans SaveProperties ?
-            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
-            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-            platformHistory.updatePlatformBuilder(platformBuilder);
+            deployedModuleBuilder.setIterableProperties(dataTableToIterableProperties(data));
+            saveValuedProperties(tryTo);
         });
 
         Then("^the( global)? properties are successfully (?:sav|updat)ed$", (String globalProperties) -> {
@@ -82,6 +86,31 @@ public class SaveProperties extends HesperidesScenario implements En {
                 assertEquals(expectedProperties, actualProperties);
             }
         });
+    }
+
+    void saveValuedProperties() {
+        saveValuedProperties(null);
+    }
+
+    private void saveValuedProperties(String tryTo) {
+        platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
+        if (isEmpty(tryTo)) {
+            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+            platformHistory.updatePlatformBuilder(platformBuilder);
+        }
+    }
+
+    void saveGlobalProperties() {
+        platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
+        platformBuilder.incrementGlobalPropertiesVersionId();
+        platformHistory.updatePlatformBuilder(platformBuilder);
+    }
+
+    void saveInstanceProperties() {
+        deployedModuleBuilder.updateOrAddInstanceBuilder(instanceBuilder);
+        platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+        platformClient.updatePlatform(platformBuilder.buildInput());
+        platformHistory.updatePlatformBuilder(platformBuilder);
     }
 
     @Value
