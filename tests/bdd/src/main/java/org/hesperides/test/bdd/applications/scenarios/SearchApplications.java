@@ -4,11 +4,11 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.hesperides.core.presentation.io.platforms.SearchResultOutput;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
-import org.hesperides.test.bdd.platforms.OldPlatformBuilder;
-import org.hesperides.test.bdd.platforms.OldPlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.platforms.scenarios.CreatePlatforms;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -16,9 +16,11 @@ import static org.junit.Assert.assertEquals;
 public class SearchApplications extends HesperidesScenario implements En {
 
     @Autowired
-    private OldPlatformClient oldPlatformClient;
+    private PlatformClient platformClient;
     @Autowired
-    private OldPlatformBuilder oldPlatformBuilder;
+    private PlatformBuilder platformBuilder;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public SearchApplications() {
 
@@ -26,40 +28,40 @@ public class SearchApplications extends HesperidesScenario implements En {
                 Integer nbApplications, String applicationPrefix, String withPlatform, Integer nbPlatforms, String platformPrefix) -> {
 
             for (int i = 0; i < nbApplications; i++) {
-                oldPlatformBuilder.withApplicationName(applicationPrefix + "-" + (i + 1));
+                platformBuilder.withApplicationName(applicationPrefix + "-" + (i + 1));
 
                 if (StringUtils.isNotEmpty(withPlatform)) {
                     for (int j = 0; j < nbPlatforms; j++) {
-                        oldPlatformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
-                        oldPlatformClient.create(oldPlatformBuilder.buildInput());
+                        platformBuilder.withPlatformName(platformPrefix + "-" + (j + 1));
+                        createPlatforms.createPlatform();
                     }
                 } else {
-                    oldPlatformClient.create(oldPlatformBuilder.buildInput());
+                    createPlatforms.createPlatform();
                 }
             }
         });
 
         Given("^an application named ([^ ]+)(?: with a platform named (.+))?$", (String applicationName, String platformName) -> {
-            oldPlatformBuilder.withApplicationName(applicationName);
+            platformBuilder.withApplicationName(applicationName);
             if (StringUtils.isNotEmpty(platformName)) {
-                oldPlatformBuilder.withPlatformName(platformName);
+                platformBuilder.withPlatformName(platformName);
             }
-            oldPlatformClient.create(oldPlatformBuilder.buildInput());
+            createPlatforms.createPlatform();
         });
 
         When("^I( try to)? search for the application \"(.*?)\"", (String tryTo, String applicationName) -> {
-            testContext.setResponseEntity(oldPlatformClient.searchApplication(applicationName, getResponseType(tryTo, SearchResultOutput[].class)));
+            platformClient.searchApplication(applicationName, tryTo);
         });
 
         Then("^the application (?:list|search result) contains (\\d+) entr(?:y|ies)?$", (Integer nbEntries) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
+            List<SearchResultOutput> result = testContext.getResponseBodyAsList();
             assertEquals(nbEntries.intValue(), result.size());
         });
 
         Then("^the application \"(.*?)\" is found$", (String applicationName) -> {
             assertOK();
-            List<SearchResultOutput> result = Arrays.asList(testContext.getResponseBody(SearchResultOutput[].class));
+            List<SearchResultOutput> result = testContext.getResponseBodyAsList();
             assertEquals(applicationName, result.get(0).getName());
         });
 

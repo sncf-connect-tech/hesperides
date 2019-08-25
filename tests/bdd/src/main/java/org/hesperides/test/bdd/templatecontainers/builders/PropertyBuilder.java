@@ -40,6 +40,7 @@ public class PropertyBuilder implements Serializable {
 
     private static final Pattern anythingBetweenMustachesPattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
 
+    @Getter
     private String name;
     private boolean isRequired;
     private String comment;

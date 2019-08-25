@@ -73,6 +73,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "(, adding an instance(?: (and|with) instance properties)?)?" +
             "(, clearing the modules)?" +
             "(, changing the platform version)?" +
+            "( to a prod one)?" +
             "( and requiring the copy of properties)?$")
     public void whenIupdateThisPlatform(
             String tryTo,
@@ -85,6 +86,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String addInstanceProperties,
             String clearModules,
             String changePlatformVersion,
+            String toProd,
             String copyProperties) {
 
         if (isNotEmpty(newModuleVersion)) {
@@ -134,6 +136,10 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
 
         if (isNotEmpty(changePlatformVersion)) {
             platformBuilder.withVersion("1.1");
+        }
+
+        if (StringUtils.isNotEmpty(toProd)) {
+            platformBuilder.withIsProductionPlatform(true);
         }
 
         platformClient.updatePlatform(platformBuilder.buildInput(), isNotEmpty(copyProperties), tryTo);

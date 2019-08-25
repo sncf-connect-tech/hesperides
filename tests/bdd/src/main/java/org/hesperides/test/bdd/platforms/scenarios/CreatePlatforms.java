@@ -26,6 +26,7 @@ import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
+import org.hesperides.test.bdd.commons.AuthorizationCredentialsConfig;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
@@ -34,6 +35,7 @@ import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.InstanceBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
+import org.hesperides.test.bdd.users.UserAuthorities;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -60,8 +62,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     private ModuleHistory moduleHistory;
     @Autowired
     private SaveProperties saveProperties;
+    @Autowired
+    private UserAuthorities userAuthorities;
 
-    @Given("^an existing platform" +
+    @Given("^an existing( prod)? platform" +
             "(?: named \"([^\"]*)\")?" +
             "( (?:and|with) (?:this|those) modules?)?" +
             "(?: in logical group \"([^\"]*)\")?" +
@@ -74,6 +78,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             "( (?:and|with) global properties as instance values)?" +
             "(?: (?:and|with) an instance value named \"([^ ]+)\")?$")
     public void givenAnExistingPlatform(
+            String prodPlatform,
             String platformName,
             String withThoseModule,
             String moduleLogicalGroup,
@@ -87,6 +92,11 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             String withInstanceValueNamed) {
 
         platformBuilder.reset();
+
+        if (isNotEmpty(prodPlatform)) {
+            platformBuilder.withIsProductionPlatform(true);
+            userAuthorities.setAuthUserRole(AuthorizationCredentialsConfig.PROD_TEST_PROFILE);
+        }
 
         if (isNotEmpty(platformName)) {
             platformBuilder.withPlatformName(platformName);

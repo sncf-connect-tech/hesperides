@@ -24,6 +24,7 @@ import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.properties.GlobalPropertyUsageOutput;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
+import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class GetProperties extends HesperidesScenario implements En {
@@ -46,6 +48,8 @@ public class GetProperties extends HesperidesScenario implements En {
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
     private ModuleHistory moduleHistory;
+    @Autowired
+    private ModuleBuilder moduleBuilder;
 
     public GetProperties() {
 
@@ -80,6 +84,36 @@ public class GetProperties extends HesperidesScenario implements En {
             Map<String, Set<GlobalPropertyUsageOutput>> expectedGlobalPropertiesUsage = platformBuilder.buildGlobalPropertiesUsage(moduleHistory);
             Map<String, Set<GlobalPropertyUsageOutput>> actualGlobalPropertiesUsage = testContext.getResponseBody();
             assertEquals(expectedGlobalPropertiesUsage, actualGlobalPropertiesUsage);
+        });
+
+        Then("^the password property values are obfuscated$", () -> {
+            assertOK();
+            PropertiesIO actualProperties = testContext.getResponseBody();
+            actualProperties.getValuedProperties().forEach(valuedProperty -> {
+                if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
+                    assertEquals("******", valuedProperty.getValue());
+                }
+            });
+        });
+
+        Then("^the non-password property values are not obfuscated$", () -> {
+            assertOK();
+            PropertiesIO actualProperties = testContext.getResponseBody();
+            actualProperties.getValuedProperties().forEach(valuedProperty -> {
+                if (!moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
+                    assertThat(valuedProperty.getValue()).doesNotContain("******");
+                }
+            });
+        });
+
+        Then("^the password property values are not obfuscated$", () -> {
+            assertOK();
+            PropertiesIO actualProperties = testContext.getResponseBody();
+            actualProperties.getValuedProperties().forEach(valuedProperty -> {
+                if (moduleBuilder.isPasswordProperty(valuedProperty.getName())) {
+                    assertThat(valuedProperty.getValue()).doesNotContain("******");
+                }
+            });
         });
     }
 }

@@ -123,4 +123,10 @@ public abstract class TemplateContainerBuilder implements Serializable {
     public boolean isWorkingCopy() {
         return VersionType.toIsWorkingCopy(versionType);
     }
+
+    public boolean isPasswordProperty(String propertyName) {
+        return propertyBuilders.stream()
+                .anyMatch(propertyBuilder -> propertyBuilder.isPassword() &&
+                        propertyBuilder.getName().equals(propertyName));
+    }
 }

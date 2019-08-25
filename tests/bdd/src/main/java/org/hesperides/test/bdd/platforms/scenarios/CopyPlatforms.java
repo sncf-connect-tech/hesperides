@@ -52,13 +52,23 @@ public class CopyPlatforms extends HesperidesScenario implements En {
 
     public CopyPlatforms() {
 
-        When("^I( try to)? copy this platform( using the same key)?( without copying instances or properties)?$", (
-                String tryTo, String usingTheSameKey, String withoutInstancesOrProperties) -> {
+        When("^I( try to)? copy this platform" +
+                "( using the same key)?" +
+                "( to a non-prod one)?" +
+                "( without copying instances or properties)?$", (
+                String tryTo,
+                String usingTheSameKey,
+                String toNonProd,
+                String withoutInstancesOrProperties) -> {
 
             PlatformIO existingPlatform = platformBuilder.buildInput();
 
             if (isEmpty(usingTheSameKey)) {
                 platformBuilder.withPlatformName(existingPlatform.getPlatformName() + "-copy");
+            }
+
+            if (isEmpty(toNonProd)) {
+                platformBuilder.withIsProductionPlatform(false);
             }
 
             platformClient.copyPlatform(existingPlatform, platformBuilder.buildInput(), isNotEmpty(withoutInstancesOrProperties), tryTo);
