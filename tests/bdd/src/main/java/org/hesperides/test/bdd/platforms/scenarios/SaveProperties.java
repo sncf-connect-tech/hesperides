@@ -53,7 +53,7 @@ public class SaveProperties extends HesperidesScenario implements En {
     public SaveProperties() {
 
         When("^I( try to)? save these properties$", (String tryTo, DataTable data) -> {
-            deployedModuleBuilder.withValuedProperties(data.asList(ValuedPropertyIO.class));
+            deployedModuleBuilder.setValuedProperties(data.asList(ValuedPropertyIO.class));
             // à bouger dans SaveProperties ?
             platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
@@ -62,7 +62,7 @@ public class SaveProperties extends HesperidesScenario implements En {
 
         When("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
             List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data);
-            deployedModuleBuilder.withIterableProperties(iterableProperties);
+            deployedModuleBuilder.setIterableProperties(iterableProperties);
             // à bouger dans SaveProperties ?
             platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
@@ -96,7 +96,6 @@ public class SaveProperties extends HesperidesScenario implements En {
      * Cette méthode transforme une matrice à deux dimensions
      * contenant les colonnes "iterable", "bloc", "name", "value"
      * en une liste de IterableValuedPropertyIO.
-     * @param valuedProperties
      */
     static List<IterableValuedPropertyIO> dataTableToIterableProperties(DataTable data) {
         List<IterableProperty> valuedProperties = data.asList(IterableProperty.class);

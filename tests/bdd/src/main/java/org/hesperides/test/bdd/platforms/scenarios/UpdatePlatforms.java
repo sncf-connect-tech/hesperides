@@ -174,7 +174,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                     break;
                 case "iterable":
                     List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data);
-                    deployedModuleBuilder.withIterableProperties(iterableProperties);
+                    deployedModuleBuilder.setIterableProperties(iterableProperties);
                     // à bouger dans SaveProperties ?
                     platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
                     platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
@@ -215,7 +215,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                             )))
                     ))
             );
-            deployedModuleBuilder.withIterableProperties(iterableProperties);
+            deployedModuleBuilder.setIterableProperties(iterableProperties);
             // à bouger dans SaveProperties ?
             platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);

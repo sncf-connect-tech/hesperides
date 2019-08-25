@@ -51,7 +51,9 @@ public class DeployedModuleBuilder implements Serializable {
     @Getter
     private String modulePath;
     @Getter
+    @Setter
     private List<ValuedPropertyIO> valuedProperties;
+    @Setter
     private List<IterableValuedPropertyIO> iterableProperties;
     @Getter
     private List<InstanceBuilder> instanceBuilders;
@@ -94,10 +96,6 @@ public class DeployedModuleBuilder implements Serializable {
         valuedProperties.add(new ValuedPropertyIO(name, value));
     }
 
-    public void withValuedProperties(List<ValuedPropertyIO> valuedProperties) {
-        this.valuedProperties = new ArrayList<>(valuedProperties);
-    }
-
     public void updateValuedProperty(String name, String value) {
         valuedProperties = valuedProperties.stream()
                 .map(valuedProperty -> valuedProperty.getName().equals(name) ? new ValuedPropertyIO(name, value) : valuedProperty)
@@ -106,10 +104,6 @@ public class DeployedModuleBuilder implements Serializable {
 
     public void withIterableProperty(IterableValuedPropertyIO iterableProperty) {
         iterableProperties.add(iterableProperty);
-    }
-
-    public void withIterableProperties(List<IterableValuedPropertyIO> iterableProperties) {
-        this.iterableProperties = new ArrayList<>(iterableProperties);
     }
 
     private void withPropertiesVersionId(long propertiesVersionId) {

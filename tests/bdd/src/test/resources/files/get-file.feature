@@ -1,3 +1,4 @@
+@done
 Feature: Get file
 
   Background:
@@ -170,19 +171,6 @@ Feature: Get file
       """
       global-value
       """
-
-  Scenario: get file with nested iterable properties
-    Given an existing module with this template content
-      """
-      {{#module-foo}}{{#module-bar}}{{module-foobar}}{{/module-bar}}{{/module-foo}}
-      """
-    And an existing platform with this module
-    And the platform has nested iterable properties
-    When I get the module template file
-    Then the file is successfully retrieved and contains
-    """
-    module-foobar-val-1module-foobar-val-2module-foobar-val-3module-foobar-val-4
-    """
 
   #issue-457
   Scenario: get file with predefined properties
@@ -531,14 +519,14 @@ Feature: Get file
     And the platform has these valued properties
       | name     | value                   |
       | property | {{ instance-property }} |
-    And the platform has these instance properties
-      | name              | value          |
-      | instance-property | instance-value |
     And the platform has these iterable properties
       | iterable | bloc   | name                                 | value                             |
       | a        | bloc-1 | will-be-replaced-by-global-value     | {{ global-property }}             |
       | a        | bloc-1 | will-be-replaced-by-instance-value   | {{ instance-property }}           |
       | a        | bloc-1 | will-be-replaced-by-predefined-value | {{ hesperides.application.name }} |
+    And the platform has these instance properties
+      | name              | value          |
+      | instance-property | instance-value |
     When I get the instance template file
     Then the file is successfully retrieved and contains
       """
