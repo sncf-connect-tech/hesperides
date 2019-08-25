@@ -61,7 +61,7 @@ public class SaveProperties extends HesperidesScenario implements En {
         });
 
         When("^I( try to)? save these iterable properties$", (String tryTo, DataTable data) -> {
-            List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data.asList(IterableProperty.class));
+            List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data);
             deployedModuleBuilder.withIterableProperties(iterableProperties);
             // à bouger dans SaveProperties ?
             platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath(), tryTo);
@@ -96,8 +96,11 @@ public class SaveProperties extends HesperidesScenario implements En {
      * Cette méthode transforme une matrice à deux dimensions
      * contenant les colonnes "iterable", "bloc", "name", "value"
      * en une liste de IterableValuedPropertyIO.
+     * @param valuedProperties
      */
-    private static List<IterableValuedPropertyIO> dataTableToIterableProperties(List<IterableProperty> valuedProperties) {
+    static List<IterableValuedPropertyIO> dataTableToIterableProperties(DataTable data) {
+        List<IterableProperty> valuedProperties = data.asList(IterableProperty.class);
+
         Map<String, Map<String, Map<String, String>>> iterableMap = new HashMap<>();
         // Première étape : transformer la datatable en map
         // pour mutualiser les données

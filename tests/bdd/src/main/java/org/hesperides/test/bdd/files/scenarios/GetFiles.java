@@ -53,6 +53,8 @@ import static org.junit.Assert.assertThat;
 
 public class GetFiles extends HesperidesScenario implements En {
 
+    //TODO Classe à nettoyger et expectedFiles à revoir ?
+
     @Autowired
     private FileClient fileClient;
     @Autowired

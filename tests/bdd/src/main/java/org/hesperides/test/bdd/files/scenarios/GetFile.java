@@ -56,6 +56,8 @@ public class GetFile extends HesperidesScenario implements En {
 
         When("^I( try to)? get the (instance|module)? template file$", (String tryTo, String instanceOrModule) -> {
 
+            //Factoriser avec GetFiles
+
             Optional<DeployedModuleBuilder> deployedModuleBuilder = CollectionUtils.isEmpty(oldPlatformBuilder.getDeployedModuleBuilders())
                     ? Optional.empty() : Optional.of(oldPlatformBuilder.getDeployedModuleBuilders().get(0));
             String modulePath = deployedModuleBuilder.map(DeployedModuleBuilder::getModulePath).orElse("anything");

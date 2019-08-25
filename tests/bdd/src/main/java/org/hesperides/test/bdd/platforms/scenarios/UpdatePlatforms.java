@@ -27,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
+import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.core.presentation.io.platforms.properties.ValuedPropertyIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
@@ -39,11 +41,13 @@ import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.hesperides.test.bdd.templatecontainers.VersionType;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.hesperides.test.bdd.platforms.scenarios.SaveProperties.dataTableToIterableProperties;
 import static org.junit.Assert.assertEquals;
 
 public class UpdatePlatforms extends HesperidesScenario implements En {
@@ -143,36 +147,79 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     public UpdatePlatforms() {
 
         // à bouger dans SaveProperties ?
-        Given("^the platform(?: \"([^\"]+)\")? has these (valued|global|instance)? properties$", (
-                String platformName, String valuedGlobalOrInstanceProperties, DataTable data) -> {
+        Given("^the platform(?: \"([^\"]+)\")? has these (valued|global|instance|iterable)? properties$", (
+                String platformName, String valuedGlobalInstanceOrIterableProperties, DataTable data) -> {
 
             if (isNotEmpty(platformName)) {
                 // On s'assure que le platformBuilder "actif" correspond bien à la plateforme explicitement nommée
                 assertEquals(platformName, platformBuilder.getPlatformName());
             }
 
-            List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
-            if (valuedGlobalOrInstanceProperties.contains("global")) {
-                platformBuilder.withGlobalProperties(valuedProperties);
-                // à bouger dans SaveProperties ?
-                platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
-                platformBuilder.incrementGlobalPropertiesVersionId();
-                platformHistory.updatePlatformBuilder(platformBuilder);
+            switch (valuedGlobalInstanceOrIterableProperties) {
+                case "global":
+                    platformBuilder.withGlobalProperties(data.asList(ValuedPropertyIO.class));
+                    // à bouger dans SaveProperties ?
+                    platformClient.saveGlobalProperties(platformBuilder.buildInput(), platformBuilder.buildProperties());
+                    platformBuilder.incrementGlobalPropertiesVersionId();
+                    platformHistory.updatePlatformBuilder(platformBuilder);
 
-            } else if (valuedGlobalOrInstanceProperties.contains("instance")) {
-                instanceBuilder.reset().withValuedProperties(valuedProperties);
-                deployedModuleBuilder.updateOrAddInstanceBuilder(instanceBuilder);
-                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                platformClient.updatePlatform(platformBuilder.buildInput(), true, null);
-                platformHistory.updatePlatformBuilder(platformBuilder);
+                    break;
+                case "instance":
+                    instanceBuilder.reset().withValuedProperties(data.asList(ValuedPropertyIO.class));
+                    deployedModuleBuilder.updateOrAddInstanceBuilder(instanceBuilder);
+                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                    platformClient.updatePlatform(platformBuilder.buildInput(), true, null);
+                    platformHistory.updatePlatformBuilder(platformBuilder);
 
-            } else {
-                deployedModuleBuilder.withValuedProperties(valuedProperties);
-                // à bouger dans SaveProperties ?
-                platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-                platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
-                platformHistory.updatePlatformBuilder(platformBuilder);
+                    break;
+                case "iterable":
+                    List<IterableValuedPropertyIO> iterableProperties = dataTableToIterableProperties(data);
+                    deployedModuleBuilder.withIterableProperties(iterableProperties);
+                    // à bouger dans SaveProperties ?
+                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                    platformHistory.updatePlatformBuilder(platformBuilder);
+
+                    break;
+                default:
+                    List<ValuedPropertyIO> valuedProperties = data.asList(ValuedPropertyIO.class);
+                    valuedProperties.forEach(property -> deployedModuleBuilder.withValuedProperty(property.getName(), property.getValue().replace("&nbsp;", " ")));
+                    // à bouger dans SaveProperties ?
+                    platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                    platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+                    platformHistory.updatePlatformBuilder(platformBuilder);
+                    break;
             }
+        });
+
+        Given("^the platform has nested iterable properties$", () -> {
+            List<IterableValuedPropertyIO> iterableProperties = Arrays.asList(
+                    new IterableValuedPropertyIO("a", Arrays.asList(
+                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                    new ValuedPropertyIO("valued_in_a", "value_a"),
+                                    new IterableValuedPropertyIO("b", Arrays.asList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                                    new ValuedPropertyIO("valued_in_b", "value_b"),
+                                                    new IterableValuedPropertyIO("c", Arrays.asList(
+                                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                                                    new ValuedPropertyIO("valued_in_c", "value_c")
+                                                            )))
+                                                    ))
+                                            )))
+                                    )),
+                                    new IterableValuedPropertyIO("d", Arrays.asList(
+                                            new IterablePropertyItemIO("", new ArrayList<>(Arrays.asList(
+                                                    new ValuedPropertyIO("valued_in_d", "value_d")
+                                            )))
+                                    ))
+                            )))
+                    ))
+            );
+            deployedModuleBuilder.withIterableProperties(iterableProperties);
+            // à bouger dans SaveProperties ?
+            platformClient.saveProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
+            platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
         // à bouger dans SaveProperties ?

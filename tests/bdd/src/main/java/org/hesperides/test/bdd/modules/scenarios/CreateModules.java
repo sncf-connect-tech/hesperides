@@ -127,10 +127,9 @@ public class CreateModules extends HesperidesScenario implements En {
         Given("^an existing module with this template content$", (String templateContent) -> {
             // Cette étape est la fusion de `Given a template with the following content` et de
             // `Given a module with this template`, il y a 59 tests qui dépendent de cette étape.
-            templateBuilder.reset();
             moduleBuilder.reset();
             createModule();
-            templateBuilder.withContent(templateContent);
+            templateBuilder.setContent(templateContent);
             addTemplatePropertiesToBuilders(templateBuilder);
             addTemplateToModule();
         });
@@ -261,7 +260,7 @@ public class CreateModules extends HesperidesScenario implements En {
     }
 
     private void addPropertyToBuilders(PropertyBuilder propertyBuilder) {
-        templateBuilder.withContent(propertyBuilder.toString());
+//        templateBuilder.withContent(propertyBuilder.toString());
         moduleBuilder.addPropertyBuilder(propertyBuilder);
     }
 
