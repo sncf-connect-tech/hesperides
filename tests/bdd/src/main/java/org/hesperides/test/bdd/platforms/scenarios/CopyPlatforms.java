@@ -47,6 +47,8 @@ public class CopyPlatforms extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private SaveProperties saveProperties;
 
     public CopyPlatforms() {
 
@@ -76,18 +78,8 @@ public class CopyPlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform property values are(?: also)? copied$", () -> {
-            //todo à bouger dans GetProperties
-            // Propriétés valorisées au niveau des modules
-            platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                PropertiesIO expectedModuleProperties = deployedModuleBuilder.buildProperties();
-                PropertiesIO actualModuleProperties = platformClient.getProperties(
-                        platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
-                assertEquals(expectedModuleProperties, actualModuleProperties);
-            });
-            // Propriétés globales
-            PropertiesIO expectedGlobalProperties = platformBuilder.buildProperties();
-            PropertiesIO actualGlobalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
-            assertEquals(expectedGlobalProperties, actualGlobalProperties);
+            platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties);
+            saveProperties.assertGlobalProperties();
         });
 
         Then("^the platform property values are not copied$", () -> {

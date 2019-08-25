@@ -26,7 +26,6 @@ import cucumber.api.java8.En;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterablePropertyItemIO;
 import org.hesperides.core.presentation.io.platforms.properties.IterableValuedPropertyIO;
 import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
@@ -63,6 +62,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
     private InstanceBuilder instanceBuilder;
     @Autowired
     private SaveProperties saveProperties;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     @When("^I( try to)? update this platform" +
             "(?:, (?:upgrading|downgrading) its module version to \"([^\"]*)\")?" +
@@ -224,12 +225,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             });
         });
 
-        Then("^the platform is successfully updated$", () -> {
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody();
-            assertEquals(expectedPlatform, actualPlatform);
-        });
+        Then("^the platform is successfully updated$", () -> createPlatforms.assertPlatform());
 
         Then("^the platform instance model includes these instance properties$", () -> {
             InstancesModelOutput expectedInstanceModel = platformBuilder.buildInstanceModel();

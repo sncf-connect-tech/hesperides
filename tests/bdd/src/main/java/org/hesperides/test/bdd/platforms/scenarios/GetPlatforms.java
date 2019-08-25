@@ -52,6 +52,8 @@ public class GetPlatforms extends HesperidesScenario implements En {
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
     private ModuleBuilder moduleBuilder;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public GetPlatforms() {
 
@@ -68,12 +70,7 @@ public class GetPlatforms extends HesperidesScenario implements En {
             platformClient.getPlatform(platformBuilder.buildInput(), null, isNotEmpty(withPasswordFlag), tryTo);
         });
 
-        Then("^the platform detail is successfully retrieved", () -> {
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody();
-            Assert.assertEquals(expectedPlatform, actualPlatform);
-        });
+        Then("^the platform detail is successfully retrieved", () -> createPlatforms.assertPlatform());
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
             PlatformIO platform = testContext.getResponseBody();

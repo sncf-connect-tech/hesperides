@@ -21,18 +21,14 @@
 package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
-import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.junit.Assert.assertEquals;
 
 public class DeletePlatforms extends HesperidesScenario implements En {
 
@@ -42,6 +38,10 @@ public class DeletePlatforms extends HesperidesScenario implements En {
     private PlatformBuilder platformBuilder;
     @Autowired
     private PlatformHistory platformHistory;
+    @Autowired
+    private SaveProperties saveProperties;
+    @Autowired
+    private CreatePlatforms createPlatforms;
 
     public DeletePlatforms() {
 
@@ -50,7 +50,6 @@ public class DeletePlatforms extends HesperidesScenario implements En {
             platformClient.deletePlatform(platformBuilder.buildInput(), tryTo);
             if (isEmpty(tryTo) && isEmpty(restorePlatform)) {
                 platformHistory.removePlatformBuilder(platformBuilder);
-                //platformBuilder.reset();
             }
             if (isNotEmpty(restorePlatform)) {
                 assertOK(); // On vérifie d'abord que la suppression s'est bien déroulée
@@ -72,24 +71,9 @@ public class DeletePlatforms extends HesperidesScenario implements En {
         });
 
         Then("^the platform is successfully restored with its properties and everything", () -> {
-            //Factoriser dans GetPlatforms
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody();
-            Assert.assertEquals(expectedPlatform, actualPlatform);
-
-            //todo à bouger dans GetProperties
-            // Propriétés valorisées au niveau des modules
-            platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                PropertiesIO expectedModuleProperties = deployedModuleBuilder.buildProperties();
-                PropertiesIO actualModuleProperties = platformClient.getProperties(
-                        platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
-                assertEquals(expectedModuleProperties, actualModuleProperties);
-            });
-            // Propriétés globales
-            PropertiesIO expectedGlobalProperties = platformBuilder.buildProperties();
-            PropertiesIO actualGlobalProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
-            assertEquals(expectedGlobalProperties, actualGlobalProperties);
+            createPlatforms.assertPlatform();
+            platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties);
+            saveProperties.assertGlobalProperties();
         });
 
         Then("^the platform deletion is rejected with a not found error$", this::assertNotFound);

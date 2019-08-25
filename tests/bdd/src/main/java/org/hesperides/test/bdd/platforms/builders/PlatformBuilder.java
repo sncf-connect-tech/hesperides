@@ -202,7 +202,6 @@ public class PlatformBuilder implements Serializable {
                         .map(PropertyOutput::getName)
                         .anyMatch(property -> property.equals(globalProperty.getName()));
 
-                //todo Dans les propriétés d'instances ?
                 if (isFoundInDeployedModulePropertyValues || isFoundInModulePropertyModel) {
                     globalPropertyUsage.add(new GlobalPropertyUsageOutput(isFoundInModulePropertyModel, deployedModuleBuilder.buildPropertiesPath()));
                 }

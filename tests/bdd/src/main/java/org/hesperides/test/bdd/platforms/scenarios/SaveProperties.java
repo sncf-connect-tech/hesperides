@@ -74,18 +74,29 @@ public class SaveProperties extends HesperidesScenario implements En {
         });
 
         Then("^the( global)? properties are successfully (?:sav|updat)ed$", (String globalProperties) -> {
-            //todo factoriser avec updated for those modules
             assertOK();
             if (isNotEmpty(globalProperties)) {
-                PropertiesIO expectedProperties = platformBuilder.buildProperties();
-                PropertiesIO actualProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
-                assertEquals(expectedProperties, actualProperties);
+                assertGlobalProperties();
             } else {
-                PropertiesIO expectedProperties = deployedModuleBuilder.buildProperties();
-                PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
-                assertEquals(expectedProperties, actualProperties);
+                assertValuedProperties();
             }
         });
+    }
+
+    private void assertValuedProperties() {
+        assertValuedProperties(deployedModuleBuilder);
+    }
+
+    void assertValuedProperties(DeployedModuleBuilder deployedModuleBuilder) {
+        PropertiesIO expectedProperties = deployedModuleBuilder.buildProperties();
+        PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
+        assertEquals(expectedProperties, actualProperties);
+    }
+
+    void assertGlobalProperties() {
+        PropertiesIO expectedProperties = platformBuilder.buildProperties();
+        PropertiesIO actualProperties = platformClient.getGlobalProperties(platformBuilder.buildInput());
+        assertEquals(expectedProperties, actualProperties);
     }
 
     void saveValuedProperties() {

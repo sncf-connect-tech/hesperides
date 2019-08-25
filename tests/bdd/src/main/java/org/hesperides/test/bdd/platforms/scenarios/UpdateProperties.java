@@ -22,7 +22,6 @@ package org.hesperides.test.bdd.platforms.scenarios;
 
 import cucumber.api.java8.En;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
-import org.hesperides.core.presentation.io.platforms.properties.PropertiesIO;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.platforms.PlatformClient;
 import org.hesperides.test.bdd.platforms.PlatformHistory;
@@ -42,6 +41,10 @@ public class UpdateProperties extends HesperidesScenario implements En {
     private PlatformHistory platformHistory;
     @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
+    @Autowired
+    private CreatePlatforms createPlatforms;
+    @Autowired
+    private SaveProperties saveProperties;
 
     public UpdateProperties() {
 
@@ -98,22 +101,10 @@ public class UpdateProperties extends HesperidesScenario implements En {
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
-        Then("^the properties are successfully updated for those modules$", () -> {
+        Then("^the properties are successfully updated for those modules$", () ->
+                platformBuilder.getDeployedModuleBuilders().forEach(saveProperties::assertValuedProperties));
 
-            platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                PropertiesIO expectedProperties = deployedModuleBuilder.buildProperties();
-                PropertiesIO actualProperties = platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath());
-                assertOK();
-                assertEquals(expectedProperties, actualProperties);
-            });
-        });
-
-        Then("^the platform version_id is also updated$", () -> {
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = platformClient.getPlatform(platformBuilder.buildInput());
-            assertOK();
-            assertEquals(expectedPlatform, actualPlatform);
-        });
+        Then("^the platform version_id is also updated$", () -> createPlatforms.assertPlatform());
 
         Then("^the properties versionId should stay the same$", () -> {
             Long expectedPropertiesVersionId = deployedModuleBuilder.getPropertiesVersionId();

@@ -120,7 +120,6 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
                 }
                 if (isNotEmpty(withIterableProperties)) {
-                    //todo à bouger dans SaveProperties ?
                     deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
                             Collections.singletonList(new IterablePropertyItemIO("item",
                                     Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));
@@ -218,10 +217,8 @@ public class CreatePlatforms extends HesperidesScenario implements En {
         Then("^the platform is successfully (?:created|copied)" +
                 "(?: and the deployed module has the following path \"([^\"]*)\")?$", (
                 String expectedModulePath) -> {
-            assertOK();
-            PlatformIO expectedPlatform = platformBuilder.buildOutput();
-            PlatformIO actualPlatform = testContext.getResponseBody();
-            assertEquals(expectedPlatform, actualPlatform);
+
+            assertPlatform();
 
             if (isNotEmpty(expectedModulePath)) {
                 platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
@@ -245,5 +242,12 @@ public class CreatePlatforms extends HesperidesScenario implements En {
             platformBuilder.setDeployedModuleIds();
             platformHistory.addPlatformBuilder(platformBuilder);
         }
+    }
+
+    public void assertPlatform() {
+        assertOK();
+        PlatformIO expectedPlatform = platformBuilder.buildOutput();
+        PlatformIO actualPlatform = testContext.getResponseBody();
+        assertEquals(expectedPlatform, actualPlatform);
     }
 }

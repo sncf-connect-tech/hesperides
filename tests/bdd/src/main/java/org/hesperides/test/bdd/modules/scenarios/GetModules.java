@@ -8,7 +8,6 @@ import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.technos.TechnoBuilder;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -85,7 +84,7 @@ public class GetModules extends HesperidesScenario implements En {
                     .map(ModuleBuilder::buildModuleKeyOutput)
                     .collect(Collectors.toList());
             List<ModuleKeyOutput> actualModules = testContext.getResponseBodyAsList();
-            Assert.assertEquals(expectedModules, actualModules);
+            assertEquals(expectedModules, actualModules);
         });
     }
 }
