@@ -74,7 +74,7 @@ public class SaveProperties extends HesperidesScenario implements En {
         });
 
         Then("^the( global)? properties are successfully (?:sav|updat)ed$", (String globalProperties) -> {
-            // factoriser avec updated for those modules
+            //todo factoriser avec updated for those modules
             assertOK();
             if (isNotEmpty(globalProperties)) {
                 PropertiesIO expectedProperties = platformBuilder.buildProperties();

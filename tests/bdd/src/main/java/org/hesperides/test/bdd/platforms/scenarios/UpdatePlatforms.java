@@ -101,6 +101,8 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
         if (isNotEmpty(addThisModule)) {
             if (!addThisModule.contains("again")) {
                 deployedModuleBuilder.reset();
+            } else {
+                deployedModuleBuilder.setPropertiesVersionId(0L);
             }
             deployedModuleBuilder.fromModuleBuider(moduleBuilder);
             if (isNotEmpty(moduleLogicalGroup)) {

@@ -44,6 +44,7 @@ public class DeployedModuleBuilder implements Serializable {
     @Setter
     private Long id;
     @Getter
+    @Setter
     private Long propertiesVersionId;
     private String name;
     private String version;
@@ -114,7 +115,6 @@ public class DeployedModuleBuilder implements Serializable {
         name = moduleBuilder.getName();
         version = moduleBuilder.getVersion();
         versionType = moduleBuilder.getVersionType();
-        propertiesVersionId = 0L; // Est-ce utile ?
     }
 
     static List<DeployedModuleIO> buildInputs(List<DeployedModuleBuilder> deployedModuleBuilders) {

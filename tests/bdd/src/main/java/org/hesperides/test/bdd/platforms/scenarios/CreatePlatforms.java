@@ -120,7 +120,7 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                     deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
                 }
                 if (isNotEmpty(withIterableProperties)) {
-                    //à bouger dans SaveProperties ?
+                    //todo à bouger dans SaveProperties ?
                     deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
                             Collections.singletonList(new IterablePropertyItemIO("item",
                                     Collections.singletonList(new ValuedPropertyIO("property-name", "property-value"))))));

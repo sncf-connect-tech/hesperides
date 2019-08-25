@@ -78,7 +78,7 @@ public class DeletePlatforms extends HesperidesScenario implements En {
             PlatformIO actualPlatform = testContext.getResponseBody();
             Assert.assertEquals(expectedPlatform, actualPlatform);
 
-            //à bouger dans GetProperties
+            //todo à bouger dans GetProperties
             // Propriétés valorisées au niveau des modules
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
                 PropertiesIO expectedModuleProperties = deployedModuleBuilder.buildProperties();

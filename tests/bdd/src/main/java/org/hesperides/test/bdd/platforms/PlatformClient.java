@@ -266,13 +266,6 @@ public class PlatformClient {
                 getResponseType(tryTo, PlatformIO.class),
                 platformInput.getApplicationName(),
                 platformInput.getPlatformName());
-//        restTemplate.exchange(
-//                "/applications/{application_name}/platforms/{platform_name}/restore",
-//                HttpMethod.POST,
-//                null,
-//                getResponseType(tryTo, PlatformIO.class),
-//                platformInput.getApplicationName(),
-//                platformInput.getPlatformName());
     }
 
     public void getAllApplications() {
