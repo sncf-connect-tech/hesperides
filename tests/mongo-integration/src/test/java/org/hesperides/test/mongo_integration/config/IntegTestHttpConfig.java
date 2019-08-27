@@ -15,7 +15,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import javax.net.ssl.SSLContext;
@@ -43,7 +42,7 @@ public class IntegTestHttpConfig {
     }
 
     @Bean
-    public RestTemplate buildRestTemplate(Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) throws Exception {
+    public CustomRestTemplate buildRestTemplate(Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) throws Exception {
         return new CustomRestTemplate(gson, defaultUriBuilderFactory, buildHttpClient());
     }
 
