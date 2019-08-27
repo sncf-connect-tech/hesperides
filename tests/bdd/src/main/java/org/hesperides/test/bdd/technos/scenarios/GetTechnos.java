@@ -27,10 +27,8 @@ public class GetTechnos extends HesperidesScenario implements En {
             if (isNotEmpty(technoType)) {
                 technoBuilder.withVersionType(technoType);
             }
-            if (isNotEmpty(withWrongLetterCase)) {
-                technoBuilder.withName(technoBuilder.getName().toUpperCase());
-            }
-            technoClient.getTechno(technoBuilder.build(), technoBuilder.getVersionType(), tryTo);
+            String technoName = isNotEmpty(withWrongLetterCase) ? technoBuilder.getName().toUpperCase() : technoBuilder.getName();
+            technoClient.getTechno(technoBuilder.buildWithName(technoName), technoBuilder.getVersionType(), tryTo);
         });
 
         When("^I get the technos name$", () -> technoClient.getTechnoNames());

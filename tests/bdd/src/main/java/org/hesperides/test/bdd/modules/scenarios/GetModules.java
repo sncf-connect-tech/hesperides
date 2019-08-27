@@ -32,15 +32,13 @@ public class GetModules extends HesperidesScenario implements En {
         Given("^a module that doesn't exist$", () -> moduleBuilder.withName("doesn-t-exist"));
 
         When("^I( try to)? get the module detail(?: for a module type \"([^\"]*)\")?( with the wrong letter case)?$", (
-                String tryTo, String moduleType, String withWrongLetterCase) -> {
+                String tryTo, String moduleType, String wrongLetterCase) -> {
 
             if (isNotEmpty(moduleType)) {
                 moduleBuilder.withVersionType(moduleType);
             }
-            if (isNotEmpty(withWrongLetterCase)) {
-                moduleBuilder.withName(moduleBuilder.getName().toUpperCase());
-            }
-            moduleClient.getModule(moduleBuilder.build(), moduleBuilder.getVersionType(), tryTo);
+            String moduleName = isNotEmpty(wrongLetterCase) ? moduleBuilder.getName().toUpperCase() : moduleBuilder.getName();
+            moduleClient.getModule(moduleBuilder.buildWithName(moduleName), moduleBuilder.getVersionType(), tryTo);
         });
 
         When("^I get the modules name$", () -> moduleClient.getModuleNames());

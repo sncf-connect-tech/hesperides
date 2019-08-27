@@ -58,16 +58,18 @@ public class GetPlatforms extends HesperidesScenario implements En {
     public GetPlatforms() {
 
         When("^I( try to)? get the platform(?: \"([^\"]*)\")? detail" +
+                "( with the wrong letter case)?" +
                 "( requesting the password flag)?$", (
                 String tryTo,
                 String platformName,
+                String wrongLetterCase,
                 String withPasswordFlag) -> {
 
             if (isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
             }
-
-            platformClient.getPlatform(platformBuilder.buildInput(), null, isNotEmpty(withPasswordFlag), tryTo);
+            platformName = isNotEmpty(wrongLetterCase) ? platformBuilder.getPlatformName().toUpperCase() : platformBuilder.getPlatformName();
+            platformClient.getPlatform(platformBuilder.buildInputWithPlatformName(platformName), null, isNotEmpty(withPasswordFlag), tryTo);
         });
 
         Then("^the platform detail is successfully retrieved", () -> createPlatforms.assertPlatform());

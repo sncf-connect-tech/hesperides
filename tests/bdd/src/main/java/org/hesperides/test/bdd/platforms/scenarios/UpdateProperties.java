@@ -59,7 +59,7 @@ public class UpdateProperties extends HesperidesScenario implements En {
             Long firstPlatformVersionId = platformBuilder.getVersionId();
 
             platformBuilder.getDeployedModuleBuilders().forEach(deployedModuleBuilder -> {
-                platformClient.updateProperties(platformBuilder.buildInput(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+                platformClient.updateProperties(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
                 platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
                 platformHistory.updatePlatformBuilder(platformBuilder);
             });
@@ -68,19 +68,19 @@ public class UpdateProperties extends HesperidesScenario implements En {
         When("^I update the module properties and then the platform global properties using the same platform version_id$", () -> {
             Long firstPlatformVersionId = platformBuilder.getVersionId();
 
-            platformClient.updateProperties(platformBuilder.buildInput(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformClient.updateProperties(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
             platformHistory.updatePlatformBuilder(platformBuilder);
 
-            platformClient.updateGlobalProperties(platformBuilder.buildInput(firstPlatformVersionId), platformBuilder.buildProperties());
+            platformClient.updateGlobalProperties(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId), platformBuilder.buildProperties());
             platformBuilder.incrementGlobalPropertiesVersionId();
             platformHistory.updatePlatformBuilder(platformBuilder);
         });
 
         When("^I try to update the module properties and then the platform using the same platform version_id$", () -> {
             Long firstPlatformVersionId = platformBuilder.getVersionId();
-            platformClient.updateProperties(platformBuilder.buildInput(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
-            platformClient.updatePlatform(platformBuilder.buildInput(firstPlatformVersionId), false, "should-fail");
+            platformClient.updateProperties(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformClient.updatePlatform(platformBuilder.buildInputWithPlatformVersionId(firstPlatformVersionId), false, "should-fail");
         });
 
         When("^I try to update the properties of this module twice with the same properties version_id$", () -> {
@@ -96,7 +96,7 @@ public class UpdateProperties extends HesperidesScenario implements En {
         });
 
         When("^I update the properties with wrong platform_version_id$", () -> {
-            platformClient.updateProperties(platformBuilder.buildInput(123L), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
+            platformClient.updateProperties(platformBuilder.buildInputWithPlatformVersionId(123L), deployedModuleBuilder.buildProperties(), deployedModuleBuilder.buildPropertiesPath());
             platformBuilder.updateDeployedModuleBuilder(deployedModuleBuilder);
             platformHistory.updatePlatformBuilder(platformBuilder);
         });

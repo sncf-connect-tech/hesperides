@@ -111,11 +111,15 @@ public class PlatformBuilder implements Serializable {
     }
 
     public PlatformIO buildInput() {
-        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), versionId);
+        return buildInputWithPlatformVersionId(versionId);
     }
 
-    public PlatformIO buildInput(Long platformVersionId) {
-        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), platformVersionId);
+    public PlatformIO buildInputWithPlatformVersionId(Long platformVersionId) {
+        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), platformVersionId, platformName);
+    }
+
+    public PlatformIO buildInputWithPlatformName(String platformName) {
+        return build(DeployedModuleBuilder.buildInputs(deployedModuleBuilders), versionId, platformName);
     }
 
     public PlatformIO buildOutput() {
@@ -126,10 +130,10 @@ public class PlatformBuilder implements Serializable {
         if (isProductionPlatform == null) {
             isProductionPlatform = false;
         }
-        return build(DeployedModuleBuilder.buildOutputs(withoutModules ? Collections.emptyList() : deployedModuleBuilders), versionId);
+        return build(DeployedModuleBuilder.buildOutputs(withoutModules ? Collections.emptyList() : deployedModuleBuilders), versionId, platformName);
     }
 
-    private PlatformIO build(List<DeployedModuleIO> deployedModules, Long platformVersionId) {
+    private PlatformIO build(List<DeployedModuleIO> deployedModules, Long platformVersionId, String platformName) {
         // On ne se préoccupe pas du flag hasPasswords dans le builder,
         // cela simplifie la glue. Le cas est géré par l'étape "the platform
         // has the password flag and the flag is set to (true|false)".

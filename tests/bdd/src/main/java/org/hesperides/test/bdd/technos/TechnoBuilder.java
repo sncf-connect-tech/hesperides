@@ -37,6 +37,10 @@ public class TechnoBuilder extends TemplateContainerBuilder {
     }
 
     public TechnoIO build() {
+        return buildWithName(name);
+    }
+
+    public TechnoIO buildWithName(String name) {
         return new TechnoIO(name, version, VersionType.toIsWorkingCopy(versionType));
     }
 

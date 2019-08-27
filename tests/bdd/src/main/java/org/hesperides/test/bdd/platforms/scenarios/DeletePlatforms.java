@@ -46,17 +46,15 @@ public class DeletePlatforms extends HesperidesScenario implements En {
     public DeletePlatforms() {
 
         When("^I( try to)? delete( and restore)? this platform( with the wrong letter case)?$", (
-                String tryTo, String restorePlatform, String wrongCase) -> {
+                String tryTo, String restorePlatform, String wrongLetterCase) -> {
             platformClient.deletePlatform(platformBuilder.buildInput(), tryTo);
             if (isEmpty(tryTo) && isEmpty(restorePlatform)) {
                 platformHistory.removePlatformBuilder(platformBuilder);
             }
             if (isNotEmpty(restorePlatform)) {
                 assertOK(); // On vérifie d'abord que la suppression s'est bien déroulée
-                if (isNotEmpty(wrongCase)) {
-                    platformBuilder.withPlatformName(platformBuilder.getPlatformName().toUpperCase());
-                }
-                platformClient.restorePlatform(platformBuilder.buildInput(), tryTo);
+                String platformName = isNotEmpty(wrongLetterCase) ? platformBuilder.getPlatformName().toUpperCase() : platformBuilder.getPlatformName();
+                platformClient.restorePlatform(platformBuilder.buildInputWithPlatformName(platformName), tryTo);
             }
         });
 

@@ -54,6 +54,10 @@ public class ModuleBuilder extends TemplateContainerBuilder {
     }
 
     public ModuleIO build() {
+        return buildWithName(name);
+    }
+
+    public ModuleIO buildWithName(String name) {
         List<TechnoIO> technos = technoBuilders.stream().map(TechnoBuilder::build).collect(Collectors.toList());
         return new ModuleIO(name, version, VersionType.toIsWorkingCopy(versionType), technos, versionId);
     }
