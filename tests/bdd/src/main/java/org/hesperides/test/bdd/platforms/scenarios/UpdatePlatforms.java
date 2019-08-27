@@ -70,6 +70,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             "(?:, upgrading its module name to \"([^\"]*)\")?" +
             "(, upgrading its module to the release version)?" +
             "(, adding this module(?: again)?(?: in logical group \"([^\"]*)\")?)?" +
+            "(, removing this module)?" +
             "(, adding an instance(?: (and|with) instance properties)?)?" +
             "(, clearing the modules)?" +
             "(, changing the platform version)?" +
@@ -82,6 +83,7 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
             String upgradeModuleToRelease,
             String addThisModule,
             String moduleLogicalGroup,
+            String removeThisModule,
             String addAnInstance,
             String addInstanceProperties,
             String clearModules,
@@ -112,6 +114,10 @@ public class UpdatePlatforms extends HesperidesScenario implements En {
                 deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
             }
             platformBuilder.withDeployedModuleBuilder(deployedModuleBuilder);
+        }
+
+        if (isNotEmpty(removeThisModule)) {
+            platformBuilder.clearDeployedModuleBuilders();
         }
 
         if (isNotEmpty(addAnInstance)) {

@@ -34,12 +34,12 @@ Feature: Obfuscate passwords on prod platforms to non-prod users
     When I get the module template file
     Then there are obfuscated password properties in the initial file
 
-  Scenario: restrict timestamp-based access to password properties on prod platforms
-    Given an existing module with a template and properties and password properties
-    And an existing prod platform with this module and valued properties
-    When as an authenticated lambda user
-    And I get the platform properties for this module at a specific time in the past
-    Then the password property values are obfuscated
+#  Scenario: restrict timestamp-based access to password properties on prod platforms
+#    Given an existing module with a template and properties and password properties
+#    And an existing prod platform with this module and valued properties
+#    When as an authenticated lambda user
+#    And I get the platform properties for this module at a specific time in the past
+#    Then the password property values are obfuscated
 
   @require-real-ad
   Scenario: do not restrict access to password properties for per-app prod users on prod platforms when requesting valuated properties
