@@ -1,4 +1,4 @@
-#Feature: Search platforms
+Feature: Search platforms
 
   Background:
     Given an authenticated user
