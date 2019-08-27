@@ -22,6 +22,7 @@ package org.hesperides.test.bdd.platforms.builders;
 
 import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
+import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.presentation.io.platforms.DeployedModuleIO;
 import org.hesperides.core.presentation.io.platforms.InstancesModelOutput;
 import org.hesperides.core.presentation.io.platforms.PlatformIO;
@@ -243,5 +244,9 @@ public class PlatformBuilder implements Serializable {
         return deployedModuleBuilders.stream().filter(deployedModuleBuilder ->
                 deployedModuleBuilder.matchModuleBuilder(moduleBuilder))
                 .findFirst();
+    }
+
+    public Platform.Key buildPlatformKey() {
+        return new Platform.Key(applicationName, platformName);
     }
 }
