@@ -1,4 +1,3 @@
-@done
 Feature: Update platforms
 
   Background:

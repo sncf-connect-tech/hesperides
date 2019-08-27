@@ -1,4 +1,3 @@
-@done
 Feature: Restore platforms
 
   Background:

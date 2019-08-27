@@ -1,4 +1,3 @@
-@done
 Feature: Get global properties usage
 
   Background:

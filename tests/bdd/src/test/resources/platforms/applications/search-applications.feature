@@ -1,4 +1,3 @@
-@done
 Feature: Search applications
 
   Background:

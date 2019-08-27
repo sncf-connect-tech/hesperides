@@ -1,4 +1,3 @@
-@done
 Feature: Save properties the old way
 
   Background:

@@ -1,4 +1,3 @@
-@done
 Feature: Delete platforms
 
   Background:

@@ -1,4 +1,3 @@
-@done
 Feature: Get platforms using module
 
   Background:

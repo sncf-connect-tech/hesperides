@@ -1,4 +1,3 @@
-@done
 Feature: Copy platforms
 
   Background:

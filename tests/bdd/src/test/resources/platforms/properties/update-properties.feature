@@ -1,4 +1,3 @@
-@done
 Feature: Update properties (new way)
 
   Background:
