@@ -17,7 +17,7 @@ public class TestConfig {
     }
 
     @Bean
-    public CustomRestTemplate buildRestTemplate(Environment environment, Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) {
+    public RestTemplate buildRestTemplate(Environment environment, Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) {
         return new CustomRestTemplate(gson, new LocalHostUriTemplateHandler(environment, "http", defaultUriBuilderFactory));
     }
 }
