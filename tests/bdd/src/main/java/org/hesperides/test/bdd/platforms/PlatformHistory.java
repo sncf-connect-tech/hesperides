@@ -21,70 +21,54 @@
 package org.hesperides.test.bdd.platforms;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.hesperides.core.domain.platforms.entities.Platform;
 import org.hesperides.core.presentation.io.platforms.ApplicationOutput;
 import org.hesperides.core.presentation.io.platforms.ModulePlatformsOutput;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 public class PlatformHistory {
 
-    private Map<Platform.Key, Map<Long, Optional<PlatformBuilder>>> platformBuilders; //platformTimestampBuilders + créer une classe interne : TimestampBuilder
+    private List<PlatformBuilder> platformBuilders;
 
     public PlatformHistory() {
         reset();
     }
 
     public PlatformHistory reset() {
-        platformBuilders = new HashMap<>();
+        platformBuilders = new ArrayList<>();
         return this;
     }
 
     public void addPlatformBuilder(PlatformBuilder platformBuilder) {
-        Platform.Key platformKey = platformBuilder.buildPlatformKey();
-        Map<Long, Optional<PlatformBuilder>> platformTimestamps = new HashMap<>();
-        PlatformBuilder currentPlatformBuilder = SerializationUtils.clone(platformBuilder);
-        platformTimestamps.put(System.currentTimeMillis(), Optional.of(currentPlatformBuilder));
-        platformBuilders.put(platformKey, platformTimestamps);
+        platformBuilders.add(SerializationUtils.clone(platformBuilder));
     }
 
     public void removePlatformBuilder(PlatformBuilder platformBuilderToRemove) {
-        Platform.Key platformKey = platformBuilderToRemove.buildPlatformKey();
-        platformBuilders.get(platformKey).put(System.currentTimeMillis(), Optional.empty());
+        platformBuilders = platformBuilders.stream()
+                .filter(existingPlatformBuilder -> !existingPlatformBuilder.equalsByKey(platformBuilderToRemove))
+                .collect(Collectors.toList());
     }
 
     public void updatePlatformBuilder(PlatformBuilder platformBuilder) {
         platformBuilder.incrementVersionId();
         platformBuilder.setDeployedModuleIds();
         PlatformBuilder updatedPlatformBuilder = SerializationUtils.clone(platformBuilder);
-
-        Platform.Key platformKey = platformBuilder.buildPlatformKey();
-        Map<Long, Optional<PlatformBuilder>> platformTimestamps = platformBuilders.get(platformKey);
-        platformTimestamps.put(System.currentTimeMillis(), Optional.of(updatedPlatformBuilder));
-        platformBuilders.put(platformKey, platformTimestamps);
-    }
-
-    private Optional<PlatformBuilder> getLastOf(Map<Long, Optional<PlatformBuilder>> timestampPlatformMap) { //timestampBuilders/timestampBuilderMap
-        return timestampPlatformMap
-                .entrySet()
-                .stream()
-                .max(Map.Entry.comparingByKey())
-                .flatMap(Map.Entry::getValue);
+        platformBuilders = platformBuilders.stream()
+                .map(existingPlatformBuilder -> existingPlatformBuilder.equalsByKey(updatedPlatformBuilder)
+                        ? updatedPlatformBuilder : existingPlatformBuilder)
+                .collect(Collectors.toList());
     }
 
     public List<ModulePlatformsOutput> buildModulePlatforms(DeployedModuleBuilder moduleToLookFor) {
-        return platformBuilders.values().stream()
-                .map(this::getLastOf)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        return platformBuilders.stream()
                 .filter(platformBuilder -> platformBuilder.getDeployedModuleBuilders()
                         .stream()
                         .anyMatch(deployedModuleBuilder -> deployedModuleBuilder.equalsByKey(moduleToLookFor)))
@@ -93,12 +77,7 @@ public class PlatformHistory {
     }
 
     public PlatformBuilder getPlatformByName(String platformName) {
-        List<PlatformBuilder> matchingPlatforms = platformBuilders.entrySet().stream()
-                .filter(entry -> entry.getKey().getPlatformName().equals(platformName))
-                .map(Map.Entry::getValue)
-                .map(this::getLastOf)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        List<PlatformBuilder> matchingPlatforms = platformBuilders.stream()
                 .filter(platformBuilder -> platformBuilder.getPlatformName().equals(platformName))
                 .collect(Collectors.toList());
         if (matchingPlatforms.size() != 1) {
@@ -111,7 +90,7 @@ public class PlatformHistory {
         return buildApplicationOutput(platformBuilders.get(0).getApplicationName(), platformBuilders, withoutModules);
     }
 
-    private static ApplicationOutput buildApplicationOutput(String applicationName, List<PlatformBuilder> platformBuilders, boolean withoutModules) {
+    private ApplicationOutput buildApplicationOutput(String applicationName, List<PlatformBuilder> platformBuilders, boolean withoutModules) {
         return new ApplicationOutput(applicationName,
                 platformBuilders.stream()
                         .filter(platformBuilder -> platformBuilder.getApplicationName().equals(applicationName))
