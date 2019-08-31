@@ -6,7 +6,6 @@ import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Configuration
@@ -17,7 +16,7 @@ public class TestConfig {
     }
 
     @Bean
-    public RestTemplate buildRestTemplate(Environment environment, Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) {
+    public CustomRestTemplate buildRestTemplate(Environment environment, Gson gson, DefaultUriBuilderFactory defaultUriBuilderFactory) {
         return new CustomRestTemplate(gson, new LocalHostUriTemplateHandler(environment, "http", defaultUriBuilderFactory));
     }
 }

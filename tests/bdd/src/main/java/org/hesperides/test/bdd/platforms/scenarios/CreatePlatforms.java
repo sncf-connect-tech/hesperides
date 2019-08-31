@@ -125,11 +125,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
                 if (isNotEmpty(moduleLogicalGroup)) {
                     deployedModuleBuilder.withModulePath("#" + moduleLogicalGroup);
                 }
+                //TODO descendre les 3 prochains cas après la création et gérer le properties_version_id
                 if (isNotEmpty(withValuedProperties)) {
                     moduleBuilder.buildPropertiesModel().getProperties().forEach(property ->
                             deployedModuleBuilder.withValuedProperty(property.getName(), property.getName() + "-value"));
-//                    deployedModuleBuilder.withValuedProperty("module-foo", "module-foo-value");
-//                    deployedModuleBuilder.withValuedProperty("techno-foo", "techno-foo-value");
                 }
                 if (isNotEmpty(withIterableProperties)) {
                     deployedModuleBuilder.withIterableProperty(new IterableValuedPropertyIO("iterable-property",
@@ -258,6 +257,10 @@ public class CreatePlatforms extends HesperidesScenario implements En {
     }
 
     void assertPlatform() {
+        assertPlatform(platformBuilder);
+    }
+
+    void assertPlatform(PlatformBuilder platformBuilder) {
         assertOK();
         PlatformIO expectedPlatform = platformBuilder.buildOutput();
         PlatformIO actualPlatform = testContext.getResponseBody();

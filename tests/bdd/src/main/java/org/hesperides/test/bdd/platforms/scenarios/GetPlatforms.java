@@ -58,21 +58,36 @@ public class GetPlatforms extends HesperidesScenario implements En {
     public GetPlatforms() {
 
         When("^I( try to)? get the platform(?: \"([^\"]*)\")? detail" +
+                "( at a specific time in the past)?" +
+                "( at the time of the EPOCH)?" +
                 "( with the wrong letter case)?" +
                 "( requesting the password flag)?$", (
                 String tryTo,
                 String platformName,
+                String withTimestamp,
+                String withEpochTimestamp,
                 String wrongLetterCase,
                 String withPasswordFlag) -> {
 
             if (isNotEmpty(platformName)) {
                 platformBuilder.withPlatformName(platformName);
             }
+
+            Long timestamp = null;
+            if (isNotEmpty(withTimestamp)) {
+                timestamp = platformHistory.getPlatformFirstTimestamp(platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+            } else if (isNotEmpty(withEpochTimestamp)) {
+                timestamp = 0L;
+            }
+
             platformName = isNotEmpty(wrongLetterCase) ? platformBuilder.getPlatformName().toUpperCase() : platformBuilder.getPlatformName();
-            platformClient.getPlatform(platformBuilder.buildInputWithPlatformName(platformName), null, isNotEmpty(withPasswordFlag), tryTo);
+            platformClient.getPlatform(platformBuilder.buildInputWithPlatformName(platformName), timestamp, isNotEmpty(withPasswordFlag), tryTo);
         });
 
-        Then("^the platform detail is successfully retrieved", () -> createPlatforms.assertPlatform());
+        Then("^the( initial)? platform detail is successfully retrieved", (String initialPlatform) -> {
+            createPlatforms.assertPlatform(isNotEmpty(initialPlatform) ? platformHistory.getFirstPlatformBuilder(
+                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName()) : platformBuilder);
+        });
 
         Then("^the platform has the password flag and the flag is set to (true|false)?$", (String trueOrFalse) -> {
             PlatformIO platform = testContext.getResponseBody();

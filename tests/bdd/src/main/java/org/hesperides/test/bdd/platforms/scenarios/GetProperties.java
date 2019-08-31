@@ -27,6 +27,7 @@ import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleHistory;
 import org.hesperides.test.bdd.platforms.PlatformClient;
+import org.hesperides.test.bdd.platforms.PlatformHistory;
 import org.hesperides.test.bdd.platforms.builders.DeployedModuleBuilder;
 import org.hesperides.test.bdd.platforms.builders.PlatformBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -45,6 +47,8 @@ public class GetProperties extends HesperidesScenario implements En {
     @Autowired
     private PlatformBuilder platformBuilder;
     @Autowired
+    private PlatformHistory platformHistory;
+    @Autowired
     private DeployedModuleBuilder deployedModuleBuilder;
     @Autowired
     private ModuleHistory moduleHistory;
@@ -53,24 +57,38 @@ public class GetProperties extends HesperidesScenario implements En {
 
     public GetProperties() {
 
-        When("^I( try to)? get the platform properties for this module( with an invalid version type)?$", (
-                String tryTo, String invalidVersionType) -> {
+        When("^I( try to)? get the platform properties for this module" +
+                "( with an invalid version type)?" +
+                "( at a specific time in the past)?$", (
+                String tryTo,
+                String invalidVersionType,
+                String withTimestamp) -> {
 
             if (isNotEmpty(invalidVersionType)) {
                 deployedModuleBuilder.withVersionType("TOTO");
             }
 
-            platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), null, tryTo);
+            Long timestamp = isEmpty(withTimestamp) ? null : platformHistory.getPlatformFirstTimestamp(
+                    platformBuilder.getApplicationName(), platformBuilder.getPlatformName());
+
+            platformClient.getProperties(platformBuilder.buildInput(), deployedModuleBuilder.buildPropertiesPath(), timestamp, tryTo);
         });
 
         When("^I get the global properties of this platform$", () -> {
             platformClient.getGlobalProperties(platformBuilder.buildInput());
         });
 
-        When("^the platform( global)? properties are successfully retrieved$", (String globalProperties) -> {
+        When("^the( initial)? platform( global)? properties are successfully retrieved$", (
+                String initialProperties, String globalProperties) -> {
+
             assertOK();
+
+            DeployedModuleBuilder deployedModuleBuilder = isEmpty(initialProperties) ? this.deployedModuleBuilder :
+                    platformHistory.getFirstPlatformBuilder(platformBuilder.getApplicationName(), platformBuilder.getPlatformName()).getDeployedModuleBuilders().get(0);
+
             PropertiesIO expectedModuleProperties = isNotEmpty(globalProperties)
                     ? platformBuilder.buildProperties() : deployedModuleBuilder.buildProperties();
+
             PropertiesIO actualModuleProperties = testContext.getResponseBody();
             assertEquals(expectedModuleProperties, actualModuleProperties);
         });

@@ -103,7 +103,7 @@ public class GetApplications extends HesperidesScenario implements En {
 
         Then("^the application is successfully retrieved( without the platform modules)?", (String withoutPlatformModules) -> {
             assertOK();
-            ApplicationOutput expectedApplication = platformHistory.buildApplicationOutput(isNotEmpty(withoutPlatformModules));
+            ApplicationOutput expectedApplication = platformHistory.buildApplicationOutput(platformBuilder.getApplicationName(), isNotEmpty(withoutPlatformModules));
             ApplicationOutput actualApplication = testContext.getResponseBody();
             assertEquals(expectedApplication, actualApplication);
         });
