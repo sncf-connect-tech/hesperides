@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 public abstract class TemplateContainerBuilder implements Serializable {
 
+    //TODO mettre à jour les proprétés en même temps que les templates ?
+
     @Getter
     protected String name;
     @Getter

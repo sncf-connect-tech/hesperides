@@ -27,7 +27,7 @@ Feature: Get techno model
     Given an existing techno with properties
     And I delete this techno template
     When I get the model of this techno
-    Then the model of this techno doesn't contain the properties
+    Then the techno model is empty
 
   Scenario: get the model of a techno with an updated template
     Given an existing techno with properties

@@ -28,7 +28,7 @@ Feature: Get module model
     Given an existing module with properties
     And I delete this module template
     When I get the model of this module
-    Then the model of this module doesn't contain the properties
+    Then the module model is empty
 
   Scenario: get the model of a module with an updated template
     Given an existing module with properties

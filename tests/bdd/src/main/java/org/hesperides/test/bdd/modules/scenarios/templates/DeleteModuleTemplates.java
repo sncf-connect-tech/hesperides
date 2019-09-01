@@ -21,13 +21,13 @@
 package org.hesperides.test.bdd.modules.scenarios.templates;
 
 import cucumber.api.java8.En;
-import org.apache.commons.lang3.StringUtils;
 import org.hesperides.test.bdd.commons.HesperidesScenario;
 import org.hesperides.test.bdd.modules.ModuleBuilder;
 import org.hesperides.test.bdd.modules.ModuleClient;
 import org.hesperides.test.bdd.templatecontainers.builders.TemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class DeleteModuleTemplates extends HesperidesScenario implements En {
@@ -47,7 +47,7 @@ public class DeleteModuleTemplates extends HesperidesScenario implements En {
             String templateName = templateBuilder.getName();
             moduleClient.deleteTemplate(templateName, moduleBuilder.build(), tryTo, isNotEmpty(urlEncodeTemplateName));
 
-            if (StringUtils.isEmpty(tryTo)) {
+            if (isEmpty(tryTo)) {
                 moduleBuilder.removeTemplateBuilder(templateName);
             }
         });
